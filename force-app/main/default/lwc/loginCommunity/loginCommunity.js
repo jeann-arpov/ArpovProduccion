@@ -6,7 +6,7 @@ import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLog
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import sitePath from '@salesforce/community/basePath';
 import { NavigationMixin } from 'lightning/navigation';
-import {reduceErrors, validateInputs} from 'c/utils';
+import {reduceErrors, validateInputs, normalizeCuit, formatCuit} from 'c/utils';
 
 //https://github.com/sohalloran/community-passwordless
 //https://resources.docs.salesforce.com/216/latest/en-us/sfdc/pdf/salesforce_external_identity_implementation_guide.pdf
@@ -18,21 +18,9 @@ export default class LoginCommunity extends NavigationMixin(LightningElement) {
     identifier = '';
     cuit = '';
     variant = '';
-    _message = '';
-    showMessage = false;
+    message = '';
     userId = '';
     password = '';
-
-    setMessage(value) {
-        this._message = value;
-        this.showMessage = !!value;
-        setTimeout(() => {
-            const messageContainer = this.template.querySelector('[data-message-container]');
-            if (messageContainer && this._message) {
-                messageContainer.innerHTML = this._message;
-            }
-        }, 0);
-    }
 
     isLoging = false;
     isConfirming = false;
@@ -57,7 +45,7 @@ export default class LoginCommunity extends NavigationMixin(LightningElement) {
         } else if (label === 'Código') {
             this.code = value;
         } else if (label == 'CUIT') {
-            this.cuit = value;
+            this.cuit = normalizeCuit(value);
         } else if (label == 'Contraseña'){
             this.password = value;
         }
@@ -100,8 +88,7 @@ export default class LoginCommunity extends NavigationMixin(LightningElement) {
     showToast(variant, message) {
         console.log(variant, message)
         this.variant = variant;
-        const errors = reduceErrors(message);
-        this.setMessage(Array.isArray(errors) ? errors.join('<br>') : errors);
+        this.message = reduceErrors(message);
     }
 
     register() {
@@ -132,6 +119,21 @@ export default class LoginCommunity extends NavigationMixin(LightningElement) {
 
     get showSpinner() {
         return this.isLoging || this.isConfirming;
+    }
+
+    handleCuitBlur(event) {
+        const normalized = normalizeCuit(event.target.value);
+        this.cuit = normalized;
+    }
+
+    get cuitFormatted() {
+        return formatCuit(this.cuit);
+    }
+
+    handleCuitKeydown(event) {
+        if (event.key.length === 1 && !/^[0-9\-]$/.test(event.key)) {
+            event.preventDefault();
+        }
     }
 
     checkEnterKey(event) {

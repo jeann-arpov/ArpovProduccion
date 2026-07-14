@@ -328,7 +328,17 @@ public without sharing class CrearVentaController {
     
     @AuraEnabled(Cacheable=true)
     public static List<LookupSearchResult> searchProductores(String searchTerm, List<String> selectedIds) {
-        return accountsToLookup([select RecordType.DeveloperName, Name, N_CUIT__c, Owner.Name, Operador_de_Cobranza__r.Name, Provincia_Envio__c, Phone from account where (name like: '%'+searchTerm+'%' or N_CUIT__c like: '%'+searchTerm+'%') and recordType.DeveloperName in ('Productor', 'Comercio', 'Distribuidor') and ParentId = null limit 5]);
+        String safeTerm = String.escapeSingleQuotes(searchTerm);
+        String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(searchTerm);
+        String cuitCondition = String.isNotBlank(normalizedCuitTerm)
+            ? ' or N_CUIT__c like \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\''
+            : '';
+        return accountsToLookup(Database.query(
+            'select RecordType.DeveloperName, Name, N_CUIT__c, Owner.Name, Operador_de_Cobranza__r.Name, Provincia_Envio__c, Phone ' +
+            'from account where (name like \'%' + safeTerm + '%\'' + cuitCondition + ') ' +
+            'and recordType.DeveloperName in (\'Productor\', \'Comercio\', \'Distribuidor\') ' +
+            'and ParentId = null limit 5'
+        ));
     }
 
     public static List<LookupSearchResult> accountsToLookup(List<Account> accs) {

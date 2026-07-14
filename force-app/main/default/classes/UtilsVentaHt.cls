@@ -148,7 +148,7 @@ public without sharing class UtilsVentaHt {
         }
     }
 
-    private static String normalizeCuit(String value) {
+    public static String normalizeCuit(String value) {
         if (String.isBlank(value)) {
             return null;
         }

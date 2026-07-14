@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import getBolsasObtentorCampaniaActiva from '@salesforce/apex/UserControllerComunidad.getBolsasObtentorCampaniaActivaList';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import { normalizeCuit } from 'c/utils';
 
 export default class BolsasObtentorList extends LightningElement {
     iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
@@ -49,9 +50,11 @@ export default class BolsasObtentorList extends LightningElement {
 
     // ======== HANDLERS ========
     handleSearchChange(event) {
-        this.searchKey = event.target.value.toLowerCase();
+        const rawValue = event.target.value.toLowerCase();
+        this.searchKey = rawValue;
+        const searchKeyNorm = normalizeCuit(rawValue);
         this.filteredVentas = this.ventas.filter(v =>
-            (v.cuit && v.cuit.toLowerCase().includes(this.searchKey)) ||
+            (searchKeyNorm && v.cuit && v.cuit.toLowerCase().includes(searchKeyNorm)) ||
             (v.razonSocial && v.razonSocial.toLowerCase().includes(this.searchKey))
         );
         this.currentPage = 1;

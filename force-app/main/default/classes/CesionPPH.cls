@@ -195,7 +195,17 @@ public without sharing class CesionPPH {
 
     @AuraEnabled(Cacheable=true)
     public static List<LookupSearchResult> searchDestinatarios(String searchTerm) {
-        return CrearVentaController.accountsToLookup([select RecordType.DeveloperName, Name, N_CUIT__c, Owner.Name, Operador_de_Cobranza__r.Name, Provincia_Envio__c, Phone, ERPvs__Denominacion_Y_Razon_Social__c from account where (name like: '%'+searchTerm+'%' or N_CUIT__c like: '%'+searchTerm+'%') and recordType.DeveloperName in ('Productor', 'Comercio', 'Distribuidor') and parentId = null limit 5]);
+        String safeTerm = String.escapeSingleQuotes(searchTerm);
+        String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(searchTerm);
+        String cuitCondition = String.isNotBlank(normalizedCuitTerm)
+            ? ' or N_CUIT__c like \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\''
+            : '';
+        return CrearVentaController.accountsToLookup(Database.query(
+            'select RecordType.DeveloperName, Name, N_CUIT__c, Owner.Name, Operador_de_Cobranza__r.Name, Provincia_Envio__c, Phone, ERPvs__Denominacion_Y_Razon_Social__c ' +
+            'from account where (name like \'%' + safeTerm + '%\'' + cuitCondition + ') ' +
+            'and recordType.DeveloperName in (\'Productor\', \'Comercio\', \'Distribuidor\') ' +
+            'and parentId = null limit 5'
+        ));
     }
 
     private static Set<Id> checkForDuplicateDestinatario(List<Destinatario> destinatarios) {
