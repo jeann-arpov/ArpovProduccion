@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Producto_Activo_AUD</fullName>
+    <active>true</active>
+    <description>Valida que el producto seleccionado para una Auditoría se encuentre activo</description>
+    <errorConditionFormula>Producto__r.IsActive = False</errorConditionFormula>
+    <errorMessage>No puede seleccionar un producto que se encuentra inactivo para una Auditoría.</errorMessage>
+</ValidationRule>

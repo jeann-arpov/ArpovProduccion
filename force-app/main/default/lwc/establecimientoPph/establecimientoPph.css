@@ -1,0 +1,65 @@
+.heading {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.heading.green {
+    background-color: var(--pph-green);
+}
+
+.heading.grey {
+    background-color: var(--pph-gray);
+}
+
+.info.collapsed {
+    display:none;
+}
+
+.fullWidth {
+    width: 100%;
+}
+
+.establecimiento {
+    border-radius: var(--lwc-borderRadiusLarge);
+    box-shadow: 1px 1px 2px 2px rgba(211, 211, 211, 0.25);
+    border-color: rgba(211, 211, 211, 0.25);
+}
+
+.title {
+    font-size:18px;
+    background-color: black;
+    color:white;
+    --lwc-colorTextIconDefault: white;
+    border-top-left-radius: var(--lwc-borderRadiusLarge);
+    border-top-right-radius: var(--lwc-borderRadiusLarge);
+}
+
+.info.disabled {
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.5;
+}
+
+.coordinates.black {
+    --slds-c-input-color-background: black;
+    --slds-c-input-text-color: white;
+    --lwc-colorTextIconDefault: white;
+    --lwc-colorTextInputIcon: white;
+}
+
+.comprar-ht {
+    --slds-c-button-neutral-color-background: black;
+    --slds-c-button-neutral-color-background-hover:black;
+    --slds-c-button-text-color: var(--pph-green);
+    --slds-c-button-radius-border: 50px;
+}
+
+c-variedad-pph {
+    border-bottom: 1px solid gray;
+    display: block;
+}
+
+.variedades-titles {
+    border-bottom: 3px solid var(--pph-gray);
+    border-top: 3px solid var(--pph-gray);
+}

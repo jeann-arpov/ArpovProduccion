@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Exclusividad_por_Obtentor__c</fullName>
+    <label>Exclusividad por Obtentor</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Exclusivo DM</fullName>
+                <default>false</default>
+                <label>Exclusivo DM</label>
+            </value>
+            <value>
+                <fullName>Exclusivo Nidera</fullName>
+                <default>false</default>
+                <label>Exclusivo Nidera</label>
+            </value>
+            <value>
+                <fullName>Exclusivo Surs</fullName>
+                <default>false</default>
+                <label>Exclusivo Surs</label>
+            </value>
+            <value>
+                <fullName>Exclusivo Syng</fullName>
+                <default>false</default>
+                <label>Exclusivo Syng</label>
+            </value>
+            <value>
+                <fullName>Exclusivo &quot;X5&quot;</fullName>
+                <default>false</default>
+                <label>Exclusivo &quot;X5&quot;</label>
+            </value>
+            <value>
+                <fullName>Exclusivo &quot;X6&quot;</fullName>
+                <default>false</default>
+                <label>Exclusivo &quot;X6&quot;</label>
+            </value>
+            <value>
+                <fullName>Exclusivo &quot;X7&quot;</fullName>
+                <default>false</default>
+                <label>Exclusivo &quot;X7&quot;</label>
+            </value>
+            <value>
+                <fullName>Exclusivo &quot;X8&quot;</fullName>
+                <default>false</default>
+                <label>Exclusivo &quot;X8&quot;</label>
+            </value>
+            <value>
+                <fullName>Exclusivo &quot;X9&quot;</fullName>
+                <default>false</default>
+                <label>Exclusivo &quot;X9&quot;</label>
+            </value>
+            <value>
+                <fullName>Exclusivo &quot;Xn&quot;</fullName>
+                <default>false</default>
+                <label>Exclusivo &quot;Xn&quot;</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

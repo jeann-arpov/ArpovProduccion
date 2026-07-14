@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Localidades_para_QA_AF</fullName>
+    <columns>CP__c</columns>
+    <columns>NAME</columns>
+    <columns>Partido__c</columns>
+    <columns>Provincia__c</columns>
+    <columns>Zona_Bolsa_Cereales__c</columns>
+    <columns>Auditor__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Zona_Bolsa_Cereales__c</field>
+        <operation>contains</operation>
+        <value>OTRAS</value>
+    </filters>
+    <filters>
+        <field>Provincia__c</field>
+        <operation>contains</operation>
+        <value>SANTIAGO</value>
+    </filters>
+    <filters>
+        <field>Partido__c</field>
+        <operation>contains</operation>
+        <value>CHOYA</value>
+    </filters>
+    <label>Localidades para QA (AF)</label>
+</ListView>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Promesa__c</fullName>
+    <description>Tipo de Promesa Recibida</description>
+    <externalId>false</externalId>
+    <formula>IF( INCLUDES( Comentario_Codificado__c , &quot;7 - Promesa de Pago&quot; ), &quot;Promesa de Pago&quot;,
+IF( INCLUDES( Comentario_Codificado__c , &quot;6 - Promesa de Respuesta&quot; ), &quot;Promesa de Respuesta&quot;,
+&quot;Sin Promesa&quot; ) )</formula>
+    <label>Promesa</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

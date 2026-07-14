@@ -1,0 +1,76 @@
+<template>
+  <!-- Estado de Cuenta -->
+  <div class="card">
+    <h2 class="section-title">Estado de Cuenta</h2>
+    <div class="balance-row">
+      <div class="balance-label">Saldo Inicial MN</div>
+      <div class="balance-value">
+        <lightning-formatted-number format-style="currency" value={saldoInicial}></lightning-formatted-number>
+      </div>
+    </div>
+    <div class="balance-row">
+      <div class="balance-label">Saldo Inicial MO</div>
+      <div class="balance-value">
+        <lightning-formatted-number format-style="currency" value={saldoInicialMO}></lightning-formatted-number>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalle de comprobantes -->
+  <div class="card">
+    <h2 class="section-title">Detalle de comprobantes</h2>
+    <div class="date-inputs">
+      <lightning-input type="date" label="Fecha Desde" onchange={changeFechaDesde} value={fechaDesde}></lightning-input>
+      <lightning-input type="date" label="Fecha Hasta" onchange={changeFechaHasta} value={fechaHasta}></lightning-input>
+    </div>
+
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Fecha Emisión</th>
+          <th>Moneda</th>
+          <th>Nro. de Comprobante</th>
+          <th>Fecha Vencimiento</th>
+          <th>Debe MO</th>
+          <th>Haber MO</th>
+          <th>Debe MN</th>
+          <th>Haber MN</th>
+          <th>PDF</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template for:each={asientos} for:item="asiento">
+          <tr key={asiento.id}>
+            <td><lightning-formatted-date-time value={asiento.fecha}></lightning-formatted-date-time></td>
+            <td><lightning-formatted-text value={asiento.moneda}></lightning-formatted-text></td>
+            <td><lightning-formatted-text value={asiento.comprobante}></lightning-formatted-text></td>
+            <td><lightning-formatted-date-time value={asiento.fechaVencimiento}></lightning-formatted-date-time></td>
+            <td><lightning-formatted-number format-style="currency" value={asiento.debeMO}></lightning-formatted-number></td>
+            <td><lightning-formatted-number format-style="currency" value={asiento.haberMO}></lightning-formatted-number></td>
+            <td><lightning-formatted-number format-style="currency" value={asiento.debe}></lightning-formatted-number></td>
+            <td><lightning-formatted-number format-style="currency" value={asiento.haber}></lightning-formatted-number></td>
+            <td>
+              <lightning-button-icon if:true={asiento.file} onclick={showPdf} data-id={asiento.id} icon-name="utility:file" alternative-text="Factura Electronica" title="Factura Electronica" class="pdf-icon"></lightning-button-icon>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Saldo Final -->
+  <div class="card">
+    <div class="balance-row">
+      <div class="balance-label">Saldo Final MN</div>
+      <div class="balance-value">
+        <lightning-formatted-number format-style="currency" value={saldoFinal}></lightning-formatted-number>
+      </div>
+    </div>
+    <div class="balance-row">
+      <div class="balance-label">Saldo Final MO</div>
+      <div class="balance-value">
+        <lightning-formatted-number format-style="currency" value={saldoFinalMO}></lightning-formatted-number>
+      </div>
+    </div>
+  </div>
+</template>

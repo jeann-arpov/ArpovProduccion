@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cesiones_A_Validar</fullName>
+    <columns>NAME</columns>
+    <columns>Cuenta_Cedente__c</columns>
+    <columns>Estado__c</columns>
+    <columns>Variedades__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>destinatarios_a_contactar__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Tipo_de_Cesion__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Pendiente de Validación,Parcialmente Validada</value>
+    </filters>
+    <label>Cesiones A Validar</label>
+</ListView>

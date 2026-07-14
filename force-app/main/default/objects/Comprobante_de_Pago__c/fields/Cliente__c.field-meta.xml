@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cliente__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Nro. de CUIT del originante del pago</description>
+    <inlineHelpText>Ingrese el CUIT originante del pago.</inlineHelpText>
+    <label>Cliente</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Comprobantes de Pago</relationshipLabel>
+    <relationshipName>Comprobantes_de_Pago</relationshipName>
+    <required>true</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

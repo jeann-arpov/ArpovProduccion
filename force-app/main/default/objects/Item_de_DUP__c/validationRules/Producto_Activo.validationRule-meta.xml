@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Producto_Activo</fullName>
+    <active>true</active>
+    <description>Verifica que todo producto de un ítem esté activo y tenga precio.</description>
+    <errorConditionFormula>AND( 
+OR( 
+ISBLANK( Producto__c ), 
+NOT( 
+ISPICKVAL( Producto__r.Family, &quot;Regalía Extendida&quot; ) 
+), ISBLANK( Producto__r.Precio__c ) 
+), 
+No_Facturar__c = false, $User.Usuario_de_Integracion__c = false
+)</errorConditionFormula>
+    <errorMessage>Debe ingresar un producto del tipo Regalía Extendida y que tenga precio. Si es un producto de Uso Público o Sin Regalía Extendida debe estar marcado el indicador de &quot;No Facturar&quot;</errorMessage>
+</ValidationRule>

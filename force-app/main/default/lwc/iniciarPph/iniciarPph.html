@@ -1,0 +1,47 @@
+<template>
+    <template if:false={loaded}>
+        <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>  
+
+    <div if:true={loaded}>
+        <div if:true={hasHTs} class="slds-p-around_xx-large" style="font-size: 16px">
+            <p style="font-size: 24px" class="slds-m-bottom_x-large" >
+                <svg style="margin-left:calc(var(--lwc-spacingSmall,0.75rem) * -2);" class="slds-m-right_small" width="14.763" height="17.954" >;
+                    <use xlink:href={icons.file}></use>
+                </svg>
+                <b>PPH</b>
+            </p>
+            <lightning-layout>
+                <lightning-layout-item size="3">
+                    <p class="slds-m-bottom_x-large" style="font-size: 24px">Adhesión al Programa de Precertificación de Hectáreas</p>
+                    <p class="slds-m-bottom_large">Es un programa de beneficios para el productor que solicite la adhesión al modelo y cumpla con los requisitos.</p>
+                    <p class="slds-m-bottom_large"><b>Es condición indispensable indicar la capacidad productiva TOTAL por CUIT.</b></p>
+                </lightning-layout-item>
+                <lightning-layout-item size="2"></lightning-layout-item>
+                <lightning-layout-item size="4">
+                    <p><b>Beneficios</b></p>
+                    <p>La posibilidad de entregar toda la producción, sin necesidad de segregar tecnologías en la cosecha. Posibilidad de entregar el total de la producción, sin pagos adicionales.</p>
+                    <p class="slds-m-bottom_x-large" style="font-size: 12px">(*)Se tomará como referencia los rindes promedios zonales informados por la Bolsa de Cereales de Buenos Aires.</p>
+                    <p><b>Adhesión a PPH</b></p>
+                    <p class="slds-m-bottom_x-large">La adhesión a PPH es <b>gratuita</b> y voluntaria y se realiza mediante aceptación de los Términos y Condiciones al momento de realizar la declaración del plan de siembra</p>
+                    <lightning-button class="iniciar" variant="brand" label="Continuar" onclick={redirectAdhesion}></lightning-button>
+                    <svg class="slds-m-left_small" width="19.1919" height="23.3402" viewBox="0 0 448 512">;
+                        <use xlink:href={icons.arrow}></use>
+                    </svg>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+        <div if:false={hasHTs}>
+            <lightning-layout style="height:50vh;" vertical-align="center" horizontal-align="center">
+                <lightning-layout-item size="6" class="slds-text-align_center actions">
+                    <div class="slds-m-bottom_large">
+                        <b style="font-size: 25px">Todavía no tenés HTs para precertificar, presioná en el siguiente botón para adquirirlas y poder adherirte</b>
+                    </div>
+                    <lightning-button label="Ir a comprar HT" onclick={redirectComprar}></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </div>
+</template>

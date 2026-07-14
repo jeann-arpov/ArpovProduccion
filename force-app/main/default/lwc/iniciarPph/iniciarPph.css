@@ -1,0 +1,21 @@
+:host {
+    --slds-c-button-radius-border: 50px;
+    --pph-green: #C5FE00;
+}
+
+lightning-button {
+    --slds-c-button-text-color: var(--pph-green);
+    --slds-c-button-color-background: #201C1C;
+    font-weight: 700;
+}
+
+.actions lightning-button {
+    --slds-c-button-neutral-color-background: black;
+    --slds-c-button-neutral-color-background-hover:black;
+    --slds-c-button-radius-border: 50px;
+}
+
+.iniciar {
+    --slds-c-button-spacing-block-start: 0.5rem;
+    --slds-c-button-spacing-block-end: 0.5rem;
+}

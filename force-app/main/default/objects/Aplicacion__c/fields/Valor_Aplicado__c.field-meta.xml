@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valor_Aplicado__c</fullName>
+    <description>La referencia al registro del objeto valor utilizado en esta Aplicación</description>
+    <inlineHelpText>Seleccione el Valor a aplicar</inlineHelpText>
+    <label>Valor Aplicado</label>
+    <lookupFilter>
+        <active>true</active>
+        <booleanFilter>6 OR 3 OR 4 OR 5 OR (1 AND 2)</booleanFilter>
+        <filterItems>
+            <field>Valor__c.Comprobante_de_Pago__r.Id</field>
+            <operation>equals</operation>
+            <valueField>$Source.Comprobante_de_Pago__c</valueField>
+        </filterItems>
+        <filterItems>
+            <field>Valor__c.Saldo__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </filterItems>
+        <filterItems>
+            <field>$User.Procesa_Cobranza__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <filterItems>
+            <field>$User.Usuario_de_Integracion__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <filterItems>
+            <field>$Source.Importe__c</field>
+            <operation>lessThan</operation>
+            <value>0</value>
+        </filterItems>
+        <filterItems>
+            <field>$User.Nombre_Completo__c</field>
+            <operation>equals</operation>
+            <value>Automated Process</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Valor__c</referenceTo>
+    <relationshipLabel>Aplicaciones</relationshipLabel>
+    <relationshipName>Aplicaciones</relationshipName>
+    <relationshipOrder>1</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

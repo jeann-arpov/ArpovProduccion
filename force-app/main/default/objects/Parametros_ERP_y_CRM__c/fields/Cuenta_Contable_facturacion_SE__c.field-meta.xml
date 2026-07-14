@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_Contable_facturacion_SE__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Cuenta Contable facturación SE</label>
+    <referenceTo>ERPvs__Cuenta_Contable__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Cuenta Contable facturación SE)</relationshipLabel>
+    <relationshipName>Parametros_ERP_y_CRM_21</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

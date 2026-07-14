@@ -1,0 +1,44 @@
+.footer {
+    background-color: #000000;
+    color: white;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+}
+
+.contact-button {
+    background-color: #b7f302;
+    color: black;
+    border: none;
+    padding: 2px 24px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.contact-button:hover {
+    background-color: #b7f302;
+}
+
+.icon-svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  vertical-align: middle;
+}

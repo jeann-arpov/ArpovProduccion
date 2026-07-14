@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MOV_Remesa__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>MOV_Remesa</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>ERPvs__Movimiento_Fondo__c.ERPvs__Tipo_Comprobante_Movimiento_Fondo__r.Name</field>
+            <operation>equals</operation>
+            <value>Pago a Socios CYO</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>ERPvs__Movimiento_Fondo__c</referenceTo>
+    <relationshipLabel>Aplicaciones</relationshipLabel>
+    <relationshipName>Aplicaciones</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

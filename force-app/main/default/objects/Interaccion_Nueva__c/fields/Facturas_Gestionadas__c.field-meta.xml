@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Facturas_Gestionadas__c</fullName>
+    <label># Facturas Gestionadas</label>
+    <summaryFilterItems>
+        <field>Documento_Gestionado__c.RecordTypeId</field>
+        <operation>equals</operation>
+        <value>Factura</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Documento_Gestionado__c.Gestion_Nueva__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

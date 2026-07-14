@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tope_Importe_a_Aplicar__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF ( Importe_Aplicar__c &gt; Importe_Factura_MO__c, Importe_Factura_MO__c, Importe_Aplicar__c)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Tope Importe a Aplicar</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

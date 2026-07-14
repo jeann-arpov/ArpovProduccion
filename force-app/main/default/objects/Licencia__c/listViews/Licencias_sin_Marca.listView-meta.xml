@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_sin_Marca</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>NAME</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Fecha_de_Aprobacion__c</columns>
+    <columns>Fecha_de_Vencimiento__c</columns>
+    <columns>Obtentor__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Nombres_Marcas__c</field>
+        <operation>equals</operation>
+    </filters>
+    <label>Licencias sin Marca</label>
+</ListView>

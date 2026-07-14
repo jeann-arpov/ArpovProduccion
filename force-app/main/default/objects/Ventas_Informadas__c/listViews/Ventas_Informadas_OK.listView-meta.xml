@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_OK</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad_Bolsas_40__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <columns>Tipo_de_Material__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CUIT_Originante__c</field>
+        <operation>equals</operation>
+        <value>30712207554</value>
+    </filters>
+    <label>Ventas Informadas Para Procesar</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

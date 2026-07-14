@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Generar_Nota_de_Cr_dito</fullName>
+    <availability>online</availability>
+    <displayType>button</displayType>
+    <linkType>javascript</linkType>
+    <masterLabel>Generar Nota de Crédito</masterLabel>
+    <openType>onClickJavaScript</openType>
+    <protected>false</protected>
+    <url>{!REQUIRESCRIPT(&quot;/soap/ajax/44.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/44.0/apex.js&quot;)}
+
+//Obtenemos el Id de la Transaccion
+var idTransaccion= &apos;{!Transaccion__c.Id}&apos;;
+
+//Llamamos al Web Services encargado de Generar la Nota de Credito
+
+var result = sforce.apex.execute(
+                                  &quot;ws_CrearNotaDeCredito&quot;, //Clase a Invocar
+                                  &quot;crearNotaDeCredito&quot;,    //Metodo a Invocar
+                                   {idTransaccion : idTransaccion}//Parametros
+                                 );
+
+if(result[0] != &apos;&apos;){
+
+      window.open(result[0],&apos;_blank&apos;);
+
+}else{
+      
+       alert(&apos;No ha sido posible crear la nota de crédito&apos;);
+
+}</url>
+</WebLink>

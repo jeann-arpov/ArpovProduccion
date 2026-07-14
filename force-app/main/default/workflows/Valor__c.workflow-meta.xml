@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Cheque_Codigo_Postal</fullName>
+        <field>Cheque_Codigo_Postal__c</field>
+        <formula>MID(Identificacion__c,7,4)</formula>
+        <name>Cheque - Codigo Postal</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_Entidad_Bancaria</fullName>
+        <field>Cheque_Entidad_Bancaria__c</field>
+        <formula>Mid( Identificacion__c,1,3 )</formula>
+        <name>Cheque - Entidad Bancaria</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_FlowTrigger</fullName>
+        <field>Flow_Trigger__c</field>
+        <literalValue>1</literalValue>
+        <name>Cheque - FlowTrigger</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_FlowTrigger_Desact</fullName>
+        <field>Flow_Trigger__c</field>
+        <literalValue>0</literalValue>
+        <name>Cheque - FlowTrigger Desact</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_Genera_Identificacion</fullName>
+        <field>Identificacion__c</field>
+        <formula>IF( MID(Identificacion__c ,1,1) = &quot;C&quot;,
+MID( Identificacion__c , 2, 29),
+MID( Identificacion__c , 1, 29)
+)</formula>
+        <name>Cheque - Genera Identificacion</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_Lectora_de_Cheques</fullName>
+        <field>Lectora_de_Cheques__c</field>
+        <literalValue>1</literalValue>
+        <name>Cheque - Lectora de Cheques</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_Numero_Cheque</fullName>
+        <field>Cheque_Numero_Cheque__c</field>
+        <formula>MID( Identificacion__c,11,8 )</formula>
+        <name>Cheque_Numero_Cheque</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_Numero_Cuenta</fullName>
+        <field>Cheque_Numero_Cuenta__c</field>
+        <formula>MID( Identificacion__c,19,11 )</formula>
+        <name>Cheque - Numero Cuenta</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cheque_Sucursal</fullName>
+        <field>Cheque_Sucursal__c</field>
+        <formula>MID(Identificacion__c,4,3)</formula>
+        <name>Cheque - Sucursal</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_AcreditadoReemplazo_False</fullName>
+        <description>Valor Acreditado Reemplazo Falso</description>
+        <field>Acreditado_Reemplazo__c</field>
+        <literalValue>0</literalValue>
+        <name>Valor_AcreditadoReemplazo_False</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_AcreditadoReemplazo_True</fullName>
+        <description>Valor Acreditado Reemplazo Verdadero</description>
+        <field>Acreditado_Reemplazo__c</field>
+        <literalValue>1</literalValue>
+        <name>Valor.AcreditadoReemplazo_True</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_Act_Cta_Banc_Reemplazo</fullName>
+        <description>Valor: Actualiza Cuenta Bancaria Reemplazo</description>
+        <field>Cuenta_Bancaria_Reemplazo__c</field>
+        <name>Valor: Act Cta Banc Reemplazo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Null</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_Depositado</fullName>
+        <field>Depositado__c</field>
+        <literalValue>1</literalValue>
+        <name>Valor. Depositado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_DepositadoBlank</fullName>
+        <field>Depositado__c</field>
+        <literalValue>0</literalValue>
+        <name>Valor. DepositadoBlank</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaAcreditado</fullName>
+        <field>Fecha_Acreditado__c</field>
+        <formula>DATEVALUE(TEXT(TODAY()))</formula>
+        <name>Valor. FechaAcreditado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaDepositado</fullName>
+        <field>Fecha_Deposito__c</field>
+        <formula>IF( Fecha_en_Custodia__c &lt;&gt; NULL, Fecha_en_Custodia__c, TODAY() )</formula>
+        <name>Valor. FechaDepositado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaDepositadoBlank</fullName>
+        <field>Fecha_Deposito__c</field>
+        <name>Valor. FechaDepositadoBlank</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Null</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaEnCustodia</fullName>
+        <field>Fecha_en_Custodia__c</field>
+        <formula>DATEVALUE(TEXT(TODAY()))</formula>
+        <name>Valor. FechaEnCustodia</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaEnCustodiaBlanK</fullName>
+        <field>Fecha_en_Custodia__c</field>
+        <name>Valor. FechaEnCustodiaBlanK</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Null</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaRechazado</fullName>
+        <field>Fecha_Rechazo__c</field>
+        <formula>DATEVALUE(TEXT(TODAY()))</formula>
+        <name>Valor. FechaRechazado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaReemplazado_Blanco</fullName>
+        <description>Fecha Reemplazado en Blanco</description>
+        <field>Fecha_Reemplazado__c</field>
+        <name>Valor.FechaReemplazado_Blanco</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Null</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_FechaReemplazado_Completo</fullName>
+        <description>Fecha Reemplazado</description>
+        <field>Fecha_Reemplazado__c</field>
+        <formula>MOV_Cheque_Reemplazado__r.ERPvs__Fecha__c</formula>
+        <name>Valor.FechaReemplazado_Completo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_Reemplazado_False</fullName>
+        <description>Valor Reemplazado Falso</description>
+        <field>Reemplazado__c</field>
+        <literalValue>0</literalValue>
+        <name>Valor.Reemplazado_False</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Valor_Reemplazado_True</fullName>
+        <description>Valor Reemplazado Verdadero</description>
+        <field>Reemplazado__c</field>
+        <literalValue>1</literalValue>
+        <name>Valor.Reemplazado_True</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Cheque - Carga Identificacion</fullName>
+        <actions>
+            <name>Cheque_Codigo_Postal</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Cheque_Entidad_Bancaria</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Cheque_FlowTrigger_Desact</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Cheque_Genera_Identificacion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Cheque_Numero_Cheque</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Cheque_Numero_Cuenta</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Cheque_Sucursal</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Se ejecuta cuando se carga la identificación de un cheque mediante una lectora / scanner de cheques.</description>
+        <formula>AND(
+ OR(TEXT(Forma_de_Pago__c) = &quot;Cheque&quot;, TEXT(Forma_de_Pago__c) = &quot;Cheque Diferido&quot;),
+ LEN( Identificacion__c )  &gt;= 10
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cheque - Genera Identificacion Inicial</fullName>
+        <actions>
+            <name>Cheque_FlowTrigger</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Cheque_Lectora_de_Cheques</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <formula>AND(
+    OR(
+        TEXT(Forma_de_Pago__c) = &quot;Cheque&quot;,
+        TEXT(Forma_de_Pago__c) = &quot;Cheque Diferido&quot;
+    ),
+    MID( Identificacion__c,1,1) = &quot;C&quot;
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2E DesmarcaCustodia</fullName>
+        <actions>
+            <name>Valor_DepositadoBlank</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Valor_FechaDepositadoBlank</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Valor_FechaEnCustodiaBlanK</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Reversa Cheque en Custodia</description>
+        <formula>AND(ISCHANGED( En_Custodia__c ), PRIORVALUE( En_Custodia__c ) = true )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2E FechaAcreditado</fullName>
+        <actions>
+            <name>Valor_FechaAcreditado</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna fecha del cambio de estado de un cheque</description>
+        <formula>AND(ISCHANGED(  Acreditado__c  ), PRIORVALUE(  Acreditado__c  ) = false )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2E FechaDepositado</fullName>
+        <actions>
+            <name>Valor_FechaDepositado</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna fecha del cambio de estado de un cheque</description>
+        <formula>OR( AND(ISCHANGED( Depositado__c ), PRIORVALUE( Depositado__c ) = false ),
+ ISCHANGED( Fecha_en_Custodia__c )
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2E FechaEnCustodia</fullName>
+        <actions>
+            <name>Valor_Depositado</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Valor_FechaEnCustodia</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna fecha del cambio de estado de un cheque</description>
+        <formula>AND(ISCHANGED( En_Custodia__c ), PRIORVALUE( En_Custodia__c ) = false )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2E FechaRechazado</fullName>
+        <actions>
+            <name>Valor_FechaRechazado</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna fecha del cambio de estado de un cheque</description>
+        <formula>AND(ISCHANGED( Rechazado__c ), PRIORVALUE( Rechazado__c ) = false )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2EActualizaAcreditadoReemplazo</fullName>
+        <actions>
+            <name>Valor_AcreditadoReemplazo_True</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Actualiza el campo Acreditado Reemplazo</description>
+        <formula>NOT( ISBLANK (Fecha_Acreditado_Reemplazo__c ))</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2EActualizaReemplazadoYFechaReemplazado</fullName>
+        <actions>
+            <name>Valor_FechaReemplazado_Completo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Valor_Reemplazado_True</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Actualiza los campos Reemplazado y Fecha Reemplazado si se asigna el MOV Cheque Reemplazado del ERP</description>
+        <formula>NOT( ISBLANK( MOV_Cheque_Reemplazado__c ) )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2EBlanqueaAcreditadoReemplazo</fullName>
+        <actions>
+            <name>Valor_AcreditadoReemplazo_False</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Blanquea el campo Acreditado Reemplazo</description>
+        <formula>ISBLANK (Fecha_Acreditado_Reemplazo__c )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Valor%2EBlanqueaReemplazadoYFechaReemplazado</fullName>
+        <actions>
+            <name>Valor_FechaReemplazado_Blanco</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Valor_Reemplazado_False</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Blanquea los campos Reemplazado y Fecha Reemplazado si se elimina el MOV Cheque Reemplazado del ERP</description>
+        <formula>ISBLANK( MOV_Cheque_Reemplazado__c )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

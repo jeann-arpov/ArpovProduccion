@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Importe_Moneda_Comprobante__c</fullName>
+    <description>Este campo contiene el importe expresado en la moneda del comprobante sea cual fuere la moneda del movimiento.</description>
+    <label>Importe que Aplica al Comprobante</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

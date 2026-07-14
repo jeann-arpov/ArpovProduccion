@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BASE_RATE__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>Porcentaje de exclusión sobre la tasa de percepción original. (Ej.: si la tasa original es 10% y la Tasa de exención se informa con 30% la percepción resultante será del 70% de 10 = 7%)</inlineHelpText>
+    <label>Descuento Sobre la Tasa General</label>
+    <precision>18</precision>
+    <required>true</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

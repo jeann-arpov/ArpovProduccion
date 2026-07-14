@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Producto__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Producto</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>El producto seleccionado no corresponde al Obtentor de la Transacción, está inactivo o la categoría no es Uso Propio/Uso Público. (Filtro)</errorMessage>
+        <filterItems>
+            <field>Product2.Obtentor_Comercializa__c</field>
+            <operation>equals</operation>
+            <valueField>$Source.Obtentor__c</valueField>
+        </filterItems>
+        <filterItems>
+            <field>Product2.Categoria__c</field>
+            <operation>equals</operation>
+            <value>Uso Propio, Uso Público</value>
+        </filterItems>
+        <filterItems>
+            <field>Product2.IsActive</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Item_de_DUP</relationshipLabel>
+    <relationshipName>Item_de_DUP</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

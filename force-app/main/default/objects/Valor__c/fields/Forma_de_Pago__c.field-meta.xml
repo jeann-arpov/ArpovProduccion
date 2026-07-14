@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Forma_de_Pago__c</fullName>
+    <description>Tipo de elemento con el que se realiza el pago</description>
+    <inlineHelpText>Seleccione el tipo de valor o forma de pago.</inlineHelpText>
+    <label>Forma de Pago</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Transferencia</fullName>
+                <default>false</default>
+                <label>Transferencia</label>
+            </value>
+            <value>
+                <fullName>Cheque</fullName>
+                <default>false</default>
+                <label>Cheque</label>
+            </value>
+            <value>
+                <fullName>Cheque Diferido</fullName>
+                <default>false</default>
+                <label>Cheque Diferido</label>
+            </value>
+            <value>
+                <fullName>Cheque Electronico</fullName>
+                <default>false</default>
+                <label>Cheque Electronico</label>
+            </value>
+            <value>
+                <fullName>Deposito</fullName>
+                <default>false</default>
+                <label>Deposito</label>
+            </value>
+            <value>
+                <fullName>Efectivo</fullName>
+                <default>false</default>
+                <label>Efectivo</label>
+            </value>
+            <value>
+                <fullName>Retencion Ganancias</fullName>
+                <default>false</default>
+                <label>Retencion Ganancias</label>
+            </value>
+            <value>
+                <fullName>Retencion IVA</fullName>
+                <default>false</default>
+                <label>Retencion IVA</label>
+            </value>
+            <value>
+                <fullName>Retencion IIBB</fullName>
+                <default>false</default>
+                <label>Retencion IIBB</label>
+            </value>
+            <value>
+                <fullName>Retencion SUSS</fullName>
+                <default>false</default>
+                <label>Retencion SUSS</label>
+            </value>
+            <value>
+                <fullName>Otras Retenciones</fullName>
+                <default>false</default>
+                <label>Otras Retenciones</label>
+            </value>
+            <value>
+                <fullName>Tarjeta de Credito</fullName>
+                <default>false</default>
+                <label>Tarjeta de Credito</label>
+            </value>
+            <value>
+                <fullName>Pago en Especies</fullName>
+                <default>false</default>
+                <label>Pago en Especies</label>
+            </value>
+            <value>
+                <fullName>Pago Electronico</fullName>
+                <default>false</default>
+                <label>Pago Electronico</label>
+            </value>
+            <value>
+                <fullName>AgroPago</fullName>
+                <default>false</default>
+                <label>AgroPago</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

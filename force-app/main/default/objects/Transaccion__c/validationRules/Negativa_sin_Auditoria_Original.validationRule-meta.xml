@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Negativa_sin_Auditoria_Original</fullName>
+    <active>true</active>
+    <description>Valida que no se pueda crear una transacción con subestado Negativo sin una Auditoría positiva asociada</description>
+    <errorConditionFormula>RecordType.Name = &quot;Auditoría&quot; &amp;&amp; ISPICKVAL(Subestado__c,&quot;Negativa&quot;)&amp;&amp;ISBLANK( Auditoria__c )</errorConditionFormula>
+    <errorDisplayField>Auditoria__c</errorDisplayField>
+    <errorMessage>Debe seleccionar la Auditoria</errorMessage>
+</ValidationRule>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Controla_valor_campo_Estado_ERP</fullName>
+    <active>true</active>
+    <description>Solo se permiten los valores &quot;SIN PROCESAR&quot;, &quot;PROCESADO&quot;.</description>
+    <errorConditionFormula>AND(
+ Estado_ERP__c &lt;&gt; &quot;SIN PROCESAR&quot;,
+ Estado_ERP__c &lt;&gt; &quot;PROCESADO&quot;
+)</errorConditionFormula>
+    <errorDisplayField>Estado_ERP__c</errorDisplayField>
+    <errorMessage>El valor informado en el campo Estado ERP no es correcto. Solo se permiten los valores &quot;SIN PROCESAR&quot; y &quot;PROCESADO&quot; (En mayúsculas)</errorMessage>
+</ValidationRule>

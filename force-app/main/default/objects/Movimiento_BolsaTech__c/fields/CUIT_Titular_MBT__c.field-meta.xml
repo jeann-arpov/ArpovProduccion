@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CUIT_Titular_MBT__c</fullName>
+    <description>Campo formulado que trae la información del número de CUIT desde la cuenta</description>
+    <externalId>false</externalId>
+    <formula>IF(ISBLANK(Titular__c), &quot;&quot;, Titular__r.N_CUIT__c)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>CUIT Titular MBT</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

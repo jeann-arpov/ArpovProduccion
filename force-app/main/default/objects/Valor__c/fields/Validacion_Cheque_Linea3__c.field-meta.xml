@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validacion_Cheque_Linea3__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( LEN( Identificacion__c )  &gt;= 29,
+Cheque_Numero_Cuenta__c  &amp; &quot;      &quot; &amp;  RIGHT(TEXT(Cheque_Verificador_Linea3__c), 1),
+&quot;N/A&quot;
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>►</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

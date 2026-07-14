@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Nombres_Marcas__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(OR(CONTAINS( Id_Obtentor__c , &quot;03&quot;),CONTAINS( Id_Obtentor__c , &quot;14&quot;), CONTAINS( Id_Obtentor__c , &quot;85&quot;) ), &quot;DON MARIO / NEOGEN&quot;,
+IF(CONTAINS( Id_Obtentor__c , &quot;13&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c ,
+IF(CONTAINS( Id_Obtentor__c , &quot;87&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c ,
+IF(OR(CONTAINS( Id_Obtentor__c , &quot;04&quot;),CONTAINS( Id_Obtentor__c , &quot;23&quot;) ), &quot;NIDERA / NK&quot;,
+IF(CONTAINS( Id_Obtentor__c , &quot;24&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c ,
+IF(CONTAINS( Id_Obtentor__c , &quot;26&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,
+IF(CONTAINS( Id_Obtentor__c , &quot;16&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,
+IF(CONTAINS( Id_Obtentor__c , &quot;19&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,
+IF(CONTAINS( Id_Obtentor__c , &quot;90&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+IF(CONTAINS( Id_Obtentor__c , &quot;05&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+IF(CONTAINS( Id_Obtentor__c , &quot;06&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+IF(CONTAINS( Id_Obtentor__c , &quot;12&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+IF(CONTAINS( Id_Obtentor__c , &quot;51&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+IF(CONTAINS( Id_Obtentor__c , &quot;15&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+IF(CONTAINS( Id_Obtentor__c , &quot;92&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+IF(CONTAINS( Id_Obtentor__c , &quot;17&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c,			
+
+			
+IF(CONTAINS( Id_Obtentor__c , &quot;77&quot;), Cuenta_Obtentor__r.Nombre_Obtentor__c, &quot;&quot;
+) ) ) ) ) ) ) ) )))))))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Marcas</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

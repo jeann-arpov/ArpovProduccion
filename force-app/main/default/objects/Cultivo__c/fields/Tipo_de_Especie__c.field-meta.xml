@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Especie__c</fullName>
+    <description>Identifica el tipo de cultivo para controles de tipos de operaciones permitidos.</description>
+    <inlineHelpText>Identifique el tipo de cultivo para controles posteriores de los tipos de operaciones permitidos (Ej.: ArPOV no gestiona Regalía Extendida de variedades alógamas ya que de ellas no se hace Uso Propio)</inlineHelpText>
+    <label>Tipo de Especie</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Autógama</fullName>
+                <default>false</default>
+                <label>Autógama</label>
+            </value>
+            <value>
+                <fullName>Alógama</fullName>
+                <default>false</default>
+                <label>Alógama</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Flow_Trigger__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Control de orden de ejecución. Se activa en WF Campos Calculados para disparar WF que calcula el Total a Facturar.</description>
+    <label>Flow Trigger</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

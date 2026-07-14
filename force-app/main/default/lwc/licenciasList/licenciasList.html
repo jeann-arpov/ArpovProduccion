@@ -1,0 +1,217 @@
+<template>
+    <div class="ventas-container">
+        <!-- TOP BAR con título + filtros y botón -->
+        <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">LICENCIAS / MIS LICENCIAS</div>
+                <div class="title">Mis Licencias</div>
+            </div>
+
+            <div class="acciones-derecha">
+                <div class="filtros-container">
+                    <template lwc:if={renderFilters}>
+                         <select data-id="estadoSelect"
+                            onchange={handleEstadoChange}
+                            title="Filtrar por estado"
+                        >
+                            <option value="">Estado</option>      <!-- sin filtro -->
+                            <option value="En curso">En curso</option>
+                            <option value="Aprobada">Aprobada</option>
+                            <option value="Rechazada">Rechazada</option>
+                        </select>
+                        <select data-id="tipoSelect" onchange={handleTipoChange}>
+                            <option value="">Tipo</option>
+                            <template for:each={tipos} for:item="item">
+                                <option key={item} value={item}>{item}</option>
+                            </template>
+                        </select>
+                        <select data-id="origenSelect" onchange={handleOrigenChange}>
+                            <option value="">Tecnologia</option>
+                            <template for:each={origenes} for:item="item">
+                                <option key={item} value={item}>{item}</option>
+                            </template>
+                        </select>
+                    </template>
+                </div>
+                <button onclick={handleSolicitarLicencia} class="btn-solicitar">Solicitar Licencia</button>
+            </div>
+        </div>
+
+        <!-- Info + buscador -->
+        <div class="info-busqueda">
+            <div class="ventas-info">
+                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de creación • <br>
+                Filtrado por Todas las ventas ht - Estado • Se actualizó hace una hora
+            </div>
+
+            <div class="ventas-search">
+                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
+                <span class="search-icon">
+                    <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                </span>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <table>
+            <thead>
+                <tr>
+                    <th>FECHA</th>
+                    <th>CÓDIGO</th>
+                    <th>CUIT</th>
+                    <th>RAZÓN SOCIAL</th>
+                    <th>MARCA</th>
+                    <th>TECNOLOGIA</th>
+                    <th>ORIGEN</th>
+                    <th>ESTADO</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={decoratedLicencias} for:item="l">
+                    <tr key={l.id}>
+                        <td>{l.fecha}</td>
+                        <td>
+                            <!-- Enlace estilo link -->
+                            <a href="javascript:void(0)"
+                            class="name-link"
+                            data-id={l.id}
+                            onclick={handleRowAction}>
+                                {l.name}
+                            </a>
+                        </td>
+                        <td>{l.cuit}</td>
+                        <td>{l.productor}</td>
+                        <td>{l.marca}</td>
+                        <td>{l.origen}</td>
+                        <td>{l.tipo}</td>
+                        <td>{l.estadoVisual}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <!-- Navegación -->
+        <div class="paginacion">
+            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+            <span>Página {currentPage}</span>
+            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+        </div>
+
+        <!-- Botón Generar Reporte -->
+        <div class="boton-reporte">
+            <button class="btn-generar" onclick={openModal}>Generar Reporte</button>
+        </div>
+    </div>
+
+    <template if:true={showModal}>
+        <div class="modal-backdrop">
+            <div class="modal">
+                <button class="modal-close" onclick={closeModal}>✕</button>
+                <h2>Generar Reporte</h2>
+                <p>
+                    Se va a generar un reporte con todos los datos<br>
+                    de la tabla de licencias.<br>
+                    ¿Está seguro?
+                </p>
+                
+                <button type="button" class="modal-start" onclick={handleCall}>Comenzar ➝</button>
+            </div>
+        </div>
+    </template>
+
+    <template if:true={showReportModal}>
+        <section role="dialog" tabindex="-1" aria-labelledby="report-modal-heading" aria-modal="true" 
+                class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 id="report-modal-heading" class="slds-modal__title slds-hyphenate">
+                        Reporte de Licencias
+                    </h2>
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            title="Close" onclick={handleCloseReportModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                </header>
+                
+                <!-- Body  -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    
+                    <!-- Loading Spinner -->
+                    <template if:true={isReportLoading}>
+                        <div class="slds-align_absolute-center slds-p-vertical_large">
+                            <lightning-spinner 
+                                alternative-text="Cargando reporte..."
+                                size="medium">
+                            </lightning-spinner>
+                            <p class="slds-text-align_center slds-m-top_small">
+                                Generando reporte de licencias...
+                            </p>
+                        </div>
+                    </template>
+                    <template if:false={isReportLoading}>
+                        <template if:true={reportResponse.success}>
+                            <lightning-card title="Reporte generado exitosamente" icon-name="utility:success">
+                                
+                            </lightning-card>
+                        </template>
+
+                        <template if:false={reportResponse.success}>
+                            <lightning-card title="Error en la Operación" icon-name="utility:error" style="max-width: 100%;overflow-x: auto;box-sizing: border-box;">
+                                <div class="slds-p-horizontal_small">
+                                    <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small">
+                                        <span class="slds-assistive-text">Error</span>
+                                        <h2>{reportResponse.message}</h2>
+                                        
+                                        <template if:true={reportResponse.statusCode}>
+                                            <p class="slds-text-body_small slds-m-top_xx-small">
+                                                Código de Error: {reportResponse.statusCode}
+                                            </p>
+                                        </template>
+                                    </div>
+
+                                    <template if:true={reportResponse.data}>
+                                        <lightning-card title="Detalles del Error" icon-name="utility:warning">
+                                            <div class="slds-p-horizontal_small">
+                                                <div class="slds-box slds-box_xx-small slds-theme_default">
+                                                    <pre style="white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; font-size: 12px;">{formattedReportData}</pre>
+                                                </div>
+                                            </div>
+                                        </lightning-card>
+                                    </template>
+                                </div>
+                            </lightning-card>
+                        </template>
+                    </template>
+                </div>
+                
+                <!-- Footer -->
+                <footer class="slds-modal__footer">
+                    <template if:true={showRetryButton}>
+                        <lightning-button 
+                            label="Reintentar"
+                            onclick={handleRetryReport}
+                            variant="brand"
+                            disabled={isReportLoading}
+                            class="slds-m-right_small">
+                        </lightning-button>
+                    </template>
+                    
+                    <lightning-button 
+                        label="Cerrar"
+                        onclick={handleCloseReportModal}
+                        variant="neutral">
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        
+        <!-- Backdrop  -->
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    <template if:true={isLoading}>
+        <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>
+</template>

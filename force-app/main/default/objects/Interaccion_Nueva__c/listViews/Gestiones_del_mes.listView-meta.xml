@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gestiones_del_mes</fullName>
+    <columns>NAME</columns>
+    <columns>Cuenta__c</columns>
+    <columns>Fecha_y_Hora__c</columns>
+    <columns>Modo_de_Contacto__c</columns>
+    <columns>Operador__c</columns>
+    <columns>Contacto__c</columns>
+    <columns>Fecha_Comprometida_Respuesta__c</columns>
+    <columns>Resultado_de_la_Gestion__c</columns>
+    <columns>Comentario_Codificado__c</columns>
+    <columns>Comentarios__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>THIS_MONTH</value>
+    </filters>
+    <label>Gestiones del mes</label>
+</ListView>

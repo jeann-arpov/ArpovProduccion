@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Mes</fullName>
+    <active>false</active>
+    <description>El mes de las fechas debe corresponder al mes definido para el registros.</description>
+    <errorConditionFormula>OR(
+ LPAD( TEXT( MONTH( DATEVALUE( Primera_Quincena__c ) ) ), 2, &quot;0&quot; ) &lt;&gt;  TEXT( Mes__c ),
+ LPAD( TEXT( MONTH( DATEVALUE( Segunda_Quincena__c ) ) ), 2, &quot;0&quot; ) &lt;&gt;  TEXT( Mes__c )
+)</errorConditionFormula>
+    <errorMessage>Una fecha ingresada no corresponde al mes del calendario.</errorMessage>
+</ValidationRule>

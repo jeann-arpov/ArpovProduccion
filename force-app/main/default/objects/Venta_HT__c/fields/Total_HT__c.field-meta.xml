@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_HT__c</fullName>
+    <label>Total HT</label>
+    <summarizedField>Linea_de_Venta_HT__c.Cantidad__c</summarizedField>
+    <summaryForeignKey>Linea_de_Venta_HT__c.Venta_HT__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Etado_Factura</fullName>
+    <active>true</active>
+    <description>No se pude aplicar un valor a una factura que no tenga estado &quot;Facturada&quot;</description>
+    <errorConditionFormula>AND ( $User.Usuario_de_Integracion__c = false,
+$Profile.Name &lt;&gt; &quot;Usuario de Administración&quot;,
+TEXT(Factura__r.StageName) &lt;&gt; &quot;Facturada&quot;, NOT(ISCHANGED(Liquido_Producto__c)), Importe__c &gt; 0)</errorConditionFormula>
+    <errorDisplayField>Factura__c</errorDisplayField>
+    <errorMessage>Es estado de la factura no permite realizar una aplicación. Verifique que la factura seleccionada se encuentre en estado &quot;Facturada&quot;. Podría estar a la espera de confirmación del Obtentor.</errorMessage>
+</ValidationRule>

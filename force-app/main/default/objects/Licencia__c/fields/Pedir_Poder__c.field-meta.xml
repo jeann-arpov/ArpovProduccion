@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pedir_Poder__c</fullName>
+    <formula>IF( TEXT( Estado__c) = &apos;Aprobada&apos; , False,
+    IF((Cuenta_Productor__r.N_CUIT__c &lt;&gt; Firmante_Cuit__c) &amp;&amp; NOT(ISBLANK(Firmante_Cuit__c)), True, False)
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Pedir Poder</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,109 @@
+<template>
+  <c-one-time-popup
+    storage-key="landing_se_distribuidor_sa_popup_seen_v1"
+    title="¡Novedades en la Cuenta Granaria!"
+    intro="Ahora es más clara, ordenada y fácil de gestionar."
+    subtitle="Para operar correctamente, el productor debe:"
+    items="Revisar su cuenta y créditos disponibles.|Acreditar HTs antes de la entrega del grano.|Si no tiene saldo suficiente, comprar HTs disponibles antes de entregar. No podrán adquirirse de forma posterior a la entrega."
+    link-label="¿Tenés dudas? Contactá a nuestra mesa de ayuda"
+    link-url="https://wa.me/5491131172022"
+    confirm-label=""
+  ></c-one-time-popup>
+  
+  <div class="bienvenida-container">
+    <div class="bienvenida-texto">
+      <h1>Sembrá Evolución, donde tenés que estar.</h1>
+    </div>
+    <div class="dashboard-wrapper">
+      <div class="dashboard-container">
+        <!-- Tarjeta 1: HT -->
+        <div class="card-p ht-card">
+          <div class="ht-left-column">
+            <h1 class="card-title">HT</h1>
+            <p class="card-subtitle">Hectáreas Tecnológicas</p>
+            <button class="primary-button" onclick={handleVenderHT}>
+              <span class="icon">
+                <img src={iconVenderHTUrl} alt="Licencias" class="icon-svg" />
+              </span> Vender HT
+            </button>
+          </div>
+  
+          <div class="ht-right-column">
+            <div class="metrics-wrapper">
+              <div class="metric">
+                <div class="metric-value">{hectareasVendidas}</div>
+                <div class="metric-text-group">
+                  <div class="metric-label green">Hectáreas Vendidas</div>
+                  <div class="metric-sublabel">&nbsp;</div>
+                </div>
+                <button class="metric-button" onclick={handleVerHTVendidas}>Ver</button>
+              </div>
+  
+              <div class="vertical-divider"></div>
+  
+              <div class="metric">
+                <div class="metric-value white">{hectareasPendientesDePago}</div>
+                <div class="metric-text-group">
+                  <div class="metric-label white">Hectáreas Pendientes De Pago</div>
+                  <div class="metric-sublabel">{currentDate}</div>
+                </div>
+                <button class="metric-button" onclick={handleVerHTFacturadas}>Ver</button>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Tarjeta 2: Licencias -->
+        <div class="card licencia-card">
+          <h2 class="card-title">Mis<br />Licencias</h2>
+          <div class="licencias-metrics">
+            <div class="metric">
+              <div class="metric-value">{licenciasAprobadas}</div>
+              <div class="metric-label green">Aprobadas</div>
+              <button class="metric-button" onclick={handleVerLicenciasAprobadas} >Ver</button>
+            </div>
+  
+            <div class="vertical-divider"></div>
+  
+            <div class="metric">
+              <div class="metric-value white">{licenciasEnProceso}</div>
+              <div class="metric-label white">En Curso</div>
+              <button class="metric-button" onclick={handleVerLicenciasEnProceso} >Ver</button>
+            </div>
+          </div>
+          <button class="primary-button full-width" onclick={handleSolicitarLicencia}>
+            <span class="icon">
+              <img src={iconLicenciasUrl} alt="Licencias" class="icon-svg" />
+            </span> Solicitar Licencia
+          </button>
+        </div>
+        <div class="dos-en-uno">
+            <!-- Tarjeta 3: Ventas HT sin licencias -->
+            <div class="card ventas-card short-card">
+                <h2 class="card-title">Ventas SF<br />sin licencias</h2>
+                <div class="licencias-metrics">
+                <div class="metric-vt">
+                    <div class="metric-value">{bolsasPrimeraMultiplicacion}</div>
+                    <div class="metric-label green">Bolsas</div>
+                    <button class="metric-button" onclick={handleVerbolsasPrimeraMultiplicacion} >Ver</button>
+                </div>
+                <div class="vertical-divider"></div>
+                <div class="metric-vt">
+                    <div class="metric-value white">{bolsasObtentor}</div>
+                    <div class="metric-label white">Licencias</div>
+                    <button class="metric-button" onclick={handleVerbolsasObtentor} >Ver</button>
+                </div>
+                </div>
+            </div>
+            <br>
+            <!-- Tarjeta 4: Calendario Digital -->
+            <div class="card calendar-card short-card">
+                <span class="calendar-title">Calendario Digital</span>
+                <button class="calendar-button" onclick={handleCalendario}>Ver</button>
+            </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>bloquea_facturar_RE3</fullName>
+    <active>true</active>
+    <description>Para facturar regalía enlist a un expediente se debe usar el botón.</description>
+    <errorConditionFormula>AND( TEXT( Etapa__c ) = &apos;Facturar Regalía E3&apos;,
+     ISCHANGED( Etapa__c ),
+     NOT( IsVRBypassed__c ) 
+    )</errorConditionFormula>
+    <errorMessage>Por favor, utilice el botón para facturar regalía enlist al expediente.</errorMessage>
+</ValidationRule>

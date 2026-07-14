@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Provincia</fullName>
+    <active>true</active>
+    <description>Valida si corresponde o no cargar la provincia.</description>
+    <errorConditionFormula>OR(
+    AND( TEXT( CATEGORY_TYPE__c ) = &quot;PERC IIBB&quot;, ISBLANK( Provincia__c  ) ),
+    AND( TEXT( CATEGORY_TYPE__c ) = &quot;PERC IVA&quot;,  NOT( ISBLANK( Provincia__c  ) ) )
+)</errorConditionFormula>
+    <errorDisplayField>Provincia__c</errorDisplayField>
+    <errorMessage>Si la Categoría es PERC IIBB debe informar una provincia. Si la Categoría es PERC IVA la provincia no tiene que estar informada.</errorMessage>
+</ValidationRule>

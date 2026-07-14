@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Kilos_Totales_AUD__c</fullName>
+    <description>Suma los kilos de todos los ítems de la auditoría (combinando todos los tipos de producto)</description>
+    <inlineHelpText>Suma los kilos de todos los ítems de la auditoría (combinando todos los tipos de producto)</inlineHelpText>
+    <label>Z9_Kilos_Totales_AUD</label>
+    <summarizedField>Item_Auditoria__c.Z9_Kilos_Totales__c</summarizedField>
+    <summaryForeignKey>Item_Auditoria__c.Auditoria__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

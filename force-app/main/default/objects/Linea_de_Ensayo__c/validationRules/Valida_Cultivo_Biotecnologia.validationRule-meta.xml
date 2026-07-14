@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Cultivo_Biotecnologia</fullName>
+    <active>true</active>
+    <description>Valida que el Cultivo y la Biotecnología de la variedad seleccionada corresponda con los del Ensayo.</description>
+    <errorConditionFormula>OR(Variedad__r.Cultivo__r.Name &lt;&gt; Ensayo__r.Cultivo__r.Name,
+ AND(
+   OR(ISPICKVAL(Variedad__r.Biotecnologia__c , &quot;Enlist E3&quot;),
+      ISPICKVAL(Variedad__r.Biotecnologia__c , &quot;Conkesta  E3&quot;)       
+      ),
+   NOT(ISPICKVAL(Ensayo__r.Biotecnologia__c , &quot;Enlist E3&quot;)),
+   NOT(ISPICKVAL(Ensayo__r.Biotecnologia__c , &quot;Conkesta E3&quot;))),
+ AND(
+   NOT(ISPICKVAL( Variedad__r.Biotecnologia__c , &quot;Enlist E3&quot;)),
+   NOT(ISPICKVAL( Variedad__r.Biotecnologia__c , &quot;Conkesta E3&quot;)),
+   TEXT(Variedad__r.Biotecnologia__c) &lt;&gt;
+   TEXT(Ensayo__r.Biotecnologia__c)))</errorConditionFormula>
+    <errorMessage>La Variedad debe corresponder con el Cultivo y la Biotecnología definidos para el Ensayo.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>AD_Fecha_Creacion</fullName>
+        <description>Actualiza Fecha Creación de una AD</description>
+        <field>Fecha_de_Creacion__c</field>
+        <formula>DATEVALUE( CreatedDate )</formula>
+        <name>AD Fecha Creación</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Actualiza Fecha de Creación AD</fullName>
+        <actions>
+            <name>AD_Fecha_Creacion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Aplicacion_Item_DUP__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Actualiza Fecha de Creación AD</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+</Workflow>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_Cambio_Name</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+    (NOW() - CreatedDate)*86400 &gt; 10,
+    OR($Profile.Name = &quot;Obtentor&quot;,
+       $Profile.Name = &quot;Distribuidor&quot;
+      ),
+    PRIORVALUE( Name ) &lt;&gt; Name
+    )</errorConditionFormula>
+    <errorMessage>Usted no puede modificar el Código de una Licencia.</errorMessage>
+</ValidationRule>

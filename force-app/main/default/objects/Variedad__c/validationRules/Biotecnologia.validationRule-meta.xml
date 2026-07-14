@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Biotecnologia</fullName>
+    <active>true</active>
+    <description>Si la variedad es Sembrá Evolución, se debe ingresar la Biotecnología.</description>
+    <errorConditionFormula>AND ( ISBLANK( TEXT ( Biotecnologia__c ) ),
+      Sembra_Evolucion__c = TRUE
+)</errorConditionFormula>
+    <errorDisplayField>Biotecnologia__c</errorDisplayField>
+    <errorMessage>Se debe ingresar la Biotecnología para una variedad Sembrá Evolución.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Expedientes_en_condiciones_de_cerrarse</fullName>
+    <columns>NAME</columns>
+    <columns>Productor_Comercio__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Estado_de_la_Etapa__c</columns>
+    <columns>Dias_en_etapa_actual__c</columns>
+    <columns>Dias_transcurridos_desde_creacion_Exp__c</columns>
+    <columns>Saldo_Cuenta__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado_de_la_Etapa__c</field>
+        <operation>notEqual</operation>
+        <value>Finalizado</value>
+    </filters>
+    <filters>
+        <field>Saldo_Cuenta__c</field>
+        <operation>greaterOrEqual</operation>
+        <value>-2</value>
+    </filters>
+    <label>.Expedientes en condiciones de cerrarse</label>
+    <sharedTo>
+        <roleAndSubordinatesInternal>Gerencia_General</roleAndSubordinatesInternal>
+    </sharedTo>
+</ListView>

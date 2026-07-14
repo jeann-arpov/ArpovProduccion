@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_mas_Feriados__c</fullName>
+    <description>A la fecha de análisis más 8 días hábiles sin sábado ni domingos se le suman los días feriados.</description>
+    <formula>Fecha_sin_Sab_Dom__c +  Feriados__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Fecha más Feriados</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

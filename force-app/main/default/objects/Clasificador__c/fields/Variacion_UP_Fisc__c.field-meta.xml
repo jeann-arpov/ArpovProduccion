@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Variacion_UP_Fisc__c</fullName>
+    <label>Variacion UP + Fisc</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>&lt; -100</fullName>
+                <default>false</default>
+                <label>&lt; -100</label>
+            </value>
+            <value>
+                <fullName>-100 a -75</fullName>
+                <default>false</default>
+                <label>-100 a -75</label>
+            </value>
+            <value>
+                <fullName>-75 a -50</fullName>
+                <default>false</default>
+                <label>-75 a -50</label>
+            </value>
+            <value>
+                <fullName>-50 a -25</fullName>
+                <default>false</default>
+                <label>-50 a -25</label>
+            </value>
+            <value>
+                <fullName>-25 a 0</fullName>
+                <default>false</default>
+                <label>-25 a 0</label>
+            </value>
+            <value>
+                <fullName>0 a 25</fullName>
+                <default>false</default>
+                <label>0 a 25</label>
+            </value>
+            <value>
+                <fullName>25 a 50</fullName>
+                <default>false</default>
+                <label>25 a 50</label>
+            </value>
+            <value>
+                <fullName>50 a 75</fullName>
+                <default>false</default>
+                <label>50 a 75</label>
+            </value>
+            <value>
+                <fullName>75 a 100</fullName>
+                <default>false</default>
+                <label>75 a 100</label>
+            </value>
+            <value>
+                <fullName>&gt;100</fullName>
+                <default>false</default>
+                <label>&gt;100</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

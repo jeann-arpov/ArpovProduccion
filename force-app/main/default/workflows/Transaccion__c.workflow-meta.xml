@@ -1,0 +1,998 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>INVIERNO_2020_MINISITIO_RECEPCION</fullName>
+        <description>INVIERNO 2020 - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/INVIERNO_2020_MINISITIO_RECEPCION</template>
+    </alerts>
+    <alerts>
+        <fullName>PAPA_2018_MINISITIO_RECEPCION</fullName>
+        <description>PAPA 2018 - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/PAPA_2018_MINISITIO_RECEPCION</template>
+    </alerts>
+    <alerts>
+        <fullName>SOJA_2017_MINISITIO_RECEPCION</fullName>
+        <description>SOJA 2017 - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/SOJA_2017_MINISITIO_RECEPCION</template>
+    </alerts>
+    <alerts>
+        <fullName>SOJA_2018_MINISITIO_RECEPCION</fullName>
+        <description>SOJA 2018 - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/SOJA_2018_MINISITIO_RECEPCION</template>
+    </alerts>
+    <alerts>
+        <fullName>SOJA_2019_MINISITIO_RECEPCION</fullName>
+        <description>SOJA 2019 - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/SOJA_2019_MINISITIO_RECEPCION</template>
+    </alerts>
+    <alerts>
+        <fullName>TRIGO_2016_ARVEJA_MINISITIO_RECEPCION</fullName>
+        <description>TRIGO 2016 ARVEJA - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/TRIGO_2016_ARVEJA_MINISITIO_RECEPCION</template>
+    </alerts>
+    <alerts>
+        <fullName>TRIGO_2018_MINISITIO_RECEPCION</fullName>
+        <description>TRIGO 2018 - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/TRIGO_2018_MINISITIO_RECEPCION</template>
+    </alerts>
+    <alerts>
+        <fullName>TRIGO_2019_MINISITIO_RECEPCION</fullName>
+        <description>TRIGO 2019 - MINISITIO RECEPCION</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+            <type>email</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Comunicaciones/TRIGO_2019_MINISITIO_RECEPCION</template>
+    </alerts>
+    <fieldUpdates>
+        <fullName>AUD_Fecha_Respuesta</fullName>
+        <description>Actualiza la Fecha de Respuesta</description>
+        <field>Fecha_de_Respuesta__c</field>
+        <formula>Fecha_de_la_Visita__c</formula>
+        <name>AUD Fecha Respuesta</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Tipo_de_Registro_AUD</fullName>
+        <field>RecordTypeId</field>
+        <lookupValue>Auditorias</lookupValue>
+        <lookupValueType>RecordType</lookupValueType>
+        <name>Actualiza Tipo de Registro AUD</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>LookupValue</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Tipo_de_Registro_DUP</fullName>
+        <description>Setea RecordType --&gt; Z9_Tipo</description>
+        <field>RecordTypeId</field>
+        <lookupValue>DUP</lookupValue>
+        <lookupValueType>RecordType</lookupValueType>
+        <name>Actualiza Tipo de Registro DUP</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>LookupValue</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Z9_Tipo</fullName>
+        <description>Actualiza el campo Transaccion__c.Z9_Tipo con el valor del nombre del tipo de registro/</description>
+        <field>Z9_Tipo__c</field>
+        <formula>RecordType.Name</formula>
+        <name>Actualiza Z9_Tipo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Anio_Auditoria</fullName>
+        <description>Asigna el Año calendario a una nueva Auditoría</description>
+        <field>Anio_de_la_Auditoria__c</field>
+        <formula>TEXT( YEAR( TODAY() ) )</formula>
+        <name>Año Auditoria</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Arma_el_Codigo</fullName>
+        <description>Concatena los datos para armar el numero final de auditoría</description>
+        <field>Name</field>
+        <formula>IF( CONTAINS( Name, &quot;-&quot; ), Name, 
+    Obtentor__r.Id_Obtentor__c &amp; &quot;-&quot; &amp;  IF(  RecordType.Name = &quot;DUP&quot;, Campana__r.Ano__c, TEXT( YEAR( DATEVALUE(       CreatedDate ) ) ) )  &amp; &quot;-&quot; &amp;  LPAD( TRIM( Name ), 8, &quot;0&quot; )
+)</formula>
+        <name>Arma el Código</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Borra_Fecha_de_Respuesta</fullName>
+        <description>Borra la fecha de respuesta si hubiese sido informada en un cambio anterior.</description>
+        <field>Fecha_de_Respuesta__c</field>
+        <name>Borra Fecha de Respuesta</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Null</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Borra_Usuario_Informo</fullName>
+        <description>Blanquea el campo Informo__c cuando la DUP vuelve al estado &quot;Creada&quot;</description>
+        <field>Informo__c</field>
+        <name>Borra Usuario Informó</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Null</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Creada</fullName>
+        <description>Asigna el estado Creada a la Transaccion</description>
+        <field>Estado__c</field>
+        <literalValue>Creada</literalValue>
+        <name>Creada</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Direcci_n_de_Correo_electronico_del_CUIT</fullName>
+        <field>Direccion_de_Correo_electronico_del_CUIT__c</field>
+        <formula>Nombre_de_la_cuenta__r.Direccion_de_Correo_electronico_del_CUIT__c</formula>
+        <name>Dirección de Correo electronico del CUIT</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Estado_Pendiente_IIBB</fullName>
+        <field>Estado__c</field>
+        <literalValue>Pendiente por IIBB</literalValue>
+        <name>Estado. Pendiente IIBB</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Fecha_de_Respuesta</fullName>
+        <description>Asigna la fecha del día al campo Fecha_de_Respuesta cuando el estado pasa a Respondida</description>
+        <field>Fecha_de_Respuesta__c</field>
+        <formula>TODAY()</formula>
+        <name>Fecha de Respuesta</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Guarda_Id_Externo</fullName>
+        <description>Guarda el Número de Auditoría generado como Id_Externo para evitar duplicados y para integraciones</description>
+        <field>Id_Externo__c</field>
+        <formula>Name</formula>
+        <name>Guarda_Id_Externo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Guarda_Id_Externo_SG</fullName>
+        <description>Genera el Id_Externo de la Transaccion Sin Guiones para ser utilizado en Flow Carga de Declaraciones a Consumo.</description>
+        <field>Id_Externo_SG__c</field>
+        <formula>SUBSTITUTE( Name , &quot;-&quot;, &quot;&quot; )</formula>
+        <name>Guarda Id_Externo_SG</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>PF_Forzado_TRUE</fullName>
+        <field>Forzar_PF_HIS__c</field>
+        <literalValue>1</literalValue>
+        <name>PF Forzado TRUE</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Respondida</fullName>
+        <description>Asigna el valor Respondida al campo estado</description>
+        <field>Estado__c</field>
+        <literalValue>Respondida</literalValue>
+        <name>Respondida</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Respondida_Parcialmente</fullName>
+        <description>Asigna el estado Respondida Parcialmente</description>
+        <field>Estado__c</field>
+        <literalValue>Respondida Parcialmente</literalValue>
+        <name>Respondida Parcialmente</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Tiene_CAE_False</fullName>
+        <field>Tiene_CAE__c</field>
+        <literalValue>0</literalValue>
+        <name>Tiene CAE False</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Tiene_CV_False</fullName>
+        <field>Tiene_CV__c</field>
+        <literalValue>0</literalValue>
+        <name>Tiene CV False</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Actualiza_Z9_Cambio</fullName>
+        <description>Verdadero el campo Z9_Cambio__c</description>
+        <field>Z9_Cambio__c</field>
+        <literalValue>1</literalValue>
+        <name>Transaccion. Actualiza Z9_Cambio</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Blanquea_Z9_Integracion</fullName>
+        <description>Marca como false el campo Z9_Integración.</description>
+        <field>Z9_Integracion__c</field>
+        <literalValue>0</literalValue>
+        <name>Transacción. Blanquea Z9_Integracion</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Cambio_Cuenta</fullName>
+        <description>Verdadero Cuenta__r.Z9_Cambio__c si el registro de transaccion cambió</description>
+        <field>Z9_Cambio__c</field>
+        <literalValue>1</literalValue>
+        <name>Transaccion. Cambio Cuenta</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Nombre_de_la_cuenta__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Estado_Facturada</fullName>
+        <description>Cambia el estado de la transacción a &quot;Facturada&quot; cuando ser recibe un Nro. de Comprobante desde los ERP.</description>
+        <field>Estado__c</field>
+        <literalValue>Facturada</literalValue>
+        <name>Transacción. Estado Facturada</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Estado_Pendiente_Cuenta_SRE</fullName>
+        <description>Asigna el estado Pendiente Cuenta SRE al estado de la transacción</description>
+        <field>Estado__c</field>
+        <literalValue>Pendiente Cuenta SRE</literalValue>
+        <name>Transaccion. Estado Pendiente Cuenta SRE</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Numero_de_Transacci_n_AUD</fullName>
+        <field>Name</field>
+        <formula>CASE(RecordType.Name, 
+&quot;Auditoría&quot;, Obtentor__r.Id_Obtentor__c &amp; &quot;-&quot; &amp;  TEXT( YEAR( TODAY() ) ) &amp; &quot;-&quot; &amp;  Numerador__c, 
+&quot;REQ&quot; &amp; &quot;-&quot; &amp; TEXT( YEAR( TODAY() ) ) &amp; &quot;-&quot; &amp;  Numerador__c )</formula>
+        <name>Transacción. Número de Transacción AUD</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Numero_de_Transacci_n_DUP</fullName>
+        <field>Name</field>
+        <formula>Obtentor__r.Id_Obtentor__c &amp; &quot;-&quot; &amp;  Campana__r.Ano__c &amp; &quot;-&quot; &amp;  Numerador__c</formula>
+        <name>Transacción. Número de Transacción DUP</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_Pendiente_Cuenta_SRE</fullName>
+        <field>Estado__c</field>
+        <literalValue>Pendiente Cuenta SRE</literalValue>
+        <name>Transaccion. Pendiente Cuenta SRE</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Usuario_Fecha_Respuesta</fullName>
+        <description>Asigna el nombre del usuario que informó la cantidad declarada de una DUP</description>
+        <field>Informo__c</field>
+        <formula>$User.FirstName + &quot; &quot; +  $User.LastName</formula>
+        <name>Usuario Fecha Respuesta</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <flowActions>
+        <fullName>Asigna_Gestor</fullName>
+        <description>Asigna el Gestor de la Auditoría tomando el nombre completo del usuario que la crea.</description>
+        <flow>Asignacion_de_Gestor_AUD</flow>
+        <flowInputs>
+            <name>Id_Externo</name>
+            <value>{!Id_Externo__c}</value>
+        </flowInputs>
+        <flowInputs>
+            <name>nombreUsuario</name>
+            <value>{!CreatedBy.Nombre_Completo__c}</value>
+        </flowInputs>
+        <label>Asigna Gestor</label>
+        <language>es</language>
+        <protected>false</protected>
+    </flowActions>
+    <rules>
+        <fullName>Control Proceso Facturacion</fullName>
+        <actions>
+            <name>Tiene_CAE_False</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Tiene_CV_False</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Para Cuenta y Orden impide que se disparen los WF si no tiene Oportunidad informada.</description>
+        <formula>ISBLANK( Factura__c ) &amp;&amp; ( Tiene_CV__c = true ||  Tiene_CAE__c = true )</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Dirección de Correo electronico del CUIT</fullName>
+        <actions>
+            <name>Direcci_n_de_Correo_electronico_del_CUIT</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.Respondida_via_Minisitio__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>PAPA 2018 - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>PAPA_2018_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>EMAIL_PAPA_2018_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(
+     Respondida_via_Minisitio__c = TRUE,
+     Cultivo__r.Name = &quot;PAPA&quot;
+)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>SOJA 2017 - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>SOJA_2017_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>EMAIL_SOJA_2017_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(Respondida_via_Minisitio__c = TRUE, Campana__r.Name = &quot;2017 - SOJA&quot;)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>SOJA 2018 - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>SOJA_2018_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>EMAIL_SOJA_2018_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(Respondida_via_Minisitio__c = TRUE,  Campana__r.Name = &quot;2018 - SOJA&quot;)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>SOJA 2019 - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>SOJA_2019_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>EMAIL_SOJA_2019_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(Respondida_via_Minisitio__c = TRUE,  Campana__r.Name = &quot;2019 - SOJA&quot;)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>TRIGO 2016 ARVEJA - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>TRIGO_2016_ARVEJA_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>EMAIL_TRIGO_2016_ARVEJA_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(Respondida_via_Minisitio__c = TRUE, Cultivo__r.Name = &quot;ARVEJA&quot;)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>TRIGO 2018 - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>TRIGO_2018_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>TRIGO_2018_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(Respondida_via_Minisitio__c = TRUE,OR( Cultivo__r.Name = &quot;TRIGO&quot;,Cultivo__r.Name = &quot;CEBADA CERVECERA&quot;,Cultivo__r.Name = &quot;CEBADA FORRAJERA&quot;),  Campana_Calculada__c = &apos;2018 - TRIGO&apos;)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>TRIGO 2019 - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>TRIGO_2019_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>EMAIL_TRIGO_2019_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(Respondida_via_Minisitio__c = TRUE,OR( Cultivo__r.Name = &quot;TRIGO&quot;,Cultivo__r.Name = &quot;CEBADA CERVECERA&quot;,Cultivo__r.Name = &quot;CEBADA FORRAJERA&quot;),  Campana_Calculada__c = &apos;2019 - TRIGO&apos;)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>TRIGO 2020 - MINISITIO RECEPCION</fullName>
+        <actions>
+            <name>INVIERNO_2020_MINISITIO_RECEPCION</name>
+            <type>Alert</type>
+        </actions>
+        <actions>
+            <name>EMAIL_Campana_INVIERNO_2020_MINISITIO_RECEPCION</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <formula>AND(
+    Respondida_via_Minisitio__c = TRUE,
+    OR( 
+        Cultivo__r.Name = &quot;TRIGO&quot;,
+        Cultivo__r.Name = &quot;TRIGO CANDEAL&quot;,
+        Cultivo__r.Name = &quot;CEBADA&quot;,
+        Cultivo__r.Name = &quot;CEBADA CERVECERA&quot;,
+        Cultivo__r.Name = &quot;CEBADA FORRAJERA&quot;,
+        Cultivo__r.Name = &quot;ARVEJA&quot;),  
+    Campana_Calculada__c = &apos;2020 - TRIGO&apos;
+)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E DUP Creada</fullName>
+        <actions>
+            <name>Borra_Fecha_de_Respuesta</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Borra_Usuario_Informo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Creada</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna el valor Creada a una DUP sin líneas o con todas sus líneas sin responder</description>
+        <formula>AND(
+   Z9_Lineas_Totales_DUP__c = Z9_Lineas_No_Informadas__c,
+   RecordType.Name = &quot;DUP&quot; ,
+   NOT( ISPICKVAL( Estado__c , &quot;Pedido de Facturación&quot; ) ), 
+   NOT( ISPICKVAL( Estado__c , &quot;Recibida&quot; ) ),
+   NOT( ISPICKVAL( Estado__c , &quot;Rechazada&quot;) ),
+   NOT( ISPICKVAL( Estado__c , &quot;Gestiona Legales&quot;) ),
+   NOT( ISPICKVAL( Estado__c , &quot;Vencida&quot;) )
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E DUP Fecha de Respuesta</fullName>
+        <actions>
+            <name>Fecha_de_Respuesta</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Usuario_Fecha_Respuesta</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.Estado__c</field>
+            <operation>equals</operation>
+            <value>Respondida,Respondida Parcialmente,Pendiente por IIBB</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>User.Usuario_de_Integracion__c</field>
+            <operation>equals</operation>
+            <value>False</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Informo__c</field>
+            <operation>equals</operation>
+        </criteriaItems>
+        <description>Informa la Fecha de Respuesta de la DUP cuando pasa a estado Respondida o Respondida Parcialmente</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E DUP Respondida</fullName>
+        <actions>
+            <name>Respondida</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5</booleanFilter>
+        <criteriaItems>
+            <field>Transaccion__c.Z9_Lineas_Totales_DUP__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Z9_Lineas_No_Informadas__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>DUP</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Estado__c</field>
+            <operation>notEqual</operation>
+            <value>Cobrada,Pedido de Facturacion,Cancelada por Auditoría,Cancelada por NC,Aplicada,Facturada,Desestimada</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Nro_Comprobante_Opp__c</field>
+            <operation>equals</operation>
+        </criteriaItems>
+        <description>Asigna el estado Respondida a una DUP con todas sus lines respondidas</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E DUP Respondida Parcialmente</fullName>
+        <actions>
+            <name>Respondida_Parcialmente</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna el estado de la DUP en función del estado de los Ítems</description>
+        <formula>AND( 
+   Z9_Lineas_Totales_DUP__c &gt;  Z9_Lineas_No_Informadas__c,
+    Z9_Lineas_No_Informadas__c &gt; 0
+)
+&amp;&amp; 
+RecordType.Name = &quot;DUP&quot; 
+&amp;&amp; 
+NOT(ISPICKVAL( Estado__c , &quot;Pedido de Facturacion&quot;))
+&amp;&amp;
+NOT(ISPICKVAL( Estado__c , &quot;Facturada&quot;))
+&amp;&amp;
+NOT(ISPICKVAL( Estado__c , &quot;Cancelada por Auditoría&quot;))
+&amp;&amp;
+NOT(ISPICKVAL( Estado__c , &quot;Cobrada&quot;))
+&amp;&amp;
+NOT(ISPICKVAL( Estado__c , &quot;Desestimada&quot;))
+&amp;&amp;
+NOT(ISPICKVAL( Estado__c , &quot;Aplicada&quot;))
+&amp;&amp;
+NOT(ISPICKVAL( Estado__c , &quot;Cancelada por NC&quot;))</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E PF Forzado TRUE</fullName>
+        <actions>
+            <name>PF_Forzado_TRUE</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Transaccion__c.Estado__c</field>
+            <operation>equals</operation>
+            <value>Pendiente por IIBB</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Forzar_PF__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E Pendiente Cuenta SRE</fullName>
+        <actions>
+            <name>Transaccion_Pendiente_Cuenta_SRE</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5</booleanFilter>
+        <criteriaItems>
+            <field>Transaccion__c.Cantidad_Bolsas_RE__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Auditoría,DUP</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Estado__c</field>
+            <operation>notEqual</operation>
+            <value>Pedido de Facturacion,Cancelada por Auditoría,Cancelada por NC,Aplicada</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Nro_Comprobante_Opp__c</field>
+            <operation>equals</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Estado__c</field>
+            <operation>equals</operation>
+            <value>SRE</value>
+        </criteriaItems>
+        <description>Asigna el estado Pendiente Cuenta SRE cuando la cuenta asociada tiene ese estado</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E Pendiente IIBB</fullName>
+        <actions>
+            <name>Estado_Pendiente_IIBB</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <description>Asigna el estado Pendiente por IIBB cuando corresponde.</description>
+        <formula>AND(  
+	OR( 
+		Z9_Id_Obtentor__c = &quot;30&quot;,
+                Z9_Id_Obtentor__c = &quot;66&quot;
+		),
+	Kilos_Totales_RE__c &lt;&gt; 0,
+	OR(
+		ISPICKVAL( Estado__c, &quot;Respondida&quot;),
+		ISPICKVAL( Estado__c, &quot;Respondida Parcialmente&quot;),
+		ISPICKVAL( Estado__c, &quot;Completa&quot;)
+		),
+	ISBLANK( Nombre_de_la_cuenta__r.Nro_de_IIBB__c ),
+    NOT( Forzar_PF_HIS__c )
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transaccion%2E Registro Cambio</fullName>
+        <actions>
+            <name>Transaccion_Actualiza_Z9_Cambio</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Transaccion_Blanquea_Z9_Integracion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Transaccion_Cambio_Cuenta</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Si el registro de Transacción sufre cambios y el usuario no es Interfaces.</description>
+        <formula>AND(
+Z9_Fecha_Integracion__c &lt; LastModifiedDate,
+NOT(  $User.Usuario_de_Integracion__c  )
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transacción%2E Facturada</fullName>
+        <actions>
+            <name>Transaccion_Estado_Facturada</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
+        <criteriaItems>
+            <field>Transaccion__c.Nro_Comprobante_Opp__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Estado__c</field>
+            <operation>notEqual</operation>
+            <value>INFRACCIONADA Y AVISADA,Justificada,Desestimada,Aplicada,Gestiona Legales,Gestiona Semillero</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Saldo_a_Cobrar_Comprobante__c</field>
+            <operation>notEqual</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.Saldo_a_Cobrar_Comprobante__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Asigna el estado &quot;Facturada&quot; cuando llega la información de los ERP (ArPOV u Obtentores)</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transacción%2E Número de Transacción AUD</fullName>
+        <actions>
+            <name>AUD_Fecha_Respuesta</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Z9_Tipo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Anio_Auditoria</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Transaccion_Numero_de_Transacci_n_AUD</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Auditoría,Requerimiento</value>
+        </criteriaItems>
+        <description>Conforma el número de auditoría concatenando el Id del Obetentor, el año de creación y el número.</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transacción%2E Número de Transacción DUP</fullName>
+        <actions>
+            <name>Actualiza_Z9_Tipo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Transaccion_Numero_de_Transacci_n_DUP</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Conforma el número de DUP concatenando el Id del Obetentor, el año de la campaña y el número.</description>
+        <formula>RecordType.Name = &quot;DUP&quot;</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transacción%2E Registro Nuevo</fullName>
+        <actions>
+            <name>Guarda_Id_Externo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Guarda_Id_Externo_SG</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Transaccion_Cambio_Cuenta</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.Name</field>
+            <operation>contains</operation>
+            <value>-</value>
+        </criteriaItems>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transacción%2E Tipo de Registro AUD</fullName>
+        <actions>
+            <name>Actualiza_Tipo_de_Registro_AUD</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.Z9_Tipo__c</field>
+            <operation>equals</operation>
+            <value>Auditoría</value>
+        </criteriaItems>
+        <description>Define el tipo de Registro en función del campo Z9_Tipo</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Transacción%2E Tipo de Registro DUP</fullName>
+        <actions>
+            <name>Actualiza_Tipo_de_Registro_DUP</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.Z9_Tipo__c</field>
+            <operation>equals</operation>
+            <value>DUP</value>
+        </criteriaItems>
+        <description>Define el tipo de Registro en función del campo Z9_Tipo</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <tasks>
+        <fullName>EMAIL_Campana_INVIERNO_2020_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: Campaña INVIERNO 2020 - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>EMAIL_PAPA_2018_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Cerrada</status>
+        <subject>EMAIL: PAPA 2018 - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>EMAIL_SOJA_2017_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: SOJA 2017 - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>EMAIL_SOJA_2018_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: SOJA 2018 - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>EMAIL_SOJA_2019_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: SOJA 2019 - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>EMAIL_TRIGO_2016_ARVEJA_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: TRIGO 2016 ARVEJA - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>EMAIL_TRIGO_2019_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: TRIGO 2019 - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>TRIGO_2018_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: TRIGO 2018 - MINISITIO RECEPCION</subject>
+    </tasks>
+    <tasks>
+        <fullName>TRIGO_2019_MINISITIO_RECEPCION</fullName>
+        <assignedToType>owner</assignedToType>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>EMAIL: TRIGO 2019 - MINISITIO RECEPCION</subject>
+    </tasks>
+</Workflow>

@@ -1,0 +1,65 @@
+@use "generales.scss";
+
+body {
+    footer {
+        background: generales.$black;
+        position: relative;
+        display: flex;
+        flex-flow: row;
+        z-index: 200;
+        .content {
+            padding: 20px 35px !important;
+            display: flex !important;
+            flex-flow: column-reverse wrap !important;
+            justify-content: space-between !important;
+            background: none !important;
+            min-height: 40px !important;
+            width: calc(100% - 70px);
+            .data {
+                .footlink {
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: flex-start;
+                    align-items: center;
+                    align-content: center;
+                    font-size: 0.75rem;
+                    text-decoration: none;
+                    color: generales.$white;
+                    text-transform: uppercase;
+                    margin: 5px 0;
+                    img {
+                        width: 18px;
+                        height: 18px;
+                    }
+                }
+                .iconic {
+                    margin: 10px 0;
+                }
+            }
+        }
+    }
+
+}
+
+@media (min-width: 768px) {
+
+    body {
+        footer {
+            .content {
+                max-width: 1410px !important;
+                flex-flow: row wrap !important;
+                margin: 0 auto;
+                .data {
+                    padding-left: 20px;
+                    .iconic {
+                        margin: 0;
+                    }
+                }
+            }
+        }
+    }
+    
+}
+@media (min-width: 1600px) {
+    
+}

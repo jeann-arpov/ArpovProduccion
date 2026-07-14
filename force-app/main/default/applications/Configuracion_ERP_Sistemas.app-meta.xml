@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <content>Pagina_Configuracion_ERP_Sistemas</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>standard-home</pageOrSobjectType>
+    </actionOverrides>
+    <brand>
+        <headerColor>#0070D2</headerColor>
+        <logo>descarga</logo>
+        <logoVersion>1</logoVersion>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <description>Aplicación de Configuración del ERP y principales accesos para el control de ERP-CRM</description>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>Configuración ERP Sistemas</label>
+    <navType>Standard</navType>
+    <tabs>standard-home</tabs>
+    <tabs>ERPvs__Datos_Generales__c</tabs>
+    <tabs>Calendario__c</tabs>
+    <tabs>ERPvs__Tipo_de_cambio__c</tabs>
+    <tabs>standard-Product2</tabs>
+    <tabs>ERPvs__Credencial_AFIP__c</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Dashboard</tabs>
+    <tabs>ERPvs__Reporte__c</tabs>
+    <tabs>Linea_de_Compra_HT__c</tabs>
+    <tabs>muestreo_y_testeo__c</tabs>
+    <tabs>Cuenta_Granaria__c</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar>Configuraci_n_ERP_Sistemas_UtilityBar</utilityBar>
+</CustomApplication>

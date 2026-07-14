@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>49.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>isChangedDecision2_myRule_1_Baja_Comision_Aprobado_CD_c</name>
+        <label>isChangedDecision2_myRule_1_Baja_Comision_Aprobado_CD_c</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>myDecision</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>default</defaultConnectorLabel>
+        <rules>
+            <name>isChangedRule_2_myRule_1_Baja_Comision_Aprobado_CD_c</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>myVariable_old</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>myVariable_old.Baja_Comision_Aprobado_CD__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>myVariable_current.Baja_Comision_Aprobado_CD__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>myDecision</targetReference>
+            </connector>
+            <label>isChangedRule_2_myRule_1_Baja_Comision_Aprobado_CD_c</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <processMetadataValues>
+            <name>index</name>
+            <value>
+                <numberValue>0.0</numberValue>
+            </value>
+        </processMetadataValues>
+        <name>myDecision</name>
+        <label>myDecision</label>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>default</defaultConnectorLabel>
+        <rules>
+            <name>myRule_1</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <processMetadataValues>
+                    <name>inputDataType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>leftHandSideType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>operatorDataType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>rightHandSideType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <leftValueReference>myVariable_current.ERPvs__Comprobante__r.ERPvs__Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>NO CONTABILIZADO</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <processMetadataValues>
+                    <name>inputDataType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>leftHandSideType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>operatorDataType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>rightHandSideType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <leftValueReference>myVariable_current.ERPvs__Producto__r.ERPvs__Familia__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>Comisiones</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <processMetadataValues>
+                    <name>inputDataType</name>
+                    <value>
+                        <stringValue>Boolean</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>leftHandSideType</name>
+                    <value>
+                        <stringValue>Picklist</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>operatorDataType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>rightHandSideType</name>
+                    <value>
+                        <stringValue>Boolean</stringValue>
+                    </value>
+                </processMetadataValues>
+                <leftValueReference>isChangedRule_2_myRule_1_Baja_Comision_Aprobado_CD_c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <processMetadataValues>
+                    <name>inputDataType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>leftHandSideType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>operatorDataType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <processMetadataValues>
+                    <name>rightHandSideType</name>
+                    <value>
+                        <stringValue>String</stringValue>
+                    </value>
+                </processMetadataValues>
+                <leftValueReference>myVariable_current.CreatedBy.Nombre_Completo__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>VCS Admin</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>myRule_1_A1</targetReference>
+            </connector>
+            <label>Baja Comisión Aprobado CD &lt;&gt; 0</label>
+        </rules>
+    </decisions>
+    <description>Actualiza el campo descuento según la baja de comisión definida en la CD para un período determinado</description>
+    <formulas>
+        <processMetadataValues>
+            <name>originalFormula</name>
+            <value>
+                <stringValue>IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;0,5&quot;), ROUND(0.5 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;1&quot;), ROUND(1 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;1,5&quot;), ROUND(1.5 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;2&quot;), ROUND(2 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;2,5&quot;), ROUND(2.5 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;5&quot;), ROUND(5 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;10&quot;), ROUND(10 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;15&quot;), ROUND(15 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;20&quot;), ROUND(20 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;25&quot;), ROUND(25 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;30&quot;), ROUND(30 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;35&quot;), ROUND(35 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;40&quot;), ROUND(40 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;45&quot;), ROUND(45 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;50&quot;), ROUND(50 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;55&quot;), ROUND(55 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;60&quot;), ROUND(60 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;65&quot;), ROUND(65 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;70&quot;), ROUND(70 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;75&quot;), ROUND(75 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;80&quot;), ROUND(80 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;85&quot;), ROUND(85 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;90&quot;), ROUND(90 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;95&quot;), ROUND(95 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;100&quot;), ROUND(100 / [ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c, 2),0)))))))))))))))))))))))))</stringValue>
+            </value>
+        </processMetadataValues>
+        <name>formula_3_myRule_1_A1_2219561009</name>
+        <dataType>Number</dataType>
+        <expression>IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;0,5&quot;), ROUND(0.5 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;1&quot;), ROUND(1 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;1,5&quot;), ROUND(1.5 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;2&quot;), ROUND(2 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;2,5&quot;), ROUND(2.5 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;5&quot;), ROUND(5 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;10&quot;), ROUND(10 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;15&quot;), ROUND(15 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;20&quot;), ROUND(20 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;25&quot;), ROUND(25 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;30&quot;), ROUND(30 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;35&quot;), ROUND(35 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;40&quot;), ROUND(40 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;45&quot;), ROUND(45 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;50&quot;), ROUND(50 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;55&quot;), ROUND(55 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;60&quot;), ROUND(60 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;65&quot;), ROUND(65 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;70&quot;), ROUND(70 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;75&quot;), ROUND(75 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;80&quot;), ROUND(80 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;85&quot;), ROUND(85 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;90&quot;), ROUND(90 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;95&quot;), ROUND(95 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;100&quot;), ROUND(100 / {!myVariable_current.Precio_Unitario_Sin_IVA__c}, 2),0)))))))))))))))))))))))))</expression>
+        <scale>18</scale>
+    </formulas>
+    <formulas>
+        <processMetadataValues>
+            <name>originalFormula</name>
+            <value>
+                <stringValue>IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;0,5&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.005), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;1&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.01), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;1,5&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.015), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;2&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.02), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;2,5&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.025), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;5&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.05), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;10&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.10), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;15&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.15), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;20&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.20), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;25&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.25), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;30&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.30), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;35&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.35), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;40&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.40), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;45&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.45), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;50&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.50), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;55&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.55), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;60&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.60), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;65&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.65), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;70&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.70), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;75&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.75), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;80&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.80), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;85&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.85), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;90&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.90), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;95&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 0.95), 2),
+IF( ISPICKVAL([ERPvs__Productos_Comprobante_de_Venta__c].Baja_Comision_Aprobado_CD__c, &quot;100&quot;), ROUND(100 * ([ERPvs__Productos_Comprobante_de_Venta__c].Precio_Unitario_Sin_IVA__c - 1), 2),0)))))))))))))))))))))))))</stringValue>
+            </value>
+        </processMetadataValues>
+        <name>formula_4_myRule_1_A1_7470384530</name>
+        <dataType>Number</dataType>
+        <expression>IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;0,5&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.005), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;1&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.01), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;1,5&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.015), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;2&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.02), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;2,5&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.025), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;5&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.05), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;10&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.10), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;15&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.15), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;20&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.20), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;25&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.25), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;30&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.30), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;35&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.35), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;40&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.40), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;45&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.45), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;50&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.50), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;55&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.55), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;60&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.60), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;65&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.65), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;70&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.70), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;75&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.75), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;80&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.80), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;85&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.85), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;90&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.90), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;95&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 0.95), 2),
+IF( ISPICKVAL({!myVariable_current.Baja_Comision_Aprobado_CD__c}, &quot;100&quot;), ROUND(100 * ({!myVariable_current.Precio_Unitario_Sin_IVA__c} - 1), 2),0)))))))))))))))))))))))))</expression>
+        <scale>18</scale>
+    </formulas>
+    <interviewLabel>PCV_Baja_Comision_Aprobada_por_CD-6_InterviewLabel</interviewLabel>
+    <label>PCV.Baja Comisión Aprobada por CD</label>
+    <processMetadataValues>
+        <name>ObjectType</name>
+        <value>
+            <stringValue>ERPvs__Productos_Comprobante_de_Venta__c</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>ObjectVariable</name>
+        <value>
+            <elementReference>myVariable_current</elementReference>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OldObjectVariable</name>
+        <value>
+            <elementReference>myVariable_old</elementReference>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>TriggerType</name>
+        <value>
+            <stringValue>onAllChanges</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Workflow</processType>
+    <recordUpdates>
+        <processMetadataValues>
+            <name>evaluationType</name>
+            <value>
+                <stringValue>always</stringValue>
+            </value>
+        </processMetadataValues>
+        <processMetadataValues>
+            <name>extraTypeInfo</name>
+        </processMetadataValues>
+        <processMetadataValues>
+            <name>isChildRelationship</name>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </processMetadataValues>
+        <processMetadataValues>
+            <name>reference</name>
+            <value>
+                <stringValue>[ERPvs__Productos_Comprobante_de_Venta__c]</stringValue>
+            </value>
+        </processMetadataValues>
+        <processMetadataValues>
+            <name>referenceTargetField</name>
+        </processMetadataValues>
+        <name>myRule_1_A1</name>
+        <label>Actualiza Campos</label>
+        <locationX>100</locationX>
+        <locationY>200</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <processMetadataValues>
+                <name>implicit</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </processMetadataValues>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>myVariable_current.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <processMetadataValues>
+                <name>dataType</name>
+                <value>
+                    <stringValue>Number</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>isRequired</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideLabel</name>
+                <value>
+                    <stringValue>Descuento</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideReferenceTo</name>
+                <value>
+                    <stringValue></stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>rightHandSideType</name>
+                <value>
+                    <stringValue>Formula</stringValue>
+                </value>
+            </processMetadataValues>
+            <field>ERPvs__Descuento__c</field>
+            <value>
+                <elementReference>formula_3_myRule_1_A1_2219561009</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <processMetadataValues>
+                <name>dataType</name>
+                <value>
+                    <stringValue>Number</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>isRequired</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideLabel</name>
+                <value>
+                    <stringValue>% Comisión Aprobado CD</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideReferenceTo</name>
+                <value>
+                    <stringValue></stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>rightHandSideType</name>
+                <value>
+                    <stringValue>Formula</stringValue>
+                </value>
+            </processMetadataValues>
+            <field>Porcentaje_Comision_Aprobado_CD__c</field>
+            <value>
+                <elementReference>formula_4_myRule_1_A1_7470384530</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ERPvs__Productos_Comprobante_de_Venta__c</object>
+    </recordUpdates>
+    <startElementReference>isChangedDecision2_myRule_1_Baja_Comision_Aprobado_CD_c</startElementReference>
+    <status>Obsolete</status>
+    <variables>
+        <name>myVariable_current</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+        <objectType>ERPvs__Productos_Comprobante_de_Venta__c</objectType>
+    </variables>
+    <variables>
+        <name>myVariable_old</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <objectType>ERPvs__Productos_Comprobante_de_Venta__c</objectType>
+    </variables>
+</Flow>

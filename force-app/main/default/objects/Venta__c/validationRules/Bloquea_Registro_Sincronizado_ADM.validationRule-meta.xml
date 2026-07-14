@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_Registro_Sincronizado_ADM</fullName>
+    <active>false</active>
+    <description>Bloquea el cambio de un registro de venta que haya sido sincronizado con el sistema de Don Mario</description>
+    <errorConditionFormula>NOT( ISBLANK( AFC_ADM__c ) )</errorConditionFormula>
+    <errorMessage>No se puede modificar un registro de Venta ya sincronizado con el sistema del Obtentor.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: DA.Actualiza Importes VENC</description>
+    <environments>Default</environments>
+    <interviewLabel>DA.Actualiza Importes VENC (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>DA.Actualiza Importes VENC (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_DA</name>
+        <label>Actualiza DA</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <inputAssignments>
+            <field>Actualizar_Importes_VENC__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ERPvs__Importe_MN__c</field>
+            <value>
+                <elementReference>$Record.ERPvs__Vencimientos__r.ERPvs__Importe_MN__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ERPvs__Importe_MO__c</field>
+            <value>
+                <elementReference>$Record.ERPvs__Vencimientos__r.ERPvs__Importe_MO__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualiza_DA</targetReference>
+        </connector>
+        <filterFormula>{!$Record.ERPvs__Movimiento_de_Fondo__r.ERPvs__Estado__c} = &quot;NO CONTABILIZADO&quot;&amp;&amp;
+{!$Record.Actualizar_Importes_VENC__c} = TRUE &amp;&amp;
+({!$Record.ERPvs__Importe_MO__c} &lt;&gt; {!$Record.ERPvs__Vencimientos__r.ERPvs__Importe_MO__c} ||
+{!$Record.ERPvs__Importe_MN__c} &lt;&gt; {!$Record.ERPvs__Vencimientos__r.ERPvs__Importe_MN__c})</filterFormula>
+        <object>ERPvs__Documento_Afectado__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

@@ -1,0 +1,185 @@
+<template>
+    
+    <!-- Comprobantes -->
+    <template if:true={comprobantes}>
+
+        <div class="slds-section slds-is-open slds-m-bottom_x-large">
+
+            <h3 class="slds-section__title slds-theme_shade">
+                    Estado de Cuenta
+            </h3>
+
+            <div class="slds-table_edit_container slds-is-relative slds-wrap slds-m-around_x-small">
+                <table class="slds-table slds-table_cell-buffer slds-table_header-hidden slds-table_bordered table-total">
+                    <tr>
+                        <td>
+                            Total Adeudado:
+                        </td>
+                        <td>
+                            <lightning-formatted-number format-style="currency" value={totalAdeudado}></lightning-formatted-number>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <template for:each={totalPorObtentor} for:item="obtentor">
+                        <tr key={obtentor.key}>
+                            
+                            <td>
+                                <div class="slds-text-title_caps">{obtentor.key}</div>
+                            </td>
+                            
+                            <td>
+                                <lightning-formatted-number format-style="currency" value={obtentor.value}></lightning-formatted-number>
+                            </td>
+
+                            <td>
+                                <lightning-button 
+                                    onclick={handleOnInstructivoClick}
+                                    data-id={obtentor.key}  
+                                    label="Instructivo de Pago"></lightning-button>
+                            </td>
+                            
+                        </tr>
+                    </template>
+                </table>
+            </div>
+        </div>
+
+        <div class="slds-section slds-is-open slds-m-bottom_x-large">
+
+            <h3 class="slds-section__title slds-theme_shade">
+                Detalle de comprobantes
+            </h3>
+
+            <div class="slds-table_edit_container slds-is-relative slds-wrap slds-m-around_x-small">
+                <table class="slds-table slds-table_cell-buffer slds-table_fixed-layout slds-table_bordered">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th style="width:10rem" scope="col">
+                                <div >Nro. de Comprobante</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Obtentor</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Fecha Emisión</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Fecha Vencimiento</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Moneda</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Importe Total</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Saldo</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Saldo ARS a la Fecha</div>
+                            </th>
+                            <th scope="col" style="width: 50px;">
+                                <!-- PDF -->
+                            </th>
+                            <th scope="col" style="width: 100px;">
+                                <!-- AgroPago -->
+                            </th>
+                            <td scope="row" style="width: 150px;">
+                                <!-- Informar Pago -->
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={comprobantes} for:item="comprobante">
+                            <tr key={comprobante.numero} class="slds-hint-parent">
+                                <td scope="row">
+                                    <div>
+                                        <lightning-formatted-text value={comprobante.numero} ></lightning-formatted-text>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <lightning-formatted-text value={comprobante.shortNameSemillero} ></lightning-formatted-text>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <lightning-formatted-date-time time-zone="UTC" value={comprobante.fechaEmisionComprobante} ></lightning-formatted-date-time>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <lightning-formatted-date-time time-zone="UTC" value={comprobante.fechaVencimientoComprobante} ></lightning-formatted-date-time>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <lightning-formatted-text value={comprobante.moneda} ></lightning-formatted-text>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <lightning-formatted-number format-style="currency" value={comprobante.importeTotal} ></lightning-formatted-number>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <lightning-formatted-number format-style="currency" value={comprobante.saldo} ></lightning-formatted-number>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <lightning-formatted-number format-style="currency" value={comprobante.saldoActualizado} ></lightning-formatted-number>
+                                    </div>
+                                </td>
+                                <td scope="row">
+                                    <template if:true={comprobante.file}>
+                                        <lightning-button-icon 
+                                        onclick={handleOnClick}
+                                        data-id={comprobante.id} 
+                                        icon-name="utility:file"  
+                                        alternative-text="Factura Electronica" 
+                                        title="Factura Electronica"></lightning-button-icon>
+                                    </template>
+                                </td>
+                                <td scope="row">
+                                    <template if:true={comprobante.showPaymentButton}>
+                                        <lightning-button
+                                            onclick={handleOnPayClick}
+                                            data-id={comprobante.id} 
+                                            label="Pagar"></lightning-button>
+                                    </template>
+                                </td>
+                                <td scope="row">
+                                    <div class="slds-truncate">
+                                        <template if:true={comprobante.showInformPayment}>
+                                            <lightning-button
+                                                onclick={handleOnInformarPagoClick}
+                                                data-id={comprobante.id} 
+                                                label="Informar Pago"></lightning-button>
+                                        </template>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Spinner -->
+    <template if:true={processing}>
+        <lightning-spinner variant="brand" alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+    <!-- Modal -->
+    <c-pdf-reader></c-pdf-reader>
+
+    <!-- AgroPago -->
+    <c-agropago-stand-alone></c-agropago-stand-alone>
+
+    <!-- Informar Pago -->
+    <c-informar-pago></c-informar-pago>
+
+</template>

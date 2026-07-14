@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Existen_HTs_Pendientes</name>
+        <label>Existen HTs Pendientes?</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <defaultConnector>
+            <targetReference>Actualizar_Tiene_HTs_Pendientes</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Todas Pagadas</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_HTs_pendientes.Productor__r.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Diariamente, para cada plan de siembra con TIene HTs Pendientes = True se buscan HTs Pendientes para el productor y cultivo.
+Si no existen --&gt; se cambia a TIene HTs Pendientes = False.</description>
+    <environments>Default</environments>
+    <interviewLabel>Plan de Siembra - {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Plan de Siembra - Cambiar Tiene HTs Pendientes a False</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Para el productor y cultivo del plan de siembra</description>
+        <name>Buscar_HTs_pendientes</name>
+        <label>Buscar HTs pendientes</label>
+        <locationX>176</locationX>
+        <locationY>252</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Existen_HTs_Pendientes</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Etapa__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Pendiente</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Productor__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Productor__r.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Cultivo__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Parametro_PPH__r.Cultivo__r.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Hectareas_Tecnologicas__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualizar_Tiene_HTs_Pendientes</name>
+        <label>Actualizar Tiene HTs Pendientes</label>
+        <locationX>308</locationX>
+        <locationY>468</locationY>
+        <inputAssignments>
+            <field>Tiene_Hts_Pendientes__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Buscar_HTs_pendientes</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Tiene_Hts_Pendientes__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Plan_de_Siembra__c</object>
+        <schedule>
+            <frequency>Daily</frequency>
+            <startDate>2023-08-23</startDate>
+            <startTime>23:30:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

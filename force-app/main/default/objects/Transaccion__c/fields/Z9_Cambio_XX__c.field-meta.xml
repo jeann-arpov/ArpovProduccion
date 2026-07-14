@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Cambio_XX__c</fullName>
+    <description>Indica si el registro sufrió cambios desde la última modificación</description>
+    <formula>LastModifiedDate  &gt;  Z9_Fecha_Integracion__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Z9_Cambio_XX</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

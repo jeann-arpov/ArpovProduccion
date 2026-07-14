@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>Campania__c</columns>
+    <columns>NAME</columns>
+    <columns>Cuenta__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Estado_de_la_Etapa__c</columns>
+    <columns>Saldo_CG__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Gestionar__c</columns>
+    <columns>Dias_en_etapa_actual__c</columns>
+    <columns>Dias_transcurridos_desde_creacion_Exp__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Campania__c</field>
+        <operation>equals</operation>
+        <value>2025 - soja</value>
+    </filters>
+    <filters>
+        <field>NAME</field>
+        <operation>contains</operation>
+        <value>EXP</value>
+    </filters>
+    <filters>
+        <field>Etapa__c</field>
+        <operation>equals</operation>
+        <value>Traspaso TN</value>
+    </filters>
+    <label>All</label>
+    <sharedTo>
+        <roleAndSubordinatesInternal>Gerencia_General</roleAndSubordinatesInternal>
+    </sharedTo>
+</ListView>

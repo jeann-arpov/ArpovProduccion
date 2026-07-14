@@ -1,0 +1,300 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <div if:true={loading}>
+        <lightning-spinner alternative-text="Loading"></lightning-spinner>
+    </div>
+    <div class="containerPrincipal">
+        <!-- Paso 1: Seleccionar Cultivo -->
+        <div class={step1Class}>
+            <div class="step-header" data-step="1" onclick={handleStepClick}>
+                <div class="step-circle">1</div>
+                <div class="step-label">Seleccionar Cultivo</div>
+            </div>
+            <template if:true={isStep1Active}>
+                <div class="step-content">
+                    <template for:each={decoratedCultivos} for:item="c">
+                        <div key={c.nombre}
+                            class={c.cssClass}
+                            data-nombre={c.nombre}
+                            data-id={c.id}
+                            onclick={handleSelectCultivo}>
+                            <div class="cultivo-card">
+                                <img src={c.icono} alt="" class="cultivo-icon" />
+                            </div>
+                            <div class="cultivo-divider"></div>
+                            <div class="cultivo-label">{c.nombre}</div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <!-- Paso 2: Seleccionar Plataforma Tecnológica -->
+
+        <div class={step2Class} lwc:if={showFilterTech}>
+            <div class="step-header" data-step="2" onclick={handleStepClick}>
+                <div class="step-circle">2</div>
+                <div class="step-label">Seleccionar Plataforma Tecnológica</div>
+            </div>
+            <template if:true={isStep2Active}>
+                <div class="step-content vertical">
+                    <lightning-combobox 
+                        options={biotecnologias}
+                        value={biotecnologia}
+                        onchange={selectTech}
+                        placeholder="Seleccionar plataforma tecnológica"
+                        class="custom-combobox">
+                    </lightning-combobox>
+                </div>
+            </template>
+        </div>
+
+        <!-- Paso 3: Seleccionar Campaña -->
+
+        <div class={step3Class} lwc:if={showCampanaSelector}>
+            <div class="step-header step-header-with-tech" data-step="3" onclick={handleStepClick}>
+                <div class="step-header-main">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Seleccionar Campaña</div>
+                </div>
+                <template lwc:if={biotecnologia}>
+                    <span class="step-header-tech">{biotecnologiaLabel}</span>
+                </template>
+            </div>
+            <template if:true={isStep3Active}>
+                <div class="step-content">
+                    <template for:each={decoratedCampanas} for:item="camp" for:index="index">
+                        <div key={camp.id}
+                            class={camp.cssClass}
+                            data-id={camp.id}
+                            data-index={index}
+                            onclick={handleSelectCampana}>
+                            <div class="campana-card">
+                                <div class="campana-title">{camp.displayName}</div>
+                                <div class="campana-period">{camp.period}</div>
+                                <template if:true={camp.hasAdhesion}>
+                                    <div class="campana-pph">
+                                        <img src={images.pph} alt="PPH" class="pph-icon" />
+                                    </div>
+                                </template>
+                                <template if:false={camp.hasAdhesion}>
+                                    
+                                    <div class="campana-toneladas"><lightning-formatted-number value={camp.saldoCuentaGranaria} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></div>
+                                    <div class="campana-label">toneladas</div>
+                                    <template if:false={camp.hideToneladas}>
+                                    </template>
+                                </template>
+                                <template if:true={camp.isLast}>
+                                    <div class="campana-btn">Ingresar</div>
+                                </template>
+                                <template if:false={camp.isLast}>
+                                    <div class="campana-btn campana-btn-disabled">Ingresar</div>
+                                </template>
+                            </div>
+                            <!-- Tooltip fuera de la card para evitar pointer-events: none -->
+                            <template if:true={camp.hasAdhesion}>
+                                <a class="campana-info-tooltip">
+                                    <lightning-icon icon-name="utility:info" size="xx-small" class="comments-icn"></lightning-icon>
+                                </a>
+                                <div class="campana-tooltip-content">
+                                    <div class="help-header"><b>Campaña Adherida a PPH</b></div>
+                                    <p class="help-text">Podes entregar tu grano sin segregar tecnologías en función del plan de siembra informado y el rendimiento promedio zonal.</p>
+                                </div>
+                            </template>
+                            <template if:false={camp.hasAdhesion}>
+                                <template if:false={camp.hideToneladas}>
+                                    <a class="campana-info-tooltip">
+                                        <lightning-icon icon-name="utility:info" size="xx-small" class="comments-icn"></lightning-icon>
+                                    </a>
+                                    <div class="campana-tooltip-content">
+                                        <div class="help-header"><b>Saldo disponible de esta campaña</b></div>
+                                        <p class="help-text">Es el saldo que se usa primero cuando realizás una entrega de grano de esta campaña.
+
+Si tenés saldo suficiente, se debita automáticamente.
+
+Si no alcanza, el sistema utilizará tus HT disponibles (abajo).</p>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </template>
+                    <!-- HT Disponibles adquiridas -->
+                    <template if:true={showHTInfo}>
+                        <div class="ht-info-container">
+                            <div class="ht-info-box">
+                                <!-- Info HT - Icono en esquina -->
+                                <a class="c-tooltip ht-info-tooltip">
+                                    <lightning-icon icon-name="utility:info" class="comments-icn" size="xx-small"></lightning-icon>
+                                </a>
+                                <div class="tooltipContainer ht-tooltip-content">
+                                    <div class="help-header"><b>HT Disponibles (para futuras entregas)</b></div>
+                                    <p class="help-text">Son HTs que compraste sin asignar a una campaña.
+El sistema las utiliza automáticamente cuando no tenés saldo suficiente en la campaña correspondiente.
+Se asignan según el año de cosecha informado en la carta de porte.</p>
+                                </div>
+                                <div class="ht-info-row">
+                                    <span class="ht-info-label">
+                                        HT Disponibles sin consumir:
+                                    </span>
+                                    <span class="ht-info-value"><lightning-formatted-number value={htDisponibles} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></span>
+                                </div>
+                                <div class="ht-info-divider"></div>
+                                <div class={htEquivalenteRowClass}>
+                                    <span class="ht-info-sublabel">Equivalente en Toneladas</span>
+                                    <span class="ht-info-subvalue"><lightning-formatted-number value={equivalenteToneladas} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></span>
+                                </div>
+                            </div>
+                            <div class="ht-btn-container">
+                                <button class="ht-comprar-btn" onclick={handleComprarHT}>
+                                    Comprar HT
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="slds-var-m-around_medium footer-note">
+                        * Ante cualquier duda al respecto contactanos a info@sembraevolucion.com.ar o vía Whatsapp al +54 9 11 3117 2022.
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Resumen de Toneladas -->
+        <template if:true={totales}>
+            <div class="resumen-toneladas">
+                <h2 class="resumen-title">
+                    <lightning-icon icon-name="utility:table" size="small"></lightning-icon>
+                    Resumen de Toneladas - {campanaSeleccionadaPeriod}
+                </h2>
+
+                <lightning-layout horizontal-align="space">
+                    <!-- Columna izquierda -->
+                    <lightning-layout-item size="4">
+                        <!-- COMENTADO - Toneladas disponibles para entregar
+                        <table>
+                            <thead><tr><th colspan="2"></th></tr></thead>
+                            <tbody>
+                                <tr class="total darker-green">
+                                    <td><b>Toneladas disponibles para entregar</b></td>
+                                    <td>{totalDisponibles}</td>
+                                </tr>
+                            </tbody>
+                        </table><br/>
+                        -->
+                        <!-- <table>
+                            <thead><tr><th colspan="2"></th></tr></thead> -->
+                            <!-- <tbody> -->
+                                <!-- <tr class="total white-row">
+                                    <td><b>Toneladas entregadas desde el {fechaEntregadasWithFormat}</b></td>
+                                    <td><lightning-formatted-number value={totalEntregadas} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                </tr> -->
+                                <!-- COMENTADO - Toneladas a vencer
+                                <tr class="total white-row">
+                                    <td><b>Toneladas a vencer el {fechaVencimientoToDisplay}</b></td>
+                                    <td>{totalVencer}</td>
+                                </tr>
+                                -->
+                            <!-- </tbody> -->
+                        <!-- </table><br/> -->
+                        <table>
+                            <thead><tr><th colspan="2"></th></tr></thead>
+                            <tbody>
+                                <tr class="total highlight">
+                                    <td>
+                                        <b>Toneladas a regularizar</b>
+                                        <a class="c-tooltip" style="padding: 3px;">
+                                            <lightning-icon icon-name="utility:info" size="small"></lightning-icon>
+                                        </a>
+                                        <div class="tooltipContainer">
+                                            Compre sus HT
+                                        </div>
+                                    </td>
+                                    <td><lightning-formatted-number value={totalToneladasRegularizar} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                </tr>
+                                <tr class="total highlight" lwc:if={showInfoRegaliaEnlist}>
+                                    <td>
+                                        <b>Toneladas a pagar de Regalía Enlist</b>
+                                        <a class="c-tooltip" style="padding: 3px;">
+                                            <lightning-icon icon-name="utility:info" size="small"></lightning-icon>
+                                        </a>
+                                        <div class="tooltipContainer">
+                                            Ante cualquier duda comunicarse con licenciasenlist@corteva.com
+                                        </div>
+                                    </td>
+                                    <td><lightning-formatted-number value={totalRegaliaEnlistPendientes} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </lightning-layout-item>
+
+                    <!-- Columna derecha -->
+                    <lightning-layout-item size="6">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Originado Por</th>
+                                    <th>Toneladas Vigentes</th>
+                                    <th>Descargar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr key={total.label} for:each={totales} for:item="total">
+                                    <td>{total.label}</td>
+                                    <td><lightning-formatted-number value={total.value} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>{totalBolsatech.label}</td>
+                                    <td><lightning-formatted-number value={totalBolsatech.value} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                    <td>
+                                        <button class="btn-download" onclick={descargarDetalle} data-name={totalBolsatech.origen}>
+                                            <lightning-icon icon-name="utility:download" size="x-small" class="btn-download-icon"></lightning-icon>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <!-- COMENTADO - Saldo Campaña Anterior
+                                <tr>
+                                    <td>{totalBalanceAnual.label}</td>
+                                    <td>{totalBalanceAnual.value}</td>
+                                    <td></td>
+                                </tr>
+                                -->
+                                <tr lwc:if={showInfoRegaliaEnlist}>
+                                    <td>{totalRegaliaEnlistPagada.label}</td>
+                                    <td><lightning-formatted-number value={totalRegaliaEnlistPagada.value} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                    <td></td>
+                                </tr>
+                                <tr lwc:if={showTotalTransferencia}>
+                                    <td>{totalTransferencia.label}</td>
+                                    <td><lightning-formatted-number value={totalTransferencia.value} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                    <td></td>
+                                </tr>
+                                <tr class="total-final">
+                                    <td>Total Toneladas</td>
+                                    <td><lightning-formatted-number value={totalTodo} locale="es-AR" format-style="decimal" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                
+            </div>
+        </template>
+
+        <!-- LEGACY - Adhesion PPH standalone (reemplazado por PPH dentro de tarjetas de campaña)
+        <div class="slds-var-m-around_large" if:true={showAdhesionStandalone}>
+            <div class="slds-text-heading_medium slds-text-align_center" style="font-weight:bold;">
+                Estás adherido al programa de pre certificación de hectáreas
+            </div>
+            <div class="slds-text-heading_small slds-text-align_center" style="font-weight:bold;">
+                Vigente hasta el <lightning-formatted-date-time value={fechaVencimientoPPH}></lightning-formatted-date-time>
+            </div>
+            <div class="slds-align_absolute-center slds-var-m-around_small">
+                <img src={images.pph} width="180" height="180"/>
+            </div>
+        </div>
+        -->
+    </div>
+    
+</template>

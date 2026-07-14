@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <environments>Default</environments>
+    <interviewLabel>DCC.Actualiza DCC SE {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>DCC.Actualiza DCC SE</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Actualiza el DCC para SE</description>
+        <name>Actualizar_DCC_SE</name>
+        <label>Actualizar DCC SE</label>
+        <locationX>176</locationX>
+        <locationY>287</locationY>
+        <inputAssignments>
+            <field>ERPvs__Concepto_de_Compra__c</field>
+            <value>
+                <stringValue>a1H4R00000h8NcH</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_DCC_SE</targetReference>
+        </connector>
+        <filterFormula>CONTAINS({!$Record.ERPvs__Comprobante_Compra__r.ERPvs__Tipo_comprobante__r.Name}, &quot;Liquido Producto&quot;) &amp;&amp;
+{!$Record.ERPvs__Comprobante_Compra__r.ERPvs__Sucursal__c} = 1002</filterFormula>
+        <object>ERPvs__Detalle_comprobante_compra__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

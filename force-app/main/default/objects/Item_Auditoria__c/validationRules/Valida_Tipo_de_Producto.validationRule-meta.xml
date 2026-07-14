@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Tipo_de_Producto</fullName>
+    <active>false</active>
+    <description>El tipo de producto y la condición de blanqueo deben ser coherentes. Si el producto es Regalía Comercial debe ser Blanqueo y si no puede blanquearse con Regalía Extendida.</description>
+    <errorConditionFormula>OR( 
+   AND( Tipo_de_Producto__c = &quot;Regalía Comercial&quot;,  NOT( ISPICKVAL( Blanqueo__c , &quot;SI&quot;) ) ),
+   AND( Tipo_de_Producto__c &lt;&gt; &quot;Regalía Comercial&quot;, ISPICKVAL( Blanqueo__c , &quot;SI&quot;) )
+)</errorConditionFormula>
+    <errorMessage>El Tipo de Producto y la condición de Blanqueo deben ser coherentes.</errorMessage>
+</ValidationRule>

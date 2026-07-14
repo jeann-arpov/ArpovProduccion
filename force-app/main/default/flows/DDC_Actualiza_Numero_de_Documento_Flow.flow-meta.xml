@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>V1: Actualiza el campo Número cuando el mismo difiere del registrado en la identificación del Valor del CRM</description>
+    <formulas>
+        <name>nvoNumeroDDC</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISBLANK({!Obtiene_datos_de_Detalle_Documentos_Recibidos.Valor__r.Cheque_Numero_Cheque__c}), VALUE(RPAD({!Obtiene_datos_de_Detalle_Documentos_Recibidos.Valor__r.Identificacion__c},8)), VALUE({!Obtiene_datos_de_Detalle_Documentos_Recibidos.Valor__r.Cheque_Numero_Cheque__c}) )</expression>
+        <scale>0</scale>
+    </formulas>
+    <interviewLabel>DDC.Actualiza {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>DDC.Actualiza Numero de Documento (Flow)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Obtiene_datos_de_Detalle_Documentos_Recibidos</name>
+        <label>Obtiene datos de Detalle Documentos Recibidos</label>
+        <locationX>176</locationX>
+        <locationY>216</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Actualiza_DDC</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>idDDC</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>ERPvs__Detalle_Documento_Recibido__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualiza_DDC</name>
+        <label>Actualiza DDC</label>
+        <locationX>177</locationX>
+        <locationY>418</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>idDDC</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>ERPvs__Numero__c</field>
+            <value>
+                <elementReference>nvoNumeroDDC</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ERPvs__Detalle_Documento_Recibido__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Obtiene_datos_de_Detalle_Documentos_Recibidos</targetReference>
+        </connector>
+    </start>
+    <status>Obsolete</status>
+    <variables>
+        <name>idDDC</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

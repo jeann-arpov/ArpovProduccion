@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pagos_Recibidos__c</fullName>
+    <formula>IF( OR( ISPICKVAL( Item_de_DUP__r.Transaccion__r.Estado__c , &quot;Facturada&quot;), ISPICKVAL( Item_de_DUP__r.Transaccion__r.Estado__c, &quot;Cobrada&quot; )),  Aplicacion__r.Importe__c * Item_de_DUP__r.Transaccion__r.Factura__r.Percepciones__c *  Porcentaje_sobre_el_Total__c  , 0 )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Pagos Recibidos</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CUIT_Anterior__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>CUIT Anterior</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Relaciones entre CUITS</relationshipLabel>
+    <relationshipName>Relaciones_entre_CUITS</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

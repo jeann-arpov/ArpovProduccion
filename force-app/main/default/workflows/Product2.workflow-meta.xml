@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Id_Externo</fullName>
+        <description>Genera el Id Externo (Clave Única) del Producto</description>
+        <field>Id_Externo__c</field>
+        <formula>Variedad__c &amp;
+CASE(TEXT( Family ), 
+    &quot;Regalía Comercial&quot;, &quot;RC&quot;,
+    &quot;Regalía Extendida&quot;, &quot;RE&quot;,
+    &quot;Semilla Fiscalizada&quot;, &quot;SF&quot;,
+    &quot;Sin Regalía Extendida&quot;, &quot;SRE&quot;,
+    &quot;Uso Público&quot;, &quot;USP&quot;,
+    &quot;Semilla Identificada&quot;, &quot;SI&quot;,
+    &quot;Sembra Evolucion&quot;, &quot;SE&quot;,
+    &quot;NA&quot;
+) &amp;
+CASE(TEXT( Categoria__c ), 
+    &quot;Original o Fundadora&quot;, &quot;OF&quot;,
+    &quot;Uso Propio&quot;, &quot;UP&quot;,
+    &quot;Pre Básica&quot;, &quot;PB&quot;,
+    &quot;Primera Multiplicación&quot;, &quot;PM&quot;,
+    &quot;Segunda Multiplicación&quot;, &quot;SM&quot;,
+    &quot;Tercera Multiplicación&quot;, &quot;TM&quot;,
+    &quot;Identificada&quot;, &quot;ID&quot;,
+    &quot;No Definida&quot;, &quot;ND&quot;,
+    &quot;Auditada&quot;, &quot;AU&quot;,
+    &quot;Identificada&quot;, &quot;ID&quot;,
+    &quot;Futura&quot;, &quot;FU&quot;,
+    &quot;Disponible&quot;, &quot;DI&quot;,
+    &quot;NA&quot;
+) &amp;
+TEXT( Unidad_de_Medida__c )
+&amp;  Obtentor_Comercializa__r.Id_Obtentor__c</formula>
+        <name>Id Externo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Producto_Activo</fullName>
+        <field>IsActive</field>
+        <literalValue>1</literalValue>
+        <name>Producto. Activo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Producto%2E Activo</fullName>
+        <actions>
+            <name>Producto_Activo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Product2.CreatedById</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Product2.Sembra_Evolucion__c</field>
+            <operation>equals</operation>
+            <value>False</value>
+        </criteriaItems>
+        <description>Esta regla asegura que todos los productos que se generan quedan activos, ante posibles olvido de los usuarios que carguen los mismos.</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Producto%2E Valores Iniciales</fullName>
+        <actions>
+            <name>Id_Externo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
+        <criteriaItems>
+            <field>Product2.Variedad__c</field>
+            <operation>notEqual</operation>
+            <value>null</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Product2.Family</field>
+            <operation>equals</operation>
+            <value>Regalía Comercial,Regalía Extendida,Sin Regalía Extendida,Semilla Fiscalizada,Uso Público,Semilla Identificada,Sembra Evolucion</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Product2.Categoria__c</field>
+            <operation>equals</operation>
+            <value>Primera Multiplicación,Segunda Multiplicación,Tercera Multiplicación,Uso Propio,Identificada,Original o Fundadora,Pre Básica,No Definida,Uso Público,Auditada,Futura,Disponible</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Product2.Unidad_de_Medida__c</field>
+            <operation>equals</operation>
+            <value>15,20,&quot;22,7&quot;,25,30,35,40,45,50,100,600,700,800,1000,1100,Granel,Hectáreas</value>
+        </criteriaItems>
+        <description>Genera los valores iniciales para el producto (Id Externo, etc.)</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

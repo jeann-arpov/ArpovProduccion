@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>importe__c</fullName>
+    <description>Suma de los importes de los valores relacionados.</description>
+    <inlineHelpText>Suma de los importes de los valores relacionados.</inlineHelpText>
+    <label>Importe</label>
+    <summarizedField>Valor__c.Importe__c</summarizedField>
+    <summaryFilterItems>
+        <field>Valor__c.Estado__c</field>
+        <operation>notEqual</operation>
+        <value>Rechazado</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Valor__c.Comprobante_de_Pago__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

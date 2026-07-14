@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comercio_SGL</fullName>
+    <fields>Name</fields>
+    <fields>Business_Name__c</fields>
+    <fields>Cuenta__c</fields>
+    <fields>CUIT__c</fields>
+    <fields>Negocio__c</fields>
+    <label>Comercio SGL</label>
+</CompactLayout>

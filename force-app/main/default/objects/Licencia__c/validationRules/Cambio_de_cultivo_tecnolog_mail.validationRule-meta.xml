@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cambio_de_cultivo_tecnolog_mail</fullName>
+    <active>true</active>
+    <description>Se puede cambiar la tecnología o el mail Firmante Licencia si el estado de la licencia es Creada.</description>
+    <errorConditionFormula>AND(
+   TEXT(Estado__c) &lt;&gt; &apos;Creada&apos;,
+   OR($Profile.Name = &quot;Sembra Evolucion - Lider&quot;,
+      $Profile.Name = &quot;Sembra Evolucion - Operador&quot;
+    ),
+   OR(
+      ISCHANGED( Tecnologia__c ),
+      ISCHANGED( Firmante_Licencia__c )
+   )
+)</errorConditionFormula>
+    <errorMessage>Solo puede cambiar una licencia en estado &apos;Creada&apos;.</errorMessage>
+</ValidationRule>

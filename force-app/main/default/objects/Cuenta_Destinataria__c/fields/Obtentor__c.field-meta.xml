@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Obtentor__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Obtentor propietario de la cuenta.</description>
+    <inlineHelpText>Obtentor propietario de la cuenta. Seleccionar Obtentor ArPOV cuando Corresponda.</inlineHelpText>
+    <label>Obtentor</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Debe seleccionar una cuenta del tipo Obtentor</errorMessage>
+        <filterItems>
+            <field>Account.Type</field>
+            <operation>equals</operation>
+            <value>Obtentor</value>
+        </filterItems>
+        <infoMessage>Seleccione el Obtentor propietario de la cuenta bancaria informada.</infoMessage>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Cuentas Destinatarias</relationshipLabel>
+    <relationshipName>Cuentas_Destinatarias</relationshipName>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

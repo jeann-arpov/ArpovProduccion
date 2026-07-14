@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resultado_Validacion_Analista__c</fullName>
+    <defaultValue>&quot;Pendiente de Validación&quot;</defaultValue>
+    <label>Resultado Validación Analista</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Positiva</fullName>
+                <default>false</default>
+                <label>Positiva</label>
+            </value>
+            <value>
+                <fullName>Negativa</fullName>
+                <default>false</default>
+                <label>Negativa</label>
+            </value>
+            <value>
+                <fullName>Pendiente de Validación</fullName>
+                <default>false</default>
+                <label>Pendiente de Validación</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Cada vez que se cierra un chat transcript, se actualiza el asunto del caso asociado.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>forCaseReason</name>
+        <dataType>String</dataType>
+        <expression>TEXT({!$Record.Case.Motivo_Portal__c})</expression>
+    </formulas>
+    <formulas>
+        <name>forNombreCasoChat</name>
+        <dataType>String</dataType>
+        <expression>&quot;CUIT: &quot; &amp; {!$Record.Case.CUIT__c} &amp; &quot; - CHAT: &quot; &amp; {!$Record.Name} &amp; &quot; - &quot; &amp; TEXT({!$Record.Case.Motivo_Portal__c}) &amp; &quot; - &quot; &amp; {!$Record.Case.CaseNumber}</expression>
+    </formulas>
+    <interviewLabel>Chat - Actualizar datos del Caso Asociado {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Chat - Actualizar datos del Caso Asociado</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Obtener_Caso_del_Transcript</name>
+        <label>Obtener Caso del Transcript</label>
+        <locationX>176</locationX>
+        <locationY>335</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Actualizar_Caso</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Case.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Case</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualizar_Caso</name>
+        <label>Actualizar Caso</label>
+        <locationX>176</locationX>
+        <locationY>455</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Obtener_Caso_del_Transcript.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Reason</field>
+            <value>
+                <elementReference>forCaseReason</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <elementReference>forNombreCasoChat</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Obtener_Caso_del_Transcript</targetReference>
+        </connector>
+        <object>LiveChatTranscript</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

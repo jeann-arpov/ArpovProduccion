@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estados_Validos_sin_Lineas</fullName>
+    <active>false</active>
+    <description>Valida los estados de una auditoría sin líneas. No pueden facturarse. Estados válidos: &quot;Borrador&quot; o &quot;Completa&quot;.</description>
+    <errorConditionFormula>And(  RecordType.Name = &quot;Auditoría&quot; &amp;&amp;  Z9_Lineas_Totales_Auditorias__c = 0,  
+      OR( ISPICKVAL( Estado__c, &quot;Pedido de Facturación&quot; ), ISPICKVAL( Estado__c, &quot;Facturada&quot; ) 
+      )  
+)</errorConditionFormula>
+    <errorMessage>El estado ingresado no es válido para una auditoría sin líneas.</errorMessage>
+</ValidationRule>

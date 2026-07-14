@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Cultivo__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Origen__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Campania__c</columns>
+    <columns>Venta__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <columns>TN_Id__c</columns>
+    <columns>Plan_de_Siembra__c</columns>
+    <columns>Capsula__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Cultivo__c</field>
+        <operation>equals</operation>
+        <value>Cebada</value>
+    </filters>
+    <filters>
+        <field>Campania__c</field>
+        <operation>contains</operation>
+        <value>cebada</value>
+    </filters>
+    <label>Todos</label>
+</ListView>

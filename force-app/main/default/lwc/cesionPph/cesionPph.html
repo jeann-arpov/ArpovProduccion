@@ -1,0 +1,85 @@
+<template>
+    <div onclick={loadingClick}>
+        <div if:true={loading} class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+
+        <h1 class="slds-var-m-bottom_large heading">Solicitud de cesión de Toneladas - {tipoCesion}</h1>
+
+        <div class="banner-container slds-var-m-bottom_small">
+            <div class="warning-banner slds-box slds-var-p-vertical_small slds-var-m-right_x-small" lwc:if={showWarning}>
+                <div style="display:flex">
+                    <div class="slds-var-m-right_x-small" style="flex-basis:8%;">
+                        <lightning-icon size="large" icon-name="utility:warning"></lightning-icon>
+                    </div>
+                    <div class="slds-text-heading_small" style="flex-basis:70%;">
+                        <span lwc:if={showWarningHT}>{htsWarningText}</span>
+                        <span lwc:elseif={showWarningFechaCultivo}>{fechasCesionWarningText}</span>
+                    </div>
+                    <div class="comprar-button">
+                        <lightning-button class="black-button" lwc:if={showWarningHT} label="Comprar HT" onclick={redirectToCompraHT}></lightning-button>  
+                    </div>
+                </div>
+            </div>
+            <div class="banner slds-box slds-var-p-vertical_small">
+                <lightning-layout horizontal-align="spread">
+                    <lightning-layout-item size="4" style="display:flex;">
+                        <div class="slds-var-m-horizontal_small" style="display:flex;align-items:center;">
+                            <div class="slds-text-heading_small" style="font-weight:700;">{title}</div>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="4" lwc:if={isCultivo}>
+                        <lightning-layout>
+                            <lightning-layout-item style="width: 30px" padding="horizontal-small">
+                                <svg style="margin-top:10px" width="35" height="35">;
+                                    <use xlink:href={seedIcon}></use>
+                                </svg>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="5" padding="horizontal-small">
+                                <lightning-combobox options={cultivos} variant="label-hidden" onchange={cultivoSelected}></lightning-combobox>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="1" padding="horizontal-small">
+                                <lightning-button class="black-button" label="Confirmar" onclick={startCesion}></lightning-button>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6" lwc:if={showFileUpload}>
+                        <lightning-file-upload class="file-upload" if:true={cesion} name="fileUploader" accept=".pdf,.png,.jpg,.jpeg" record-id={cesion.Id} onuploadfinished={handleUploadFinished} multiple></lightning-file-upload>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+        </div>
+
+        <div class={cesionClass}>
+            <div class="slds-m-bottom_medium">
+                <h1>Contratos subidos</h1>
+                <template for:each={files} for:item="file">
+                    <div aria-colspan="slds-m-bottom_small" key={file.ContentDocument.Id} class="heading heading-gray">
+                        <span class="slds-m-right_small">{file.ContentDocument.Title}</span>
+                        <lightning-button-icon class="slds-m-right_small" variant="bare" icon-name="utility:preview" data-id={file.ContentDocument.Id} onclick={handleFilePreview}></lightning-button-icon>
+                        <lightning-button-icon variant="bare" icon-name="utility:delete" data-id={file.ContentDocument.Id} onclick={handleFileDelete}></lightning-button-icon>
+                    </div>
+                </template>
+            </div>
+
+            <template for:each={destinatarios} for:item="destinatario">
+                <c-destinatario-pph class="slds-m-bottom_large" hiding={hiding} key={destinatario.id} info={destinatario} onupdatecantidad={updateCantidad} onremove={remove} onautosave={autosave} edit-id={editId} onregistercuit={registerCuit}></c-destinatario-pph>
+            </template>
+
+            <button type="button" onclick={addRow} class="slds-button slds-m-left_large add-destinatario">
+                <lightning-button-icon class="slds-m-right_small" icon-name="utility:add" title="Agregar Destinatario"></lightning-button-icon>
+                <b>Agregar Destinatario</b>
+            </button>
+
+            <lightning-layout class="slds-m-vertical_medium" horizontal-align="center" >
+                <lightning-layout-item class="actions">
+                    <lightning-button if:true={isCesion} class="slds-m-left_small continue black" label="Continuar" onclick={continuar}></lightning-button>
+                    <lightning-button if:true={isEdit} class="slds-m-left_small" label="Volver al resumen" onclick={backToResumen}></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </div>
+
+    <c-resumen-cesion-pph if:true={isResumen} info={data} onedit={editConfirm} onenviar={enviarConfirm} onanular={anularConfirm}></c-resumen-cesion-pph>
+    <c-modals-pph callback={modalCallback} current-modal={currentModal} onclose={closeModal}></c-modals-pph>
+</template>

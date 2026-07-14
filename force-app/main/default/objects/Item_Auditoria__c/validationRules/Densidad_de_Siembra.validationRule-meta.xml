@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Densidad_de_Siembra</fullName>
+    <active>true</active>
+    <description>Valida que se haya ingresado la Densidad de Siembra cuando la Unidad de medida relevada o la Unidad de medida de facturación es Hectáreas y diferente a la otra.</description>
+    <errorConditionFormula>AND(
+  OR(
+    AND( 
+        ISPICKVAL( Unidad_de_Medida_Relevada__c, &quot;Hectáreas&quot; ), 
+        NOT(ISPICKVAL(Producto__r.Unidad_de_Medida__c,&quot;Hectáreas&quot;))
+    ),
+    AND(
+        ISPICKVAL(Producto__r.Unidad_de_Medida__c,&quot;Hectáreas&quot;), 
+        NOT(ISPICKVAL( Unidad_de_Medida_Relevada__c, &quot;Hectáreas&quot; ))
+    )
+  ),
+   ISBLANK( Densidad_de_Siembra__c ) 
+)</errorConditionFormula>
+    <errorDisplayField>Densidad_de_Siembra__c</errorDisplayField>
+    <errorMessage>Debe ingresar la densidad de siembra para esta operación.</errorMessage>
+</ValidationRule>

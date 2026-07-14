@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Permisos para asignar Grupo de Trabajo y Operador / Operador de Cobranza.</description>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.Grupo_de_Trabajo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.Operador__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.Operador_de_Cobranza__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Operador de Ventas</label>
+    <license>Salesforce</license>
+</PermissionSet>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Al crear o modificar una relación variedad SRE x productor,  se actualiza el nombre a VSRE + Marca + Cuit de la cuenta + Variedad y se guarda el obtentor comercializa: si la marca tiene parentId null, es la marca, sino es el parent id de la marca.
+Se agrega Id_Externo como clave única para evitar que se creen registros duplicados.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>forNombre</name>
+        <dataType>String</dataType>
+        <expression>&apos;VSRE-&apos; &amp; {!$Record.Marca__r.Nombre_Obtentor__c} &amp; &apos;-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp;{!$Record.Variedad__r.Name}</expression>
+    </formulas>
+    <formulas>
+        <name>forObtentorComercializa</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Record.Marca__r.ParentId}) || ISNULL({!$Record.Marca__r.ParentId}), {!$Record.Marca__r.Id}, {!$Record.Marca__r.Parent.Id})</expression>
+    </formulas>
+    <interviewLabel>VariedadSRExProductor - Actualizar Nombre {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>VariedadSRExProductor - Actualizar Nombre</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Nombre</name>
+        <label>Actualizar Nombre</label>
+        <locationX>176</locationX>
+        <locationY>287</locationY>
+        <inputAssignments>
+            <field>Id_Externo__c</field>
+            <value>
+                <elementReference>forNombre</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>forNombre</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Obtentor_Comercializa__c</field>
+            <value>
+                <elementReference>forObtentorComercializa</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Nombre</targetReference>
+        </connector>
+        <object>Variedad_SRE_por_Productor__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

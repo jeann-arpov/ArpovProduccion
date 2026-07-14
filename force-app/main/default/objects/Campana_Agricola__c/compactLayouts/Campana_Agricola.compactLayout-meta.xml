@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campana_Agricola</fullName>
+    <fields>Name</fields>
+    <fields>Estado__c</fields>
+    <fields>Densidad__c</fields>
+    <fields>Bolsas_SF__c</fields>
+    <fields>Bolsas_UP__c</fields>
+    <fields>Cuits_SF__c</fields>
+    <fields>Cuits_UP__c</fields>
+    <fields>Cultivo__c</fields>
+    <fields>Gestion_Venta__c</fields>
+    <label>Campaña Agricola</label>
+</CompactLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Notas_de_Credito</fullName>
+    <columns>NAME</columns>
+    <columns>Estado__c</columns>
+    <columns>Campana__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Nombre_de_la_cuenta__c</columns>
+    <columns>Nro_Comprobante__c</columns>
+    <columns>Total_a_FacturarDUP__c</columns>
+    <columns>Saldo_a_Cobrar__c</columns>
+    <columns>Obtentor__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Transaccion__c.DUP</value>
+    </filters>
+    <filters>
+        <field>Subestado__c</field>
+        <operation>equals</operation>
+        <value>Negativa</value>
+    </filters>
+    <filters>
+        <field>Fecha_de_Respuesta__c</field>
+        <operation>equals</operation>
+        <value>THIS_WEEK</value>
+    </filters>
+    <label>Notas de Crédito</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

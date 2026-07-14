@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Documento__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF (NOT ISBLANK(Transaccion__c ), Transaccion__r.Name , 
+    IF (NOT ISBLANK( Factura__c ), Factura__r.N_de_Comprobante__c  , 
+       &quot; &quot; 
+   ) 
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Documento</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

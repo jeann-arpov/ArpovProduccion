@@ -1,0 +1,81 @@
+<template>
+    <div style="display:flex;justify-content:flex-end;margin-top:2rem;">
+        <div>
+            <lightning-button class="slds-m-top--medium" variant="brand" label="Nuevo Establecimiento" onclick={openModalNew} ></lightning-button>
+        </div>
+        <div style="margin-left: 1rem;">
+            <lightning-button class="slds-m-top--medium" variant="brand" label="Abrir Mapa" onclick={openModal} ></lightning-button>
+        </div>
+    </div>
+    <c-modal>
+        <div slot="header">
+            Uibicaciones de Establecimientos
+        </div>
+        <lightning-map map-markers={markers}></lightning-map>
+    </c-modal>
+
+    <template if:true={modal}>
+        <div class="modal-backdrop">
+            <div class="modal">
+                <div class="close">
+                    <button class="close-button" onclick={closeModal}>×</button>
+                </div>
+
+                <div class="modal-body">
+                    <lightning-card>
+                        <h2 slot="title" class="slds-text-align_center">
+                            Nuevo Establecimiento
+                        </h2>
+                        <div class="slds-p-around_medium">
+                            <!-- Grid de 2 columnas -->
+                            <div class="slds-grid slds-wrap slds-gutters">
+
+                                <!-- Nombre del Establecimiento -->
+                            <div class="slds-col slds-size_1-of-2">
+                            <lightning-input label="Nombre del Establecimiento"
+                                            name="nombre"
+                                            onchange={handleNameChange}
+                                            required>
+                            </lightning-input>
+                            </div>
+
+                            <!-- Coordenadas -->
+                             <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="search" value={mapCoodinates} class={coordinatesClass} label="Georeferencia" onclick={showMap} required message-when-value-missing="Este campo es obligatorio"></lightning-input>
+                             </div>
+
+
+                            <c-map onlocationselected={updateLocation}></c-map>
+
+                        </div> 
+                        </div>
+                    </lightning-card>
+                     <!-- Botones -->
+                            <div class="slds-m-top_medium slds-align_absolute-center">
+                                <lightning-button label="Cancelar" onclick={closeModal} class="slds-m-right_small"></lightning-button>
+                                <lightning-button label="Guardar" variant="brand" onclick={handleSave}></lightning-button>
+                            </div>
+                </div>
+            </div>
+        </div>
+</template>
+
+ <template if:true={modalmsj}>
+        <div class="modal-backdrop">
+            <div class="modal">
+            <div class="close">
+                <button class="close-button" onclick={closeModal}>×</button>
+            </div><br>
+            <p style="font-size: x-large;">Nuevo Establecimiento</p><br>
+            <p>
+                {mensaje} <br />
+            </p>
+            <br>
+            <button class="action-button" onclick={closeModal}>
+                Aceptar ➡
+            </button>
+            </div>
+        </div>
+</template>
+
+</template>

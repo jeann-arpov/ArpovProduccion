@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Transacciones_CV</fullName>
+    <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6</booleanFilter>
+    <columns>Tiene_CV__c</columns>
+    <columns>NAME</columns>
+    <columns>Tipo_de_Transaccion__c</columns>
+    <columns>Estado__c</columns>
+    <columns>Campana__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Nombre_de_la_cuenta__c</columns>
+    <columns>Cantidad_Bolsas_RE__c</columns>
+    <columns>Total_a_FacturarDUP__c</columns>
+    <columns>Total_a_Facturar_AUD__c</columns>
+    <columns>Obtentor__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Factura__c</field>
+        <operation>equals</operation>
+    </filters>
+    <filters>
+        <field>Tipo_de_Transaccion__c</field>
+        <operation>equals</operation>
+        <value>Auditoría</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Completa</value>
+    </filters>
+    <filters>
+        <field>Subestado__c</field>
+        <operation>equals</operation>
+        <value>Positiva</value>
+    </filters>
+    <filters>
+        <field>Total_a_Facturar_AUD__c</field>
+        <operation>greaterThan</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Fecha_de_la_Visita__c</field>
+        <operation>greaterOrEqual</operation>
+        <value>9/23/2022</value>
+    </filters>
+    <label>Transacciones con CV</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

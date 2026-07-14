@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TD_en_Siembras_Propias_Comercios</fullName>
+    <columns>NAME</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Producto__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Fecha__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tipo_de_Venta__c</field>
+        <operation>equals</operation>
+        <value>TD</value>
+    </filters>
+    <filters>
+        <field>CUIL_originario_y_destinatario_igual__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterOrEqual</operation>
+        <value>1/1/2026 12:00 AM</value>
+    </filters>
+    <label>TD en Siembras Propias - Comercios</label>
+</ListView>

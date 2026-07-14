@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Copy_of_HT_Origen_Semilla_Fiscalizada</fullName>
+    <columns>NAME</columns>
+    <columns>Origen__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Campana__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Venta__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Tipo_de_Movimiento__c</columns>
+    <columns>Plan_de_Siembra__c</columns>
+    <columns>HT_a_Borrar__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Compra SF</value>
+    </filters>
+    <filters>
+        <field>Variedad__c</field>
+        <operation>equals</operation>
+        <value>NS5023 STS</value>
+    </filters>
+    <label>HT a Borrar Origen SF</label>
+</ListView>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ano__c</fullName>
+    <description>Año de la campaña. Si es Temporada Verano, se extiende al año calendario siguiente.</description>
+    <externalId>false</externalId>
+    <formula>Campana__r.Ano__c</formula>
+    <label>Año</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

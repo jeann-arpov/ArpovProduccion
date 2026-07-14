@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Copia_de_Ventas_Informadas_Procesadas2</fullName>
+    <columns>NAME</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <columns>Razon_Social_Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Razon_Social_Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad_Bolsas_40__c</columns>
+    <columns>Producto__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Procesado</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterOrEqual</operation>
+        <value>7/1/2025 12:00 AM</value>
+    </filters>
+    <filters>
+        <field>Variedad__c</field>
+        <operation>equals</operation>
+        <value>DON MARIO 49R19</value>
+    </filters>
+    <filters>
+        <field>CUIT_Originante__c</field>
+        <operation>equals</operation>
+        <value>30502874353</value>
+    </filters>
+    <filters>
+        <field>Categoria__c</field>
+        <operation>contains</operation>
+        <value>primera</value>
+    </filters>
+    <label>Copia de Ventas Informadas Procesadas</label>
+</ListView>

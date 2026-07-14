@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>V1: Asigna el TC Fecha Pago SE para los MF de Sembrá Evolución
+V2: Se reemplaza el filtro Simbolo por Nombre Moneda</description>
+    <environments>Default</environments>
+    <interviewLabel>MF.Asigna TC Fecha Pago SE {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>MF.Asigna TC Fecha Pago SE</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Buscar_TC_Fecha_Pago_SE</name>
+        <label>Buscar TC Fecha Pago SE</label>
+        <locationX>176</locationX>
+        <locationY>335</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Actualiza_TC_Fecha_Pago_SE</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ERPvs__Fecha__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Fecha_Pago_SE__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>ERPvs__Nombre_Moneda__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Dólares Americanos</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>ERPvs__Tipo_de_cambio__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualiza_TC_Fecha_Pago_SE</name>
+        <label>Actualiza TC Fecha Pago SE</label>
+        <locationX>176</locationX>
+        <locationY>455</locationY>
+        <inputAssignments>
+            <field>TC_Fecha_Pago_SE__c</field>
+            <value>
+                <elementReference>Buscar_TC_Fecha_Pago_SE.ERPvs__Vendedor__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Buscar_TC_Fecha_Pago_SE</targetReference>
+        </connector>
+        <filterFormula>{!$Record.ERPvs__Estado__c} = &quot;NO CONTABILIZADO&quot; &amp;&amp;
+{!$Record.ERPvs__Tipo_Comprobante_Movimiento_Fondo__r.Name} = &quot;Cobranzas CYO SE (sin aplicar)&quot; &amp;&amp;
+NOT ISBLANK({!$Record.Fecha_Pago_SE__c})</filterFormula>
+        <object>ERPvs__Movimiento_Fondo__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

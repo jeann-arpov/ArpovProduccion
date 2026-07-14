@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta__c</fullName>
+    <description>Cuenta relacionada</description>
+    <inlineHelpText>Cuenta relacionada</inlineHelpText>
+    <label>Cuenta</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Exenciones</relationshipLabel>
+    <relationshipName>Exenciones</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

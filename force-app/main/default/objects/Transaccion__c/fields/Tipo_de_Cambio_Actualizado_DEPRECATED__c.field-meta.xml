@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Cambio_Actualizado_DEPRECATED__c</fullName>
+    <description>Tipo de Cambio actualizado a la fecha.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Tipo de Cambio actualizado a la fecha.</inlineHelpText>
+    <label>Tipo de Cambio Actualizado (DEPRECATED))</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>4</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

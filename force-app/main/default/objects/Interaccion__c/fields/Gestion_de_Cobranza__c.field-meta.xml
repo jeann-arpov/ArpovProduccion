@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gestion_de_Cobranza__c</fullName>
+    <formula>Temas_de_Cobranza__c &gt; 0</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Si está marcado indica que la Gestión incluye temas de cobranza.</inlineHelpText>
+    <label>Gestión de Cobranza</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comision_Regalia_Simple_XX__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( 
+YEAR( DATEVALUE( CreatedDate ) ) &lt; 2017, 
+Cobrado_por_Regalia_Simple__c * 20 / 100, 
+Cobrado_por_Regalia_Simple__c *   Comision_Referencia_RS__c 
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Comision Regalia Simple (XX)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

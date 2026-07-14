@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Temas_Tratados_Efectivos__c</fullName>
+    <label>Temas Tratados Efectivos</label>
+    <summaryFilterItems>
+        <field>Caso_Gestionado__c.Resultado_de_la_Actividad__c</field>
+        <operation>equals</operation>
+        <value>Efectiva</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Caso_Gestionado__c.Interaccion__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Lineas_En_Seguimiento__c</fullName>
+    <description>Count(de lineas de auditoria en estado Irregular en Seguimiento.</description>
+    <label>Z9_Lineas_En_Seguimiento</label>
+    <summaryFilterItems>
+        <field>Item_Auditoria__c.Resultado__c</field>
+        <operation>equals</operation>
+        <value>Irregular en seguimiento</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Item_Auditoria__c.Auditoria__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

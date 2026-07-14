@@ -1,0 +1,351 @@
+:host {
+    display: block;
+    --se-brand-green: #b7f302;
+    --se-brand-green-hover: #a3d902;
+    --se-text: #1c1c1c;
+    --se-text-muted: #444444;
+    --se-text-label: #1c1c1c;
+    --se-border: #d4d4d4;
+    --se-border-focus: #b7f302;
+    --se-bg-readonly: #f5f5f5;
+    --se-radius-pill: 1.5rem;
+    --se-input-height: 2.5rem;
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+}
+
+.form-card {
+    border-radius: 0.75rem;
+    color: var(--se-text);
+}
+
+.form-card--modal {
+    border: none;
+    box-shadow: none;
+    background: #ffffff;
+}
+
+.form-card--modal .slds-card__body {
+    padding: 0;
+    margin: 0;
+}
+
+.form-shell {
+    padding: 0.25rem 0.5rem 0.5rem;
+}
+
+/* Sin scroll propio en modal: lo maneja ventaInformadaModal */
+.form-shell--modal {
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    background: #ffffff;
+}
+
+.form-card--modal,
+.form-card--modal .slds-card__body,
+.form-layout {
+    max-height: none;
+    overflow: visible;
+}
+
+.form-intro {
+    margin: 0 0 1rem;
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--se-text-label);
+}
+
+.form-layout {
+    width: 100%;
+}
+
+.form-grid {
+    width: 100%;
+}
+
+.form-section {
+    width: 100%;
+    margin-bottom: 1.25rem;
+}
+
+.form-section:last-child {
+    margin-bottom: 0.5rem;
+}
+
+.form-section__title {
+    margin: 0 0 0.75rem;
+    padding: 0 0.5rem 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--se-text);
+    border-bottom: 2px solid var(--se-brand-green);
+}
+
+.form-field {
+    width: 100%;
+    min-width: 0;
+    padding: 0 var(--lwc-spacingXSmall, 0.5rem);
+    margin-bottom: 0.5rem;
+}
+
+.form-field__label {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    margin-bottom: 0.375rem;
+    padding: 0;
+    float: none;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    color: var(--se-text-label);
+}
+
+.form-field__label .slds-required {
+    margin-right: 0;
+    color: #c23934;
+}
+
+.form-field__control {
+    width: 100%;
+}
+
+/* Combobox custom: dropdown flotante, anclado al contenedor del input */
+.slds-combobox_container {
+    position: relative;
+    width: 100%;
+}
+
+.lookup-combobox__dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    bottom: 100%;
+    margin-bottom: 0.25rem;
+    margin-top: 0;
+    padding: 0.25rem 0;
+    max-height: 12.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: auto;
+    background-color: #ffffff;
+    border: 1px solid var(--se-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.14);
+    box-sizing: border-box;
+    z-index: 10001;
+    transform: none;
+    isolation: isolate;
+}
+
+.lookup-combobox__dropdown .slds-listbox_vertical {
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+.lookup-combobox__dropdown .slds-listbox__item {
+    background-color: #ffffff;
+}
+
+.slds-combobox_container .slds-combobox__form-element {
+    display: block;
+    width: 100%;
+}
+
+.slds-combobox_container .slds-combobox__input.slds-input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-field__control .slds-combobox_container {
+    overflow: visible;
+}
+
+.lookup-combobox__dropdown .slds-listbox__option {
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    background-color: #ffffff;
+}
+
+.lookup-combobox__dropdown .slds-listbox__option:hover {
+    background-color: #f3f3f3;
+}
+
+.lookup-combobox__dropdown .slds-listbox__option.slds-is-selected {
+    background-color: #ecebea;
+}
+
+.slds-combobox_container .slds-combobox__input.slds-input {
+    height: var(--se-input-height);
+    min-height: var(--se-input-height);
+    border-radius: var(--se-radius-pill);
+    border-color: var(--se-border);
+    padding-right: 2rem;
+}
+
+.slds-combobox_container .slds-combobox__input.slds-input:focus {
+    border-color: var(--se-border-focus);
+    box-shadow: 0 0 0 1px var(--se-border-focus);
+}
+
+.form-field__control--checkbox {
+    padding-top: 0.125rem;
+}
+
+.form-field__control lightning-input-field,
+.form-field__control lightning-combobox,
+.form-field__control lightning-input {
+    width: 100%;
+}
+
+/* Remito / Remito de Devolución: un solo control tipo "pill" (mismo look que el resto del modal) */
+.n-comprobante-prefijado {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: var(--se-input-height);
+    box-sizing: border-box;
+    border: 1px solid var(--se-border);
+    border-radius: var(--se-radius-pill);
+    background-color: #ffffff;
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.n-comprobante-prefijado:focus-within {
+    border-color: var(--se-border-focus);
+    box-shadow: 0 0 0 1px var(--se-border-focus);
+}
+
+.n-comprobante-prefijado__prefijo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 2.75rem;
+    padding: 0 0.25rem 0 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--se-text-muted);
+    background: transparent;
+    border: none;
+}
+
+/* Input nativo: sin borde/radio propios (evita el “arco” del lightning-input) */
+.n-comprobante-prefijado__input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0 1rem 0 0.25rem;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    border-radius: 0;
+    background: transparent;
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: var(--se-input-height);
+    height: var(--se-input-height);
+    min-height: var(--se-input-height);
+    color: var(--se-text-label);
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.n-comprobante-prefijado__input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.n-comprobante-prefijado__input::placeholder {
+    color: #747474;
+    opacity: 1;
+}
+
+.form-card--modal .form-field__control lightning-input-field,
+.form-card--modal .form-field__control lightning-combobox,
+.form-card--modal .form-field__control lightning-input,
+.form-card--modal .form-field__control .fecha-input {
+    --slds-c-input-sizing-min-height: var(--se-input-height);
+    --slds-c-input-line-height: var(--se-input-height);
+    --slds-c-input-radius-border: var(--se-radius-pill);
+    --slds-c-input-color-border: var(--se-border);
+    --slds-c-input-color-border-focus: var(--se-border-focus);
+    --slds-c-input-shadow-focus: 0 0 0 1px var(--se-border-focus);
+    --slds-c-input-spacing-block-start: 0;
+    --slds-c-input-spacing-block-end: 0;
+    --slds-c-input-text-color: var(--se-text-label);
+    --slds-c-input-color-background: #ffffff;
+    --slds-c-icon-color-foreground-default: #706e6b;
+    --slds-c-icon-color-foreground: #706e6b;
+}
+
+.form-card--modal .form-field__control .razon-social-input {
+    --slds-c-input-color-background: var(--se-bg-readonly);
+    --slds-c-input-color-background-disabled: var(--se-bg-readonly);
+    --slds-c-input-text-color: #444444;
+    --slds-c-input-color-border: #e5e5e5;
+}
+
+.form-field__control--date {
+    position: relative;
+    min-height: var(--se-input-height);
+}
+
+.form-field__control--date .fecha-input {
+    display: block;
+    width: 100%;
+}
+
+.form-field__control--date .slds-input-has-icon .slds-input__icon,
+.form-field__control--date .slds-input-has-icon .slds-input__icon_right,
+.form-field__control--date .slds-input-has-icon .slds-button_icon.slds-input__icon {
+    top: unset;
+    margin-top: 0;
+    bottom: auto;
+    transform: none;
+}
+
+.form-card:not(.form-card--modal) .form-field__control lightning-input-field,
+.form-card:not(.form-card--modal) .form-field__control lightning-combobox,
+.form-card:not(.form-card--modal) .form-field__control lightning-input {
+    --slds-c-input-sizing-min-height: 2.25rem;
+    --slds-c-icon-color-foreground-default: #706e6b;
+    --slds-c-icon-color-foreground: #706e6b;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.75rem 0.5rem 0;
+    border-top: 1px solid #eeeeee;
+    margin-top: 0.5rem;
+}
+
+.form-card--modal .form-actions {
+    display: none;
+}
+
+.form-actions .form-btn-save {
+    --slds-c-button-brand-color-background: #1c1c1c;
+    --slds-c-button-brand-color-background-hover: #333333;
+    --slds-c-button-brand-color-border: #1c1c1c;
+    --slds-c-button-brand-text-color: #ffffff;
+    --slds-c-button-radius-border: 1.25rem;
+    font-weight: 700;
+}
+button{
+    height: 0 !important;
+}

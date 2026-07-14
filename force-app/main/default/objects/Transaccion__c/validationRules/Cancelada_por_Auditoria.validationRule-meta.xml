@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cancelada_por_Auditoria</fullName>
+    <active>true</active>
+    <description>Controla que se informe la Auditoría relacionada cuando se cancela por auditoria.</description>
+    <errorConditionFormula>ISPICKVAL( Estado__c, &quot;Cancelada por Auditoría&quot; ) &amp;&amp;  ISBLANK( Auditoria__c )</errorConditionFormula>
+    <errorDisplayField>Auditoria__c</errorDisplayField>
+    <errorMessage>Si la DUP se cancela con una Auditoría debe informar el número de la misma.</errorMessage>
+</ValidationRule>

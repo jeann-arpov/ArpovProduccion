@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Cada vez que una TN de origen Bolsa Tech se modifica para agregar el expediente de negativos, se actualiza el expediente en el movim Bolsa Tech asociado.</description>
+    <environments>Default</environments>
+    <interviewLabel>TN - Agregar expediente al Movim Bolsa Tech asociado {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>TN - Agregar expediente al Movim Bolsa Tech asociado</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Se agrega el expediente de negativos y el obtentor</description>
+        <name>Actualizar_Movim_Bolsa_Tech</name>
+        <label>Actualizar Movim Bolsa Tech</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Mov_BolsaTech__r.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Expediente_de_Negativos__c</field>
+            <value>
+                <elementReference>$Record.Expediente_de_Negativos__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Obtentor__c</field>
+            <value>
+                <elementReference>$Setup.Sembra_Evolucion__c.Corteva_30_Id__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Movimiento_BolsaTech__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Movim_Bolsa_Tech</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Origen__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>BolsaTech</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Expediente_de_Negativos__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Tonelada__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

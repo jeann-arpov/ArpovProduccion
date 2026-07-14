@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_Procesadas_Portal</fullName>
+    <columns>NAME</columns>
+    <columns>Estado__c</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <columns>CUIT_Originante__c</columns>
+    <columns>CUIT_Destinatario__c</columns>
+    <columns>Razon_Social_Destinatario__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>Kilos_por_Bolsa__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Venta__c</field>
+        <operation>contains</operation>
+        <value>24081167729</value>
+    </filters>
+    <label>Ventas Informadas Procesadas Portal</label>
+</ListView>

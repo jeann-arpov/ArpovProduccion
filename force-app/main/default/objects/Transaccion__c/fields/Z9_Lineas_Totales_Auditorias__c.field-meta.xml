@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Lineas_Totales_Auditorias__c</fullName>
+    <description>Contiene la cantidad de líneas de la auditoría</description>
+    <label>Z9_Lineas_Totales_Auditorias</label>
+    <summaryForeignKey>Item_Auditoria__c.Auditoria__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

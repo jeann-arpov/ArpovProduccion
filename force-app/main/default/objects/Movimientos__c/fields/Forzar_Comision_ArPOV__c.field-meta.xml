@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Forzar_Comision_ArPOV__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Marcar el campo si desea forzar el cálculo de la comisión Si la misma difiere de la calculada en base a los valores definidos en el custom settings para el período actual.</inlineHelpText>
+    <label>Forzar % Comisión ArPOV</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Obtentor</fullName>
+    <active>true</active>
+    <description>Si la red es propia, se debe ingresar un Obtentor</description>
+    <errorConditionFormula>AND(ISPICKVAL( Tipo__c , &apos;Propia&apos;),
+    ISBLANK( Obtentor__c ) 
+)</errorConditionFormula>
+    <errorMessage>Debe ingresar un Obtentor</errorMessage>
+</ValidationRule>

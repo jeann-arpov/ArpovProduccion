@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_de_Fechas</fullName>
+    <active>true</active>
+    <errorConditionFormula>Fecha_de_Pago__c &lt;  Fecha_de_Emision__c</errorConditionFormula>
+    <errorDisplayField>Comprobante_de_Pago__c</errorDisplayField>
+    <errorMessage>La fecha de pago no puede ser anterior a la fecha de emisión</errorMessage>
+</ValidationRule>

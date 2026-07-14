@@ -1,0 +1,722 @@
+.campana-inactiva {
+    opacity: 1;
+    pointer-events: none;
+}
+.campana-activa {
+    opacity: 1;
+    pointer-events: auto;
+}
+.campana-btn-disabled {
+    background-color: #ccc !important;
+    border: 1px solid #999 !important;
+    color: #888 !important;
+    cursor: not-allowed;
+}
+/* ====== Steps generales ====== */
+.containerPrincipal{
+    padding: 16px 200px 16px 200px;
+}
+.step {
+    border-radius: 16px;
+    overflow: visible;
+    margin-bottom: -0.71rem;
+    background-color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.step.active {
+    z-index: 10 !important;
+    position: relative;
+    background-color: #1c1c1c;
+    color: white;
+}
+
+.step.completed {
+    border-left: 4px solid #B5EC08;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+    cursor: pointer;
+    border-radius: 12px 12px 0 0;
+    transition: all 0.3s ease;
+}
+
+.step-header-with-tech {
+    justify-content: space-between;
+}
+
+.step-header-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.step-header-tech {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #B5EC08;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.step:not(.active) .step-header-tech {
+    color: #1c1c1c;
+}
+
+.step.active .step-header {
+    background-color: #1c1c1c;
+    color: white;
+    border-left: 4px solid #B5EC08;
+}
+
+.step:not(.active) .step-header {
+    background-color: #ffffff;
+    color: #1c1c1c;
+    border-left: none;
+}
+
+.step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.step.active .step-circle {
+    border: 2px solid #B5EC08;
+    color: #B5EC08;
+    background-color: #1c1c1c;
+}
+
+.step:not(.active) .step-circle {
+    border: 2px solid #ccc;
+    color: #666;
+    background-color: white;
+}
+
+.step-label {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.step-content {
+    background-color: #1c1c1c;
+    padding: 1.5rem 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+    border-radius: 0 0 12px 12px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ====== Cards de Cultivos ====== */
+.cultivo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 120px;
+    margin: 0 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.cultivo-card:hover {
+    transform: scale(1.05);
+}
+
+.cultivo-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* blancos sobre fondo oscuro */
+    margin-bottom: 0.5rem;
+}
+
+.cultivo-label {
+    font-weight: bold;
+    font-size: 16px;
+    color: #fff;
+    text-align: center;
+}
+
+.item.selected {
+    background-color: #2c2c2c;
+    border: 2px solid #B5EC08;
+    box-shadow: 0 0 10px #B5EC08;
+    border-radius: 12px;
+    padding: 0.5rem;
+}
+
+/* ====== Combobox moderno ====== */
+.custom-combobox {
+    --slds-c-input-color-background: #1c1c1c;
+    --slds-c-input-color-border: #B5EC08;
+    --slds-c-input-color-text: #ffffff;
+    --slds-c-input-shadow-focus: 0 0 0 1px #B5EC08;
+    --slds-c-input-radius-border: 8px;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 1rem;
+}
+
+.custom-combobox .slds-combobox__input {
+    background-color: #1c1c1c;
+    border: 2px solid #B5EC08;
+    color: white;
+    border-radius: 20px;
+    font-weight: 600;
+    padding-left: 1rem;
+}
+
+/* ====== Bloque Resumen de Toneladas ====== */
+.resumen-toneladas {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 2px solid #e5e5e5;
+}
+
+.resumen-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #1c1c1c;
+}
+
+.footer-note {
+    font-size: 0.85rem;
+    color: #979797;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+/* ====== Tablas resumen ====== */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* Encabezado */
+thead {
+    background-color: #000;
+    color: #fff;
+}
+
+th {
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Filas generales */
+td {
+    padding: 12px;
+    font-size: 0.95rem;
+    color: #1c1c1c;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Fila alternada */
+tbody tr:nth-child(even) td {
+    background-color: #e6fede;
+}
+
+/* Totales destacados */
+.total {
+    background-color: #B5EC08 !important;
+    font-weight: bold;
+    color: #000;
+}
+
+.highlight {
+    background-color: #eaffc7 !important;
+}
+
+.total-final td {
+    background-color: #1c1c1c !important;
+    color: #fff !important;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Bordes redondeados de la tabla */
+table tr:first-child th:first-child {
+    border-top-left-radius: 12px;
+}
+table tr:first-child th:last-child {
+    border-top-right-radius: 12px;
+}
+table tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+table tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+/* ====== Tooltip ====== */
+.tooltipContainer {
+    position: absolute;
+    background-color: #1c1c1c;
+    border: 1px solid #ccc;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    max-width: 260px;
+    color: white;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+
+a.c-tooltip {
+    text-decoration: none;
+    cursor: help;
+    color: #0070d2;
+    position: relative;
+    display: inline-block;
+}
+
+a.c-tooltip:hover + .tooltipContainer,
+.tooltipContainer:hover {
+    visibility: visible;
+    opacity: 1;
+}
+
+.help-header {
+    color: #B5EC08;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    font-weight: bold;
+    text-align: justify;
+}
+
+.help-text {
+    color: white;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    text-align: justify;
+}
+
+/* ====== Botón de descarga ====== */
+.btn-download {
+    background-color: #1c1c1c;      /* fondo oscuro */
+    border: 2px solid #B5EC08;     /* borde verde */
+    border-radius: 50%;            /* redondo */
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.btn-download:hover {
+    background-color: #B5EC08;     /* hover verde */
+    border-color: #1c1c1c;
+    transform: scale(1.1);
+}
+
+.btn-download-icon {
+    fill: white;                   /* ícono blanco por defecto */
+}
+
+.btn-download:hover .btn-download-icon {
+    fill: #1c1c1c;                 /* ícono negro en hover */
+}
+
+.darker-green {
+    background-color: #9ac70a !important; /* más oscuro que #B5EC08 */
+    color: #000 !important;
+    font-weight: bold;
+}
+
+.darker-green td {
+    background-color: #B5EC08 !important; /* Verde más oscuro */
+    color: #000 !important;
+}
+
+/* ====== Cards de Campañas ====== */
+.campana-item {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 16px;
+    overflow: visible;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.campana-item:hover:not(.campana-disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 16px rgba(181, 236, 8, 0.4);
+}
+
+.campana-item.campana-disabled {
+    cursor: not-allowed;
+    opacity: 1;
+    pointer-events: none;
+}
+
+.campana-item.selected {
+    border: 2px solid #B5EC08;
+    box-shadow: 0 0 16px rgba(181, 236, 8, 0.6);
+}
+
+.campana-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 160px;
+    height: 240px;
+    min-height: 240px;
+    max-height: 240px;
+    padding: 1rem 1rem;
+    background: linear-gradient(180deg, rgba(40, 40, 40, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%),
+                url('') center/cover no-repeat;
+    background-color: #222;
+    border-radius: 14px;
+    text-align: center;
+    overflow: visible;
+    position: relative;
+}
+
+.campana-title {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.campana-period {
+    font-size: 0.95rem;
+    color: #ccc;
+    font-weight: 400;
+    margin: 0 0 0.2rem 0;
+    flex-shrink: 0;
+}
+
+.campana-adhesion-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background-color: #B5EC08;
+    color: #1c1c1c;
+    padding: 0.35rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.6rem;
+    box-shadow: 0 2px 8px rgba(181, 236, 8, 0.4);
+}
+
+.campana-toneladas {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #B5EC08;
+    line-height: 1;
+    margin: 0;
+}
+
+.campana-label {
+    font-size: 0.85rem;
+    color: #B5EC08;
+    font-weight: 500;
+    margin: 0;
+}
+
+.campana-pph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 80px;
+    margin: 0;
+}
+
+.campana-pph .pph-icon {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+.campana-btn {
+    background-color: rgba(181, 236, 8, 0.15);
+    border: 1px solid #B5EC08;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* ====== HT Disponibles adquiridas ====== */
+.ht-info-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+}
+
+.ht-info-box {
+    border: 2px solid #B5EC08;
+    border-radius: 14px;
+    padding: 1rem 2rem;
+    background: rgba(30, 30, 30, 0.95);
+    min-width: 320px;
+    max-width: 500px;
+    text-align: center;
+    position: relative;
+}
+
+.ht-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    position: relative;
+}
+
+.ht-info-label {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.ht-info-value {
+    color: #B5EC08;
+    font-size: 1.8rem;
+    font-weight: 900;
+}
+
+.ht-info-divider {
+    border-top: 1px solid #555;
+    margin: 0.4rem 0;
+}
+
+.ht-info-sublabel {
+    color: #ccc;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.ht-info-subvalue {
+    color: #B5EC08;
+    font-size: 1.8rem;
+    font-weight: 900;
+}
+
+.ht-info-row--zero .ht-info-sublabel,
+.ht-info-row--zero .ht-info-subvalue {
+    color: #888;
+}
+
+.ht-btn-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.ht-comprar-btn {
+    background-color: #B5EC08;
+    border: none;
+    color: #1c1c1c;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(181, 236, 8, 0.3);
+}
+
+.ht-comprar-btn:hover {
+    background-color: #c9f82f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(181, 236, 8, 0.5);
+}
+
+.ht-comprar-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(181, 236, 8, 0.3);
+}
+
+/* ====== Tooltips en Campañas y HT ====== */
+a.campana-info-tooltip {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    /* background-color: rgba(181, 236, 8, 0.15);
+    border: 2px solid #B5EC08; */
+    border-radius: 50%;
+    color: #fff;
+    cursor: help;
+    /* z-index: 300; */
+    transition: all 0.2s ease;
+    text-decoration: none;
+    pointer-events: auto !important;
+}
+
+a.campana-info-tooltip:hover {
+    /* background-color: rgba(181, 236, 8, 0.35); */
+    transform: scale(1.3);
+}
+
+a.campana-info-tooltip:hover + .campana-tooltip-content {
+    visibility: visible;
+    opacity: 1;
+}
+
+.campana-tooltip-content {
+    position: absolute;
+    top: -15px;
+    right: 50px;
+    max-width: 320px;
+    min-width: 260px;
+    background-color: #1c1c1c;
+    border: 2px solid #B5EC08;
+    color: #fff;
+    font-size: 0.82rem;
+    padding: 16px;
+    border-radius: 10px;
+    z-index: 1001;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    line-height: 1.5;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+    pointer-events: auto;
+    white-space: normal;
+}
+
+.campana-tooltip-content:hover {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-title {
+    color: #B5EC08;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.comments-icn{
+   --slds-c-icon-color-foreground-default: #B5EC08; 
+   --slds-c-icon-color-foreground: #B5EC08; 
+   /* --slds-c-icon-color-background: white;  */
+}
+
+/* Flecha del tooltip - REMOVIDO */
+
+/* Tooltip en HT Disponibles */
+.ht-info-tooltip {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    /* background-color: rgba(181, 236, 8, 0.15);
+    border: 2px solid #B5EC08; */
+    border-radius: 50%;
+    color: #fff;
+    cursor: help;
+    z-index: 300;
+    transition: all 0.2s ease;
+    pointer-events: auto !important;
+    text-decoration: none;
+}
+
+.ht-info-tooltip:hover {
+    /* background-color: rgba(181, 236, 8, 0.35); */
+    transform: scale(1.3);
+}
+
+.ht-info-tooltip:hover + .ht-tooltip-content {
+    visibility: visible;
+    opacity: 1;
+}
+
+.ht-tooltip-content {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 12px);
+    bottom: auto;
+    right: auto;
+    max-width: 320px;
+    min-width: 260px;
+    background-color: #1c1c1c;
+    border: 2px solid #B5EC08;
+    color: #fff;
+    font-size: 0.85rem;
+    padding: 14px;
+    border-radius: 10px;
+    z-index: 1001;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    line-height: 1.5;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+    white-space: normal;
+    pointer-events: auto;
+}
+
+.ht-tooltip-content:hover {
+    visibility: visible;
+    opacity: 1;
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comision_Regalia_Simple_DUP__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Comisión Regalía Simple (DUP)</label>
+    <referenceTo>ERPvs__Producto__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Comisión Regalía Simple (DUP))</relationshipLabel>
+    <relationshipName>Par_metros_ERP_y_CRM3</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

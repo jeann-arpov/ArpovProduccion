@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Linea_de_Venta_HT__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Línea de Venta HT</label>
+    <referenceTo>Linea_de_Venta_HT__c</referenceTo>
+    <relationshipLabel>Líneas de Compra HT</relationshipLabel>
+    <relationshipName>Lineas_de_Compra_HT</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

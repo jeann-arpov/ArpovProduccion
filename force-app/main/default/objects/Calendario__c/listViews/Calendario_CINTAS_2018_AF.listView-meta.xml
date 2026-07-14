@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Calendario_CINTAS_2018_AF</fullName>
+    <columns>NAME</columns>
+    <columns>Anio__c</columns>
+    <columns>Mes__c</columns>
+    <columns>Primera_Quincena__c</columns>
+    <columns>Procesado_PQ__c</columns>
+    <columns>Segunda_Quincena__c</columns>
+    <columns>Procesado_SQ__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Proceso__c</field>
+        <operation>equals</operation>
+        <value>CINTAS</value>
+    </filters>
+    <filters>
+        <field>Anio__c</field>
+        <operation>equals</operation>
+        <value>2018</value>
+    </filters>
+    <label>Calendario CINTAS 2018 (AF)</label>
+</ListView>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Aplicacion__c</fullName>
+    <defaultValue>&quot;Pago Total&quot;</defaultValue>
+    <inlineHelpText>Ingrese en tipo de aplicación que está ingresando considerando los posibles beneficios a los que puede acceder el productor.</inlineHelpText>
+    <label>Tipo de Aplicación</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Pago Total</fullName>
+                <default>false</default>
+                <label>Pago Total</label>
+            </value>
+            <value>
+                <fullName>Pago Parcial</fullName>
+                <default>false</default>
+                <label>Pago Parcial</label>
+            </value>
+            <value>
+                <fullName>Beneficio 15%</fullName>
+                <default>false</default>
+                <label>Beneficio 15%</label>
+            </value>
+            <value>
+                <fullName>Beneficio 10%</fullName>
+                <default>false</default>
+                <label>Beneficio 10%</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

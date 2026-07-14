@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Origen__c</fullName>
+    <description>Contiene el texto correspondiente al tipo de transacción que dío origen al registro. Necesario para Reportes y Análisis.</description>
+    <externalId>false</externalId>
+    <formula>CASE( LEFT( ID_Origen__c , 3 ) , 
+&quot;a0I&quot;, &quot;Venta&quot;, 
+&quot;a0L&quot;, &quot;DUP&quot;,
+&quot;a0K&quot;, &quot;Auditoría&quot;, 
+&quot;a0M&quot;,  text(Tipo_Origen__c) , 
+&quot;Sin Origen Informado&quot; )</formula>
+    <inlineHelpText>Tipo de transacción que dío origen al registro</inlineHelpText>
+    <label>Tipo de Origen</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

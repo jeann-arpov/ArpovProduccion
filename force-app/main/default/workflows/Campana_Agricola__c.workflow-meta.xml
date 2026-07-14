@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Campana_Agricola_Nombre</fullName>
+        <field>Name</field>
+        <formula>Ano__c &amp; &quot; - &quot; &amp; Cultivo__r.Name</formula>
+        <name>Campaña Agricola. Nombre</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Campana_Fecha_de_Inicio</fullName>
+        <description>Guarda la fecha de inicio de la campana cuando se pasa estado Activa</description>
+        <field>Fecha_de_Inicio__c</field>
+        <formula>TODAY()</formula>
+        <name>Campana. Fecha de Inicio</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Clave_Unica</fullName>
+        <description>Crea la Clave única de la campaña</description>
+        <field>Id_Externo__c</field>
+        <formula>Ano__c &amp; &quot;-&quot; &amp; Cultivo__r.Name</formula>
+        <name>Clave Unica</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Campana%2E Activación</fullName>
+        <actions>
+            <name>Campana_Fecha_de_Inicio</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Fija la fecha de inicio de la campana cuando se activa.</description>
+        <formula>AND(
+ ISPICKVAL( PRIORVALUE( Estado__c ), &quot;En Preparación&quot; ), 
+ ISPICKVAL( Estado__c, &quot;Activa&quot; )
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Campaña Agricola%2E Nombre</fullName>
+        <actions>
+            <name>Campana_Agricola_Nombre</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Clave_Unica</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Campana_Agricola__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Determina el nombre de las campañas agricolas.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

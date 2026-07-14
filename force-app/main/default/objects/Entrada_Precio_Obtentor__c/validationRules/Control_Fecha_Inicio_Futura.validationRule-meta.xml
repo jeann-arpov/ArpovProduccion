@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Fecha_Inicio_Futura</fullName>
+    <active>true</active>
+    <description>Se valida que la fecha inicio sea &gt; a hoy.</description>
+    <errorConditionFormula>AND(
+     Fecha_Inicio__c &lt;= TODAY(),
+     $Profile.Name = &quot;Obtentor&quot;,
+     ISNEW() 
+    )</errorConditionFormula>
+    <errorMessage>La Fecha Inicio debe ser Futura</errorMessage>
+</ValidationRule>

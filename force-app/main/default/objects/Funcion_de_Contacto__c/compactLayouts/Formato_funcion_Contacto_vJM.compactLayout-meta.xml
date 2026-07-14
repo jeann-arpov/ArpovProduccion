@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Formato_funcion_Contacto_vJM</fullName>
+    <fields>Name</fields>
+    <fields>Cuenta__c</fields>
+    <fields>Sembra_Evolucion__c</fields>
+    <fields>Regalia_Extendida__c</fields>
+    <fields>Gestion_de_DUP__c</fields>
+    <fields>Gestion_de_Cobranzas__c</fields>
+    <fields>Gestion_de_Ventas__c</fields>
+    <fields>Facturacion__c</fields>
+    <fields>SE_Comercio__c</fields>
+    <fields>SE_Productor__c</fields>
+    <label>Formato funcion Contacto vJM</label>
+</CompactLayout>

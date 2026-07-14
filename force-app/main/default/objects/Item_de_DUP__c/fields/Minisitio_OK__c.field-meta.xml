@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Minisitio_OK__c</fullName>
+    <description>VERDADERO si la transacción no fue respondida por Minisitio o si fue responidida por Minisitio y la Validación es Positiva</description>
+    <formula>OR( Transaccion__r.Respondida_via_Minisitio__c = FALSE,
+    AND( Transaccion__r.Respondida_via_Minisitio__c = TRUE,
+         TEXT( Transaccion__r.Resultado_Validacion_Analista__c ) = &apos;Positiva&apos;
+    )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Minisitio_OK</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

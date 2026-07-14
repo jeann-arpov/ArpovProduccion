@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>XX_Fecha_Pedido_Facturacion__c</fullName>
+    <description>Fecha en la cual se generó el Pedido de Facturación</description>
+    <inlineHelpText>Fecha en la cual se generó el Pedido de Facturación</inlineHelpText>
+    <label>XX_Fecha Pedido Facturación</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

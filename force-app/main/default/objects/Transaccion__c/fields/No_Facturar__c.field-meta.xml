@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_Facturar__c</fullName>
+    <formula>( Lineas_No_Facturar_DUP__c + Lineas_No_Facturar_AUD__c ) &gt; 0</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Indica si la transacción tiene líneas marcadas para no facturar. Si es así no se factura la transacción.</inlineHelpText>
+    <label>No Facturar</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

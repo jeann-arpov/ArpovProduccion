@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_Aprobar_por_comando</fullName>
+    <active>false</active>
+    <description>Impide que el obtentor cambie el estado de una licencia a Aprobada por fuera del proceso de firmas.</description>
+    <errorConditionFormula>AND(
+     ISCHANGED( Estado__c ) ,
+     TEXT(Estado__c) &lt;&gt; &apos;Rechazada&apos;,
+     $Profile.Name = &quot;Obtentor&quot;
+)</errorConditionFormula>
+    <errorMessage>Los cambios de estado de una licencia se producen automáticamente en la medida que se completan los pasos del proceso. No se definen manualmente.</errorMessage>
+</ValidationRule>

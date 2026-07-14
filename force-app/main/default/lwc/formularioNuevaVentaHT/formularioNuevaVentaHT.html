@@ -1,0 +1,198 @@
+<template>
+    <template if:false={showResumen}>
+
+        <div class="container">
+    
+            <!-- Paso 1: Cultivo -->
+            <div class={step1Class}>
+                <div class="step-header" data-step="1" onclick={handleStepClick}>
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Seleccionar Cultivo</div>
+                </div>
+                <template if:true={isStep1Active}>
+                    <div class="step-content">
+                        <template for:each={decoratedCultivos} for:item="c">
+                            <div key={c.nombre}
+                                class={c.cssClass}
+                                data-nombre={c.nombre}
+                                data-id={c.id}
+                                onclick={handleSelectCultivo}>
+                                <div class="cultivo-icon">{c.icono}</div>
+                                <div class="cultivo-divider"></div>
+                                <div class="item-label">{c.nombre}</div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+    
+            <!-- Paso 2: Productor -->
+            <div class={step2Class}>
+                <div class="step-header" data-step="2" onclick={handleStepClick}>
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Seleccionar Productor</div>
+                </div>
+    
+                <template if:true={isStep2Active}>
+                    <div class="step-content vertical">
+                        <div class="search-box">
+                            <lightning-input
+                                data-id="productorSearch"
+                                type="search"
+                                placeholder="Buscar productor por nombre o CUIT"
+                                label="Buscar Productor"
+                                onchange={handleProductorInput}
+                                value={searchTerm}
+                                class="custom-combobox">
+                            </lightning-input>
+    
+                            <!-- Sugerencias -->
+                            <template if:true={hasProductores}>
+                                <ul class="results-list">
+                                    <template for:each={filteredProductores} for:item="prod">
+                                        <li key={prod.id}
+                                            data-id={prod.id}
+                                            onclick={handleProductorSelect}>
+                                            {prod.title}
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                        </div>
+                        <template if:true={razonSocial}>
+                            <div class="productor-detail">
+                                CUIT Perteneciente a <b>{razonSocial}</b>
+                            </div>
+                        </template>
+                    </div>
+    
+                </template>
+            </div>
+    
+    
+            <!-- Paso 3: Marca -->
+            <div class={step3Class}>
+                <div class="step-header" data-step="3" onclick={handleStepClick}>
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Seleccionar Marca</div>
+                </div>
+                <template if:true={isStep3Active}>
+                    <div class="step-content vertical">
+                        <lightning-combobox
+                            name="marca"
+                            label="Seleccionar Marca"
+                            placeholder="Buscar y seleccionar marca"
+                            options={marcasOptions}
+                            onchange={handleSelectMarca}
+                            class="custom-combobox">
+                        </lightning-combobox>
+                        <div class="final-button-wrapper">
+                            <button class="final-button" onclick={handleContinue}>
+                                ➤
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+        </div>
+    </template>
+    <template if:true={showResumen}>
+
+        <!--
+        <c-carga-variedades-h-t
+            cultivo={detalleVenta.cultivo}
+            cultivoname={detalleVenta.cultivoName}
+            productor={detalleVenta.productor}
+            idobtentor={detalleVenta.idobtentor}
+            cuit={detalleVenta.cuit}>
+        </c-carga-variedades-h-t>
+    </template>-->
+
+
+    <lightning-card class="variedades-card" >
+            <h3 slot="title">
+                <svg class="slds-m-horizontal_small" xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531" >
+                    <use xlink:href={icons.seed}></use>
+                </svg>
+                {variedadesTitle}
+            </h3>
+            <div class = "variedades">
+                <lightning-layout vertical-align="center" class="slds-m-bottom_medium slds-text-align_center">
+                    <lightning-layout-item size="2"  padding="horizontal-small">
+                        <b if:false={finalizada}>Seleccioná&nbsp;</b>
+                        <b>Variedad</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="2" padding="horizontal-small">
+                        <b>Seleccione tipo de HT según momento de entrega del grano</b>
+                        <a class="c-tooltip" style="padding: 3px;">
+                            <lightning-icon icon-name="utility:info" size="small"></lightning-icon>
+                        </a>
+                        <div class="tooltipContainer">
+                            <div class="help-header"><b>¿Qué significa HT Disponible?</b></div>
+                            <p class="help-text"></p>
+                            <div class="help-header"><b>¿Qué significa HT Futura?</b></div>
+                            <p class="help-text"></p>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="2" padding="horizontal-small">
+                        <b>Fecha de Conversión a Toneladas</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="1" padding="horizontal-small">
+                        <b>Cantidad HT</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="1" padding="horizontal-small">
+                        <b>Precio Unitario (USD)</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="1" padding="horizontal-small">
+                        <b>Total (USD)</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" padding="horizontal-small" >
+                        <b>Estado</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" padding="horizontal-small" >
+                        <b>Licencia</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" padding="horizontal-small" >
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <template for:each={items} for:item="item" for:index="index">
+                    <c-crear-linea-venta record={item.record} factura={item.factura} index={item.id} key={item.id} price-book-entries={variedades} ondelete={removeRow} onrecord={updateRecord} onsave={saveRow} onopenfactura={openFactura}></c-crear-linea-venta>
+                </template>
+            </div>
+
+            <lightning-layout class="slds-m-vertical_medium" if:true={puedeEditar}>
+                <lightning-layout-item padding="horizontal-small" size="6">
+                    <button type="button" onclick={addRow} class="slds-button add-variedad">
+                        <span><b class="plus-sign">+</b></span>
+                        <b>Agregar nueva variedad</b>
+                    </button>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout class="totals">
+                <lightning-layout-item padding="horizontal-small" size="6" if:true={data.record} >
+                    <b>Totales</b>
+                </lightning-layout-item>
+                <lightning-layout-item class="slds-text-align_center" padding="horizontal-small" size="2" if:true={data.record}>
+                    <b>Total HT: {data.record.Total_HT__c}</b>
+                </lightning-layout-item>
+                <lightning-layout-item size="1" padding="horizontal-small"></lightning-layout-item>
+                <lightning-layout-item class="slds-text-align_center" padding="horizontal-small" size="1" if:true={data.record}>
+                    <b>Total USD: {data.record.Total_USD__c}</b>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>   
+        <lightning-layout class="slds-m-top_large footer" horizontal-align="center">
+            <lightning-layout-item>
+                <template if:false={created}>
+                    <lightning-button onclick={close} class="slds-m-top_medium circle black-border" type="submit" label={closeLabel}></lightning-button>
+                    <lightning-button if:true={puedeFinalizar} variant="brand" onclick={finalizar} class="slds-m-top_medium slds-m-left--medium finalizar circle" type="submit" label="Finalizar Venta"></lightning-button>
+                    <lightning-button if:true={puedeAnular} variant="brand" onclick={showAnularConfirm} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Anular"></lightning-button>
+                    <lightning-button if:true={puedeFacturar} variant="brand" onclick={facturar} class="slds-m-top_medium slds-m-left--medium facturar" type="submit" label="Facturar"></lightning-button>
+                    <lightning-button if:true={puedeRealizarNueva} variant="brand" onclick={redirectToNew} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Nueva Venta"></lightning-button>
+                </template>
+            </lightning-layout-item>
+        </lightning-layout>
+</template>

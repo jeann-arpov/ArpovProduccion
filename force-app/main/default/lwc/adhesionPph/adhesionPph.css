@@ -1,0 +1,35 @@
+@import 'c/pphCss';
+
+.plus-sign {
+    border: 1px solid black;
+    padding: 0px 3px;
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+:host {
+    padding: 2.5rem;
+    display:block;
+    box-shadow: 1px 1px 2px 2px var(--pph-gray);
+}
+
+.add-establecimiento {
+    --lwc-squareIconMediumBoundary: 1.5rem;
+    color:black;
+    --lwc-colorTextIconDefault: black;
+    --slds-c-button-text-color-hover: black;
+    --lwc-buttonColorBorderPrimary: black;
+    position:absolute;
+}
+
+.add-establecimiento b {
+    font-size: 18px;
+}
+
+c-establecimiento-pph {
+    display: block;
+}
+
+.continue {
+    display: block;
+}

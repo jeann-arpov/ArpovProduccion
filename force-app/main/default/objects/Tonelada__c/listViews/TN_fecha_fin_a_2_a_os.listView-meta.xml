@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TN_fecha_fin_a_2_a_os</fullName>
+    <columns>NAME</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Origen__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Fecha_Fin__c</field>
+        <operation>equals</operation>
+        <value>3/1/2028</value>
+    </filters>
+    <filters>
+        <field>Fecha_Inicio__c</field>
+        <operation>greaterOrEqual</operation>
+        <value>3/1/2026</value>
+    </filters>
+    <filters>
+        <field>Cultivo__c</field>
+        <operation>equals</operation>
+        <value>SOJA</value>
+    </filters>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Cesión HT</value>
+    </filters>
+    <label>TN fecha fin a 2 años - LC</label>
+</ListView>

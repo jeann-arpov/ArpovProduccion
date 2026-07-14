@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Otorga acceso para utilizar las funciones de Salesforce Next dentro de la experiencia de Salesforce Lightning nativa.</description>
+    <externalDataSourceAccesses>
+        <enabled>true</enabled>
+        <externalDataSource>Quip</externalDataSource>
+    </externalDataSourceAccesses>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Salesforce Next en Lightning</label>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>ContentHubUser</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>IsotopeLEX</name>
+    </userPermissions>
+</PermissionSet>

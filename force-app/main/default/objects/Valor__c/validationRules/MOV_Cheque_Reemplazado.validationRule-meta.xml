@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MOV_Cheque_Reemplazado</fullName>
+    <active>true</active>
+    <description>Controla que exista un valor rechazado previamente.</description>
+    <errorConditionFormula>AND ( $Profile.Name = &quot;Usuario de Administración&quot;,
+      NOT ISBLANK( MOV_Cheque_Reemplazado__c ),
+      ISBLANK( MOV_Cheque_Rechazado__c )
+     )</errorConditionFormula>
+    <errorDisplayField>MOV_Cheque_Reemplazado__c</errorDisplayField>
+    <errorMessage>No puede ser reemplazado un valor que no ha sido rechazado previamente</errorMessage>
+</ValidationRule>

@@ -1,0 +1,320 @@
+:host {
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  display: block;
+}
+
+/* HEADER */
+:host header {
+  background: #181819;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  z-index: 200;
+}
+
+/* BLOQUE SUPERIOR */
+:host .prenav {
+  background: #fff;
+  min-height: 30px;
+  display: block;
+  width: 100%;
+  z-index: 10;
+}
+:host .prenav .content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 35px;
+}
+:host .platform {
+  font-weight: bold;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  display: flex;
+  gap: 20px;
+}
+:host .platform a {
+  text-decoration: none;
+  color: #181819;
+  padding: 10px 5px;
+}
+:host .platform a:hover {
+  background: #181819;
+  color: #bfff00;
+}
+
+/* USUARIO */
+:host .usernav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+:host .user {
+  position: relative;
+}
+:host .user button {
+  font-size: 0.8125rem;
+  color: #181819;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+}
+:host .user .submenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #181819;
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 999;
+}
+:host .user:hover .submenu {
+  display: flex;
+  flex-direction: column;
+}
+:host .circled {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #181819;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+:host .circled:hover {
+  background: #181819;
+  color: #bfff00;
+}
+
+/* MENÚ PRINCIPAL */
+:host .mainav {
+  background: #000;
+}
+
+:host .mainav .content {
+  display: flex;
+  align-items: center;
+  padding: 0 35px;
+}
+
+:host .logow {
+  flex-shrink: 0;
+}
+:host .logow img {
+  height: 75px;
+}
+
+:host nav {
+  display: flex;
+  gap: 40px;
+  margin-left: auto; /* empuja menú a la derecha */
+  align-items: center; /* centra vertical */
+}
+
+/* ITEM GENERAL */
+:host .item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 80px; /* asegura altura uniforme */
+}
+
+:host .item a,
+:host .item button {
+  background: none;
+  border: none;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+  line-height: normal; /* 🔹 corregido */
+  cursor: pointer;
+  padding: 0 15px; /* espacio uniforme */
+  height: 100%; /* 🔹 ocupa toda la altura */
+  display: flex;
+  align-items: center; /* 🔹 centra texto verticalmente */
+}
+
+/* Hover */
+:host .item:hover > a,
+:host .item:hover > button {
+  color: #bfff00;
+}
+
+/* Activo */
+:host .item.active > a,
+:host .item.active > button {
+  color: #bfff00;
+  border-bottom: 3px solid #bfff00;
+}
+
+:host .item .submenu {
+  display: none;
+  position: absolute;
+  top: 80%; /* justo debajo del item */
+  left: 50%; /* centrado respecto al ítem */
+  transform: translateX(-50%);
+  background: #181819;
+  border-top: 3px solid #bfff00;
+  border-radius: 0 0 10px 10px;
+  padding: 10px 0;
+  white-space: nowrap; /* evita salto de línea */
+  z-index: 999;
+}
+/* 🔹 Triangulito indicador */
+:host .item .submenu::before {
+  content: "";
+  position: absolute;
+  top: -9px; /* se coloca arriba del submenu */
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 9px solid #bfff00; /* color borde superior */
+}
+
+/* 🔹 Para que el triangulo tenga borde negro detrás */
+:host .item .submenu::after {
+  content: "";
+  position: absolute;
+  top: -7px; 
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #bfff00; /* color fondo submenu */
+}
+:host .item:hover .submenu {
+  display: flex;
+  flex-direction: column;
+}
+:host .item .submenu a {
+  color: #fff;
+  padding: 10px 15px;
+  font-size: 0.8125rem;
+  line-height: normal;
+  white-space: nowrap;
+}
+:host .item .submenu a:hover {
+  color: #bfff00;
+}
+
+/* BOTÓN VOLVER */
+:host nav.sgl {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+:host .button.altborder {
+  border-radius: 21px;
+  padding: 8px 40px;
+  background: #181819;
+  border: 2px solid #bfff00;
+  color: #fff;
+}
+:host .button.altborder:hover {
+  background: #bfff00;
+  color: #181819;
+}
+
+/* SUBMENÚ DEL USUARIO */
+:host .usermenu {
+  position: relative;
+  display: inline-block;
+}
+
+:host .userbtn {
+  padding: 6px 16px;
+  font-size: .8125rem;
+  font-weight: 700;
+  color: #181819;
+  text-transform: uppercase;
+  border: none;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+:host .accbtn {
+  padding: 6px 16px;
+  font-size: .8125rem;
+  font-weight: 700;
+  color: #181819;
+  text-transform: uppercase;
+  border: none;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+:host .userbtn .caret {
+  font-size: 10px;
+  transition: transform .15s ease;
+}
+
+/* Dropdown */
+:host .usermenu .submenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.18);
+  padding: 8px 0;
+  z-index: 1000;
+}
+
+/* Triángulo indicador */
+:host .usermenu .submenu::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 18px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #E5E7EB;
+}
+:host .usermenu .submenu::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  right: 18px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #fff;
+}
+
+:host .usermenu .submenu a {
+  display: block;
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: #181819;
+  text-transform: uppercase;
+  font-size: .8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+:host .usermenu .submenu a:hover {
+  background: #F6F7F9;
+}
+
+/* Mostrar menú al hover */
+:host .usermenu:hover .submenu,
+:host .usermenu:focus-within .submenu {
+  display: block;
+}
+:host .usermenu:hover .caret,
+:host .usermenu:focus-within .caret {
+  transform: rotate(180deg);
+}

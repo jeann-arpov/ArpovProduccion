@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unidad_de_Medida_de_Facturacion__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(ISPICKVAL(Producto__r.Unidad_de_Medida__c,&quot;Hectáreas&quot;), Densidad_de_Siembra__c , 
+IF(ISPICKVAL(Producto__r.Unidad_de_Medida__c,&quot;Granel&quot;),1, 
+VALUE( TEXT( Producto__r.Unidad_de_Medida__c ) )
+))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Unidad de Medida de Facturacion</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

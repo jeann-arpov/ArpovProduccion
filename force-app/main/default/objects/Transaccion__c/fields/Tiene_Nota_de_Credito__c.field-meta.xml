@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tiene_Nota_de_Credito__c</fullName>
+    <formula>Factura__r.Importe_a_Aplicar_NC__c &gt; 0</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Marcado cuando la factura de la transacción tiene aplicada una NC financiera.</inlineHelpText>
+    <label>Tiene Nota de Crédito Financiera</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Revisar_Compra__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Se marca cuando la compra tiene expediente y el usuario confirma entendido.</description>
+    <label>Revisar Compra</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

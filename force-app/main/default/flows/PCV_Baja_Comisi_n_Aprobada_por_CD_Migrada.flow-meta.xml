@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Cumple_condiciones</name>
+        <label>Cumple condiciones?</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>NO</defaultConnectorLabel>
+        <rules>
+            <name>SI</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varEstadoCV</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>NO CONTABILIZADO</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varFamiliaProducto</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Comisiones</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varUsuarioCreaPCV</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>VCS Admin</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualiza_Registro_PCV</targetReference>
+            </connector>
+            <label>SI</label>
+        </rules>
+    </decisions>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: PCV.Baja Comisión Aprobada por CD</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>varDescuento</name>
+        <dataType>Number</dataType>
+        <expression>IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;0,5&quot;), ROUND(0.5 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;1&quot;), ROUND(1 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;1,5&quot;), ROUND(1.5 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;2&quot;), ROUND(2 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;2,5&quot;), ROUND(2.5 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;5&quot;), ROUND(5 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;10&quot;), ROUND(10 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;15&quot;), ROUND(15 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;20&quot;), ROUND(20 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;25&quot;), ROUND(25 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;30&quot;), ROUND(30 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;35&quot;), ROUND(35 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;40&quot;), ROUND(40 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;45&quot;), ROUND(45 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;50&quot;), ROUND(50 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;55&quot;), ROUND(55 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;60&quot;), ROUND(60 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;65&quot;), ROUND(65 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;70&quot;), ROUND(70 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;75&quot;), ROUND(75 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;80&quot;), ROUND(80 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;85&quot;), ROUND(85 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;90&quot;), ROUND(90 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;95&quot;), ROUND(95 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;100&quot;), ROUND(100 / {!$Record.Precio_Unitario_Sin_IVA__c}, 2),0)))))))))))))))))))))))))</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varEstadoCV</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.ERPvs__Comprobante__r.ERPvs__Estado__c}</expression>
+    </formulas>
+    <formulas>
+        <name>varFamiliaProducto</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.ERPvs__Producto__r.ERPvs__Familia__r.Name}</expression>
+    </formulas>
+    <formulas>
+        <name>varPorcentajeComAprobadaCD</name>
+        <dataType>Number</dataType>
+        <expression>IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;0,5&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.005), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;1&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.01), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;1,5&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.015), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;2&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.02), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;2,5&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.025), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;5&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.05), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;10&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.10), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;15&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.15), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;20&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.20), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;25&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.25), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;30&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.30), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;35&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.35), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;40&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.40), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;45&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.45), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;50&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.50), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;55&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.55), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;60&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.60), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;65&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.65), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;70&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.70), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;75&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.75), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;80&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.80), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;85&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.85), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;90&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.90), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;95&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 0.95), 2),
+IF( ISPICKVAL({!$Record.Baja_Comision_Aprobado_CD__c}, &quot;100&quot;), ROUND(100 * ({!$Record.Precio_Unitario_Sin_IVA__c} - 1), 2),0)))))))))))))))))))))))))</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varUsuarioCreaPCV</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.CreatedBy.Nombre_Completo__c}</expression>
+    </formulas>
+    <interviewLabel>PCV.Baja Comisión Aprobada por CD (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>PCV.Baja Comisión Aprobada por CD (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_Registro_PCV</name>
+        <label>Actualiza Registro PCV</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>ERPvs__Descuento__c</field>
+            <value>
+                <elementReference>varDescuento</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Porcentaje_Comision_Aprobado_CD__c</field>
+            <value>
+                <elementReference>varPorcentajeComAprobadaCD</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Cumple_condiciones</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Baja_Comision_Aprobado_CD__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>ERPvs__Productos_Comprobante_de_Venta__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

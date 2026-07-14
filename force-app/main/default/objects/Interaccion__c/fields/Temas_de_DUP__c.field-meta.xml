@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Temas_de_DUP__c</fullName>
+    <inlineHelpText>Cantidad de Temas Tratados sobre Respuestas de DUP.</inlineHelpText>
+    <label>Temas de DUP</label>
+    <summaryFilterItems>
+        <field>Caso_Gestionado__c.Z9_Asunto__c</field>
+        <operation>equals</operation>
+        <value>Gestionar Respuesta</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Caso_Gestionado__c.Interaccion__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Comprobante_Externo__c</fullName>
+    <description>Tipo de comprobante original seleccionado por el usuario: FC, NC, Remito o Remito de Devolución. Los Remitos se mapean internamente a FC/NC en Tipo_de_Comprobante__c.</description>
+    <label>Tipo de Comprobante</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>FC</fullName>
+                <default>false</default>
+                <label>FC</label>
+            </value>
+            <value>
+                <fullName>NC</fullName>
+                <default>false</default>
+                <label>NC</label>
+            </value>
+            <value>
+                <fullName>Remito</fullName>
+                <default>false</default>
+                <label>Remito</label>
+            </value>
+            <value>
+                <fullName>Remito de Devolución</fullName>
+                <default>false</default>
+                <label>Remito de Devolución</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

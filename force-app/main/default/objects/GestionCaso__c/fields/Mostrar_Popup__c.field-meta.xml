@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mostrar_Popup__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Casilla que indica si queremos levantar un popup con la información de los campos que se definen en la columna FieldSet</description>
+    <label>Mostrar Popup</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,86 @@
+<template>
+    <template if:true={processing}>
+        <lightning-spinner variant="brand" alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    
+    <template if:false={licencia}>
+        <lightning-layout horizontal-align="left" vertical-align="center" class="slds-m-bottom_medium">
+            <lightning-layout-item size="2">
+                Nombre del licenciatario
+            </lightning-layout-item>
+        </lightning-layout>
+    
+        <lightning-layout horizontal-align="left" vertical-align="center" class="slds-m-bottom_medium">
+            <lightning-layout-item size="2">
+                <c-lookup onselectionchange={updateLicencias} variant="label-hidden" required onsearch={search} label="Licenciatario" placeholder="Buscar Licenciatario"></c-lookup>
+            </lightning-layout-item>
+        </lightning-layout>
+    
+        <lightning-layout horizontal-align="left" vertical-align="center" class="slds-m-bottom_medium">
+            <lightning-layout-item size="2">
+                Nombre
+            </lightning-layout-item>
+            <lightning-layout-item size="1">
+                Licenciatario
+            </lightning-layout-item>
+            <lightning-layout-item size="1">
+                Código Licencia
+            </lightning-layout-item>
+            <lightning-layout-item size="1">
+                Tipo de Licencia
+            </lightning-layout-item>
+            <lightning-layout-item size="1">
+                Acción
+            </lightning-layout-item>
+            <lightning-layout-item size="2">
+                Estado
+            </lightning-layout-item>
+            <lightning-layout-item size="1">
+                Origen
+            </lightning-layout-item>
+            <lightning-layout-item size="1">
+                Marcas
+            </lightning-layout-item>
+        </lightning-layout>
+    
+        <template for:each={licencias} for:item="licencia" for:index="index">
+            <lightning-layout key={licencia.Id} horizontal-align="left" vertical-align="center" class="slds-m-bottom_medium">
+                <lightning-layout-item size="2">
+                    {licencia.Name}
+                </lightning-layout-item>
+                <lightning-layout-item size="1">
+                    {licencia.Cuenta_Productor__r.Name}
+                </lightning-layout-item>
+                <lightning-layout-item size="1">
+                    {licencia.Name}
+                </lightning-layout-item>
+                <lightning-layout-item size="1">
+                    {licencia.Tipo_de_Licencia__c}
+                </lightning-layout-item>
+                <lightning-layout-item size="1">
+                    <lightning-button data-id={licencia.Id} onclick={verLicencia} label="Ver"></lightning-button>
+                    <lightning-button if:true={licencia.puedeGestionar} data-id={licencia.Id} onclick={gestionar} label="Gestionar"></lightning-button>
+                </lightning-layout-item>
+                <lightning-layout-item size="2">
+                    {licencia.Estado__c}
+                </lightning-layout-item>
+                <lightning-layout-item size="1">
+                    {licencia.Origen_de_Licencia__c}
+                </lightning-layout-item>
+                <lightning-layout-item size="1">
+                    <lightning-formatted-rich-text value={licencia.Marcas_Obtentor__c}></lightning-formatted-rich-text>
+                </lightning-layout-item>
+            </lightning-layout>
+        </template>
+    </template>
+
+    <template if:true={licencia}>
+        <div class="slds-var-m-bottom_large slds-var-m-left_small slds-text-heading_medium" style="font-weight:500;font-family:Montserrat;">
+            <div>Licencia</div>
+            <div>{licencia.Name}</div>
+        </div>
+        <lightning-record-form record-id={licencia.Id} object-api-name="Licencia__c" layout-type="Full" mode="readonly" density="comfy" columns="2"></lightning-record-form>
+        <div class="slds-align_absolute-center slds-var-m-top_medium"><lightning-button label="Volver" onclick={ocultarLicencia}></lightning-button></div>
+    </template>
+
+</template>

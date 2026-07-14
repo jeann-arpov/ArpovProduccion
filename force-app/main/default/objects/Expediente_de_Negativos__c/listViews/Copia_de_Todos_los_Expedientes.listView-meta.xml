@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Copia_de_Todos_los_Expedientes</fullName>
+    <columns>NAME</columns>
+    <columns>Productor_Comercio__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Estado_de_la_Etapa__c</columns>
+    <columns>Dias_en_etapa_actual__c</columns>
+    <columns>Dias_transcurridos_desde_creacion_Exp__c</columns>
+    <columns>Saldo_Cuenta__c</columns>
+    <columns>CTV__c</columns>
+    <columns>Abogado__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>NAME</field>
+        <operation>equals</operation>
+        <value>EXP-30709495700-00017560,EXP-30629129762-00017595,EXP-27057066356-00017640,EXP-20333338832-00017617,EXP-20409907599-00017546,EXP-20233416313-00015908</value>
+    </filters>
+    <label>Copia de .Todos los Expedientes</label>
+    <sharedTo>
+        <roleAndSubordinatesInternal>Capsulas</roleAndSubordinatesInternal>
+        <roleAndSubordinatesInternal>Gerencia_General</roleAndSubordinatesInternal>
+    </sharedTo>
+</ListView>

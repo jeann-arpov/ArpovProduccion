@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SISA_AF</fullName>
+    <columns>NAME</columns>
+    <columns>Cuenta__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Situacion_Categoria_IMG__c</columns>
+    <columns>Fecha_Notificacion_DFE_Categoria__c</columns>
+    <columns>Estado_de_la_CUIT__c</columns>
+    <columns>Fecha_Notificacion_DFE_Estado__c</columns>
+    <columns>Fecha_Generacion__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Cuenta__c</field>
+        <operation>contains</operation>
+        <value>FABRICCINI EDUARDO</value>
+    </filters>
+    <label>SISA (AF)</label>
+</ListView>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Ventas_CRM_Procesadas</fullName>
+    <columns>NAME</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Nro_de_Comprobante__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterOrEqual</operation>
+        <value>4/7/2026 12:00 AM</value>
+    </filters>
+    <filters>
+        <field>Tipo_de_Venta__c</field>
+        <operation>notEqual</operation>
+        <value>TM,CA,TC</value>
+    </filters>
+    <filters>
+        <field>Originante_CUIT__c</field>
+        <operation>equals</operation>
+        <value>30646328450</value>
+    </filters>
+    <label>Control Ventas CRM Procesadas.</label>
+</ListView>

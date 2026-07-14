@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SKEY_CULTIVO__c</fullName>
+    <description>Surrogate Key de DIM_CULTIVO</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Surrogate Key de DIM_CULTIVO. Al crear un nuevo cultivo asignar un valor más alto al más alto creado. (Ej.: si el cultivo con SKEY más alto creado es 30, asigne al nuevo cultivo el SKEY 31.</inlineHelpText>
+    <label>SKEY_CULTIVO</label>
+    <length>3</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

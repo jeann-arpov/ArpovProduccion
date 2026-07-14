@@ -1,0 +1,33 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 141.7 99.2" style="">
+  <!-- Generator: Adobe Illustrator 29.5.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 141)  -->
+  <defs>
+    <style>
+      .st0 {
+        stroke: #000;
+      }
+
+      .st0, .st1 {
+        fill: none;
+        stroke-miterlimit: 10;
+        stroke-width: 11px;
+      }
+
+      .st2 {
+        isolation: isolate;
+      }
+
+      .st1 {
+        fill-rule: evenodd;
+        mix-blend-mode: multiply;
+        stroke: #bfff00;
+      }
+    </style>
+  </defs>
+  <g class="st2">
+    <g id="Capa_1">
+      <path class="st1 zxbtDCWz_0" d="M62.7,71.9L47.5,87.1L9.2,48.9L47.5,10.6L85.8,48.9L78.9,55.8"></path>
+      <path class="st0 zxbtDCWz_1" d="M77.4,25.7L92.5,10.6L130.8,48.9L92.5,87.1L54.2,48.9L60.7,42.4"></path>
+    </g>
+  </g>
+<style data-made-with="vivus-instant">.zxbtDCWz_0{stroke-dasharray:194 196;stroke-dashoffset:195;animation:zxbtDCWz_draw_0 4800ms ease-in-out 0ms infinite,zxbtDCWz_fade 4800ms linear 0ms infinite;}.zxbtDCWz_1{stroke-dasharray:193 195;stroke-dashoffset:194;animation:zxbtDCWz_draw_1 4800ms ease-in-out 0ms infinite,zxbtDCWz_fade 4800ms linear 0ms infinite;}@keyframes zxbtDCWz_draw{100%{stroke-dashoffset:0;}}@keyframes zxbtDCWz_fade{0%{stroke-opacity:1;}91.66666666666667%{stroke-opacity:1;}100%{stroke-opacity:0;}}@keyframes zxbtDCWz_draw_0{16.666666666666664%{stroke-dashoffset: 195}38.888888888888886%{ stroke-dashoffset: 0;}100%{ stroke-dashoffset: 0;}}@keyframes zxbtDCWz_draw_1{27.77777777777778%{stroke-dashoffset: 194}50%{ stroke-dashoffset: 0;}100%{ stroke-dashoffset: 0;}}</style></svg>

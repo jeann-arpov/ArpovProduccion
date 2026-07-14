@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Provincia_ERP__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Registro de Provincia en Virtual Seller</description>
+    <label>Provincia ERP</label>
+    <referenceTo>ERPvs__Provincia_Departamento_Estado__c</referenceTo>
+    <relationshipLabel>Provincias</relationshipLabel>
+    <relationshipName>Provincias</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

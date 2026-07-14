@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_a_Facturar__c</fullName>
+    <description>Importe total a facturar para este ítem de Auditoría (Se calcula en el WF Item Auditoria. Total a Facturar cuando el campo resultado es &quot;Irregular o Irreguar en seguimiento&quot;.</description>
+    <externalId>false</externalId>
+    <label>Total a Facturar (ARS)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

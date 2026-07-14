@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Cultivo</fullName>
+    <active>true</active>
+    <description>Valida que el Cultivo del producto seleccionado corresponda con el de la DUP</description>
+    <errorConditionFormula>Producto__r.Cultivo__r.Name &lt;&gt; Transaccion__r.Cultivo__r.Name</errorConditionFormula>
+    <errorMessage>El Producto debe corresponder al Cultivo definido para la DUP.</errorMessage>
+</ValidationRule>

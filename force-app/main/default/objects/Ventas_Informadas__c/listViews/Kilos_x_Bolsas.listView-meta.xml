@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Kilos_x_Bolsas</fullName>
+    <columns>NAME</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <columns>Razon_Social_Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Razon_Social_Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad_Bolsas_40__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>Kilos_por_Bolsa__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Procesado</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterOrEqual</operation>
+        <value>1/1/2025 12:00 AM</value>
+    </filters>
+    <filters>
+        <field>Kilos_por_Bolsa__c</field>
+        <operation>notEqual</operation>
+        <value>1</value>
+    </filters>
+    <label>Kilos x Bolsas</label>
+</ListView>

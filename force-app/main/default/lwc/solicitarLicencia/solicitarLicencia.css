@@ -1,0 +1,32 @@
+@import 'c/pphCss';
+
+.heading.title {
+    border-bottom: 3px solid var(--pph-green);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+lightning-layout {
+    padding: 0px 2rem;
+}
+
+.steps {
+    counter-reset: list-number;
+}
+
+.steps > div:before {
+    counter-increment: list-number;
+    content: counter(list-number)'.';
+    margin-right: 5px;
+}
+
+.heading.success {
+    padding: 2rem;
+    border: 3px solid var(--pph-green);
+    text-align: center;
+}
+
+.resumen {
+    background-color: #BCBCBC;
+    font-size: 16px;
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mis_Licencias_En_Proceso</fullName>
+    <columns>CodigoLicenciaTexto__c</columns>
+    <columns>Estado_IMG__c</columns>
+    <columns>Codigo_SGL__c</columns>
+    <columns>Marcas__c</columns>
+    <columns>Marcas_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Fecha_de_Vencimiento__c</columns>
+    <columns>Origen_de_Licencia__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Creada,A validar</value>
+    </filters>
+    <filters>
+        <field>NAME</field>
+        <operation>notEqual</operation>
+        <value>$</value>
+    </filters>
+    <label>.Mis Licencias En Proceso</label>
+</ListView>

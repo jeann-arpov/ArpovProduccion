@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Actualizar_Capsula_Decision</name>
+        <label>Actualizar Capsula Decision</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Actualizar</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>ISNEW</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Licencia__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar_Capsula</targetReference>
+            </connector>
+            <label>Actualizar</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>Capsula</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    OR(
+        CONTAINS({!$Record.Licencia__r.Id_Obtentor__c} , &quot;03&quot;),
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;14&quot;), 
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;85&quot;)
+    ), &quot;GRUPO DON MARIO&quot;,
+IF(
+    OR(
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;13&quot;), 
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;87&quot;), 
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;90&quot;)
+    ),&quot;CORTEVA&quot; ,
+IF(
+    OR(
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;04&quot;),
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;23&quot;) 
+    ), &quot;SYNGENTA&quot;,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;24&quot;), &quot;STINE&quot; ,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;26&quot;), &quot;A.C.A.&quot;,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;19&quot;), &quot;BIOCERES&quot;,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;05&quot;), &quot;BUCK&quot;,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;12&quot;), &quot;LG&quot;,
+IF(
+    OR(
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;15&quot;), 
+        CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;16&quot;)
+    ), &quot;LDC&quot;,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;06&quot;), &quot;KLEIN&quot;,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;51&quot;), &quot;QUILMES&quot;,
+IF(CONTAINS( {!$Record.Licencia__r.Id_Obtentor__c} , &quot;77&quot;), &quot;BASF&quot;, &quot;&quot;
+))))))))))))</expression>
+    </formulas>
+    <formulas>
+        <name>ISNEW</name>
+        <dataType>Boolean</dataType>
+        <expression>ISNEW()</expression>
+    </formulas>
+    <interviewLabel>[Ensayo] Actualizar Capsula {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>[Ensayo] Actualizar Capsula</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Capsula</name>
+        <label>Actualizar Capsula</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Capsula__c</field>
+            <value>
+                <elementReference>Capsula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Capsula_Decision</targetReference>
+        </connector>
+        <object>Ensayo__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

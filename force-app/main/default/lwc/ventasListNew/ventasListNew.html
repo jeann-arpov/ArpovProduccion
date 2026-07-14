@@ -1,0 +1,116 @@
+<template>
+    <lightning-tabset variant="scoped">
+        <!-- TAB 1 -->
+        <lightning-tab label="Cliente Ventas SF">
+            <div class="ventas-container">
+                <!-- TOP BAR con título + filtros y botón -->
+                <div class="ventas-top-bar">
+                    <div class="ventas-header">
+                        <div class="breadcrumbs">CLIENTE VENTAS SF / MIS VENTAS SF</div>
+                        <div class="title">Cliente Ventas SF</div>
+                    </div>
+
+                    <div class="acciones-derecha">
+                        <div class="filtros-container">
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info + buscador -->
+                <div class="info-busqueda">
+                    <div class="ventas-info">
+                        {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de creación • <br>
+                        Filtrado por Todas las ventas - Estado • Se actualizó hace una hora
+                    </div>
+
+                    <div class="ventas-search">
+                        <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
+                        <span class="search-icon">
+                            <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Tabla -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CUIT</th>
+                            <th>RAZON SOCIAL</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={paginatedVentas} for:item="v">
+                            <tr key={v.id}>
+                                <td>{v.Destinatario_CUIT__c}</td>
+                                <td>
+                                    
+                                        {v.Destinatario__c}
+                                    
+                                </td>
+                                
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <!-- Navegación -->
+                <div class="paginacion">
+                    <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+                    <span>Página {currentPage}</span>
+                    <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+                </div>
+            </div>
+        </lightning-tab>
+
+        <!-- TAB 2 -->
+        <lightning-tab label="Cliente Ventas HT">
+            <div class="ventas-container">
+                <div class="ventas-header">
+                    <div class="breadcrumbs">CLIENTE VENTAS HT / MIS VENTAS HT</div>
+                    <div class="title">Cliente Ventas HT</div>
+                </div>
+
+                <!-- Buscador HT -->
+                <div class="ventas-search">
+                    <input type="text" oninput={handleSearchChangeHT} placeholder="Buscar..." />
+                    <span class="search-icon">
+                        <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                    </span>
+                </div>
+
+                <!-- Tabla HT -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CUIT</th>
+                            <th>RAZON SOCIAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={paginatedVentasHT} for:item="ht">
+                            <tr key={ht.id}>
+                                <td>{ht.CUIT_Productor__c}</td>
+                                <td>
+                                    
+                                        {ht.productor}
+                                    
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <!-- Navegación HT -->
+                <div class="paginacion">
+                    <button onclick={handlePrevHT} disabled={disablePrevHT}>Anterior</button>
+                    <span>Página {currentPageHT}</span>
+                    <button onclick={handleNextHT} disabled={disableNextHT}>Siguiente</button>
+                </div>
+            </div>
+        </lightning-tab>
+    </lightning-tabset>
+</template>

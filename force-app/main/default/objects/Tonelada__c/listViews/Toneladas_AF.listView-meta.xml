@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Toneladas_AF</fullName>
+    <columns>NAME</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Expediente_de_Negativos__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Origen__c</columns>
+    <columns>Biotecnologia__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Credito__c</columns>
+    <columns>Tonelada_Anterior__c</columns>
+    <columns>Debito__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Cultivo__c</field>
+        <operation>contains</operation>
+        <value>SOJA</value>
+    </filters>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Transferencia</value>
+    </filters>
+    <label>Toneladas (AF)</label>
+</ListView>

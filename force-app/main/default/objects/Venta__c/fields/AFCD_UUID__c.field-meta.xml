@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AFCD_UUID__c</fullName>
+    <description>Identificador único generado en el proceso de extracción y sincronizado con el sistema del obtentor.</description>
+    <externalId>false</externalId>
+    <label>AFCD_UUID</label>
+    <length>36</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

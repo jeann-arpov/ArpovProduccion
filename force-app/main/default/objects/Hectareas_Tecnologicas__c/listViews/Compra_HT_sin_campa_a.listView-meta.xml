@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Compra_HT_sin_campa_a</fullName>
+    <columns>NAME</columns>
+    <columns>Origen__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Campania__c</columns>
+    <columns>Plan_de_Siembra__c</columns>
+    <columns>Venta__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Campania__c</field>
+        <operation>equals</operation>
+    </filters>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Compra HT</value>
+    </filters>
+    <label>Compra HT sin campaña</label>
+</ListView>

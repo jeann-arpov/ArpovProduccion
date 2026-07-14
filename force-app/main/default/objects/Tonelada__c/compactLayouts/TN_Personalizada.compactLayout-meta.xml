@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TN_Personalizada</fullName>
+    <fields>Name</fields>
+    <fields>Variedad__c</fields>
+    <fields>Origen__c</fields>
+    <fields>Etapa__c</fields>
+    <fields>Nombre_Obtentor__c</fields>
+    <fields>Productor__c</fields>
+    <fields>Cantidad__c</fields>
+    <fields>CreatedById</fields>
+    <label>TN Personalizada</label>
+</CompactLayout>

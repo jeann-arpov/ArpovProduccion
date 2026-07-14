@@ -1,0 +1,87 @@
+<template>
+    <div class={establecimientoClass}>
+        <div class = "title slds-p-left_large slds-p-right_small slds-p-vertical_small slds-m-bottom_medium" if:false={grandesCuentas}>
+            <b>{titulo}</b>
+            <lightning-button-icon size="large" class="slds-float_right" icon-name="utility:delete" variant="bare" alternative-text="Eliminar Establecimiento" title="Eliminar Establecimiento" onclick={remove}></lightning-button-icon>    
+        </div>
+       <div class="slds-m-horizontal_large" if:false={grandesCuentas}>
+            <p class="slds-m-bottom_small">1. Para comenzar seleccione un establecimiento ya creado:</p>
+            <lightning-layout class="slds-m-bottom_small">
+                <lightning-layout-item size="6">
+                    <c-lookup variant="label-hidden" onselectionchange={establecimientoSelected} onsearch={search} label="Buscar establecimiento" selection={establecimiento} placeholder="Ingrese nombre del establecimiento">
+                        <div slot="no-results" >
+                            <span style="color:#FF0000;font-size:18px;">ESTABLECIMIENTO NO REGISTRADO</span>
+                            <div style="color:#1C1C1C;font-size: 14px">Recuerde que los establecimientos deben estar marcados como vigentes para poder seleccionarlos en esta pantalla</div>
+                        </div>
+                    </c-lookup>
+                    <span style="color:grey;font-size:x-small;">Para editar el nombre o las coordenadas de un Establecimiento existente, puede ir a Pre Certificación > Mis Establecimientos</span>
+                </lightning-layout-item>
+            </lightning-layout>
+            <p if:false={establecimiento}>O crea un establecimiento nuevo:</p>
+            <lightning-layout class="slds-m-bottom_small" if:false={establecimiento}>
+                <lightning-layout-item size="6">
+                    <lightning-input label="Nombre" value={name} onchange={updateName} required message-when-value-missing="Este campo es obligatorio" onfocus={focus} onblur={blur}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="3" padding="horizontal-large">
+                    <lightning-input type="search" value={mapCoodinates} class={coordinatesClass} label="Georeferencia" onclick={showMap} required message-when-value-missing="Este campo es obligatorio"></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+        <div class = "{infoClass}">
+            <div class="heading green slds-p-vertical_small slds-m-vertical_medium">
+                <lightning-layout>
+                    <lightning-layout-item size="3">
+                        <span class="slds-m-horizontal_large">Hectáreas SEMBRA EVOLUCIÓN</span>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="3" style="text-align:center;">
+                        <span style="font-size:small">{totalesSembradasLabel}: {totalSembrado}</span>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="6" class="slds-text-align_right">
+                        <lightning-button class="comprar-ht slds-m-horizontal_large" title="Si te faltaron HT podes comprarlas ahora" label="Comprar Hectáreas" onclick={redirectCompraHT}></lightning-button>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+            <div class="slds-m-horizontal_large slds-m-bottom_medium">
+                <p><span if:false={grandesCuentas}>2. </span>Detalla variedades y hectáreas sembradas con SEMBRA EVOLUCION</p>
+            </div>
+
+            <div class="slds-m-horizontal_large variedades">
+                <svg class="slds-m-horizontal_small" xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531" >
+                    <use xlink:href={icons.seed}></use>
+                </svg>
+                Variedades
+                <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center variedades-titles slds-p-vertical_medium slds-m-top_small">
+                    <lightning-layout-item size="2">
+                        Marca
+                    </lightning-layout-item>
+                    <lightning-layout-item size="2">
+                        Variedad
+                    </lightning-layout-item>
+                    <lightning-layout-item size="2">
+                        Hectáreas
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" title="Saldo de HTs disponibles">
+                        HT Disponibles
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <template for:each={info.lineas} for:item="linea">
+                    <c-variedad-pph key={linea.id} info={linea} onupdatecantidad={updateCantidad} onautosave={autosave}></c-variedad-pph>
+                </template>
+            </div>
+            
+            <div class="heading grey slds-p-vertical_small slds-m-vertical_medium">
+                <span class="slds-m-horizontal_large">Hectáreas que NO utilizan SEMBRA EVOLUCIÓN</span>
+            </div>
+
+            <div class="slds-m-horizontal_large slds-m-bottom_medium">
+                <p class="slds-m-bottom_medium"><span if:false={grandesCuentas}>3.  </span>Indicar cantidad de hectáreas de {cultivo.Name} con variedades por fuera de SE</p>
+                <lightning-input required class="slds-size_1-of-8" variant="label-hidden" label="" placeholder="Indicá cantidad de Hectáreas" type="number" step="1" onchange={updateCantidadFuera} onfocus={focus} onblur={blur} value={cantidadNoSE} message-when-value-missing="Este campo es obligatorio"></lightning-input>
+            </div>
+        </div>
+        <lightning-layout horizontal-align="center">
+            <lightning-button-icon size="large" if:false={collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed}></lightning-button-icon>
+            <lightning-button-icon size="large" if:true={collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed}></lightning-button-icon>
+        </lightning-layout>
+    </div>
+</template>

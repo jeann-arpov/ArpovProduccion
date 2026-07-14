@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Codigo_de_la_Entidad__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>Código de la Entidad Bancaria asignado por el BCRA</description>
+    <externalId>true</externalId>
+    <label>Código de la Entidad</label>
+    <length>6</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

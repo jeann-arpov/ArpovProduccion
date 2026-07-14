@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_ERP_IMG__c</fullName>
+    <description>Define el ícono basado en el contenido del campo Estado_ERP__c</description>
+    <externalId>false</externalId>
+    <formula>if (
+	Estado_ERP__c = &quot;PROCESADO&quot;, 
+		IMAGE(&apos;/resource/ERpvs__ERP_App_Resources/images/asiento_contabilizado.png&apos;, &quot;Procesado&quot;), 
+		IMAGE(&apos;/resource/ERpvs__ERP_App_Resources/images/asiento_nocontabilizado.png&apos;, &quot;Sin Procesar&quot;)
+	)</formula>
+    <label>Estado ERP</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

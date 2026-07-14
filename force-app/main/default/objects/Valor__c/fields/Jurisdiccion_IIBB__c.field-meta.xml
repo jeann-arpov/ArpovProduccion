@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Jurisdiccion_IIBB__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Jurisdicción a la que aplica la retención de IIBB. Obligatorio si la forma de pago es Retención de IIBB</description>
+    <inlineHelpText>Jurisdicción a la que aplica la retención de IIBB. Ingrese este dato únicamente si la forma de pago es Retención de IIBB.</inlineHelpText>
+    <label>Jurisdicción IIBB</label>
+    <referenceTo>Provincia__c</referenceTo>
+    <relationshipLabel>Valores</relationshipLabel>
+    <relationshipName>Valores</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Socio_Empresa__c</fullName>
+    <label>Socio Empresa</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>ArPOV</fullName>
+                <default>true</default>
+                <label>ArPOV</label>
+            </value>
+            <value>
+                <fullName>ASA</fullName>
+                <default>false</default>
+                <label>ASA</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

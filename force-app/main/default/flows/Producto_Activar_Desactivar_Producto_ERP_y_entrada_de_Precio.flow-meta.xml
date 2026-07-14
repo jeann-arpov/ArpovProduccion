@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Cada vez que se activa o desactiva un Producto CRM, se activa o desactiva el producto ERP asociado y la entrada en la Lista de Precios.</description>
+    <environments>Default</environments>
+    <interviewLabel>Producto - Activar / Desactivar Producto ERP y entrada de Precio {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Producto - Activar / Desactivar Producto ERP y entrada de Precio</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Entrada_de_Lista_de_Precios</name>
+        <label>Actualizar Entrada de Lista de Precios</label>
+        <locationX>176</locationX>
+        <locationY>455</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Product2Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>IsActive</field>
+            <value>
+                <elementReference>$Record.IsActive</elementReference>
+            </value>
+        </inputAssignments>
+        <object>PricebookEntry</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Actualizar_Producto_ERP</name>
+        <label>Actualizar Producto ERP</label>
+        <locationX>176</locationX>
+        <locationY>335</locationY>
+        <connector>
+            <targetReference>Actualizar_Entrada_de_Lista_de_Precios</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.ERPvs_Producto__r.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>ERPvs__Activo__c</field>
+            <value>
+                <elementReference>$Record.IsActive</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ERPvs__Producto__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Producto_ERP</targetReference>
+        </connector>
+        <filterFormula>{!$Record.IsActive} &lt;&gt; {!$Record__Prior.IsActive}</filterFormula>
+        <object>Product2</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

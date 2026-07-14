@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>obtentorMapped__c</fullName>
+    <description>Dado que en el SGL se registran licencias por marca, este campo unifica marcas en el obtentor correspondiente. Se calcula en el proceso batch de obtencion de licencias (API REST)</description>
+    <externalId>false</externalId>
+    <label>Obtentor Unificado</label>
+    <length>80</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

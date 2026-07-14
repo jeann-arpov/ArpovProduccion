@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Importe_Total__c</fullName>
+    <description>Evalúa el tipo de transacción para mostrar el total correspondiente.</description>
+    <formula>CASE(RecordType.Name, 
+     &quot;DUP&quot;, Total_a_FacturarDUP__c,
+     &quot;Auditoría&quot;,  Total_a_Facturar_AUD__c,
+     0
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Total correspondiente al tipo de transacción.</inlineHelpText>
+    <label>Importe Total</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

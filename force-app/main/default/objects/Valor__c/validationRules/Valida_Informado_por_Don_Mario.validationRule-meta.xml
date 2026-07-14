@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Informado_por_Don_Mario</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+ Informado_por_Don_Mario__c = true,
+  Comprobante_de_Pago__r.Obtentor_Destinatario__r.Id_Obtentor__c &lt;&gt; &quot;03&quot;
+)</errorConditionFormula>
+    <errorDisplayField>Informado_por_Don_Mario__c</errorDisplayField>
+    <errorMessage>El obtentor debe ser Don Mario</errorMessage>
+</ValidationRule>

@@ -1,0 +1,39 @@
+<template>
+    <div if:true={loading} class="exampleHolder">
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </div>
+    <div class="slds-align_absolute-center slds-text-heading_large slds-var-m-vertical_small">Configuración de Facturación</div>
+    <div class="slds-var-m-bottom_medium separador"></div>
+    <lightning-layout horizontal-align="center">
+        <lightning-layout-item size="3" class="slds-m-horizontal_medium">
+            <c-lookup onselectionchange={cuentaSelected} onsearch={search} label="Cuenta" placeholder="Ingrese CUIT o nombre de la cuenta" selection={cuenta}>
+                <div slot="no-results" >
+                    <span style="color:#FF0000;font-size:18px;">CUIT NO REGISTRADO</span>
+                </div>
+            </c-lookup>
+        </lightning-layout-item>
+        <lightning-layout-item size="3" class="slds-m-horizontal_small">
+            <lightning-combobox label="Marca" options={marcas} onchange={marcaSelected} value={marca}></lightning-combobox>
+        </lightning-layout-item>
+    </lightning-layout>
+    <lightning-layout horizontal-align="center" class="slds-var-m-vertical_large">
+        <lightning-layout-item size="4" style="display:flex;justify-content:center;">
+            <c-radio-group lwc:ref="options" options={options} onchange={configSelected} orientation="horizontal"></c-radio-group>
+        </lightning-layout-item>
+    </lightning-layout>
+    <div class="slds-align_absolute-center slds-var-m-vertical_large actions">
+        <lightning-button label="Cancelar" onclick={cancel} class="slds-m-horizontal_x-small"></lightning-button>
+        <lightning-button label="Guardar" onclick={save} class="slds-m-horizontal_x-small black"></lightning-button>
+    </div>
+    <div class="slds-text-heading_medium slds-var-m-bottom_small">Cuentas que facturan por punto de venta</div>
+    <div class="slds-var-m-bottom_x-large separador"></div>
+    <div class="slds-var-m-aroung_large">
+        <lightning-datatable
+            key-field="Id"
+            data={cuentasPv}
+            columns={columns}
+            hide-checkbox-column
+            suppress-bottom-bar>
+        </lightning-datatable>
+    </div>
+</template>

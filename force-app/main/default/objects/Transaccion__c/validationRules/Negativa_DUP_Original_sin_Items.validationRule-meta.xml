@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Negativa_DUP_Original_sin_Items</fullName>
+    <active>true</active>
+    <description>Valida que no se pueda crear una transacción con subestado Negativo si la DUP Original no tiene items</description>
+    <errorConditionFormula>ISPICKVAL(Subestado__c,&quot;Negativa&quot;)&amp;&amp; 
+AND (DUP_Original__r.Z9_Lineas_Totales_DUP__c = 0,  DUP_Original__r.Z9_Lineas_Totales_Auditorias__c = 0)</errorConditionFormula>
+    <errorDisplayField>DUP_Original__c</errorDisplayField>
+    <errorMessage>La DUP Original debe tener al menos un item de DUP.</errorMessage>
+</ValidationRule>

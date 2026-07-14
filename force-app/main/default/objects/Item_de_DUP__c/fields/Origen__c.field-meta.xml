@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Origen__c</fullName>
+    <description>Construye el link para consultar el origen de la línea de DUP</description>
+    <externalId>false</externalId>
+    <formula>HYPERLINK(&quot;https://arpov.my.salesforce.com/&quot; &amp; ID_Origen__c , Tipo_de_Origen__c  )</formula>
+    <inlineHelpText>Venta, DUP o Auditoría que dió origen a la línea de DUP. (Válido a partir de la Campaña TRIGO 2014)</inlineHelpText>
+    <label>Origen</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

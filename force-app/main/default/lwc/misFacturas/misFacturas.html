@@ -1,0 +1,77 @@
+<template>
+    <div class="ventas-container">
+        <!-- TOP BAR con título + filtros y botón -->
+        <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">FACTURACION</div>
+                <div class="title">Todas las Facturas</div>
+            </div>
+
+            <div class="acciones-derecha">
+                <div class="filtros-container">
+                
+                    <select data-id="cultivosSelect" onchange={handleCultivoSelect}>
+                        <option value="">Cultivo</option>
+                        <template for:each={cultivos} for:item="item">
+                            <option key={item} value={item.value}>{item.value}</option>
+                        </template>
+                    </select>
+                    <select onchange={handleMarcaSelect}>
+                        <option value="">Marca</option>
+                        <template for:each={marcas} for:item="item">
+                            <option key={item} value={item.value}>{item.value}</option>
+                        </template>
+                    </select>
+                    <select onchange={handleEstadoSelect}>
+                        <option value="">Estado</option>
+                        <template for:each={estados} for:item="item">
+                            <option key={item} value={item.value}>{item.value}</option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info + buscador -->
+        <div class="info-busqueda">
+            <div class="ventas-info">
+                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emision • <br>
+                Filtrado por Todas las facturas • Se actualizó hace una hora
+            </div>
+
+            <div class="ventas-search">
+                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        
+         <lightning-datatable
+                key-field="uniqueId"
+                class="dataTable"
+                data={data}
+                columns={columns}
+                onrowaction={handleRowAction}
+                onsort={handleOnSort}
+                sorted-by={sortBy}
+                sorted-direction={sortDirection}
+                column-widths-mode="auto"
+                resize-column-disabled
+                hide-checkbox-column>
+            </lightning-datatable>
+
+        <div class="paginacion">
+            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+            <span>Página {currentPage}</span>
+            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+        </div> 
+        
+         <!-- Modal -->
+    <c-pdf-reader></c-pdf-reader>
+
+    <!-- Informar Pago -->
+    <c-informar-pago></c-informar-pago>
+
+    </div>
+</template>

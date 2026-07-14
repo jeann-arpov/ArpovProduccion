@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>BAYER_NO_FACTURAR_AUD</fullName>
+        <field>No_Facturar__c</field>
+        <literalValue>1</literalValue>
+        <name>BAYER_NO_FACTURAR_AUD</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Borra_Estado_de_Aprobacion</fullName>
+        <description>Si el % de descuento está dentro de los límites autorizados para el usuario borra el estado de aprobación.</description>
+        <field>Estado_de_Aprobacion__c</field>
+        <literalValue>El descuento no requiere Aprobación</literalValue>
+        <name>Borra Estado de Aprobación</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cambio_de_Estado_Aprobado</fullName>
+        <description>Cambia el estado de la linea a Aprobado</description>
+        <field>Estado_de_Aprobacion__c</field>
+        <literalValue>Descuento Aprobado</literalValue>
+        <name>Cambio de Estado Aprobado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cambio_de_Estado_En_Aprobacion</fullName>
+        <field>Estado_de_Aprobacion__c</field>
+        <literalValue>Pendiente Aprobación Descuento</literalValue>
+        <name>Cambio de Estado En Aprobacion</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cambio_de_Estado_Rechazado</fullName>
+        <description>Cambia el estado de la lína a Rechazado</description>
+        <field>Estado_de_Aprobacion__c</field>
+        <literalValue>Descuento Rechazado</literalValue>
+        <name>Cambio de Estado Rechazado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Estado_Pendiente</fullName>
+        <description>Asigna valor &quot;Pendiente Aprobación Descuento&quot; al campo Estado de Aprobación.</description>
+        <field>Estado_de_Aprobacion__c</field>
+        <literalValue>El Descuento Requiere Aprobación</literalValue>
+        <name>Estado Pendiente</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_AUD_Flow_Trigger_False</fullName>
+        <description>Desactiva Flow Trigger luego de calcular el Total a Facturar.</description>
+        <field>Flow_Trigger__c</field>
+        <literalValue>0</literalValue>
+        <name>Item AUD. Flow Trigger (False)</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_AUD_Flow_Trigger_True</fullName>
+        <description>Activa Flow Trigger cuando se calculan los totales.</description>
+        <field>Flow_Trigger__c</field>
+        <literalValue>1</literalValue>
+        <name>Item AUD. Flow Trigger (True)</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_Auditoria_Comision_por_Monto_Fijo</fullName>
+        <field>Comision_Por_Monto_Fijo__c</field>
+        <formula>IF(NOT(ISPICKVAL(Monto_Fijo__c,&quot;&quot;))||NOT(ISPICKVAL(Monto_Fijo__c,&quot;0&quot;)), VALUE(TEXT(Monto_Fijo__c))*0.95,0)</formula>
+        <name>Item Auditoria. Comision por Monto Fijo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_Auditoria_Comision_por_Regalia</fullName>
+        <field>Comision_por_Regalia_Simple__c</field>
+        <formula>IF( Conversion__c &lt;&gt; &quot;ARS&quot;,
+(Cantidad_de_Facturacion__c * Precio_Unitario_Producto__c )* Tipo_de_Cambio__c * 0.12,
+(Cantidad_de_Facturacion__c * Precio_Unitario_Producto__c ) * 0.12
+)</formula>
+        <name>Item Auditoria. Comision por Regalia</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_Auditoria_Comision_por_Resarcimien</fullName>
+        <field>Comision_Por_Resarcimiento__c</field>
+        <formula>Importe_de_Resarcimiento__c * 0.95</formula>
+        <name>Item Auditoria. Comision por Resarcimien</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_Auditoria_Conversion</fullName>
+        <description>Asigna la conversion al campo Conversion__c según el contexto</description>
+        <field>Conversion__c</field>
+        <formula>TEXT(Producto__r.Conversion__c)</formula>
+        <name>Item Auditoria. Conversion</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_Auditoria_Descuento_Producto</fullName>
+        <description>Carga el Descuento del producto.</description>
+        <field>Descuento_Producto__c</field>
+        <formula>IF( ISBLANK( Producto__r.Descuento__c ) ,
+ 0,
+ Producto__r.Descuento__c )</formula>
+        <name>Item Auditoria. Descuento Producto</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_Auditoria_Precio_Producto</fullName>
+        <field>Precio_Unitario_Producto__c</field>
+        <formula>Producto__r.Precio__c</formula>
+        <name>Item Auditoria. Precio Producto</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_de_AUD_No_facturar</fullName>
+        <field>No_Facturar__c</field>
+        <literalValue>1</literalValue>
+        <name>Item de AUD - No facturar</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_de_AUD_No_facturar_por_Deuda</fullName>
+        <field>No_Facturar_por_Deuda__c</field>
+        <literalValue>1</literalValue>
+        <name>Item de AUD - No facturar por Deuda</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_de_Auditoria_Cambio_Transaccion</fullName>
+        <description>Setea en true el campo Cambio de la Transaccion</description>
+        <field>Z9_Cambio__c</field>
+        <literalValue>1</literalValue>
+        <name>Item de Auditoria. Cambio Transaccion</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Auditoria__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Kilos_Totales</fullName>
+        <description>Calcula los Kilos totales</description>
+        <field>Z9_Kilos_Totales__c</field>
+        <formula>IF(ISPICKVAL(  Unidad_de_Medida_Relevada__c  ,&quot;Hectáreas&quot;),  Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+IF(ISPICKVAL(  Unidad_de_Medida_Relevada__c  ,&quot;Granel&quot;),Cantidad_Relevada__c * 1, VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c ) )</formula>
+        <name>Kilos Totales</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Total_a_Facturar</fullName>
+        <description>Calcula el importe total a facturar para este ítem de auditoria en función de otros valores calculados en el ítem.</description>
+        <field>Total_a_Facturar__c</field>
+        <formula>IF( Conversion__c &lt;&gt; &quot;ARS&quot;,
+	((( 
+		IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;), 
+			Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+			IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+				Cantidad_Relevada__c * 1, 
+				VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c
+				)
+			) 
+		) / Unidad_de_Medida_de_Facturacion__c) * Precio_Unitario_Producto__c
+	)* Tipo_de_Cambio__c,
+	(((
+		IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;), 
+			Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+			IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+				Cantidad_Relevada__c * 1, 
+				VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c 
+				) 
+			) 
+		) / Unidad_de_Medida_de_Facturacion__c) * Precio_Unitario_Producto__c 
+	)
+) +  
+( ( IF( Conversion__c &lt;&gt; &quot;ARS&quot;,
+	((( 
+		IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;), 
+			Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+			IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+				Cantidad_Relevada__c * 1, 
+				VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c 
+				) 
+			) 
+		) / Unidad_de_Medida_de_Facturacion__c) * Precio_Unitario_Producto__c 
+	)* Tipo_de_Cambio__c,
+			((( 
+				IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;), 
+					Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+					IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+						Cantidad_Relevada__c * 1, 
+						VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c 
+						) 
+					) 
+				) / Unidad_de_Medida_de_Facturacion__c) * Precio_Unitario_Producto__c 
+			)
+		) 
+	) * VALUE( TEXT( Resarcimiento_Porcentaje__c ) )
+) - 
+	((( 
+		( IF( Conversion__c &lt;&gt; &quot;ARS&quot;,
+			(((
+				IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;),
+					Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+					IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+						Cantidad_Relevada__c * 1, 
+						VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c
+						) 
+					) 
+				) / Unidad_de_Medida_de_Facturacion__c
+			 ) * Precio_Unitario_Producto__c 
+			)* Tipo_de_Cambio__c,
+			((( 
+				IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;), 
+					Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+					IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+						Cantidad_Relevada__c * 1, 
+						VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c 
+						) 
+					) 
+				) / Unidad_de_Medida_de_Facturacion__c
+			 ) * Precio_Unitario_Producto__c 
+			)
+		   )
+		) + Importe_de_Resarcimiento__c 
+	   ) * Descuento_Porcentaje__c
+	  ) + (IF( Conversion__c &lt;&gt; &quot;ARS&quot;,
+				(((
+					IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;), 
+						Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+							IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+								Cantidad_Relevada__c * 1, 
+								VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c 
+								) 
+							) 
+						) / Unidad_de_Medida_de_Facturacion__c
+					) * Precio_Unitario_Producto__c 
+				)* Tipo_de_Cambio__c,
+				(((
+					IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Hectáreas&quot;), 
+						Cantidad_Relevada__c * Densidad_de_Siembra__c, 
+						IF(ISPICKVAL( Unidad_de_Medida_Relevada__c ,&quot;Granel&quot;),
+							Cantidad_Relevada__c * 1, 
+							VALUE( TEXT(Unidad_de_Medida_Relevada__c) ) * Cantidad_Relevada__c 
+							) 
+						) 
+					) / Unidad_de_Medida_de_Facturacion__c
+				  ) * Precio_Unitario_Producto__c 
+				)
+			  )
+			) * Descuento_Producto__c  )  +  
+IF( ISBLANK( TEXT( Monto_Fijo__c) ), 
+	0, 
+	VALUE( TEXT( Monto_Fijo__c ) ) 
+	)</formula>
+        <name>Total a Facturar</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_No_Facturar_por_Deuda</fullName>
+        <field>No_Facturar_por_Deuda__c</field>
+        <literalValue>1</literalValue>
+        <name>Transaccion. No Facturar por Deuda</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Auditoria__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Z9_Tipo_Producto</fullName>
+        <field>Z9_Tipo_Producto__c</field>
+        <formula>TEXT( Producto__r.Family )</formula>
+        <name>Z9_Tipo_Producto</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>BAYER_BASF_NO_FACTURAR_AUD</fullName>
+        <actions>
+            <name>BAYER_NO_FACTURAR_AUD</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
+        <criteriaItems>
+            <field>Item_Auditoria__c.Id_Obtentor__c</field>
+            <operation>equals</operation>
+            <value>66</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_Auditoria__c.Resultado__c</field>
+            <operation>equals</operation>
+            <value>Irregular</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_Auditoria__c.Z9_Kilos_Totales__c</field>
+            <operation>notEqual</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>User.Alias</field>
+            <operation>notEqual</operation>
+            <value>AFernan</value>
+        </criteriaItems>
+        <description>Marca automáticamente como No Facturar los Ítems de Auditorías de BAYER y BASF.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Borra Estado de Aprobación</fullName>
+        <actions>
+            <name>Borra_Estado_de_Aprobacion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Borra el estado de Aprobación si el % de descuento se encuentra dentro de los límites autorizados para el usuario.</description>
+        <formula>VALUE( TEXT( Descuento_Porcentaje__c ) ) &lt;= $User.Descuento_Autorizado__c</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Campos Calculados</fullName>
+        <actions>
+            <name>Item_AUD_Flow_Trigger_True</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Kilos_Totales</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Item_Auditoria__c.Cantidad_Relevada__c</field>
+            <operation>notEqual</operation>
+            <value>0</value>
+        </criteriaItems>
+        <description>Realiza los calculos de los campos</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Comision</fullName>
+        <actions>
+            <name>Item_Auditoria_Comision_por_Monto_Fijo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Item_Auditoria_Comision_por_Regalia</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Item_Auditoria_Comision_por_Resarcimien</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2</booleanFilter>
+        <criteriaItems>
+            <field>Item_Auditoria__c.Resultado__c</field>
+            <operation>equals</operation>
+            <value>Irregular,Irregular en seguimiento</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Auditoría</value>
+        </criteriaItems>
+        <description>Calcula los importes de comision correspondientes.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Estado Pendiente de Aprobación</fullName>
+        <actions>
+            <name>Estado_Pendiente</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna el estado Pendiente de Aprobación a las líneas de auditorias con un % de descuento superior al permitido para el usuario que la crea.</description>
+        <formula>VALUE( TEXT( Descuento_Porcentaje__c   ) ) &gt; $User.Descuento_Autorizado__c</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Precio Producto</fullName>
+        <actions>
+            <name>Item_Auditoria_Precio_Producto</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Item_Auditoria__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Asigna el precio al line item de auditoría de acuerdo al campo de Precio definido a nivel producto.</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Precio Producto%2C Conversion y Descuento Producto</fullName>
+        <actions>
+            <name>Item_Auditoria_Conversion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Item_Auditoria_Descuento_Producto</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Item_Auditoria_Precio_Producto</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.Z9_Carga_Inicial__c</field>
+            <operation>notEqual</operation>
+            <value>True</value>
+        </criteriaItems>
+        <description>Asigna el precio al line item de auditoría de acuerdo al campo de Precio definido a nivel producto.</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Tipo de Producto</fullName>
+        <actions>
+            <name>Z9_Tipo_Producto</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Actualiza el Tipo de Producto (Texto)</description>
+        <formula>NOT( ISBLANK( Producto__c ) )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item Auditoria%2E Total a Facturar</fullName>
+        <actions>
+            <name>Item_AUD_Flow_Trigger_False</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Total_a_Facturar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2 AND 3</booleanFilter>
+        <criteriaItems>
+            <field>Item_Auditoria__c.Resultado__c</field>
+            <operation>equals</operation>
+            <value>Irregular,Irregular en seguimiento</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Transaccion__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Auditoría</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_Auditoria__c.Flow_Trigger__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <description>Calcula el total a facturar para ese Ítem.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item de AUD - No facturar por Deuda</fullName>
+        <actions>
+            <name>Item_de_AUD_No_facturar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Item_de_AUD_No_facturar_por_Deuda</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Transaccion_No_Facturar_por_Deuda</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <formula>AND(
+     Cantidad_Relevada__c &gt; 0,
+     Auditoria__r.Nombre_de_la_cuenta__r.Clasificador_Moroso__c = true
+)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item de Auditoria%2E Cambio</fullName>
+        <actions>
+            <name>Item_de_Auditoria_Cambio_Transaccion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>User.Usuario_de_Integracion__c</field>
+            <operation>equals</operation>
+            <value>False</value>
+        </criteriaItems>
+        <description>Se ejecuta cuando se modifica un registro de Item de Auditoria</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

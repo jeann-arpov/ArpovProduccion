@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: CV.Actualiza campos por cambio de PV</description>
+    <environments>Default</environments>
+    <interviewLabel>CV.Actualiza campos por cambio de PV (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CV.Actualiza campos por cambio de PV (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_registros_CYO</name>
+        <label>Actualiza registros CYO</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <inputAssignments>
+            <field>ERPvs__A_cuenta_y_orden_de__c</field>
+            <value>
+                <elementReference>$Record.ERPvs__A_cuenta_y_orden_de__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ERPvs__Canal_de_venta__c</field>
+            <value>
+                <elementReference>$Record.ERPvs__Canal_de_venta__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Transaccion__c</field>
+            <value>
+                <elementReference>$Record.Transaccion__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualiza_registros_CYO</targetReference>
+        </connector>
+        <filterFormula>{!$Profile.Name} = &quot;Usuario de Administración&quot;
+&amp;&amp; {!$Record.ERPvs__Empresa_1__r.Name} = &quot;ArPOV&quot;
+&amp;&amp; {!$Record.Oportunidad__c} &lt;&gt; &quot;&quot;
+&amp;&amp; {!$Record.ERPvs__Estado__c} = &quot;NO CONTABILIZADO&quot;
+&amp;&amp; ISCHANGED({!$Record.Oportunidad__c})
+&amp;&amp; MOD({!$Record.ERPvs__Empresa_Sucursal__r.ERPvs__Nro_Sucursal__c},2) = 0
+&amp;&amp; {!$Record.ERPvs__Empresa_Sucursal__r.ERPvs__Nro_Sucursal__c} &lt; 1000</filterFormula>
+        <object>ERPvs__Comprobante_Venta__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

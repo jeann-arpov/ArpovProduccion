@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lineas_No_Facturar_DUP__c</fullName>
+    <label>Lineas No Facturar_DUP</label>
+    <summaryFilterItems>
+        <field>Item_de_DUP__c.No_Facturar__c</field>
+        <operation>equals</operation>
+        <value>True</value>
+    </summaryFilterItems>
+    <summaryFilterItems>
+        <field>Item_de_DUP__c.Estado__c</field>
+        <operation>equals</operation>
+        <value>Uso Propio</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Item_de_DUP__c.Transaccion__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

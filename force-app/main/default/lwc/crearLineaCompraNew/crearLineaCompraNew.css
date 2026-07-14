@@ -1,0 +1,187 @@
+.linea-grid {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr 1fr 1fr 0.5fr;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    min-height: 52px;
+    overflow: visible;
+}
+
+.linea-grid-con-tipo {
+    grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 0.5fr;
+}
+
+.celda {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    color: #333;
+    min-height: 36px;
+}
+
+.celda-variedad {
+    justify-content: flex-start;
+}
+
+.celda-variedad lightning-combobox,
+.celda-variedad c-lookup {
+    width: 100%;
+}
+
+.celda-fecha {
+    font-size: 0.8rem;
+    color: #555;
+    justify-content: center;
+    text-align: center;
+}
+
+.celda-cantidad,
+.celda-precio,
+.celda-total {
+    justify-content: center;
+    text-align: center;
+}
+
+.celda-cantidad lightning-input.input-numerico {
+    display: block;
+    width: 100%;
+    max-width: 112px;
+    margin: 0 auto;
+    --sds-c-input-text-align: center;
+    --slds-c-input-text-align: center;
+    --slds-c-input-spacing-horizontal-start: 0.5rem;
+    --slds-c-input-spacing-horizontal-end: 0.5rem;
+}
+
+.cantidad-input {
+    display: block;
+    width: 100%;
+    max-width: 112px;
+    height: 2rem;
+    margin: 0 auto;
+    padding: 0 0.75rem;
+    border: 1px solid #747474;
+    border-radius: 1.25rem;
+    background: #fff;
+    color: #181818;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    box-sizing: border-box;
+    -moz-appearance: textfield;
+}
+
+.cantidad-input::-webkit-outer-spin-button,
+.cantidad-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.cantidad-input:focus {
+    outline: none;
+    border-color: #1b96ff;
+    box-shadow: 0 0 0 1px #1b96ff;
+}
+
+.cantidad-input:read-only,
+.cantidad-input:disabled {
+    background: #f3f3f3;
+    color: #747474;
+    cursor: not-allowed;
+}
+
+.valor-numerico {
+    display: block;
+    width: 100%;
+    max-width: 112px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #333;
+    line-height: 2rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.facturable {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.pendiente {
+    background-color: #fff3e0;
+    color: #e65100;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.tipo-ht-badge {
+    background-color: #f0f4ff;
+    color: #3355cc;
+    padding: 0.2rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.btn-factura,
+.btn-eliminar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+}
+
+.btn-eliminar {
+    opacity: 0.5;
+}
+
+.btn-eliminar:hover {
+    background-color: #fce4ec;
+    opacity: 1;
+}
+
+.celda-licencia {
+    flex-direction: column;
+    gap: 2px;
+}
+
+.licencia-name {
+    font-size: 0.75rem;
+    color: #555;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.spinner-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 10;
+}
+
+.no-results-msg {
+    color: #d32f2f;
+    font-size: 0.8rem;
+}
+
+:host {
+    display: block;
+    position: relative;
+    overflow: visible;
+}

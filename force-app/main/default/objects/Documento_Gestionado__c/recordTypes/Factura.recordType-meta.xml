@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Factura</fullName>
+    <active>true</active>
+    <description>Factura</description>
+    <label>Factura</label>
+    <picklistValues>
+        <picklist>Respuestas__c</picklist>
+        <values>
+            <fullName>Cancela saldo pendiente</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pagará</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pagó%2C enviará el comprobante</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Se envía propuesta de pago</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Se retiran valores</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sin respuesta efectiva</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solicita comprobante</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solicita facilidades de pago</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solicita plazo de pago</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Resultado__c</picklist>
+        <values>
+            <fullName>Análisis</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Caso cerrado</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Conflictivo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona auditor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona el semillero</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pago confirmado</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Promesa de pago</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Volver a llamar</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Tipo_Documento__c</picklist>
+        <values>
+            <fullName>DUP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Factura</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Coherencia_de_fechas</fullName>
+    <active>true</active>
+    <description>Valida que la fecha de la segunda quincena sea posterior a la de la primer quincena</description>
+    <errorConditionFormula>Segunda_Quincena__c  &lt;=  Primera_Quincena__c</errorConditionFormula>
+    <errorDisplayField>Segunda_Quincena__c</errorDisplayField>
+    <errorMessage>Se segunda quincena debe ser posterior a la primera</errorMessage>
+</ValidationRule>

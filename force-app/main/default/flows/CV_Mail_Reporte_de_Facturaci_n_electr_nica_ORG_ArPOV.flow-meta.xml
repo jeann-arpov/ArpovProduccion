@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Mail_Reporte_de_Facturaci_n_electr_nica_ORG_ArPOV</name>
+        <label>Mail Reporte de Facturación electrónica - ORG ArPOV</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recipientAddresses</name>
+            <value>
+                <collectionElements>
+                    <stringValue>diego.muriel@arpov.org.ar</stringValue>
+                </collectionElements>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>bccAddresses</name>
+            <value>
+                <collectionElements>
+                    <stringValue>alejandro.fernandez@arpov.org.ar</stringValue>
+                </collectionElements>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>CurrentUser</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderAddress</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>salesforce.notificaciones@arpov.org.ar</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Reporte de Facturación electrónica - ORG ArPOV</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>Los números que faltan y existen en el afip son:
+
+1 4 72444 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 27139218707 - Total Comprobante: 511.23
+
+1 4 72445 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30507685095 - Total Comprobante: 629.2
+
+1 4 72446 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30716554925 - Total Comprobante: 813.73
+
+1 4 72447 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30716554925 - Total Comprobante: 617.1
+
+1 4 72448 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30716533022 - Total Comprobante: 356.95
+
+1 4 72449 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 33509459539 - Total Comprobante: 6510.0
+
+1 4 72450 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 20173735112 - Total Comprobante: 450.16
+
+1 4 72451 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 20422628003 - Total Comprobante: 225.08
+
+1 4 72452 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 20440869816 - Total Comprobante: 112.54
+
+1 4 72453 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 33714804699 - Total Comprobante: 148.8
+
+1 4 72454 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30709551503 - Total Comprobante: 404.8
+
+1 4 72455 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30709551503 - Total Comprobante: 404.8
+
+1 4 72456 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 20285767238 - Total Comprobante: 74.28
+
+1 4 72457 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30708556730 - Total Comprobante: 2083.2
+
+Fecha de Proceso:  02/12/2025
+
+
+
+ Org ID: 00DG0000000ii42MAA
+ Org Name: ArPOV</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientId</name>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>2.0.1</versionString>
+    </actionCalls>
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <environments>Default</environments>
+    <interviewLabel>CV. {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CV.Mail Reporte de Facturación electrónica - ORG ArPOV</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Mail_Reporte_de_Facturaci_n_electr_nica_ORG_ArPOV</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <textTemplates>
+        <name>TemplateReportedeFacturacionelectronica</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;Los números que faltan y existen en el afip son:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;1 1004 2219 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30707033289 - Total Comprobante: 1118.04&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;1 1004 2220 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30714012262 - Total Comprobante: 1015.92&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;1 1004 2221 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 20049722908 - Total Comprobante: 7260.0&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;1 1004 2222 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 20127998540 - Total Comprobante: 694.4&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;1 1004 2223 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 20147099550 - Total Comprobante: 4869.56&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;1 1004 2224 Datos AFIP - Tipo Documento: CUIT - Nro Documento: 30636142227 - Total Comprobante: 5082.0&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;Fecha de Proceso:&amp;nbsp;01/12/2025&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp;Org ID: 00DG0000000ii42MAA&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: small; font-family: arial, sans-serif; color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp;Org Name: ArPOV&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+</Flow>

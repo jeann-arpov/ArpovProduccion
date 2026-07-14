@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Porcentaje_sobre_el_Total__c</fullName>
+    <description>Porcentaje de participación de este Ítem en el total de la transacción.</description>
+    <formula>Item_de_DUP__r.Porcentaje_sobre_Total_ARS__c</formula>
+    <inlineHelpText>Porcentaje de participación de este Ítem en el total de la transacción.</inlineHelpText>
+    <label>Porcentaje sobre el Total</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Percent</type>
+</CustomField>

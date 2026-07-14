@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_a_Entregar_No_SE__c</fullName>
+    <description>Es la suma de la cantidad declarada No SE de cada Establecimiento PPH del Plan de Siembra</description>
+    <inlineHelpText>Es la suma de HTs variedades No SE de cada Establecimiento PPH del plan de siembra</inlineHelpText>
+    <label>Total HTs No SE</label>
+    <summarizedField>Establecimiento_PPH__c.Cantidad_Variedad_No_SE__c</summarizedField>
+    <summaryForeignKey>Establecimiento_PPH__c.Plan_de_Siembra__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

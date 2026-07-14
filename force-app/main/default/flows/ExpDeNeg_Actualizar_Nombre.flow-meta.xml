@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Al crear  un expediente de negativos, se actualiza el nombre a EXP + Cuit de la cuenta + Autonumber.
+Se Agrega Validacion de si es usuario Enlist</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>forNombre</name>
+        <dataType>String</dataType>
+        <expression>&apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; {!$Record.Autonumeric__c}</expression>
+    </formulas>
+    <interviewLabel>ExpDeNeg - Actualizar Nombre {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>ExpDeNeg - Actualizar Nombre</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Nombre</name>
+        <label>Actualizar Nombre</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>forNombre</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ValidationBypassDateTime__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Nombre</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Tipo_expendiente__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>PRI</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Tipo_expendiente__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>SEC</stringValue>
+            </value>
+        </filters>
+        <object>Expediente_de_Negativos__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>UsuarioEnlist</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

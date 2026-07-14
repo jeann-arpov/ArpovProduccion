@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Flag_de_Estado__c</fullName>
+    <externalId>false</externalId>
+    <formula>IMAGE( &quot;/servlet/servlet.FileDownload?file=&quot; &amp;
+        CASE( Estado__c ,
+            &quot;Creada&quot;, &quot;015J00000007iCb&quot;,
+            &quot;Recibida&quot;, &quot;015J00000007ivM&quot;,
+            &quot;Rechazada&quot;, &quot;015J00000007ivR&quot;,              
+            &quot;Borrador&quot;, &quot;015J00000007g7Z&quot;, 
+            &quot;Pedido de Facturación&quot;, &quot;015J00000007g7j&quot;, 
+            &quot;Facturada&quot;, &quot;015J00000007g7e&quot;,
+            &quot;Respondida&quot;, &quot;015J00000007ivW&quot;, 
+            &quot;Respondida Parcialmente&quot;, &quot;015J00000007ivW&quot;,
+            &quot;Completa&quot;, &quot;015J00000007g70&quot;,&quot;&quot;),&quot;Estado&quot;) &amp; &quot;  &quot; &amp;  TEXT( Estado__c )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Flag_Estado</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

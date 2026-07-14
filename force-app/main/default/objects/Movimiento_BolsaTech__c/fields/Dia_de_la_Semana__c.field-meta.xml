@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Dia_de_la_Semana__c</fullName>
+    <externalId>false</externalId>
+    <formula>WEEKDAY(  Fecha_de_Reconsideracion__c  )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Día de la semana de la Fecha reconsideración: 
+1 domingo / 2 lunes / ... / 7 sábado</inlineHelpText>
+    <label>Día de la Semana</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

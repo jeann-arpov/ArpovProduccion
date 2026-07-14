@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_con_Error</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Resultado__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>CUIT_Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>Obtentor__c</columns>
+    <columns>Venta_Interna__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Pendiente,Preprocesado</value>
+    </filters>
+    <label>Ventas Informadas con Error</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

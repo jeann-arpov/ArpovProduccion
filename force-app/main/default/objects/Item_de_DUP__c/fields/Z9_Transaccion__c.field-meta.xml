@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Transaccion__c</fullName>
+    <description>Genera el número de transaccción sin guiones para ser untilizado en el Flow que asigna el estado Respondida a las DUPs Respondidas para Consumo.</description>
+    <externalId>false</externalId>
+    <formula>SUBSTITUTE( Transaccion__r.Name , &quot;-&quot;, &quot;&quot;)</formula>
+    <inlineHelpText>Campo de Trabajo</inlineHelpText>
+    <label>Z9_Transaccion</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

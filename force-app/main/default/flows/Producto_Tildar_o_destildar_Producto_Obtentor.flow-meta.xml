@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Cada vez que se tilda o destilda un producto CRM para que sea vigente, se tilda o destilda el producto Obtentor para que sea vigente.</description>
+    <environments>Default</environments>
+    <interviewLabel>Producto - {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Producto - Tildar o destildar Producto Obtentor</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Producto_Obtentor</name>
+        <label>Actualizar Producto Obtentor</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ProductoId__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Vigente__c</field>
+            <value>
+                <elementReference>$Record.Producto_Vigente__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Producto_Obtentor__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Producto_Obtentor</targetReference>
+        </connector>
+        <filterFormula>{!$Record.Producto_Vigente__c} &lt;&gt; {!$Record__Prior.Producto_Vigente__c}</filterFormula>
+        <object>Product2</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

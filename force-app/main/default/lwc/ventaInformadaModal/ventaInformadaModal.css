@@ -1,0 +1,58 @@
+:host {
+    display: block;
+    width: 100%;
+    --se-brand-green: #b7f302;
+    --se-brand-green-hover: #a3d902;
+    --se-text: #1c1c1c;
+    --se-border: #d4d4d4;
+}
+
+/*
+ * Layout flex: el cuerpo ocupa todo el espacio entre header y footer.
+ * Fondo blanco en body para que al hacer scroll no se vea el negro del portal.
+ */
+.venta-modal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 85vh;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.venta-modal__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    background: #ffffff;
+    padding: 0.5rem 1rem 0.75rem;
+}
+
+.venta-modal__footer {
+    flex: 0 0 auto;
+    background: #ffffff;
+    border-top: 1px solid #eeeeee;
+    margin-top: 0;
+    padding-top: 0.75rem;
+}
+
+.modal-footer-btn--cancel {
+    --slds-c-button-neutral-color-background: #ffffff;
+    --slds-c-button-neutral-color-background-hover: #f5f5f5;
+    --slds-c-button-neutral-color-border: var(--se-border);
+    --slds-c-button-text-color: var(--se-text);
+    --slds-c-button-radius-border: 1.25rem;
+    font-weight: 700;
+}
+
+.modal-footer-btn--save {
+    --slds-c-button-brand-color-background: #1c1c1c;
+    --slds-c-button-brand-color-background-hover: #333333;
+    --slds-c-button-brand-color-border: #1c1c1c;
+    --slds-c-button-brand-text-color: #ffffff;
+    --slds-c-button-radius-border: 1.25rem;
+    font-weight: 700;
+}

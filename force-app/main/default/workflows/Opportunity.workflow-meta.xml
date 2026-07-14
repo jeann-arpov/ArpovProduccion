@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Enviar_Liquidaci_n_Auditoria</fullName>
+        <description>Enviar Liquidación Auditoria</description>
+        <protected>false</protected>
+        <recipients>
+            <recipient>admin@arpov.org.ar</recipient>
+            <type>user</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Documentos/Liquidaci_n_Auditoria</template>
+    </alerts>
+    <fieldUpdates>
+        <fullName>Actualiza_Numero_de_NC</fullName>
+        <field>Numero_de_la_NC__c</field>
+        <formula>UPPER( LEFT(SUBSTITUTE( Numero_de_la_NC__c , &quot;-&quot;, &quot;&quot;),1) ) + &quot;-&quot; +  MID(SUBSTITUTE( Numero_de_la_NC__c , &quot;-&quot;, &quot;&quot;), 2, 4) + &quot;-&quot; + RIGHT(SUBSTITUTE( Numero_de_la_NC__c , &quot;-&quot;, &quot;&quot;),8)</formula>
+        <name>Actualiza Numero de NC</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Crea_Id_Externo_Factura</fullName>
+        <description>Compone el Id Externo de la Factura</description>
+        <field>Id_Externo__c</field>
+        <formula>IF(
+ ISBLANK(Transaccion__c ), &quot;HT&quot; &amp; &quot;-&quot; &amp;  Id,
+TEXT( Tipo_de_Comprobante__c ) &amp; &quot;-&quot; &amp; Transaccion__r.Name
+)</formula>
+        <name>Crea Id Externo Factura</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Act_Campo_Etapa_Facturada</fullName>
+        <description>Establece el valor del cambio Etapa de la factura a Facturada</description>
+        <field>StageName</field>
+        <literalValue>Facturada</literalValue>
+        <name>Factura. Act.Campo Etapa (Facturada)</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Actualiza_Saldo_a_Gestionar</fullName>
+        <field>Saldo_a_Gestionar__c</field>
+        <formula>Saldo_a_Cobrar_Comprobante__c</formula>
+        <name>Factura. Actualiza Saldo a Gestionar</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Confirmacion_de_Pago</fullName>
+        <field>Confirmacion_de_Pago__c</field>
+        <formula>TODAY()</formula>
+        <name>Factura. Confirmación de Pago</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Correo_Electronico_Facturacion</fullName>
+        <field>Correo_Electronico_para_Facturacion__c</field>
+        <formula>Account.Correo_Electronico_para_Facturacion__c</formula>
+        <name>Factura. Correo Electrónico Facturación</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Enviar_Liquidacion_FALSE</fullName>
+        <field>Enviar_Liquidacion__c</field>
+        <literalValue>0</literalValue>
+        <name>Factura. Enviar Liquidacion FALSE</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Estado_Cobrada</fullName>
+        <description>Cambia el campo Stage al valor &quot;Cobrada&quot;</description>
+        <field>StageName</field>
+        <literalValue>Cobrada</literalValue>
+        <name>Factura. Estado Cobrada</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Etapa_Cobrada</fullName>
+        <field>StageName</field>
+        <literalValue>Cobrada</literalValue>
+        <name>Factura. Etapa Cobrada</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Fecha_Hora_Envio_Liquidacion</fullName>
+        <description>Define el campo Fecha/Hora Envío Liquidación, de forma tal de poder identificar en que horario fue realizado el envío.</description>
+        <field>Fecha_Hora_Envio_Liquidacion__c</field>
+        <formula>NOW()</formula>
+        <name>Factura. Fecha/Hora Envío Liquidación</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Fecha_Reclamo_Factura</fullName>
+        <field>Fecha_Reclamo_Factura__c</field>
+        <formula>IF( Account.Tiempo_de_Pago__c = &quot;&lt;45 dias&quot;,Fecha_Vencimiento_Comprobante__c + 30,
+IF( Account.Tiempo_de_Pago__c = &quot;45-90 dias&quot;,Fecha_Vencimiento_Comprobante__c + 40,
+IF( Account.Tiempo_de_Pago__c = &quot;90-180 dias&quot;,Fecha_Vencimiento_Comprobante__c + 80,
+IF( Account.Tiempo_de_Pago__c = &quot;180 dias-1 año&quot;,Fecha_Vencimiento_Comprobante__c + 170,
+IF( Account.Tiempo_de_Pago__c = &quot;&gt;1 año&quot;,Fecha_Vencimiento_Comprobante__c + 350,
+Fecha_Vencimiento_Comprobante__c + 30)))))</formula>
+        <name>Factura. Fecha Reclamo Factura</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Liquidacion_Enviada</fullName>
+        <description>Define el campo Liquidación Enviada, de forma tal de poder identificar que facturas tienen envío realizado. Asimismo, permite identificar que actividades de envío de liquidación deben cerrarse, y posteriormente generar la actividad de cobranza.</description>
+        <field>Liquidacion_Enviada__c</field>
+        <literalValue>1</literalValue>
+        <name>Factura. Liquidación Enviada</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Saldo_a_Gestionar_cero</fullName>
+        <description>Pone a cero el Saldo a Gestionar cuando se desestina una factura</description>
+        <field>Saldo_a_Gestionar__c</field>
+        <formula>0</formula>
+        <name>Factura. Saldo a Gestionar cero</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>NC_Actualiza_Saldo_a_Cobrar</fullName>
+        <description>Resta el importe de la NC al Saldo a Cobrar del comprobante</description>
+        <field>Saldo_a_Cobrar_Comprobante__c</field>
+        <formula>IF( (Saldo_a_Cobrar_Comprobante__c - Importe_a_Aplicar_NC__c) &lt;= 0, 0,
+Saldo_a_Cobrar_Comprobante__c - Importe_a_Aplicar_NC__c
+)</formula>
+        <name>NC. Actualiza Saldo a Cobrar</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>NC_Actualiza_Saldo_a_Gestionar</fullName>
+        <description>Actualiza el Saldo a Gestionar restándole el importe de la NC</description>
+        <field>Saldo_a_Gestionar__c</field>
+        <formula>IF( OR( ISPICKVAL( Divisa_Comprobante__c, &quot;USD&quot; ), ISPICKVAL( Divisa_Comprobante__c, &quot;EUR&quot; ) ), 
+IF(Total_Comprobante__c &lt;= Obtentor__r.Umbral_Importe__c, 
+IF(PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c &lt;= Total_Comprobante__c * Obtentor__r.Umbral_Porcentaje__c, 
+0, 
+PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c ), 
+IF(PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c &lt;= Obtentor__r.Umbral_Base__c, 
+0, 
+PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c ) 
+), 
+IF( ( Total_Comprobante__c / Tipo_de_Cambio_Actualizado__c ) &lt;= Obtentor__r.Umbral_Importe__c, 
+IF( ( PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c ) / Tipo_de_Cambio_Actualizado__c &lt;= ( Total_Comprobante__c / Tipo_de_Cambio_Actualizado__c ) * Obtentor__r.Umbral_Porcentaje__c, 
+0, 
+PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c ), 
+IF( ( PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c ) / Tipo_de_Cambio_Actualizado__c &lt;= Obtentor__r.Umbral_Base__c, 
+0, 
+PRIORVALUE( Saldo_a_Cobrar_Comprobante__c ) - Importe_a_Aplicar_NC__c ) 
+) 
+)</formula>
+        <name>NC. Actualiza Saldo a Gestionar</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Oportunidad_Fecha_Vencimiento_Comproban</fullName>
+        <field>Fecha_Vencimiento_Comprobante__c</field>
+        <formula>DATEVALUE(CreatedDate)+30</formula>
+        <name>Oportunidad. Fecha Vencimiento Comproban</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Oportunidad_Nombre</fullName>
+        <field>Name</field>
+        <formula>IF(NOT ISBLANK(Transaccion__c ), 
+LEFT(Account.Name,90) &amp;&quot;-&quot;&amp; TEXT(Type) &amp;&quot;-&quot;&amp; Transaccion__r.Name,
+&quot;SE-&quot; &amp;  Account.N_CUIT__c &amp;&quot;-&quot;&amp; LEFT(Account.Name,90) &amp;&quot;-&quot;&amp;
+TEXT(YEAR(TODAY())) &amp; TEXT(MONTH(TODAY())) &amp; TEXT(DAY(TODAY())))</formula>
+        <name>Oportunidad. Nombre</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <flowActions>
+        <fullName>Factura_Busca_TC</fullName>
+        <description>Ejecuta el Flujo que busca el TC para la fecha prevista de un pago diferido.</description>
+        <flow>Pago_Diferido_Busca_Tipo_de_Cambio</flow>
+        <flowInputs>
+            <name>Factura</name>
+            <value>{!this}</value>
+        </flowInputs>
+        <label>Factura. Busca TC</label>
+        <language>es</language>
+        <protected>false</protected>
+    </flowActions>
+    <rules>
+        <fullName>Factura%2E Carga NC</fullName>
+        <actions>
+            <name>Actualiza_Numero_de_NC</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>NC_Actualiza_Saldo_a_Cobrar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>NC_Actualiza_Saldo_a_Gestionar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.Numero_de_la_NC__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Acciones que se ejecutan cuando se carga una NC financiera</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Cobrada por Saldo 0</fullName>
+        <actions>
+            <name>Factura_Confirmacion_de_Pago</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Factura_Etapa_Cobrada</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2 AND 3</booleanFilter>
+        <criteriaItems>
+            <field>Opportunity.Saldo_a_Cobrar_Comprobante__c</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.StageName</field>
+            <operation>notEqual</operation>
+            <value>Rechazada,Incorrecta,Desestimada,Gestiona Legales,Gestiona Semillero,Aplicada,Cancelada por NC,Incobrable,En Análisis</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Regalía Extendida</value>
+        </criteriaItems>
+        <description>Asigna el estado Cobrada a las facturas con saldo 0.</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Cobrada por Umbral</fullName>
+        <actions>
+            <name>Factura_Confirmacion_de_Pago</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Factura_Etapa_Cobrada</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Factura_Saldo_a_Gestionar_cero</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna el estado Cobrada a las facturas con saldo bajo el umbral.</description>
+        <formula>AND( Saldo_a_Cobrar_Comprobante__c &gt; 0,  RecordType.DeveloperName = &apos;Regalia_Extendida&apos;,
+	OR( 
+		AND( 
+			OR( ISPICKVAL( Divisa_Comprobante__c, &quot;USD&quot; ), ISPICKVAL( Divisa_Comprobante__c, &quot;EUR&quot; ) ), 
+			OR( 
+				AND( 
+				Total_Comprobante__c &gt; Obtentor__r.Umbral_Importe__c, 
+				Saldo_a_Cobrar_Comprobante__c &lt;= Obtentor__r.Umbral_Base__c 
+				), 
+				AND( 
+				Total_Comprobante__c &lt;= Obtentor__r.Umbral_Importe__c, 
+				Saldo_a_Cobrar_Comprobante__c &lt;= Total_Comprobante__c * Obtentor__r.Umbral_Porcentaje__c 
+				) 
+			) 
+		), 
+		AND( 
+			ISPICKVAL( Divisa_Comprobante__c, &quot;ARS&quot; ), 
+			OR( 
+				AND( 
+				( Total_Comprobante__c / nullvalue(Tipo_de_Cambio_Actualizado__c,1) )&gt; Obtentor__r.Umbral_Importe__c, 
+				( Saldo_a_Cobrar_Comprobante__c / nullvalue(Tipo_de_Cambio_Actualizado__c,1) ) &lt;= Obtentor__r.Umbral_Base__c 
+				), 
+				AND( 
+				( Total_Comprobante__c / nullvalue(Tipo_de_Cambio_Actualizado__c,1) ) &lt; Obtentor__r.Umbral_Importe__c, 
+				( Saldo_a_Cobrar_Comprobante__c / nullvalue(Tipo_de_Cambio_Actualizado__c,1) ) &lt;= Total_Comprobante__c * Obtentor__r.Umbral_Porcentaje__c 
+				) 
+			) 
+		) 
+	) 
+)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Correo Electrónico para Facturación</fullName>
+        <actions>
+            <name>Factura_Correo_Electronico_Facturacion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Carga el Correo Electrónico para Facturación de la cuenta asociada a la factura</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Desestimada</fullName>
+        <actions>
+            <name>Factura_Saldo_a_Gestionar_cero</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.StageName</field>
+            <operation>equals</operation>
+            <value>Desestimada,Incobrable,Saldo Incobrable,En Análisis</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.Saldo_a_Cobrar_Comprobante__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </criteriaItems>
+        <description>Evalúa si la Factura está desestimada y en caso afirmativo realiza las actualizaciones correspondientes.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E En Analisis a Facturada</fullName>
+        <actions>
+            <name>Factura_Actualiza_Saldo_a_Gestionar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Workflow que se dispara cuando se pasa de la Etapa &quot;En Análisis&quot; a &quot;Facturada&quot;.</description>
+        <formula>AND(
+    ISCHANGED( StageName ),
+    ISPICKVAL( PRIORVALUE( StageName ) , &quot;En Análisis&quot; ),
+    ISPICKVAL( StageName, &quot;Facturada&quot; )
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Estado Facturada</fullName>
+        <actions>
+            <name>Factura_Act_Campo_Etapa_Facturada</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND 2 AND 3 AND 4 AND 5 AND 6</booleanFilter>
+        <criteriaItems>
+            <field>Opportunity.N_de_Comprobante__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.N_de_Comprobante__c</field>
+            <operation>notContain</operation>
+            <value>-00000000</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.StageName</field>
+            <operation>notEqual</operation>
+            <value>Cobrada,Gestiona Legales,Gestiona Semillero,Desestimada,Incobrable,Aplicada,Cancelada por NC,Saldo Incobrable,En Análisis</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.Bajo_el_Umbral__c</field>
+            <operation>equals</operation>
+            <value>False</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.Saldo_a_Cobrar_Comprobante__c</field>
+            <operation>notEqual</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.N_CUIT__c</field>
+            <operation>notEqual</operation>
+            <value>30708811994</value>
+        </criteriaItems>
+        <description>Cambia el estado de la Factura cuando se constata la efectiva facturación por parte del Obtentor (Pto. de Venta) o eBS (Cta. y Orden)</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Fecha Reclamo Factura</fullName>
+        <actions>
+            <name>Factura_Fecha_Reclamo_Factura</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.Tipo_de_Comprobante__c</field>
+            <operation>equals</operation>
+            <value>FC</value>
+        </criteriaItems>
+        <description>Setea la fecha de reclamo de factura, de acuerdo al correspondiente clasificador de la cuenta.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Fecha Vencimiento Comprobante</fullName>
+        <actions>
+            <name>Oportunidad_Fecha_Vencimiento_Comproban</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Setea la fecha de vencimiento del comprobante, luego esta información es pisada vía interfaz.</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Generación Actividad de Cobranza</fullName>
+        <actions>
+            <name>Cobrar_Factura</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Opportunity.Liquidacion_Enviada__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Generación Actividad de Envío de Liquidación</fullName>
+        <actions>
+            <name>Enviar_Liquidacion</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Opportunity.Tipo_de_Comprobante__c</field>
+            <operation>equals</operation>
+            <value>FC</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.Type</field>
+            <operation>equals</operation>
+            <value>AUDITORIA</value>
+        </criteriaItems>
+        <description>Genera una actividad para la generación del email de envio de liquidacion.</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E Id Externo</fullName>
+        <actions>
+            <name>Crea_Id_Externo_Factura</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Crea el Id Externo cuando se crea la Factura (Integración)</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Factura%2E TC para Pago Diferido</fullName>
+        <actions>
+            <name>Factura_Busca_TC</name>
+            <type>FlowAction</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.StageName</field>
+            <operation>equals</operation>
+            <value>Facturada</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.Fecha_Prevista_de_Pago__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Calcula el TC para la fecha prevista de pago cargada en la calculadora de pago diferido.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Oportunidad%2E Nombre</fullName>
+        <actions>
+            <name>Oportunidad_Nombre</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Opportunity.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Opportunity.Type</field>
+            <operation>notEqual</operation>
+            <value>SE</value>
+        </criteriaItems>
+        <description>Determina el nombre de la oportunidad</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <tasks>
+        <fullName>Cobrar_Factura</fullName>
+        <assignedTo>admin@arpov.org.ar</assignedTo>
+        <assignedToType>user</assignedToType>
+        <description>Cobrar Factura</description>
+        <dueDateOffset>0</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <offsetFromField>Opportunity.Fecha_Reclamo_Factura__c</offsetFromField>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>Cobrar Factura</subject>
+    </tasks>
+    <tasks>
+        <fullName>Enviar_Liquidacion</fullName>
+        <assignedTo>admin@arpov.org.ar</assignedTo>
+        <assignedToType>user</assignedToType>
+        <description>Enviar Liquidacion de Auditoria</description>
+        <dueDateOffset>2</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>Enviar Liquidacion</subject>
+    </tasks>
+</Workflow>

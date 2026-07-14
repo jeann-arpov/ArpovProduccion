@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Comprobante_Mov_Fondo_Pago_SE__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Tipo Comprobante Mov Fondo (Pago SE)</label>
+    <referenceTo>ERPvs__Tipo_Comprobante_Movimiento_Fondo__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Tipo Comprobante Mov Fondo (Pago SE))</relationshipLabel>
+    <relationshipName>Parametros_ERP_y_CRM8</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

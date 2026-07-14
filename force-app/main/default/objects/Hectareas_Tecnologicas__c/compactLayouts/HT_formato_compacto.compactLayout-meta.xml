@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HT_formato_compacto</fullName>
+    <fields>Name</fields>
+    <fields>Nombre_Obtentor__c</fields>
+    <fields>Biotecnologia__c</fields>
+    <fields>Cultivo__c</fields>
+    <fields>Origen__c</fields>
+    <fields>Variedad__c</fields>
+    <fields>Etapa__c</fields>
+    <label>HT formato compacto</label>
+</CompactLayout>

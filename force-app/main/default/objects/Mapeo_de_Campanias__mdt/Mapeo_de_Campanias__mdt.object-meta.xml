@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Almacena la campaña correspondiente según el origen y cultivo de la Tonelada.</description>
+    <label>Mapeo de Campañas</label>
+    <pluralLabel>Mapeo de Campañas</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

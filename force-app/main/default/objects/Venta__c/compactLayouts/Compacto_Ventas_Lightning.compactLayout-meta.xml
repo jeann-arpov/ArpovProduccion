@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Compacto_Ventas_Lightning</fullName>
+    <fields>Name</fields>
+    <fields>Campana_Agricola__c</fields>
+    <fields>Originante__c</fields>
+    <fields>Nombre_Obtentor__c</fields>
+    <fields>Variedad__c</fields>
+    <fields>Cantidad_Bolsas_40__c</fields>
+    <fields>Destinatario__c</fields>
+    <label>Compacto Ventas Lightning</label>
+</CompactLayout>

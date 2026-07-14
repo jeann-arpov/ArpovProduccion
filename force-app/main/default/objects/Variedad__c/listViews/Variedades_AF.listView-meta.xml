@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Variedades_AF</fullName>
+    <booleanFilter>1 AND 2</booleanFilter>
+    <columns>NAME</columns>
+    <columns>Sembra_Evolucion__c</columns>
+    <columns>Obtentor_Comercializa__c</columns>
+    <columns>Obtentor_Propietario__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Cultivar_Inase__c</columns>
+    <columns>Biotecnologia__c</columns>
+    <columns>Tecnologia__c</columns>
+    <columns>Inscripcion__c</columns>
+    <columns>Lanzamiento__c</columns>
+    <columns>Grupo_de_Madurez_o_Ciclo__c</columns>
+    <columns>Grupo_de_Madurez_Ciclo_Ag__c</columns>
+    <columns>Calidad_Panadera__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Sembra_Evolucion__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Obtentor_Comercializa__c</field>
+        <operation>contains</operation>
+        <value>CORTEVA</value>
+    </filters>
+    <label>Variedades (AF)</label>
+</ListView>

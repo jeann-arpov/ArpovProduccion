@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>chkCampanaAnterior__c</fullName>
+    <formula>TEXT(Nombre_de_Campana_Siguiente__r.Estado__c) = &quot;Activa&quot;</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>chkCampanaAnterior</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

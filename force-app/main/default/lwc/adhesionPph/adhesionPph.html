@@ -1,0 +1,42 @@
+<template>
+    <div onclick={loadingClick}>
+        <template if:true={loading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>  
+        
+        <h1 class="slds-m-bottom_large">Adhesión al Programa de Precertificación de Hectáreas (PPH) - {paramName}</h1>
+        <div class={adhesionClass}>
+            <div class="slds-m-bottom_small">
+                <lightning-button label="No veo mis HTs" onclick={handleOnInformarPagoClick}></lightning-button>
+            </div>
+            <template for:each={establecimientos} for:item="establecimiento">
+                <c-establecimiento-pph cultivo={plan.Parametro_PPH__r.Cultivo__r} class="slds-m-bottom_large" key={establecimiento.id} info={establecimiento} hiding={hiding} grandes-cuentas={grandesCuentas} onupdatecantidad={updateCantidad} onshowmap={showMap} onremove={remove} onautosave={autosave} onestablecimientochange={changeEstablecimiento}></c-establecimiento-pph>
+            </template>
+            <button type="button" onclick={addRow} class="slds-button slds-m-left_large add-establecimiento">
+                <lightning-button-icon class="slds-m-right_small" icon-name="utility:add" alternative-text="Agregar Establecimiento" title="Agregar Establecimiento"></lightning-button-icon>
+                <b>Agregar Establecimiento</b>
+            </button>
+            <lightning-layout class="slds-m-vertical_medium" horizontal-align="center" >
+                <lightning-layout-item class="actions">
+                    <lightning-button if:true={isAdhesion} class="slds-m-left_small continue black" label="Continuar" onclick={continuar}></lightning-button>
+                    <lightning-button class="slds-m-left_small" if:true={isEdit} label="Volver al resumen" onclick={backToResumen}></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+
+        <div if:true={isTerminosYCondiciones}>
+            <c-terminos-y-condiciones cultivo={cultivo} grandes-cuentas={grandesCuentas} campaña={campaña} oncancel={cancelTerms} onaccept={acceptTerms}></c-terminos-y-condiciones>
+        </div>
+
+        <div if:true={isResumen}>
+            <c-resumen-pph info={data} onedit={edit} onenviar={enviarConfirm} onrectificar={rectificarConfirm}></c-resumen-pph>
+        </div>
+
+        <c-map onlocationselected={updateLocation}></c-map>
+        <c-modals-pph callback={modalCallback} current-modal={currentModal} onclose={closeModal}></c-modals-pph>
+        
+        <c-informar-pago></c-informar-pago>
+    </div>
+</template>

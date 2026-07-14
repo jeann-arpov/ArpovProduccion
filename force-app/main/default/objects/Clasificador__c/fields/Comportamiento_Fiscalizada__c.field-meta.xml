@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comportamiento_Fiscalizada__c</fullName>
+    <label>Comportamiento Fiscalizada</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Siempre Fisc</fullName>
+                <default>false</default>
+                <label>Siempre Fisc</label>
+            </value>
+            <value>
+                <fullName>Alguna Vez Fisc</fullName>
+                <default>false</default>
+                <label>Alguna Vez Fisc</label>
+            </value>
+            <value>
+                <fullName>Nunca Fisc</fullName>
+                <default>false</default>
+                <label>Nunca Fisc</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

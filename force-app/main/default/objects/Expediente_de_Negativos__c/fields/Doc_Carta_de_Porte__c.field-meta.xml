@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Doc_Carta_de_Porte__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Doc Carta de Porte subida y revisada. Una vez revisada, se deberá marcar el campo para que quede registro (manual).</description>
+    <inlineHelpText>Doc Carta de Porte subida y revisada. Una vez revisada, se deberá marcar el campo para que quede registro (manual).</inlineHelpText>
+    <label>Doc Carta de Porte</label>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_ERP__c</fullName>
+    <defaultValue>&quot;SIN PROCESAR&quot;</defaultValue>
+    <description>Indica si el registro ya fue procesado en el ERP (proceso Virtual Seller) o no. Este estado determina si se puede modificar el registro o si se puede o no agregar Valores y Aplicaciones. Valores permitidos: &quot;SIN PROCESAR&quot;, &quot;PROCESADO&quot;.</description>
+    <externalId>false</externalId>
+    <label>Estado ERP</label>
+    <length>40</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gestion_No_Modificable</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+ $User.Usuario_de_Integracion__c = false,
+	NOT(IsUpdatable__c),
+	NOT(ISCHANGED(IsUpdatable__c)),
+	NOT(ISNEW()),
+	NOT(ISCHANGED( Auditorias__c )),
+	NOT(ISCHANGED(  DUPS_Gestionadas__c )),
+	NOT(ISCHANGED(  Facturas_Gestionadas__c  )),
+	NOT(ISCHANGED(  Ventas__c  ))
+)</errorConditionFormula>
+    <errorMessage>La Gestion ya no puede ser modificada</errorMessage>
+</ValidationRule>

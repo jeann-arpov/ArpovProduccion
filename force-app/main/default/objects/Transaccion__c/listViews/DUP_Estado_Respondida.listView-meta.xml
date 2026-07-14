@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DUP_Estado_Respondida</fullName>
+    <columns>NAME</columns>
+    <columns>Estado__c</columns>
+    <columns>Campana__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Nombre_de_la_cuenta__c</columns>
+    <columns>Nro_Comprobante__c</columns>
+    <columns>Total_a_FacturarDUP__c</columns>
+    <columns>Saldo_a_Cobrar__c</columns>
+    <columns>Obtentor__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Transaccion__c.DUP</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Respondida</value>
+    </filters>
+    <filters>
+        <field>Obtentor__c</field>
+        <operation>contains</operation>
+        <value>MARIO</value>
+    </filters>
+    <filters>
+        <field>Cantidad_Bolsas_RE__c</field>
+        <operation>greaterThan</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Campana_Calculada__c</field>
+        <operation>equals</operation>
+        <value>2020 - SOJA</value>
+    </filters>
+    <filters>
+        <field>No_Facturar__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <label>DUP Estado Respondida</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

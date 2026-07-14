@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Actualiza_Estado_Pendiente_Activo</fullName>
+        <description>Actualiza el campo Estado a &quot;Pendiente Activo&quot; si era SRE y la cuenta tiene Facturas (Oportunidades)</description>
+        <field>Estado__c</field>
+        <literalValue>Pendiente Activo</literalValue>
+        <name>Actualiza Estado Pendiente Activo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Tipo_de_Registro_Comercio</fullName>
+        <field>RecordTypeId</field>
+        <lookupValue>Comercio</lookupValue>
+        <lookupValueType>RecordType</lookupValueType>
+        <name>Actualiza Tipo de Registro Comercio</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>LookupValue</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Tipo_de_Registro_Distribuidor</fullName>
+        <description>Actualiza el Tipo de Resgistro en función del valor del campo Type</description>
+        <field>RecordTypeId</field>
+        <lookupValue>Distribuidor</lookupValue>
+        <lookupValueType>RecordType</lookupValueType>
+        <name>Actualiza Tipo de Registro</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>LookupValue</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Tipo_de_Registro_Obtentor</fullName>
+        <description>Actualiza el tipo de registro de la cuenta en función del valor del campo Type. Se utiliza en cargas masivas y en integraciones con sistemas externos.</description>
+        <field>RecordTypeId</field>
+        <lookupValue>Obtentor</lookupValue>
+        <lookupValueType>RecordType</lookupValueType>
+        <name>Actualiza Tipo de Registro Obtentor</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>LookupValue</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Tipo_de_Registro_Productor</fullName>
+        <description>Actualiza el RecordType en función del valor del campo Type. Se utiliza en las integraciones con sistemas externos, carga masiva, etc.</description>
+        <field>RecordTypeId</field>
+        <lookupValue>Productor</lookupValue>
+        <lookupValueType>RecordType</lookupValueType>
+        <name>Actualiza Tipo de Registro Productor</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>LookupValue</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cambia_Estado_a_Pendiente_SRE</fullName>
+        <description>Cambia el Estado a Pendiente SRE si no se informó la dirección de envío.</description>
+        <field>Estado__c</field>
+        <literalValue>Pendiente SRE</literalValue>
+        <name>Cambia Estado a Pendiente SRE</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cuenta_Actualiza_Z9_Cambio</fullName>
+        <description>Pone en TRUE el campo Z9_Cambio__c</description>
+        <field>Z9_Cambio__c</field>
+        <literalValue>1</literalValue>
+        <name>Cuenta. Actualiza Z9_Cambio</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Cuenta_Clave_Unica</fullName>
+        <field>Clave_Unica__c</field>
+        <formula>IF( TEXT(Type) = &quot;Grupo Económico&quot;,N_CUIT__c ,N_CUIT__c &amp; IF(MID( Clave_Unica__c,12,2) = &quot;01&quot;, &quot;01&quot;, &quot;00&quot;) &amp; Codigo_Postal_Envio__c)</formula>
+        <name>Cuenta. Clave Unica</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Estado_SRE</fullName>
+        <description>Asigna el valor SRE al campo Estado si la función es verdadera.</description>
+        <field>Estado__c</field>
+        <literalValue>SRE</literalValue>
+        <name>Estado SRE</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Pasa_Estado_a_Activo</fullName>
+        <description>Pone en estado activo la cuenta</description>
+        <field>Estado__c</field>
+        <literalValue>Activo</literalValue>
+        <name>Pasa Estado a Activo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Cuenta%2E Cambio</fullName>
+        <actions>
+            <name>Cuenta_Actualiza_Z9_Cambio</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Verifica que el registro de la cuenta sufrió cambios y actualiza los campos correpondientes para la integración. No considera los cambios realizados por el usuario de procesos batch e integracion (apodo &quot;interfaces&quot;)</description>
+        <formula>AND( 
+Z9_Fecha_Integracion__c &lt; LastModifiedDate, 
+ NOT(  $User.Usuario_de_Integracion__c  ) 
+)</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Clave Unica</fullName>
+        <actions>
+            <name>Cuenta_Clave_Unica</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2</booleanFilter>
+        <criteriaItems>
+            <field>Account.N_CUIT__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Codigo_Postal_Envio__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>A través de este WF se carga el campo Clave Unica con la concatenación de CUIT+00+CP. (El 00 remplaza el lugar para el código de Obtentor para integración).</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Estado %22Activo%22</fullName>
+        <actions>
+            <name>Pasa_Estado_a_Activo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Verifica que el domicilio de facuración y la condición impositiva estén informados y en caso verdadero cambia el Estado de la cuenta al valor &quot;Activo&quot;.</description>
+        <formula>AND(   NOT( ISBLANK( Calle_Facturacion__c ) ),   NOT( ISBLANK( Localidad_de_Facturacion__c   ) ),   NOT( ISBLANK( Depto_Partido_Facturacion__c  ) ),   NOT( ISBLANK( Codigo_Postal_Facturacion__c   ) ),   NOT( ISBLANK( ERPvs__Categoria_IVA__c ) ),   NOT( ISBLANK( Calle_Envio__c ) ),   NOT( ISBLANK( Localidad_Envio__c ) ) )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Estado %22Pendiente Activo%22</fullName>
+        <actions>
+            <name>Actualiza_Estado_Pendiente_Activo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Account.Estado__c</field>
+            <operation>equals</operation>
+            <value>SRE</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Account.Z9_Transacciones__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </criteriaItems>
+        <description>Se ejecuta cuando la cuenta tiene oportunidades</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Estado %22Pendiente SRE%22</fullName>
+        <actions>
+            <name>Cambia_Estado_a_Pendiente_SRE</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Gestionar_Pendiente_SRE</name>
+            <type>Task</type>
+        </actions>
+        <active>false</active>
+        <description>Estado = Pendiente SRE cuando no está informado el domicilio de Envio</description>
+        <formula>OR(    ISBLANK( Calle_Envio__c ),    ISBLANK( Localidad_Envio__c ),    ISBLANK( Codigo_Postal_Envio__c ),     ISBLANK( Depto_Partido_Envio__c ),    ISBLANK( Provincia_Envio__c )  )</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Estado %22SRE%22</fullName>
+        <actions>
+            <name>Estado_SRE</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Asigna el valor &quot;SRE&quot; a las cuentas que tienen informado solamente el domicilio de envío.</description>
+        <formula>AND(      NOT( ISBLANK( Calle_Envio__c ) ),      NOT( ISBLANK(  Localidad_Envio__c )),      OR(         ISBLANK( Calle_Facturacion__c ), ISBLANK(  ERPvs__Categoria_IVA__c )        ) )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Tipo de Registro Comercio</fullName>
+        <actions>
+            <name>Actualiza_Tipo_de_Registro_Comercio</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Account.Type</field>
+            <operation>equals</operation>
+            <value>Comercio</value>
+        </criteriaItems>
+        <description>Define el tipo de registro de la cuenta a partir del campo Type en los casos de carga externa</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Tipo de Registro Distribuidor</fullName>
+        <actions>
+            <name>Actualiza_Tipo_de_Registro_Distribuidor</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Account.Type</field>
+            <operation>equals</operation>
+            <value>Distribuidor</value>
+        </criteriaItems>
+        <description>Define el tipo de registro de la cuenta a partir del campo Type en los casos de carga externa</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Tipo de Registro Obtentor</fullName>
+        <actions>
+            <name>Actualiza_Tipo_de_Registro_Obtentor</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Account.Type</field>
+            <operation>equals</operation>
+            <value>Obtentor</value>
+        </criteriaItems>
+        <description>Define el tipo de registro de la cuenta a partir del campo Type en los casos de carga externa</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Cuenta%2E Tipo de Registro Productor</fullName>
+        <actions>
+            <name>Actualiza_Tipo_de_Registro_Productor</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Account.Type</field>
+            <operation>equals</operation>
+            <value>Productor</value>
+        </criteriaItems>
+        <description>Define el tipo de registro de la cuenta a partir del campo Type en los casos de carga externa</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <tasks>
+        <fullName>Gestionar_Pendiente_SRE</fullName>
+        <assignedTo>nora.lacour@arpov.org.ar</assignedTo>
+        <assignedToType>user</assignedToType>
+        <description>Faltan datos de domicilio de envío en la Cuenta.</description>
+        <dueDateOffset>7</dueDateOffset>
+        <notifyAssignee>false</notifyAssignee>
+        <priority>Normal</priority>
+        <protected>false</protected>
+        <status>Nueva</status>
+        <subject>Gestionar Pendiente SRE</subject>
+    </tasks>
+</Workflow>

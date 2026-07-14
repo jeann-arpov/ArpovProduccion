@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Porcentaje_sobre_Total_ARS__c</fullName>
+    <formula>IF( ISPICKVAL( Resultado__c, &quot;Irregular&quot; ),
+    IF( Auditoria__r.Total_a_Facturar__c &lt;&gt; 0,
+        Total_a_Facturar__c / Auditoria__r.Total_a_Facturar__c,
+        0
+      ),
+    null
+  )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Porcentaje de participación del Item en el total a facturar.</inlineHelpText>
+    <label>Porcentaje sobre Total (ARS)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Percent</type>
+</CustomField>

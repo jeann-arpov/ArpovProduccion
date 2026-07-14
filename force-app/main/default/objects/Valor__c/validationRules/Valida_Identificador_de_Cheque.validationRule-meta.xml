@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Identificador_de_Cheque</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(
+ AND(
+  OR(
+   TEXT(Forma_de_Pago__c) = &quot;Cheque&quot;,
+   TEXT(Forma_de_Pago__c) = &quot;Cheque Diferido&quot;
+  ),
+  OR(
+   LEN(Identificacion__c) &lt; 10,
+   CONTAINS(Identificacion__c, &quot;?&quot;),
+   CONTAINS(Identificacion__c, &quot;_&quot;)
+  )
+),
+AND(
+NOT(CONTAINS(TEXT(Forma_de_Pago__c), &quot;Cheque&quot;)),
+CONTAINS(Identificacion__c, &quot; &quot;)
+)
+)</errorConditionFormula>
+    <errorDisplayField>Identificacion__c</errorDisplayField>
+    <errorMessage>Verifique los caracteres o la longitud de la identificación del cheque o verifique que los datos ingresados no contengan espacios en blanco.</errorMessage>
+</ValidationRule>

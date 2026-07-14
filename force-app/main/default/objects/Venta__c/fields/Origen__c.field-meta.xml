@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Origen__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Identificación del registro de Ventas Informadas que generó la Venta</description>
+    <label>Origen</label>
+    <referenceTo>Ventas_Informadas__c</referenceTo>
+    <relationshipLabel>Ventas</relationshipLabel>
+    <relationshipName>Ventas</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

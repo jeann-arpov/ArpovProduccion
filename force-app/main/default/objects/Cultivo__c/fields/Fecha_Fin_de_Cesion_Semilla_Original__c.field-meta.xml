@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Fin_de_Cesion_Semilla_Original__c</fullName>
+    <description>Fecha Fin de Cesión para ceder variedades de Semilla Original y Pre-Básica.</description>
+    <formula>Fecha_Fin_Cesion_Semilla_Original__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Fecha Fin de Cesión para ceder variedades de Semilla Original y Pre-Básica.</inlineHelpText>
+    <label>Fecha Fin de Cesión - Semilla Original</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

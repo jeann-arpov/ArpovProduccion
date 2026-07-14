@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Enviar_mail_MF_fuera_de_fechas_de_bloqueo</name>
+        <label>Enviar mail MF fuera de fechas de bloqueo</label>
+        <locationX>314</locationX>
+        <locationY>638</locationY>
+        <actionName>ERPvs__Movimiento_Fondo__c.Enviar_mail_MF_fuera_de_fechas_de_bloqueo_MF_Forzar_HTs_Flow</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>Obtiene_MF.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>ERPvs__Movimiento_Fondo__c.Enviar_mail_MF_fuera_de_fechas_de_bloqueo_MF_Forzar_HTs_Flow</nameSegment>
+    </actionCalls>
+    <actionCalls>
+        <name>Enviar_mail_MF_Incompleto</name>
+        <label>Enviar mail MF Incompleto</label>
+        <locationX>578</locationX>
+        <locationY>518</locationY>
+        <actionName>ERPvs__Movimiento_Fondo__c.Enviar_mail_MF_Incompleto_MF_Forzar_HTs_Flow</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>Obtiene_MF.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>ERPvs__Movimiento_Fondo__c.Enviar_mail_MF_Incompleto_MF_Forzar_HTs_Flow</nameSegment>
+    </actionCalls>
+    <apiVersion>57.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Bloqueo_Facturacion</name>
+        <label>Bloqueo Facturacion</label>
+        <locationX>182</locationX>
+        <locationY>518</locationY>
+        <defaultConnector>
+            <targetReference>Enviar_mail_MF_fuera_de_fechas_de_bloqueo</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Resultado predeterminado</defaultConnectorLabel>
+        <rules>
+            <name>SI</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varBloqueFacturacion</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actual</targetReference>
+            </connector>
+            <label>SI</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>MF_Completo</name>
+        <label>MF Completo</label>
+        <locationX>380</locationX>
+        <locationY>398</locationY>
+        <defaultConnector>
+            <targetReference>Enviar_mail_MF_Incompleto</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Resultado predeterminado</defaultConnectorLabel>
+        <rules>
+            <name>Completo</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varMFCompleto</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Bloqueo_Facturacion</targetReference>
+            </connector>
+            <label>Completo</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Sembra_Evolucion</name>
+        <label>Sembra Evolucion</label>
+        <locationX>611</locationX>
+        <locationY>278</locationY>
+        <defaultConnectorLabel>Resultado predeterminado</defaultConnectorLabel>
+        <rules>
+            <name>SE</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Obtiene_MF.ERPvs__Tipo_Comprobante_Movimiento_Fondo__r.Name</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>SE</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>MF_Completo</targetReference>
+            </connector>
+            <label>SE</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>varBloqueFacturacion</name>
+        <dataType>Boolean</dataType>
+        <expression>DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 11 || DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 12 || 
+DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 13 || DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 14 ||
+DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 15 || DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 26 ||
+DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 27 || DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 28 ||
+DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 29 || DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 30 ||
+DAY(DATEVALUE({!Obtiene_MF.CreatedDate})) = 31</expression>
+    </formulas>
+    <formulas>
+        <name>varMFCompleto</name>
+        <dataType>Boolean</dataType>
+        <expression>{!Obtiene_MF.ERPvs__Total_Debe__c} = {!Obtiene_MF.ERPvs__Total_Haber__c} &amp;&amp;
+{!Obtiene_MF.ERPvs__Total_Debe__c} &gt; 0 &amp;&amp;
+ {!Obtiene_MF.ERPvs__Total_Haber__c} &gt; 0 &amp;&amp;
+{!Obtiene_MF.ERPvs__Tipo_Comprobante_Movimiento_Fondo__r.Name} = &quot;Cobranzas CYO SE (sin aplicar)&quot; &amp;&amp;
+{!Obtiene_MF.ERPvs__Estado__c} = &quot;NO CONTABILIZADO&quot;</expression>
+    </formulas>
+    <interviewLabel>MF.Forzar HTs (Flow) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>MF.Forzar HTs (Flow)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Obtiene_MF</name>
+        <label>Obtiene MF</label>
+        <locationX>611</locationX>
+        <locationY>158</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Sembra_Evolucion</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>idMF</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>ERPvs__Movimiento_Fondo__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actual</name>
+        <label>Actualiza Forzar HTs</label>
+        <locationX>50</locationX>
+        <locationY>638</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>idMF</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Forzar_HTs__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>ERPvs__Movimiento_Fondo__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>485</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Obtiene_MF</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>idMF</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

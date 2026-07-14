@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>destinatarios_a_contactar__c</fullName>
+    <label>#destinatarios a contactar</label>
+    <summaryFilterItems>
+        <field>Destinatario_Cesion_HT__c.Motivo_de_Contacto__c</field>
+        <operation>equals</operation>
+        <value>Gestionar Licencia, Toneladas Acreditadas</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Destinatario_Cesion_HT__c.Cesion_HT__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

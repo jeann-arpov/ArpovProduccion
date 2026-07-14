@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Cambio_ERP__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Tipo de Cambio ERP</label>
+    <referenceTo>ERPvs__Tipo_de_cambio__c</referenceTo>
+    <relationshipLabel>Tipos de Cambio</relationshipLabel>
+    <relationshipName>Tipos_de_Cambio_ERP</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

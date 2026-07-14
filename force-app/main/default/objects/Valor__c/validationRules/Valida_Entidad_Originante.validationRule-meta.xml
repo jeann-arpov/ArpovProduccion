@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Entidad_Originante</fullName>
+    <active>false</active>
+    <description>Valida la entidad originante en función del tipo de pago.</description>
+    <errorConditionFormula>AND( ISPICKVAL( Forma_de_Pago__c, &quot;Cheque&quot; ), ISBLANK( Entidad_Originante__c ) )</errorConditionFormula>
+    <errorMessage>Si la forma de pago es Cheque debe informar la Entidad Originante.</errorMessage>
+</ValidationRule>

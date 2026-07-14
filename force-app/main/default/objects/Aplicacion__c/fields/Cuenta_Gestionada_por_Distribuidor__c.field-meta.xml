@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_Gestionada_por_Distribuidor__c</fullName>
+    <description>Indica que el pago aplica a una transacción que fue gestionada por un Distribuidor (Proyecto MERGE).</description>
+    <formula>AND( Cuenta_Originante__r.No_Gestionar__c = true , OR( Cuenta_Originante__r.Centro_que_Gestiona__r.RecordType.Name = &quot;Distribuidor&quot;, Cuenta_Originante__r.Centro_que_Gestiona__r.RecordType.Name = &quot;Comercio&quot; ),  TEXT( Factura__r.Transaccion__r.Gestor__c ) = &quot;Distribuidor&quot; )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Indica que el pago aplica a una transacción que fue gestionada por un Distribuidor (Proyecto MERGE).</inlineHelpText>
+    <label>Cuenta Gestionada por Distribuidor</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

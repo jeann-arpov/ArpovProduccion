@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bolsas_Cobradas_50Kg__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( Item_de_DUP__r.Cantidad_Facturacion_En_Bolsas_50__c &lt;&gt; 0, Round( Item_de_DUP__r.Cantidad_Facturacion_En_Bolsas_50__c *   Porcentaje_sobre_el_total_de_pagos__c, 0 ), 0 )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Bolsas Cobradas (50Kg)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

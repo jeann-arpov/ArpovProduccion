@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Obtentor_del_Producto</fullName>
+    <active>true</active>
+    <description>Valida que el Obtentor del producto seleccionado corresponda con el obtentor de la DUP.</description>
+    <errorConditionFormula>Transaccion__r.Obtentor__r.Name &lt;&gt;  Producto__r.Obtentor_Comercializa__r.Name</errorConditionFormula>
+    <errorMessage>El producto seleccionado no corresponde al Obtentor de la Transacción. Operación no permitida.</errorMessage>
+</ValidationRule>

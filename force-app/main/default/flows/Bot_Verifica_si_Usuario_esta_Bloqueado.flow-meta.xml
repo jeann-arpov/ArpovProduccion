@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Usuario_Bloqueado</name>
+        <label>Usuario Bloqueado</label>
+        <locationX>296</locationX>
+        <locationY>617</locationY>
+        <assignmentItems>
+            <assignToReference>varUsuarioBloqueado</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <description>El Usuario de Mensajería no está bloqueado</description>
+        <name>Usuario_No_Bloqueado</name>
+        <label>Usuario No Bloqueado</label>
+        <locationX>528</locationX>
+        <locationY>442</locationY>
+        <assignmentItems>
+            <assignToReference>varUsuarioBloqueado</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <description>Verifica si el Usuario de Mensajería está Bloqueado</description>
+        <name>Esta_Bloqueado</name>
+        <label>Está Bloqueado?</label>
+        <locationX>289</locationX>
+        <locationY>439</locationY>
+        <defaultConnector>
+            <targetReference>Usuario_No_Bloqueado</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Obtener_Usuario_de_Mensajeria.Usuario_Bloqueado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Usuario_Bloqueado</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Sesion_Encontrada</name>
+        <label>Sesión Encontrada</label>
+        <locationX>522</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Usuario_No_Bloqueado</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Existe_Sesion</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Obtener_Sesion_de_Mensajeria</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Obtener_Usuario_de_Mensajeria</targetReference>
+            </connector>
+            <label>Existe Sesión</label>
+        </rules>
+    </decisions>
+    <description>Recibe el Id de la Sesión de Mensajería y verifica si el Usuario de Mensajería está bloqueado.</description>
+    <interviewLabel>Bot - {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Bot - Verifica si Usuario está Bloqueado</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Obtiene la Sesión de Mensajería con Id = varRoutableId</description>
+        <name>Obtener_Sesion_de_Mensajeria</name>
+        <label>Obtener Sesión de Mensajería</label>
+        <locationX>529</locationX>
+        <locationY>66</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Sesion_Encontrada</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varRoutableId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>MessagingSession</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Obtiene el Usuario de Mensajería de la Sesión de Mensajería</description>
+        <name>Obtener_Usuario_de_Mensajeria</name>
+        <label>Obtener Usuario de Mensajería</label>
+        <locationX>296</locationX>
+        <locationY>238</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Esta_Bloqueado</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Obtener_Sesion_de_Mensajeria.MessagingEndUserId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>MessagingEndUser</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Obtener_Sesion_de_Mensajeria</targetReference>
+        </connector>
+    </start>
+    <status>Obsolete</status>
+    <variables>
+        <description>Recibe el Id de la Sesión de Mensajería desde el Bot.</description>
+        <name>varRoutableId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Devuelve al Bot si el Usuario de Mensajería está Bloqueado (True) o no (False).</description>
+        <name>varUsuarioBloqueado</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

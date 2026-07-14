@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Campania</fullName>
+    <active>false</active>
+    <description>Valida que el Cultivo de la Campaña definida para este ítem corresponda con el cultivo definido para la Auditoría</description>
+    <errorConditionFormula>Campana__r.Cultivo__r.Name &lt;&gt;  Auditoria__r.Cultivo__r.Name</errorConditionFormula>
+    <errorDisplayField>Campana__c</errorDisplayField>
+    <errorMessage>La Campaña seleccionada no corresponde al Cultivo de la Auditoría.</errorMessage>
+</ValidationRule>

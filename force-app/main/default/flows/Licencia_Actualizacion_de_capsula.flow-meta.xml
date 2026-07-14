@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Asginar_capsula_a_venta</name>
+        <label>Asginar capsula a venta</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>recorrer_Ventas.Capsula__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>capsula</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>VentasToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>recorrer_Ventas</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>recorrer_Ventas</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Capsula_a_Compra_HT</name>
+        <label>Asignar Capsula a Compra HT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>CompraHT.Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>recorrer_Lineas.Compra_HT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>CompraHT.Capsula__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>capsula</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decision_3</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_capsula_a_ensayo</name>
+        <label>Asignar capsula a ensayo</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Recorrer_ensayos.Capsula__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>capsula</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>EnsayosToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Recorrer_ensayos</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Recorrer_ensayos</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Capsulas_a_Linea_de_compra_HT</name>
+        <label>Asignar Capsulas a Linea de compra HT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>recorrer_Lineas.Capsula__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>capsula</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>lineasToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>recorrer_Lineas</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Asignar_Capsula_a_Compra_HT</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Compra_a_Coleccion</name>
+        <label>Asignar Compra a Coleccion</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>comprasHTtoUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>CompraHT</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>recorrer_Lineas</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Actualizar_Capsula_Decision</name>
+        <label>Actualizar Capsula Decision</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Procesar_Registro</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>NewRecord</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Cuenta_Obtentor__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Capsula</targetReference>
+            </connector>
+            <label>Procesar Registro</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Cambio_el_id</name>
+        <label>Cambio el id?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Id_Nuevo</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Cuenta_Obtentor__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Ensayos</targetReference>
+            </connector>
+            <label>Id Nuevo</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decision_3</name>
+        <label>Existe la compra en la coleccion?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Asignar_Compra_a_Coleccion</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No existe</defaultConnectorLabel>
+        <rules>
+            <name>Existe</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>comprasHTtoUpdate</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <elementReference>CompraHT</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>recorrer_Lineas</targetReference>
+            </connector>
+            <label>Existe</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>capsula</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    OR(
+        CONTAINS({!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;03&quot;),
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;14&quot;), 
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;85&quot;)
+    ), &quot;GRUPO DON MARIO&quot;,
+IF(
+    OR(
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;13&quot;), 
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;87&quot;), 
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;90&quot;)
+    ),&quot;CORTEVA&quot; ,
+IF(
+    OR(
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;04&quot;),
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;23&quot;) 
+    ), &quot;SYNGENTA&quot;,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;24&quot;), &quot;STINE&quot; ,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;26&quot;), &quot;A.C.A.&quot;,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;19&quot;), &quot;BIOCERES&quot;,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;05&quot;), &quot;BUCK&quot;,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;12&quot;), &quot;LG&quot;,
+IF(
+    OR(
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;15&quot;), 
+        CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;16&quot;)
+    ), &quot;LDC&quot;,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;06&quot;), &quot;KLEIN&quot;,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;51&quot;), &quot;QUILMES&quot;,
+IF(CONTAINS( {!$Record.Cuenta_Obtentor__r.Id_Obtentor__c} , &quot;77&quot;), &quot;BASF&quot;, &quot;&quot;
+))))))))))))</expression>
+    </formulas>
+    <formulas>
+        <name>NewRecord</name>
+        <dataType>Boolean</dataType>
+        <expression>ISNEW()</expression>
+    </formulas>
+    <interviewLabel>[Licencia] - {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>[Licencia] - Actualizacion de capsula</label>
+    <loops>
+        <name>Recorrer_ensayos</name>
+        <label>Recorrer ensayos</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Ensayos</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Asignar_capsula_a_ensayo</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>recorrer_Ventas</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>recorrer_Lineas</name>
+        <label>recorrer Lineas</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Lineas_de_compra</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Asignar_Capsulas_a_Linea_de_compra_HT</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Update_Ensayos</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>recorrer_Ventas</name>
+        <label>recorrer Ventas</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>get_Ventas_CRM</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Asginar_capsula_a_venta</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>recorrer_Lineas</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Ensayos</name>
+        <label>Get Ensayos</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>get_Ventas_CRM</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Licencia__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Ensayo__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_Lineas_de_compra</name>
+        <label>Get Lineas de compra</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Recorrer_ensayos</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Licencia__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Linea_de_Compra_HT__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>get_Ventas_CRM</name>
+        <label>get Ventas CRM</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Lineas_de_compra</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Licencia__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Venta__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_Capsula</name>
+        <label>Update Capsula</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Cambio_el_id</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Capsula__c</field>
+            <value>
+                <elementReference>capsula</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_ComprasHT</name>
+        <label>Update ComprasHT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>comprasHTtoUpdate</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Ensayos</name>
+        <label>Update Ensayos</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Ventas</targetReference>
+        </connector>
+        <inputReference>EnsayosToUpdate</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Lineas</name>
+        <label>Update Lineas</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_ComprasHT</targetReference>
+        </connector>
+        <inputReference>lineasToUpdate</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Ventas</name>
+        <label>Update Ventas</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_Lineas</targetReference>
+        </connector>
+        <inputReference>VentasToUpdate</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Capsula_Decision</targetReference>
+        </connector>
+        <object>Licencia__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>CompraHT</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Compra_HT__c</objectType>
+    </variables>
+    <variables>
+        <name>comprasHTtoUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Compra_HT__c</objectType>
+    </variables>
+    <variables>
+        <name>EnsayosToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Ensayo__c</objectType>
+    </variables>
+    <variables>
+        <name>lineasToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Linea_de_Compra_HT__c</objectType>
+    </variables>
+    <variables>
+        <name>VentasToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Venta__c</objectType>
+    </variables>
+</Flow>

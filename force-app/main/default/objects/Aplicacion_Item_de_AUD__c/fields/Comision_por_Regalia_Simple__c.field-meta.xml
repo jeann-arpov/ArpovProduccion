@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comision_por_Regalia_Simple__c</fullName>
+    <description>Importe de Comisión sobre la Regalía Simple en base al Importe del Recibo / Valor.</description>
+    <formula>Cobrado_por_Regalia_Simple__c * Coeficiente_RS_a_Aplicar__c</formula>
+    <inlineHelpText>Importe de Comisión sobre la Regalía Simple en base al Importe del Recibo / Valor.</inlineHelpText>
+    <label>Comision por Regalia Simple</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

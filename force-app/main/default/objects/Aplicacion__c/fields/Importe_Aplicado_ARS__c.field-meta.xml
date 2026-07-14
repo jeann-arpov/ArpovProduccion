@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Importe_Aplicado_ARS__c</fullName>
+    <description>Si la divisa del comprobante es USD el importe aplicado expresa la conversión por el TC de la fecha de Pago.</description>
+    <formula>IF( 
+   OR( ISPICKVAL(  Factura__r.Divisa_Comprobante__c, &quot;USD&quot; ),
+       ISPICKVAL(  Factura__r.Divisa_Comprobante__c, &quot;USDB&quot; ), 
+       ISPICKVAL(  Factura__r.Divisa_Comprobante__c, &quot;EUR&quot; ) 
+     ),
+   Importe_Aplicar__c  *  Tipo_de_Cambio__c , 
+   Importe_Aplicar__c 
+)</formula>
+    <inlineHelpText>Si la divisa del comprobante es USD el importe aplicado expresa la conversión por el TC de la fecha de Pago.</inlineHelpText>
+    <label>Importe Aplicado ARS</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

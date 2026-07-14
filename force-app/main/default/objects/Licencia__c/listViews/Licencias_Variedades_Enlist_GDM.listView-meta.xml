@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Variedades_Enlist_GDM</fullName>
+    <columns>CodigoLicenciaTexto__c</columns>
+    <columns>Estado_IMG__c</columns>
+    <columns>Estado_Obtentor__c</columns>
+    <columns>Codigo_SGL__c</columns>
+    <columns>Cuit_Productor__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Email__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>equals</operation>
+        <value>Enlist</value>
+    </filters>
+    <filters>
+        <field>NAME</field>
+        <operation>startsWith</operation>
+        <value>GDM</value>
+    </filters>
+    <label>.Licencias Variedades Enlist GDM</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+        <portalRole>GDMARGENTINASA03ClienteUsuario</portalRole>
+    </sharedTo>
+</ListView>

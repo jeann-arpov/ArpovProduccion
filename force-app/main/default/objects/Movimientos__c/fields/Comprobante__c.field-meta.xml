@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comprobante__c</fullName>
+    <description>Identificador del comprobante origen del movimiento. Ejemplo: si es una NDT el número de comprobante legal emitido. Si es una aplicación, en nro de aplicación en Salesforce.</description>
+    <externalId>false</externalId>
+    <label>Comprobante</label>
+    <length>255</length>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

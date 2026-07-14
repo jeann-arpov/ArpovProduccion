@@ -1,0 +1,46 @@
+<template>
+    <template if:false={loaded}>
+        <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <div if:true={loaded}>
+        <p style="font-size: 24px" class="slds-m-bottom_x-large" >
+            <svg class="slds-m-right_small" width="14.763" height="17.954" >;
+                <use xlink:href={icons.file}></use>
+            </svg>
+            <b>PPH</b>
+        </p>
+
+        <div key={w.cultivo.Id} for:each={data} for:item="w" class="slds-box" style="margin:0.5rem;">
+            <div class="cultivo-title"><span style="margin-left:0.5rem;font-weight:600;">{w.cultivo.Name}</span></div>
+            <lightning-layout key={wParam.parametro.Id} for:each={w.parametros} for:item="wParam" horizontal-align="spread" style="margin:0.5rem;">
+                <lightning-layout-item size="3">
+                    <span style="font-weight:bold;vertical-align:-webkit-baseline-middle;">{wParam.parametro.Name}</span>    
+                </lightning-layout-item>
+                <lightning-layout-item size="3">
+                    <span style="font-family: 'Salesforce Sans';vertical-align:-webkit-baseline-middle;">{wParam.rangoAdhesion}</span> 
+                </lightning-layout-item>
+                <lightning-layout-item size="1">
+                    <lightning-icon if:true={wParam.contentDocumentId} style="cursor:pointer;" icon-name="utility:file" size="small" title="Ver Términos y Condiciones" onclick={showTerminos} data-id={wParam.parametro.Id}></lightning-icon>
+                </lightning-layout-item>
+                <lightning-layout-item size="2" style="text-align: -webkit-center;">
+                    <span class={wParam.estadoWrapperClass}>
+                        <div class={wParam.estadoClass} style="width: fit-content;">
+                            <span>{wParam.estadoLabel}</span>
+                        </div>
+                        <span if:true={wParam.showRectificacionInfo} class="estado-tooltip__tip" role="tooltip">
+                            <span class="estado-tooltip__body">{rectificacionTooltip}</span>
+                        </span>
+                    </span>
+                </lightning-layout-item>
+                <lightning-layout-item size="3" style="text-align: -webkit-center;">
+                    <lightning-button label={wParam.actionName} variant="brand" onclick={doAction} if:false={wParam.disableAction} data-param={wParam.parametro.Id} data-cultivo={w.cultivo.Id} style="min-width: 100px;"></lightning-button>
+                    <span if:true={wParam.disableAction} style="color:darkslategrey;font-weight:600;vertical-align:sub;">{wParam.disabledCause}</span>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+        <c-pdf-reader></c-pdf-reader>
+    </div>
+</template>

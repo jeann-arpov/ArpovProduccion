@@ -1,0 +1,20 @@
+.black-border {
+    --slds-c-button-neutral-color-border: black;
+}
+
+.circle {
+    border-radius: 50px;
+    --slds-c-button-radius-border: 50px;
+}
+
+.success {
+    --slds-c-icon-color-background: var(--pph-green);
+}
+
+.slds-modal__container {
+    width: 380px;
+}
+
+.slds-modal__container.resumen {
+    width: 480px;
+}

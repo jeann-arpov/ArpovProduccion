@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unicidad_Cuenta_Contacto</fullName>
+    <active>true</active>
+    <description>Si Prevenir duplicado es True, no se deja crear la función de contacto.</description>
+    <errorConditionFormula>Prevenir_Duplicado__c</errorConditionFormula>
+    <errorMessage>Ya existe una función de contacto con esta cuenta y contacto.</errorMessage>
+</ValidationRule>

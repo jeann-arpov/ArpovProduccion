@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mov_BolsaTech__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Mov BolsaTech</label>
+    <referenceTo>Movimiento_BolsaTech__c</referenceTo>
+    <relationshipLabel>Toneladas</relationshipLabel>
+    <relationshipName>Toneladas</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

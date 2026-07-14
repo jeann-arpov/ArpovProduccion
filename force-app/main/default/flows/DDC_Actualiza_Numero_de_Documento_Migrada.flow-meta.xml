@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: DDC.Actualiza Numero de Documento y Flow: DDC.Actualiza Numero de Documento (Flow)</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>nvoNumeroDDC</name>
+        <dataType>Number</dataType>
+        <expression>IF(ISBLANK({!$Record.Valor__r.Cheque_Numero_Cheque__c}),
+VALUE(RPAD({!$Record.Valor__r.Identificacion__c},8)),
+VALUE({!$Record.Valor__r.Cheque_Numero_Cheque__c}))</expression>
+        <scale>0</scale>
+    </formulas>
+    <interviewLabel>DDC.Actualiza Numero de Documento (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>DDC.Actualiza Numero de Documento (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_DDC</name>
+        <label>Actualiza DDC</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <inputAssignments>
+            <field>ERPvs__Numero__c</field>
+            <value>
+                <elementReference>nvoNumeroDDC</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualiza_DDC</targetReference>
+        </connector>
+        <filterFormula>CONTAINS({!$Record.ERPvs__Documentos_Recibidos__r.Name}, &quot;Cheque&quot;)
+&amp;&amp; {!$Record.ERPvs__Numero__c} &lt;&gt; VALUE(RPAD({!$Record.Valor__r.Identificacion__c},8))</filterFormula>
+        <object>ERPvs__Detalle_Documento_Recibido__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

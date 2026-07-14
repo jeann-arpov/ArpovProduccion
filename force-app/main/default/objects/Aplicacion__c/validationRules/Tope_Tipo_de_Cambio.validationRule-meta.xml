@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tope_Tipo_de_Cambio</fullName>
+    <active>true</active>
+    <description>El tipo de cambio no podrá ser inferior a 0 ni superior en un 2000% del tipo de cambio del comprobante al cual se está aplicando.</description>
+    <errorConditionFormula>AND( $User.Usuario_de_Integracion__c = false, 
+     $Profile.Name &lt;&gt; &quot;Usuario de Administración&quot;,
+     DATEVALUE(CreatedDate) &gt; DATE(2020,05,13),
+     Fecha_Emision_Comprobante__c &gt;= DATE(2020,01,01) ,
+     Divisa_Comprobante__c &lt;&gt; &quot;ARS&quot;,
+     Importe__c &gt; 0,
+     Tipo_de_Cambio__c &lt; 0  || 
+     Tipo_de_Cambio__c &gt; 21*Tipo_de_Cambio_del_Comprobante__c
+)</errorConditionFormula>
+    <errorDisplayField>Tipo_de_Cambio__c</errorDisplayField>
+    <errorMessage>El tipo de cambio no podrá ser inferior a 0 ni superior en un 2000% del tipo de cambio del comprobante al cual se está aplicando.</errorMessage>
+</ValidationRule>

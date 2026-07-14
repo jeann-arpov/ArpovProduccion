@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lugar_de_Siembra_Default__c</fullName>
+    <description>Lugar de siembra default si no se informa el campo de ingreso.</description>
+    <externalId>false</externalId>
+    <formula>IF( ISBLANK(Lugar_de_Siembra__c ),
+Transaccion__r.Nombre_de_la_cuenta__r.Localidad_Envio__r.Jurisdiccion_IIBB__c,  Lugar_de_Siembra__r.Name  )</formula>
+    <label>Lugar de Siembra Default</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

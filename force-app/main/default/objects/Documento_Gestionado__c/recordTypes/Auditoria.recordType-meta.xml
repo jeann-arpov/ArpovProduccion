@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Auditoria</fullName>
+    <active>true</active>
+    <description>Auditoria</description>
+    <label>Auditoría</label>
+    <picklistValues>
+        <picklist>Respuestas__c</picklist>
+        <values>
+            <fullName>Acuerdo comercial</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Alquiló el campo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Comercio%2FMultiplicador en regla</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Compensa UP con Fiscalizada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Control de insumos%2C stock%2C procesamiento</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Desconoce compra</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Informa ventas</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No permiten el acceso%2Fcontrol</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No presentan documentación respaldatoria</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No sembró</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pagó%2C enviará el comprobante</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Reduce siembra</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Se dio de baja</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Se envía propuesta de pago</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sembró</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sembró Fiscalizada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sembró otro cultivo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sin respuesta efectiva%2Fno se encontraba nadie</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sin stock</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solicita comprobante</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solicita facilidades de pago</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solicita plazo de pago</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Resultado__c</picklist>
+        <values>
+            <fullName>Acuerdo comercial</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Alquiló el campo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Análisis</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Atención de denuncia</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Caso cerrado</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Compensa UP con Fiscalizada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Conflictivo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona auditor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona el semillero</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No sembró</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pago confirmado</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Promesa de UP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Promesa de pago</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Promesa de rta</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Reduce siembra</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Se dio de baja</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sembro otro cultivo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Visita de rutina</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Volver a llamar</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Tipo_Documento__c</picklist>
+        <values>
+            <fullName>DUP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Factura</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

@@ -1,0 +1,17 @@
+<template>
+    <lightning-spinner if:true={loading} variant="brand"></lightning-spinner>
+    <template for:each={templates} for:item="template">
+        <div key={template.Id} class="slds-box slds-theme_shade">
+            <div>
+                <lightning-input onchange={select} type="checkbox" variant="label-hidden" label="asd" data-id={template.Id}></lightning-input>
+                <h1><span style="font-weight: bold;margin-right:1rem">{template.MasterLabel}  </span></h1>
+                <div>{template.Description}</div>
+            </div>
+        </div>
+    </template>
+    <lightning-layout horizontal-align="center">
+        <lightning-layout-item>
+            <lightning-button onclick={send} disabled label="Enviar" variant="brand"></lightning-button>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

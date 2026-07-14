@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Beneficio</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND($User.Procesa_Cobranza__c = False,
+    Factura__r.Transaccion__r.Campana__r.Beneficio_Vigente__c = true,
+    NOT( ISBLANK (Comprobante_de_Pago__r.Beneficiario_Accion_SOJA__c ) ),
+     OR(
+        TEXT( Tipo_de_Aplicacion__c ) = &quot;Pago Total&quot;,
+         Importe_Aplicar__c  &gt;=  Factura__r.Saldo_a_Cobrar_Comprobante__c
+       )
+   )</errorConditionFormula>
+    <errorMessage>El productor cumple con las condiciones para acceder a un beneficio. Por favor verifique la operación.</errorMessage>
+</ValidationRule>

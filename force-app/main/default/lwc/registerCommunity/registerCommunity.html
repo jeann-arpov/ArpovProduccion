@@ -1,0 +1,142 @@
+<template>
+  <div style={backgroundStyle} class="slds-grid slds-wrap slds-grid_vertical-align-center main-container">
+    <lightning-spinner if:true={showSpinner} alternative-text="Loading" size="medium"></lightning-spinner>
+
+    <template if:false={identifier}>
+      <div class="slds-box slds-theme_default slds-p-around_medium register-card">
+
+        <!-- Logo -->
+        <template if:false={isPortalArpov}>
+          <template if:true={urlLogoSe.data}>
+            <div class="slds-align_absolute-center slds-m-bottom_medium">
+              <img src={urlLogoSe.data} alt="Logo" style="height:80px;" />
+            </div>
+          </template>
+        </template>
+
+        <!-- Mensaje -->
+        <div if:true={showMessage} class={messageClass} data-message-container></div>
+
+        <!-- Campos del formulario -->
+        <div class="registration-form slds-form">
+          <!-- CUIT -->
+          <lightning-input class="slds-m-bottom_small" label="CUIT" variant="label-hidden"
+            value={cuit} required onchange={handleChange} placeholder="CUIT"
+            max-length="11" pattern="[0-9]+"
+            message-when-value-missing="Completá este campo"
+            message-when-pattern-mismatch="Ingrese los dígitos de cuit sin espacios ni guiones">
+          </lightning-input>
+
+          <!-- DNI -->
+          <lightning-input class="slds-m-bottom_small" label="DNI" variant="label-hidden"
+            value={dni} required onchange={handleChange} placeholder="DNI">
+          </lightning-input>
+
+          <!-- Nombre -->
+          <lightning-input class="slds-m-bottom_small" label="Nombre" variant="label-hidden"
+            value={firstName} required onchange={handleChange} placeholder="Nombre">
+          </lightning-input>
+
+          <!-- Apellido -->
+          <lightning-input class="slds-m-bottom_small" label="Apellido" variant="label-hidden"
+            value={lastName} required onchange={handleChange} placeholder="Apellido">
+          </lightning-input>
+
+          <!-- Teléfono -->
+          <template if:true={requirePhoneNumber}>
+            <lightning-input class="slds-m-bottom_small" label="Número de celular" variant="label-hidden"
+              value={telefono} required onchange={handleChange} data-id="phone"
+              placeholder="Número de celular"
+              pattern="^\+[1-9]{1}[0-9]{3,14}$"
+              message-when-pattern-mismatch={errorRegexPhone}
+              message-when-value-missing="Completá este campo">
+            </lightning-input>
+          </template>
+
+          <!-- Email -->
+          <lightning-input class="slds-m-bottom_small" label="Email" variant="label-hidden"
+            value={email} required onchange={handleChange} placeholder="Email" type="email">
+          </lightning-input>
+
+          <!-- Contraseña -->
+          <div class="password-container slds-m-bottom_small">
+            <lightning-input
+              class="password-input"
+              variant="label-hidden"
+              data-id="password"
+              value={password}
+              type={passwordType}
+              required
+                onblur={handleChange} 
+              placeholder="Contraseña"
+              message-when-value-missing="Completá este campo">
+            </lightning-input>
+
+            <!-- Íconos dentro del input -->
+            <div class="input-icons">
+              <lightning-button-icon
+                icon-name="utility:help"
+                alternative-text="Requisitos de contraseña"
+                variant="bare"
+                class="help-icon"
+                onclick={toggleHelp}>
+              </lightning-button-icon>
+
+              <lightning-button-icon
+                icon-name={passwordIcon}
+                alternative-text={passwordAltText}
+                variant="bare"
+                class="password-toggle"
+                onclick={togglePasswordVisibility}>
+              </lightning-button-icon>
+            </div>
+
+            <!-- Tooltip -->
+            <div class={tooltipClass}>
+              <p class="help-header">La contraseña debe tener como mínimo:</p>
+              <ul class="slds-list_dotted help-text">
+                <li>8 caracteres</li>
+                <li>Una mayúscula</li>
+                <li>Un número</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Confirmar Contraseña -->
+          <div class="password-container slds-m-bottom_small">
+            <lightning-input
+              variant="label-hidden"
+              data-id="passconfirm"
+              value={passwordConfirm}
+              type={passwordConfirmType}
+              required
+              onchange={handleChange}
+              placeholder="Confirmar Contraseña">
+            </lightning-input>
+
+            <div class="input-icons">
+              <lightning-button-icon
+                icon-name={passwordConfirmIcon}
+                alternative-text={passwordConfirmAltText}
+                variant="bare"
+                class="password-toggle"
+                onclick={togglePasswordConfirmVisibility}>
+              </lightning-button-icon>
+            </div>
+          </div>
+
+          <!-- Botón de registro -->
+          <button class="slds-button slds-button_brand slds-button_stretch slds-m-top_small"
+            onclick={register}>Registrarse</button>
+        </div>
+
+        <!-- Navegación a login -->
+        <div class="slds-align_absolute-center slds-m-top_medium">
+          <p class="slds-text-body_small">¿Ya tenés cuenta?
+            <a href="#" onclick={handleNavigate} class="slds-text-link login-link">Logueate</a>
+          </p>
+        </div>
+      </div>
+    </template>
+  </div>
+</template>

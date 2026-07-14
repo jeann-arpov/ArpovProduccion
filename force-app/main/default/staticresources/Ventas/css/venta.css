@@ -1,0 +1,83 @@
+.wrapper-buttons > div{
+    margin:0 auto;
+    width:400px;  
+}
+
+.wrapper-buttons > div > .button{
+    margin:0 10px;
+}
+.input-field{
+    display:none;
+}
+.old-browser-upload{
+    display:none;
+}
+
+.custom-lookup-link{
+    text-decoration: none;
+    position:absolute;
+    margin-top: -22px;
+    margin-left: 180px;
+    z-index: 10000;
+}
+
+#listaProductos{
+    max-height: 200px;
+    overflow-y: scroll;
+    position: absolute;
+    background-color: #fff;
+    max-width: 280px;
+    display:none;
+}
+
+#listaProductos ul{
+    padding:0 !important;
+    list-style:none;
+}
+
+#listaProductos ul li{
+    margin:0 !important;
+}
+
+li.elementos-recientes{
+    line-height: 1.2em;
+    font-size: 92%;
+    color: #666;
+    font-weight: bold;
+    white-space: nowrap;
+    border: 0;
+    padding: 3px 4px 1px;
+    margin: 0 0;
+    cursor: default;
+}
+
+li.found-word{
+    height: 1.5em;
+    line-height: 1.5em;
+    white-space: nowrap;
+    border: 1px solid #fff;
+    padding: 0;
+    padding-right: 4px;
+    cursor: pointer;
+    padding: 3px 4px 1px;
+}
+
+.found-word span{
+    font-weight: bold;
+    background-color: #faf37b;
+    padding: 2px 0;
+}
+
+.ui.red.message {
+    margin: 10px 0;
+    border-style: none !important;
+}
+
+.ui.green.message{
+    margin: 10px 0;
+    border-style: none !important;
+}
+
+#uploadFileSpinner{
+    display: none;
+}

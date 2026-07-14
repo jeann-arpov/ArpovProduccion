@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Enviar_para_aprobacion</name>
+        <label>Enviar para aprobacion</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <actionName>submit</actionName>
+        <actionType>submit</actionType>
+        <connector>
+            <targetReference>Actualizar_campos_CC</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>objectId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>submit</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <apiVersion>60.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: CC.Aprobación Masiva de CC</description>
+    <environments>Default</environments>
+    <interviewLabel>CC.Aprobación Masiva de CC (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CC.Aprobación Masiva de CC (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_campos_CC</name>
+        <label>Actualizar campos CC</label>
+        <locationX>176</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>Aprobacion_Masiva__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Enviar_para_aprobacion</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Circuito_de_Compras__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Proveedores</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>ERPvs__Empresa__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ArPOV</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>ERPvs__Estado__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>NO CONTABILIZADO</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Aprobacion_Masiva__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>ERPvs__Comprobante_Compra__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

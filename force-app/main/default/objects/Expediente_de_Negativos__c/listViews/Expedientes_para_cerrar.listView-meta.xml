@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Expedientes_para_cerrar</fullName>
+    <columns>Campania__c</columns>
+    <columns>NAME</columns>
+    <columns>Cuenta__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Estado_de_la_Etapa__c</columns>
+    <columns>Cuenta_Granaria__c</columns>
+    <columns>Saldo_CG__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Gestionar__c</columns>
+    <columns>Dias_en_etapa_actual__c</columns>
+    <columns>Dias_transcurridos_desde_creacion_Exp__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Saldo_CG__c</field>
+        <operation>greaterOrEqual</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Estado_de_la_Etapa__c</field>
+        <operation>notEqual</operation>
+        <value>Finalizado</value>
+    </filters>
+    <filters>
+        <field>Campania__c</field>
+        <operation>equals</operation>
+        <value>2024 - soja</value>
+    </filters>
+    <filters>
+        <field>NAME</field>
+        <operation>contains</operation>
+        <value>EXP</value>
+    </filters>
+    <label>Expedientes para cerrar</label>
+</ListView>

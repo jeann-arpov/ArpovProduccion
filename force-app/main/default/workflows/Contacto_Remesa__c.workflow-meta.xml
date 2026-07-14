@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Contacto_Remesa_Nombre</fullName>
+        <description>Asigna el nombre del Contacto Remesa tomando el nombre del contacto</description>
+        <field>Name</field>
+        <formula>Contacto__r.FirstName &amp; &quot; &quot; &amp; Contacto__r.LastName</formula>
+        <name>Contacto Remesa. Nombre</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Contacto Remesa%2E Nombre</fullName>
+        <actions>
+            <name>Contacto_Remesa_Nombre</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Remesa__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

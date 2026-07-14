@@ -1,0 +1,62 @@
+<template>
+
+   
+    <template if:true={showActionBar}>
+        <div class="mainButton">
+            <button class="custom-action-button" onclick={openVentaModal}>Nueva venta</button>
+            <button class="custom-action-button" onclick={downloadClick}>
+                Descargar Plantilla Excel
+                <lightning-icon icon-name="utility:download" size="x-small" class="icon-download"></lightning-icon>
+            </button>
+            <button class="custom-action-button" onclick={openModal}>Importar Ventas desde archivo Excel</button>
+        </div>
+    </template>
+
+   
+    <c-modal >
+        <div slot="header">
+            {header}
+        </div>
+
+    <lightning-progress-indicator current-step={step} has-error={stepError} type="base" variant="shaded">
+        <lightning-progress-step label="Subir Archivo" value="1"></lightning-progress-step>
+        <lightning-progress-step label="Confirmar" value="2"></lightning-progress-step>
+        <lightning-progress-step label="Terminado" value="3"></lightning-progress-step>
+    </lightning-progress-indicator>
+
+    <div class="m-info">
+        <div if:true={showLoadingSpinner}>
+            <div style="z-index: 10000 !important;" class="spinner">
+                <lightning-spinner variant="brand" alternative-text="Uploading......" size="medium">
+                </lightning-spinner>
+            </div>
+        </div>
+        
+        <div if:true={comenzo} class="centered">
+            <lightning-input label="Subir Excel" name="file uploader"  accept={acceptedFormats} onchange={handleFilesChange} type="file" multiple>
+            </lightning-input>
+        </div>
+        
+        <div if:true={confirmar} class="centered">
+            
+            <div class="m-fileData">
+                <lightning-icon slot="media" icon-name="doctype:excel"></lightning-icon>
+                <p>{fileName}{fileSize}</p>
+            </div>
+            <div class="m-buttons">
+                <lightning-button  label="Atrás" onclick={backStep} variant="brand"></lightning-button>
+                <lightning-button  label="Confirmar" onclick={handleSave} variant="brand"></lightning-button>
+                
+            </div>
+        </div>
+        
+        <div if:true={finalizo} class="centered">
+            <lightning-button  label="Cerrar" onclick={closeModal} variant="brand"
+            disabled={isTrue}></lightning-button>
+        </div>
+    </div>
+    </c-modal>
+    
+    
+    
+</template>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado__c</fullName>
+    <label>Estado Licencia</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Eliminada</fullName>
+                <default>false</default>
+                <label>Eliminada</label>
+            </value>
+            <value>
+                <fullName>Creada</fullName>
+                <default>false</default>
+                <label>Creada</label>
+            </value>
+            <value>
+                <fullName>A validar</fullName>
+                <default>false</default>
+                <label>A validar</label>
+            </value>
+            <value>
+                <fullName>Validada</fullName>
+                <default>false</default>
+                <label>Validada</label>
+            </value>
+            <value>
+                <fullName>Solicitada</fullName>
+                <default>false</default>
+                <label>Solicitada</label>
+            </value>
+            <value>
+                <fullName>Licencia Firmada</fullName>
+                <default>false</default>
+                <label>Licencia Firmada</label>
+            </value>
+            <value>
+                <fullName>En Proceso de Aprobación</fullName>
+                <default>false</default>
+                <label>En Proceso de Aprobación</label>
+            </value>
+            <value>
+                <fullName>Aprobada</fullName>
+                <default>false</default>
+                <label>Aprobada</label>
+            </value>
+            <value>
+                <fullName>Rechazada</fullName>
+                <default>false</default>
+                <label>Rechazada</label>
+            </value>
+            <value>
+                <fullName>Inactiva</fullName>
+                <default>false</default>
+                <label>Inactiva</label>
+            </value>
+            <value>
+                <fullName>Adenda solicitada</fullName>
+                <default>false</default>
+                <label>Adenda solicitada</label>
+            </value>
+            <value>
+                <fullName>Adenda firmada</fullName>
+                <default>false</default>
+                <label>Adenda firmada</label>
+            </value>
+            <value>
+                <fullName>Adenda aprobada</fullName>
+                <default>false</default>
+                <label>Adenda aprobada</label>
+            </value>
+            <value>
+                <fullName>Adenda rechazada</fullName>
+                <default>false</default>
+                <label>Adenda rechazada</label>
+            </value>
+            <value>
+                <fullName>Adenda creada</fullName>
+                <default>false</default>
+                <label>Adenda creada</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

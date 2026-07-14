@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HT_Id__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>HT_Id</label>
+    <referenceTo>Hectareas_Tecnologicas__c</referenceTo>
+    <relationshipLabel>Toneladas</relationshipLabel>
+    <relationshipName>Toneladas</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

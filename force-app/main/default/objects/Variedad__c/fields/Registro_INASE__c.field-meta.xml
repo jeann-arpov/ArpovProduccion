@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Registro_INASE__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Cuenta Obtentor que registró la variedad en el INASE (ex-Obtentor Propietario)</description>
+    <label>Registro INASE</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Variedades (Catálogo INASE)</relationshipLabel>
+    <relationshipName>VariedadesINASE</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

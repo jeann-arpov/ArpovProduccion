@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_HTs__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(Tipo_de_Movimiento__c = &quot;FC&quot; &amp;&amp;  Oportunidad__r.RecordType.Name = &quot;Sembrá Evolución&quot;, Oportunidad__r.Compra_HT__r.Total_HT__c, 
+IF(Tipo_de_Movimiento__c = &quot;NC&quot; &amp;&amp;  Oportunidad__r.RecordType.Name = &quot;Sembrá Evolución&quot;, -Oportunidad__r.Compra_HT__r.Total_HT__c,
+0))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Total HTs Facturadas</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

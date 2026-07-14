@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tecnologia__c</fullName>
+    <description>Tecnología/Biotecnología de la cuenta granaria.</description>
+    <inlineHelpText>Seleccione la tecnología asociada.</inlineHelpText>
+    <label>Tecnología</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Enlist E3/Conkesta E3</fullName>
+                <default>false</default>
+                <label>Enlist / Conkesta</label>
+            </value>
+            <value>
+                <fullName>RR1/RR2 - BT/Convencional</fullName>
+                <default>false</default>
+                <label>Aporte genético</label>
+            </value>
+            <value>
+                <fullName>Convencional</fullName>
+                <default>false</default>
+                <label>Convencional</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

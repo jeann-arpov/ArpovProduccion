@@ -1,0 +1,278 @@
+<template>
+    <div if:true={loading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </div>
+
+    <div class="slds-align_absolute-center heading title" if:false={isSendSuccess}>
+        <h1>Nueva Solicitud de licencia de Aporte Genético</h1>
+    </div>
+
+    <template if:true={isEdit}>
+        <lightning-layout horizontal-align="spread">
+            <lightning-layout-item size="4">
+                <span>Marcas para las que se solicita licencia: {nombreMarcas}</span>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <span>Tipo de licencia: {licenceType}</span>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <div class="separator"></div>
+
+        <lightning-layout horizontal-align="spread" class="slds-m-vertical_medium">
+            <lightning-layout-item size="4">
+                <lightning-input read-only label="Licenciatario" value={licenciatarioName}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <lightning-radio-group required label="Método de firma" options={firmas} value={form.firma} type="radio" class="firma" lwc:if={showMetodoFirma} onchange={handleMetodoFirma}></lightning-radio-group>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <lightning-layout horizontal-align="spread" class="slds-m-bottom_medium">
+            <lightning-layout-item size="4">
+                <lightning-input read-only label="CUIT" value={licenciatarioCuit}></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <lightning-input required label="Nombre del firmante" value={form.nombre} class="nombre" lwc:if={requireFirmanteFields}></lightning-input>
+                <lightning-input label="Nombre del firmante" value={form.nombre} class="nombre" lwc:else></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <lightning-layout horizontal-align="spread" class="slds-m-bottom_medium">
+            <lightning-layout-item size="4">
+                <lightning-input label="Dirección Fiscal" value={form.direccion} class="direccion-fiscal" onblur={setMarker} required></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <lightning-input required label="Apellido del firmante" value={form.apellido} class="apellido" lwc:if={requireFirmanteFields}></lightning-input>
+                <lightning-input label="Apellido del firmante" value={form.apellido} class="apellido" lwc:else></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread" class="slds-m-bottom_medium">
+            <lightning-layout-item size="4">
+                <lightning-input label="Provincia" value={form.provincia} class="provincia" onblur={setMarker} required></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <lightning-input required value={form.cuil} placeholder="000000000000" label="Cuil del firmante" class="cuil" min-length="11" max-length="11" pattern="\d+" lwc:if={requireFirmanteFields}></lightning-input>
+                <lightning-input value={form.cuil} placeholder="000000000000" label="Cuil del firmante" class="cuil" min-length="11" max-length="11" pattern="\d+" lwc:else></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread" class="slds-m-bottom_medium">
+            <lightning-layout-item size="4">
+                <lightning-input label="Localidad" value={form.localidad} class="localidad" onblur={setMarker} required></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <lightning-input required placeholder="ejemplo@prueba.com" value={form.email} label="Email del firmante" class="email" type="email"></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread" class="slds-m-bottom_medium">
+            <lightning-layout-item size="4">
+                <lightning-input label="Código Postal" value={form.codigoPostal} class="codigo-postal" required></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <lightning-input required placeholder="+544911111111" value={form.celular} label="Celular del firmante" class="celular" type="tel" pattern="\+\d{8,}"></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+        <lightning-layout horizontal-align="spread" class="slds-m-bottom_medium">
+            <lightning-layout-item size="4">
+                <lightning-map map-markers={mapMarkers} zoom-level="14"></lightning-map>
+            </lightning-layout-item>
+            <lightning-layout-item size="4">
+                <lightning-input required value={form.cargo} placeholder="Apoderado" label="Cargo del firmante" class="cargo" lwc:if={requireFirmanteFields}></lightning-input>
+                <lightning-input value={form.cargo} placeholder="Apoderado" label="Cargo del firmante" class="cargo" lwc:else></lightning-input>
+            </lightning-layout-item>
+        </lightning-layout>
+
+        <lightning-layout class="slds-m-vertical_medium" horizontal-align="center" >
+            <lightning-layout-item class="actions">
+                <lightning-button class="slds-m-left_small" label="Cancelar" onclick={redirectInicio}></lightning-button>
+                <lightning-button class="slds-m-left_small continue black" label="Continuar" onclick={solicitarConfirm}></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <template if:true={isFirmaElectronicaEspera}>
+        <div class="heading green">
+            <span class="slds-m-left_medium">Último paso</span>
+        </div>
+
+        <div class="slds-m-left_large steps">
+            <div class="slds-m-vertical_medium">
+                <span>Descargá el contrato de licencia y verificá que los datos sean correctos</span>
+                <lightning-button class="slds-m-left_medium" label="Descargar" icon-name="utility:download" onclick={downloadContratoLicencia}></lightning-button>
+            </div>
+            <div class="slds-m-vertical_medium">
+                <span>Deberá llegar al mail del firmante la solicitud de firma electrónica</span>
+            </div>
+            <div class="slds-m-vertical_medium">
+                <span>Una vez firmado el documento, podrás visualizar el estado de tu licencia desde aquí</span>
+            </div>
+        </div>
+
+        <lightning-layout class="slds-m-vertical_medium" horizontal-align="center" >
+            <lightning-layout-item class="actions">
+                <lightning-button class="slds-m-left_small" label="Volver" onclick={backToEdit}></lightning-button>
+                <lightning-button class="slds-m-left_small" label="Solicitar" onclick={enviar}></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <template if:true={isUpload}>
+        <div class="heading green">
+            <span class="slds-m-left_medium">Completá tu solicitud de licencia</span>
+        </div>
+
+        <div class = "slds-m-left_large steps">
+            <div class="slds-m-vertical_medium">
+                <span>Descargá el contrato de licencia</span>
+                <lightning-button class="slds-m-left_medium" label="Descargar" icon-name="utility:download" onclick={downloadContratoLicencia}></lightning-button>
+            </div>
+
+            <div class="slds-m-vertical_medium" if:false={shouldUploadContract}>
+                <span lwc:if={hideCertificaEscribano}>Firmá el contrato de licencia</span>
+                <span lwc:else>Firmá el contrato de licencia  y certificala por escribano o digitalmente según corresponda.</span>
+            </div>
+
+            <div class="slds-m-vertical_medium" if:false={shouldUploadContract}>
+                <span>Subí tu contrato de licencia firmado</span>
+                <div class="slds-m-bottom_medium">
+                    <lightning-file-upload accept=".pdf" record-id={licencia.Id} onuploadfinished={contratoFirmadoUploadFinished}></lightning-file-upload>
+                </div>    
+            </div>
+
+            <div class="slds-m-vertical_medium" if:true={needsUploadPoder}>
+                <span>Subí el poder del firmante de la licencia</span>
+                <div class="slds-m-bottom_medium">
+                    <lightning-file-upload accept=".pdf" record-id={licencia.Id} onuploadfinished={poderUploadFinished} multiple></lightning-file-upload>
+                </div>    
+            </div>
+
+            <div class="slds-m-vertical_medium" if:true={needsUploadCertificadoFirma}>
+                <span>Subi certificación de firma</span>
+                <div class="slds-m-bottom_medium">
+                    <lightning-file-upload accept=".pdf" record-id={licencia.Id} onuploadfinished={handleUploadFinished} multiple></lightning-file-upload>
+                </div>    
+            </div>
+
+            <div class="slds-m-vertical_medium" if:true={needsUploadDniAndAfip}>
+                <div>
+                    <span>Subi frente de tu DNI:</span>
+                    <div class="slds-m-bottom_medium">
+                        <lightning-file-upload accept=".pdf,.jpg,.png" record-id={licencia.Id} onuploadfinished={handleDniUploadFinished} data-filename="-Frente DNI"></lightning-file-upload>
+                    </div>    
+                </div>
+                <br/>
+                <div>
+                    <span>Subi dorso de tu DNI:</span>
+                    <div class="slds-m-bottom_medium">
+                        <lightning-file-upload accept=".pdf,.jpg,.png" record-id={licencia.Id} onuploadfinished={handleDniUploadFinished} data-filename="-Dorso DNI"></lightning-file-upload>
+                    </div>    
+                </div>
+                <br/>
+                <div>
+                    <span>Subi la constancia de AFIP:</span>
+                    <div class="slds-m-bottom_medium">
+                        <lightning-file-upload accept=".pdf,.jpg,.png" record-id={licencia.Id} onuploadfinished={handleConstanciaAfipUploadFinished}></lightning-file-upload>
+                    </div>    
+                </div>
+            </div>
+            
+            <div class="slds-m-vertical_medium" if:true={needsUploadSucesion}>
+                <span>Poder / Resolución judicial de Sucesion:</span>
+                <div class="slds-m-bottom_medium">
+                    <lightning-file-upload accept=".pdf" record-id={licencia.Id} onuploadfinished={handleSucesionUploadFinished} multiple></lightning-file-upload>
+                </div>    
+            </div>
+
+            <div class="slds-m-vertical_medium">
+                <span>Hacé click en enviar</span>
+            </div>
+        </div>
+            
+
+        <div class="slds-m-bottom_medium">
+            <h1>Archivos subidos</h1>
+            <template for:each={filesWithoutCartaOferta} for:item="file">
+                <div key={file.ContentDocument.Id} class="heading heading-gray slds-m-bottom_small">
+                    <span class="slds-m-right_small">{file.ContentDocument.Title}</span>
+                    <lightning-button-icon class="slds-m-right_small" variant="bare" icon-name="utility:preview" data-id={file.ContentDocument.Id} onclick={handleFilePreview}></lightning-button-icon>
+                    <lightning-button-icon variant="bare" icon-name="utility:delete" data-id={file.ContentDocument.Id} onclick={handleFileDelete}></lightning-button-icon>
+                </div>
+            </template>
+        </div>
+
+        <lightning-layout class="slds-m-vertical_medium" horizontal-align="center" >
+            <lightning-layout-item class="actions">
+                <lightning-button class="slds-m-left_small" label="Guardar" onclick={redirectInicio}></lightning-button>
+                <lightning-button class="slds-m-left_small" label="Volver" onclick={backToEdit}></lightning-button>
+                <lightning-button class="slds-m-left_small continue black" label="Enviar" onclick={enviar}></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <template if:true={isSendSuccess}>
+        <lightning-layout horizontal-align="center">
+            <lightning-layout-item size="4" class="actions heading success">
+                <div class="slds-m-bottom_medium">Tu solicitud de licencia ha sido enviada correctamente</div>
+                <lightning-button class="continue black" label="Continuar" onclick={redirectToRecord}></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <template if:true={isResumen}>
+        <div class="heading green slds-p-vertical_small slds-m-top_medium slds-m-bottom_small">
+            <lightning-layout horizontal-align="center">
+                <span class="slds-m-left_medium">{resumenTitle}</span>
+            </lightning-layout>
+        </div>
+
+        <div class="resumen">
+            <lightning-layout multiple-rows class="slds-m-left_large">
+                <lightning-layout-item size="6" class="slds-m-top_medium">
+                    <b>Fecha Solicitud: </b> <lightning-formatted-date-time value={licencia.CreatedDate}></lightning-formatted-date-time>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" class="slds-m-top_medium">
+                    <b>Estado: </b> {licencia.Estado__c}
+                </lightning-layout-item>
+                <lightning-layout-item size="6" class="slds-m-top_medium">
+                    <b>Marcas: </b> {licencia.Nombres_Marcas__c}
+                </lightning-layout-item>
+                <lightning-layout-item size="6" class="slds-m-top_medium">
+                    <b>Tipo: </b> {licencia.Tipo__c}
+                </lightning-layout-item>
+                <lightning-layout-item size="6" class="slds-m-top_medium">
+                    <b>Nro de licencia</b> {licencia.Name}
+                </lightning-layout-item>
+                <lightning-layout-item size="6" class="slds-m-top_medium">
+                    <b>Tipo de licencia</b> {licencia.Tipo_de_Licencia__c}
+                </lightning-layout-item>
+                <lightning-layout-item size="6" class="slds-m-vertical_medium" if:true={licencia.Motivo_del_Rechazo__c}>
+                    <b>Motivo del rechazo:</b> {licencia.Motivo_del_Rechazo__c}
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+
+        <div class="heading green slds-p-vertical_small slds-m-top_medium slds-m-bottom_small">
+            <lightning-layout horizontal-align="center">
+                <span class="slds-m-left_medium">Archivos Adjuntos Disponibles</span>
+            </lightning-layout>
+        </div>
+
+        <div class="slds-m-left_large actions">
+            <template for:each={filesFirmados} for:item="file">
+                <div key={file.ContentDocument.Id} class="heading heading-gray slds-m-bottom_small">
+                    <span class="slds-m-right_small">{file.ContentDocument.Title}</span>
+                    <lightning-button class="slds-m-left_medium" label="Descargar" icon-name="utility:download" data-id={file.ContentDocument.Id}  onclick={downloadFile}></lightning-button>
+                </div>
+            </template>
+        </div>
+
+        <lightning-layout class="slds-m-vertical_medium" horizontal-align="center" >
+            <lightning-layout-item class="actions">
+                <lightning-button class="slds-m-left_small" label="Volver al inicio" onclick={redirectInicio}></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
+
+    <c-modals-pph callback={modalCallback} current-modal={currentModal} onclose={closeModal}></c-modals-pph>
+    <c-pdf-reader></c-pdf-reader>
+</template>

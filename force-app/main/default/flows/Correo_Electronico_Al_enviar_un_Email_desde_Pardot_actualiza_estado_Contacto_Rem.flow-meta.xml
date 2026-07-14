@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Actualizar_Estado_Enviado</name>
+        <label>Actualizar  Estado Enviado</label>
+        <locationX>1223</locationX>
+        <locationY>576</locationY>
+        <assignmentItems>
+            <assignToReference>Para_cada_Contacto_Remesa_Pendiente.Estado__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Enviado</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Asignar_registro_de_Lopp_a_Variable_de_coleccion</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_registro_de_Lopp_a_Variable_de_coleccion</name>
+        <label>Asignar registro de Lopp a Variable de coleccion</label>
+        <locationX>962</locationX>
+        <locationY>576</locationY>
+        <assignmentItems>
+            <assignToReference>ContactosRemesaAActualizar</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Para_cada_Contacto_Remesa_Pendiente</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Para_cada_Contacto_Remesa_Pendiente</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Existe_Email_del_Contacto</name>
+        <label>Existe Email del Contacto</label>
+        <locationX>832</locationX>
+        <locationY>127</locationY>
+        <defaultConnectorLabel>Email de Contacto vacío</defaultConnectorLabel>
+        <rules>
+            <name>Email_de_Contacto_Existente</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Obtener_correo_electronico_del_Contacto.Email</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Contactos_Remesa_con_email_igual_a_direcccion_de_correo_Email_enviado</targetReference>
+            </connector>
+            <label>Email de Contacto Existente</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Valida que todos los Contactos Remesa con el mismo correo electronico queDestinatario del email enviado por Pardot tengan Estado&lt;&gt;Enviado</description>
+        <name>ExistenContactosRemesaPendientes</name>
+        <label>Existen Contactos Remesa con Estado&lt;&gt;&quot;Enviado&quot;?</label>
+        <locationX>1101</locationX>
+        <locationY>129</locationY>
+        <defaultConnectorLabel>No Existen Contactos Remesa</defaultConnectorLabel>
+        <rules>
+            <name>Existen_Contactos_Remesa</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Contactos_Remesa_con_email_igual_a_direcccion_de_correo_Email_enviado</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Para_cada_Contacto_Remesa_Pendiente</targetReference>
+            </connector>
+            <label>Existen Contactos Remesa en Estado &lt;&gt; Enviado</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Tarea_correspondiente_a_Email_enviado_por_Pardot</name>
+        <label>Tarea correspondiente a Email enviado por Pardot</label>
+        <locationX>523</locationX>
+        <locationY>126</locationY>
+        <defaultConnectorLabel>No creada por Pardot</defaultConnectorLabel>
+        <rules>
+            <name>Creada_por_Pardot</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.CreatedById</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Busqueda_Id_de_Usuario_Pardot.Id</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Obtener_correo_electronico_del_Contacto</targetReference>
+            </connector>
+            <label>Creada por Pardot</label>
+        </rules>
+    </decisions>
+    <description>Al enviar un correo electrónico desde Pardot se actualiza el Estado del Contacto Remesa cuyo Correo Electrónico es igual a la direccion del destinatario del envio</description>
+    <interviewLabel>Correo Electronico - Al enviar un Email desde Pardot actualiza estado Contacto Remesa {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Correo Electronico - Al enviar un Email desde Pardot actualiza estado Contacto Remesa</label>
+    <loops>
+        <name>Para_cada_Contacto_Remesa_Pendiente</name>
+        <label>Para cada Contacto Remesa Pendiente</label>
+        <locationX>1110</locationX>
+        <locationY>327</locationY>
+        <collectionReference>Contactos_Remesa_con_email_igual_a_direcccion_de_correo_Email_enviado</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Actualizar_Estado_Enviado</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Actualizar_Estado_Contacto_Remesa_a_Enviado</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Busqueda_Id_de_Usuario_Pardot</name>
+        <label>Busqueda Id de Usuario Pardot</label>
+        <locationX>429</locationX>
+        <locationY>124</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Tarea_correspondiente_a_Email_enviado_por_Pardot</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>B2BMA Integration</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Contactos_Remesa_con_email_igual_a_direcccion_de_correo_Email_enviado</name>
+        <label>Contactos Remesa con email igual a direcccion de correo Email enviado</label>
+        <locationX>980</locationX>
+        <locationY>128</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>ExistenContactosRemesaPendientes</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Correo_Electronico__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Obtener_correo_electronico_del_Contacto.Email</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Estado__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Enviado</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Contacto_Remesa__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Obtener_correo_electronico_del_Contacto</name>
+        <label>Obtener correo electronico del Contacto</label>
+        <locationX>727</locationX>
+        <locationY>124</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Existe_Email_del_Contacto</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.WhoId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualizar_Estado_Contacto_Remesa_a_Enviado</name>
+        <label>Actualizar Estado Contacto Remesa a Enviado</label>
+        <locationX>1296</locationX>
+        <locationY>324</locationY>
+        <inputReference>ContactosRemesaAActualizar</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Busqueda_Id_de_Usuario_Pardot</targetReference>
+        </connector>
+        <object>Task</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+    <variables>
+        <name>ContactosRemesaAActualizar</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contacto_Remesa__c</objectType>
+    </variables>
+</Flow>

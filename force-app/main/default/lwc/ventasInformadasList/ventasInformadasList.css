@@ -1,0 +1,513 @@
+.ventas-container {
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+    padding: clamp(0.75rem, 1.5vw, 1.25rem);
+    background-color: #fff;
+    color: #1C1C1C;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    --vt-font: clamp(0.625rem, 0.35vw + 0.48rem, 0.8125rem);
+    --vt-pad-x: clamp(0.15rem, 0.25vw, 0.4rem);
+    --vt-pad-y: clamp(0.3rem, 0.4vw, 0.45rem);
+}
+
+.ventas-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.breadcrumbs {
+    font-size: 12px;
+    color: #555;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.ventas-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.acciones-derecha {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.ventas-info {
+    font-size: 12px;
+    color: #666;
+    margin: 10px 0 4px;
+}
+
+.ventas-ayuda {
+    font-size: 12px;
+    color: #888;
+    margin: 0 0 10px;
+    font-style: italic;
+}
+
+.table-loading-container {
+    position: relative;
+    margin-top: 1rem;
+}
+
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.ventas-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.ventas-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--vt-font);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+    table-layout: fixed;
+}
+
+th {
+    background-color: #f5f5f5;
+    text-align: left;
+    padding: var(--vt-pad-y) var(--vt-pad-x);
+    font-weight: bold;
+    font-size: 0.92em;
+    line-height: 1.15;
+    border-bottom: 1px solid #ccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    vertical-align: bottom;
+}
+
+th.sortable:hover {
+    background-color: #e8e8e8;
+}
+
+th .sort-icon {
+    margin-left: 4px;
+    font-size: 10px;
+    color: #666;
+}
+
+th.cantidad-header {
+    cursor: default;
+}
+
+th.cantidad-filter-cell {
+    cursor: default;
+    vertical-align: middle;
+}
+
+th.col-acciones-header {
+    cursor: default;
+    white-space: nowrap;
+}
+
+.resizable-th {
+    position: relative;
+}
+
+.th-content {
+    display: block;
+    padding-right: 0.35rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.col-resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0.45rem;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    z-index: 2;
+}
+
+.col-resize-handle:hover,
+.ventas-table-wrapper.is-resizing .col-resize-handle {
+    background: rgba(183, 243, 2, 0.45);
+}
+
+.ventas-table-wrapper.is-resizing {
+    cursor: col-resize;
+    user-select: none;
+}
+
+.cantidad-header-title {
+    display: block;
+    font-weight: bold;
+}
+
+.cantidad-unidad-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.unidad-filter-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.unidad-select {
+    width: 100%;
+    height: 1.75rem;
+    padding: 2px 18px 2px 6px;
+    border: 1.5px solid #B7F302;
+    border-radius: 14px;
+    background-color: #fff;
+    font-size: 0.85em;
+    font-weight: 500;
+    color: #1C1C1C;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 12 8'%3E%3Cpath fill='%231C1C1C' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.unidad-select:hover {
+    border-color: #a3d902;
+    background-color: #fafefa;
+}
+
+.unidad-select:focus {
+    border-color: #8bc400;
+    box-shadow: 0 0 0 2px rgba(183, 243, 2, 0.25);
+}
+
+td.col-centered {
+    text-align: center;
+}
+
+th.col-centered {
+    text-align: center;
+}
+
+th.col-centered .th-content {
+    text-align: center;
+}
+
+td {
+    padding: var(--vt-pad-y) var(--vt-pad-x);
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
+}
+
+td.col-acciones {
+    max-width: none;
+    white-space: normal;
+    overflow: visible;
+}
+
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px;
+    gap: 10px;
+}
+
+.paginacion button {
+    background-color: #B7F302;
+    color: #1C1C1C;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.paginacion button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* Botón Duplicar */
+.btn-duplicar {
+    background-color: transparent;
+    color: #1976d2;
+    border: 1px solid #1976d2;
+    border-radius: 12px;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 3px;
+    white-space: nowrap;
+}
+
+.btn-duplicar:hover {
+    background-color: #1976d2;
+    color: #fff;
+}
+
+/* Botón Eliminar */
+.btn-eliminar {
+    background-color: transparent;
+    color: #d32f2f;
+    border: 1px solid #d32f2f;
+    border-radius: 12px;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-eliminar:hover {
+    background-color: #d32f2f;
+    color: #fff;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    max-width: 90%;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #f5f5f5;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1C1C1C;
+}
+
+.modal-body {
+    padding: 20px;
+    font-size: 14px;
+    color: #444;
+}
+
+.modal-warning {
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn-cancelar {
+    background-color: #f5f5f5;
+    color: #1C1C1C;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancelar:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-confirmar {
+    background-color: #B7F302;
+    color: #1C1C1C;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-confirmar:hover {
+    background-color: #a3d902;
+}
+
+.modal-export {
+    width: 480px;
+}
+
+.modal-export-info {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #555;
+}
+
+.export-section {
+    margin-bottom: 16px;
+}
+
+.export-section-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 8px;
+}
+
+.export-format-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.export-radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1C1C1C;
+    cursor: pointer;
+}
+
+.export-radio input {
+    accent-color: #8bc400;
+}
+
+.modal-footer-export {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.btn-exportar-opcion {
+    background-color: #fff;
+    color: #1C1C1C;
+    border: 2px solid #B7F302;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-exportar-opcion:hover {
+    background-color: #f4ffe0;
+}
+
+/* Filtros */
+.filter-input {
+    width: 100%;
+    min-width: 0;
+    height: 1.75rem;
+    padding: 2px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9em;
+    box-sizing: border-box;
+}
+
+/* Selector de página */
+.page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-size-selector label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.page-size-selector select,
+.page-size-combobox {
+    min-width: 5.5rem;
+}
+
+.dropdown-control {
+    position: relative;
+    min-width: 5.5rem;
+}
+
+.dropdown-indicator {
+    position: absolute;
+    right: 0.55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: #666;
+    pointer-events: none;
+}
+
+/* Botón Exportar */
+.btn-exportar {
+    background-color: #B7F302;
+    color: #1C1C1C;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-exportar:hover {
+    background-color: #a3d902;
+}

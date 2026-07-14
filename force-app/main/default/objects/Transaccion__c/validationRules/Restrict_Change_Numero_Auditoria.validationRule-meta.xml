@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Change_Numero_Auditoria</fullName>
+    <active>false</active>
+    <description>Restringe el cambio del numero de auditoría cuando ya tiene el formato correcto.</description>
+    <errorConditionFormula>AND(  ISCHANGED( Name ), MID( PRIORVALUE(  Name  ), 3, 1 ) = &quot;-&quot; )</errorConditionFormula>
+    <errorMessage>No se puede cambiar el Número definitivo de una Auditoría.</errorMessage>
+</ValidationRule>

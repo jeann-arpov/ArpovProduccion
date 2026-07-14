@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_Resultado_Distribuidor__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+   ISBLANK( Resultado__c ), IMAGE(&quot;/Distribuidor/resource/Status_Icons/pending.png&quot;,&quot;Error&quot;,25,25),
+   
+   IF( OR( CONTAINS( Resultado__c, &quot;No existe la cuenta originante.&quot; ), CONTAINS( Resultado__c, &quot;No existe la variedad o el producto asociado.&quot;), CONTAINS(Resultado__c, &quot;Cuenta no Válida&quot; ) ),
+      IMAGE(&quot;/Distribuidor/resource/Status_Icons/rejected.png&quot;,&quot;OK&quot;,25,25),
+     
+      IF( OR( CONTAINS( Resultado__c, &quot;No existe la cuenta destinataria&quot; ), CONTAINS( Resultado__c, &quot;No existe la campaña.&quot; ), CONTAINS( Resultado__c, &quot;Ya existe una venta con mismo cuit/variedad/cantidad/campaña&quot; ) ),
+         IMAGE(&quot;/Distribuidor/resource/Status_Icons/warning.png&quot;,&quot;OK&quot;,25,25),
+
+         IF( CONTAINS( Resultado__c, &quot;OK&quot; ),
+            IF( TEXT(Tipo_de_Comprobante__c) = &quot;NC&quot;, IMAGE(&quot;/Distribuidor/resource/Status_Icons/nc.png&quot;,&quot;NC&quot;,27,27),
+               IMAGE(&quot;/Distribuidor/resource/Status_Icons/approved.png&quot;,&quot;OK&quot;,25,25)
+            ),
+            IMAGE(&quot;/Distribuidor/resource/Status_Icons/rejected.png&quot;,&quot;OK&quot;,25,25)
+
+         )
+      )
+   )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Estado Resultado D</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

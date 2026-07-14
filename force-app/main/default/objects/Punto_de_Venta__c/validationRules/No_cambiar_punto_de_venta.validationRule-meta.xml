@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_cambiar_punto_de_venta</fullName>
+    <active>true</active>
+    <description>El check Punto de Venta debe ser TRUE. De lo contrario, borrar el registro.</description>
+    <errorConditionFormula>ISCHANGED( Punto_de_Venta__c )</errorConditionFormula>
+    <errorMessage>No se puede cambiar el check Punto de Venta. Borrar el registro si el comercio ya no es más punto de venta.</errorMessage>
+</ValidationRule>

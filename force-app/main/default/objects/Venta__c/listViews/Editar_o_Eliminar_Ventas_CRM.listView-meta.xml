@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Editar_o_Eliminar_Ventas_CRM</fullName>
+    <columns>NAME</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Nro_de_Comprobante__c</columns>
+    <columns>Tipo_de_Producto__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>NAME</field>
+        <operation>equals</operation>
+        <value>25121357711,25121357694,25121357661</value>
+    </filters>
+    <label>Editar o Eliminar Ventas CRM</label>
+</ListView>

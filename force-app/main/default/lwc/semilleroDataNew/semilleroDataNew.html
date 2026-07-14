@@ -1,0 +1,68 @@
+<template>
+    <lightning-layout if:false={semilleroData} >
+        <lightning-layout-item style="width: 28px" padding="horizontal-small">
+            
+        </lightning-layout-item>
+        <lightning-layout-item size="10" padding="horizontal-small">
+            <lightning-combobox disabled={disabled} class="custom-combobox" variant="label-hidden" label="marca" placeholder={placeholder} options={semilleros} onchange={semilleroSelected}></lightning-combobox>
+        </lightning-layout-item>
+        <lightning-layout-item size="2" padding="horizontal-small">
+            <template if:false={semilleroData}>
+                <div class="final-button-wrapper">
+                    
+                </div>
+            </template>
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <lightning-layout if:true={semilleroData} vertical-align="center" class="slds-m-bottom_small">    
+        <lightning-layout-item style="width: 28px" padding="horizontal-small">
+            <svg style="margin-top:5px" width="22.881" height="22.795">;
+                <use xlink:href={icons.tag}></use>
+            </svg>
+        </lightning-layout-item>
+        <lightning-layout-item size="2" padding="horizontal-small">
+            <lightning-layout multiple-rows="true">
+                <lightning-layout-item size="12" padding="horizontal-small">
+                    Marca
+                </lightning-layout-item>
+                <lightning-layout-item size="12" padding="horizontal-small">
+                    {semilleroData.semillero.Nombre_Obtentor__c}
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-layout-item>
+        <lightning-layout-item style="width: 210px" padding="horizontal-small">
+            <svg width="200" height="100">;
+                <use xlink:href={icono}></use>
+            </svg>
+        </lightning-layout-item>
+
+        <lightning-layout-item flexibility="grow" padding="horizontal-small">
+            <lightning-layout multiple-rows="true">
+                <lightning-layout-item size="6" padding="horizontal-small" class="slds-text-align_center">
+                    Condiciones Comerciales
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small" class="slds-text-align_center">
+                    <!-- Licencia -->
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small" class="slds-text-align_center">
+                    <button onclick={openCondicionesComerciales} type="button" title="Condiciones Comerciales" class="slds-button">
+                        <svg width="17.4" height="21.5">;
+                            <use xlink:href={icons.condiciones}></use>
+                        </svg>
+                    </button>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small" class="slds-text-align_center">
+                    <!-- <button type="button" title="Ir a Mis Licencias" onclick={redirectMisLicencias} class="slds-button">
+                        <svg if:true={semilleroData.licencia} width="19.908" height="19.908">;
+                            <use xlink:href={icons.valid}></use>
+                        </svg>
+                        <svg if:false={semilleroData.licencia} width="22.757" height="22.757">;
+                            <use xlink:href={icons.invalid}></use>
+                        </svg>
+                    </button> -->
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-layout-item>  
+    </lightning-layout>   
+</template>

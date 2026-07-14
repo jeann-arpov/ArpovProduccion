@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Modo_de_Envio__c</fullName>
+    <label>Modo de Envio</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Correo Electrónico</fullName>
+                <default>false</default>
+                <label>Correo Electrónico</label>
+            </value>
+            <value>
+                <fullName>Correo Postal</fullName>
+                <default>false</default>
+                <label>Correo Postal</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

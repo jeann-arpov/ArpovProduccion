@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Tiene_HTs_asociadas</name>
+        <label>Tiene HTs asociadas?</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_HTs_asociadas_a_la_Venta_CRM</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Borrar_HTs_Asociadas</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Cada vez que se borra una venta CRM con variedad SE, borrar también las HTs asociadas en caso de tener.</description>
+    <environments>Default</environments>
+    <interviewLabel>Venta CRM - Borrar HTs si tiene {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Venta CRM - Borrar HTs si tiene</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordDeletes>
+        <name>Borrar_HTs_Asociadas</name>
+        <label>Borrar HTs Asociadas</label>
+        <locationX>50</locationX>
+        <locationY>551</locationY>
+        <inputReference>Buscar_HTs_asociadas_a_la_Venta_CRM</inputReference>
+    </recordDeletes>
+    <recordLookups>
+        <name>Buscar_HTs_asociadas_a_la_Venta_CRM</name>
+        <label>Buscar HTs asociadas a la Venta CRM</label>
+        <locationX>182</locationX>
+        <locationY>311</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Tiene_HTs_asociadas</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Venta__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Hectareas_Tecnologicas__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Buscar_HTs_asociadas_a_la_Venta_CRM</targetReference>
+        </connector>
+        <filterFormula>{!$Record.Producto__r.Variedad2__r.Sembra_Evolucion__c}</filterFormula>
+        <object>Venta__c</object>
+        <recordTriggerType>Delete</recordTriggerType>
+        <triggerType>RecordBeforeDelete</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

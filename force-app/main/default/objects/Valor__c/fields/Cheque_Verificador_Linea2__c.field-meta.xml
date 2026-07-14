@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cheque_Verificador_Linea2__c</fullName>
+    <description>Calcula el dígito verificador del número de cheque</description>
+    <externalId>false</externalId>
+    <formula>10 - VALUE(
+RIGHT(TEXT(
+VALUE(MID(Cheque_Numero_Cheque__c,1,1)) * 9 +
+VALUE(MID(Cheque_Numero_Cheque__c,2,1)) * 7 +
+VALUE(MID(Cheque_Numero_Cheque__c,3,1)) * 1 +
+VALUE(MID(Cheque_Numero_Cheque__c,4,1)) * 3 +
+VALUE(MID(Cheque_Numero_Cheque__c,5,1)) * 9 +
+VALUE(MID(Cheque_Numero_Cheque__c,6,1)) * 7 +
+VALUE(MID(Cheque_Numero_Cheque__c,7,1)) * 1 +
+VALUE(MID(Cheque_Numero_Cheque__c,8,1)) * 3)
+, 1) )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Cheque_Verificador_Linea2</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

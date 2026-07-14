@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Precio_de_Lista_distinto_a_SalesPrice</fullName>
+    <active>false</active>
+    <description>No se puede modificar el</description>
+    <errorConditionFormula>AND(NOT ISBLANK( Linea_de_Oportunidad__c ),
+    Precio_de_Lista__c &lt;&gt; Linea_de_Oportunidad__r.UnitPrice ,
+    ISCHANGED(Precio_de_Lista__c),
+    Linea_de_Oportunidad__r.Opportunity.Sembra_Evolucion__c ,
+    NOT Linea_de_Oportunidad__r.Opportunity.Punto_de_Venta__c 
+   )</errorConditionFormula>
+    <errorMessage>No se puede cambiar el Precio de Lista de una Linea de Compra HT a un precio distinto al Precio de Venta del Producto de Oportunidad relacionado con la Linea de Compra HTnn</errorMessage>
+</ValidationRule>

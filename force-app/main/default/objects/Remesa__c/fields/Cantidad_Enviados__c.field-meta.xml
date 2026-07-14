@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cantidad_Enviados__c</fullName>
+    <description>Cantidad de mails enviados exitosamente para esta remesa.</description>
+    <label>Cantidad Enviados</label>
+    <summaryFilterItems>
+        <field>Contacto_Remesa__c.Estado__c</field>
+        <operation>equals</operation>
+        <value>Enviado</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Contacto_Remesa__c.Remesa__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

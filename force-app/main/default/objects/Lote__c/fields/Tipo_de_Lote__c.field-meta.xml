@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Lote__c</fullName>
+    <description>Tipo de Lote descriptivo para mostrar en pantalla. El Campo Tipo__c (Tipo Lote) es el utilizado por los procesos y Triggers).</description>
+    <label>Tipo de Lote</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Basico</fullName>
+                <default>false</default>
+                <label>Basico</label>
+            </value>
+            <value>
+                <fullName>Complementario</fullName>
+                <default>false</default>
+                <label>Complementario</label>
+            </value>
+            <value>
+                <fullName>Especial</fullName>
+                <default>false</default>
+                <label>Especial</label>
+            </value>
+            <value>
+                <fullName>Ventas</fullName>
+                <default>false</default>
+                <label>Ventas</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

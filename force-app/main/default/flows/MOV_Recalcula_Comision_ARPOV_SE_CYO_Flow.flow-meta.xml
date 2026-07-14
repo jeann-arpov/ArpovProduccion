@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <environments>Default</environments>
+    <formulas>
+        <name>varComisionARPOV</name>
+        <dataType>Number</dataType>
+        <expression>{!$Record.Importe__c} * {!$Record.Tipo_de_Cambio__c} * {!$Record.Porcentaje_Comision_ArPOV__c} /100 * {!$Record.Oportunidad__r.Percepciones__c}</expression>
+        <scale>2</scale>
+    </formulas>
+    <interviewLabel>MOV.Recalcula Comision ARPOV SE CYO (Flow) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>MOV.Recalcula Comision ARPOV SE CYO (Flow)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_Comision_ArPOV</name>
+        <label>Actualiza Comision ArPOV</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <inputAssignments>
+            <field>Comision_ArPOV__c</field>
+            <value>
+                <elementReference>varComisionARPOV</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualiza_Comision_ArPOV</targetReference>
+        </connector>
+        <filterFormula>{!$Record.Tipo_de_Movimiento__c} = &quot;APSE&quot; &amp;&amp; {!$Record.Porcentaje_Comision_ArPOV__c} &gt; 0 &amp;&amp; {!$Record.Oportunidad__r.Obtentor__r.Factura_por_Cuenta_y_Orden_SE__c} = true &amp;&amp; {!$Record.Importe__c} &gt; 0 &amp;&amp; {!$Record.Tipo_de_Cambio__c} &gt; 0</filterFormula>
+        <object>Movimientos__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+</Flow>

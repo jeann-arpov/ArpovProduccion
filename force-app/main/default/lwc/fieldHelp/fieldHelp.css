@@ -1,0 +1,107 @@
+/* Ícono verde; tooltip arriba con piquito (como lightning-helptext) */
+.field-help {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 0.125rem;
+}
+
+.field-help__icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    min-width: 1.125rem;
+    min-height: 1.125rem;
+    border-radius: 50%;
+    border: 1px solid #1c1c1c;
+    background-color: #b7f302;
+    color: #1c1c1c;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    font-style: italic;
+    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.field-help__icon:hover,
+.field-help__icon:focus {
+    background-color: #b7f302;
+    border-color: #b7f302;
+    outline: none;
+    box-shadow: 0 0 0 1px #b7f302;
+    cursor: pointer;
+}
+
+.field-help__tip {
+    position: absolute;
+    z-index: 10000;
+    bottom: calc(100% + 0.625rem);
+    left: 50%;
+    transform: translateX(-1.125rem);
+    min-width: 10rem;
+    max-width: 20rem;
+    width: max-content;
+    padding: 0;
+    margin: 0;
+    background-color: #1c1c1c;
+    color: #ffffff;
+    border: 1px solid #c9c9c9;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s linear, visibility 0.1s linear;
+}
+
+/* Piquito inferior del tooltip, apuntando al ícono */
+.field-help__tip::before {
+    content: '';
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+    bottom: -0.375rem;
+    left: 0.75rem;
+    transform: rotate(45deg);
+    background-color: #1c1c1c;
+    border-right: 1px solid #c9c9c9;
+    border-bottom: 1px solid #c9c9c9;
+    box-sizing: border-box;
+}
+
+.field-help__body {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    font-weight: 400;
+    text-align: left;
+    white-space: normal;
+    color: #ffffff;
+}
+
+.field-help:hover .field-help__tip,
+.field-help:focus-within .field-help__tip {
+    visibility: visible;
+    opacity: 1;
+}
+
+@media (max-width: 480px) {
+    .field-help__tip {
+        left: auto;
+        right: 0;
+        transform: none;
+        max-width: min(18rem, 85vw);
+    }
+
+    .field-help__tip::before {
+        left: auto;
+        right: 0.5rem;
+    }
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Beneficiario_Accion_SOJA__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+   AND(Cliente__r.Cliente_Fiel__c = true, Cliente__r.Mantiene_o_Incrementa_UP__c = true,  OR(TEXT(Cliente__r.Zona_Productiva__c) = &quot;I-NOA&quot;, TEXT(Cliente__r.Zona_Productiva__c) = &quot;II-NEA&quot; ) ), IMAGE(&apos;/resource/ArpovIcons/cucardaRed.png&apos;, &quot;Beneficiario 15%&quot; ),
+  IF( 
+     AND( Cliente__r.Mantiene_o_Incrementa_UP__c = true,
+          OR(TEXT(Cliente__r.Zona_Productiva__c) = &quot;I-NOA&quot;, TEXT(Cliente__r.Zona_Productiva__c) = &quot;II-NEA&quot; ),
+          Fecha_de_Recepcion_de_Pago__c &gt;= DATE(2020,12,15),
+          Fecha_de_Recepcion_de_Pago__c &lt;= DATE(2020,12,31)
+        ),
+          IMAGE(&apos;/resource/ArpovIcons/cucardaRed.png&apos;, &quot;Beneficiario 15%&quot; ),
+          IF(
+             AND( Cliente__r.Mantiene_o_Incrementa_UP__c = true,
+                  OR(TEXT(Cliente__r.Zona_Productiva__c) = &quot;I-NOA&quot;, TEXT(Cliente__r.Zona_Productiva__c) = &quot;II-NEA&quot; ),
+                  Fecha_de_Recepcion_de_Pago__c &gt;= DATE(2021,01,1),
+                  Fecha_de_Recepcion_de_Pago__c &lt;= DATE(2021,01,15)
+                ),
+                  IMAGE(&apos;/resource/ArpovIcons/cucardaGreen.png&apos;, &quot;Beneficiario 10%&quot; ),
+						 &apos;&apos;
+	    )
+     )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Beneficiario Accion SOJA</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

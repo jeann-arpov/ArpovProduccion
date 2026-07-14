@@ -1,0 +1,42 @@
+<template>
+    <div class="card-container" if:true={tarjetas}>
+        <div class="custom-card" for:each={currentCards} for:item="tarjeta" key={tarjeta.cultivo.Id} >
+            <div class="header">{tarjeta.cultivo.Name}</div>
+            <div class={tarjeta.saldoClass} style="text-align:center;">
+                <div style="font-size: xx-large;">{tarjeta.saldoHTs}</div>
+                <div style="font-size: large;">HT <span if:false={tarjeta.isAdherido}>Futuras</span></div>
+            </div>
+            <div class="action-button-container" if:false={tarjeta.isAdherido}>
+                <lightning-button class={tarjeta.buttonClass} label={tarjeta.buttonLabel} onclick={doAction} data-id={tarjeta.cultivo.Id}></lightning-button>
+            </div>
+            <div class="info-adherido" if:true={tarjeta.isAdherido}>
+                <div style="font-size:x-large;color:#bfff00;">
+                    PPH <lightning-icon class="icono-adherido" size="x-small" icon-name="action:approval" alternative-text="adherido"></lightning-icon>
+                </div>
+                <div style="color:white;">Adherido al programa de Pre certificación De hectáreas</div>
+            </div>
+            <div class="footer">
+                <span onclick={redirectToCC} data-id={tarjeta.cultivo.Id}>Ver Cuenta Corriente &gt;</span>
+            </div>
+        </div>
+    </div>
+    <div class="pagination" if:true={tarjetas}>
+        <div class="pagination-wrapper">
+            <div class="pagination-arrows">
+                <button class="arrow" onclick={handlePreviousPage} disabled={isFirstPage}>
+                    &lt;
+                </button>
+            </div>
+            <div class="pagination-dots">
+                <template for:each={pagesArray} for:item="page" >
+                    <div key={page.pageNumber} class={page.class} data-page={page.pageNumber} onclick={handleDotClick}></div>
+                </template>
+            </div>
+            <div class="pagination-arrows">
+                <button class="arrow" onclick={handleNextPage} disabled={isLastPage}>
+                    &gt;
+                </button>
+            </div>
+        </div>
+    </div>
+</template>

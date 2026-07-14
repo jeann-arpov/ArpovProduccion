@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_Venta_con_HT</fullName>
+    <active>true</active>
+    <description>Si una Venta CRM ya generó una HT --&gt; no se puede modificar.
+14/09/2022 - JLI: Se agrega excepción para atributos de integración AFC con GDM.</description>
+    <errorConditionFormula>AND(NOT( ISBLANK( HT_Id__c )), NOT( ISNEW() ),
+    NOT( ISCHANGED( HT_Id__c )),
+    NOT( ISCHANGED( AFC_ADM__c ) ),
+    NOT( ISCHANGED( AFCD_UUID__c ) ), 
+    NOT( $Profile.Name = &quot;Interfaces&quot; ),
+    NOT( $Profile.Name = &quot;Administrador&quot;  ),
+    OR(ISCHANGED( Fecha__c ), 
+       ISCHANGED( Estado__c ),
+       ISCHANGED( Originante__c ),
+       ISCHANGED( Cultivo__c ),       
+       ISCHANGED( Destinatario__c ),
+       ISCHANGED( Producto__c ),
+       ISCHANGED( Campana_Agricola__c ),
+       ISCHANGED( Tipo_de_Venta__c ),
+       ISCHANGED( Cantidad__c ),
+       ISCHANGED( Gestor__c ),
+       ISCHANGED( Plataforma_Interface__c ),
+       ISCHANGED( Origen__c ),
+       ISCHANGED( Lote__c ),
+       ISCHANGED( Cargado_desde_Archivo__c ),
+       ISCHANGED( Licencia__c ),
+       ISCHANGED( Estado_Licencia__c ),
+       ISCHANGED( Crear_HT__c )
+       )
+)</errorConditionFormula>
+    <errorMessage>No se puede modificar una Venta con Hectárea Tecnológica creada.</errorMessage>
+</ValidationRule>

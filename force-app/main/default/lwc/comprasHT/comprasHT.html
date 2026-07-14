@@ -1,0 +1,130 @@
+<template>
+    <div class="slds-section slds-is-open slds-m-bottom_x-large">
+        <div class="slds-align_absolute-center">
+            <h3 class="slds-section__title slds-theme_shade">
+                Estado de Cuenta
+            </h3>
+        </div>
+        <div class="slds-align_absolute-center slds-var-m-around_small">
+            <img src={iconoCultivo} width="35" height="35"/><lightning-combobox options={cultivos} value={cultivoId} onchange={selectCultivo} label="cultivos" variant="label-hidden" placeholder="Seleccionar Cultivo" style="width:30%;margin-left:15px;"></lightning-combobox>
+        </div>
+
+        <div class="slds-table_edit_container slds-is-relative slds-wrap slds-m-around_x-small" if:true={cultivoId}>
+            <table style="width: auto" class="slds-table slds-table_cell-buffer slds-table_header-hidden slds-table_bordered table-total">
+                <tr>
+                    <td colspan="2">
+                        Total por biotecnología
+                    </td>
+                </tr>
+                <template for:each={totalPorBiotecnologia} for:item="total">
+                    <tr key={total.key}>
+                        <td>
+                            <div class="slds-text-title_caps">{total.key}</div>
+                        </td>
+                        <td style="padding-left:2rem">
+                            <lightning-formatted-number value={total.value}></lightning-formatted-number>
+                        </td>
+                    </tr>
+                </template>
+                <tr>
+                    <td>
+                        <div class="slds-text-title_caps slds-text-align_right"><b>Total HT</b></div>
+                    </td>
+                    <td style="padding-left:2rem">
+                        <b><lightning-formatted-number value={total}></lightning-formatted-number></b>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="slds-section slds-is-open slds-m-bottom_x-large" if:true={cultivoId}>
+        <h3 class="slds-section__title slds-theme_shade">
+            Detalle de Movimientos
+        </h3>
+        <!--div class="slds-table_edit_container slds-is-relative slds-wrap slds-m-around_x-small">
+            <table class="slds-table slds-table_cell-buffer slds-table_fixed-layout slds-table_bordered">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col">
+                            <div >Nombre</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate">Nombre Obtentor</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate">Variedad</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate">Origen</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate">Número de Comprobante</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate">Fecha de la Transacción</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate">Débito</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate">Crédito</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={hectareasTecnologicas} for:item="ht">
+                        <tr key={ht.nombre} class="slds-hint-parent">
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-text value={ht.nombre} ></lightning-formatted-text>
+                                </div>
+                            </td>
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-text value={ht.obtentor} ></lightning-formatted-text>
+                                </div>
+                            </td>
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-text value={ht.variedad} ></lightning-formatted-text>
+                                </div>
+                            </td>
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-text value={ht.origen} ></lightning-formatted-text>
+                                </div>
+                            </td>
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-text value={ht.nroComprobante} ></lightning-formatted-text>
+                                </div>
+                            </td>
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-date-time value={ht.fechaTransaccion} ></lightning-formatted-date-time>
+                                </div>
+                            </td>
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-number value={ht.debito} ></lightning-formatted-number>
+                                </div>
+                            </td>
+                            <td scope="row">
+                                <div class="slds-truncate">
+                                    <lightning-formatted-number value={ht.credito} ></lightning-formatted-number>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div-->
+        <lightning-tree-grid hide-checkbox-column="true" columns={columns} data={groups} key-field="id"></lightning-tree-grid>
+    </div>
+    
+    <!-- Spinner -->
+    <template if:true={processing}>
+        <lightning-spinner variant="brand" alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+</template>

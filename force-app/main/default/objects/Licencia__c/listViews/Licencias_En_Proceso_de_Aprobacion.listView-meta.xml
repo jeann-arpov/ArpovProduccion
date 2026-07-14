@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_En_Proceso_de_Aprobacion</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>NAME</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Fecha_de_Aprobacion__c</columns>
+    <columns>Fecha_de_Vencimiento__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>En Proceso de Aprobación</value>
+    </filters>
+    <filters>
+        <field>Tipo__c</field>
+        <operation>contains</operation>
+        <value>Aporte</value>
+    </filters>
+    <label>Licencias En Proceso de Aprobación</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

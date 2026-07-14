@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Lote_Alerta_Procesamiento</fullName>
+        <description>Lote. Alerta Procesamiento</description>
+        <protected>false</protected>
+        <recipients>
+            <type>creator</type>
+        </recipients>
+        <recipients>
+            <recipient>admin@arpov.org.ar</recipient>
+            <type>user</type>
+        </recipients>
+        <recipients>
+            <recipient>matias.palomino@arpov.org.ar</recipient>
+            <type>user</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Documentos/Lote_Procesado</template>
+    </alerts>
+    <rules>
+        <fullName>Lote%2E Alerta Procesamiento</fullName>
+        <actions>
+            <name>Lote_Alerta_Procesamiento</name>
+            <type>Alert</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Lote__c.Lote_Procesado__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+</Workflow>

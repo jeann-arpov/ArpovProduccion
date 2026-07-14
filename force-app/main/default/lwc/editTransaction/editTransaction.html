@@ -1,0 +1,45 @@
+<template>
+    <header class="slds-modal__header"> 
+        <h2 class="slds-text-heading_medium slds-hyphenate header-slot">
+            <lightning-icon variant="success" icon-name="utility:edit_form" alternative-text="Event" size="small"></lightning-icon>
+            &nbsp;Editar Declaración
+        </h2>
+    </header>
+    <div class="body">
+        <template if:true={loading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+        <template if:true={transaction}>
+            <lightning-record-edit-form  class="transaction-form" object-api-name="Transaccion__c" record-id={transaction.Id}>
+                <lightning-input label="Id" name="Id" value={transaction.Id} class="slds-hide"></lightning-input>
+                <lightning-layout horizontal-align="center" vertical-align="center" multiple-rows="true">
+                    <lightning-layout-item class="slds-p-right_small" size="4">
+                        <lightning-input readonly="true" label="Obtentor" value={transaction.Obtentor__r.Name}></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item class="slds-p-right_small" size="4">
+                        <lightning-input readonly="true" label="Capaña Agrícola" value={transaction.Campana__r.Name}></lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item class="slds-p-right_small" size="4">
+                        <lightning-input readonly="true" label="Razón Social" value={transaction.Nombre_de_la_cuenta__r.Name}></lightning-input>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </lightning-record-edit-form>
+        </template>
+    </div>
+    <header class="slds-modal__header"> 
+        <h2 class="slds-text-heading_medium slds-hyphenate header-slot">
+            Variedades
+        </h2>
+    </header>
+    <div class="body" if:true={transaction}>
+        <c-item-dups-form dups={transaction.Item_de_DUP__r}></c-item-dups-form>
+    </div>
+    <footer class="slds-modal__footer">
+        <lightning-layout horizontal-align="end">
+            <lightning-button onclick={closeModal} type="submit" label="Cerrar"></lightning-button>
+            <lightning-button variant="brand" onclick={save} class="slds-m-left--medium" type="submit" label="Grabar"></lightning-button>
+        </lightning-layout>
+    </footer> 
+</template>

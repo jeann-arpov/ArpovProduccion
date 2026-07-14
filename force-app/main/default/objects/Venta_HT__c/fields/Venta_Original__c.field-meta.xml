@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Venta_Original__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>identifica la Venta de HT que origina la NC.</description>
+    <label>Venta Original</label>
+    <referenceTo>Venta_HT__c</referenceTo>
+    <relationshipLabel>Devoluciones de HT</relationshipLabel>
+    <relationshipName>Ventas_HT</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

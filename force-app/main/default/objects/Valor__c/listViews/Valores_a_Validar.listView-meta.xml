@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valores_a_Validar</fullName>
+    <columns>Comprobante_de_Pago__c</columns>
+    <columns>NAME</columns>
+    <columns>Forma_de_Pago__c</columns>
+    <columns>Identificacion__c</columns>
+    <columns>Fecha_de_Pago__c</columns>
+    <columns>Importe__c</columns>
+    <columns>Importe_Total__c</columns>
+    <columns>Validado__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Validado__c</field>
+        <operation>equals</operation>
+    </filters>
+    <filters>
+        <field>Monto_Aplicado__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Cuenta_Destinataria__c</field>
+        <operation>contains</operation>
+        <value>141 48828/2,141 48828/2 - Casos especiales</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterThan</operation>
+        <value>1/1/2024 12:00 AM</value>
+    </filters>
+    <label>Valores a Validar</label>
+</ListView>

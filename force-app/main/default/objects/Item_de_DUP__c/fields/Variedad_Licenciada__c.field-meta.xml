@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Variedad_Licenciada__c</fullName>
+    <formula>Producto__r.Obtentor_Comercializa__c  &lt;&gt;  Producto__r.Obtentor_Propietario__c</formula>
+    <inlineHelpText>Indica si el obtentor que comercializa la variedad no es el obtentor propietario de la misma.</inlineHelpText>
+    <label>Variedad Licenciada</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

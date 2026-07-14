@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>49.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Asigna el nombre completo del creador de una auditoría al campo Gestor__c.</description>
+    <interviewLabel>Asignacion de Gestor AUD {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Asignacion de Gestor AUD</label>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>asignaGestor</name>
+        <label>asignaGestor</label>
+        <locationX>86</locationX>
+        <locationY>78</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Id_Transaccion</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Gestor__c</field>
+            <value>
+                <elementReference>nombreUsuario</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Transaccion__c</object>
+    </recordUpdates>
+    <startElementReference>asignaGestor</startElementReference>
+    <status>Obsolete</status>
+    <variables>
+        <name>Id_Transaccion</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>nombreUsuario</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

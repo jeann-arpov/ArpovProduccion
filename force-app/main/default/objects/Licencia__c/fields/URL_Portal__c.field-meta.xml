@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>URL_Portal__c</fullName>
+    <externalId>false</externalId>
+    <formula>HYPERLINK( 
+				IF(CreatedDate &lt; DATETIMEVALUE(&quot;2100-11-12 00:00:00&quot;),
+							
+							&quot;/&quot; &amp; IF(ISPICKVAL(Tipo_de_Licencia__c, &apos;Productor&apos;), &apos;SembraEvolucion&apos;, &apos;SembraEvolucionComercio&apos;)
+							&amp; IF(ISPICKVAL(Estado__c, &apos;Creada&apos;), &apos;/s/solicitar-licencia?recordId=&apos;, &apos;/s/licencia/&apos;) &amp; Id,
+							
+							sglUrl__c &amp; tokenHeaderFromApex__c  &amp; tokenPayloadFromApex__c &amp; tokenPayloadFromApex2__c &amp; tokenSignatureFromApex__c &amp; urlFromApex__c),
+				
+				Name, &quot;_self&quot;)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Código Licencia</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

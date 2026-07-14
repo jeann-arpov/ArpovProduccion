@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Variedades_Enlist_Corteva</fullName>
+    <columns>CodigoLicenciaTexto__c</columns>
+    <columns>Estado_IMG__c</columns>
+    <columns>Codigo_SGL__c</columns>
+    <columns>Fecha_de_Vencimiento__c</columns>
+    <columns>Cuit_Productor__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Email__c</columns>
+    <filterScope>Queue</filterScope>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>equals</operation>
+        <value>Enlist</value>
+    </filters>
+    <label>.Licencias Variedades Enlist Corteva</label>
+    <queue>Licencias_Enlist_Corteva</queue>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+        <portalRole>CORTEVAAGRISCIENCEARGENTINASRLClienteUsuario</portalRole>
+    </sharedTo>
+</ListView>

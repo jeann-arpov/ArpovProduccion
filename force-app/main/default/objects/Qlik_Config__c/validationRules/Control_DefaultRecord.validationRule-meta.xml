@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_DefaultRecord</fullName>
+    <active>true</active>
+    <errorConditionFormula>NOT(ISBLANK( Default_Record__c )) &amp;&amp; IsDefaultRecord__c = true</errorConditionFormula>
+    <errorDisplayField>Default_Record__c</errorDisplayField>
+    <errorMessage>No puede asignar un default a este tipo de registro.</errorMessage>
+</ValidationRule>

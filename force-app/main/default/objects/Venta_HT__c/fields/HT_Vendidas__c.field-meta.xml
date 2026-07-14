@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HT_Vendidas__c</fullName>
+    <label>HT Vendidas</label>
+    <summarizedField>Linea_de_Venta_HT__c.Cantidad__c</summarizedField>
+    <summaryFilterItems>
+        <field>Linea_de_Venta_HT__c.Estado__c</field>
+        <operation>equals</operation>
+        <value>Facturable, Facturada, Pagada, Pedido de Facturacion</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Linea_de_Venta_HT__c.Venta_HT__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

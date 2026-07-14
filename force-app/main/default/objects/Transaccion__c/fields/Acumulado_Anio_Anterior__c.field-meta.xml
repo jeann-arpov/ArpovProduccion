@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Acumulado_Anio_Anterior__c</fullName>
+    <formula>AND(
+    YEAR( Fecha_de_la_Visita__c ) = YEAR( TODAY() ) - 1,
+    Fecha_de_la_Visita__c + 365 &lt;= TODAY()
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Acumulado Año Anterior</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

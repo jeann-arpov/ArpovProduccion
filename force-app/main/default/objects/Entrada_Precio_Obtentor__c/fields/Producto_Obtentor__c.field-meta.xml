@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Producto_Obtentor__c</fullName>
+    <label>Producto Obtentor</label>
+    <referenceTo>Producto_Obtentor__c</referenceTo>
+    <relationshipLabel>Entradas Precio Obtentor</relationshipLabel>
+    <relationshipName>Entradas_Precio_Obtentor</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

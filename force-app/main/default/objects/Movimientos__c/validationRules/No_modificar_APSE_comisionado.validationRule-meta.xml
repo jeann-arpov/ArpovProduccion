@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_modificar_APSE_comisionado</fullName>
+    <active>true</active>
+    <description>No permite modificar importe si el APSE tiene CV de Comisiones</description>
+    <errorConditionFormula>AND(OR(ISCHANGED(Importe__c), ISCHANGED( Tipo_de_Cambio__c )), NOT ISBLANK(CV_Comisiones_SE__c))</errorConditionFormula>
+    <errorMessage>No puede modificar el importe o tipo de cambio si el APSE ha sido comisionado</errorMessage>
+</ValidationRule>

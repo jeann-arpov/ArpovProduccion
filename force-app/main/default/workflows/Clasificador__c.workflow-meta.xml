@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Clasificador_Tiempo_de_Pago</fullName>
+        <field>Tiempo_de_Pago__c</field>
+        <formula>TEXT(Tiempo_de_Pago__c)</formula>
+        <name>Clasificador. Tiempo de Pago</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Cuenta__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Clasificador_Tiempo_de_Respuesta_DUP</fullName>
+        <field>Tiempo_de_Respuesta_DUP__c</field>
+        <formula>TEXT(Tiempo_de_Respuesta_DUP__c)</formula>
+        <name>Clasificador. Tiempo de Respuesta DUP</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Cuenta__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Clasificador_Tipo_de_Respuesta_DUP</fullName>
+        <field>Tipo_de_Respuesta_DUP__c</field>
+        <formula>TEXT(Tipo_de_Respuesta_DUP__c)</formula>
+        <name>Clasificador. Tipo de Respuesta DUP</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Cuenta__c</targetObject>
+    </fieldUpdates>
+    <rules>
+        <fullName>Clasificador%2E Datos Cuentas</fullName>
+        <actions>
+            <name>Clasificador_Tiempo_de_Pago</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Clasificador_Tiempo_de_Respuesta_DUP</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Clasificador_Tipo_de_Respuesta_DUP</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Clasificador__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>A través de este WF, se cargan los datos cargados a nivel de clasificador en el nivel de la cuenta, de forma tal de reutilizar esa información para otros procesos.</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+</Workflow>

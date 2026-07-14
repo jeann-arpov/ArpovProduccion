@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Custom Metadata que nos permite relacionar palabras con tipos de documentos gestionados. A fin de buscar dichas palbras en textos y a partir de eso entender que tipo de documento gestionado buscar</description>
+    <label>Mapeo Documento Gestionado</label>
+    <pluralLabel>Mapeos Documento Gestionado</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

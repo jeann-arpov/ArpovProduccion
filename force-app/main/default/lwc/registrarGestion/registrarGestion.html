@@ -1,0 +1,285 @@
+<template>
+    <div class="contenedor-gestion">
+        <!-- Botón para abrir el modal -->
+        <button
+            class="slds-button slds-button_neutral boton-registrar slds-m-horizontal_xx-small"
+            title="Registrar una nueva gestión"
+            onclick={abrirModal}
+            type="button">
+            <span class="boton-registrar__icon-box">
+                <lightning-icon
+                    icon-name="utility:log_a_call"
+                    size="x-small"
+                    variant="inverse"
+                    alternative-text=""
+                    class="boton-registrar__icon">
+                </lightning-icon>
+            </span>
+            <span class="boton-registrar__label">Registrar Gestión</span>
+        </button>
+
+        <!-- Timeline de Gestiones -->
+        <template if:false={gestionesAgrupadas.length}>
+            <div class="slds-illustration slds-illustration_large">
+                <div class="slds-text-align_center slds-p-vertical_large">
+                    <lightning-icon icon-name="utility:activity" size="large" class="slds-m-bottom_small"></lightning-icon>
+                    <h3 class="slds-text-heading_medium slds-m-bottom_small">No hay gestiones registradas</h3>
+                    <p class="slds-text-body_regular">Haz clic en "Registrar Gestión" para registrar tu primera actividad.</p>
+                </div>
+            </div>
+        </template>
+        
+        <template for:each={gestionesAgrupadas} for:item="grupo">
+            <div key={grupo.fechaKey}>
+                <!-- Separador de fecha -->
+                <div class="slds-text-heading_small slds-p-vertical_small slds-border_bottom slds-m-vertical_small">
+                    {grupo.fecha}
+                </div>
+                
+                <!-- Actividades del día -->
+                <ul class="slds-timeline">
+                    <template for:each={grupo.gestiones} for:item="gestion">
+                        <li key={gestion.id}>
+                            <article class={gestion.timelineItemClass}>
+                                <span class="slds-assistive-text">{gestion.medio}</span>
+                                <div class="slds-media">
+                                    <div class="slds-media__figure">
+                                        <button class="slds-button slds-button_icon" 
+                                            title="Expandir detalles" 
+                                            data-id={gestion.id} 
+                                            onclick={toggleExpand}
+                                            aria-expanded={gestion.expanded}>
+                                            <lightning-icon icon-name={gestion.expandIcon} size="x-small" class="slds-button__icon"></lightning-icon>
+                                            <span class="slds-assistive-text">Expandir</span>
+                                        </button>
+                                        <div class={gestion.iconContainerClass} title={gestion.medio}>
+                                            <lightning-icon 
+                                                icon-name={gestion.icono} 
+                                                size="small" 
+                                                variant="inverse"
+                                                alternative-text={gestion.medio}>
+                                            </lightning-icon>
+                                        </div>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <div class="slds-grid slds-grid_align-spread slds-timeline__trigger">
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
+                                                <h3 class="slds-truncate" title={gestion.numeroGestion}>
+                                                    <a href="javascript:void(0)"
+                                                       data-id={gestion.id}
+                                                       onclick={navegarARegistro}>
+                                                        <strong>{gestion.numeroGestion}</strong>
+                                                    </a>
+                                                </h3>
+                                            </div>
+                                            <div class="slds-timeline__actions slds-timeline__actions_inline">
+                                                <p class="slds-timeline__date">
+                                                    {gestion.horaFormateada}
+                                                </p>
+                                                <lightning-button-icon
+                                                    icon-name="utility:delete"
+                                                    variant="bare"
+                                                    alternative-text="Eliminar"
+                                                    title="Eliminar gestión"
+                                                    data-id={gestion.id}
+                                                    onclick={eliminarGestion}
+                                                    class="slds-m-left_xx-small">
+                                                </lightning-button-icon>
+                                            </div>
+                                        </div>
+                                        <p class="slds-m-horizontal_xx-small">
+                                            {gestion.subtitulo}
+                                        </p>
+                                        
+                                        <!-- Detalles expandibles -->
+                                        <article class="slds-box slds-timeline__item_details slds-theme_shade slds-m-top_x-small slds-m-horizontal_xx-small slds-p-around_medium" aria-hidden={gestion.ariaHidden}>
+                                            <ul class="slds-list_horizontal slds-wrap">
+                                                <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                                                    <span class="slds-text-title slds-p-bottom_x-small">Tipo</span>
+                                                    <span class="slds-text-body_medium slds-truncate">{gestion.inicio}</span>
+                                                </li>
+                                                <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                                                    <span class="slds-text-title slds-p-bottom_x-small">Resultado</span>
+                                                    <span class="slds-text-body_medium slds-truncate">
+                                                        <lightning-badge label={gestion.respuestaFormateada} variant={gestion.colorIcono}></lightning-badge>
+                                                    </span>
+                                                </li>
+                                                <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                                                    <span class="slds-text-title slds-p-bottom_x-small">Operador</span>
+                                                    <span class="slds-text-body_medium slds-truncate">{gestion.operador}</span>
+                                                </li>
+                                                <template if:true={gestion.agente}>
+                                                    <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                                                        <span class="slds-text-title slds-p-bottom_x-small">Agente</span>
+                                                        <span class="slds-text-body_medium slds-truncate">{gestion.agente}</span>
+                                                    </li>
+                                                </template>
+                                                <template if:true={gestion.celular}>
+                                                    <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                                                        <span class="slds-text-title slds-p-bottom_x-small">Teléfono</span>
+                                                        <span class="slds-text-body_medium slds-truncate">{gestion.celular}</span>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                            <template if:true={gestion.comentario}>
+                                                <div>
+                                                    <span class="slds-text-title">Descripción</span>
+                                                    <p class="slds-p-top_x-small">{gestion.comentario}</p>
+                                                </div>
+                                            </template>
+                                        </article>
+                                    </div>
+                                </div>
+                            </article>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+
+        <!-- Botón Mostrar Más -->
+        <template if:true={hayMasRegistros}>
+            <div class="slds-align_absolute-center slds-p-vertical_small">
+                <button 
+                    class="slds-button slds-button_neutral"
+                    onclick={cargarMas}
+                    disabled={cargandoMas}
+                    type="button">
+                    <template if:true={cargandoMas}>
+                        <lightning-spinner alternative-text="Cargando..." size="small" class="slds-m-right_small"></lightning-spinner>
+                        Cargando...
+                    </template>
+                    <template if:false={cargandoMas}>
+                        {textoMostrarMas}
+                    </template>
+                </button>
+            </div>
+        </template>
+    </div>
+
+    <!-- Modal para registrar gestión -->
+    <template if:true={mostrarModal}>
+        <div class="slds-modal slds-fade-in-open slds-modal_large" aria-hidden="false">
+            <div class="slds-modal__container">
+                <!-- Header del modal -->
+                <div class="slds-modal__header">
+                    <h2 class="slds-modal__title slds-hyphenate">Registrar Gestión</h2>
+                    <button 
+                        class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" 
+                        onclick={handleClose}
+                        title="Cerrar">
+                        <lightning-icon icon-name="utility:close" size="small" alternative-text="Cerrar"></lightning-icon>
+                    </button>
+                </div>
+                
+                <!-- Body del modal -->
+                <div class="slds-modal__content slds-p-around_medium">
+                    <!-- Número de Gestión (solo lectura) -->
+                    <lightning-input
+                        type="text"
+                        label="Número de Gestión"
+                        value={numeroGestion}
+                        read-only
+                        class="slds-m-bottom_small">
+                    </lightning-input>
+
+                    <!-- Número de Celular -->
+                    <lightning-input
+                        type="tel"
+                        label="Número de Celular"
+                        value={celular}
+                        onchange={handleCelularChange}
+                        pattern="[0-9]*"
+                        class="slds-m-bottom_small"
+                        placeholder="Ej: 1234567890">
+                    </lightning-input>
+
+                    <!-- Medio -->
+                    <lightning-combobox
+                        label="Medio"
+                        value={medio}
+                        options={opcionesMedio}
+                        onchange={handleMedioChange}
+                        required
+                        class="slds-m-bottom_small">
+                    </lightning-combobox>
+
+                    <!-- Inicio (Saliente/Entrante) -->
+                    <fieldset class="slds-form-element slds-m-bottom_small">
+                        <legend class="slds-form-element__legend slds-form-element__label">Tipo de Gestión</legend>
+                        <lightning-radio-group
+                            name="inicio"
+                            options={opcionesInicio}
+                            value={inicio}
+                            onchange={handleInicioChange}
+                            required>
+                        </lightning-radio-group>
+                    </fieldset>
+
+                    <!-- Operador -->
+                    <lightning-combobox
+                        label="Operador"
+                        value={operador}
+                        options={opcionesOperador}
+                        onchange={handleOperadorChange}
+                        required
+                        class="slds-m-bottom_small">
+                    </lightning-combobox>
+
+                    <!-- Respuesta -->
+                    <lightning-combobox
+                        label="Respuesta"
+                        value={respuesta}
+                        options={opcionesRespuesta}
+                        onchange={handleRespuestaChange}
+                        disabled={respuestaDeshabilitada}
+                        required
+                        class="slds-m-bottom_small">
+                    </lightning-combobox>
+
+                    <!-- Comentario -->
+                    <lightning-textarea
+                        label="Comentario"
+                        value={comentario}
+                        onchange={handleComentarioChange}
+                        placeholder="Ingresa tus comentarios aquí..."
+                        rows="4"
+                        class="slds-m-bottom_small">
+                    </lightning-textarea>
+
+                    <!-- Mensajes de error -->
+                    <div if:true={mostrarError} class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error">
+                        <span class="slds-assistive-text">error</span>
+                        <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                        <h2>{mensajeError}</h2>
+                    </div>
+
+                    <!-- Spinner de carga -->
+                    <lightning-spinner
+                        if:true={cargando}
+                        alternative-text="Cargando..."
+                        size="large">
+                    </lightning-spinner>
+                </div>
+
+                <!-- Footer del modal -->
+                <div class="slds-modal__footer">
+                    <button
+                        class="slds-button slds-button_neutral"
+                        onclick={handleClose}
+                        type="button">
+                        Cancelar
+                    </button>
+                    <button
+                        class="slds-button slds-button_brand"
+                        onclick={guardarGestion}
+                        disabled={cargando}
+                        type="button">
+                        Guardar Gestión
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

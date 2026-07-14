@@ -1,0 +1,64 @@
+@import 'c/pphCss';
+
+.separator {
+    margin: 0px 0px 1rem 0px;
+}
+
+.license-type lightning-layout-item {
+    border: 2px solid var(--pph-green);
+    width: 30%;
+    cursor: pointer;
+}
+
+.e3 lightning-layout-item[data-type="e3"], .genetico lightning-layout-item[data-type="genetico"] {
+    border: 2px solid lightblue;
+}
+
+.btn-solicitar-licencia {
+    display: inline-flex;
+    align-items: center;
+    background-color: #C8FF00; /* verde lima */
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-solicitar {
+    background-color: #B7F302;
+    color: #1C1C1C;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-solicitar-licencia:hover {
+    background-color: #b5ec08; /* un poco más oscuro al pasar */
+}
+
+.btn-solicitar-licencia .icono {
+    width: 20px;
+    height: 20px;
+    fill: #000;
+}
+
+.btn-solicitar-overridden {
+    background-color: #C8FF00;
+    border-radius: 999px;
+    color: #000;
+    font-weight: bold;
+    padding: 10px 18px;
+}
+
+.alinear-derecha {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Densidad_de_Siembra__c</fullName>
+    <description>Asigna 1 a la densidad de siembra cuando es 0 o menor para evitar errores de división.</description>
+    <externalId>false</externalId>
+    <formula>IF( OR(Densidad_de_Siembra__c &lt; 1, ISBLANK(Densidad_de_Siembra__c)),  Campana__r.Cultivo__r.Densidad_de_Siembra__c, Densidad_de_Siembra__c)</formula>
+    <label>Z9 _Densidad_de_Siembra</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

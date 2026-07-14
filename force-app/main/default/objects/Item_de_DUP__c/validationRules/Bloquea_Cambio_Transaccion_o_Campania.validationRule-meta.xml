@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_Cambio_Transaccion_o_Campania</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+OR(
+$Profile.Name = &quot;Servicio al Productor&quot;,
+$Profile.Name = &quot;Distribuidor&quot;),
+OR(
+PRIORVALUE( Transaccion__c ) &lt;&gt; Transaccion__c ,
+PRIORVALUE( Campana_Agricola__c ) &lt;&gt; Campana_Agricola__c
+)
+)</errorConditionFormula>
+    <errorMessage>No se puede modificar la Transacción o la Campaña Agrícola.</errorMessage>
+</ValidationRule>

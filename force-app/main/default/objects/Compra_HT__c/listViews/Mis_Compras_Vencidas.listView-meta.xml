@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mis_Compras_Vencidas</fullName>
+    <columns>NAME</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Total_HT__c</columns>
+    <columns>Total_USD__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Variedades__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Vencida</value>
+    </filters>
+    <label>Mis Compras - Vencidas</label>
+</ListView>

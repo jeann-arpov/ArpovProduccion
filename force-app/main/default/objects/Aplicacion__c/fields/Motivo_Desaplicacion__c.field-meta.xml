@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Motivo_Desaplicacion__c</fullName>
+    <description>Lista de valores permitidos para clasificar la desaplicación.</description>
+    <inlineHelpText>Seleccione la opción que más representa el motivo que genera la desaplicación.</inlineHelpText>
+    <label>Motivo Desaplicación</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Aplicación mal distribuída</fullName>
+                <default>false</default>
+                <label>Aplicación mal distribuída</label>
+            </value>
+            <value>
+                <fullName>Cuenta del Productor Errónea</fullName>
+                <default>false</default>
+                <label>Cuenta del Productor Errónea</label>
+            </value>
+            <value>
+                <fullName>Diferencias de TC con el Obtentor</fullName>
+                <default>false</default>
+                <label>Diferencias de TC con el Obtentor</label>
+            </value>
+            <value>
+                <fullName>Error en facturación del Obtentor</fullName>
+                <default>false</default>
+                <label>Error en facturación del Obtentor</label>
+            </value>
+            <value>
+                <fullName>Valores sin fondos/rechazados</fullName>
+                <default>false</default>
+                <label>Valores sin fondos/rechazados</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

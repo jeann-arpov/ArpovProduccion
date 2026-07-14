@@ -1,0 +1,590 @@
+/* FONTS */
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
+/* COLORES */
+$green: #bfff00;
+$black: #181819;
+$darkgray: #5a5a5a;
+$lightgray: #707070;
+$white: #fff;
+$complete: #00d630;
+$danger: #ff0000;
+$progress: #ffba00;
+
+@mixin radius($data, $ptop, $pside) {
+    height: $data - ($ptop * 2);
+    border-radius: calc($data / 2);
+    padding: $ptop $pside;
+}
+
+@mixin rounded($data) {
+    border-radius: $data;
+}
+* {
+    margin: 0;
+    padding: 0;
+}
+
+input,
+a,
+button,
+.animar {
+    -webkit-transition: all 0.5s ease;
+    /* Safari 3.1 to 6.0 */
+    -o-transition: all 0.5s ease;
+    //moz-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+body {
+    margin: 0;
+    font-family: "Roboto";
+    font-weight: normal;
+    font-size: 16px;
+}
+img {
+    display: block;
+}
+
+button {
+    border: none;
+    background: none;
+    font-weight: 700;
+}
+
+/* TEXTO */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Roboto";
+    font-weight: 700;
+    color: $white;
+    &.green {
+        color: $green;
+    }
+}
+h1 {
+    font-size: 1.875rem;
+    line-height: 2rem;
+    text-align: left;
+    color: $green;
+    small {
+        display: block;
+        font-weight: 300;
+        font-size: 1.5rem;
+        color: $white;
+    }
+    &.whited {
+        color: $white;
+    }
+}
+
+h2 {
+    font-size: 3.75rem;
+    text-align: left;
+    &.green {
+        color: $green;
+    }
+}
+
+h3 {
+    font-weight: 500;
+    font-size: 1.625rem;
+    line-height: 1.75rem;
+    text-align: left;
+}
+h5 {
+    font-weight: 300;
+    font-size: 1.125rem;
+    small {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.0125rem;
+        display: block;
+    }
+}
+
+input {
+    background: $white;
+    font-size: 0.75rem;
+    color: $black;
+    border: none;
+    padding-inline: 0;
+    &[type="number"],
+    &[type="email"],
+    &[type="text"],
+    &[type="password"] {
+        @include radius(42px, 8px, 20px);
+        border: 1px solid $black;
+        width: calc(100% - 40px);
+        &::placeholder {
+            color: $darkgray;
+            line-height: 100%;
+        }
+        &:hover {
+            border: 1px solid $darkgray;
+            background: rgba($darkgray, 0.1);
+        }
+        &:focus {
+            border: 1px solid $black;
+            outline: none;
+            box-shadow: 0px 0px 12px rgba($black, 0.35);
+        }
+    }
+    &[type="button"] {
+        @include radius(60px, 8px, 40px);
+        background: $green;
+        font-size: 1rem;
+        font-weight: 600;
+        width: auto;
+        &:hover,
+        &:focus {
+            outline: none;
+            box-shadow: 0px 5px 8px rgba($black, 0.2);
+            background: $black;
+            color: $green;
+        }
+    }
+    &:disabled {
+        background: rgba($lightgray, 0.15);
+    }
+    &.searchit {
+        border: 1px solid $green;
+    }
+}
+.tooltipContainer {
+    position: absolute;
+    top: 120px;
+    border-radius: 20px;
+    background: rgba($black, 0.95);
+    color: $white;
+    padding: 20px;
+    font-weight: 300;
+    font-size: 0.75rem;
+    line-height: 1250%;
+    margin-top: 20px;
+    .help-header {
+        color: $green;
+    }
+    .help-text {
+        padding-bottom: 10px;
+    }
+    &::before {
+        content: "";
+        width: 0px;
+        height: 0px;
+        border-style: solid;
+        border-width: 0 12px 10px 12px;
+        border-color: transparent transparent rgba($black, 0.95) transparent;
+        transform: rotate(0deg);
+        top: -10px;
+        position: absolute;
+    }
+}
+.shadow {
+    box-shadow: 0px 3px 16px rgba(0, 0, 0, 0.16);
+}
+
+.radius {
+    border-radius: 20px;
+    &.bottom {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+}
+
+.z1 {
+    z-index: 100;
+}
+.z2 {
+    z-index: 90;
+}
+.z3 {
+    z-index: 80;
+}
+.z4 {
+    z-index: 70;
+}
+
+.z5 {
+    z-index: 60;
+}
+
+.z6 {
+    z-index: 50;
+}
+
+.z7 {
+    z-index: 40;
+}
+.z8 {
+    z-index: 30;
+}
+.z9 {
+    z-index: 20;
+}
+
+.button {
+    @include radius(42px, 8px, 35px);
+    display: inline-flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    background: $green;
+    border: 2px solid $green;
+    font-size: 1rem;
+    font-weight: 600;
+    width: auto;
+    color: $black;
+    text-decoration: none;
+    position: relative;
+    &.iconic {
+        .icon {
+            width: 25px;
+            height: 25px;
+            margin-left: -10px;
+            .icons {
+                @extend .icon-b;
+            }
+        }
+        .txt {
+            padding-left: 5px;
+        }
+        &:hover {
+            background: $black;
+            color: $green;
+            .icon {
+                .icons {
+                    @extend .icon-g;
+                }
+            }
+        }
+    }
+    &.alt {
+        background: $black;
+        border: 2px solid $black;
+        color: $white;
+        .icon {
+            .icons {
+                @extend .icon-g;
+            }
+        }
+        &:hover {
+            color: $black;
+            background: $green;
+            .icon {
+                .icons {
+                    @extend .icon-b;
+                }
+            }
+        }
+    }
+    &.altborder {
+        @include radius(42px, 8px, 40px);
+        background: $black;
+        border: 2px solid $green;
+        color: $white;
+        .icon {
+            .icons {
+                @extend .icon-g;
+            }
+        }
+        &:hover {
+            color: $black;
+            background: $green;
+            border: 2px solid $green;
+            .icon {
+                .icons {
+                    @extend .icon-b;
+                }
+            }
+        }
+    }
+    &.altGreen {
+        @include radius(42px, 8px, 25px);
+        background: $white;
+        border: 2px solid $green;
+        color: $black;
+        .icon {
+            .icons {
+                @extend .icon-g;
+            }
+        }
+        &:hover {
+            color: $black;
+            background: $green;
+            border: 2px solid $green;
+            .icon {
+                .icons {
+                    @extend .icon-b;
+                }
+            }
+        }
+    }
+    &.altWhite {
+        @include radius(42px, 8px, 25px);
+        background: $white;
+        border: 2px solid $black;
+        color: $black;
+        .icon {
+            .icons {
+                @extend .icon-g;
+            }
+        }
+        &:hover {
+            color: $black;
+            background: $green;
+            border: 2px solid $green;
+            .icon {
+                .icons {
+                    @extend .icon-b;
+                }
+            }
+        }
+    }
+    &.minitxt {
+        background: $white;
+        max-width: 100px;
+        padding-right: 22px !important;
+        padding-left: 22px !important;
+        &.iconic {
+            .icon {
+                width: 45px;
+                display: flex;
+            }
+        }
+        .txt {
+            font-size: 0.75rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            display: inline-flex;
+            flex-flow: row wrap;
+            justify-content: flex-start;
+            align-items: center;
+            align-content: center;
+        }
+        &:hover {
+            background: $green;
+            color: $black;
+            .txt {
+                color: $black;
+            }
+        }
+    }
+}
+
+.withSub {
+    button {
+        position: relative;
+        z-index: 10;
+    }
+    .submenu {
+        background: $white;
+        z-index: 1;
+        position: absolute;
+        top: -50vw;
+        right: 0;
+        padding: 20px 0 10px;
+        border: 2px solid $black;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+        display: flex;
+        flex-flow: column;
+        justify-content: flex-start;
+        align-items: center;
+        a {
+            display: flex;
+            width: calc(100% - 30px);
+            text-decoration: none;
+            color: $black;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin: 2px 0;
+            padding: 5px 15px;
+            background: none;
+            &:hover {
+                color: $green;
+            }
+        }
+    }
+    &:hover {
+        .submenu {
+            top: 30px;
+        }
+    }
+}
+
+.icon-b {
+    path {
+        fill: $black;
+        @extend .animar;
+    }
+}
+.icon-g {
+    path {
+        fill: $green;
+        @extend .animar;
+    }
+}
+.circle {
+    border: 2px solid $black;
+    border-radius: 20px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    img, svg {
+        width: 24px;
+    }
+    &:hover {
+        background: $black;
+        svg {
+            path {
+                fill: $green;
+            }
+        }
+    }
+}
+
+.modal {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    top: 0;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    z-index: 9999;
+    .modal-dialog {
+        width: 300px;
+        border: none;
+        border-radius: 20px;
+        padding: 40px;
+        background: $white;
+        display: flex;
+        flex-flow: column;
+        justify-content: space-between;
+        align-items: flex-start;
+        align-content: flex-start;
+        .modal-header {
+            position: relative;
+            display: flex;
+            width: 100%;
+            h3 {
+                color: $black;
+                font-weight: 700;
+                padding-top: 30px;
+            }
+            .close {
+                width: 36px;
+                height: 36px;
+                border-radius: 25px;
+                border: 2px solid $black;
+                font-weight: 700;
+                font-size: 1rem;
+                position: absolute;
+                right: -20px;
+                top: -20px;
+                display: flex;
+                flex-flow: row;
+                align-items: center;
+                justify-content: center;
+                align-content: center;
+                line-height: 100%;
+                &:hover {
+                    background: $black;
+                    color: $white;
+                }
+            }
+        }
+        .modal-content {
+            padding: 20px 0 50px;
+        }
+        .modal-footer {
+            .button {
+                margin-top: 15px;
+                height: 44px;
+            }
+        }
+    }
+}
+.backdrop {
+    position: fixed;
+    top:0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba($black, .9);
+    z-index: 9990;
+}
+@media screen and (min-width: 768px) {
+    h1 {
+        font-size: 2.75rem;
+        line-height: 2.875rem;
+        small {
+            font-size: 2.25rem;
+        }
+    }
+}
+
+@media screen and (min-width: 992px) {
+    h1 {
+        font-size: 1.5rem;
+        line-height: 1.75rem;
+        small {
+            font-size: 1.25rem;
+        }
+    }
+
+    h2 {
+        font-size: 3.25rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+        line-height: 1.5rem;
+    }
+    h5 {
+        font-size: 1rem;
+        small {
+            font-size: 0.5rem;
+        }
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    h1 {
+        font-size: 1.875rem;
+        line-height: 2rem;
+        small {
+            font-size: 1.5rem;
+        }
+    }
+
+    h2 {
+        font-size: 3.75rem;
+    }
+
+    h3 {
+        font-size: 1.625rem;
+        line-height: 1.75rem;
+    }
+    h5 {
+        font-size: 1.125rem;
+        small {
+            font-size: 0.75rem;
+        }
+    }
+}

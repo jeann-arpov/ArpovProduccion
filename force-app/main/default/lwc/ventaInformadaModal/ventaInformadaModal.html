@@ -1,0 +1,26 @@
+<template>
+    <div class="venta-modal">
+        <lightning-modal-header label={modalTitle}></lightning-modal-header>
+        <div class="venta-modal__body">
+            <c-crear-venta-informada-l-w-c
+                is-modal=true
+                prefill-data={prefillData}
+                originante-account-id={originanteAccountId}
+                onsave={handleCancel}
+            ></c-crear-venta-informada-l-w-c>
+        </div>
+        <lightning-modal-footer class="venta-modal__footer">
+            <lightning-button
+                label="Cancelar"
+                onclick={handleCancel}
+                class="slds-var-m-right_medium modal-footer-btn--cancel"
+            ></lightning-button>
+            <lightning-button
+                label="Guardar"
+                onclick={handleSave}
+                variant="brand"
+                class="modal-footer-btn--save"
+            ></lightning-button>
+        </lightning-modal-footer>
+    </div>
+</template>

@@ -1,0 +1,49 @@
+<template>
+    <div class="ventas-container">
+        <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">Ventas SF / sin licencias</div>
+                <div class="title">CUITs Únicos (Campaña Activa)</div>
+            </div>
+        </div>
+
+        <!-- Info + buscador -->
+        <div class="info-busqueda">
+            <div class="ventas-info">
+                {totalRegistros} resultados únicos
+            </div>
+
+            <div class="ventas-search">
+                <input type="text" oninput={handleSearchChange} placeholder="Buscar CUIT o Razón Social..." />
+                <span class="search-icon">
+                    <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                </span>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <table>
+            <thead>
+                <tr>
+                    <th>CUIT</th>
+                    <th>Razón Social</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={paginatedVentas} for:item="v">
+                    <tr key={v.id}>
+                        <td>{v.cuit}</td>
+                        <td>{v.razonSocial}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <!-- Navegación -->
+        <div class="paginacion">
+            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+            <span>Página {currentPage}</span>
+            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+        </div>
+    </div>
+</template>

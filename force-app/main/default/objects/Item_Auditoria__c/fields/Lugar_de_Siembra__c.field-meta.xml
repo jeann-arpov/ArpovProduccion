@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lugar_de_Siembra__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Provincia de Siembra para Percepcion de IIBB.</description>
+    <inlineHelpText>Provincia de Siembra para Percepcion de IIBB.</inlineHelpText>
+    <label>Lugar de Siembra</label>
+    <referenceTo>Provincia__c</referenceTo>
+    <relationshipLabel>Ítems Auditorias</relationshipLabel>
+    <relationshipName>tems_Auditorias</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

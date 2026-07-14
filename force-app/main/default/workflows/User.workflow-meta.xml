@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Usuario_Carga_Id_Externo</fullName>
+        <field>Id_Externo__c</field>
+        <formula>Email</formula>
+        <name>Usuario. Carga Id Externo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Usuario%2E Carga Id Externo</fullName>
+        <actions>
+            <name>Usuario_Carga_Id_Externo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <booleanFilter>1 AND (2 OR 3)</booleanFilter>
+        <criteriaItems>
+            <field>User.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>User.ProfileName__c</field>
+            <operation>notEqual</operation>
+            <value>Servicio al Productor</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>User.ProfileName__c</field>
+            <operation>notEqual</operation>
+            <value>Distribuidor</value>
+        </criteriaItems>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+</Workflow>

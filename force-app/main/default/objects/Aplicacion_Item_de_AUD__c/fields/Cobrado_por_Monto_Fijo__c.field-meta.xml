@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cobrado_por_Monto_Fijo__c</fullName>
+    <description>Importe cobrado por Monto Fijo</description>
+    <formula>IF( Item_de_Auditoria__r.Total_a_Facturar__c  &gt; 0, 
+Pagos_Recibidos__c * ( NULLVALUE( VALUE( TEXT( Item_de_Auditoria__r.Monto_Fijo__c ) ), 0 ) / NULLVALUE( Item_de_Auditoria__r.Total_a_Facturar__c, 1 ) ), 
+0 )</formula>
+    <inlineHelpText>Importe cobrado por Monto Fijo</inlineHelpText>
+    <label>Cobrado por Monto Fijo</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

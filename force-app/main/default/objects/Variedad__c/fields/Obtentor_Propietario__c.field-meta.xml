@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Obtentor_Propietario__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Obtentor Propietario</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Debe seleccionar un Obtentor.</errorMessage>
+        <filterItems>
+            <field>Account.RecordType.Name</field>
+            <operation>equals</operation>
+            <value>Obtentor</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Variedades (Obtentor Propietario)</relationshipLabel>
+    <relationshipName>Obtentor_Propietario</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

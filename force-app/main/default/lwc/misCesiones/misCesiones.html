@@ -1,0 +1,70 @@
+<template>
+    <div class="ventas-container">
+        <!-- TOP BAR con título + filtros y botón -->
+        <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">CESIONES</div>
+                <div class="title">Todas las Cesiones</div>
+            </div>
+
+            <div class="acciones-derecha">
+                <div class="filtros-container">
+                
+                    <select data-id="CultivoSelect" onchange={handleCultivoSelect}>
+                        <option value="">Cultivo</option>
+                        <template for:each={cultivos} for:item="item">
+                            <option key={item.value} value={item.value}>{item.value}</option>
+                        </template>
+                    </select>
+                    <select data-id="TipoCesionSelect" onchange={handleTipoCesion}>
+                        <option value="">Tipo de Cesion</option>
+                        <template for:each={TipoCesiones} for:item="item">
+                            <option key={item.value} value={item.value}>{item.value}</option>
+                        </template>
+                    </select>
+                    <select data-id="EstadoSelect" onchange={handleEstadoSelect}>
+                        <option value="">Estado</option>
+                        <template for:each={Estados} for:item="item">
+                            <option key={item.value} value={item.value}>{item.value}</option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info + buscador -->
+        <div class="info-busqueda">
+            <div class="ventas-info">
+                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emision • <br>
+                Filtrado por todos las cesiones • Se actualizó hace una hora
+            </div>
+
+            <div class="ventas-search">
+                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+         <lightning-datatable
+            key-field="Id"
+            class="dataTable"
+            data={filteredCesiones}
+            columns={columns}
+            onsort={handleOnSort}
+            sorted-by={sortBy}
+            sorted-direction={sortDirection}
+            column-widths-mode="auto"
+            resize-column-disabled  
+            hide-checkbox-column>
+        </lightning-datatable>
+
+      
+            <div class="paginacion">
+            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+            <span>Página {currentPage}</span>
+            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+        </div> 
+    
+    </div>
+</template>

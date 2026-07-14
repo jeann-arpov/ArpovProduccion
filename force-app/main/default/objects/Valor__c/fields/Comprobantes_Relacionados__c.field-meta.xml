@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comprobantes_Relacionados__c</fullName>
+    <description>Lista de comprobantes (FC / ND) relacionados con el valor ingresado.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Obligatorio para comprobantes de Asociados Don Mario</inlineHelpText>
+    <label>Comprobantes Relacionados</label>
+    <length>255</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

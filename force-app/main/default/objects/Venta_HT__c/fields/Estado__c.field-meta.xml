@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado__c</fullName>
+    <label>Estado</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Creada</fullName>
+                <default>false</default>
+                <label>Creada</label>
+            </value>
+            <value>
+                <fullName>Pendiente de Facturación</fullName>
+                <default>false</default>
+                <label>Pendiente de Facturación</label>
+            </value>
+            <value>
+                <fullName>Facturada</fullName>
+                <default>false</default>
+                <label>Facturada</label>
+            </value>
+            <value>
+                <fullName>Pagada</fullName>
+                <default>false</default>
+                <label>Pagada</label>
+            </value>
+            <value>
+                <fullName>Vencida</fullName>
+                <default>false</default>
+                <label>Vencida</label>
+            </value>
+            <value>
+                <fullName>Cancelada por NC</fullName>
+                <default>false</default>
+                <label>Cancelada por NC</label>
+            </value>
+            <value>
+                <fullName>Pedido de Facturacion</fullName>
+                <default>false</default>
+                <label>Pedido de Facturacion</label>
+            </value>
+            <value>
+                <fullName>Aplicada</fullName>
+                <default>false</default>
+                <label>Aplicada</label>
+            </value>
+            <value>
+                <fullName>Cancelada</fullName>
+                <default>false</default>
+                <label>Cancelada</label>
+            </value>
+            <value>
+                <fullName>Parcialmente Facturada</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Parcialmente Facturada</label>
+            </value>
+            <value>
+                <fullName>Parcialmente Pagada</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Parcialmente Pagada</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

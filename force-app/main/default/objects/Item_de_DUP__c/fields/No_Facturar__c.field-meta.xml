@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_Facturar__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Si está marcado el ítem no será facturado.</description>
+    <inlineHelpText>Si está marcado el ítem no será facturado.</inlineHelpText>
+    <label>No Facturar</label>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

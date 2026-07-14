@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Template_Envio_de_DUP__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>Indique el ID de la plantilla de email a utilizar para el envío de email de confirmación en base al Resultado de validación del analista de DUP.</inlineHelpText>
+    <label>Template Confirmación Minisitio</label>
+    <length>18</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

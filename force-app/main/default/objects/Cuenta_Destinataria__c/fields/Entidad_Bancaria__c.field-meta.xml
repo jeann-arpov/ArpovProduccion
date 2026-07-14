@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Entidad_Bancaria__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>Entidad Bancaria de la cuenta</description>
+    <inlineHelpText>Seleccione entidad Bancaria de la cuenta</inlineHelpText>
+    <label>Entidad Bancaria</label>
+    <referenceTo>Entidades_Bancarias__c</referenceTo>
+    <relationshipLabel>Cuentas Destinatarias</relationshipLabel>
+    <relationshipName>Cuentas_Destinatarias</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Posee_Venta_asociada</fullName>
+    <active>true</active>
+    <description>Junto con el flujo &quot;Venta Informada - valida que no posea un registro de Venta asociado&quot;, valida que no se puedan borrar Ventas Informadas que posean Ventas</description>
+    <errorConditionFormula>Asociada_a_Venta__c</errorConditionFormula>
+    <errorMessage>No esta permitido borrar una Venta Informada que posee una Venta asociada</errorMessage>
+</ValidationRule>

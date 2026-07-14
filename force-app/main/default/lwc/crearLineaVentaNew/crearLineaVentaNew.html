@@ -1,0 +1,86 @@
+<template>
+    <lightning-record-edit-form object-api-name="Linea_de_Venta_HT__c" record-id={record.id}>
+        <template if:true={loading}>
+            <div class="spinner-overlay">
+                <lightning-spinner alternative-text="Cargando" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <div class="linea-grid linea-grid-con-tipo">
+            <!-- Variedad -->
+            <div class="celda celda-variedad">
+                <lightning-combobox lwc:if={hasId} read-only class="variedad" variant="label-hidden" label="Variedad" value={variedad} options={variedades}></lightning-combobox>
+                <c-lookup lwc:else variant="label-hidden" required onselectionchange={variedadChange} onsearch={searchVariedades} label="Variedad" placeholder="Buscar variedad...">
+                    <div slot="no-results">
+                        <span class="no-results-msg">Sin resultados</span>
+                    </div>
+                </c-lookup>
+            </div>
+
+            <!-- Tipo de HT (informativo) -->
+            <div class="celda celda-tipo-ht">
+                <span class="tipo-ht-badge">{preCampaign}</span>
+            </div>
+
+            <!-- Fecha Conversión -->
+            <div class="celda celda-fecha">
+                <lightning-formatted-date-time time-zone="UTC" value={record.Fecha_de_Activacion__c}></lightning-formatted-date-time>
+            </div>
+
+            <!-- Cantidad -->
+            <div class="celda celda-cantidad">
+                <input
+                    type="number"
+                    class="cantidad-input"
+                    min="1"
+                    step="1"
+                    value={record.Cantidad__c}
+                    onchange={syncCantidad}
+                    onblur={handleCantidadBlur}
+                    readonly={cantEdit}
+                    required
+                />
+            </div>
+
+            <div class="celda celda-precio">
+                <span class="valor-numerico">{precioLista}</span>
+            </div>
+
+            <div class="celda celda-total">
+                <span class="valor-numerico">{precio}</span>
+            </div>
+
+            <!-- Estado -->
+            <div class="celda celda-estado">
+                <span class={estadoClass}>{estado}</span>
+                <button if:true={factura} type="button" onclick={openFactura} class="btn-factura" title="Ver factura">
+                    <svg width="13" height="17">
+                        <use xlink:href={icons.facturas}></use>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Licencia -->
+            <div class="celda celda-licencia">
+                <span if:true={record.Licencia__c} class="licencia-name">{record.Licencia__r.Name}</span>
+                <div if:true={showEstadoLicencia} class="licencia-badge">
+                    <svg if:true={record.Licencia__c} width="19.91" height="19.91">
+                        <use xlink:href={iconsCompraVenta.valid}></use>
+                    </svg>
+                    <svg if:false={record.Licencia__c} width="23" height="22.5">
+                        <use xlink:href={iconsCompraVenta.invalid}></use>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="celda celda-acciones">
+                <button type="button" title="Eliminar variedad" if:true={canEdit} onclick={removeRow} class="btn-eliminar">
+                    <svg width="14" height="18">
+                        <use xlink:href={icons.delete}></use>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </lightning-record-edit-form>
+</template>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Asignar_Prevenir_Duplicado</name>
+        <label>Asignar Prevenir Duplicado</label>
+        <locationX>50</locationX>
+        <locationY>551</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Prevenir_Duplicado__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Existe_funcion_de_contacto</name>
+        <label>Existe función de contacto?</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <defaultConnectorLabel>No existe</defaultConnectorLabel>
+        <rules>
+            <name>Existe</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Funcion_de_contacto</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_Prevenir_Duplicado</targetReference>
+            </connector>
+            <label>Existe</label>
+        </rules>
+    </decisions>
+    <description>Si ya existe una función de contacto con misma cuenta y contacto, se cambia a true Prevenir Duplicado.</description>
+    <environments>Default</environments>
+    <interviewLabel>Contacto - Prevenir Duplicado {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FuncionContacto - Prevenir Duplicado</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Buscar_Funcion_de_contacto</name>
+        <label>Buscar Función de contacto</label>
+        <locationX>182</locationX>
+        <locationY>311</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Existe_funcion_de_contacto</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Cuenta__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Cuenta__r.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Contacto__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Contacto__r.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Funcion_de_Contacto__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Buscar_Funcion_de_contacto</targetReference>
+        </connector>
+        <object>Funcion_de_Contacto__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

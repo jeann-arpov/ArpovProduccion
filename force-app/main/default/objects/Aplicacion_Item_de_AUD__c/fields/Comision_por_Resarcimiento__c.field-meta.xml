@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comision_por_Resarcimiento__c</fullName>
+    <description>Monto de Comisión por Resarcimiento</description>
+    <formula>IF(YEAR(Fecha_de_Creacion__c) &gt;= 2024, NULLVALUE( Cobrado_por_Resarcimiento__c, 0 ) * 0.15, NULLVALUE( Cobrado_por_Resarcimiento__c, 0 ) * 0.95)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Monto de Comisión por Resarcimiento</inlineHelpText>
+    <label>Comision por Resarcimiento</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

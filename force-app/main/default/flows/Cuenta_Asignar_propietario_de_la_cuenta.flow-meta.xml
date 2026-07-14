@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Actualizar_Propietario</name>
+        <label>Actualizar Propietario</label>
+        <locationX>248</locationX>
+        <locationY>217</locationY>
+        <assignmentItems>
+            <assignToReference>Para_cada_contacto_asociado_a_la_cuenta.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Operador__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Asignar_registro_de_Lopp_a_Variable_de_coleccion</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_registro_de_Lopp_a_Variable_de_coleccion</name>
+        <label>Asignar registro de Lopp a Variable de coleccion</label>
+        <locationX>249</locationX>
+        <locationY>366</locationY>
+        <assignmentItems>
+            <assignToReference>ContactosAsociadosAActualizar</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Para_cada_contacto_asociado_a_la_cuenta</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Para_cada_contacto_asociado_a_la_cuenta</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Cuando se cambia el operador, se cambiará el propietario de la cuenta y de los contactos asociados a la cuenta a este Operador.</description>
+        <name>Cambio_de_Operador</name>
+        <label>Cambio de Operador</label>
+        <locationX>766</locationX>
+        <locationY>100</locationY>
+        <defaultConnectorLabel>No se cambió el operador</defaultConnectorLabel>
+        <rules>
+            <name>Se_cambi_el_Operador</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Operador__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Operador__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Cambia_Propietario_de_la_cuenta</targetReference>
+            </connector>
+            <label>Se cambió el Operador</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Si el usuario que ejecuta el flujo es un usuario de Interface, no se hace el cambio de propietario de la cuenta ni de los contactos asociados.</description>
+        <name>Es_Usuario_de_Interface</name>
+        <label>Es Usuario de Interface?</label>
+        <locationX>486</locationX>
+        <locationY>100</locationY>
+        <defaultConnectorLabel>Es usuario de Interface</defaultConnectorLabel>
+        <rules>
+            <name>No_es_Usuario_de_Interface</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$User.Usuario_de_Integracion__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Cambio_de_Operador</targetReference>
+            </connector>
+            <label>No es Usuario de Interface</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Se valida que la cuenta tenga contactos asociados.</description>
+        <name>Hay_contactos_asociados_a_la_cuenta</name>
+        <label>Hay contactos asociados a la cuenta?</label>
+        <locationX>770</locationX>
+        <locationY>286</locationY>
+        <defaultConnectorLabel>No existen contactos asociados a la cuenta</defaultConnectorLabel>
+        <rules>
+            <name>Existen_contactos_asociados_a_la_cuenta</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Contactos_asociados_a_la_cuenta</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Para_cada_contacto_asociado_a_la_cuenta</targetReference>
+            </connector>
+            <label>Existen contactos asociados a la cuenta</label>
+        </rules>
+    </decisions>
+    <description>Cuando se cambia el Operador de la cuenta, se asigna ese usuario como propietario de la cuenta y como propietario de los contactos asociados a la cuenta.</description>
+    <interviewLabel>Cuenta- {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Cuenta-Asignar propietario de la cuenta</label>
+    <loops>
+        <name>Para_cada_contacto_asociado_a_la_cuenta</name>
+        <label>Para cada contacto asociado a la cuenta</label>
+        <locationX>501</locationX>
+        <locationY>287</locationY>
+        <collectionReference>Contactos_asociados_a_la_cuenta</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Actualizar_Propietario</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Actualizar_Propietario_de_Contactos</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Contactos_asociados_a_la_cuenta</name>
+        <label>Contactos asociados a la cuenta</label>
+        <locationX>1043</locationX>
+        <locationY>284</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Hay_contactos_asociados_a_la_cuenta</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualizar_Propietario_de_Contactos</name>
+        <label>Actualizar Propietario de Contactos</label>
+        <locationX>501</locationX>
+        <locationY>489</locationY>
+        <inputReference>ContactosAsociadosAActualizar</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Como el usuario no es de Interface, se cambia el propietario de la cuenta al Operador.</description>
+        <name>Cambia_Propietario_de_la_cuenta</name>
+        <label>Cambia Propietario de la cuenta</label>
+        <locationX>1043</locationX>
+        <locationY>93</locationY>
+        <connector>
+            <targetReference>Contactos_asociados_a_la_cuenta</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$Record.Operador__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>42</locationX>
+        <locationY>41</locationY>
+        <connector>
+            <targetReference>Es_Usuario_de_Interface</targetReference>
+        </connector>
+        <object>Account</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+    <variables>
+        <name>ContactosAsociadosAActualizar</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+</Flow>

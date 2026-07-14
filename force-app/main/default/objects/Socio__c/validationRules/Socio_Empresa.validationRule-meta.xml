@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Socio_Empresa</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(
+AND(Empresa__r.Name = &quot;ArPOV&quot;, ISPICKVAL(Socio_Empresa__c, &quot;ASA&quot;))
+,
+AND(Empresa__r.Name = &quot;ASA&quot;,  ISPICKVAL(Socio_Empresa__c, &quot;ArPOV&quot;))
+)</errorConditionFormula>
+    <errorDisplayField>Socio_Empresa__c</errorDisplayField>
+    <errorMessage>El Socio Empresa seleccionado no se corresponde con la empresa elegida. Las combinaciones posibles son:
+Empresa ArPOV ---&gt; Socio Empresa: ArPOV
+Empresa ASA ---&gt; Socio Empresa: ASA</errorMessage>
+</ValidationRule>

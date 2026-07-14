@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_creadas_HOY</fullName>
+    <columns>NAME</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Fecha__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Producto__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Tipo_de_Producto__c</columns>
+    <columns>Variedad__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Campana_Agricola__c</field>
+        <operation>contains</operation>
+        <value>2023 - SOJA</value>
+    </filters>
+    <label>Ventas creadas HOY x Interfaz</label>
+</ListView>

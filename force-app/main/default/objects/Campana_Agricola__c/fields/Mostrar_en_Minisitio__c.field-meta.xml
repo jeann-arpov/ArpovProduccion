@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mostrar_en_Minisitio__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Si está marcado las transacciones de esta campaña aparecen en el minisitio</description>
+    <inlineHelpText>Seleccionar si se desea que esta campaña aparezca en el Minisitio de Productores.</inlineHelpText>
+    <label>Mostrar en Minisitio</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

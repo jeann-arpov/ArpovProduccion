@@ -1,0 +1,79 @@
+.totals {
+    background-color: black;
+    color:#C5FE00;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+:host {
+    --slds-c-button-text-color: black;
+    --slds-c-card-body-spacing-block-end: 0px;
+    --slds-c-input-color-border: black;
+}
+
+.body {
+    margin: 0.5rem 1.5 rem;
+}
+
+:host .footer {
+    --slds-c-button-radius-border: 50px;
+}
+
+lightning-button.finalizar, lightning-button.facturar, lightning-button.new {
+    --slds-c-button-text-color: #C5FE00;
+    --slds-c-button-color-background: black
+}
+
+.plus-sign {
+    border: 1px solid black;
+    padding: 0px 3px;
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.tooltipContainer {
+    position: absolute;
+    background-color: #1c1c1c;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    /* Set the initial visibility to hidden */
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    max-width: 230px;
+    left:30%;
+}
+
+a.c-tooltip {
+    text-decoration: none;
+    cursor: default;
+    color: #0070d2; /* Adjust the color as needed */
+    position: relative;
+    display: inline-block; /* Ensure the anchor tag respects its dimensions */
+}
+
+.help-icon{
+    background-color: #bfff00;
+    border-radius: 50%;
+    margin: 5px;
+    padding: 3px;
+}
+
+.help-header{
+    color:#bfff00;
+    font-size:small;
+}
+
+.help-text{
+    color:white;
+    font-size:small;
+}
+
+a.c-tooltip:hover + .tooltipContainer,
+.tooltipContainer:hover {
+    /* Show the tooltip on hover */
+    visibility: visible;
+    opacity: 1;
+}

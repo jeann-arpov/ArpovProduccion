@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Devolucion_Diferencia_por_Descuento__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Marque esta casilla si el productor pagó el monto total cuando correspondía aplicar un descuento. Si se marca esta casilla ArPOV reintegrará la diferencia al productor.</inlineHelpText>
+    <label>Devolución Diferencia por Descuento</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

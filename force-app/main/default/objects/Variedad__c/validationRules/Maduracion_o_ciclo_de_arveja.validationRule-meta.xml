@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Maduracion_o_ciclo_de_arveja</fullName>
+    <active>false</active>
+    <description>El grupo de maduración o ciclo sólo puede ser Invernal o Primaveral para el cultivo Arveja.</description>
+    <errorConditionFormula>AND ( Cultivo__r.Name = &quot;ARVEJA&quot;,
+      TEXT( Grupo_de_Madurez_Ciclo_Ag__c ) &lt;&gt; &quot;INVERNAL&quot;,
+      TEXT( Grupo_de_Madurez_Ciclo_Ag__c ) &lt;&gt; &quot;PRIMAVERAL&quot;
+)</errorConditionFormula>
+    <errorDisplayField>Grupo_de_Madurez_Ciclo_Ag__c</errorDisplayField>
+    <errorMessage>Se debe seleccionar Invernal o Primaveral para el cultivo Arveja.</errorMessage>
+</ValidationRule>

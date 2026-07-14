@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Factura__c</fullName>
+    <description>Identificador de la factura a la cual se aplica el importe</description>
+    <inlineHelpText>Ingrese la factura que a la cual se está aplicando el pago</inlineHelpText>
+    <label>Factura</label>
+    <lookupFilter>
+        <active>true</active>
+        <booleanFilter>8 OR 6 OR 5 OR 7 OR (1 AND 3 AND (2 OR 4))</booleanFilter>
+        <errorMessage>La factura seleccionada no está en estado Facturada , no tiene saldo pendiente o no se han calculado los intereses por pago diferido.</errorMessage>
+        <filterItems>
+            <field>Opportunity.StageName</field>
+            <operation>equals</operation>
+            <value>Facturada</value>
+        </filterItems>
+        <filterItems>
+            <field>Opportunity.Saldo_a_Cobrar_ARS__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </filterItems>
+        <filterItems>
+            <field>Opportunity.Account.Id</field>
+            <operation>equals</operation>
+            <valueField>$Source.Cuenta_Originante__c</valueField>
+        </filterItems>
+        <filterItems>
+            <field>Opportunity.Diferencia_TC_o_Intereses__c</field>
+            <operation>greaterThan</operation>
+            <value>0</value>
+        </filterItems>
+        <filterItems>
+            <field>$User.Procesa_Cobranza__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <filterItems>
+            <field>$User.Usuario_de_Integracion__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <filterItems>
+            <field>$Source.Importe__c</field>
+            <operation>lessThan</operation>
+            <value>0</value>
+        </filterItems>
+        <filterItems>
+            <field>$User.Nombre_Completo__c</field>
+            <operation>equals</operation>
+            <value>Automated Process</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Opportunity</referenceTo>
+    <relationshipLabel>Aplicaciones</relationshipLabel>
+    <relationshipName>Aplicaciones</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>true</writeRequiresMasterRead>
+</CustomField>

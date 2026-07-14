@@ -1,0 +1,40 @@
+<template>
+    <lightning-card title="Exportar Estado de Cuenta CyO" icon-name="standard:document">
+        <div class="slds-p-around_medium">
+            <lightning-input
+                type="date"
+                label="Fecha creación desde"
+                value={createdDateFrom}
+                onchange={handleDateFromChange}
+                class="slds-m-bottom_small"
+            ></lightning-input>
+
+            <lightning-input
+                type="date"
+                label="Fecha creación hasta"
+                value={createdDateTo}
+                onchange={handleDateToChange}
+                class="slds-m-bottom_small"
+            ></lightning-input>
+
+            <lightning-input
+                type="email"
+                label="Correo electrónico"
+                value={email}
+                onchange={handleEmailChange}
+                class="slds-m-bottom_small"
+            ></lightning-input>
+
+            <lightning-button
+                variant="brand"
+                label="Enviar por Email"
+                icon-name="utility:email"
+                onclick={handleExport}
+                disabled={isExportDisabled}
+            ></lightning-button>
+            <template if:true={isExporting}>
+                <lightning-spinner alternative-text="Exportando..." size="small" class="slds-m-left_small"></lightning-spinner>
+            </template>
+        </div>
+    </lightning-card>
+</template>

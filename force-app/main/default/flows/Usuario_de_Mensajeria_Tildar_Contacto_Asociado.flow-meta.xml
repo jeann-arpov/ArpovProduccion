@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <description>Verificar si el contacto anterior del usuario de mensajería era distinto de null.</description>
+        <name>Era_null_el_Contacto_anterior_del_Usuario_de_Mensajeria</name>
+        <label>Era null el Contacto anterior del Usuario de Mensajería?</label>
+        <locationX>926</locationX>
+        <locationY>134</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>No</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.ContactId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Destildar_Contacto_Anterior</targetReference>
+            </connector>
+            <label>No</label>
+        </rules>
+    </decisions>
+    <description>Tildar como True el campo Contacto Usuario Mensajería del contacto asociado al Usuario de Mensajería</description>
+    <interviewLabel>Usuario de Mensajería - Tildar Contacto Asociado {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Usuario de Mensajería - Tildar Contacto Asociado</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Cuando se cambia el Contacto en un Usuario de Mensajería, actualizar la Cuenta asociado al Contacto.</description>
+        <name>Agregar_Cuenta_del_Contacto_al_Usuario_de_Mensajeria</name>
+        <label>Agregar Cuenta del Contacto al Usuario de Mensajería</label>
+        <locationX>726</locationX>
+        <locationY>132</locationY>
+        <connector>
+            <targetReference>Era_null_el_Contacto_anterior_del_Usuario_de_Mensajeria</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AccountId</field>
+            <value>
+                <elementReference>$Record.Contact.AccountId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Destildar como false el campo Contacto Usuario Mensajería del contacto que previamente tenía este Usuario de Mensajería</description>
+        <name>Destildar_Contacto_Anterior</name>
+        <label>Destildar Contacto Anterior</label>
+        <locationX>933</locationX>
+        <locationY>340</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record__Prior.ContactId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Contacto_Usuario_Mensajeria__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Contact</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Tildar como True el campo Contacto Usuario Mensajería</description>
+        <name>Tildar_Contacto_Usuario_Mensajeria</name>
+        <label>Tildar Contacto Usuario Mensajería</label>
+        <locationX>581</locationX>
+        <locationY>132</locationY>
+        <connector>
+            <targetReference>Agregar_Cuenta_del_Contacto_al_Usuario_de_Mensajeria</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.ContactId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Contacto_Usuario_Mensajeria__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Contact</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Tildar_Contacto_Usuario_Mensajeria</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ContactId</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>ContactId</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>MessagingEndUser</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

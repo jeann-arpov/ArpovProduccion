@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Negativa_Auditoria_Sin_Facturar</fullName>
+    <active>true</active>
+    <description>Valida si se trata de una Auditoria negativa y la Auditoria Original no está facturada.</description>
+    <errorConditionFormula>RecordType.Name = &quot;Auditoría&quot; &amp;&amp;
+TEXT(  Subestado__c  ) = &quot;Negativa&quot; &amp;&amp;
+(TEXT(  Auditoria__r.Estado__c   ) &lt;&gt; &quot;Facturada&quot; &amp;&amp;
+TEXT(  Auditoria__r.Estado__c   ) &lt;&gt; &quot;Justificada&quot;) &amp;&amp;
+NOT( $User.Usuario_de_Integracion__c ) &amp;&amp; ISNEW ()</errorConditionFormula>
+    <errorMessage>No se puede generar una Nota de Crédito para una transacción AUD que no está facturada.</errorMessage>
+</ValidationRule>

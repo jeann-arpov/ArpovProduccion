@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_Cheque</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+ OR( Acreditado__c = TRUE,  Depositado__c = TRUE,  Rechazado__c = TRUE),
+ Forma_de_Pago_COD__c &lt;&gt; &quot;02&quot;, 
+ Forma_de_Pago_COD__c &lt;&gt; &quot;03&quot;,
+ Forma_de_Pago_COD__c &lt;&gt; &quot;13&quot;
+)</errorConditionFormula>
+    <errorMessage>Los Estados de un cheque solo pueden informarse cuando la Forma de Pago es &quot;Cheque&quot; o &quot;Cheque Diferido&quot;.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pago_Intereses_o_Diferencia_de_Cambio__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Marcar si la aplicación corresponde al pago de intereses por pago diferido o a una diferencia de cambio.</inlineHelpText>
+    <label>Pago con Intereses o Dif. de Cambio</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tiene_CAE__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Se asigna el valor verdadero desde VS cuando se obtiene el CAE de la AFIP. Dispara proceso de actualización de estados de la Opp y TRX. (Comprobante de Venta -&gt; Transaccion )</description>
+    <label>Tiene CAE</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

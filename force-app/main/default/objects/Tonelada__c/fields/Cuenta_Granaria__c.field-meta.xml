@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_Granaria__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Cuenta granaria asociada a esta tonelada. Se actualiza automáticamente por el batch ActualizarCuentaGranariaBatch.</description>
+    <inlineHelpText>Referencia a la cuenta granaria correspondiente basada en Productor + Campaña + Cultivo + Tecnología.</inlineHelpText>
+    <label>Cuenta Granaria</label>
+    <referenceTo>Cuenta_Granaria__c</referenceTo>
+    <relationshipLabel>Toneladas</relationshipLabel>
+    <relationshipName>Toneladas</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

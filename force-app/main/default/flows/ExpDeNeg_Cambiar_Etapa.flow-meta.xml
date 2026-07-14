@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Etapa</name>
+        <label>Etapa</label>
+        <locationX>182</locationX>
+        <locationY>287</locationY>
+        <defaultConnector>
+            <targetReference>Actualizar_estado_etapa</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Otra</defaultConnectorLabel>
+        <rules>
+            <name>Si_era_Facturar_RE3_y_Cerrado</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Estado_de_la_Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Finalizado</stringValue>
+                </rightValue>
+            </conditions>
+            <label>Si era Facturar RE3 y Cerrado</label>
+        </rules>
+        <rules>
+            <name>Si_era_Cerrado_y_no_Facturar_RE3_y_es_Facturar_RE3</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.Etapa__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Estado_de_la_Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Finalizado</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <label>Si era Cerrado y no Facturar RE3, y es Facturar RE3</label>
+        </rules>
+        <rules>
+            <name>Si_era_Cerrado_y_no_Facturar_RE3</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.Etapa__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Estado_de_la_Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Finalizado</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Etapa__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar</targetReference>
+            </connector>
+            <label>Si era Cerrado y no Facturar RE3</label>
+        </rules>
+        <rules>
+            <name>Si_no_era_Cerrado_y_no_Facturar_RE3_y_es_Facturar_RE3</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.Etapa__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Estado_de_la_Etapa__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Finalizado</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <label>Si no era Cerrado y no Facturar RE3 y es Facturar RE3</label>
+        </rules>
+        <rules>
+            <name>Si_es_Deriva_a_CTV_y_A_Facturar</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Deriva a CTV</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado_de_la_Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>A Facturar</stringValue>
+                </rightValue>
+            </conditions>
+            <label>Si es Deriva a CTV y A Facturar</label>
+        </rules>
+    </decisions>
+    <description>Cada vez que se cambia la etapa, se actualiza el estado de la etapa a &quot;En Progreso&quot; y se guarda la fecha de hoy en Fecha Cambio Etapa.
+Se agrega que la acción no se pueda cambiar si es Facturar Regalía E3 y Finalizado.</description>
+    <environments>Default</environments>
+    <interviewLabel>ExpDeNeg - Cambia la Etapa {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>ExpDeNeg - Cambiar Etapa</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar</name>
+        <label>Actualizar</label>
+        <locationX>50</locationX>
+        <locationY>395</locationY>
+        <inputAssignments>
+            <field>Estado_de_la_Etapa__c</field>
+            <value>
+                <stringValue>Finalizado</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ValidationBypassDateTime__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Actualizar_estado_etapa</name>
+        <label>Actualizar estado etapa</label>
+        <locationX>842</locationX>
+        <locationY>395</locationY>
+        <inputAssignments>
+            <field>Estado_de_la_Etapa__c</field>
+            <value>
+                <stringValue>En progreso</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Fecha_Cambio_Etapa__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ValidationBypassDateTime__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Etapa</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Etapa__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Expediente_de_Negativos__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

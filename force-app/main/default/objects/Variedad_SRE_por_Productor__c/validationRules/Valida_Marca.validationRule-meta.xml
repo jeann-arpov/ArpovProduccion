@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Marca</fullName>
+    <active>true</active>
+    <description>Valida que la marca seleccionada corresponda con el obtentor comercializa de la variedad SRE.</description>
+    <errorConditionFormula>Marca__r.Id &lt;&gt;  Variedad__r.Obtentor_Comercializa__r.Id</errorConditionFormula>
+    <errorMessage>La variedad SRE debe corresponder con la marca seleccionada.</errorMessage>
+</ValidationRule>

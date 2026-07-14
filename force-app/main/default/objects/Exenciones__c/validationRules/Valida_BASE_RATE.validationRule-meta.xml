@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_BASE_RATE</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(
+   BASE_RATE__c &lt; 0,
+   BASE_RATE__c &gt; 100
+)</errorConditionFormula>
+    <errorDisplayField>BASE_RATE__c</errorDisplayField>
+    <errorMessage>Debe ingresar un valor entre 0 y 100</errorMessage>
+</ValidationRule>

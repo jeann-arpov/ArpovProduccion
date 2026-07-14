@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Resultado</fullName>
+    <active>true</active>
+    <description>Fuerza la carga de un resultado para la línea</description>
+    <errorConditionFormula>ISBLANK( TEXT( Resultado__c ) )</errorConditionFormula>
+    <errorDisplayField>Resultado__c</errorDisplayField>
+    <errorMessage>Debe informar el resultado de esta línea.</errorMessage>
+</ValidationRule>

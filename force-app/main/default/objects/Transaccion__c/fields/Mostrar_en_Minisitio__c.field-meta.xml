@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mostrar_en_Minisitio__c</fullName>
+    <description>Define si la transacción debe o no mostrarse en el minisitio</description>
+    <formula>Campana__r.Mostrar_en_Minisitio__c  = true &amp;&amp; Obtentor__r.Id_Obtentor__c &lt;&gt; &quot;99&quot;</formula>
+    <label>Mostrar en Minisitio</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

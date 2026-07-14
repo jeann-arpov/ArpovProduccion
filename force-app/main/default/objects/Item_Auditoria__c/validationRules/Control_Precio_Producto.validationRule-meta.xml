@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Precio_Producto</fullName>
+    <active>false</active>
+    <description>Si el resultado es Irregular el producto debe tener precio.</description>
+    <errorConditionFormula>AND(
+ ISPICKVAL( Resultado__c, &quot;Irregular&quot; ) ,
+ ISBLANK(  Producto__r.Precio__c  )
+)</errorConditionFormula>
+    <errorDisplayField>Producto__c</errorDisplayField>
+    <errorMessage>Si el resultado es Irregular el producto debe tener precio. Verifique el producto seleccionado.</errorMessage>
+</ValidationRule>

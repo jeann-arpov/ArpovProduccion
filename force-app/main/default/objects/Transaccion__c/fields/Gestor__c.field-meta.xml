@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gestor__c</fullName>
+    <description>Indica la fuente por la cual se obtuvo la respuesta o la acción</description>
+    <inlineHelpText>Indique la fuente de la información o de la acción.</inlineHelpText>
+    <label>Gestor</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Andres Perez</fullName>
+                <default>false</default>
+                <label>Andres Perez</label>
+            </value>
+            <value>
+                <fullName>Ariel Mangoni</fullName>
+                <default>false</default>
+                <label>Ariel Mangoni</label>
+            </value>
+            <value>
+                <fullName>Auditor</fullName>
+                <default>false</default>
+                <label>Auditor</label>
+            </value>
+            <value>
+                <fullName>Centro de Gestión</fullName>
+                <default>false</default>
+                <label>Centro de Gestión</label>
+            </value>
+            <value>
+                <fullName>Dario Colombara</fullName>
+                <default>false</default>
+                <label>Dario Colombara</label>
+            </value>
+            <value>
+                <fullName>Darío Colombara</fullName>
+                <default>false</default>
+                <label>Darío Colombara</label>
+            </value>
+            <value>
+                <fullName>Distribuidor</fullName>
+                <default>false</default>
+                <label>Distribuidor</label>
+            </value>
+            <value>
+                <fullName>Iván Kostanich</fullName>
+                <default>false</default>
+                <label>Iván Kostanich</label>
+            </value>
+            <value>
+                <fullName>José Alberto Martinez</fullName>
+                <default>false</default>
+                <label>José Alberto Martinez</label>
+            </value>
+            <value>
+                <fullName>Julio Navarro</fullName>
+                <default>false</default>
+                <label>Julio Navarro</label>
+            </value>
+            <value>
+                <fullName>Lisandro Bussetti</fullName>
+                <default>false</default>
+                <label>Lisandro Bussetti</label>
+            </value>
+            <value>
+                <fullName>Luis Recalde</fullName>
+                <default>false</default>
+                <label>Luis Recalde</label>
+            </value>
+            <value>
+                <fullName>Mariano Dominguez</fullName>
+                <default>false</default>
+                <label>Mariano Dominguez</label>
+            </value>
+            <value>
+                <fullName>Obtentor</fullName>
+                <default>false</default>
+                <label>Obtentor</label>
+            </value>
+            <value>
+                <fullName>William Ratcliffe</fullName>
+                <default>false</default>
+                <label>William Ratcliffe</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

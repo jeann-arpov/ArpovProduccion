@@ -1,0 +1,172 @@
+<template>
+    <div class="ventas-root">
+        <div class="ventas-container">
+        <!-- TOP BAR con título + filtros y botón -->
+       <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">VENDER HT / LISTADO DE VENTAS</div>
+                <div class="title">Todas las ventas</div>
+            </div>
+
+            <div class="acciones-derecha">
+                <div class="filtros-container">
+                    <!-- <select onchange={handleFilterChange} data-filter="productor">
+                        <option value="">Productor</option>
+                        <template for:each={productores} for:item="prod">
+                            <option key={prod} value={prod}>{prod}</option>
+                        </template>
+                    </select> -->
+                    <select onchange={handleFilterChange} data-filter="cultivo">
+                        <option value="">Cultivo</option>
+                        <template for:each={cultivos} for:item="c">
+                            <option key={c} value={c}>{c}</option>
+                        </template>
+                    </select>
+                    <select data-id="estadoSelect" onchange={handleFilterChange} data-filter="estado">
+                        <option value="">Estado</option>
+                        <template for:each={estados} for:item="e">
+                            <option key={e} value={e}>{e}</option>
+                        </template>
+                    </select>
+                </div>
+                <button class="btn-vender2" onclick={handleVenderHT}>
+                    <img src={iconVenderHTUrl} alt="Licencias" class="icon-svg" />
+                    <span class="icon">
+                        
+                    </span> Vender HT
+                </button>
+            </div>
+        </div>
+
+        <!-- Info + buscador -->
+        <div class="info-busqueda">
+            <div class="ventas-info">
+                {totalElementos} elementos (máximo 200 elementos) • Ordenado por Fecha de creación •<br />
+                Filtrado por Todas las ventas ht - Estado • Se actualizó hace una hora
+            </div>
+
+            <div class="ventas-search">
+                <input type="text" placeholder="Buscar..." oninput={handleSearch} />
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <table>
+            <thead>
+                <tr>
+                    <th>FECHA</th>
+                    <th>VENTA HT</th>
+                    <th>PRODUCTOR</th>
+                    <th>TOTAL HT</th>
+                    <th>CULTIVO</th>
+                    <th>VARIEDADES</th>
+                    <th>ESTADO</th>
+                    <template if:true={mostrarAccionesColumna}>
+                        <th>ACCIONES</th>
+                    </template>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={ventas} for:item="venta">
+                    <tr key={venta.id}>
+                        <td>{venta.fecha}</td>
+                        <td>
+                            <a href="javascript:void(0);" class="venta-link" onclick={navigateToVenta} data-id={venta.id} data-name={venta.ventaHtme}>
+                                {venta.ventaHt}
+                            </a>
+                        </td>
+                        <td>{venta.productor}</td>
+                        <td>{venta.totalHt}</td>
+                        <td>{venta.cultivo}</td>
+                        <td>{venta.variedades}</td>
+                        <td>{venta.estado}</td>
+                        <template if:true={mostrarAccionesColumna}>
+                            <td>
+                                <template if:true={venta.mostrarBoton}>
+                                    <div class="acciones-botones">
+                                        <button class="btn-descargar" 
+                                                onclick={handleDescargarPF} 
+                                                data-id={venta.id}>
+                                            <span>Descargar PF</span>
+                                        </button>
+                                        
+                                        <template if:true={venta.tieneAdjunto}>
+                                            <button class="btn-vender" 
+                                                    onclick={handleVerFactura} 
+                                                    data-id={venta.id}>
+                                                <span>Ver Factura</span>
+                                            </button>
+                                        </template>
+                                        <template if:false={venta.tieneAdjunto}>
+                                            <button class="btn-vender"
+                                                    onclick={navigateToVenta}
+                                                    data-id={venta.id}
+                                                    data-name={venta.ventaHtme}>
+                                                <span>Gestionar</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </template>
+                            </td>
+                        </template>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <!-- Navegación -->
+        <div class="paginacion">
+            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+            <span>Página {currentPage}</span>
+            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+        </div>
+    </div>
+    <!-- Modal para subir archivo PDF -->
+     <template if:true={showFileUploadModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon class="slds-modal__close" title="Cerrar" icon-name="utility:close" icon-class="slds-button_icon-inverse" onclick={closeFileUpload}></lightning-button-icon>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Subir Facturaaa</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input
+                        type="date"
+                        label="Fecha de emisión del comprobante"
+                        value={formattedDate}
+                        onchange={handleDateChange}>
+                    </lightning-input>
+                     <lightning-input
+                        type="text"
+                        label="N° de Comprobante"
+                        value={customCode}
+                        onchange={handleCodeChange}
+                        pattern="^[ABC]-\d{4,5}-\d{8}$"
+                        message-when-pattern-mismatch="Formato inválido. Usa A/B/C-0000/00000-00000000.">
+                    </lightning-input>
+                    <lightning-file-upload
+                        label="Seleccionar archivo"
+                        name="fileUploader"
+                        accept={acceptedFormats}
+                        record-id={selectedRowId}
+                        disabled={uploadFactura}
+                        onuploadfinished={handleUploadFinished}>
+                    </lightning-file-upload><br>
+                     <center><lightning-button 
+                        label="Guardar"
+                        title="Guardar"
+                        onclick={handleSave}
+                        variant="brand"
+                        disabled={isloading}
+                        class="slds-m-top_medium">
+                    </lightning-button></center>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+        </div>
+    </div>
+</template>

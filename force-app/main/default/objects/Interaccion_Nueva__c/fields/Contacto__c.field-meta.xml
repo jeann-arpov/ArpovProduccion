@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contacto__c</fullName>
+    <description>Identifica el contacto obtenido al tratar de realizar la Gestion</description>
+    <label>Resultado</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Modo_de_Contacto__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Hable con responsable</fullName>
+                <default>false</default>
+                <label>Hable con responsable</label>
+            </value>
+            <value>
+                <fullName>Dejé mensaje a una persona/contestador</fullName>
+                <default>false</default>
+                <label>Dejé mensaje a una persona/contestador</label>
+            </value>
+            <value>
+                <fullName>No responde /equivocado</fullName>
+                <default>false</default>
+                <label>No responde /equivocado</label>
+            </value>
+            <value>
+                <fullName>Contacto encontrado</fullName>
+                <default>false</default>
+                <label>Contacto encontrado</label>
+            </value>
+            <value>
+                <fullName>Ninguno</fullName>
+                <default>false</default>
+                <label>Ninguno</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Llamada</controllingFieldValue>
+            <controllingFieldValue>Visita</controllingFieldValue>
+            <controllingFieldValue>Chat</controllingFieldValue>
+            <controllingFieldValue>Whatsapp</controllingFieldValue>
+            <valueName>Hable con responsable</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Llamada</controllingFieldValue>
+            <controllingFieldValue>Visita</controllingFieldValue>
+            <controllingFieldValue>Chat</controllingFieldValue>
+            <controllingFieldValue>Whatsapp</controllingFieldValue>
+            <valueName>Dejé mensaje a una persona/contestador</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Llamada</controllingFieldValue>
+            <controllingFieldValue>Visita</controllingFieldValue>
+            <controllingFieldValue>Chat</controllingFieldValue>
+            <controllingFieldValue>Whatsapp</controllingFieldValue>
+            <controllingFieldValue>Búsqueda de Contacto</controllingFieldValue>
+            <valueName>No responde /equivocado</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Llamada</controllingFieldValue>
+            <controllingFieldValue>Email Entrante</controllingFieldValue>
+            <controllingFieldValue>Email Saliente</controllingFieldValue>
+            <controllingFieldValue>Visita</controllingFieldValue>
+            <controllingFieldValue>Chat</controllingFieldValue>
+            <controllingFieldValue>Whatsapp</controllingFieldValue>
+            <controllingFieldValue>Búsqueda de Contacto</controllingFieldValue>
+            <valueName>Ninguno</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Búsqueda de Contacto</controllingFieldValue>
+            <valueName>Contacto encontrado</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

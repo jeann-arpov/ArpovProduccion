@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Fecha_Recepcion_del_pago</fullName>
+    <active>true</active>
+    <description>Controla que la fecha de recepción no sea posterior a la fecha del día.</description>
+    <errorConditionFormula>Fecha_de_Recepcion_de_Pago__c &gt;  TODAY()</errorConditionFormula>
+    <errorDisplayField>Fecha_de_Recepcion_de_Pago__c</errorDisplayField>
+    <errorMessage>La fecha de recepción del pago no puede ser posterior a la fecha del día.</errorMessage>
+</ValidationRule>

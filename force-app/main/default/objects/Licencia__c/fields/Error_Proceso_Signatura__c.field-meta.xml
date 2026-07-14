@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Error_Proceso_Signatura__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Se marca la licencia cuando falla el proceso de Signatura por algún motivo, para que se vuelva a procesar.</description>
+    <label>Error Proceso Firma</label>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

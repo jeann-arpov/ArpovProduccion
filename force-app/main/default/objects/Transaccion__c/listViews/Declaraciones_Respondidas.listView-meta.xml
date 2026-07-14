@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Declaraciones_Respondidas</fullName>
+    <columns>NAME</columns>
+    <columns>Estado__c</columns>
+    <columns>Campana__c</columns>
+    <columns>Obtentor__c</columns>
+    <columns>Variedades__c</columns>
+    <columns>Cantidad_Bolsas_RE__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Transaccion__c.DUP</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Respondida,Pedido de Facturacion,Facturada,Cobrada</value>
+    </filters>
+    <filters>
+        <field>Obtentor_Id__c</field>
+        <operation>notEqual</operation>
+        <value>99</value>
+    </filters>
+    <label>Declaraciones Respondidas</label>
+</ListView>

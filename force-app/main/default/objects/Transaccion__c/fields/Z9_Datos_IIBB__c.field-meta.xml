@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Datos_IIBB__c</fullName>
+    <formula>AND( ISBLANK( Nombre_de_la_cuenta__r.Nro_de_IIBB__c ), NOT( Nombre_de_la_cuenta__r.Tipo_de_Inscripcion_IIBB__c  = &quot;NI&quot;  ) ,  Kilos_Totales_RE__c &lt;&gt; 0 )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Faltan datos de IIBB de la cuenta asociada</inlineHelpText>
+    <label>Faltan Datos de IIBB</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

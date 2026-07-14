@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_y_Orden__c</fullName>
+    <description>Indica si el obtentor destinatario del pago opera en modalidad Cuenta y Orden</description>
+    <formula>Obtentor_Destinatario__r.Factura_por_Cuenta_y_Orden__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Cuenta y Orden</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

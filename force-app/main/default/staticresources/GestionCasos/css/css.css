@@ -1,0 +1,241 @@
+.node-list, .node-comentario, .node-descripcion,.node-fecha{
+	border-top: 2px solid #c0be72;
+	padding-right: 70px;
+	padding-left: 20px;
+}
+
+.node-list > table, .node-comentario > table, .node-descripcion > table, .node-fecha > table{
+	border-collapse: collapse; 
+	table-layout:fixed; 
+}
+.node-list > table tr td, .node-comentario > table tr td, .node-descripcion > table tr td, .node-fecha > table tr td{
+	border-bottom:1px solid #ececec !important;
+	padding:0 !important;
+	word-wrap:break-word;
+}
+
+
+.node-list > table tr td.header, .node-comentario > table tr td.header, .node-descripcion > table tr td.header,.node-fecha > table tr td.header{
+	font-weight:bold;
+	margin-right:2px;
+	color: #4a4a56;
+	padding-left: 2px;
+	font-size: 91%;
+	font-weight: bold;
+	text-align:right;
+	width:120px;
+}
+
+
+
+.node-list > table tr td, .node-comentario > table tr td, .node-descripcion > table tr td, .node-fecha > table tr td{
+	text-align: center;
+}
+
+.node-list > table tr td.data, .node-comentario > table tr td.data, .node-descripcion > table tr td.data, .node-fecha > table tr td.data{
+	font-size: 91%;
+	text-align:left;
+	padding-left: 10px !important;
+	width: 160px;
+}
+
+.node-comentario table tr td.data, .node-descripcion table tr td.data, .node-fecha > table tr td.data{
+	width: 460px;
+}
+.success{
+	background-color: #dff0d8;
+	border-color: #d6e9c6;
+	color: #3c763d;
+}
+
+.warning{
+	background-color: #fcf8e3;
+	border-color: #faebcc;
+	color: #8a6d3b;
+}
+
+.message{
+	display:none;
+}
+
+.data-grid{
+	width:1000px;
+}
+
+.data-grid table{
+	border:none;
+	border-collapse:collapse;
+	border-spacing:0;
+	background-image:none;
+	border:1px solid #ececec;
+	background-color: #fff;
+}
+
+.data-grid table thead tr th, .data-grid table tbody tr td{
+	width:1000px;
+	border-bottom: 1px solid #ececec !important;
+	padding:4px 2px 4px 5px;
+}
+
+.data-grid table thead tr th{
+	background: #f2f3f3;
+	border-width: 0 0 1px 1px;
+	border-color: #e0e3e5;
+	color: #000;
+	font-size: .9em;
+	font-weight: bold;
+	padding: 5px 2px 4px 5px;
+}
+
+.loading{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	padding: 25% 0;
+	font-size: 30px;
+	background-color: rgba(0,0,0,0.5);
+	color: #fff;
+	display:none;
+}
+
+a[data_type="node-link"] > i.jstree-file{
+	display:none;
+}
+
+#fieldChooser{
+	overflow: hidden;
+	width: auto;
+}
+
+.fc-field-list{
+	border: 1px solid #aaa;
+	float: left;
+	width: auto;
+	height: 200px;
+	margin-right: 2%;
+	overflow-y: scroll;
+	min-width: 260px;
+	overflow-x: scroll;
+}    
+.fc-field{
+	padding: 1%;
+	background: #fff;
+	border: 1px solid #ccc;
+}
+
+.fc-selected{
+	background-color:#4285f4;
+	color:#fff;
+	width: auto;
+}
+
+.ui-sortable-helper{
+	width:auto !important;
+}
+
+.label{
+	font-weight: bold;
+	color:#5f5f5f;
+	margin: 15px 0 !important;
+}
+
+.hide-check-box i.jstree-checkbox{
+	display:none;
+}
+
+.comentario{
+	height:200px;
+	width:400px;
+}
+
+.jstree-node {
+	white-space: normal !important;
+	overflow:hidden;
+	display:block;
+}
+
+.popUp{
+	position: absolute;
+	z-index: 1000;
+	border-radius: 5px;
+	overflow: hidden;
+	background-color:#fff;
+	border: 1px solid #b6b6b6;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-moz-box-shadow: 0 2px 5px #a0acab;
+	box-shadow: 0 2px 5px #a0acab;
+	width: 350px;
+}  
+            
+.jstree-node{
+              width: 1200px;
+          }
+          
+  .node-list{
+      margin-left: 0;
+      width: 550px;
+      display: inline-block;
+      padding: 0 10px;
+  }
+  
+  .container-respuestas{
+      width: 45%;	
+      float:right;
+  }
+  
+  .popUp{
+      display:none;
+  }
+  
+  .popUp .image-spinner{
+      width: 10%;
+  }
+
+  #spinner{
+  	display: none;
+  }
+
+  #spinner{
+  	text-align: center;
+  }
+  
+  .popUp p{
+      text-align:center;
+      margin-top: 15%;
+  }
+  
+  #dialog{
+      display:none;
+  }
+  
+  #dialog .requerido{
+      display:none;
+  }
+  
+  .error input{
+      border:1px solid #c00;
+  }
+  
+  .error .requerido{
+      display: block !important;
+      color: #c00;
+      font-size: 11px;
+      margin: 0;
+      padding-left: 5px;
+      border-left: 3px solid #c00;
+      margin-left: 5px;
+  }
+  
+  .noTitleStuff .ui-dialog-titlebar {display:none}
+  
+  .fc-field{
+      cursor:all-scroll;
+  }
+.node-ventas{
+	margin-left: 5%;
+	margin-top: 2%;
+}

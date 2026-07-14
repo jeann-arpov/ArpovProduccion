@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Forzar_PF__c</fullName>
+    <description>Marca el indicador de forzar el PF si la TRX está en estado Pendiente por IIBB por más de 30 días.</description>
+    <formula>AND(
+ IF( Obtentor__r.Ventana_de_Desbloqueo__c = 0, false, ( ( TODAY() -  Fecha_de_Respuesta__c ) &gt;  Obtentor__r.Ventana_de_Desbloqueo__c )
+ ),
+  ISPICKVAL(Estado__c, &quot;Pendiente por IIBB&quot;),
+ OR( Obtentor__r.Id_Obtentor__c = &quot;04&quot;, Obtentor__r.Id_Obtentor__c = &quot;30&quot;, Obtentor__r.Id_Obtentor__c = &quot;66&quot; )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Si está marcado se debe forzar el PF indicando que la cuenta es del tipo NI ante los IIBB.</inlineHelpText>
+    <label>Forzar PF</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

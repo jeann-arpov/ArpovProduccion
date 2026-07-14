@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Chequeo_HTs</fullName>
+    <columns>NAME</columns>
+    <columns>Cultivo__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Fecha_de_la_Transaccion__c</columns>
+    <columns>Campania__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Origen__c</columns>
+    <columns>Venta__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Plan_de_Siembra__c</columns>
+    <columns>TN_Id__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Campania__c</field>
+        <operation>equals</operation>
+        <value>2025 - SOJA</value>
+    </filters>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Compra SF</value>
+    </filters>
+    <filters>
+        <field>N_CUIT__c</field>
+        <operation>equals</operation>
+        <value>20049708956</value>
+    </filters>
+    <label>Chequeo HTs</label>
+</ListView>

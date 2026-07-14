@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_de_Aprobacion__c</fullName>
+    <description>Muestra el los diferentes estados de aprobación del registro</description>
+    <label>Estado de Aprobación</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Pendiente Aprobación Descuento</fullName>
+                <color>#FFCC66</color>
+                <default>false</default>
+                <label>Pendiente Aprobación Descuento</label>
+            </value>
+            <value>
+                <fullName>Descuento Aprobado</fullName>
+                <color>#006600</color>
+                <default>false</default>
+                <label>Descuento Aprobado</label>
+            </value>
+            <value>
+                <fullName>Descuento Rechazado</fullName>
+                <color>#FF0000</color>
+                <default>false</default>
+                <label>Descuento Rechazado</label>
+            </value>
+            <value>
+                <fullName>El Descuento no Requiere Aprobación</fullName>
+                <color>#006600</color>
+                <default>false</default>
+                <label>El Descuento no Requiere Aprobación</label>
+            </value>
+            <value>
+                <fullName>El Descuento Requiere Aprobación</fullName>
+                <color>#FFCC66</color>
+                <default>false</default>
+                <label>El Descuento Requiere Aprobación</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

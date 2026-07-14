@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Activa_Flow_Trigger</fullName>
+        <description>Activa el campo Flow Trigger para disparar el Flow &quot;Creación de Aplicaciones por Item&quot;</description>
+        <field>Flow_Trigger__c</field>
+        <literalValue>1</literalValue>
+        <name>Activa Flow Trigger</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Fecha_Contable</fullName>
+        <description>Actualiza la Fecha Contable de la oportunidad (fecha del sistema de la carga del comprobante) cuando se carga una aplicación.</description>
+        <field>Fecha_Contable__c</field>
+        <formula>Comprobante_de_Pago__r.Fecha_de_Recepcion_de_Pago__c</formula>
+        <name>Actualiza Fecha Contable</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Factura__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Fecha_de_Cobro</fullName>
+        <description>Actualiza la fecha de cobro de la oportunidad cuando se carga una aplicación.</description>
+        <field>Fecha_de_Cobro__c</field>
+        <formula>Comprobante_de_Pago__r.Fecha_de_Recepcion_de_Pago__c</formula>
+        <name>Actualiza Fecha de Cobro</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Factura__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Fecha_de_Pago</fullName>
+        <description>Actualiza la Fecha de Pago de la oportunidad cuando se carga una aplicación.</description>
+        <field>Fecha_de_Pago__c</field>
+        <formula>Valor_Aplicado__r.Fecha_de_Pago__c</formula>
+        <name>Actualiza Fecha de Pago</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Factura__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Importe_Aplicar_Flow</fullName>
+        <field>Importe_Aplicar_Flow_c__c</field>
+        <formula>IF( TEXT(Factura__r.Divisa_Comprobante__c) &lt;&gt; &quot;ARS&quot;, 
+IF( Tipo_de_Cambio__c &gt; 0, ROUND( Importe__c / Tipo_de_Cambio__c, 2 ),
+ROUND( Importe__c / Factura__r.Tipo_de_Cambio_del_Comprobante__c, 2 )
+),
+Importe__c
+)</formula>
+        <name>Actualiza Importe Aplicar Flow</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Nro_Recibo</fullName>
+        <description>Actualiza el Nro. de Recibo en la Factura cuando se carga una aplicación</description>
+        <field>Nro_de_Recibo__c</field>
+        <formula>Valor_Aplicado__r.Name</formula>
+        <name>Actualiza. Nro. Recibo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Factura__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Saldo_Comprobante_Factura</fullName>
+        <field>Saldo_a_Cobrar_Comprobante__c</field>
+        <formula>IF( Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c &gt;= 0, 
+Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c, 
+0)</formula>
+        <name>Actualiza Saldo Comprobante Factura</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Factura__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Actualiza_Saldo_a_Gestionar</fullName>
+        <description>Cuando se aplica un recibo / valor a la factura se analiza el saldo final aplicando la logica de umbral.</description>
+        <field>Saldo_a_Gestionar__c</field>
+        <formula>IF( OR( ISPICKVAL( Factura__r.Divisa_Comprobante__c, &quot;USD&quot; ), ISPICKVAL( Factura__r.Divisa_Comprobante__c, &quot;EUR&quot; ) ), 
+IF(Factura__r.Total_Comprobante__c &lt;= Factura__r.Obtentor__r.Umbral_Importe__c, 
+IF(Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c &lt;= Factura__r.Total_Comprobante__c * Factura__r.Obtentor__r.Umbral_Porcentaje__c, 
+0, 
+Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ), 
+IF(Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c &lt;= Factura__r.Obtentor__r.Umbral_Base__c, 
+0, 
+Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ) 
+), 
+IF( ( Factura__r.Total_Comprobante__c / Factura__r.Tipo_de_Cambio_Actualizado__c ) &lt;= Factura__r.Obtentor__r.Umbral_Importe__c, 
+IF( ( Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ) / Factura__r.Tipo_de_Cambio_Actualizado__c &lt;= ( Factura__r.Total_Comprobante__c / Factura__r.Tipo_de_Cambio_Actualizado__c ) * Factura__r.Obtentor__r.Umbral_Porcentaje__c, 
+0, 
+Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ), 
+IF( ( Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ) / Factura__r.Tipo_de_Cambio_Actualizado__c &lt;= Factura__r.Obtentor__r.Umbral_Base__c, 
+0, 
+Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ) 
+) 
+)</formula>
+        <name>Actualiza Saldo a Gestionar</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Factura__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Aplicacion_Importe_Aplicado_USD</fullName>
+        <description>Calcula el importe aplicado en USD</description>
+        <field>Importe_Aplicar_Flow_c__c</field>
+        <formula>IF( TEXT(Factura__r.Divisa_Comprobante__c) &lt;&gt; &quot;ARS&quot;,IF( Tipo_de_Cambio__c &gt; 0, ROUND( Importe__c / Tipo_de_Cambio__c, 2 ), 
+ROUND( Importe__c / Factura__r.Tipo_de_Cambio_del_Comprobante__c, 2 ) 
+), 
+Importe__c 
+)</formula>
+        <name>Aplicacion. Importe Aplicado USD</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Crea_Id_Externo</fullName>
+        <description>Asigna el valor del Id Externo</description>
+        <field>Id_Externo__c</field>
+        <formula>Name &amp; 
+&quot;-&quot;  &amp;
+Factura__r.Account.Clave_Unica__c</formula>
+        <name>Crea Id Externo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Desactiva_Flow_Trigger</fullName>
+        <field>Flow_Trigger__c</field>
+        <literalValue>0</literalValue>
+        <name>Desactiva Flow Trigger</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Factura_Saldo_No_Percibido_Umbral</fullName>
+        <description>Actualiza el Saldo no Percibido por encontrarse por debajo del Umbral definido por el Obtentor.</description>
+        <field>Saldo_No_Percibido_Umbral__c</field>
+        <formula>IF( OR( ISPICKVAL( Factura__r.Divisa_Comprobante__c, &quot;USD&quot; ), ISPICKVAL( Factura__r.Divisa_Comprobante__c, &quot;EUR&quot; ) ), 
+	IF(Factura__r.Total_Comprobante__c &lt;= Factura__r.Obtentor__r.Umbral_Importe__c, 
+		IF(Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c &lt;= Factura__r.Total_Comprobante__c * Factura__r.Obtentor__r.Umbral_Porcentaje__c, 
+			Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c, 
+			0
+		), 
+		IF(Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c &lt;= Factura__r.Obtentor__r.Umbral_Base__c, 
+			Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c, 
+			0
+		) 
+	), 
+	IF( ( Factura__r.Total_Comprobante__c / Factura__r.Tipo_de_Cambio_Actualizado__c ) &lt;= Factura__r.Obtentor__r.Umbral_Importe__c, 
+		IF( ( Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ) / Factura__r.Tipo_de_Cambio_Actualizado__c &lt;= ( Factura__r.Total_Comprobante__c / Factura__r.Tipo_de_Cambio_Actualizado__c ) * Factura__r.Obtentor__r.Umbral_Porcentaje__c, 
+			Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c, 
+			0
+		), 
+		IF( ( Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c ) / Factura__r.Tipo_de_Cambio_Actualizado__c &lt;= Factura__r.Obtentor__r.Umbral_Base__c, 
+			Factura__r.Saldo_a_Cobrar_Comprobante__c - Importe_Aplicar__c, 
+			0
+		) 
+	) 
+)</formula>
+        <name>Factura. Saldo No Percibido Umbral</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Factura__c</targetObject>
+    </fieldUpdates>
+    <flowActions>
+        <fullName>Distribucion_en_Items</fullName>
+        <description>Distribuye el importe del valor correspondiente a la aplicación entre todas las lineas del producto de la transaccion.</description>
+        <flow>Creacion_Aplicaciones_por_Item</flow>
+        <flowInputs>
+            <name>Aplicacion</name>
+            <value>{!this}</value>
+        </flowInputs>
+        <flowInputs>
+            <name>Comprobante_de_Pago</name>
+            <value>{!Comprobante_de_Pago__r}</value>
+        </flowInputs>
+        <flowInputs>
+            <name>Factura</name>
+            <value>{!Factura__r}</value>
+        </flowInputs>
+        <flowInputs>
+            <name>Transaccion</name>
+            <value>{!Factura__r.Transaccion__r}</value>
+        </flowInputs>
+        <label>Distribucion en Items</label>
+        <language>es</language>
+        <protected>false</protected>
+    </flowActions>
+    <rules>
+        <fullName>Actualiza Importe Aplicar Flow</fullName>
+        <actions>
+            <name>Actualiza_Importe_Aplicar_Flow</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Desactiva_Flow_Trigger</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <criteriaItems>
+            <field>Aplicacion__c.Flow_Trigger__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Aplicación%2E Actualiza Saldo Factura y TC</fullName>
+        <actions>
+            <name>Activa_Flow_Trigger</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Fecha_Contable</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Fecha_de_Cobro</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Fecha_de_Pago</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Importe_Aplicar_Flow</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Nro_Recibo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Saldo_Comprobante_Factura</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Actualiza_Saldo_a_Gestionar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Crea_Id_Externo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Aplicacion__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Actualiza campos de Oportunidad al ingreso de una aplicación, genera registros de comisiones y actualiza el TC según la fecha de pago</description>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+</Workflow>

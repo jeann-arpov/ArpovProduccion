@@ -1,0 +1,100 @@
+<template>
+    <section if:true={showModal} style="margin:auto" role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-text-align_center">
+        <div if:true={loading} class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+        <div class={cls}>
+            <div class="slds-modal__content" id="modal-content-id-1">
+                <lightning-layout if:true={canClose} horizontal-align="end">
+                    <button class="slds-button slds-button_icon slds-button_icon-inverse">
+                        <lightning-icon style="--slds-c-icon-color-foreground-default: black" size="small" icon-name="utility:close" onclick={closeModal}></lightning-icon>
+                    </button>
+                </lightning-layout>
+
+                <div class="slds-p-around_xx-large">
+                    <div if:true={isDeleteConfirm}>
+                        <h1 class="slds-m-bottom_medium" style="font-size: 1rem;">¿Está seguro que desea eliminar este establecimiento?</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="NO" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="SI" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isDeleteDestinatarioConfirm}>
+                        <h1 class="slds-m-bottom_medium" style="font-size: 1rem;">¿Está seguro que desea eliminar este destinatario?</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="NO" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="SI" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isAddDestinatarioConfirm}>
+                        <h1 class="slds-m-bottom_medium" style="font-size: 1rem;">Recordá que el destinatario tiene que pertenecer al contrato de convenio cargado. Si no pertenece, iniciá una nueva cesión</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="Cancelar" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Confirmar" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isAdherido}>
+                        <lightning-icon class="success" icon-name="action:approval" alternative-text="Aprobada" title="Aprobada"></lightning-icon>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">FELICITACIONES! ESTÁS ADHERIDO AL PROGRAMA DE PRECERTIFICACIÓN DE HECTÁREAS</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Volver al Inicio" onclick={redirectInicio}></lightning-button>
+                    </div>
+
+                    <div if:true={isAdheridoCesion}>
+                        <lightning-icon class="success" icon-name="action:approval" alternative-text="Aprobada" title="Aprobada"></lightning-icon>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">FELICITACIONES! Has enviado tu solicitud de cesión</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Volver al Inicio" onclick={redirectInicio}></lightning-button>
+                    </div>
+
+                    <div if:true={isContinueConfirm}>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">Recordá que tenes que declarar también las hectáreas que no están por SE</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="Volver" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Aceptar y continuar" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isContinueConfirmResumen}>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">Recordá que tenes que declarar también las hectáreas que no estan por SE y tené en cuenta que una vez enviado el formulario, no lo podes modificar</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="Guardar y continuar más tarde" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Aceptar y enviar" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isConfirmEnviarSesion}>
+                        <h1 if:true={isConfirmEnviarSesionWithoutLicenses} class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">Atención: Uno de los destinatarios no tiene licencia. Para poder completar la cesión el destinatario deberá adquirir las licencias correspondientes</h1>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">¿Está seguro que desea enviar el formulario?</h1>
+
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="NO" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="SI" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isContinueConfirmRectificar}>
+                        <h1 class="slds-m-bottom_medium" style="font-size: 1rem;">¿Está seguro que desea realizar la rectificación?</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="NO" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="SI" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isConfirmEditCesion}>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">Recordá que al editar deberás enviar el formulario nuevamente</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="Cancelar" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Aceptar y editar" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isConfirmAnularCesion}>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">¿Está seguro que desea anular la cesión?</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="NO" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="SI" onclick={executeCallback}></lightning-button>
+                    </div>
+
+                    <div if:true={isRegisterCuit}>
+                        <h1><bold>Cuit {cuit}</bold></h1>
+                        <lightning-input label="Email del destinatario" class="email slds-m-bottom_medium"></lightning-input>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="Cancelar" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Registrar Cuit" onclick={registerCuit}></lightning-button>
+                    </div>
+
+                    <div if:true={isRecordatorioFirmante}>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">Recuerde que el firmante debe ser apoderado de la cuenta</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium circle black-border" type="submit" label="Cerrar" onclick={closeModal}></lightning-button>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Continuar" onclick={executeCallback}></lightning-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div if:true={showModal} class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</template>

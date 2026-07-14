@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Todas_las_Cuentas</fullName>
+    <columns>NAME</columns>
+    <columns>Obtentor__c</columns>
+    <columns>Entidad_Bancaria__c</columns>
+    <columns>Comentarios__c</columns>
+    <columns>Id_Obtentor__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Todas las Cuentas</label>
+</ListView>

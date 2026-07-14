@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plan_de_Siembra__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Cuando se crea la HT negativa que anula todas las HTs usadas o no en PPH, se guarda el Plan de Siembra.</description>
+    <label>Plan de Siembra</label>
+    <referenceTo>Plan_de_Siembra__c</referenceTo>
+    <relationshipLabel>Hectáreas Tecnológicas</relationshipLabel>
+    <relationshipName>Hectareas_Tecnologicas</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

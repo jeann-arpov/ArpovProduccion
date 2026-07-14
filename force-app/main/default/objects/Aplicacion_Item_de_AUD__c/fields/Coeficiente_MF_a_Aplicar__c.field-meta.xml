@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Coeficiente_MF_a_Aplicar__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF (NULLVALUE(Comision_por_Monto_Fijo__c, 0) = 0, 0, 
+    IF(YEAR(Fecha_de_Creacion__c) &gt;= 2024, 0.15, 0.95))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Coeficiente MF a Aplicar</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

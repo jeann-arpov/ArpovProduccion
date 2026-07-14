@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HT_a_Borrar__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Se marcan las HTs que se crearon asociadas a Ventas CRM antes de validar la licencia. Será true cuando existe la licencia con estado &lt;&gt; Aprobada o no existe la licencia.</description>
+    <label>HT a Borrar</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

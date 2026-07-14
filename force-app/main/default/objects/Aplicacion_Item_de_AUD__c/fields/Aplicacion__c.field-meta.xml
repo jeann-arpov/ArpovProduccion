@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Aplicacion__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Aplicación</label>
+    <referenceTo>Aplicacion__c</referenceTo>
+    <relationshipLabel>Apliciones Item de AUD</relationshipLabel>
+    <relationshipName>Apliciones_Item_de_AUD</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Enviar_Letterhead_Siempre__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica si el logo de Arpov va siempre en la carta o se envia solamente si el modo de envio es correo electronico.</description>
+    <label>Enviar Letterhead Siempre</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

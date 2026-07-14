@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_para_Integracion</fullName>
+    <columns>NAME</columns>
+    <columns>Originante__c</columns>
+    <columns>Fecha__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Producto__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Z9_Integracion__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Z9_Integracion__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <label>Ventas para Integración</label>
+</ListView>

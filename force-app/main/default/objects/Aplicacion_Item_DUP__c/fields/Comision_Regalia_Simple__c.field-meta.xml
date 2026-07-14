@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comision_Regalia_Simple__c</fullName>
+    <formula>Pagos_Recibidos__c * Coeficiente_RS_a_Aplicar__c</formula>
+    <label>Comision Regalia Simple</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

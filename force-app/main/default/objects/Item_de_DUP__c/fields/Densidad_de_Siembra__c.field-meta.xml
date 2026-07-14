@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Densidad_de_Siembra__c</fullName>
+    <description>Cantidad de Kilos por Hectárea.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Si la Unidad de Medida declarada y de Facturación requiere conversión de hectáreas a kilos o de kilos a hectáreas, debe solicitar esta información al Productor.</inlineHelpText>
+    <label>Densidad de Siembra</label>
+    <precision>17</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

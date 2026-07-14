@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_A_Gestionar</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>Estado_Obtentor__c</columns>
+    <columns>Codigo_SGL__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <filterScope>Mine</filterScope>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Portal</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Licencia Firmada</value>
+    </filters>
+    <label>.Licencias A Gestionar</label>
+</ListView>

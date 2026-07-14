@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Items_Auditoria_Facturar__c</fullName>
+    <label>Z9 Items Auditoría Facturar</label>
+    <summaryFilterItems>
+        <field>Item_Auditoria__c.Total_a_Facturar__c</field>
+        <operation>notEqual</operation>
+        <value>0</value>
+    </summaryFilterItems>
+    <summaryFilterItems>
+        <field>Item_Auditoria__c.Resultado__c</field>
+        <operation>equals</operation>
+        <value>Irregular</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Item_Auditoria__c.Auditoria__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

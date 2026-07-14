@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cebada</fullName>
+    <columns>NAME</columns>
+    <columns>Productor__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Biotecnologia__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Campania__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <columns>Expediente_de_Negativos__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Cultivo__c</field>
+        <operation>contains</operation>
+        <value>CEBADA</value>
+    </filters>
+    <label>Cebada</label>
+</ListView>

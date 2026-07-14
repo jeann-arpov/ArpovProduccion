@@ -1,0 +1,17 @@
+.terminos {
+    white-space: pre-wrap;
+    max-height: 500px;
+    display: block;
+    overflow-y: scroll;
+}
+
+.actions lightning-button {
+    --slds-c-button-text-color: black;
+    --slds-c-button-radius-border: 50px;
+    --slds-c-button-neutral-color-border: black;
+}
+
+lightning-button.green {
+    --slds-c-button-neutral-color-background: var(--pph-green);
+    --slds-c-button-neutral-color-background-hover: var(--pph-green);
+}

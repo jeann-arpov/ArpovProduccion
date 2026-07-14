@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Personalizado</fullName>
+    <fields>Name</fields>
+    <fields>Cuenta_Productor__c</fields>
+    <fields>Comercio__c</fields>
+    <fields>Nombre_Cultivo__c</fields>
+    <fields>Estado__c</fields>
+    <fields>Resultado_Validacion_Analista__c</fields>
+    <fields>Total_HT__c</fields>
+    <fields>Total_USD__c</fields>
+    <fields>Venta_HT__c</fields>
+    <label>Personalizado</label>
+</CompactLayout>

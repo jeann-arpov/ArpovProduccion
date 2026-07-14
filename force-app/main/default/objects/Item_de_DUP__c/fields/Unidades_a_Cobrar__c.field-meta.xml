@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unidades_a_Cobrar__c</fullName>
+    <description>Unidades del producto a multiplicar por el precio unitario</description>
+    <externalId>false</externalId>
+    <formula>IF(  Cantidad_Declarada__c &lt;&gt; 0, Cantidad_de_Facturacion__c * Precio_Unitario_Producto__c, 0 )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Precio total de la línea expresada en la conversión del producto.</inlineHelpText>
+    <label>Precio Total</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

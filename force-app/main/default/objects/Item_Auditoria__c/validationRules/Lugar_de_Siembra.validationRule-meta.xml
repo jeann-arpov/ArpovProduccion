@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lugar_de_Siembra</fullName>
+    <active>true</active>
+    <description>El Lugar de siembra es obligatorio como información para la liquidación de los IIBB.</description>
+    <errorConditionFormula>OR( ISBLANK(Lugar_de_Siembra__c), Lugar_de_Siembra__r.Id_Provincia__c = &quot;3&quot; )
+&amp;&amp;   Cantidad_Relevada__c  &lt;&gt; 0 &amp;&amp;  ISPICKVAL( Resultado__c, &quot;Irregular&quot; )</errorConditionFormula>
+    <errorMessage>Cuando el resultado es Irregular el Lugar de Siembra es Obligatorio y no puede ser C.A.B.A.</errorMessage>
+</ValidationRule>

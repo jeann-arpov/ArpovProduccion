@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Cambio_FC_EUR</fullName>
+    <active>true</active>
+    <description>Obliga a cargar el TC cuando la moneda del comprobante es EUR</description>
+    <errorConditionFormula>TEXT(Factura__r.Divisa_Comprobante__c) = &quot;EUR&quot;  &amp;&amp;  ISBLANK(Tipo_de_Cambio__c)</errorConditionFormula>
+    <errorDisplayField>Tipo_de_Cambio__c</errorDisplayField>
+    <errorMessage>Debe ingresar el tipo de cambio cuando la factura fue emitida en euros.</errorMessage>
+</ValidationRule>

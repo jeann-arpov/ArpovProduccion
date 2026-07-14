@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comentario_Codificado__c</fullName>
+    <label>Comentario Codificado</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>1 - Hable con Responsable</fullName>
+                <default>false</default>
+                <label>1 - Hable con Responsable</label>
+            </value>
+            <value>
+                <fullName>2 - Deje mensaje a una persona</fullName>
+                <default>false</default>
+                <label>2 - Deje mensaje a una persona</label>
+            </value>
+            <value>
+                <fullName>3 - Deje mensaje en contestador</fullName>
+                <default>false</default>
+                <label>3 - Deje mensaje en contestador</label>
+            </value>
+            <value>
+                <fullName>4 - Teléfono no responde/equivocado</fullName>
+                <default>false</default>
+                <label>4 - Teléfono no responde/equivocado</label>
+            </value>
+            <value>
+                <fullName>5 - Hable con persona no relevante</fullName>
+                <default>false</default>
+                <label>5 - Hable con persona no relevante</label>
+            </value>
+            <value>
+                <fullName>6 - Promesa de Respuesta</fullName>
+                <default>false</default>
+                <label>6 - Promesa de Respuesta</label>
+            </value>
+            <value>
+                <fullName>7 - Promesa de Pago</fullName>
+                <default>false</default>
+                <label>7 - Promesa de Pago</label>
+            </value>
+            <value>
+                <fullName>8 - Solicita tiempo de Respuesta</fullName>
+                <default>false</default>
+                <label>8 - Solicita tiempo de Respuesta</label>
+            </value>
+            <value>
+                <fullName>9 - Solicita Plazo de pago</fullName>
+                <default>false</default>
+                <label>9 - Solicita Plazo de pago</label>
+            </value>
+            <value>
+                <fullName>10 - Hizo UP</fullName>
+                <default>false</default>
+                <label>10 - Hizo UP</label>
+            </value>
+            <value>
+                <fullName>11 - No hizo UP</fullName>
+                <default>false</default>
+                <label>11 - No hizo UP</label>
+            </value>
+            <value>
+                <fullName>12 - Reduce siembra economicos/políticos</fullName>
+                <default>false</default>
+                <label>12 - Reduce siembra economicos/políticos</label>
+            </value>
+            <value>
+                <fullName>13 - Reduce siembra factores climáticos</fullName>
+                <default>false</default>
+                <label>13 - Reduce siembra factores climáticos</label>
+            </value>
+            <value>
+                <fullName>14 - Compensa UP con fiscalizada</fullName>
+                <default>false</default>
+                <label>14 - Compensa UP con fiscalizada</label>
+            </value>
+            <value>
+                <fullName>15 - No llega compensar UP c fiscalizada</fullName>
+                <default>false</default>
+                <label>15 - No llega compensar UP c fiscalizada</label>
+            </value>
+            <value>
+                <fullName>16 - Alquiló campo</fullName>
+                <default>false</default>
+                <label>16 - Alquiló campo</label>
+            </value>
+            <value>
+                <fullName>17 - Sembró fiscalizada</fullName>
+                <default>false</default>
+                <label>17 - Sembró fiscalizada</label>
+            </value>
+            <value>
+                <fullName>18 - Se dio de baja la firma</fullName>
+                <default>false</default>
+                <label>18 - Se dio de baja la firma</label>
+            </value>
+            <value>
+                <fullName>19 - Sembró otro cultivo</fullName>
+                <default>false</default>
+                <label>19 - Sembró otro cultivo</label>
+            </value>
+            <value>
+                <fullName>20 - Acuerdo comercial</fullName>
+                <default>false</default>
+                <label>20 - Acuerdo comercial</label>
+            </value>
+            <value>
+                <fullName>21 - No sembró por factores climáticos</fullName>
+                <default>false</default>
+                <label>21 - No sembró por factores climáticos</label>
+            </value>
+            <value>
+                <fullName>22 - No sembró prob económicos/políticos</fullName>
+                <default>false</default>
+                <label>22 - No sembró prob económicos/políticos</label>
+            </value>
+            <value>
+                <fullName>23 - Solicita facilidades de pago</fullName>
+                <default>false</default>
+                <label>23 - Solicita facilidades de pago</label>
+            </value>
+            <value>
+                <fullName>24 - Responde al semillero</fullName>
+                <default>false</default>
+                <label>24 - Responde al semillero</label>
+            </value>
+            <value>
+                <fullName>25 - Gestiona auditor</fullName>
+                <default>false</default>
+                <label>25 - Gestiona auditor</label>
+            </value>
+            <value>
+                <fullName>26 - Paga al semillero/canje/cta cte</fullName>
+                <default>false</default>
+                <label>26 - Paga al semillero/canje/cta cte</label>
+            </value>
+            <value>
+                <fullName>27 - Pago confirmado</fullName>
+                <default>false</default>
+                <label>27 - Pago confirmado</label>
+            </value>
+            <value>
+                <fullName>28 - No pagará</fullName>
+                <default>false</default>
+                <label>28 - No pagará</label>
+            </value>
+            <value>
+                <fullName>29 - Pide Cta Cte</fullName>
+                <default>false</default>
+                <label>29 - Pide Cta Cte</label>
+            </value>
+            <value>
+                <fullName>30 - Pide info de deuda/dup pendiente</fullName>
+                <default>false</default>
+                <label>30 - Pide info de deuda/dup pendiente</label>
+            </value>
+            <value>
+                <fullName>31 - Productor sin teléfono</fullName>
+                <default>false</default>
+                <label>31 - Productor sin teléfono</label>
+            </value>
+            <value>
+                <fullName>32 - Factura con saldo pendiente</fullName>
+                <default>false</default>
+                <label>32 - Factura con saldo pendiente</label>
+            </value>
+            <value>
+                <fullName>33 - Pagó, enviará comprobante de pago</fullName>
+                <default>false</default>
+                <label>33 - Pagó, enviará comprobante de pago</label>
+            </value>
+            <value>
+                <fullName>34 - Solicita ND</fullName>
+                <default>false</default>
+                <label>34 - Solicita ND</label>
+            </value>
+            <value>
+                <fullName>35 - Solicita NC/análisis</fullName>
+                <default>false</default>
+                <label>35 - Solicita NC/análisis</label>
+            </value>
+            <value>
+                <fullName>36 - No enviará dup</fullName>
+                <default>false</default>
+                <label>36 - No enviará dup</label>
+            </value>
+            <value>
+                <fullName>37 - No enviará base de Vtas</fullName>
+                <default>false</default>
+                <label>37 - No enviará base de Vtas</label>
+            </value>
+            <value>
+                <fullName>38 - No recibió dup/reenvío</fullName>
+                <default>false</default>
+                <label>38 - No recibió dup/reenvío</label>
+            </value>
+            <value>
+                <fullName>39 - No recibió Factura/ reenvío</fullName>
+                <default>false</default>
+                <label>39 - No recibió Factura/ reenvío</label>
+            </value>
+            <value>
+                <fullName>40 - Gestiona el semillero/ Base de Vtas</fullName>
+                <default>false</default>
+                <label>40 - Gestiona el semillero/ Base de Vtas</label>
+            </value>
+            <value>
+                <fullName>41 - Desconoce compra</fullName>
+                <default>false</default>
+                <label>41 - Desconoce compra</label>
+            </value>
+            <value>
+                <fullName>42 - Informa ventas</fullName>
+                <default>false</default>
+                <label>42 - Informa ventas</label>
+            </value>
+            <value>
+                <fullName>43 - Informa ventas parcialmente</fullName>
+                <default>false</default>
+                <label>43 - Informa ventas parcialmente</label>
+            </value>
+            <value>
+                <fullName>44 - Informa ventas sin origen</fullName>
+                <default>false</default>
+                <label>44 - Informa ventas sin origen</label>
+            </value>
+            <value>
+                <fullName>45 - Carga venta informada por productor</fullName>
+                <default>false</default>
+                <label>45 - Carga venta informada por productor</label>
+            </value>
+            <value>
+                <fullName>46 - Consulta por reducción de siembra</fullName>
+                <default>false</default>
+                <label>46 - Consulta por reducción de siembra</label>
+            </value>
+            <value>
+                <fullName>47 - Reclamo pago/saldo pendiente</fullName>
+                <default>false</default>
+                <label>47 - Reclamo pago/saldo pendiente</label>
+            </value>
+            <value>
+                <fullName>48 - Reclamo Dup pendiente</fullName>
+                <default>false</default>
+                <label>48 - Reclamo Dup pendiente</label>
+            </value>
+            <value>
+                <fullName>49 - Respuesta a consulta de productor</fullName>
+                <default>false</default>
+                <label>49 - Respuesta a consulta de productor</label>
+            </value>
+            <value>
+                <fullName>50 - Reclamo Factura de compra</fullName>
+                <default>false</default>
+                <label>50 - Reclamo Factura de compra</label>
+            </value>
+            <value>
+                <fullName>51 - Consulta por remanentes</fullName>
+                <default>false</default>
+                <label>51 - Consulta por remanentes</label>
+            </value>
+            <value>
+                <fullName>52 - Consulta por otras variedades</fullName>
+                <default>false</default>
+                <label>52 - Consulta por otras variedades</label>
+            </value>
+            <value>
+                <fullName>53 - Consulta por origen</fullName>
+                <default>false</default>
+                <label>53 - Consulta por origen</label>
+            </value>
+            <value>
+                <fullName>54 - Consulta Densidad de Siembra</fullName>
+                <default>false</default>
+                <label>54 - Consulta Densidad de Siembra</label>
+            </value>
+            <value>
+                <fullName>55 - Consulta Provincia de Siembra</fullName>
+                <default>false</default>
+                <label>55 - Consulta Provincia de Siembra</label>
+            </value>
+            <value>
+                <fullName>59 - Campaña SOJA 2016</fullName>
+                <default>false</default>
+                <label>59 - Campaña SOJA 2016</label>
+            </value>
+            <value>
+                <fullName>60 - Campaña SOJA 2017</fullName>
+                <default>false</default>
+                <label>60 - Campaña SOJA 2017</label>
+            </value>
+            <value>
+                <fullName>61 - Campaña TRIGO 2016</fullName>
+                <default>false</default>
+                <label>61 - Campaña TRIGO 2016</label>
+            </value>
+            <value>
+                <fullName>62 - Campaña TRIGO 2017</fullName>
+                <default>false</default>
+                <label>62 - Campaña TRIGO 2017</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>3</visibleLines>
+</CustomField>

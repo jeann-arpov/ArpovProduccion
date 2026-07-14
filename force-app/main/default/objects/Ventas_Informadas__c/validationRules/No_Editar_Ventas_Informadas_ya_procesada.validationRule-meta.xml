@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_Editar_Ventas_Informadas_ya_procesada</fullName>
+    <active>true</active>
+    <description>Valida que no se puedan editar Ventas Informadas que ya fueron procesadas</description>
+    <errorConditionFormula>AND ( NOT ISNEW(),
+      ISPICKVAL(Estado__c,&quot;Procesado&quot;),
+      NOT ISPICKVAL($User.UserType ,&quot;Standard&quot;)
+    )</errorConditionFormula>
+    <errorMessage>No se pueden modificar Ventas Informadas que que ya fueron Procesadas.</errorMessage>
+</ValidationRule>

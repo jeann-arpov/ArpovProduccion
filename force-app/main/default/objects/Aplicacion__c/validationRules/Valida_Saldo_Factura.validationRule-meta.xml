@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Saldo_Factura</fullName>
+    <active>true</active>
+    <description>Valida que el importe a aplicar no sea superior al saldo pendiente de la factura relacionada.</description>
+    <errorConditionFormula>AND(  $User.Usuario_de_Integracion__c = false,
+ $User.ProfileName__c &lt;&gt; &quot;Usuario de Administración&quot;,
+ Liquido_Producto__c  =  PRIORVALUE( Liquido_Producto__c ) ,
+  Importe_Aplicar__c  &gt; Factura__r.Saldo_a_Cobrar_Comprobante__c ,
+  Pago_Intereses_o_Diferencia_de_Cambio__c = false  ||  Comprobante_de_Pago__r.Obtentor_Destinatario__r.Factura_por_Cuenta_y_Orden__c = true
+)</errorConditionFormula>
+    <errorDisplayField>Importe__c</errorDisplayField>
+    <errorMessage>El importe aplicado no puede ser superior al saldo de la factura. Verifique los datos ingresados o ajuste el Tipo de Cambio.</errorMessage>
+</ValidationRule>

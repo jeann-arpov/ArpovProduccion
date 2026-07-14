@@ -1,0 +1,20 @@
+<template>
+    <div if:true={shouldShow}>
+        <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center">
+            <lightning-layout-item size="2">
+                <svg width="200" height="100">;
+                    <use xlink:href={icono}></use>
+                </svg>
+            </lightning-layout-item>
+            <lightning-layout-item size="2">
+                {info.variedad.Name}
+            </lightning-layout-item>
+            <lightning-layout-item size="2">
+                <lightning-input variant="label-hidden" required type="number" placeholder="Indica Cantidad de Hectáreas" step="1" min="0" max={maxValue} onchange={updateCantidad} onblur={blur} onfocus={focus} value={cantidad} message-when-range-overflow="HT disponibles insuficientes. Ingresá un valor menor o igual a las HT disponibles o comprá más hectáreas"  message-when-value-missing="Este campo es obligatorio"></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item size="1">
+                <lightning-formatted-number class="slds-m-horizontal_large disponibles" value={safeDisponibles}></lightning-formatted-number>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+</template>

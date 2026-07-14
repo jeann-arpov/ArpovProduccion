@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Venta_Interna__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Se utiliza para identificar una venta Interna cuando el CUIT originante y destinatario son iguales. El preproceso  considera este nuevo atributo para marcar como Error = &quot;OK&quot;cuando esta marcado. El registro de venta en el que se convertira la Venta Informada será del tipo &quot;Venta&quot;.</description>
+    <label>Venta Interna</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

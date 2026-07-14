@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sucursal_para_Cobranzas__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Sucursal para Cobranzas</label>
+    <referenceTo>ERPvs__Sucursal__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Sucursal para Cobranzas)</relationshipLabel>
+    <relationshipName>Parametros_ERP_y_CRM1</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

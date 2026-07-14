@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_IMG__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+   CONTAINS(TEXT(Estado__c), &quot;Creada&quot;), IMAGE(&quot;/resource/Status_Icons/LicSECreada.png&quot;,&quot;Creada&quot;,24,120), 
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;A validar&quot;), IMAGE(&quot;/resource/Status_Icons/LicSEAValidar.png&quot;,&quot;A validar&quot;,24,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;Validada&quot;), IMAGE(&quot;/resource/Status_Icons/LicSEValidada.png&quot;,&quot;Validada&quot;,24,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;Aprobada&quot;), IMAGE(&quot;/resource/Status_Icons/LicSEAprobada.png&quot;,&quot;Aprobada&quot;,33,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;Solicitada&quot;), IMAGE(&quot;/resource/Status_Icons/LicSESolicitada.png&quot;,&quot;Solicitada&quot;,24,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;Firmada&quot;), IMAGE(&quot;/resource/Status_Icons/LicSEFirmada.png&quot;,&quot;Firmada&quot;,24,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;En Proceso de Aprobación&quot;), IMAGE(&quot;/resource/Status_Icons/LicSEEnProceso.png&quot;,&quot;En Proceso&quot;,24,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;Inactiva&quot;), IMAGE(&quot;/resource/Status_Icons/LicSEInactiva.png&quot;,&quot;Inactiva&quot;,32,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;Rechazada&quot;), IMAGE(&quot;/resource/Status_Icons/LicSERechazada.png&quot;,&quot;Rechazada&quot;,32,120),
+IF(
+   CONTAINS(TEXT(Estado__c), &quot;Eliminada&quot;), IMAGE(&quot;/resource/Status_Icons/LicSEEliminada.png&quot;,&quot;Eliminada&quot;,32,120), &quot;&quot;
+)
+)
+)
+)
+)
+)
+)
+)
+)
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Estado</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

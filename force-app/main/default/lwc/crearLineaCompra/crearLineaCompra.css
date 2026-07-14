@@ -1,0 +1,28 @@
+.fa {
+    margin-left: 5px;
+}
+
+.fa-floppy-disk {
+    background-color: #60a145;
+}
+
+.fa-trash-can {
+    background-color: #f6a538;
+}
+
+lightning-layout {
+    --slds-c-checkbox-mark-color-foreground: black;
+}
+
+i {
+    cursor:pointer;
+    padding: 0.25rem;
+}
+
+lightning-button-icon {
+    margin-left: 5px;
+}
+
+img.licencia {
+    cursor:pointer;
+}

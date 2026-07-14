@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_de_Confirmacion_del_Pago__c</fullName>
+    <description>Indica la fecha en la cual el pago fue confirmado por el obtentor o porque se comprobó la efectiva acreditación.</description>
+    <inlineHelpText>Indique la fecha en la cual se comprobó fehacientemente la acreditación del pago.</inlineHelpText>
+    <label>Fecha de Confirmación del Pago</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

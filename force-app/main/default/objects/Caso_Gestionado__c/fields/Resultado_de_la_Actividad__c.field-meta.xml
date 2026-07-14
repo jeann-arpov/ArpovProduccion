@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resultado_de_la_Actividad__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+INCLUDES(Comentario_Codificado__c,&quot;1 - Hable con Responsable&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;6 - Promesa de Respuesta&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;7 - Promesa de Pago&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;8 - Solicita tiempo de Respuesta&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;9 - Solicita Plazo de pago&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;10 - Hizo UP&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;11 - No hizo UP&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;12 - Reduce siembra economicos/políticos&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;13 - Reduce siembra factores climáticos&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;16 - Alquiló campo&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;17 - Sembró fiscalizada&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;18 - Se dio de baja la firma&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;19 - Sembró otro cultivo&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;20 - Acuerdo comercial&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;21 - No sembró por factores climáticos&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;22 - No sembró prob económicos/políticos&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;23 - Solicita facilidades de pago&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;24 - Responde al semillero&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;26 - Paga al semillero/canje/cta cte&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;27 - Pago confirmado&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;28 - No pagará&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;29 - Pide Cta Cte&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;30 - Pide info de deuda/dup pendiente&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;32 - Factura con saldo pendiente&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;33 - Pagó, enviará comprobante de pago&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;34 - Solicita ND&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;35 - Solicita NC/análisis&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;36 - No enviará dup&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;38 - No recibió dup/reenvío&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;39 - No recibió Factura/ reenvío&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;42 - Informa ventas&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;43 - Informa ventas parcialmente&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;44 - Informa ventas sin origen&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;Se genera requerimiento&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;Se genera Auditoría&quot;)
+||INCLUDES(Comentario_Codificado__c,&quot;Se retiran cheques y/o Valores&quot;),
+&quot;Efectiva&quot;,
+&quot;No Efectiva&quot;)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Resultado de la Actividad</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

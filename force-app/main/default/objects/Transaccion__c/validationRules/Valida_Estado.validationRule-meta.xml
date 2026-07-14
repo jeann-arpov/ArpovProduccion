@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Estado</fullName>
+    <active>true</active>
+    <description>Valida que no haya lineas en seguimiento al completar una auditoría.</description>
+    <errorConditionFormula>AND(  NOT( ISPICKVAL( Estado__c, &quot;Borrador&quot; ) ),     OR(Z9_Lineas_En_Seguimiento__c &gt; 0,  Z9_Lineas_en_Aprobacion__c &gt; 0 ))</errorConditionFormula>
+    <errorMessage>No puede cerrar una auditoría con líneas en seguimiento. El estado de las líneas debe ser Regular o Irregular y los descuentos deben estar aprobados.</errorMessage>
+</ValidationRule>

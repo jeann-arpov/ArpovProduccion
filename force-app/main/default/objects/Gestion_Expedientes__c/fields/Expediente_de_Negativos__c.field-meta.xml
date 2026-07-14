@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Expediente_de_Negativos__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Expediente de Negativos</label>
+    <referenceTo>Expediente_de_Negativos__c</referenceTo>
+    <relationshipLabel>Gestiones Expedientes</relationshipLabel>
+    <relationshipName>Gestiones_Expedientes</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

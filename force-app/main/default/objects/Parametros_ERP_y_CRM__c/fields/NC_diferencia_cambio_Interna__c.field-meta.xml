@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NC_diferencia_cambio_Interna__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>NC diferencia cambio (Interna)</label>
+    <referenceTo>ERPvs__Tipo_comprobante_venta__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (NC diferencia cambio (Interna))</relationshipLabel>
+    <relationshipName>Par_metros_ERP_y_CRM2</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

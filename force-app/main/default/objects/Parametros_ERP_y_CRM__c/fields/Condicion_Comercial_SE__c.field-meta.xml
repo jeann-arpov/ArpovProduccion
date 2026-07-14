@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Condicion_Comercial_SE__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Condición Comercial SE</label>
+    <referenceTo>ERPvs__Condicion_Comercial__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Condición Comercial SE)</relationshipLabel>
+    <relationshipName>Parametros_ERP_y_CRM1</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

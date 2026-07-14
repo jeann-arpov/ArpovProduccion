@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Generar_NC_Modificado</fullName>
+    <availability>online</availability>
+    <displayType>button</displayType>
+    <linkType>javascript</linkType>
+    <masterLabel>Generar NC Modificado</masterLabel>
+    <openType>onClickJavaScript</openType>
+    <protected>false</protected>
+    <url>{!REQUIRESCRIPT(&quot;/soap/ajax/44.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/44.0/apex.js&quot;)}
+
+//Obtenemos el Id de la Transaccion
+var idTransaccion= &apos;{!Transaccion__c.Id}&apos;;
+
+//Llamamos al Web Services encargado de Generar la Nota de Credito
+
+if(confirm(&apos;¿Desea generar una Nota de Crédito?&apos;)){
+
+	var result = sforce.apex.execute(
+		&quot;ws_GenerarNC&quot;, //Clase a Invocar
+		&quot;generarNCWithoutMinisiteDate&quot;, //Metodo a Invocar
+		{idTransaccion : idTransaccion}//Parametros
+	);
+
+	var result = result[0];
+
+	if(result.error != null){
+
+		alert(&apos;{!$Label.Error_Crear_Nota_de_Credito}&apos;+&apos; &apos;+result.error);
+
+	}else if(result.idNC != null){
+
+		window.location.reload();
+
+		var url = &apos;/&apos;+result.idNC;
+
+		window.open(url,&apos;_blank&apos;);
+
+	}
+
+}</url>
+</WebLink>

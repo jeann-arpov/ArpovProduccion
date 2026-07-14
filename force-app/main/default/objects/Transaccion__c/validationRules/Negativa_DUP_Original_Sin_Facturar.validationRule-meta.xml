@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Negativa_DUP_Original_Sin_Facturar</fullName>
+    <active>true</active>
+    <description>Valida si se trata de una DUP negativa y la DUP Original no está facturada.</description>
+    <errorConditionFormula>RecordType.Name = &quot;DUP&quot; &amp;&amp;
+TEXT(  Subestado__c  ) = &quot;Negativa&quot; &amp;&amp;
+TEXT( DUP_Original__r.Estado__c ) &lt;&gt; &quot;Facturada&quot; &amp;&amp;
+TEXT( DUP_Original__r.Estado__c ) &lt;&gt; &quot;Cobrada&quot; &amp;&amp;
+NOT( $User.Usuario_de_Integracion__c ) &amp;&amp; ISNEW()</errorConditionFormula>
+    <errorMessage>No se puede generar una Nota de Crédito para una transacción que no está facturada.</errorMessage>
+</ValidationRule>

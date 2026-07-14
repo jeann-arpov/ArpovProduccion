@@ -1,0 +1,5 @@
+@import 'c/pphCss';
+
+.separador{
+    border-top: 2px solid #bfff00;
+}

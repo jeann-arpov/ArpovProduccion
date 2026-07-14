@@ -1,0 +1,654 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Campana</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Campaña</shortDescription>
+        <value>Campaña:</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Footer_H1</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Footer H1</shortDescription>
+        <value>Asociación Argentina de Protección de las Obtenciones Vegetales</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Footer_H2</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Footer H2</shortDescription>
+        <value>Centro de Gestión de Regalía Extendida</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Footer_H3</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Footer H3</shortDescription>
+        <value>Reconquista 661 piso 1 (C1003ABM) CABA – Tel: (54 11) 5077-9000 Fax: (54 11) 5077-9090 –  www.arpov.org.ar</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Inportante_Derecha</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Inportante Derecha</shortDescription>
+        <value>Completar los casilleros en blanco usando letra imprenta.&lt;br/&gt; El formulario -firmado por el titular o representante legal- deberá ser remitido al &lt;i&gt;Centro de Gestión de Regalía Extendida&lt;/i&gt; por correo (en sobre adjunto), vía fax al (011) 5077-9090 o e-mail a regaliaextendida@arpov.org.ar.</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Inportante_Izquierda</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Inportante Izquierda</shortDescription>
+        <value>Recuerde que el concepto de &lt;i&gt;uso propio&lt;/i&gt; refiere a la siembra de la semilla por usted producida en campañas anteriores.</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Leyenda_Datos_Impositivos</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Leyenda Datos Impositivos</shortDescription>
+        <value>Recuerde que debe tener actualizados los datos impositivos.</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Leyenda_Kilos_Declarados</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Leyenda Kilos Declarados</shortDescription>
+        <value>Los kilos declarados serán convertidos en la unidad de medida que corresponda según la oferta pública correspondiente.</value>
+    </labels>
+    <labels>
+        <fullName>Carta_DUP_Leyenda_Localidad</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Carta DUP Leyenda Localidad</shortDescription>
+        <value>En caso de ser más de una localidad, indicar la de mayor extensión de siembra.</value>
+    </labels>
+    <labels>
+        <fullName>ComercioCommunityUrl</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ComercioCommunityUrl</shortDescription>
+        <value>/Comercios/s</value>
+    </labels>
+    <labels>
+        <fullName>Compra_Venta_HT_Disponibles</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Compra Venta HT Disponibles</shortDescription>
+        <value>Se trata de las HT que acreditan inmediatamente toneladas para la entrega de grano. No son precertificables.</value>
+    </labels>
+    <labels>
+        <fullName>Compra_Venta_HT_Futuras</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Compra Venta HT Futuras</shortDescription>
+        <value>Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir del 1 de marzo próximo.</value>
+    </labels>
+    <labels>
+        <fullName>Compra_Venta_HT_Futuras_Trigo</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Compra Venta HT Futuras Trigo</shortDescription>
+        <value>Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir del 1 de Noviembre próximo.</value>
+    </labels>
+    <labels>
+        <fullName>Empty_Field_List_For_Query</fullName>
+        <categories>AuraController</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Empty Field List For Query</shortDescription>
+        <value>Lista de campos vacia</value>
+    </labels>
+    <labels>
+        <fullName>Error_Crear_Nota_de_Credito</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Crear Nota de Credito</shortDescription>
+        <value>Ha ocurrido un error al intentar generar la Nota de Crédito. Detalle del Error:</value>
+    </labels>
+    <labels>
+        <fullName>Error_Factura_Sin_Comprobante</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Factura sin Comprobante</shortDescription>
+        <value>La Factura no tiene un número de comprobante.</value>
+    </labels>
+    <labels>
+        <fullName>Error_Generar_NC_Aud_Unable_To_Insert_Aud</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Generar NC Aud Unable To Insert Aud</shortDescription>
+        <value>Ha ocurrido un error al intentar generar la Nota de Crédito. Detalle del Error: {error_message}.</value>
+    </labels>
+    <labels>
+        <fullName>Error_Generar_NC_Aud_Unable_To_Insert_Aud_Item</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Generar NC Aud Unable To Insert Aud Item</shortDescription>
+        <value>Ha ocurrido un error al intentar generar la Nota de Crédito. Ocurrió un error al crear el ítem de la misma. Detalle del Error: {error_message}.</value>
+    </labels>
+    <labels>
+        <fullName>Error_Item_DUP_Duplicado</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Item DUP Duplicado</shortDescription>
+        <value>Ya existe un Item para la combinación de Razón Social - Cultivo - Campaña - Obtentor - Subestado - Producto</value>
+    </labels>
+    <labels>
+        <fullName>Error_Lote_Basico_Duplicado</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Lote Basico Duplicado</shortDescription>
+        <value>Ya existe un lote básico para la campaña seleccionada</value>
+    </labels>
+    <labels>
+        <fullName>Error_No_Esta_Cargado_el_Tipo_de_Cambio</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error No Esta Cargado el Tipo de Cambio</shortDescription>
+        <value>No esta cargado el tipo de cambio para la fecha actual.</value>
+    </labels>
+    <labels>
+        <fullName>Error_No_Existe_la_Transaccion</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error No Existe la Transacción</shortDescription>
+        <value>No existe la Transacción.</value>
+    </labels>
+    <labels>
+        <fullName>Error_Nuevo_Item_BUCK</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Nuevo Item BUCK</shortDescription>
+        <value>Las transacciones de BUCK solo aceptan un ítem</value>
+    </labels>
+    <labels>
+        <fullName>Error_Transaccion_Con_NC</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Transacción Con NC</shortDescription>
+        <value>Ya existe una NC para la Transacción.</value>
+    </labels>
+    <labels>
+        <fullName>Error_Transaccion_Sin_Factura</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Error Transacción Sin Factura</shortDescription>
+        <value>La Transacción no tiene una Factura asociada.</value>
+    </labels>
+    <labels>
+        <fullName>FacturacionSociosController_1</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>FacturacionSociosController_1</shortDescription>
+        <value>Se generaron los Comprobantes de Ventas solicitados.</value>
+    </labels>
+    <labels>
+        <fullName>Flow_Error_Message</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Flow Error Message</shortDescription>
+        <value>&lt;div class=&quot;slds-text-align_center slds-scoped-notification slds-theme_error slds-text-title_bold&quot; role=&quot;status&quot;&gt;</value>
+    </labels>
+    <labels>
+        <fullName>Flow_Success_Message</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Flow Success Message</shortDescription>
+        <value>&lt;div class=&quot;slds-text-align_center slds-scoped-notification slds-theme_success slds-text-title_bold&quot; role=&quot;status&quot;&gt;</value>
+    </labels>
+    <labels>
+        <fullName>Forgot_Password_SE_1</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Forgot Password SE 1</shortDescription>
+        <value>RECUPERAR CONTRASEÑA</value>
+    </labels>
+    <labels>
+        <fullName>Forgot_Password_SE_2</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Forgot Password SE 2</shortDescription>
+        <value>Ingrese su cuit y mail para continuar con el proceso</value>
+    </labels>
+    <labels>
+        <fullName>H1_Flow</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>H1 Flow</shortDescription>
+        <value>&lt;div class=&quot;slds-text-align_center slds-theme_inverse slds-text-heading_large&quot;&gt;</value>
+    </labels>
+    <labels>
+        <fullName>Invalid_Filter_Type</fullName>
+        <categories>AuraController</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Invalid Filter Type</shortDescription>
+        <value>Tipo de filtro invalido</value>
+    </labels>
+    <labels>
+        <fullName>NC_Alert_Message</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NC_Alert_Message</shortDescription>
+        <value>Existe {0} nota(s) de crédito pendiente(s) de facturación. Debe procesar la facturación antes de crear nuevas notas de crédito.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Alert_Title</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NC_Alert_Title</shortDescription>
+        <value>Nota de Crédito Pendiente</value>
+    </labels>
+    <labels>
+        <fullName>NC_All_Observaciones_Required</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error observaciones faltantes</shortDescription>
+        <value>Debe ingresar observaciones para todas las líneas seleccionadas.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Button_Cancel</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón cancelar</shortDescription>
+        <value>Cancelar</value>
+    </labels>
+    <labels>
+        <fullName>NC_Button_Price</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón activar modo precio</shortDescription>
+        <value>Nota Crédito x Precio</value>
+    </labels>
+    <labels>
+        <fullName>NC_Button_Quantity</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón activar modo cantidad</shortDescription>
+        <value>Nota Crédito x Cantidad</value>
+    </labels>
+    <labels>
+        <fullName>NC_Close_Alert</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NC_Close_Alert</shortDescription>
+        <value>Cerrar</value>
+    </labels>
+    <labels>
+        <fullName>NC_Mode_Canceled</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje cancelación modo NC</shortDescription>
+        <value>El modo de nota de crédito ha sido cancelado.</value>
+    </labels>
+    <labels>
+        <fullName>NC_New_Price_Label</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NC_New_Price_Label</shortDescription>
+        <value>Nuevo Precio</value>
+    </labels>
+    <labels>
+        <fullName>NC_New_Quantity_Label</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NC_New_Quantity_Label</shortDescription>
+        <value>Nueva Cantidad</value>
+    </labels>
+    <labels>
+        <fullName>NC_No_Change_Warning</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Advertencia sin cambio</shortDescription>
+        <value>No se detectó cambio en el valor para esta línea.</value>
+    </labels>
+    <labels>
+        <fullName>NC_No_Lines_Selected</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error sin líneas seleccionadas</shortDescription>
+        <value>Debe seleccionar al menos una línea para la nota de crédito.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Observaciones_Label</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Label columna observaciones</shortDescription>
+        <value>Observaciones *</value>
+    </labels>
+    <labels>
+        <fullName>NC_Observaciones_Required</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error observaciones requeridas</shortDescription>
+        <value>Debe ingresar observaciones para esta línea.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Observaciones_Tooltip</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NC_Observaciones_Tooltip</shortDescription>
+        <value>Debe ingresar el motivo del ajuste en precio o cantidad para cada línea seleccionada. Este campo es obligatorio.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Price_Cannot_Higher</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error precio mayor</shortDescription>
+        <value>El nuevo precio no puede ser mayor al precio actual</value>
+    </labels>
+    <labels>
+        <fullName>NC_Price_Cannot_Negative</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error precio negativo</shortDescription>
+        <value>El precio no puede ser negativo.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Price_Difference_Warning</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Advertencia precio igual</shortDescription>
+        <value>El nuevo precio debe ser diferente al actual para generar nota de crédito.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Process_Generic</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón procesar genérico</shortDescription>
+        <value>Procesar Nota Crédito</value>
+    </labels>
+    <labels>
+        <fullName>NC_Process_Price</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón procesar precio</shortDescription>
+        <value>Procesar Nota Crédito x Precio</value>
+    </labels>
+    <labels>
+        <fullName>NC_Process_Quantity</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón procesar cantidad</shortDescription>
+        <value>Procesar Nota Crédito x Cantidad</value>
+    </labels>
+    <labels>
+        <fullName>NC_Process_Success</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje éxito procesamiento</shortDescription>
+        <value>Nota de crédito {0} creada correctamente con {1} líneas.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Quantity_Cannot_Higher</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error cantidad mayor</shortDescription>
+        <value>La nueva cantidad no puede ser mayor a la cantidad actual.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Quantity_Cannot_Negative</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error cantidad negativa</shortDescription>
+        <value>La cantidad no puede ser negativa.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Quantity_Difference_Warning</fullName>
+        <categories>Validaciones</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Advertencia cantidad igual</shortDescription>
+        <value>La nueva cantidad debe ser diferente a la actual para generar nota de crédito</value>
+    </labels>
+    <labels>
+        <fullName>NC_Select_Label</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Label columna seleccionar</shortDescription>
+        <value>Seleccionar</value>
+    </labels>
+    <labels>
+        <fullName>NC_View_Label</fullName>
+        <categories>NotaCredito</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>NC_View_Label</shortDescription>
+        <value>Ver {0} | NotaCredito</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_CUIT</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.CUIT</shortDescription>
+        <value>30-50850310-1</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_CategoriaIVA</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.CategoríaIVA</shortDescription>
+        <value>IVA Responsable Inscripto</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_CodigoPostal</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.CodigoPostal</shortDescription>
+        <value>6691 - PLA - BUENOS AIRES</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_Direccion</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.Direccion</shortDescription>
+        <value>CAMINO DE PLA A ALBERTI</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_InformacionFEAlPie</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.InformacionFEAlPie</shortDescription>
+        <value>&lt;b&gt;Para efectuar el pago rogamos realice una transferencia o depósito interbancario a la cuenta que se informa a continuación:&lt;/b&gt; Cuenta Corriente en $ / Banco de &lt;br/&gt;la Provincia de Buenos Aires No 0733/9 Sucursal Alberti No 6424 / CBU 01403334 01642400073399 Titular de la cuenta: Criadero Klein S.A. / CUIT 30-50850310-1 &lt;br/&gt;o cheque cruzado a nombre de &quot;Criadero Klein S.A. - No a la orden&quot; , y nos lo envíe a Av. Cordoba 1367 2 piso CP 1055 - Capital Federal - Buenos Aires. Al realizarlo &lt;br/&gt;le rogamos nos envíe la constancia respectiva por fax al número (011) 5368-2100 Int 6024 o por mail a &lt;a href=&quot;mailto:cobranzas@arpov.org.ar&quot; target=&quot;_blank&quot;&gt;cobranzas@arpov.org.ar&lt;/a&gt;, indicando su número de CUIT o razón &lt;br/&gt;social para lograr identificar el pago. Luego el criadero le remitirá la factura.</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_IngresosBrutos</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.IngresosBrutos</shortDescription>
+        <value>3050850310</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_InicioDeActividades</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.InicioDeActividades</shortDescription>
+        <value>10/04/1956</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_Telefono</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.Telefono</shortDescription>
+        <value>+54 2346 499701 / 02 / 03 / 04</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoiceController_TipoComprobante</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoiceController.TipoComprobante</shortDescription>
+        <value>LIQUIDACIÓN</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoice_Importante</fullName>
+        <categories>PrintSalesElectronicInvoice</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoice - Importante</shortDescription>
+        <value>Importante</value>
+    </labels>
+    <labels>
+        <fullName>PrintSalesElectronicInvoice_Importante_Leyenda</fullName>
+        <categories>PrintSalesElectronicInvoice</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>PrintSalesElectronicInvoice - Importante - Leyenda</shortDescription>
+        <value>Esta Liquidación deberá ser cancelada en PESOS, tomando el tipo de cambio dólar divisa vendedor del Banco de la Nación Argentina del día hábil anterior al que se realice el pago.</value>
+    </labels>
+    <labels>
+        <fullName>ProductorCommunityUrl</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ProductorCommunityUrl</shortDescription>
+        <value>/Productores/s</value>
+    </labels>
+    <labels>
+        <fullName>SIMBingMaps_BackTo</fullName>
+        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Bing Maps - Back To</shortDescription>
+        <value>Back to</value>
+    </labels>
+    <labels>
+        <fullName>SIMBingMaps_FindInBing</fullName>
+        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Bing Maps - Find in Bing Maps</shortDescription>
+        <value>Find in Bing Maps</value>
+    </labels>
+    <labels>
+        <fullName>SIMBingMaps_LanguageCode</fullName>
+        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Bing Maps - Language Code</shortDescription>
+        <value>en-US</value>
+    </labels>
+    <labels>
+        <fullName>SIMBingMaps_UsingAddress</fullName>
+        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Bing Maps - Using Address</shortDescription>
+        <value>Using Address</value>
+    </labels>
+    <labels>
+        <fullName>SIMBingMaps_UsingCoordinate</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Bing Maps - Using Coordinate</shortDescription>
+        <value>Using Coordinate</value>
+    </labels>
+    <labels>
+        <fullName>Variedades_SRE_Productor_1</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Variedades SRE Productor 1</shortDescription>
+        <value>Gestión de variedades de Regalía Extendida en Sembrá Evolución</value>
+    </labels>
+    <labels>
+        <fullName>Variedades_SRE_Productor_2</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Variedades SRE Productor 2</shortDescription>
+        <value>Seleccioná las variedades que gestionará desde el portal</value>
+    </labels>
+    <labels>
+        <fullName>Variedades_SRE_Productor_3</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Variedades SRE Productor 3</shortDescription>
+        <value>Disponible</value>
+    </labels>
+    <labels>
+        <fullName>Variedades_SRE_Productor_4</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Variedades SRE Productor 4</shortDescription>
+        <value>Elegido</value>
+    </labels>
+    <labels>
+        <fullName>Variedades_SRE_Productor_5</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Variedades SRE Productor 5</shortDescription>
+        <value>Seleccioná la cuenta:</value>
+    </labels>
+    <labels>
+        <fullName>expediente_negativos_1</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>expediente negativos 1</shortDescription>
+        <value>Ingrese la cantidad de toneladas a facturar</value>
+    </labels>
+    <labels>
+        <fullName>expediente_negativos_2</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>expediente negativos 2</shortDescription>
+        <value>Facturación de Regalías Enlist</value>
+    </labels>
+    <labels>
+        <fullName>expediente_negativos_3</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>expediente negativos 3</shortDescription>
+        <value>Seleccioná las entregas que se facturan:</value>
+    </labels>
+    <labels>
+        <fullName>expediente_negativos_4</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>expediente negativos 4</shortDescription>
+        <value>Disponibles</value>
+    </labels>
+    <labels>
+        <fullName>expediente_negativos_5</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>expediente negativos 5</shortDescription>
+        <value>Seleccionadas</value>
+    </labels>
+    <labels>
+        <fullName>expediente_negativos_6</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>expediente negativos 6</shortDescription>
+        <value>El numero no debe ser menor a cero</value>
+    </labels>
+    <labels>
+        <fullName>expediente_negativos_7</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>expediente negativos 7</shortDescription>
+        <value>El numero no debe ser mayor al saldo de la cuenta</value>
+    </labels>
+</CustomLabels>

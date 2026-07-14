@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Recrear_Productos__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Al marcar y guardar, dispara la creación de productos como si fuera un alta nueva de la variedad.</description>
+    <inlineHelpText>Marcar para regenerar los productos asociados a esta variedad. Se desmarca automáticamente al finalizar.</inlineHelpText>
+    <label>Recrear Productos</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

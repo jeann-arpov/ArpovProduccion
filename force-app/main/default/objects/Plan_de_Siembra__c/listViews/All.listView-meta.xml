@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>Parametro_PPH__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Estado__c</columns>
+    <columns>Terminos_y_Condiciones__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Parametro_PPH__c</field>
+        <operation>contains</operation>
+        <value>2026</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Rectificado</value>
+    </filters>
+    <label>All</label>
+</ListView>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Duplica_Item_usuario_Portal</fullName>
+    <active>true</active>
+    <description>Valida que el usuario del portal no pueda crear Item de Dups con misma Cuenta, Campaña y Producto</description>
+    <errorConditionFormula>AND( ISPICKVAL($User.UserType ,&quot;High Volume Portal&quot;),
+     ISPICKVAL(Est_Duplicado__c ,&quot;Duplicado&quot;),
+     NOT  Siembra_de_Segunda__c   
+    )</errorConditionFormula>
+    <errorMessage>La Variedad ya se encuentra declarada en otra Declaración de la misma Campaña, si se trata de siembra de segunda por favor indíquelo en el campo correspondiente</errorMessage>
+</ValidationRule>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Pendientes_de_Facturacion</fullName>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <columns>Productor__c</columns>
+    <columns>Nombre_del_comercio__c</columns>
+    <columns>Total_HT__c</columns>
+    <columns>Total_USD__c</columns>
+    <columns>Nombre_del_cultivo__c</columns>
+    <columns>Variedades__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Pendiente de Facturación,Pedido de Facturacion</value>
+    </filters>
+    <label>.Ventas Pendientes de Facturación</label>
+</ListView>

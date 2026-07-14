@@ -1,0 +1,119 @@
+.card-container{
+    display:flex;
+    flex-wrap:wrap;
+    min-width: 700px;
+    justify-content: center;
+}
+
+.custom-card{
+    background-color: #1c1c1c;
+    width: 220px;
+    height: 350px;
+    border-radius: 20px;
+    border-color: dimgrey;
+    border-style: solid;
+    border-width: 1px;
+    margin: 5px;
+}
+
+.header{
+    text-align:center;
+    color: #eef1f7;
+    margin: 15px 0px 10px 0px;
+    font-weight: 500;
+    font-size: large;
+}
+
+.saldo-adherido{
+    color:white;
+}
+
+.saldo-no-adherido{
+    color:#bfff00;
+}
+
+.action-button{
+    --sds-c-button-radius-border: 1rem;
+    --sds-c-button-sizing-border:0px;
+    --sds-c-button-text-color: black;
+}
+
+.button-comprar{
+    --sds-c-button-neutral-color-background:#bfff00;
+}
+
+.action-button-container{
+    text-align: center;
+    margin: 80px 0px 0px 0px;
+}
+
+
+.info-adherido{
+    text-align: center;
+    margin-top:30px;
+}
+
+.icono-adherido{
+    --sds-c-icon-color-background: #1c1c1c;
+    --sds-c-icon-color-foreground: #bfff00;
+    --sds-c-icon-radius-border: 1rem;
+}
+
+.footer{
+    color:darkgrey;
+    cursor:pointer;
+    text-align:center;
+    margin-top: 70px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.pagination-dots {
+    display: flex;
+    margin-right: 0 10px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: gray;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.dot.active {
+    background-color: #eef1f7;
+}
+
+.pagination-arrows {
+    display: flex;
+    align-items: center;
+}
+
+.arrow {
+    width: 30px;
+    height: 30px;
+    margin: 0 5px;
+    font-size: 30px;
+    cursor: pointer;
+    background:transparent;
+    color:white;
+    font-weight:700;
+    border:none;
+    margin-bottom:24px;
+}
+
+.arrow:disabled {
+    cursor: default;
+}

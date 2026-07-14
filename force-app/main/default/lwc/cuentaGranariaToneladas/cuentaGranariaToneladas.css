@@ -1,0 +1,274 @@
+/* Resumen badges superiores */
+.summary-badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* Neutraliza el margin-left de SLDS para que el gap sea el único espaciado */
+.summary-badges .slds-badge + .slds-badge {
+    margin-left: 0;
+}
+
+.summary-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #dddbda;
+}
+
+.summary-records {
+    white-space: nowrap;
+}
+
+.badge-positivo {
+    background-color: #4bca81;
+    color: white;
+}
+
+.badge-negativo {
+    background-color: #ea001e;
+    color: white;
+}
+
+.badge-compra-ht {
+    background-color: #0176d3;
+    color: white;
+}
+
+/* Compra HT disponible info */
+.compra-ht-info {
+    background-color: #e8f4fd;
+    border-radius: 4px;
+    padding: 10px 12px;
+    border-left: 4px solid #0176d3;
+}
+
+.compra-ht-saldo {
+    font-size: 1.1em;
+    color: #0176d3;
+}
+
+/* Cuentas relacionadas (dentro de cuenta HT) */
+.cuentas-relacionadas {
+    background-color: #f3f3f3;
+    border-radius: 4px;
+    padding: 12px;
+    border-left: 4px solid #706e6b;
+}
+
+.cuenta-relacionada-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.cuenta-relacionada-item:hover {
+    background-color: #e8f4fd;
+}
+
+.cuenta-relacionada-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Acción generar consumo HT */
+.consumo-action {
+    background-color: #fff8e6;
+    border-radius: 4px;
+    padding: 12px;
+    border-left: 4px solid #fe9339;
+}
+
+/* Info de la cuenta */
+.cuenta-info {
+    background-color: #f3f3f3;
+    border-radius: 4px;
+    padding: 12px;
+    border-left: 4px solid #0176d3;
+}
+
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.table-container {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.toneladas-table {
+    table-layout: fixed;
+    width: 100%;
+    min-width: 0;
+    font-size: 0.8125rem;
+}
+
+.toneladas-table th,
+.toneladas-table td {
+    vertical-align: middle;
+    padding: 0.3rem 0.25rem;
+    overflow: hidden;
+}
+
+.toneladas-table col.col-nombre {
+    width: 22%;
+}
+
+.toneladas-table col.col-origen {
+    width: 26%;
+}
+
+.toneladas-table col.col-etapa {
+    width: 22%;
+}
+
+.toneladas-table col.col-cantidad {
+    width: 14%;
+}
+
+.toneladas-table col.col-fecha {
+    width: 16%;
+}
+
+.toneladas-table .col-cantidad {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.toneladas-table .col-fecha {
+    white-space: nowrap;
+}
+
+.cell-truncate {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.cell-truncate a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Clases de valores positivos/negativos */
+.positivo {
+    color: #027e46;
+    font-weight: 600;
+}
+
+.negativo {
+    color: #c23934;
+    font-weight: 600;
+}
+
+/* Fila total de la tabla */
+.total-row {
+    background-color: #f3f3f3;
+    border-top: 2px solid #0176d3;
+    font-size: 1.05em;
+}
+
+.total-row td {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+
+/* Enlaces de toneladas */
+a {
+    color: #0176d3;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #014486;
+}
+
+/* Tabla responsiva */
+@media (max-width: 768px) {
+    .summary-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .summary-records {
+        white-space: normal;
+    }
+
+    .cuenta-info .slds-col {
+        width: 100% !important;
+    }
+
+    .table-container {
+        overflow-x: visible;
+    }
+
+    .slds-table {
+        border: 0;
+    }
+
+    .slds-table thead {
+        display: none;
+    }
+
+    .slds-table tbody tr {
+        display: block;
+        border: 1px solid #dddbda;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        background-color: #ffffff;
+    }
+
+    .slds-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        text-align: left !important;
+        padding: 10px 12px;
+        border-top: 1px solid #f3f3f3;
+    }
+
+    .slds-table tbody td:first-child {
+        border-top: 0;
+    }
+
+    .slds-table tbody td::before {
+        content: attr(data-label);
+        color: #706e6b;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 12px;
+        flex: 0 0 auto;
+    }
+
+    .slds-table tbody td > div {
+        text-align: right;
+        max-width: 65%;
+    }
+
+    .total-row {
+        border: 2px solid #0176d3 !important;
+        background-color: #f8fbff !important;
+    }
+
+    .total-row td:first-child {
+        justify-content: space-between;
+    }
+}

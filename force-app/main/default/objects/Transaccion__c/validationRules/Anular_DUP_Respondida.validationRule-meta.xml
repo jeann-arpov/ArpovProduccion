@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Anular_DUP_Respondida</fullName>
+    <active>false</active>
+    <description>Impide la anulación de una DUP Respondida</description>
+    <errorConditionFormula>NOT( $User.Usuario_de_Integracion__c ) &amp;&amp;
+NOT(ISPICKVAL(DUP_Original__r.Estado__c,&quot;Creada&quot;)) &amp;&amp; NOT(ISPICKVAL(DUP_Original__r.Estado__c,&quot;Cancelada por Auditoría&quot;))&amp;&amp; Cancela_DUP_Original__c = TRUE</errorConditionFormula>
+    <errorDisplayField>DUP_Original__c</errorDisplayField>
+    <errorMessage>La DUP seleccionada no puede ser cancelada.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>cambio_No_Debitar</fullName>
+    <active>true</active>
+    <errorConditionFormula>PRIORVALUE( No_Debitar__c ) = true &amp;&amp; 
+ No_Debitar__c = false &amp;&amp;
+ NOT( ISCHANGED( Prevenir_Cambio__c ) )</errorConditionFormula>
+    <errorMessage>Para mayor seguridad, utilice el botón &quot;Debitar&quot; en la plantilla del registro</errorMessage>
+</ValidationRule>

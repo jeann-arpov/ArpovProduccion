@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Producto_Diferencia_de_Cambio_PIIBB__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Producto Diferencia de Cambio PIIBB</label>
+    <referenceTo>ERPvs__Producto__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Producto Diferencia de Cambio PIIBB)</relationshipLabel>
+    <relationshipName>Par_metros_ERP_y_CRM1</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

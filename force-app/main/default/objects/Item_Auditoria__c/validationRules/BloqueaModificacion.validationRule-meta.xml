@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BloqueaModificacion</fullName>
+    <active>false</active>
+    <description>Impide la modificación de un registro si la auditoría no está en Borrador</description>
+    <errorConditionFormula>IF(  $User.Usuario_de_Integracion__c = true, false, 
+   NOT( ISPICKVAL( Auditoria__r.Estado__c, &quot;Borrador&quot;) )
+)</errorConditionFormula>
+    <errorMessage>No se puede modificar una Auditoría, ni sus líneas, cuando está completa, facturada o se emitió el pedido de facturación al obtentor.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Anulacion__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica si se trata de una anulación de una DUP.</description>
+    <inlineHelpText>Marque si se trata de una anulación. La anulación puede ser total o parcial y generará una NC por el importe resultante.</inlineHelpText>
+    <label>Anulación</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

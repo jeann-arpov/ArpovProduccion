@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_Pendientes</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>CUIT_Originante__c</columns>
+    <columns>CUIT_Destinatario__c</columns>
+    <columns>Razon_Social_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>Kilos_por_Bolsa__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>NAME</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>contains</operation>
+        <value>Pendiente</value>
+    </filters>
+    <label>Ventas Informadas Pendientes</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

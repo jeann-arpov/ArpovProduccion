@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Variedades_Enlist_Operadores</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>NAME</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Email__c</columns>
+    <columns>Fecha_de_Aprobacion__c</columns>
+    <columns>Fecha_de_Creacion_de_Licencia__c</columns>
+    <columns>Fecha_de_Vencimiento__c</columns>
+    <columns>UPDATEDBY_USER.ALIAS</columns>
+    <columns>LAST_UPDATE</columns>
+    <columns>Nombres_Marcas__c</columns>
+    <filterScope>Mine</filterScope>
+    <label>Licencias Variedades Enlist - Operadores</label>
+</ListView>

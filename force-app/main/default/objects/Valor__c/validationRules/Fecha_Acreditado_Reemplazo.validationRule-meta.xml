@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Acreditado_Reemplazo</fullName>
+    <active>true</active>
+    <description>No puede acreditarse un reemplazo si no fue rechazado y reemplazado y su fecha no es mayor o igual que la fecha del reemplazo.</description>
+    <errorConditionFormula>NOT (ISBLANK (MOV_Cheque_Rechazado__c)) &amp;&amp; NOT(ISBLANK ( MOV_Cheque_Reemplazado__c )) &amp;&amp; ( Fecha_Acreditado_Reemplazo__c  &lt;  Fecha_Reemplazado__c )</errorConditionFormula>
+    <errorDisplayField>Fecha_Acreditado_Reemplazo__c</errorDisplayField>
+    <errorMessage>No puede acreditarse un reemplazo que no fue rechazado ni reemplazado. Tampoco puede ser acreditado un reemplazo con fecha menor igual a la fecha de reemplazo.</errorMessage>
+</ValidationRule>

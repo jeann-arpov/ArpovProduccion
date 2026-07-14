@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campania_Gestion__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Identifica la Campaña de la Gestion</description>
+    <label>Campaña Gestión</label>
+    <referenceTo>Campana_Agricola__c</referenceTo>
+    <relationshipLabel>Documentos Gestionados</relationshipLabel>
+    <relationshipName>Documentos_Gestionados</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

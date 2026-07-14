@@ -1,0 +1,15 @@
+<template>
+    <lightning-layout horizontal-align="end">
+        <lightning-button variant="brand" onclick={openModal} type="submit" label="Rechazar Licencia"></lightning-button>
+    </lightning-layout>
+    
+    <c-modal header="Rechazar Licencia">
+        <lightning-spinner alternative-text="Loading" lwc:if={loading}></lightning-spinner>
+        <lightning-textarea label="Motivo de rechazo" onchange={handleMotivoRechazo} required></lightning-textarea>
+        <br/>
+        <div class="slds-align_absolute-center">
+            <lightning-button class="slds-var-m-right_small" label="Cancelar" onclick={closeModal}></lightning-button>
+            <lightning-button label="Rechazar" onclick={confirm}></lightning-button>
+        </div>
+    </c-modal>
+</template>

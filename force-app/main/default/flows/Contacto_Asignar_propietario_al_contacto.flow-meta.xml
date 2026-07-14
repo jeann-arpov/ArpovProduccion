@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <description>Si el usuario que ejecuta el flujo no es un usuario de Interface, se hace el cambio de propietario del contacto igual al propietario de la cuenta.</description>
+        <name>Es_Usuario_de_Interface</name>
+        <label>Es Usuario de Interface?</label>
+        <locationX>413</locationX>
+        <locationY>104</locationY>
+        <defaultConnectorLabel>Es usuario de Interface</defaultConnectorLabel>
+        <rules>
+            <name>No_es_Usuario_de_Interface</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$User.Usuario_de_Integracion__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Propietario_de_contacto_es_distinto_al_propietario_de_la_cuenta</targetReference>
+            </connector>
+            <label>No es Usuario de Interface</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Se valida si el propietario del contacto es distinto al propietario de la cuenta</description>
+        <name>Propietario_de_contacto_es_distinto_al_propietario_de_la_cuenta</name>
+        <label>Propietario de contacto es distinto al propietario de la cuenta?</label>
+        <locationX>672</locationX>
+        <locationY>106</locationY>
+        <defaultConnectorLabel>Propietario contacto es igual al propietario cuenta</defaultConnectorLabel>
+        <rules>
+            <name>Propietario_contacto_es_distinto_al_propietario_cuenta</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.OwnerId</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Account.OwnerId</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Propietario_de_Cuenta_est_activo</targetReference>
+            </connector>
+            <label>Propietario contacto es distinto al propietario cuenta</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Propietario_de_Cuenta_est_activo</name>
+        <label>Propietario de Cuenta está activo</label>
+        <locationX>930</locationX>
+        <locationY>106</locationY>
+        <defaultConnectorLabel>Propietario de Cuenta No Activo</defaultConnectorLabel>
+        <rules>
+            <name>Propietario_Cuenta_activo</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Account.Owner.IsActive</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Cambia_Propietario_del_contacto</targetReference>
+            </connector>
+            <label>Propietario Cuenta activo</label>
+        </rules>
+    </decisions>
+    <description>Cuando se crea o modifica un contacto, se asigna como propietario del contacto el propietario de la cuenta</description>
+    <interviewLabel>Contacto - Asignar propietario al contacto {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Contacto - Asignar propietario al contacto</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Cambia_Propietario_del_contacto</name>
+        <label>Cambia Propietario del contacto</label>
+        <locationX>1189</locationX>
+        <locationY>101</locationY>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$Record.Account.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>42</locationX>
+        <locationY>41</locationY>
+        <connector>
+            <targetReference>Es_Usuario_de_Interface</targetReference>
+        </connector>
+        <object>Contact</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

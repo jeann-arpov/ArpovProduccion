@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Modo_de_Contacto__c</fullName>
+    <externalId>false</externalId>
+    <formula>TEXT( Interaccion__r.Modo_de_Contacto__c )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Modo de Contacto de la Interacción.</inlineHelpText>
+    <label>Modo de Contacto</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

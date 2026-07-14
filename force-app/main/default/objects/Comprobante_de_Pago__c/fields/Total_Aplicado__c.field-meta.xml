@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_Aplicado__c</fullName>
+    <description>Total Aplicado de este comprobante</description>
+    <label>Total Aplicado</label>
+    <summarizedField>Valor__c.Monto_Aplicado__c</summarizedField>
+    <summaryForeignKey>Valor__c.Comprobante_de_Pago__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

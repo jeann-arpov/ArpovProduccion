@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Inicio_de_Compra_Futura__c</fullName>
+    <formula>DATE( YEAR( TODAY() ) , MONTH( Fecha_Inicio_Compra_Futura__c ) , DAY( Fecha_Inicio_Compra_Futura__c ) )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Fecha Inicio de Compra Futura</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

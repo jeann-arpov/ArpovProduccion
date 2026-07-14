@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: APL.Actualiza Liquido Producto y Flow: APL.Actualiza Liquido Producto (Flow)</description>
+    <environments>Default</environments>
+    <interviewLabel>APL.Actualiza Liquido Producto (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>APL.Actualiza Liquido Producto (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Obtiene_CV</name>
+        <label>Obtiene CV</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Actualiza_APL</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Nro_Comprobante__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Comprobante__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>ERPvs__Tipo_comp__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Factura</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>ERPvs__Comprobante_Venta__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualiza_APL</name>
+        <label>Actualiza APL</label>
+        <locationX>176</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>Liquido_Producto__c</field>
+            <value>
+                <elementReference>Obtiene_CV.ERPvs__Liquido_producto__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Obtiene_CV</targetReference>
+        </connector>
+        <filterFormula>(ISCHANGED({!$Record.Liquido_Producto__c}) &amp;&amp;
+{!$Record.Comprobante_de_Pago__r.Estado_ERP__c} = &quot;PROCESADO&quot; &amp;&amp;
+ISBLANK({!$Record.Liquido_Producto__c})) || 
+(ISCHANGED({!$Record.Liquido_Producto__c}) &amp;&amp;
+{!$Record.Comprobante_de_Pago__r.Estado_ERP__c} = &quot;PROCESADO&quot; &amp;&amp;
+{!$Record__Prior.Liquido_Producto__c} &lt;&gt; {!$Record.Liquido_Producto__c} &amp;&amp;
+NOT(ISBLANK({!$Record__Prior.Liquido_Producto__c})))</filterFormula>
+        <object>Aplicacion__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

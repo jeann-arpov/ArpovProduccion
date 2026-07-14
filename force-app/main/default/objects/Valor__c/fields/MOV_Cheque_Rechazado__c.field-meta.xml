@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MOV_Cheque_Rechazado__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>MOV Cheque Rechazado</label>
+    <lookupFilter>
+        <active>true</active>
+        <booleanFilter>1 AND 2</booleanFilter>
+        <filterItems>
+            <field>ERPvs__Movimiento_Fondo__c.RecordType.Name</field>
+            <operation>equals</operation>
+            <value>Ingresos y Egresos</value>
+        </filterItems>
+        <filterItems>
+            <field>ERPvs__Movimiento_Fondo__c.ERPvs__Tipo_Comprobante_Movimiento_Fondo__r.Name</field>
+            <operation>equals</operation>
+            <value>Egresos</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>ERPvs__Movimiento_Fondo__c</referenceTo>
+    <relationshipLabel>Valores</relationshipLabel>
+    <relationshipName>Valores</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

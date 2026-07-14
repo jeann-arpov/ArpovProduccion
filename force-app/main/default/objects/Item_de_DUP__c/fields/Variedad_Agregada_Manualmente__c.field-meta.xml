@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Variedad_Agregada_Manualmente__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica si la línea de variedad fue agregada manualmente (TRUE) o si fue creada al momento de generar el lote (FALSE)</description>
+    <inlineHelpText>Marque si está variedad fue agregada manualmente por el productor.</inlineHelpText>
+    <label>Variedad Agregada Manualmente</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

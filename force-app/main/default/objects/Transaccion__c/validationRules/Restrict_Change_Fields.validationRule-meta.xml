@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Change_Fields</fullName>
+    <active>true</active>
+    <description>Restringe el cambio de ciertos campos cuando el estado de la auditoría es Completa, Pendiente de Facturación o Facturada.</description>
+    <errorConditionFormula>AND(
+   OR(
+       ISPICKVAL( PRIORVALUE(  Estado__c  ), &quot;Completa&quot;),
+       ISPICKVAL( PRIORVALUE(  Estado__c  ), &quot;Pedido de Facturación&quot;),
+       ISPICKVAL( PRIORVALUE(  Estado__c  ), &quot;Facturada&quot;)
+      ),
+   OR(
+       ISCHANGED( Obtentor__c   ),
+       ISCHANGED( Nombre_de_la_cuenta__c ),
+       ISCHANGED( Cultivo__c ),
+       ISCHANGED( Nro_de_Acta__c ),
+       ISCHANGED( Es_Comercio__c ),
+       ISCHANGED( Es_Denuncia__c ),
+       ISCHANGED( Contacto__c )
+      /*,ISCHANGED(  Factura__c  ) */
+     ),
+    NOT( $User.Usuario_de_Integracion__c ), NOT(  $Profile.Name = &quot;Líder de Comunidad&quot; )
+)</errorConditionFormula>
+    <errorMessage>No se pueden modificar esos campos cuando en el estado actual de la Auditoría.</errorMessage>
+</ValidationRule>

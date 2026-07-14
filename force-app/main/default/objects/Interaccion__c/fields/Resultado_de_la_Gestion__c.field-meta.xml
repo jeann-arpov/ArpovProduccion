@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resultado_de_la_Gestion__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+   Temas_Tratados_Efectivos__c &gt; 0 , &quot;Efectiva&quot;, &quot;No Efectiva&quot;
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Resultado de la Gestión</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

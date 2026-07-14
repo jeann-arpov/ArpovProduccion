@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Des_Habilita_edicion_CV_Com</fullName>
+    <availability>online</availability>
+    <displayType>button</displayType>
+    <encodingKey>UTF-8</encodingKey>
+    <linkType>url</linkType>
+    <masterLabel>(Des)Habilita edición CV Com</masterLabel>
+    <openType>replace</openType>
+    <protected>false</protected>
+    <url>/flow/APL_Habilita_o_deshabilita_modificacion_de_campos_de_administracion_Flow?
+retURL={!Aplicacion__c.Id}</url>
+</WebLink>

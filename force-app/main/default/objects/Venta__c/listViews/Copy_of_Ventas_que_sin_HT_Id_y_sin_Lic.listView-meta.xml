@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Copy_of_Ventas_que_sin_HT_Id_y_sin_Lic</fullName>
+    <columns>Campana_Agricola__c</columns>
+    <columns>NAME</columns>
+    <columns>Originante__c</columns>
+    <columns>Originante_CUIT__c</columns>
+    <columns>Fecha__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Destinatario_CUIT__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Nombre_Obtentor__c</columns>
+    <columns>Licencia__c</columns>
+    <columns>Estado_Licencia__c</columns>
+    <columns>Hectareas_Tecnologicas__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Semba_Evolucion__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Estado_Licencia__c</field>
+        <operation>notEqual</operation>
+        <value>Aprobada</value>
+    </filters>
+    <filters>
+        <field>HT_Id__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <label>Ventas con HT_Id y sin Lic Aprob</label>
+</ListView>

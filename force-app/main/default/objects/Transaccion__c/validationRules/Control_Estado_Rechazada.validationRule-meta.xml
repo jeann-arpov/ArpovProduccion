@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Estado_Rechazada</fullName>
+    <active>true</active>
+    <description>Verifica si es aplicable el nuevo estado Rechazada</description>
+    <errorConditionFormula>AND( TEXT(Estado__c) = &quot;Rechazada&quot;, PRIORVALUE( Estado__c )  &lt;&gt; &quot;Creada&quot;,  RecordType.Name  &lt;&gt; &quot;DUP&quot; )</errorConditionFormula>
+    <errorDisplayField>Estado__c</errorDisplayField>
+    <errorMessage>El Estado seleccionado no es válido para este tipo de transacción o estado anterior de la misma. El estado Rechazada solo aplica a DUPs en estado &quot;Creada&quot;.</errorMessage>
+</ValidationRule>

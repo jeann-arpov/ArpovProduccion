@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Documento_Recibido__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Documento Recibido</label>
+    <referenceTo>ERPvs__Documento_Recibido__c</referenceTo>
+    <relationshipLabel>Cuentas Destinatarias</relationshipLabel>
+    <relationshipName>Cuentas_Destinatarias</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

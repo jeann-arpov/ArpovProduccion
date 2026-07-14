@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Grupo_de_Madurez_o_Ciclo__c</fullName>
+    <label>Grupo de Madurez o Ciclo</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Grupo_de_Madurez_Ciclo_Ag__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>II</fullName>
+                <default>false</default>
+                <label>II</label>
+            </value>
+            <value>
+                <fullName>II Corto</fullName>
+                <default>false</default>
+                <label>II Corto</label>
+            </value>
+            <value>
+                <fullName>II Intermedio</fullName>
+                <default>false</default>
+                <label>II Intermedio</label>
+            </value>
+            <value>
+                <fullName>II Largo</fullName>
+                <default>false</default>
+                <label>II Largo</label>
+            </value>
+            <value>
+                <fullName>III</fullName>
+                <default>false</default>
+                <label>III</label>
+            </value>
+            <value>
+                <fullName>III Corto</fullName>
+                <default>false</default>
+                <label>III Corto</label>
+            </value>
+            <value>
+                <fullName>III Intermedio</fullName>
+                <default>false</default>
+                <label>III Intermedio</label>
+            </value>
+            <value>
+                <fullName>III Largo</fullName>
+                <default>false</default>
+                <label>III Largo</label>
+            </value>
+            <value>
+                <fullName>IV</fullName>
+                <default>false</default>
+                <label>IV</label>
+            </value>
+            <value>
+                <fullName>IV Corto</fullName>
+                <default>false</default>
+                <label>IV Corto</label>
+            </value>
+            <value>
+                <fullName>IV Intermedio</fullName>
+                <default>false</default>
+                <label>IV Intermedio</label>
+            </value>
+            <value>
+                <fullName>IV Largo</fullName>
+                <default>false</default>
+                <label>IV Largo</label>
+            </value>
+            <value>
+                <fullName>V</fullName>
+                <default>false</default>
+                <label>V</label>
+            </value>
+            <value>
+                <fullName>V Corto</fullName>
+                <default>false</default>
+                <label>V Corto</label>
+            </value>
+            <value>
+                <fullName>V Intermedio</fullName>
+                <default>false</default>
+                <label>V Intermedio</label>
+            </value>
+            <value>
+                <fullName>V Largo</fullName>
+                <default>false</default>
+                <label>V Largo</label>
+            </value>
+            <value>
+                <fullName>VI</fullName>
+                <default>false</default>
+                <label>VI</label>
+            </value>
+            <value>
+                <fullName>VI Corto</fullName>
+                <default>false</default>
+                <label>VI Corto</label>
+            </value>
+            <value>
+                <fullName>VI Intermedio</fullName>
+                <default>false</default>
+                <label>VI Intermedio</label>
+            </value>
+            <value>
+                <fullName>VI Largo</fullName>
+                <default>false</default>
+                <label>VI Largo</label>
+            </value>
+            <value>
+                <fullName>VII</fullName>
+                <default>false</default>
+                <label>VII</label>
+            </value>
+            <value>
+                <fullName>VII Corto</fullName>
+                <default>false</default>
+                <label>VII Corto</label>
+            </value>
+            <value>
+                <fullName>VII Intermedio</fullName>
+                <default>false</default>
+                <label>VII Intermedio</label>
+            </value>
+            <value>
+                <fullName>VII Largo</fullName>
+                <default>false</default>
+                <label>VII Largo</label>
+            </value>
+            <value>
+                <fullName>VIII</fullName>
+                <default>false</default>
+                <label>VIII</label>
+            </value>
+            <value>
+                <fullName>VIII Corto</fullName>
+                <default>false</default>
+                <label>VIII Corto</label>
+            </value>
+            <value>
+                <fullName>VIII Intermedio</fullName>
+                <default>false</default>
+                <label>VIII Intermedio</label>
+            </value>
+            <value>
+                <fullName>VIII Largo</fullName>
+                <default>false</default>
+                <label>VIII Largo</label>
+            </value>
+            <value>
+                <fullName>IX</fullName>
+                <default>false</default>
+                <label>IX</label>
+            </value>
+            <value>
+                <fullName>IX Corto</fullName>
+                <default>false</default>
+                <label>IX Corto</label>
+            </value>
+            <value>
+                <fullName>Corto</fullName>
+                <default>false</default>
+                <label>Corto</label>
+            </value>
+            <value>
+                <fullName>Corto Intermedio</fullName>
+                <default>false</default>
+                <label>Corto Intermedio</label>
+            </value>
+            <value>
+                <fullName>Intermedio Corto</fullName>
+                <default>false</default>
+                <label>Intermedio Corto</label>
+            </value>
+            <value>
+                <fullName>Intermedio</fullName>
+                <default>false</default>
+                <label>Intermedio</label>
+            </value>
+            <value>
+                <fullName>Intermedio Largo</fullName>
+                <default>false</default>
+                <label>Intermedio Largo</label>
+            </value>
+            <value>
+                <fullName>Largo Intermedio</fullName>
+                <default>false</default>
+                <label>Largo Intermedio</label>
+            </value>
+            <value>
+                <fullName>Largo</fullName>
+                <default>false</default>
+                <label>Largo</label>
+            </value>
+            <value>
+                <fullName>Invernal</fullName>
+                <default>false</default>
+                <label>Invernal</label>
+            </value>
+            <value>
+                <fullName>Primaveral</fullName>
+                <default>false</default>
+                <label>Primaveral</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Largo</controllingFieldValue>
+            <valueName>Largo Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Largo</controllingFieldValue>
+            <valueName>Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Invernal</controllingFieldValue>
+            <valueName>Invernal</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Primaveral</controllingFieldValue>
+            <valueName>Primaveral</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>II</controllingFieldValue>
+            <valueName>II</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>II</controllingFieldValue>
+            <valueName>II Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>II</controllingFieldValue>
+            <valueName>II Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>II</controllingFieldValue>
+            <valueName>II Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>III</controllingFieldValue>
+            <valueName>III</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>III</controllingFieldValue>
+            <valueName>III Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>III</controllingFieldValue>
+            <valueName>III Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>III</controllingFieldValue>
+            <valueName>III Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>IV</controllingFieldValue>
+            <valueName>IV</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>IV</controllingFieldValue>
+            <valueName>IV Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>IV</controllingFieldValue>
+            <valueName>IV Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>IV</controllingFieldValue>
+            <valueName>IV Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>V</controllingFieldValue>
+            <valueName>V</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>V</controllingFieldValue>
+            <valueName>V Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>V</controllingFieldValue>
+            <valueName>V Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>V</controllingFieldValue>
+            <valueName>V Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VI</controllingFieldValue>
+            <valueName>VI</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VI</controllingFieldValue>
+            <valueName>VI Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VI</controllingFieldValue>
+            <valueName>VI Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VI</controllingFieldValue>
+            <valueName>VI Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VII</controllingFieldValue>
+            <valueName>VII</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VII</controllingFieldValue>
+            <valueName>VII Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VII</controllingFieldValue>
+            <valueName>VII Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VII</controllingFieldValue>
+            <valueName>VII Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VIII</controllingFieldValue>
+            <valueName>VIII</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VIII</controllingFieldValue>
+            <valueName>VIII Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VIII</controllingFieldValue>
+            <valueName>VIII Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>VIII</controllingFieldValue>
+            <valueName>VIII Largo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>IX</controllingFieldValue>
+            <valueName>IX</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>IX</controllingFieldValue>
+            <valueName>IX Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Corto</controllingFieldValue>
+            <valueName>Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Corto</controllingFieldValue>
+            <valueName>Corto Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Intermedio</controllingFieldValue>
+            <valueName>Intermedio Corto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Intermedio</controllingFieldValue>
+            <valueName>Intermedio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Intermedio</controllingFieldValue>
+            <valueName>Intermedio Largo</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas</fullName>
+    <active>true</active>
+    <label>Ventas</label>
+    <picklistValues>
+        <picklist>Respuestas__c</picklist>
+        <values>
+            <fullName>Desconoce compra</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Informa ventas</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Informará ventas</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sin respuesta efectiva</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Resultado__c</picklist>
+        <values>
+            <fullName>Caso cerrado</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Conflictivo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona auditor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona el semillero</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Informa ventas parcialmente</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Promesa de rta</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Volver a llamar</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Tipo_Documento__c</picklist>
+        <values>
+            <fullName>DUP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Factura</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

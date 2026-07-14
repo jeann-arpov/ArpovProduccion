@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>envio_mail_vencimiento</name>
+        <label>envio mail vencimiento</label>
+        <locationX>176</locationX>
+        <locationY>527</locationY>
+        <actionName>EnviarEmailVencimiento</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>scope</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>EnviarEmailVencimiento</nameSegment>
+    </actionCalls>
+    <apiVersion>55.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <environments>Default</environments>
+    <interviewLabel>Envio email 48hs vencimiento {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Envio email 5d,10d,20d vencimiento</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ERPvs__Tipo_Documento__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Factura</stringValue>
+            </value>
+        </filters>
+        <object>ERPvs__Vencimientos__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <scheduledPaths>
+            <name>Email_5d_antes_vencimiento</name>
+            <connector>
+                <targetReference>envio_mail_vencimiento</targetReference>
+            </connector>
+            <label>Email 5d antes vencimiento</label>
+            <offsetNumber>-5</offsetNumber>
+            <offsetUnit>Days</offsetUnit>
+            <recordField>ERPvs__Fecha_Vencimiento__c</recordField>
+            <timeSource>RecordField</timeSource>
+        </scheduledPaths>
+        <scheduledPaths>
+            <name>Email_10d_antes_vencimiento</name>
+            <connector>
+                <targetReference>envio_mail_vencimiento</targetReference>
+            </connector>
+            <label>Email 10d antes vencimiento</label>
+            <offsetNumber>-10</offsetNumber>
+            <offsetUnit>Days</offsetUnit>
+            <recordField>ERPvs__Fecha_Vencimiento__c</recordField>
+            <timeSource>RecordField</timeSource>
+        </scheduledPaths>
+        <scheduledPaths>
+            <name>Email_20d_antes_vencimiento</name>
+            <connector>
+                <targetReference>envio_mail_vencimiento</targetReference>
+            </connector>
+            <label>Email 20d antes vencimiento</label>
+            <offsetNumber>-20</offsetNumber>
+            <offsetUnit>Days</offsetUnit>
+            <recordField>ERPvs__Fecha_Vencimiento__c</recordField>
+            <timeSource>RecordField</timeSource>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

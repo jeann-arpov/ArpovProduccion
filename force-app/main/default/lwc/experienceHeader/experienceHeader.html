@@ -1,0 +1,93 @@
+<!--
+  @description       : 
+  @author            : jean.nieto.ex@copec.cl
+  @group             : 
+  @last modified on  : 10-01-2025
+  @last modified by  : jean.nieto.ex@copec.cl
+-->
+<template>
+  <!-- HEADER SALESFORCE -->
+  <header if:true={isSalesforce}>
+    <!-- Bloque superior -->
+    <div class="prenav">
+      <div class="content">
+        <div class="platform">
+          <a href="" onclick={clic}>PLATAFORMA COMERCIOS</a>
+          <a href={productorUrl}>IR A PLATAFORMA PRODUCTOR</a>
+        </div>
+        <div class="usernav">
+          <span class="accbtn" if:true={accountName}>{accountName}</span>
+            <!-- Menú usuario -->
+            <div class="usermenu">
+                <button class="userbtn">
+                {userName}
+                <span class="caret">▲</span>
+                </button>
+                <div class="submenu">
+                <a data-page="editProfile" onclick={handleNavigate}>Editar Perfil</a>
+                </div>
+            </div>
+
+            <!-- Botón logout separado (si quieres mantenerlo aparte) -->
+            <a title="Cerrar Sesión" class="circled" onclick={handleCommunityLogout}>
+                <lightning-icon icon-name="utility:logout" size="xx-small"></lightning-icon>
+            </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menú principal -->
+    <div class="mainav">
+      <div class="content">
+        <a onclick={clic} class="logow">
+          <img src={logoUrl} alt="Sembrá Evolución - Login" />
+        </a>
+        <nav>
+          <template for:each={navItems} for:item="item">
+            <template if:true={item.submenu}>
+              <div key={item.label} class="item withSub">
+                <button>{item.label}</button>
+                <div class="submenu">
+                  <template for:each={item.submenu} for:item="sub">
+                    <a key={sub.label} href={sub.url}>{sub.label}</a>
+                  </template>
+                </div>
+              </div>
+            </template>
+            <template if:false={item.submenu}>
+              <div key={item.label} class="item">
+                <a href={item.url}>{item.label}</a>
+              </div>
+            </template>
+          </template>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- HEADER SGL -->
+  <header if:false={isSalesforce}>
+    <div class="prenav">
+      <div class="content">
+        <div class="platform">
+          <span>PLATAFORMA COMERCIOS</span>
+        </div>
+        <div class="usernav">
+          <a class="circled" onclick={handleLogout}>
+            <lightning-icon icon-name="utility:logout" size="xx-small"></lightning-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="mainav">
+      <div class="content">
+        <a href="/" class="logow">
+          <img src={logoUrl} alt="Sembrá Evolución - Login" />
+        </a>
+        <nav class="sgl">
+          <a href="/" class="button altborder">&larr; Volver al Portal</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+</template>

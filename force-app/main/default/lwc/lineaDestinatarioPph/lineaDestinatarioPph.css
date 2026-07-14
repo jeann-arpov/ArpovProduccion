@@ -1,0 +1,7 @@
+.disponibles {
+    background-color: var(--pph-green);
+    padding: 5px 0px;
+    font-size: 18px;
+    border-radius: 25px;
+    display: block;
+}

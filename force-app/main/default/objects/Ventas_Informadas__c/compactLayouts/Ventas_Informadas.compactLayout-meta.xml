@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas</fullName>
+    <fields>Name</fields>
+    <fields>Campana_de_Ventas__c</fields>
+    <fields>CUIT_Originante__c</fields>
+    <fields>Razon_Social_Destinatario__c</fields>
+    <fields>Fecha_de_Facturacion__c</fields>
+    <fields>Tipo_de_Comprobante__c</fields>
+    <fields>Variedad__c</fields>
+    <fields>Kilos_por_Bolsa__c</fields>
+    <label>Ventas Informadas</label>
+</CompactLayout>

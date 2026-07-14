@@ -1,0 +1,89 @@
+<template>
+    
+    <template if:true={showModal}>
+        <!-- Modal/Popup Box LWC starts here -->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-modal_large slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box LWC header here -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleOnCloseModal}>
+                        <lightning-icon icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{title}</h2>
+                </header>
+                <!-- Modal/Popup Box LWC body starts here -->
+                <div class="slds-modal__content slds-p-around_medium  slds-is-relative" id="modal-content-id-1">
+                    
+                    <lightning-record-edit-form 
+                        density="comfy"
+                        object-api-name="Case"
+                        onload={handleOnRecordEditFormLoad}>
+                            <lightning-layout-item size="6" class="slds-p-around_medium">
+                                <lightning-input-field value={subject} read-only="true" field-name="Subject"></lightning-input-field>
+                            </lightning-layout-item>
+                            <template for:each={fieldSetMembers} for:item="fsm">
+                                <lightning-layout-item size="6" class="slds-p-around_medium" key={fsm.fieldpath}>
+                                    <lightning-input-field onchange={handleOnInputFieldChange} required={fsm.required} field-name={fsm.fieldpath}></lightning-input-field>
+                                </lightning-layout-item>
+                            </template>
+                    </lightning-record-edit-form>   
+
+                    <lightning-file-upload  
+                            label="Comprobante"
+                            name="fileUploader"
+                            accept={acceptedFormats}
+                            onuploadfinished={handleOnUploadFinished}
+                            multiple=true
+                    ></lightning-file-upload>
+
+                    <div class="slds-grid slds-wrap">
+                        <template for:each={docs} for:item="doc">
+                            <div key={doc.name} class="slds-col slds-size_4-of-12 slds-var-p-around_xx-small">
+                                <div class="slds-box">
+                                    <div class="slds-grid">
+                                        <div class="slds-col slds-size_10-of-12">
+                                            <div class="slds-list_horizontal slds-media_center slds-var-p-vertical_xx-small">
+                                                <div class="slds-show_inline-block slds-align-middle thumbnailImg">
+                                                    <lightning-icon icon-name="doctype:attachment" alternative-text="Doctype file" data-id={doc.Id}  title="Doctype"></lightning-icon>
+                                                </div>
+                                                <div class="slds-show_inline-block slds-var-p-left_x-small slds-truncate slds-var-m-right_x-small">
+                                                    <p>{doc.Title}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-size_2-of-12 slds-text-align_right">
+                                            <lightning-button-icon 
+                                                icon-name="utility:delete" 
+                                                alternative-text="Delete File" 
+                                                data-id={doc.Id}  
+                                                title="Delete File" 
+                                                onclick={handleDelete}
+                                            ></lightning-button-icon>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Spinner -->
+                    <template if:true={showSpinner}>
+                        <lightning-spinner variant="brand" alternative-text="Loading" size="medium"></lightning-spinner>
+                    </template>
+                    
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={handleOnCloseModal}>Cancelar</button>
+                    <button class="slds-button slds-button_brand" onclick={handleOnCreateCase}>Guardar</button>
+                  </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+
+    </template>
+
+</template>

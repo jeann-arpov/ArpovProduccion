@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Auditorias</fullName>
+    <active>true</active>
+    <compactLayoutAssignment>Auditorias</compactLayoutAssignment>
+    <description>Transacciones del tipo &quot;Auditorías&quot;</description>
+    <label>Auditoría</label>
+    <picklistValues>
+        <picklist>Estado__c</picklist>
+        <values>
+            <fullName>Anulación ArPOV</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Aplicada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Borrador</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>Cancelada por NC</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Cobrada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Completa</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Facturada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona Legales</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Gestiona Semillero</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>INFRACCIONADA Y AVISADA</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Incobrable</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Justificada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pedido de Facturacion</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pendiente Cuenta SRE</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pendiente por IIBB</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Gestor__c</picklist>
+        <values>
+            <fullName>Andres Perez</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Ariel Mangoni</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Auditor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Centro de Gestión</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Darío Colombara</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Iván Kostanich</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>José Alberto Martinez</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Julio Navarro</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Lisandro Bussetti</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Luis Recalde</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Mariano Dominguez</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Obtentor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>William Ratcliffe</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Resultado_Validacion_Analista__c</picklist>
+        <values>
+            <fullName>Negativa</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Positiva</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Rol_de_la_Cuenta__c</picklist>
+        <values>
+            <fullName>Comercio</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Distribuidor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Productor</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Subestado__c</picklist>
+        <values>
+            <fullName>Negativa</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Positiva</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Tipo_de_Documento__c</picklist>
+        <values>
+            <fullName>CI</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>DNI</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>LC</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>LE</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>XX_Divisa_Comprobante__c</picklist>
+        <values>
+            <fullName>ARS</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>USD</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>XX_Tipo_de_Comprobante__c</picklist>
+        <values>
+            <fullName>FC</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>LQ</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>NC</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>ND</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HT_Trigo</fullName>
+    <columns>NAME</columns>
+    <columns>Origen__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Fecha_de_Pago__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Venta__c</columns>
+    <columns>Campana__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <columns>HT_Vigente__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Cultivo__c</field>
+        <operation>equals</operation>
+        <value>TRIGO</value>
+    </filters>
+    <filters>
+        <field>Variedad__c</field>
+        <operation>contains</operation>
+        <value>sy</value>
+    </filters>
+    <label>HT Trigo</label>
+</ListView>

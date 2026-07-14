@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Es_Contacto_de_SE</name>
+        <label>Es Contacto de SE?</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
+        <defaultConnector>
+            <targetReference>Acutaliza_Contacto</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si_Contato_SE</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Contacto_con_Email_de_Licencia.Contacto_SE__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Existe_Contacto_con_correo_electronico_de_Licencia</name>
+        <label>Existe Contacto con correo electronico de Licencia?</label>
+        <locationX>248</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference>Creacion_de_Contacto_con_Email_de_Licencia</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si_Contacto_Existente</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Contacto_con_Email_de_Licencia.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Es_Contacto_de_SE</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Al crear o actualizar una Licencia con Estado=Apobada, Licenciatario &lt;&gt; null,( Email &lt;&gt; null ó Firmatne Licencia &lt;&gt; null )valida dentro de los Contactos del Productor Licenciatario exista Contacto con el Email de la Licencia. En caso de encontrarlo lo marca como Contacto de SE y si no es encontrado se crea un nuevo contacto idenficandolo como Contacto SE.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>forApellidoContacto</name>
+        <dataType>String</dataType>
+        <expression>IF ( ISBLANK({!$Record.Firmante_Last_Name__c}),
+     LEFT({!$Record.Cuenta_Productor__r.Name},80),
+     {!$Record.Firmante_Last_Name__c}
+  )</expression>
+    </formulas>
+    <formulas>
+        <name>forEmaildeContactoaBuscar</name>
+        <dataType>String</dataType>
+        <expression>TRIM(
+    SUBSTITUTE(
+        SUBSTITUTE(
+            SUBSTITUTE(
+                SUBSTITUTE(
+                    BLANKVALUE($Record.Email__c, $Record.Firmante_Licencia__c),
+                    &quot; &quot;, &quot;&quot;   /* espacio duro (non-breaking space) */
+                ),
+                &quot;\n&quot;, &quot;&quot;    /* salto de línea */
+            ),
+            &quot;\r&quot;, &quot;&quot;        /* retorno de carro */
+        ),
+        &quot;\t&quot;, &quot;&quot;            /* tabulación */
+    )
+)</expression>
+    </formulas>
+    <formulas>
+        <name>forNombreContacto</name>
+        <dataType>String</dataType>
+        <expression>IF (ISBLANK({!$Record.Firmante_First_Name__c}),
+    &quot;Firmante Licencia&quot;,
+    {!$Record.Firmante_First_Name__c}
+   )</expression>
+    </formulas>
+    <interviewLabel>Licencia - Creacion o Actualizacion de Contacto firmante de la Licencia {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Licencia - Creacion o Actualizacion de Contacto firmante de la Licencia</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>Crea un nuevo Contacto en la Cuenta Licenciatario con Email de la Licencia y marcado como Contacto SE</description>
+        <name>Creacion_de_Contacto_con_Email_de_Licencia</name>
+        <label>Creacion de Contacto con Email de Licencia</label>
+        <locationX>446</locationX>
+        <locationY>539</locationY>
+        <inputAssignments>
+            <field>AccountId</field>
+            <value>
+                <elementReference>$Record.Cuenta_Productor__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Contacto_SE__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Email</field>
+            <value>
+                <elementReference>forEmaildeContactoaBuscar</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FirstName</field>
+            <value>
+                <elementReference>forNombreContacto</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LastName</field>
+            <value>
+                <elementReference>forApellidoContacto</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <description>Busca Contacto con correo electronico = Email  (si no esta vacio) y si esta vacio utiliza el Firmante Licencia (email)de Licendia dentro de los Contactos de la Cuenta Licenciatario</description>
+        <name>Buscar_Contacto_con_Email_de_Licencia</name>
+        <label>Buscar Contacto con Email de Licencia</label>
+        <locationX>248</locationX>
+        <locationY>323</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Existe_Contacto_con_correo_electronico_de_Licencia</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Cuenta_Productor__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Email</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>forEmaildeContactoaBuscar</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Marca al Contacto encontrado como Contacto Sembra</description>
+        <name>Acutaliza_Contacto</name>
+        <label>Acutaliza Contacto SE</label>
+        <locationX>182</locationX>
+        <locationY>647</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Cuenta_Productor__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Buscar_Contacto_con_Email_de_Licencia.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Email</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Email__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Contacto_SE__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Contact</object>
+    </recordUpdates>
+    <start>
+        <locationX>122</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Buscar_Contacto_con_Email_de_Licencia</targetReference>
+        </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterFormula>AND(
+NOT(
+  ISPICKVAL({!$Record.Estado__c},&quot;Eliminada&quot;)
+),
+
+          NOT ISBLANK({!$Record.Cuenta_Productor__c}),
+          OR(NOT ISBLANK({!$Record.Email__c}),NOT ISBLANK({!$Record.Firmante_Licencia__c}))        
+    )</filterFormula>
+        <object>Licencia__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

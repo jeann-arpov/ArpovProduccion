@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_Rol_Originante</fullName>
+    <active>true</active>
+    <description>Si el rol originante es Obtentor, la categoría es Original o Fundadora / Pre Básica y el tipo de venta es C o Venta, si tiene licencia asignada  o si tiene HT acreditada --&gt; no se puede cambiar el rol originante.</description>
+    <errorConditionFormula>AND( TEXT(PRIORVALUE(Rol_Originante__c)) = &apos;Obtentor&apos;,
+     OR( ISPICKVAL(Tipo_de_Venta__c, &apos;C&apos;),
+         ISPICKVAL(Tipo_de_Venta__c, &apos;Venta&apos;) ),
+     OR( Categoria__c = &apos;Original o Fundadora&apos;,
+         Categoria__c = &apos;Pre Básica&apos;),
+     NOT( ISBLANK( HT_Id__c )),
+     NOT( ISBLANK( Licencia__c ) ),
+     ISCHANGED(Rol_Originante__c)
+    )</errorConditionFormula>
+    <errorMessage>No se puede modificar el rol Originante.</errorMessage>
+</ValidationRule>

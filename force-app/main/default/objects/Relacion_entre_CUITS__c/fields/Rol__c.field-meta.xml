@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Rol__c</fullName>
+    <label>Rol</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Cambio de CUIT (Nuevo)</fullName>
+                <default>false</default>
+                <label>Cambio de CUIT (Nuevo)</label>
+            </value>
+            <value>
+                <fullName>Cambio de CUIT (Original)</fullName>
+                <default>false</default>
+                <label>Cambio de CUIT (Original)</label>
+            </value>
+            <value>
+                <fullName>Desglose (Nuevo)</fullName>
+                <default>false</default>
+                <label>Desglose (Nuevo)</label>
+            </value>
+            <value>
+                <fullName>Desglose (Originario)</fullName>
+                <default>false</default>
+                <label>Desglose (Originario)</label>
+            </value>
+            <value>
+                <fullName>Fusión (Nuevo)</fullName>
+                <default>false</default>
+                <label>Fusión (Nuevo)</label>
+            </value>
+            <value>
+                <fullName>Fusión (Originario)</fullName>
+                <default>false</default>
+                <label>Fusión (Originario)</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

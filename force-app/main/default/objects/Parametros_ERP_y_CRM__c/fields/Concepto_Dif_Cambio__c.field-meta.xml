@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Concepto_Dif_Cambio__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Concepto Dif Cambio</label>
+    <referenceTo>ERPvs__Concepto_Facturacion__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM</relationshipLabel>
+    <relationshipName>Par_metros_ERP_y_CRM</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

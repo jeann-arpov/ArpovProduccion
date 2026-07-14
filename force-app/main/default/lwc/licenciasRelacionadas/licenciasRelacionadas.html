@@ -1,0 +1,29 @@
+<template>
+    <lightning-card title="Licencias relacionadas" icon-name="standard:entitlement">
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Cargando licencias" size="small"></lightning-spinner>
+        </template>
+
+        <template if:true={hasLicencias}>
+            <lightning-datatable
+                key-field="codigoLicencia"
+                data={licencias}
+                columns={columns}>
+            </lightning-datatable>
+        </template>
+
+        <template if:false={hasLicencias}>
+            <template if:false={isLoading}>
+                <div class="slds-p-around_small">
+                    No se encontraron licencias para este productor/comercio.
+                </div>
+            </template>
+        </template>
+
+        <template if:true={error}>
+            <div class="slds-text-color_error slds-p-around_small">
+                Ocurrió un error al obtener las licencias.
+            </div>
+        </template>
+    </lightning-card>
+</template>

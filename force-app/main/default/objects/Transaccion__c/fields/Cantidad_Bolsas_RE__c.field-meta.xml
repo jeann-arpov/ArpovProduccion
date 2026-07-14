@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cantidad_Bolsas_RE__c</fullName>
+    <description>Total de Bolsas de 50Kg de Regalia Extendida</description>
+    <externalId>false</externalId>
+    <formula>ROUND(Kilos_Totales_RE__c /50,2)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Total de Bolsas de 50Kg de Regalia Extendida</inlineHelpText>
+    <label>Cantidad Bolsas RE</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Aporte_Gen_tico_Operadores</fullName>
+    <columns>Fecha_de_Aprobacion__c</columns>
+    <columns>Estado_IMG__c</columns>
+    <columns>NAME</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Razon_Social_Distribuidor__c</columns>
+    <columns>Fecha_Licencia_Firmada__c</columns>
+    <columns>Pedir_Poder__c</columns>
+    <columns>Created__c</columns>
+    <columns>Tipo__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Cuit_Productor__c</columns>
+    <columns>Firmante_First_Name__c</columns>
+    <columns>Firmante_Last_Name__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>equals</operation>
+        <value>RR,Aporte Genético</value>
+    </filters>
+    <filters>
+        <field>Metodo_firma__c</field>
+        <operation>equals</operation>
+        <value>Electronica</value>
+    </filters>
+    <filters>
+        <field>NAME</field>
+        <operation>startsWith</operation>
+        <value>BASF</value>
+    </filters>
+    <label>Licencias Aporte Genético - Operadores</label>
+</ListView>

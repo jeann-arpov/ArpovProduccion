@@ -1,0 +1,100 @@
+<template>
+    <div class="ventas-container">
+        <!-- TOP BAR con título + filtros y botón -->
+        <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">PRODUCTOS / LISTAS</div>
+                <div class="title">Mis Productos</div>
+            </div>
+
+            <div class="acciones-derecha">
+
+            </div>
+        </div>
+
+        <!-- Info + buscador -->
+        <div class="info-busqueda">
+            <div class="ventas-info">
+                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de creación • <br>
+                Filtrado por Todas las ventas ht - Estado • Se actualizó hace una hora
+            </div>
+
+            <div class="ventas-search">
+                <input type="text" oninput={handleSearchChange} placeholder="Buscar por variedad..." />
+                <span class="search-icon">
+                    <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                </span>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <table>
+            <thead>
+                <tr>
+                    <th>MARCA</th>
+                    <th>PRODUCTO OBTENTOR</th>
+                    <th>VARIEDAD</th>
+                    <th>TIPO DE COMPRA</th>
+                    <th>VIGENTE</th>
+                    <th>FECHA DE CREACIÓN</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <template for:each={decoratedProductos} for:item="l">
+                    <tr key={l.id}>
+                        <td>{l.marca}</td>
+
+                        <td>
+                            <a href="javascript:void(0)" class="name-link"
+                                data-id={l.id}
+                                onclick={handleRowAction}>
+                                {l.productoObtentor}
+                            </a>
+                        </td>
+
+                        <td>{l.variedad}</td>
+                        <td>{l.tipoCompra}</td>
+
+                        <td>
+                            <template if:true={l.vigente}>Sí</template>
+                            <template if:false={l.vigente}>No</template>
+                        </td>
+
+                        <td>{l.fechaCreacion}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+
+        <!-- Navegación -->
+        <div class="paginacion">
+            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+            <span>Página {currentPage}</span>
+            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+        </div>
+
+    </div>
+
+    <template if:true={showModal}>
+        <div class="modal-backdrop">
+            <div class="modal">
+                <button class="modal-close" onclick={closeModal}>✕</button>
+                <h2>Generar Reporte</h2>
+                <p>
+                    Se va a generar un reporte con todos los datos<br>
+                    de la tabla de licencias.<br>
+                    ¿Está seguro?
+                </p>
+                
+                <button class="modal-start" onclick={handleCall}> Comenzar ➝</button>
+            </div>
+        </div>
+    </template>
+
+    <template if:true={isLoading}>
+        <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>
+</template>

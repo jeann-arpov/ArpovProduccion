@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Todas_las_ventas</fullName>
+    <columns>NAME</columns>
+    <columns>Originante__c</columns>
+    <columns>Originante_CUIT__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Fecha__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Destinatario_CUIT__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Capsula__c</columns>
+    <columns>Obtentor__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Campana_Agricola__c</field>
+        <operation>equals</operation>
+        <value>2025 - soja</value>
+    </filters>
+    <filters>
+        <field>Categoria__c</field>
+        <operation>equals</operation>
+        <value>Pre Básica</value>
+    </filters>
+    <filters>
+        <field>Rol_Destinatario__c</field>
+        <operation>equals</operation>
+        <value>Productor</value>
+    </filters>
+    <label>Todas las ventas</label>
+</ListView>

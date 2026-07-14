@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Evaluacion_Comision</name>
+        <label>Evaluación Comisión</label>
+        <locationX>259</locationX>
+        <locationY>323</locationY>
+        <defaultConnector>
+            <targetReference>Tiene_CV_Comisiones</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Calcula Comisión por Custom Settings</defaultConnectorLabel>
+        <rules>
+            <name>Forzar_Comision</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Forzar_Comision_ArPOV__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Porcentaje_Comision_ArPOV__c</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualiza_Comision_ArPOV_Forzada</targetReference>
+            </connector>
+            <label>Forzar Comisión</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Modelo_Facturacion</name>
+        <label>Modelo Facturación</label>
+        <locationX>622</locationX>
+        <locationY>539</locationY>
+        <defaultConnectorLabel>CYO</defaultConnectorLabel>
+        <rules>
+            <name>Punto_de_Venta_ano_actual</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Oportunidad__r.Punto_de_Venta__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.CreatedDate</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>varThisYearDateTime</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Calcula_Comision_ArPOV</targetReference>
+            </connector>
+            <label>Punto de Venta año actual</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Tiene_CV_Comisiones</name>
+        <label>Tiene CV Comisiones</label>
+        <locationX>468</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference>Modelo_Facturacion</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.CV_Comisiones_SE__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>V2: Actualiza % Comisión y Comisión ArPOV para todo APSE
+V3: Se reescribe todo el flow para considerar actualización de la comisión en base a valores manuales por cortes solicitados o recálculo de la comisión para PV que venga errónea desde la API
+V4: Se agrega la condición de que el APSE no esté comisionado.
+V5: Se modifica el cálculo comisión para contemplar remanentes de registros año anterior a valor comisión año anterior
+V6: Se modifica el cálculo comisión basado en mail 18/11 de Yanina considerando el % de comisión año en curso para todos los casos, sin tener en cuenta fecha de recibo</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>varComisionARPOV</name>
+        <dataType>Number</dataType>
+        <expression>IF({!$Record.Comision_Directa__c} = TRUE, {!$Record.Importe__c} * {!$Record.Tipo_de_Cambio__c} * {!varPorcComisionDirectaCS} /100 * {!$Record.Oportunidad__r.Percepciones__c}, {!$Record.Importe__c} * {!$Record.Tipo_de_Cambio__c} * {!varPorcComisionCanalCS} /100 * {!$Record.Oportunidad__r.Percepciones__c})</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varComisionARPOVForzada</name>
+        <dataType>Number</dataType>
+        <expression>{!$Record.Importe__c} * {!$Record.Tipo_de_Cambio__c} * {!$Record.Oportunidad__r.Percepciones__c}* {!varPorcComision} /100</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varNuevoPorcComision</name>
+        <dataType>Number</dataType>
+        <expression>IF({!$Record.Comision_Directa__c} = TRUE, {!varPorcComisionDirectaCS}, {!varPorcComisionCanalCS})</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varPorcComision</name>
+        <dataType>Number</dataType>
+        <expression>{!$Record.Porcentaje_Comision_ArPOV__c}</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varPorcComisionCanalCS</name>
+        <dataType>Number</dataType>
+        <expression>{!$Setup.camposArpov__c.ComisionHTporCanal__c}</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varPorcComisionDirectaCS</name>
+        <dataType>Number</dataType>
+        <expression>{!$Setup.camposArpov__c.ComisionHTDirecto__c}</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>varThisYearDate</name>
+        <dataType>Date</dataType>
+        <expression>DATE(YEAR(TODAY()),1,1)</expression>
+    </formulas>
+    <formulas>
+        <name>varThisYearDateTime</name>
+        <dataType>DateTime</dataType>
+        <expression>DATETIMEVALUE(DATE(YEAR(TODAY()),1,1))+0.125</expression>
+    </formulas>
+    <interviewLabel>MF.Calcula Comision ARPOV SE (Flow) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>MOV.Calcula Comision ARPOV SE (Flow)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_Comision_ArPOV_Forzada</name>
+        <label>Actualiza Comision ArPOV Forzada</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <inputAssignments>
+            <field>Comision_ArPOV__c</field>
+            <value>
+                <elementReference>varComisionARPOVForzada</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Forzar_Comision_ArPOV__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Calcula_Comision_ArPOV</name>
+        <label>Calcula Comisión ArPOV</label>
+        <locationX>490</locationX>
+        <locationY>647</locationY>
+        <inputAssignments>
+            <field>Comision_ArPOV__c</field>
+            <value>
+                <elementReference>varComisionARPOV</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Porcentaje_Comision_ArPOV__c</field>
+            <value>
+                <elementReference>varNuevoPorcComision</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>133</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Evaluacion_Comision</targetReference>
+        </connector>
+        <filterFormula>{!$Record.Tipo_de_Movimiento__c} = &quot;APSE&quot; &amp;&amp; {!$Record.Importe__c} &gt; 0 &amp;&amp; {!$Record.Tipo_de_Cambio__c} &gt;0</filterFormula>
+        <object>Movimientos__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

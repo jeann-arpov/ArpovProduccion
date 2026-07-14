@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_Procesadas_Lgtn</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Resultado__c</columns>
+    <columns>NAME</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>CUIT_Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Resultado__c</field>
+        <operation>equals</operation>
+        <value>OK</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Procesado</value>
+    </filters>
+    <filters>
+        <field>Categoria__c</field>
+        <operation>contains</operation>
+        <value>pre básica</value>
+    </filters>
+    <label>Ventas Informadas Procesadas Lgtn</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

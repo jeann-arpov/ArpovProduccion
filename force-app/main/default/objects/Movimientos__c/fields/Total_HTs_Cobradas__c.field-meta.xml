@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_HTs_Cobradas__c</fullName>
+    <description>Total de HTs cobradas por APSE en relación a las HTs facturadas en una oportunidad de SE</description>
+    <externalId>false</externalId>
+    <formula>IF(Tipo_de_Movimiento__c = &quot;APSE&quot; &amp;&amp; Oportunidad__r.RecordType.Name = &quot;Sembrá Evolución&quot; &amp;&amp;  Moneda__c &lt;&gt; &quot;ARS&quot;, Oportunidad__r.Compra_HT__r.Total_HT__c * ( Importe__c /  Oportunidad__r.Total_Comprobante__c ),
+0)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Muestra las HTs cobradas, por APSE, en relación al total de HTs facturadas de la oportunidad para SE</inlineHelpText>
+    <label>Total HTs Cobradas</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

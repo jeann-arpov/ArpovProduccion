@@ -1,0 +1,195 @@
+<template>
+    <div class="ventas-container">
+        <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">VENTAS INFORMADAS</div>
+                <div class="title">Ventas Informadas Procesadas</div>
+            </div>
+
+            <div class="acciones-derecha">
+                <div class="page-size-selector">
+                    <label>Registros/pág:</label>
+                    <div class="dropdown-control">
+                        <lightning-combobox
+                            class="page-size-combobox"
+                            variant="label-hidden"
+                            value={pageSizeValue}
+                            options={pageSizeComboboxOptions}
+                            dropdown-alignment="right"
+                            onchange={handlePageSizeChange}
+                        ></lightning-combobox>
+                        <span class="dropdown-indicator">▼</span>
+                    </div>
+                </div>
+                <button class="btn-exportar" onclick={handleExportClick}>
+                    Exportar
+                </button>
+            </div>
+        </div>
+
+        <div class="ventas-info">
+            {totalRegistros} de {totalCargados} elementos • Ordenado por Fecha de creación • Estado = Procesado
+        </div>
+        <div class="ventas-ayuda">
+            Utilice los filtros en cada columna para refinar la grilla. Puede modificar la cantidad de registros por página desde el selector superior y ajustar el ancho de columnas arrastrando el borde del encabezado.
+        </div>
+
+        <div class="table-loading-container">
+            <template if:true={isLoading}>
+                <div class="loading-overlay">
+                    <lightning-spinner alternative-text="Cargando registros" size="medium"></lightning-spinner>
+                </div>
+            </template>
+        <div class={tableWrapperClass}>
+        <table class="ventas-table">
+            <colgroup>
+                <template for:each={columnColStyles} for:item="col">
+                    <col key={col.key} style={col.style}></col>
+                </template>
+            </colgroup>
+                <thead>
+                    <tr>
+                        <th class="sortable resizable-th" data-field="campanaAgri" title="Campaña Agrícola" onclick={handleSort}>
+                            <span class="th-content">Campaña Agrícola <span class="sort-icon">{getSortIcon('campanaAgri')}</span></span>
+                            <span class="col-resize-handle" data-col-index="0" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="destinatario" title="Destinatario" onclick={handleSort}>
+                            <span class="th-content">Destinatario <span class="sort-icon">{getSortIcon('destinatario')}</span></span>
+                            <span class="col-resize-handle" data-col-index="1" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="cuitDest" title="CUIT Destinatario" onclick={handleSort}>
+                            <span class="th-content">CUIT Destinatario <span class="sort-icon">{getSortIcon('cuitDest')}</span></span>
+                            <span class="col-resize-handle" data-col-index="2" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="variedad" title="Variedad" onclick={handleSort}>
+                            <span class="th-content">Variedad <span class="sort-icon">{getSortIcon('variedad')}</span></span>
+                            <span class="col-resize-handle" data-col-index="3" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="categoria" title="Categoría" onclick={handleSort}>
+                            <span class="th-content">Categoría <span class="sort-icon">{getSortIcon('categoria')}</span></span>
+                            <span class="col-resize-handle" data-col-index="4" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="cantidad-header resizable-th col-centered" title="Cantidad">
+                            <span class="th-content cantidad-header-title">Cantidad</span>
+                            <span class="col-resize-handle" data-col-index="5" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="tipoCompExterno" title="Tipo Comprobante" onclick={handleSort}>
+                            <span class="th-content">Tipo de Comprobante <span class="sort-icon">{getSortIcon('tipoCompExterno')}</span></span>
+                            <span class="col-resize-handle" data-col-index="6" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="fechaFact" title="Fecha Facturación" onclick={handleSort}>
+                            <span class="th-content">Fecha Facturación <span class="sort-icon">{getSortIcon('fechaFact')}</span></span>
+                            <span class="col-resize-handle" data-col-index="7" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="numero" title="N° Comprobante" onclick={handleSort}>
+                            <span class="th-content">N° Comprobante <span class="sort-icon">{getSortIcon('numero')}</span></span>
+                            <span class="col-resize-handle" data-col-index="8" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th col-centered" data-field="lineaComprobante" title="Línea de Comprobante" onclick={handleSort}>
+                            <span class="th-content">Línea de Comprobante <span class="sort-icon">{getSortIcon('lineaComprobante')}</span></span>
+                            <span class="col-resize-handle" data-col-index="9" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                        <th class="sortable resizable-th" data-field="name" title="Venta Informada" onclick={handleSort}>
+                            <span class="th-content">Venta Informada <span class="sort-icon">{getSortIcon('name')}</span></span>
+                            <span class="col-resize-handle" data-col-index="10" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th><input type="text" class="filter-input" data-field="campanaAgri" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="destinatario" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="cuitDest" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="variedad" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="categoria" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th class="cantidad-filter-cell">
+                            <div class="cantidad-unidad-control">
+                                <select class="unidad-select" onchange={handleUnidadChange} value={unidadSeleccionada}>
+                                    <option value="Bolsas 40 Kg">Bolsas 40 Kg</option>
+                                    <option value="Kilos">Kilos</option>
+                                    <option value="BigBags 800 Kg">BigBags 800 Kg</option>
+                                </select>
+                            </div>
+                        </th>
+                        <th><input type="text" class="filter-input" data-field="tipoCompExterno" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="fechaFact" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="numero" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="lineaComprobante" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                        <th><input type="text" class="filter-input" data-field="name" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={ventasPagina} for:item="v">
+                        <tr key={v.id}>
+                            <td>{v.campanaAgri}</td>
+                            <td class="col-destinatario" title={v.destinatario}>{v.destinatario}</td>
+                            <td>{v.cuitDest}</td>
+                            <td class="col-variedad" title={v.variedad}>{v.variedad}</td>
+                            <td>{v.categoria}</td>
+                            <td class="col-centered">{v.cantidadDisplay}</td>
+                            <td>{v.tipoCompExterno}</td>
+                            <td>{v.fechaFact}</td>
+                            <td class="col-comprobante" title={v.numero}>{v.numero}</td>
+                            <td class="col-centered">{v.lineaComprobante}</td>
+                            <td class="col-venta-informada" title={v.name}>{v.name}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+        <div class="paginacion">
+            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+            <span>Página {currentPage}</span>
+            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+        </div>
+
+        <template if:true={showExportModal}>
+            <div class="modal-overlay">
+                <div class="modal-container modal-export">
+                    <div class="modal-header">
+                        <span class="modal-title">Exportar registros</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="export-section">
+                            <span class="export-section-label">Formato de archivo</span>
+                            <div class="export-format-options">
+                                <label class="export-radio">
+                                    <input type="radio" name="exportFormat" value="xlsx" checked={exportFormatXlsx} onchange={handleExportFormatChange} />
+                                    Excel (.xlsx)
+                                </label>
+                                <label class="export-radio">
+                                    <input type="radio" name="exportFormat" value="csv" checked={exportFormatCsv} onchange={handleExportFormatChange} />
+                                    CSV (.csv)
+                                </label>
+                            </div>
+                        </div>
+
+                        <template if:true={tieneFiltrosActivos}>
+                            <div class="export-section">
+                                <span class="export-section-label">Registros a exportar</span>
+                                <div class="export-format-options">
+                                    <label class="export-radio">
+                                        <input type="radio" name="exportScope" value="filtered" checked={exportScopeFiltered} onchange={handleExportScopeChange} />
+                                        Filtrados ({exportTotalFiltrados})
+                                    </label>
+                                    <label class="export-radio">
+                                        <input type="radio" name="exportScope" value="all" checked={exportScopeAll} onchange={handleExportScopeChange} />
+                                        Todos ({exportTotalTodos})
+                                    </label>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template if:false={tieneFiltrosActivos}>
+                            <p class="modal-export-info">Se exportarán {exportTotalTodos} registros.</p>
+                        </template>
+                    </div>
+                    <div class="modal-footer modal-footer-export">
+                        <button class="btn-cancelar" onclick={handleCancelExport}>Cancelar</button>
+                        <button class="btn-confirmar" onclick={handleConfirmExport}>Exportar</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

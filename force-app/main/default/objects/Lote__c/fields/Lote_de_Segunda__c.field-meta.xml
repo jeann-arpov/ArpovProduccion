@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lote_de_Segunda__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica si se trata de un lote especial para captura de segunda</description>
+    <inlineHelpText>Indica si se trata de un lote especial para captura de segunda</inlineHelpText>
+    <label>Lote de Segunda</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

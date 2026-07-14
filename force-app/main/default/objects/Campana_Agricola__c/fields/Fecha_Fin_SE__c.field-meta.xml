@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Fin_SE__c</fullName>
+    <description>Feha de fin de vigencia de la campaña para el sistema Sembrá Evolución.</description>
+    <label>Fecha Fin SE</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Movimiento_Importe_Moneda_del_Comproban</fullName>
+        <field>Importe_Moneda_Comprobante__c</field>
+        <formula>IF( (Tipo_de_Movimiento__c = &quot;NCT&quot; || Tipo_de_Movimiento__c = &quot;NDT&quot; || (Tipo_de_Movimiento__c = &quot;APSE&quot; &amp;&amp; Moneda__c = &quot;ARS&quot; &amp;&amp; TEXT( Oportunidad__r.Divisa_Comprobante__c ) &lt;&gt; &quot;ARS&quot;) ),0,
+        IF( Moneda__c = &quot;ARS&quot; &amp;&amp; TEXT( Oportunidad__r.Divisa_Comprobante__c ) &lt;&gt; &quot;ARS&quot;, Importe__c * Multiplicador__c / Tipo_de_Cambio__c,
+                Importe__c * Multiplicador__c
+        )
+)</formula>
+        <name>Movimiento. Importe Moneda del Comproban</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Movimiento%2E Importe Moneda del Comprobante</fullName>
+        <actions>
+            <name>Movimiento_Importe_Moneda_del_Comproban</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Movimientos__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Calcula el importe del movimiento expresado en la moneda del comprobante</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

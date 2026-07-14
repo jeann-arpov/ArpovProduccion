@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Acceso de lectura/escritura al campo Importa ventas portal comercio en Account.</description>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.Importa_Ventas_Portal_Comercio__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Importa Ventas Portal Comercio</label>
+</PermissionSet>

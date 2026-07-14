@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Obtentor_Distribuidor__c</fullName>
+    <description>Es la lista de cuits (separados por &quot;,&quot;) tal que en Regalía Extendida son obtentores pero en Sembrá Evolución son Distribuidores.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Es la lista de cuits (separados por &quot;,&quot;) tal que en Regalía Extendida son obtentores pero en Sembrá Evolución son Distribuidores.</inlineHelpText>
+    <label>Obtentor - Distribuidor</label>
+    <length>255</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

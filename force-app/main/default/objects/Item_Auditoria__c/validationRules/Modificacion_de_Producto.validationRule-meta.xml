@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Modificacion_de_Producto</fullName>
+    <active>false</active>
+    <description>Valida que no pueda eliminarse el producto, de forma tal de no afectar los cálculos que toman el precio. Dado que el precio se carga sólamente al momento de generear el lineitem.</description>
+    <errorConditionFormula>ISCHANGED( Producto__c )</errorConditionFormula>
+    <errorDisplayField>Producto__c</errorDisplayField>
+    <errorMessage>No puede modificar el producto. En caso de error, elimine el registro y vuelva a generarlo con el producto correcto.</errorMessage>
+</ValidationRule>

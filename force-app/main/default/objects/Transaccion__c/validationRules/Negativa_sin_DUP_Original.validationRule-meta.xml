@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Negativa_sin_DUP_Original</fullName>
+    <active>true</active>
+    <description>Valida que no se pueda crear una transacción con subestado Negativo sin una DUP Original</description>
+    <errorConditionFormula>RecordType.Name = &quot;DUP&quot; &amp;&amp; ISPICKVAL(Subestado__c,&quot;Negativa&quot;)&amp;&amp;ISBLANK( DUP_Original__c)</errorConditionFormula>
+    <errorDisplayField>DUP_Original__c</errorDisplayField>
+    <errorMessage>Debe seleccionar la DUP original</errorMessage>
+</ValidationRule>

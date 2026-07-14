@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Copia_de_Ventas_Informadas_para_Eliminar</fullName>
+    <columns>NAME</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <columns>Razon_Social_Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Razon_Social_Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad_Bolsas_40__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Procesado</value>
+    </filters>
+    <filters>
+        <field>Originante__c</field>
+        <operation>equals</operation>
+        <value>M.S. TECHNOLOGIES ARGENTINA S.R.L.</value>
+    </filters>
+    <filters>
+        <field>Rol_Originante__c</field>
+        <operation>equals</operation>
+        <value>Distribuidor</value>
+    </filters>
+    <label>Copia de Ventas Informadas para Eliminar</label>
+</ListView>

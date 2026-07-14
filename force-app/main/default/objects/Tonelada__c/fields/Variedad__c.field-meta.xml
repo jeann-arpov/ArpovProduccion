@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Variedad__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Variedad</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Variedad__c.Biotecnologia__c</field>
+            <operation>equals</operation>
+            <value>RR1, RR2 - BT, Enlist E3, Conkesta E3, Convencional</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Variedad__c</referenceTo>
+    <relationshipLabel>Toneladas</relationshipLabel>
+    <relationshipName>Toneladas</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

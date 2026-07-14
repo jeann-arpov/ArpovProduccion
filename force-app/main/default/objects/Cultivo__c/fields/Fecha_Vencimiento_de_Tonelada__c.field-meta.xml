@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Vencimiento_de_Tonelada__c</fullName>
+    <formula>IF(
+    (DATE(YEAR(TODAY()), MONTH(Fecha_Vencimiento_Tonelada__c), DAY(Fecha_Vencimiento_Tonelada__c)) &lt; TODAY()),
+    DATE(YEAR(TODAY()) + 1, MONTH(Fecha_Vencimiento_Tonelada__c), DAY(Fecha_Vencimiento_Tonelada__c)),
+    DATE(YEAR(TODAY()), MONTH(Fecha_Vencimiento_Tonelada__c), DAY(Fecha_Vencimiento_Tonelada__c))
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Fecha Vencimiento de Tonelada</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

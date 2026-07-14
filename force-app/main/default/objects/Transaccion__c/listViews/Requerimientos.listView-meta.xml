@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Requerimientos</fullName>
+    <columns>NAME</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Nombre_de_la_cuenta__c</columns>
+    <columns>Estado__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Transaccion__c.Requerimiento</value>
+    </filters>
+    <label>Requerimientos</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

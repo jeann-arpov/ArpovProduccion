@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cesion_de_TNs</fullName>
+    <columns>NAME</columns>
+    <columns>Productor__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Biotecnologia__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Credito__c</columns>
+    <columns>Debito__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <columns>Nombre_Obtentor__c</columns>
+    <columns>Linea_Cesion_HT__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Cesión HT</value>
+    </filters>
+    <filters>
+        <field>TN_Vigente__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Cesión de TNs</label>
+</ListView>

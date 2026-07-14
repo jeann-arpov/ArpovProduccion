@@ -1,0 +1,73 @@
+@import 'c/pphCss';
+
+:host {
+    padding: 2.5rem;
+    display:block;
+    box-shadow: 1px 1px 2px 2px var(--pph-gray);
+    --slds-g-color-border-base-1: black;
+}
+
+.file-upload{
+    --slds-g-color-border-base-4: black;
+    --slds-c-button-text-color: white;
+    --slds-c-button-neutral-color-background:black;
+    --slds-c-button-radius-border:20px;
+    --lwc-borderWidthThin: 0px;
+}
+
+.black-button{
+    --slds-c-button-text-color: white;
+    --slds-c-button-neutral-color-background:black;
+    --slds-c-button-radius-border:20px;
+}
+
+.plus-sign {
+    border: 1px solid black;
+    padding: 0px 3px;
+    margin-right: 5px;
+    font-size: 14px;
+}
+
+.add-destinatario {
+    --lwc-squareIconMediumBoundary: 1.5rem;
+    color:black;
+    --lwc-colorTextIconDefault: black;
+    --slds-c-button-text-color-hover: black;
+    --lwc-buttonColorBorderPrimary: black;
+    position:absolute;
+}
+
+.add-destinatario b {
+    font-size: 18px;
+}
+
+c-destinatario-pph {
+    display: block;
+}
+
+.continue {
+    display: block;
+}
+
+.banner-container {
+    display: flex;
+    width:100%;
+}
+  
+.warning-banner {
+    flex: 1 0 50%;
+    background-color: var(--pph-green);
+    color: black;
+    display:flex;
+    align-items:center;
+}
+
+.banner{
+    flex: 2 0 50%;
+}
+
+.comprar-button{
+    flex-basis:22%;
+    display:flex;
+    align-items: center;
+}

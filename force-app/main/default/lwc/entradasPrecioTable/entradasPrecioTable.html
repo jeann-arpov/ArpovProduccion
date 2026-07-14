@@ -1,0 +1,73 @@
+<template>
+    <div class="ept-container">
+
+        <!-- Botón Nuevo -->
+        <div class="ept-actions">
+            <button class="ept-btn-new" onclick={openModal}>Nuevo</button>
+        </div>
+
+        <!-- Tabla -->
+        <template if:true={hasRows}>
+            <lightning-datatable
+                key-field="Id"
+                data={precios}
+                columns={columns}
+                hide-checkbox-column
+                show-row-number-column={showRowNumbers}
+                class="ept-table"
+            ></lightning-datatable>
+        </template>
+
+        <template if:true={noRows}>
+            <div class="ept-empty">
+                <span class="ept-icon">📭</span>
+                <span class="ept-text">No hay entradas de precio registradas.</span>
+            </div>
+        </template>
+    </div>
+
+    <!-- MODAL -->
+    <template if:true={showModal}>
+        <div class="ept-modal-backdrop"></div>
+
+        <div class="ept-modal">
+            <div class="ept-modal-header">
+                <h2>Crear Entrada Precio Obtentor</h2>
+            </div>
+
+            <div class="ept-modal-body">
+
+                <div class="ept-field">
+                    <label>Precio Unitario *</label>
+                    <input type="number"
+                    step="0.01"
+                    class="ept-input"
+                    data-field="Precio_Unitario__c"
+                    onchange={handlePrice}>
+                </div>
+
+                <div class="ept-field">
+                    <label>Fecha Inicio *</label>
+                    <input type="date"
+                           class="ept-input"
+                           data-field="Fecha_Inicio__c"
+                           onchange={handleInput}>
+                </div>
+
+                <div class="ept-field">
+                    <label>Fecha Fin</label>
+                    <input type="date"
+                           class="ept-input"
+                           data-field="Fecha_Fin__c"
+                           onchange={handleInput}>
+                </div>
+
+            </div>
+
+            <div class="ept-modal-footer">
+                <button class="ept-btn-cancel" onclick={closeModal}>Cancelar</button>
+                <button class="ept-btn-save" onclick={save}>Guardar</button>
+            </div>
+        </div>
+    </template>
+</template>

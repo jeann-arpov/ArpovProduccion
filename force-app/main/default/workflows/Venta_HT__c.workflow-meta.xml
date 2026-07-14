@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Venta_HT_caduca_en_12hs</fullName>
+        <description>Venta HT caduca en 12hs</description>
+        <protected>false</protected>
+        <recipients>
+            <type>owner</type>
+        </recipients>
+        <senderAddress>gestion@sembraevolucion.com.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Venta_HTs_Vencimiento_operacion</template>
+    </alerts>
+</Workflow>

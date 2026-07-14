@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gestiones_Efectivas</fullName>
+    <columns>NAME</columns>
+    <columns>Operador__c</columns>
+    <columns>Fecha_y_Hora__c</columns>
+    <columns>Modo_de_Contacto__c</columns>
+    <columns>Cantidad_de_Casos_Gestionados__c</columns>
+    <columns>Temas_Tratados_Efectivos__c</columns>
+    <columns>Resultado_de_la_Gestion__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Resultado_de_la_Gestion__c</field>
+        <operation>equals</operation>
+        <value>Efectiva</value>
+    </filters>
+    <label>Gestiones Efectivas</label>
+</ListView>

@@ -1,0 +1,617 @@
+<template>
+    <!-- PASOS (cuando aún no se muestra el resumen) -->
+    <template if:false={showResumen}>
+        <div class="container">
+            <!-- Paso 1: Cultivo -->
+            <div class={step1Class}>
+                <div class="step-header" data-step="1" onclick={handleStepClick}>
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Seleccionar Cultivo</div>
+                </div>
+                <template if:true={isStep1Active}>
+                    <div class="step-content">
+                        <template for:each={decoratedCultivos} for:item="c">
+                            <div key={c.nombre}
+                                 class={c.cssClass}
+                                 data-nombre={c.nombre}
+                                 data-id={c.id}
+                                 onclick={handleSelectCultivo}>
+                                <div class="cultivo-card">
+                                    <img src={c.icono} alt="" class="cultivo-icon" />
+                                </div>
+                                <div class="cultivo-divider"></div>
+                                <div class="cultivo-label">{c.nombre}</div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Paso 2: Productor -->
+            <div class={step2Class}>
+                <div class="step-header" data-step="2" onclick={handleStepClick}>
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Seleccionar Productor</div>
+                </div>
+                <template if:true={isStep2Active}>
+                    <div class="step-content vertical">
+                        <c-lookup variant="label-hidden"
+                                  required
+                                  onselectionchange={productorSelected}
+                                  onsearch={search}
+                                  label="Productor"
+                                  class="custom-combobox"
+                                  placeholder="Ingrese CUIT del productor">
+                            <div slot="no-results">
+                                <span style="color:#FF0000;font-size:18px;">CUIT NO REGISTRADO</span>
+                                <div style="color:#1C1C1C;font-size: 14px">Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.</div>
+                                <div style="color:#1C1C1C;font-size: 14px">Por favor póngase en contacto con la mesa de ayuda de Sembrá Evolución</div>
+                            </div>
+                        </c-lookup>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Paso 3: Tipo de HT -->
+            <div class={step3Class}>
+                <div class="step-header" data-step="3" onclick={handleStepClick}>
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Seleccionar Tipo de HT</div>
+                </div>
+                <template if:true={isStep3Active}>
+                    <div class="step-content">
+                        <template for:each={decoratedTiposCompra} for:item="tc">
+                            <div key={tc.value}
+                                 class={tc.cssClass}
+                                 data-tipo={tc.value}
+                                 onclick={handleSelectTipoCompra}>
+                                <div class="tipo-card-title">{tc.label}</div>
+                                <div class="tipo-card-desc">{tc.description}</div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Paso 4: Marca -->
+            <div class={step4Class}>
+                <div class="step-header" data-step="4" onclick={handleStepClick}>
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Seleccionar Marca</div>
+                </div>
+                <template if:true={isStep4Active}>
+                    <div class="step-content vertical">
+                        <c-semillero-data-new placeholder="Seleccionar marca"
+                                              disabled={productorMissing}
+                                              missing-confirm-data={missingConfirmData}
+                                              semilleros={filteredSemilleros}
+                                              semillero-data={semilleroData}
+                                              onopencondicionescomerciales={openCondicionesComerciales}
+                                              onsemilleroselected={semilleroSelected}
+                                              onsemilleroselectedejecuto={semilleroSelectedEjecuto}
+                                              onconfirm={confirm}
+                                              onredirectmislicencias={redirectMisLicencias}>
+                        </c-semillero-data-new>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <!-- RESUMEN / FORMULARIO PRINCIPAL -->
+    <template if:true={showResumen}>
+        <!-- Componente oculto (para levantar ícono/semillero) -->
+        <div class="step-content vertical" style="display:none;">
+            <c-semillero-data-new data-id="semilleroComponent" placeholder="Seleccionar marca"
+                                  disabled={productorMissing}
+                                  missing-confirm-data={missingConfirmData}
+                                  semilleros={semilleros}
+                                  semillero-data={semilleroData}
+                                  onopencondicionescomerciales={openCondicionesComerciales}
+                                  onsemilleroselected={semilleroSelected}
+                                  onsemilleroiconready={handleSemilleroIconReady}
+                                  onconfirm={confirm}
+                                  onredirectmislicencias={redirectMisLicencias}>
+            </c-semillero-data-new>
+        </div>
+
+        <!-- Header con logo y datos -->
+        <div class="venta-header">
+            <lightning-layout-item class="logo-container" style="width: 210px" padding="horizontal-small">
+                <svg width="200" height="100">
+                    <use xlink:href={semilleroIcono}></use>
+                </svg>
+            </lightning-layout-item>
+            <div class="info-box">
+                <div class="info-card">
+                    <label>CULTIVO</label>
+                    <div>{cultivoNombre}</div>
+                </div>
+                <div class="info-card">
+                    <label>PRODUCTOR</label>
+                    <div>{productorNombre}</div>
+                </div>
+                <div class="info-card">
+                    <label>CUIT NRO.</label>
+                    <div>{cuit}</div>
+                </div>
+            </div>
+            <!-- <div class="boton-comercial">
+                <button class="btn-comercial" onclick={openCondicionesComerciales}>
+                    <span>
+                        <img src={iconCondicionesHTUrl} alt="Condiciones" class="icon-svg" />
+                    </span> CONDICIONES COMERCIALES
+                </button>
+            </div> -->
+        </div>
+
+        <!-- Card de variedades -->
+        <div class="variedades-card">
+            <!-- Header de tabla -->
+            <div class="variedades">
+                <div class="tabla-grid tabla-grid-header tabla-grid-con-tipo">
+                    <div class="col-header">
+                        <span if:false={finalizada}>Seleccioná </span>Variedad
+                    </div>
+                    <div class="col-header">Tipo de HT</div>
+                    <div class="col-header">Fecha Conversión</div>
+                    <div class="col-header">Cantidad HT</div>
+                    <div class="col-header">Precio Unit. (USD)</div>
+                    <div class="col-header">Total (USD)</div>
+                    <div class="col-header">Estado</div>
+                    <div class="col-header">Licencia</div>
+                    <div class="col-header"></div>
+                </div>
+
+                <!-- Filas dinámicas -->
+                <template if:true={guardandoLineas}>
+                    <div class="guardando-lineas-panel">
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <span>Guardando variedades...</span>
+                    </div>
+                </template>
+                <template if:false={guardandoLineas}>
+                    <template for:each={decoratedItems} for:item="item" for:index="index">
+                        <div key={item.id} class="linea-variedad" style={item.zStyle}>
+                            <c-crear-linea-venta-new
+                                record={item.record}
+                                batch-saving={guardandoLineas}
+                                factura={item.factura}
+                                index={item.id}
+                                price-book-entries={variedades}
+                                semillero-id={semillero}
+                                cultivo-seleccionado={cultivoNombre}
+                                tipo-compra-seleccionado={tipoCompraSeleccionado}
+                                onloadingchange={handleLoadingChange}
+                                ondelete={removeRow}
+                                onrecord={updateRecord}
+                                onsave={saveRow}
+                                oncantidadchange={handleCantidadChangeLine}
+                                onopenfactura={openFactura}
+                                ontipohtchange={handleTipoHtChange}
+                                onpromolinechange={handlePromoLineChange}>
+                            </c-crear-linea-venta-new>
+                        </div>
+                    </template>
+                </template>
+            </div>
+
+            <!-- Botón agregar -->
+            <template if:false={guardandoLineas}>
+            <div class="acciones-variedad">
+                <button type="button" onclick={addRow} class="add-variedad">
+                    <span class="plus-sign">+</span> Agregar Variedad
+                </button>
+            </div>
+            </template>
+
+            <!-- Totales -->
+            <div class="totales-bar" if:true={data.record}>
+                <div class="totales-resumen">
+                    <div class="totales-label">TOTALES</div>
+                    <div class="totales-valores">
+                        <div class="total-item">
+                            <span class="total-number">{data.record.Total_HT__c}</span>
+                            <span class="total-unit">HT</span>
+                        </div>
+                        <div class="total-item">
+                            <span class="total-number">{data.record.Total_USD__c}</span>
+                            <span class="total-unit">USD</span>
+                        </div>
+                    </div>
+                </div>
+                <button if:true={mostrarFinalizar} type="button" class="action-btn finalizar-btn" onclick={finalizar} disabled={finalizarDeshabilitado}>
+                    <template if:true={finalizandoOperacion}>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <span>Finalizando...</span>
+                    </template>
+                    <template if:false={finalizandoOperacion}>
+                        <span>Finalizar Venta</span>
+                        <span class="btn-arrow" aria-hidden="true">➞</span>
+                    </template>
+                </button>
+            </div>
+
+            <!-- Botón Continuar -->
+            <template if:true={mostrarContinuar}>
+                <div class="totales-bar totales-bar-actions">
+                    <button type="button" class="action-btn continuar-btn" onclick={continuar} disabled={guardandoLineas}>
+                        <template if:true={guardandoLineas}>
+                            <span class="btn-spinner" aria-hidden="true"></span>
+                            <span>Guardando...</span>
+                        </template>
+                        <template if:false={guardandoLineas}>
+                            <span>Continuar</span>
+                            <span class="btn-arrow" aria-hidden="true">➞</span>
+                        </template>
+                    </button>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <!-- FOOTER BOTONES -->
+    <lightning-layout class="slds-m-top_large footer" horizontal-align="center">
+        <lightning-layout-item>
+            <template if:false={created}>
+                <lightning-button onclick={close}
+                                  variant="brand"
+                                  class="slds-m-top_medium slds-m-left--medium new circle"
+                                  type="submit"
+                                  label={closeLabel}>
+                </lightning-button>
+
+                <lightning-button if:true={puedeAnular}
+                                  variant="brand"
+                                  onclick={showAnularConfirm}
+                                  class="slds-m-top_medium slds-m-left--medium new circle"
+                                  type="submit"
+                                  label="Anular">
+                </lightning-button>
+
+                <lightning-button if:true={puedeFacturar}
+                                  variant="brand"
+                                  onclick={facturar}
+                                  class="slds-m-top_medium slds-m-left--medium facturar"
+                                  type="submit"
+                                  label="Facturar">
+                </lightning-button>
+
+                 <!-- NUEVO BOTÓN: Nota de Crédito Total -->
+                <lightning-button if:true={puedeCrearNotaCredito}
+                                  variant="brand"
+                                  onclick={crearNotaCreditoTotal}
+                                  class="slds-m-top_medium slds-m-left--medium nota-credito circle"
+                                  type="submit"
+                                  label="Nota de Crédito Total">
+                </lightning-button>
+
+                <lightning-button if:true={puedeRealizarNueva}
+                                  variant="brand"
+                                  onclick={redirectToNew}
+                                  class="slds-m-top_medium slds-m-left--medium new circle"
+                                  type="submit"
+                                  label="Nueva Venta">
+                </lightning-button>
+
+                <!-- Mostrar si corresponde por cuenta de comercio -->
+
+                <lightning-button if:true={mostrarFacturaYObs}
+                                  variant="brand"
+                                  onclick={openFileUpload}
+                                  class="slds-m-top_medium slds-m-left--medium new circle"
+                                  type="submit"
+                                  label="Subir Factura">
+                </lightning-button>
+
+                <lightning-button if:true={mostrarFacturaYObs}
+                                  variant="brand"
+                                  onclick={handleInsertarObs}
+                                  class="slds-m-top_medium slds-m-left--medium new circle"
+                                  type="submit"
+                                  label="Observaciones">
+                </lightning-button>
+            </template>
+        </lightning-layout-item>
+    </lightning-layout>
+
+    <!-- Spinner global -->
+    <template if:true={isLoading}>
+        <div class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+    </template>
+
+    <!-- Modal: Subir Factura -->
+    <template if:true={showFileUploadModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon class="slds-modal__close"
+                                           title="Cerrar"
+                                           icon-name="utility:close"
+                                           icon-class="slds-button_icon-inverse"
+                                           onclick={closeFileUpload}>
+                    </lightning-button-icon>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">Subir Factura</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input
+                        type="date"
+                        label="Fecha de emisión del comprobante"
+                        value={formattedDate}
+                        onchange={handleDateChange}>
+                    </lightning-input>
+
+                    <lightning-input
+                        type="text"
+                        label="N° de Comprobante"
+                        value={customCode}
+                        onchange={handleCodeChange}
+                        pattern="^[ABC]-\d{4,5}-\d{8}$"
+                        message-when-pattern-mismatch="Formato inválido. Usa A/B/C-0000/00000-00000000.">
+                    </lightning-input>
+
+                    <lightning-file-upload
+                        label="Seleccionar archivo"
+                        name="fileUploader"
+                        accept={acceptedFormats}
+                        record-id={recordId}
+                        disabled={uploadFactura}
+                        onuploadfinished={handleUploadFinished}>
+                    </lightning-file-upload>
+                    <br>
+                    <center>
+                        <lightning-button
+                            label="Guardar"
+                            title="Guardar"
+                            onclick={handleSave}
+                            variant="brand"
+                            disabled={uploadFactura}
+                            class="slds-m-top_medium">
+                        </lightning-button>
+                    </center>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Modal informativo
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container custom-modal-container">
+                <header class="slds-modal__header modal-header">
+                    <h2 class="slds-text-heading_medium">¡Atención!</h2>
+                </header>
+                <div class="slds-modal__content modal-content">
+                    Este precio es válido solo para pago contado dentro del plazo definido.
+                    Si no se cancela en término, la condición se pierde y la operación se revierte.
+                </div>
+                <footer class="slds-modal__footer modal-footer">
+                    <lightning-button class="slds-modal__close"
+                                      variant="brand"
+                                      label="Cerrar"
+                                      onclick={closeModal}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>-->
+
+<!-- Modal -->
+  <template if:true={isOpen}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-modal="true"
+      aria-labelledby="modal-heading"
+      class="slds-modal slds-fade-in-open"
+      onkeydown={handleKeydown}
+    >
+      <div class="slds-modal__container">
+
+        <!-- Header -->
+        <header class="slds-modal__header slds-p-around_medium">
+          <!-- Icono informativo al inicio -->
+          <div class="header-row">
+            <img src={iconVenderHTUrl} style="max-width: 6%;" />
+            <h2 id="modal-heading" class="slds-text-heading_medium slds-m-left_small">Compra/Venta pendiente</h2>
+
+            <!-- Botón de cierre circular -->
+            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse close-circle" title="Cerrar" onclick={closeModal}>
+              <lightning-icon icon-name="utility:close" alternative-text="Cerrar" size="small"></lightning-icon>
+              <span class="slds-assistive-text">Cerrar</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Body -->
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content">
+          <p class="texto" style="text-align:center;">
+            Tu <b>compra/venta de HT</b> queda pendiente porque <b>no encontramos compras o tenencia anterior</b> de semilla fiscalizada de la variedad que estás sembrando.
+          </p>
+
+          <p class="texto" style="text-align:center;">
+            Recordá que es necesario haber comprado previamente semilla fiscalizada de esa misma variedad y tener <b>licencia de uso firmada.</b>
+          </p>
+
+          <p class="texto" style="text-align:center;">
+            En cuanto envíes tu factura de compra, vas a poder finalizar la operación.
+          </p>
+
+          <p class="texto" style="text-align:center;">
+            Nuestro equipo de <b>Mesa de Ayuda</b> se va a contactar con vos para acompañarte en el proceso.
+          </p>
+
+          <p class="texto" style="text-align:center;">
+           Si querés resolverlo ahora, hacé clic en WhatsApp y te asistimos en el momento.
+          </p>
+
+          <center>
+            <!-- Botón WhatsApp -->   
+            <div class="slds-m-top_small">
+              <a
+                class="slds-button whatsapp-button"
+                href="https://api.whatsapp.com/send/?phone=5491131172022&text=Hola%2C+quiero+informaci%C3%B3n+sobre+mi+venta&type=phone_number&app_absent=0"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Contactar por Whatsapp
+              </a>
+            </div>
+
+            <!-- Enlace email -->
+            <p class="slds-m-top_small">
+              o escribinos a
+              <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
+            </p>
+          </center>
+        </div>
+      </div>
+    </section>
+  
+
+    <!-- Backdrop -->
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+  
+  <!-- Modal -->
+  <template if:true={isOpen2}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-modal="true"
+      aria-labelledby="modal-heading"
+      class="slds-modal slds-fade-in-open"
+      onkeydown={handleKeydown}
+    >
+      <div class="slds-modal__container">
+
+        <!-- Header -->
+        <header class="slds-modal__header slds-p-around_medium">
+          <!-- Icono informativo al inicio -->
+          <div class="header-row">
+            <img src={iconVenderHTUrl} style="max-width: 6%;" />
+            <h2 id="modal-heading-2" class="slds-text-heading_medium slds-m-left_small">Compra/Venta pendiente</h2>
+
+            <!-- Botón de cierre circular -->
+            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse close-circle" title="Cerrar" onclick={closeModal}>
+              <lightning-icon icon-name="utility:close" alternative-text="Cerrar" size="small"></lightning-icon>
+              <span class="slds-assistive-text">Cerrar</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Body -->
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-2">
+          <p class="texto" style="text-align:center;">
+            Tu <b>compra/venta de HT</b> queda pendiente porque el <b>CUIT</b> no cuenta con <b>licencia de uso firmada</b>. Recordá que, para comprar o vender HT, este es un <b>requisito indispensable</b>.
+          </p>
+
+          <p class="texto" style="text-align:center;">
+            Nuestro equipo de <b>Mesa de Ayuda</b> se va a contactar con vos para acompañarte en el proceso.
+          </p>
+
+          <p class="texto" style="text-align:center;">
+            Si querés resolverlo ahora:
+          </p>
+
+          <center>
+          <!-- Botón WhatsApp -->
+          <div class="slds-m-top_small">
+            <a
+              class="slds-button whatsapp-button"
+              href="https://api.whatsapp.com/send/?phone=5491131172022&text=Hola%2C+quiero+informaci%C3%B3n+sobre+mi+venta&type=phone_number&app_absent=0"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Contactar por Whatsapp
+            </a>
+          </div>
+
+          <!-- Enlace email -->
+          <p class="slds-m-top_small">
+            o escribinos a
+            <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
+          </p>
+
+          <!-- Botón consulta de licencias -->
+          <div class="slds-m-top_small">
+            <a
+              class="slds-button license-outline"
+              href={licensesHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Ir a Consulta de Licencias"
+            >
+              Ir a Consulta de Licencia →
+            </a>
+          </div>
+          </center>
+        </div>
+      </div>
+    </section>
+
+    <!-- Backdrop -->
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+    
+    <c-pdf-reader></c-pdf-reader>
+    <c-ht-modals current-modal={currentModal}
+                 community={community}
+                 es-punto-venta={obtentorEsPuntoDeVenta}
+                 promo-message={htFuturaPromoMessage}
+                 promo-variant={htFuturaPromoVariant}
+                 onclose={closeModal}
+                 onredirect={redirect}
+                 onanular={anular}
+                 ontipopagoselected={handleTipoPagoSelected}>
+    </c-ht-modals>
+
+    <!-- Modal Observaciones -->
+    <template if:true={showObsModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleObsCloseModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Cerrar</span>
+                    </button>
+                    <h2 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Observaciones</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div class="slds-form-element">
+                        <lightning-textarea
+                            name="modalTextarea"
+                            value={observaciones}
+                            label="Inserte las observaciones en un máximo de 255 carácteres."
+                            placeholder={placeholder}>
+                        </lightning-textarea>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button
+                        variant="neutral"
+                        label="Cancelar"
+                        title="Cancelar"
+                        onclick={handleObsCloseModal}
+                        disabled={isLoading}>
+                    </lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Guardar"
+                        title="Guardar"
+                        onclick={handleObsSave}
+                        disabled={isLoading}
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

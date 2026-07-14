@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DUP_Estado_Recibida</fullName>
+    <columns>NAME</columns>
+    <columns>Campana__c</columns>
+    <columns>Flag_de_Estado__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Nombre_de_la_cuenta__c</columns>
+    <columns>Nro_Comprobante__c</columns>
+    <columns>Saldo_a_Cobrar__c</columns>
+    <columns>Obtentor__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Transaccion__c.DUP</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Recibida</value>
+    </filters>
+    <label>DUP Estado Recibida</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

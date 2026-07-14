@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>VR_001_Precio_Unitario_Contado_Nulo</fullName>
+    <active>true</active>
+    <description>Evalúa que el campo Precio Unitario Contado no sea nulo o menor igual a 0.</description>
+    <errorConditionFormula>AND(
+  OR(
+    MONTH(Fecha_Inicio__c) = 9,
+    MONTH(Fecha_Inicio__c) = 10
+  ),
+  OR(
+    ISBLANK(Precio_Unitario__c),
+    Precio_Unitario__c = 0
+  ),
+  NOT(Trigger_Update__c),
+  NOT(ISCHANGED(Fecha_Fin__c))
+)</errorConditionFormula>
+    <errorMessage>El Precio Unitario Contado no puede ser blanco o nulo.</errorMessage>
+</ValidationRule>

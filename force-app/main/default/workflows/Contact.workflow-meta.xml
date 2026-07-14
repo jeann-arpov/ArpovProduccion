@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Email_SOJA_2015_Agustina_Escudero</fullName>
+        <description>Email SOJA 2015. Agustina Escudero</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>agustina.escudero@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Daniela_Rodogno</fullName>
+        <description>Email SOJA 2015. Daniela Rodogno</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>daniela.rodogno@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Dario_Colombara</fullName>
+        <description>Email SOJA 2015. Dario Colombara</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>dario.colombara@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Ivan_Kostanich</fullName>
+        <description>Email SOJA 2015. Iván Kostanich</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>ivan.kostanich@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Jos_Alberto_Martinez</fullName>
+        <description>Email SOJA 2015. José Alberto Martinez</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>jose.martinez@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Julio_C_sar_Navarro</fullName>
+        <description>Email SOJA 2015. Julio César Navarro</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>julio.navarro@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Lisandro_Bussetti</fullName>
+        <description>Email SOJA 2015. Lisandro Bussetti</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>lisandro.bussetti@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Luis_Recalde</fullName>
+        <description>Email SOJA 2015. Luis Recalde</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>luis.recalde@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Maria_Laura_Geretto</fullName>
+        <description>Email SOJA 2015. María Laura Geretto</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>marialaura.geretto@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Mariano_Dominguez</fullName>
+        <description>Email SOJA 2015. Mariano Dominguez</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>mariano.dominguez@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Paz_Beltran_Costa</fullName>
+        <description>Email SOJA 2015. Paz Beltran Costa</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>paz.beltrancosta@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_SOJA_2015_Silvia_Mendez</fullName>
+        <description>Email SOJA 2015. Silvia Mendez</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>silvia.mendez@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <alerts>
+        <fullName>Email_Tessa_Labriola</fullName>
+        <description>Email SOJA 2015. Tessa Labriola</description>
+        <protected>false</protected>
+        <recipients>
+            <field>Email</field>
+            <type>email</type>
+        </recipients>
+        <senderAddress>tessa.labriola@arpov.org.ar</senderAddress>
+        <senderType>OrgWideEmailAddress</senderType>
+        <template>Comunicaciones/Lote_VERANO_2015</template>
+    </alerts>
+    <fieldUpdates>
+        <fullName>Contacto_Contacto_Remesa_FALSE</fullName>
+        <field>Contacto_Remesa__c</field>
+        <literalValue>0</literalValue>
+        <name>Contacto. Contacto Remesa FALSE</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Contacto%2E Contacto Remesa FALSE</fullName>
+        <actions>
+            <name>Contacto_Contacto_Remesa_FALSE</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Contact.Contacto_Remesa__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+</Workflow>

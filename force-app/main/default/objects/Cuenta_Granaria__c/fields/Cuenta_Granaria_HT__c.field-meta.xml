@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_Granaria_HT__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Referencia a la Cuenta Granaria de Compra HT Disponible (sin campaña) del mismo productor, cultivo y tecnología.</description>
+    <inlineHelpText>Cuenta Granaria de Compra HT Disponible asociada.</inlineHelpText>
+    <label>Cuenta Granaria HT</label>
+    <referenceTo>Cuenta_Granaria__c</referenceTo>
+    <relationshipLabel>Cuentas Granarias por Campaña</relationshipLabel>
+    <relationshipName>Cuentas_Granarias_Campana</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

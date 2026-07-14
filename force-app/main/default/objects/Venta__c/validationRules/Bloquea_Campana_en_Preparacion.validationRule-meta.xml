@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_Campana_en_Preparacion</fullName>
+    <active>false</active>
+    <description>Impide el ingreso de una DUP durante la preparación de una campaña</description>
+    <errorConditionFormula>AND( Campana_Agricola__r.Name = &quot;2014 - TRIGO&quot;, 
+NOT( $User.Usuario_de_Integracion__c ) 
+)</errorConditionFormula>
+    <errorDisplayField>Campana_Agricola__c</errorDisplayField>
+    <errorMessage>La campaña ingresada está actualmente bloqueada.</errorMessage>
+</ValidationRule>

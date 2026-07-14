@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Cambio_Liquido_Producto_Aplicado__c</fullName>
+    <description>Tipo de Cambio Líquido Producto Aplicado</description>
+    <externalId>false</externalId>
+    <label>Tipo de Cambio Líquido Producto Aplicado</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>4</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

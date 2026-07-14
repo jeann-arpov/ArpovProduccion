@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proceso para ejecutar única vez. Para las licencias con tecnología RR de SYN, se modifica la fecha de vencimiento a la fecha de creación + 10 años.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Se suma 10 años a la fecha de creación.</description>
+        <name>forFechaVencimiento</name>
+        <dataType>Date</dataType>
+        <expression>DATE(YEAR({!$Record.Created__c}) + 10,MONTH({!$Record.Created__c}),DAY({!$Record.Created__c}))</expression>
+    </formulas>
+    <interviewLabel>Licencia - Actualiza la fecha vto para licencias RR de SYN {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Licencia - Actualiza la fecha vto para licencias RR de SYN</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Fecha_de_Vencimiento</name>
+        <label>Actualizar Fecha de Vencimiento</label>
+        <locationX>176</locationX>
+        <locationY>252</locationY>
+        <inputAssignments>
+            <field>Fecha_de_Vencimiento__c</field>
+            <value>
+                <elementReference>forFechaVencimiento</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Fecha_de_Vencimiento</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Tecnologia__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>RR</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Name</field>
+            <operator>StartsWith</operator>
+            <value>
+                <stringValue>SYN</stringValue>
+            </value>
+        </filters>
+        <object>Licencia__c</object>
+        <schedule>
+            <frequency>Once</frequency>
+            <startDate>2023-10-20</startDate>
+            <startTime>14:45:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Obsolete</status>
+</Flow>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cantidad_Bolsas_RE_Facturadas__c</fullName>
+    <label>Cantidad Bolsas RE Facturadas</label>
+    <summarizedField>Item_de_DUP__c.Cantidad_Facturacion_En_Bolsas_50__c</summarizedField>
+    <summaryFilterItems>
+        <field>Item_de_DUP__c.No_Facturar__c</field>
+        <operation>equals</operation>
+        <value>False</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Item_de_DUP__c.Transaccion__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

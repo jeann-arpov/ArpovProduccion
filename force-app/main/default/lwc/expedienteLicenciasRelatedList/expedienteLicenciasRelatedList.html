@@ -1,0 +1,87 @@
+<template>
+    <article class="related-wrap">
+        <div class="related-header">
+            <div class="related-title-row">
+                <span class="related-title-icon" aria-hidden="true">
+                    <svg
+                        class="disc-icon"
+                        viewBox="0 0 32 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                        focusable="false"
+                    >
+                        <circle cx="16" cy="16" r="11" fill="none" stroke="#ffffff" stroke-width="2" />
+                        <circle cx="16" cy="16" r="7.5" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="0.9" />
+                        <circle cx="16" cy="16" r="3.5" fill="#ffffff" />
+                        <circle cx="16" cy="16" r="1.1" fill="#5867e8" />
+                    </svg>
+                </span>
+                <h2 class="related-title">{titulo}</h2>
+            </div>
+        </div>
+
+        <template lwc:if={loading}>
+            <div class="related-state">Cargando…</div>
+        </template>
+
+        <template lwc:if={loadError}>
+            <div class="related-error">{loadError}</div>
+        </template>
+
+        <template lwc:if={errorMessage}>
+            <div class="related-error">{errorMessage}</div>
+        </template>
+
+        <template lwc:if={hayFilas}>
+            <ul class="related-list">
+                <template for:each={licencias} for:item="row">
+                    <li key={row.id} class="related-li">
+                        <a
+                            href="javascript:void(0)"
+                            class="lic-link"
+                            data-id={row.id}
+                            onclick={handleOpenLicencia}
+                        >
+                            {row.name}
+                        </a>
+                    </li>
+                </template>
+            </ul>
+        </template>
+
+        <template lwc:if={mostrarPaginacion}>
+            <div class="related-pager">
+                <button
+                    type="button"
+                    class="pager-btn"
+                    onclick={handlePrev}
+                    disabled={disablePrev}
+                    title="Página anterior"
+                >
+                    Anterior
+                </button>
+                <span class="pager-info">{textoPagina}</span>
+                <button
+                    type="button"
+                    class="pager-btn"
+                    onclick={handleNext}
+                    disabled={disableNext}
+                    title="Página siguiente"
+                >
+                    Siguiente
+                </button>
+            </div>
+        </template>
+
+        <template lwc:if={mostrarVacío}>
+            <div class="related-state">
+                No hay licencias cuyo CUIT de comercio/distribuidor coincida con el CUIT cliente de este expediente.
+            </div>
+        </template>
+
+        <template lwc:if={isOpeningPortal}>
+            <div class="related-portal-spinner" role="status" aria-live="polite">
+                <lightning-spinner alternative-text="Abriendo licencia…" size="small"></lightning-spinner>
+            </div>
+        </template>
+    </article>
+</template>

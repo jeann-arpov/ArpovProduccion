@@ -1,0 +1,132 @@
+.datagrid table tr:nth-child(even) {
+   background: #eee;
+}
+
+.datagrid table{ 
+  border-collapse: collapse; 
+  text-align: left; 
+  width: 100%; 
+} 
+
+.datagrid {
+  font: normal 12px/150% Arial, Helvetica, sans-serif; 
+  background: #fff; 
+  overflow: hidden;  
+  margin-bottom: 5px;
+}
+
+.datagrid table td, .datagrid table th { 
+  padding: 3px 3px; 
+  text-align:center;
+}
+
+.datagrid table tbody td, .datagrid table th { 
+  color: #000000; 
+  border-left: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  font-weight: normal; 
+}
+
+.datagrid table tbody td:first-child { 
+  border-left: none; 
+}
+
+.datagrid table tbody tr:last-child td { 
+  border-bottom: none; 
+}
+
+td[data-isopen="true"]:before{
+    content:"- ";
+}
+
+td[data-isopen="true"], td[data-isopen="false"]{
+    cursor:pointer;
+}
+
+td[data-isopen="false"]:before{
+    content:"+ ";
+    cursor:pointer;
+}
+
+.datagrid table th.cultivo,.datagrid table td.cultivo{
+    width:7%;
+    text-align:left;
+}
+
+.datagrid table th.campana,.datagrid table td.campana{
+    width:5%;
+    text-align:left;
+}
+
+.datagrid table th.obtentor,.datagrid table td.obtentor{
+    width:15%;
+    text-align:left;
+}
+
+.datagrid table th.variedad,.datagrid table td.variedad{
+    width:10%;
+    text-align:left;
+}
+
+.datagrid table th.tipo,.datagrid table td.tipo{
+    width:15%;
+}
+
+.datagrid table th.categoria,.datagrid table td.categoria{
+    width:15%;
+}
+
+.datagrid table th.um,.datagrid table td.um{
+    width:2%;
+}
+
+.datagrid table th.cuitOriginante,.datagrid table td.cuitOriginante{
+    width:8%;
+}
+
+.datagrid table th.tipoVenta,.datagrid table td.tipoVenta{
+    width:5%;
+}
+
+.datagrid table th.cuitDestinatario,.datagrid table td.cuitDestinatario{
+    width:8%;
+}
+
+.datagrid table th.cantidad,.datagrid table td.cantidad{
+    width:10%;
+    text-align:right;
+}
+
+body{
+    font-size: 75%;
+    font-family: Arial,Helvetica,sans-serif;
+}
+
+.popUp{
+    position:absolute;
+    z-index:1000;
+}
+
+td{
+    position:relative;
+    width:100%;
+}
+
+.datagrid{
+    margin-bottom:200px;
+}
+
+#ajaxSpinner{
+  background-image: url(../images/spinner_sf.gif);
+  background-repeat: no-repeat;
+  position: absolute;
+  background-color: rgba(0,0,0,0.15);
+  background-position-x: center;
+  background-position-y: center;
+  top: 0!important;
+  left: 0!important;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  vertical-align: middle;
+}

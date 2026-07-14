@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>BatchApexProcessItemsDupsFromExcel</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>UploadItemDupExcelController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>lookupfieldController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Componente para generacion de Lote/Transaccion y Item de DUP a partir de la subida de un archivo</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Procesamiento Archivo Excel</label>
+</PermissionSet>

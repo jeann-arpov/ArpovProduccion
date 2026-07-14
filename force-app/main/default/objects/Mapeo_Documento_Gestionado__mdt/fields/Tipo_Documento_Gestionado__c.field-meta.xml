@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Documento_Gestionado__c</fullName>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Tipo Documento Gestionado</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>DUP</fullName>
+                <default>true</default>
+                <label>Dup</label>
+            </value>
+            <value>
+                <fullName>Auditoria</fullName>
+                <default>false</default>
+                <label>Auditoría</label>
+            </value>
+            <value>
+                <fullName>Factura</fullName>
+                <default>false</default>
+                <label>Factura</label>
+            </value>
+            <value>
+                <fullName>Ventas</fullName>
+                <default>false</default>
+                <label>Ventas</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

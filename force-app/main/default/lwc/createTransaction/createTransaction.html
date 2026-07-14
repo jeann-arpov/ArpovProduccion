@@ -1,0 +1,59 @@
+<template>
+    <c-modal>
+        <h3 slot="header">
+            <lightning-icon variant="success" icon-name="utility:edit_form" alternative-text="Event" size="small"></lightning-icon>
+            &nbsp;Nueva Declaración
+        </h3>
+        <div class="body">
+            <template if:true={loading}>
+                <div class="exampleHolder">
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </div>
+            </template>                
+            <template if:false={created}>
+                <lightning-record-edit-form class="transaction-form" object-api-name="Transaccion__c" record-id={transactionId}>
+                    <lightning-layout horizontal-align="center" vertical-align="center" multiple-rows="true">
+                        <lightning-layout-item class="slds-p-right_small" size="6">
+                            <lightning-combobox onchange={changeObtentor} name="Obtentor__c" label="Obtentor" value={obtentorId} placeholder="Seleccionar Obtentor" options={obtentores} required></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item class="slds-p-right_small" size="6">
+                            <lightning-combobox onchange={changeCampaign} name="Campana__c" label="Capaña Agrícola" value={campaignId} placeholder="Seleccionar Campaña" options={campaigns} required></lightning-combobox>
+                        </lightning-layout-item>
+                        <lightning-layout-item alignment-bump="right" class="slds-p-right_small" size="6">
+                            <lightning-input name="Cultivo__c" label="Cultivo" read-only="true" data-value={cultivo.Id} value={cultivo.Name}></lightning-input>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-record-edit-form>
+
+                <div class="slds-border_top"></div>
+
+                <header class="slds-modal__header slds-m-vertical_medium"> 
+                    <h2 class="slds-text-heading_medium slds-hyphenate header-slot">
+                        Variedades
+                    </h2>
+                </header>
+
+                <c-item-dups-form></c-item-dups-form>
+            </template>
+            <template if:true={created}>
+                Su declaración ha sido registrada, si desea consultarla diríjase a la vista de Declaraciones Respondidas
+            </template>
+        </div>   
+        <div slot="footer">
+            <lightning-layout horizontal-align="end">
+                <lightning-layout-item size="10">
+                    <template if:false={created}>
+                        <lightning-button onclick={closeModal} class="slds-m-top_medium" type="submit" label="Cancelar"></lightning-button>
+                        <lightning-button variant="brand" onclick={createTransaction} class="slds-m-top_medium slds-m-left--medium" type="submit" label="Grabar"></lightning-button>
+                    </template>
+                    <template if:true={created}>
+                        <lightning-button variant="brand" onclick={closeModal} class="slds-m-top_medium" type="submit" label="Ok"></lightning-button>
+                    </template>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </c-modal>
+    <lightning-layout horizontal-align="end">
+        <lightning-button variant="brand" onclick={openModal} type="submit" label="Nueva Declaración"></lightning-button>
+    </lightning-layout>
+</template>

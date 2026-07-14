@@ -1,0 +1,84 @@
+<template>
+    <template if:true={isVisible}>
+        <section class={overlayClass} onclick={handleOverlayClick}>
+            <div class="popup-modal" role="dialog" aria-modal="true" aria-label={title}>
+                <button class="popup-close" type="button" onclick={closePopup} aria-label="Cerrar popup">
+                    x
+                </button>
+
+                <div class="popup-header-wrap">
+                    <div class="popup-header">
+                        <h3>
+                            {title}
+                            <template if:true={showHeaderNote}>
+                                <small class="popup-header-note">{headerNote}</small>
+                            </template>
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="popup-body">
+                    <template if:true={intro}>
+                        <p class="popup-intro">
+                            <template if:true={introStrong}>
+                                <strong>{introStrong}</strong>
+                            </template>
+                            {intro}
+                        </p>
+                    </template>
+                    <template if:true={subtitle}>
+                        <p class="popup-subtitle">{subtitle}</p>
+                    </template>
+
+                    
+
+                    <template if:true={hasItems}>
+                        <ul if:true={isCheckList} class="popup-list">
+                            <template for:each={listItems} for:item="item">
+                                <li key={item.key}>
+                                    <template if:true={item.hasHeading}>
+                                        <strong>{item.heading}</strong> {item.description}
+                                    </template>
+                                    <template if:false={item.hasHeading}>
+                                        {item.raw}
+                                    </template>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <ol if:true={isOrderedList} class="popup-list popup-list-ordered">
+                            <template for:each={listItems} for:item="item">
+                                <li key={item.key}>
+                                    <template if:true={item.hasHeading}>
+                                        <strong>{item.heading}</strong> {item.description}
+                                    </template>
+                                    <template if:false={item.hasHeading}>
+                                        {item.raw}
+                                    </template>
+                                </li>
+                            </template>
+                        </ol>
+                    </template>
+                </div>
+
+                <div class="popup-actions">
+                    <template if:true={showLink}>
+                        <a href={linkUrl} target="_blank" rel="noopener noreferrer" class="popup-link popup-button">
+                            {linkLabel}
+                        </a>
+                    </template>
+
+                    <template if:true={showLinkSubtext}>
+                        <p class="popup-link-subtext">{linkSubtext}</p>
+                    </template>
+
+                    <template if:true={showConfirmButton}>
+                        <button class="popup-button popup-confirm-button" type="button" onclick={closePopup}>
+                            {confirmLabel}
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </section>
+    </template>
+</template>

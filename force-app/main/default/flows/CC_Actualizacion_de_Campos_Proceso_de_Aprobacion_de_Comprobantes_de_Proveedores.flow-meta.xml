@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: CC.Actualización de Campos Proceso de Aprobación de Comprobantes de Proveedores</description>
+    <environments>Default</environments>
+    <interviewLabel>CC.Actualización de Campos Proceso de Aprobación de Comprobantes de Proveedores (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CC.Actualización de Campos Proceso de Aprobación de Comprobantes de Proveedores (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Registros</name>
+        <label>Actualizar Registros</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <inputAssignments>
+            <field>Responsable_del_Gasto__c</field>
+            <value>
+                <elementReference>$Record.ERPvs__Proveedor__r.Responsable_del_Gasto__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualizar_Registros</targetReference>
+        </connector>
+        <filterFormula>AND({!$Record.CreatedBy.Profile.Name} = &quot;Usuario de Administración&quot;, 
+NOT(CONTAINS({!$Record.ERPvs__Tipo_comprobante__r.Name}, &quot;Liquido Producto&quot;)),
+{!$Record.ERPvs__Sucursal_Empresa__r.ERPvs__Empresa__r.Name}  = &quot;ArPOV&quot;, 
+ISPICKVAL({!$Record.Circuito_de_Compras__c}, &quot;Proveedores&quot;),
+ISBLANK({!$Record.Responsable_del_Gasto__c}),
+{!$Record.ERPvs__Estado__c} = &quot;NO CONTABILIZADO&quot;)</filterFormula>
+        <object>ERPvs__Comprobante_Compra__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

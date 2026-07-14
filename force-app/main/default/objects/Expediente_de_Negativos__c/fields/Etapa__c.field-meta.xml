@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Etapa__c</fullName>
+    <label>Acción</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Auditoría Documental</fullName>
+                <default>false</default>
+                <label>Auditoría Documental</label>
+            </value>
+            <value>
+                <fullName>Cesión</fullName>
+                <default>false</default>
+                <label>Cesión</label>
+            </value>
+            <value>
+                <fullName>Cesión Explotación</fullName>
+                <default>false</default>
+                <label>Cesión Explotación</label>
+            </value>
+            <value>
+                <fullName>Cesión Multiplicación</fullName>
+                <default>false</default>
+                <label>Cesión Multiplicación</label>
+            </value>
+            <value>
+                <fullName>Compra HT</fullName>
+                <default>false</default>
+                <label>Compra HT</label>
+            </value>
+            <value>
+                <fullName>Ensayo</fullName>
+                <default>false</default>
+                <label>Ensayo</label>
+            </value>
+            <value>
+                <fullName>Facturar Regalía E3</fullName>
+                <default>false</default>
+                <label>Facturar RE3</label>
+            </value>
+            <value>
+                <fullName>Firma Licencia</fullName>
+                <default>false</default>
+                <label>Firma Licencia</label>
+            </value>
+            <value>
+                <fullName>Firma Licencia E3</fullName>
+                <default>false</default>
+                <label>Firma Licencia E3</label>
+            </value>
+            <value>
+                <fullName>Informa SF</fullName>
+                <default>false</default>
+                <label>Informa SF</label>
+            </value>
+            <value>
+                <fullName>Llamar</fullName>
+                <default>false</default>
+                <label>Llamar</label>
+            </value>
+            <value>
+                <fullName>No entregó E3</fullName>
+                <default>false</default>
+                <label>No entregó E3</label>
+            </value>
+            <value>
+                <fullName>No reconoce entregas</fullName>
+                <default>false</default>
+                <label>No reconoce entregas</label>
+            </value>
+            <value>
+                <fullName>Pendiente</fullName>
+                <default>true</default>
+                <label>Pendiente</label>
+            </value>
+            <value>
+                <fullName>Potencial FC RE3</fullName>
+                <default>false</default>
+                <label>Potencial FC RE3</label>
+            </value>
+            <value>
+                <fullName>Promesa Compra HT</fullName>
+                <default>false</default>
+                <label>Promesa Compra HT</label>
+            </value>
+            <value>
+                <fullName>Reconsideración B</fullName>
+                <default>false</default>
+                <label>Reconsideración BT</label>
+            </value>
+            <value>
+                <fullName>Solicita Detalle Saldo</fullName>
+                <default>false</default>
+                <label>Solicita Detalle Saldo</label>
+            </value>
+            <value>
+                <fullName>Traspaso TN</fullName>
+                <default>false</default>
+                <label>Traspaso TN</label>
+            </value>
+            <value>
+                <fullName>Cerrado</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Cerrado</label>
+            </value>
+            <value>
+                <fullName>Deriva a CTV</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Deriva a CTV</label>
+            </value>
+            <value>
+                <fullName>Legales CTV</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Legales CTV</label>
+            </value>
+            <value>
+                <fullName>Paga factura HT</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Paga factura HT</label>
+            </value>
+            <value>
+                <fullName>Recall</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Recall</label>
+            </value>
+            <value>
+                <fullName>Solicitar Info Adicional</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Solicitar Info Adicional</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

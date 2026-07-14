@@ -1,0 +1,14 @@
+<template>
+    <div style="font-size:22px;font-weight: 500">Términos y Condiciones</div>
+    <lightning-formatted-rich-text class="terminos" value={terminosYCondiciones} onscroll={scrollTerminos}></lightning-formatted-rich-text>
+    <lightning-layout horizontal-align="center" class="slds-m-top_medium">
+        <lightning-layout-item>
+            <lightning-input class="terms slds-m-bottom_small" disabled={saveDisabled} type="checkbox" label="Acepto términos y condiciones"></lightning-input>
+            <div class="slds-m-bottom_small" style="font-size: 9px;font-style: italic;">Leer términos y condiciones hasta el final para poder continuar</div>
+            <lightning-layout class="actions" horizontal-align="space">
+                <lightning-button label="Volver" onclick={cancel}></lightning-button>
+                <lightning-button class="green" disabled={saveDisabled} label="Aceptar" onclick={accept}></lightning-button>
+            </lightning-layout>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

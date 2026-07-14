@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado__c</fullName>
+    <description>Estado del comprobante</description>
+    <inlineHelpText>Ingrese el estado de confirmación del comprobante. Cuando se crea se asigna el valor Pendiente de Confirmación.</inlineHelpText>
+    <label>Estado</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Pendiente de Confirmación</fullName>
+                <default>true</default>
+                <label>Pendiente de Confirmación</label>
+            </value>
+            <value>
+                <fullName>Confirmación Obtentor</fullName>
+                <default>false</default>
+                <label>Confirmación Obtentor</label>
+            </value>
+            <value>
+                <fullName>Confirmado</fullName>
+                <default>false</default>
+                <label>Confirmado</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

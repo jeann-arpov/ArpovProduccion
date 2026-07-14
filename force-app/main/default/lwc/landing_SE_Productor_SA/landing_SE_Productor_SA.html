@@ -1,0 +1,71 @@
+<template>
+    <c-one-time-popup
+        storage-key="landing_se_productor_sa_popup_seen_v1"
+        title="Campaña de Cosecha 25/26"
+        header-note="Información importante"
+        intro-strong="Antes de entregar tu grano, "
+        intro="tené en cuenta estos 3 puntos clave:"
+        items="Revisá tu Cuenta Granaria: ::Controlá tus créditos disponibles antes de planificar tus entregas.|Condición de entrega: ::Todo grano entregado debe tener HT acreditadas previamente, correspondientes a la misma campaña y variedad sembrada.|Comprá tus HT con anticipación: ::Si no tenés créditos suficientes, acreditá HT disponibles antes de la entrega. Las HT no pueden adquirirse de forma posterior."
+        link-label="Gestioná tus HT acá o contactá a tu comercio autorizado."
+        link-url="https://wa.me/5491131172022"
+        confirm-label=""
+    ></c-one-time-popup>
+
+    <div class="bienvenida-container">
+        <!-- Texto izquierda -->
+        <div class="bienvenida-texto">
+                <h1>Sembrá Evolución, donde tenés que estar.</h1>
+        </div>
+
+        <!-- Dashboard derecha -->
+        <div class="dashboard-container">
+            <template if:true={tarjetasHT}>
+                <template for:each={tarjetasHT} for:item="t">
+                    <div key={t.cultivo.Id} class="card ventas-card short-card">
+                        <!-- Título cultivo -->
+                        <h2 class="card-title">{t.cultivo.Name}</h2>
+
+                        <!-- Métrica saldo -->
+                        <div class="licencias-metrics">
+                            <div class="metric-vt">
+                                <div class="metric-value">{t.saldoHTs}</div>
+                                <div class="metric-label green">
+                                    HT <template if:false={t.isAdherido}>Futuras</template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Si está adherido -->
+                        <template if:true={t.isAdherido}>
+                            <div class="info-adherido">
+                                <div style="font-size:x-large;color:#bfff00;">
+                                    PPH
+                                    <lightning-icon class="icono-adherido" size="x-small" icon-name="action:approval"></lightning-icon>
+                                </div>
+                                <div style="color: #767171;">
+                                    Adherido al programa de Precertificación
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Si no está adherido -->
+                        <template if:false={t.isAdherido}>
+                            <div class="action-button-container">
+                                <button class="primary-button" onclick={doAction} data-id={t.cultivo.Id}>
+                                    {t.buttonLabel}
+                                </button>
+                            </div>
+                        </template>
+
+                        <!-- Footer 
+                        <div class="footer">
+                            <span onclick={redirectToCC} data-id={t.cultivo.Id}>
+                                Ver Cuenta Corriente &gt;
+                            </span>
+                        </div>link -->
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+</template>

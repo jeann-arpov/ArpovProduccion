@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Editar_Ventas_Informadas_Procesadas</fullName>
+    <columns>NAME</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <columns>Razon_Social_Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Razon_Social_Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Producto__c</columns>
+    <columns>Cantidad_Bolsas_40__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Procesado</value>
+    </filters>
+    <filters>
+        <field>Campana_Agricola__c</field>
+        <operation>equals</operation>
+        <value>2025 - SOJA</value>
+    </filters>
+    <filters>
+        <field>CUIT_Destinatario__c</field>
+        <operation>equals</operation>
+        <value>33716529539</value>
+    </filters>
+    <filters>
+        <field>Categoria__c</field>
+        <operation>equals</operation>
+        <value>Segunda Multiplicación</value>
+    </filters>
+    <filters>
+        <field>Variedad__c</field>
+        <operation>equals</operation>
+        <value>62B24 SCE</value>
+    </filters>
+    <label>Editar Ventas Informadas Procesadas</label>
+</ListView>

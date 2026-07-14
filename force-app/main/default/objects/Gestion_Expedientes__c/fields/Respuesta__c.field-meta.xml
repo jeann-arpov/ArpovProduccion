@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Respuesta__c</fullName>
+    <label>Respuesta</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Operador__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Acopio</fullName>
+                <default>false</default>
+                <label>Acopio</label>
+            </value>
+            <value>
+                <fullName>Cesión conjunta</fullName>
+                <default>false</default>
+                <label>Cesión conjunta</label>
+            </value>
+            <value>
+                <fullName>Cesión por descarte</fullName>
+                <default>false</default>
+                <label>Cesión por descarte</label>
+            </value>
+            <value>
+                <fullName>Compra/Venta HT</fullName>
+                <default>false</default>
+                <label>Compra/Venta HT</label>
+            </value>
+            <value>
+                <fullName>Descarte multiplicación</fullName>
+                <default>false</default>
+                <label>Descarte multiplicación</label>
+            </value>
+            <value>
+                <fullName>Desconoce entrega</fullName>
+                <default>false</default>
+                <label>Desconoce entrega</label>
+            </value>
+            <value>
+                <fullName>Ensayo</fullName>
+                <default>false</default>
+                <label>Ensayo</label>
+            </value>
+            <value>
+                <fullName>Entrega cosecha PPH</fullName>
+                <default>false</default>
+                <label>Entrega cosecha PPH</label>
+            </value>
+            <value>
+                <fullName>Firma licencia</fullName>
+                <default>false</default>
+                <label>Firma licencia</label>
+            </value>
+            <value>
+                <fullName>Informa SF</fullName>
+                <default>false</default>
+                <label>Informa SF</label>
+            </value>
+            <value>
+                <fullName>No sembró</fullName>
+                <default>false</default>
+                <label>No sembró</label>
+            </value>
+            <value>
+                <fullName>Paga factura HT</fullName>
+                <default>false</default>
+                <label>Paga factura HT</label>
+            </value>
+            <value>
+                <fullName>Reconsideración BT</fullName>
+                <default>false</default>
+                <label>Reconsideración BT</label>
+            </value>
+            <value>
+                <fullName>Sin intención de regularizar</fullName>
+                <default>false</default>
+                <label>Sin intención de regularizar</label>
+            </value>
+            <value>
+                <fullName>Sin respuesta</fullName>
+                <default>false</default>
+                <label>Sin respuesta</label>
+            </value>
+            <value>
+                <fullName>Intención de pago</fullName>
+                <default>false</default>
+                <label>Intención de pago</label>
+            </value>
+            <value>
+                <fullName>NC por Cesión</fullName>
+                <default>false</default>
+                <label>NC por Cesión</label>
+            </value>
+            <value>
+                <fullName>NC por compra HT</fullName>
+                <default>false</default>
+                <label>NC por compra HT</label>
+            </value>
+            <value>
+                <fullName>NC por Ensayo</fullName>
+                <default>false</default>
+                <label>NC por Ensayo</label>
+            </value>
+            <value>
+                <fullName>NC por Fiscalizada</fullName>
+                <default>false</default>
+                <label>NC por Fiscalizada</label>
+            </value>
+            <value>
+                <fullName>NC por reconsideración</fullName>
+                <default>false</default>
+                <label>NC por reconsideración</label>
+            </value>
+            <value>
+                <fullName>Paga factura</fullName>
+                <default>false</default>
+                <label>Paga factura</label>
+            </value>
+            <value>
+                <fullName>Sin intención de pagar</fullName>
+                <default>false</default>
+                <label>Sin intención de pagar</label>
+            </value>
+            <value>
+                <fullName>Solicita NC</fullName>
+                <default>false</default>
+                <label>Solicita NC</label>
+            </value>
+            <value>
+                <fullName>Reclama transferencia de toneladas</fullName>
+                <default>false</default>
+                <label>Reclama transferencia de toneladas</label>
+            </value>
+            <value>
+                <fullName>Sin contacto</fullName>
+                <default>false</default>
+                <label>Sin contacto</label>
+            </value>
+            <value>
+                <fullName>Solicita detalle/MBT</fullName>
+                <default>false</default>
+                <label>Solicita detalle/MBT</label>
+            </value>
+            <value>
+                <fullName>Licencia E3 en gestión</fullName>
+                <default>false</default>
+                <label>Licencia E3 en gestión</label>
+            </value>
+            <value>
+                <fullName>Reclama CTG otra campaña</fullName>
+                <default>false</default>
+                <label>Reclama CTG otra campaña</label>
+            </value>
+            <value>
+                <fullName>Promesa Compra HT</fullName>
+                <default>false</default>
+                <label>Promesa Compra HT</label>
+            </value>
+            <value>
+                <fullName>Solicitamos Documentación</fullName>
+                <default>false</default>
+                <label>Solicitamos Documentación</label>
+            </value>
+            <value>
+                <fullName>Promesa de respuesta</fullName>
+                <default>false</default>
+                <label>Promesa de respuesta</label>
+            </value>
+            <value>
+                <fullName>Contactado</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Contactado</label>
+            </value>
+            <value>
+                <fullName>Contestador</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Contestador</label>
+            </value>
+            <value>
+                <fullName>Interesado</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Interesado</label>
+            </value>
+            <value>
+                <fullName>No Contactado</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>No Contactado</label>
+            </value>
+            <value>
+                <fullName>No Interesado</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>No Interesado</label>
+            </value>
+            <value>
+                <fullName>Rechazo</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Rechazo</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Acopio</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Cesión conjunta</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Cesión por descarte</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Compra/Venta HT</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Descarte multiplicación</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Desconoce entrega</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Ensayo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Firma licencia</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Informa SF</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>No sembró</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Paga factura HT</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Reconsideración BT</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Sin intención de regularizar</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Sin respuesta</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Reclama transferencia de toneladas</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Sin contacto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Solicita detalle/MBT</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Licencia E3 en gestión</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Reclama CTG otra campaña</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Promesa Compra HT</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Solicitamos Documentación</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>SE</controllingFieldValue>
+            <valueName>Promesa de respuesta</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Entrega cosecha PPH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Intención de pago</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>NC por Cesión</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>NC por compra HT</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>NC por Ensayo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>NC por Fiscalizada</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>NC por reconsideración</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Paga factura</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Sin intención de pagar</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>CTV</controllingFieldValue>
+            <valueName>Solicita NC</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

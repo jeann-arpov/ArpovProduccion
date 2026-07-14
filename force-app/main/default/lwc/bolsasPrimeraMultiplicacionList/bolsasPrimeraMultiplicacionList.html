@@ -1,0 +1,81 @@
+<template>
+    <div class="ventas-container">
+        <div class="ventas-top-bar">
+            <div class="ventas-header">
+                <div class="breadcrumbs">VENTAS / BOLSAS</div>
+                <div class="title">Bolsas Primera Multiplicación (Campaña Activa)</div>
+            </div>
+
+            <!-- FILTROS ARRIBA -->
+            <div class="acciones-derecha">
+                <div class="filtros-container">
+                    <!-- Estado -->
+                    <select onchange={handleEstadoChange}>
+                        <option value="">Estado</option>
+                        <template for:each={estados} for:item="e">
+                            <option key={e} value={e}>{e}</option>
+                        </template>
+                    </select>
+
+                    <!-- Categoría -->
+                    <select onchange={handleCategoriaChange}>
+                        <option value="">Categoría</option>
+                        <template for:each={categorias} for:item="cat">
+                            <option key={cat} value={cat}>{cat}</option>
+                        </template>
+                    </select>
+
+                    <!-- Campaña -->
+                    <select onchange={handleCampanaChange}>
+                        <option value="">Campaña</option>
+                        <template for:each={campanas} for:item="c">
+                            <option key={c} value={c}>{c}</option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUSCADOR DEBAJO -->
+        <div class="info-busqueda">
+            <div class="ventas-info">
+                {totalRegistros} resultados • Filtrado por Estado / Categoría / Campaña
+            </div>
+
+            <div class="ventas-search">
+                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
+                <span class="search-icon">
+                    <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                </span>
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Campaña Agrícola</th>
+                    <th>Destinatario</th>
+                    <th>CUIT</th>
+                    <th>Variedad</th>
+                    <th>Categoría</th>
+                    <th>Estado Licencia</th>
+                    <th>Cant. Bolsas (40)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={filteredVentas} for:item="v">
+                    <tr key={v.Id}>
+                        <td>{v.Campana_Agricola__r.Name}</td>
+                        <td>{v.Destinatario__r.Name}</td>
+                        <td>{v.Destinatario__r.N_CUIT__c}</td>
+                        <td>{v.Variedad__c}</td>
+                        <td>{v.Categoria__c}</td>
+                        <td>{v.Estado_Licencia__c}</td>
+                        <td>{v.Cantidad_Bolsas_40__c}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</template>

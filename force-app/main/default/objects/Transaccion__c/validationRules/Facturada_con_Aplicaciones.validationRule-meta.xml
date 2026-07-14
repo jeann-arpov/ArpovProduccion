@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Facturada_con_Aplicaciones</fullName>
+    <active>true</active>
+    <description>Impide borrar la Factura de una transacción con aplicaciones</description>
+    <errorConditionFormula>AND(
+    ISBLANK( Factura__c )  &amp;&amp;  NOT( ISBLANK( PRIORVALUE( Factura__c ) )),
+     Tiene_Aplicaciones__c = true
+)</errorConditionFormula>
+    <errorDisplayField>Factura__c</errorDisplayField>
+    <errorMessage>No se puede borrar el campo Factura de una transacción con aplicaciones.</errorMessage>
+</ValidationRule>

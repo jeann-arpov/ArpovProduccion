@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Cambio__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Es verdadero cuando el el registro sufrió un cambio. El valor es asignado por el WF Transaccion. Cambio. No se consideran los cambios realizados por el usuario de Interfaces.</description>
+    <label>Cambio</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

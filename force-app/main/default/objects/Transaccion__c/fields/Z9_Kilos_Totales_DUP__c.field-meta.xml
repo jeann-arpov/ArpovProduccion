@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Kilos_Totales_DUP__c</fullName>
+    <description>Suma de kilos de todos los items de la dup</description>
+    <label>Z9_Kilos_Totales_DUP</label>
+    <summarizedField>Item_de_DUP__c.Kilos_Totales__c</summarizedField>
+    <summaryForeignKey>Item_de_DUP__c.Transaccion__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

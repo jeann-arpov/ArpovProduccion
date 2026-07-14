@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Asignar_Fecha_Vencimiento</name>
+        <label>Asignar Fecha Vencimiento</label>
+        <locationX>314</locationX>
+        <locationY>431</locationY>
+        <assignmentItems>
+            <assignToReference>varFechaVto</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaVencimiento</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Actualizar_Nombre_Licencia</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Fecha_Vto</name>
+        <label>Asignar Fecha Vto</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <assignmentItems>
+            <assignToReference>varFechaVto</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <dateValue>2032-02-28</dateValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Actualizar_Nombre_Licencia</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Se pregunta si es licencia GDM o SYN.</description>
+        <name>Que_licencia_es</name>
+        <label>Qué licencia es?</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <defaultConnector>
+            <targetReference>Asignar_Fecha_Vencimiento</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Otra</defaultConnectorLabel>
+        <rules>
+            <name>GDM</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Name</leftValueReference>
+                <operator>StartsWith</operator>
+                <rightValue>
+                    <stringValue>GDM</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_Fecha_Vto</targetReference>
+            </connector>
+            <label>GDM</label>
+        </rules>
+    </decisions>
+    <description>Cada vez que se crea una licencia con estado = Creada y Origen &lt;&gt; Portal / SGL (es decir, es licencia interna) se actualiza el nombre con el autonumérico.
+Se cambia la fecha de vencimiento a la fecha de creación + 10 años.
+Se cambia la fecha de vencimiento: si es GDM --&gt; 28/02/2032. 
+                                                            Si es SYN --&gt; fecha de creación + 10 años.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Se suma 10 años a la fecha de creación.</description>
+        <name>forFechaVencimiento</name>
+        <dataType>Date</dataType>
+        <expression>DATE(YEAR(TODAY()) + 10,MONTH(TODAY()),DAY(TODAY()))</expression>
+    </formulas>
+    <formulas>
+        <name>varNombreLicencia</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Name} &amp; {!$Record.Autonumerico__c}</expression>
+    </formulas>
+    <interviewLabel>Licencia - Actualizar Nombre {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Licencia - Actualizar Nombre</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Nombre_Licencia</name>
+        <label>Actualizar Nombre Licencia</label>
+        <locationX>182</locationX>
+        <locationY>623</locationY>
+        <inputAssignments>
+            <field>Fecha_de_Vencimiento__c</field>
+            <value>
+                <elementReference>varFechaVto</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LicenciaId__c</field>
+            <value>
+                <elementReference>varNombreLicencia</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>varNombreLicencia</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Que_licencia_es</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Estado__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Creada</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Origen__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Portal</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Origen__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>SGL</stringValue>
+            </value>
+        </filters>
+        <object>Licencia__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+    <variables>
+        <name>varFechaVto</name>
+        <dataType>Date</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

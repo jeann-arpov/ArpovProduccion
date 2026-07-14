@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Importe_Aplicar_Flow_c__c</fullName>
+    <description>Importe en USD a aplicar calculado por workflow. Se utiliza para resumir el total de pagos recibidos en USD en la factura.</description>
+    <externalId>false</externalId>
+    <label>Importe_Aplicar_Flow</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

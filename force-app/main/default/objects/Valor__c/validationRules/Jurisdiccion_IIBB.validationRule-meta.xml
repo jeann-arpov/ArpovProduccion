@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Jurisdiccion_IIBB</fullName>
+    <active>true</active>
+    <description>Si la forma de pago es Retención IIBB debe ingresarse la Jurisdicción.</description>
+    <errorConditionFormula>AND( Comprobante_de_Pago__r.Obtentor_Destinatario__r.Factura_por_Cuenta_y_Orden__c = true,
+  OR( 
+     ISPICKVAL(Forma_de_Pago__c, &quot;Retención IIBB&quot; ) &amp;&amp;
+     ISBLANK( Jurisdiccion_IIBB__c ) &amp;&amp;
+     NOT( ISPICKVAL(Forma_de_Pago__c, &quot;Retención IIBB&quot; ) ) &amp;&amp;
+     NOT( ISBLANK( Jurisdiccion_IIBB__c ) )
+  )
+)</errorConditionFormula>
+    <errorDisplayField>Jurisdiccion_IIBB__c</errorDisplayField>
+    <errorMessage>Si la Forma de Pago es Retención IIBB debe ingresar la provincia. En caso contrario deje este dato en blanco.</errorMessage>
+</ValidationRule>

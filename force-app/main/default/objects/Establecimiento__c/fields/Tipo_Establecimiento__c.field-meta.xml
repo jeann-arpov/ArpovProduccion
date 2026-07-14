@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Establecimiento__c</fullName>
+    <label>Tipo Establecimiento</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>ArPOV</fullName>
+                <default>false</default>
+                <label>ArPOV</label>
+            </value>
+            <value>
+                <fullName>Centro de Gestión</fullName>
+                <default>false</default>
+                <label>Centro de Gestión</label>
+            </value>
+            <value>
+                <fullName>Obtentores</fullName>
+                <default>false</default>
+                <label>Obtentores</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

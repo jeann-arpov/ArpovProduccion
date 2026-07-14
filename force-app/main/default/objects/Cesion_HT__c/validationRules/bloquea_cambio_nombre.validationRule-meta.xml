@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>bloquea_cambio_nombre</fullName>
+    <active>true</active>
+    <description>No se puede modificar el nombre de la cesión</description>
+    <errorConditionFormula>AND(
+    (NOW() - CreatedDate)*86400 &gt; 10,
+    OR($Profile.Name = &quot;Administrador&quot;,
+       $Profile.Name = &quot;System Administrator&quot;
+      ),
+    PRIORVALUE( Name ) &lt;&gt; Name
+    )</errorConditionFormula>
+    <errorMessage>Usted no puede modificar el nombre de una Cesión.</errorMessage>
+</ValidationRule>

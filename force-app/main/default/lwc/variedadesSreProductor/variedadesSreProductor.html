@@ -1,0 +1,30 @@
+<template>
+    <lightning-spinner lwc:if={loading} alternative-text="Loading"></lightning-spinner>
+    <div class="slds-align_absolute-center slds-text-heading_large">{labels.title}</div>
+    <div class="separator"></div>
+    <div style="margin: 0 8rem 0 8rem;">
+        <div class="slds-var-m-top_small slds-size_3-of-12">
+            <c-lookup onselectionchange={productorSelected} onsearch={search} label={labels.lookup}>
+                <div slot="no-results" >
+                    <span style="color:#FF0000;font-size:18px;">CUIT NO REGISTRADO</span>
+                    <div style="color:#1C1C1C;font-size: 14px">Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.</div>
+                    <div style="color:#1C1C1C;font-size: 14px">Por favor póngase en contacto con la mesa de ayuda de Sembrá Evolución</div>
+                </div>
+            </c-lookup>
+        </div>
+        <div class="slds-var-m-top_small">
+            <lightning-dual-listbox
+                label={labels.selectOptions}
+                options={variedades}
+                source-label={labels.source}
+                selected-label={labels.selected}
+                value={seleccionadas}
+                onchange={variedadSelected}
+                disabled={disableListbox}>
+            </lightning-dual-listbox>
+        </div>
+        <div class="slds-align_absolute-center slds-var-m-top_medium actions">
+            <lightning-button class="black" label="Guardar" onclick={save}></lightning-button>
+        </div>
+    </div>
+</template>

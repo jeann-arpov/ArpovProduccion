@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloqueo_BAYER</fullName>
+    <active>false</active>
+    <description>Impide que se carguen auditorías para el obtentor FN por haber sido fusionado con BAYER.</description>
+    <errorConditionFormula>AND( Obtentor__r.Nombre_Obtentor__c = &quot;BAYER&quot;, AND( $User.Usuario_de_Integracion__c = false, $Profile.Name &lt;&gt; &quot;Operador Cobranzas&quot;, $Profile.Name&lt;&gt; &quot;Líder de Comunidad&quot;,$Profile.Name &lt;&gt; &quot;Usuario de Administración&quot;, $Profile.Name &lt;&gt; &quot;Administrador&quot; )
+)</errorConditionFormula>
+    <errorDisplayField>Obtentor__c</errorDisplayField>
+    <errorMessage>No deben ingresarse transacciones para el obtentor BAYER. Analice si se la operación corresponde a BASF.</errorMessage>
+</ValidationRule>

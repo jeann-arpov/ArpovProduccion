@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Temas_de_AUD__c</fullName>
+    <label>Temas de AUD</label>
+    <summaryFilterItems>
+        <field>Caso_Gestionado__c.Z9_Asunto__c</field>
+        <operation>equals</operation>
+        <value>Temas de AUD</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Caso_Gestionado__c.Interaccion__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

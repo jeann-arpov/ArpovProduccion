@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Todas_CRM_sin_Venta_Informada</fullName>
+    <columns>NAME</columns>
+    <columns>Originante__c</columns>
+    <columns>Originante_CUIT__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Fecha__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Destinatario_CUIT__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Producto__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterThan</operation>
+        <value>1/1/2025 12:00 AM</value>
+    </filters>
+    <filters>
+        <field>Tipo_de_Venta__c</field>
+        <operation>notEqual</operation>
+        <value>TM,TC,CA</value>
+    </filters>
+    <label>Ventas Todas CRM sin Venta Informada</label>
+</ListView>

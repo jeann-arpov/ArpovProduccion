@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SKEY_CAMPANIA__c</fullName>
+    <defaultValue>VALUE( 
+     TEXT( YEAR(  TODAY() ) )  +   
+     TEXT( MONTH( TODAY() ) )  +  
+     TEXT( DAY(   TODAY() ) )
+)</defaultValue>
+    <description>Clave Unica de integración con el Datawarehouse</description>
+    <externalId>true</externalId>
+    <label>SKEY_CAMPANIA</label>
+    <precision>10</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>true</unique>
+</CustomField>

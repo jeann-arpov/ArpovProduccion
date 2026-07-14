@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Categoria_Portal__c</fullName>
+    <description>Categoría INASE (picklist). Mismos valores que el formulario Nueva Venta. Se copia a Categoria__c al guardar.</description>
+    <inlineHelpText>Pre Básica, Original o Fundadora, Primera/Segunda/Tercera Multiplicación.</inlineHelpText>
+    <label>Categoría</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Pre Básica</fullName>
+                <default>false</default>
+                <label>Pre Básica</label>
+            </value>
+            <value>
+                <fullName>Original o Fundadora</fullName>
+                <default>false</default>
+                <label>Original o Fundadora</label>
+            </value>
+            <value>
+                <fullName>Primera Multiplicación</fullName>
+                <default>false</default>
+                <label>Primera Multiplicación</label>
+            </value>
+            <value>
+                <fullName>Segunda Multiplicación</fullName>
+                <default>false</default>
+                <label>Segunda Multiplicación</label>
+            </value>
+            <value>
+                <fullName>Tercera Multiplicación</fullName>
+                <default>false</default>
+                <label>Tercera Multiplicación</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

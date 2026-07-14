@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Transaccion_Cambio_Obtentor</fullName>
+    <active>true</active>
+    <description>Impide el cambio de Obtentor de una transacción.</description>
+    <errorConditionFormula>AND(
+ $User.Usuario_de_Integracion__c &lt;&gt; true, 
+ ISCHANGED( Obtentor__c ),
+ PRIORVALUE( Obtentor_Id__c ) &lt;&gt; &quot;99&quot;,
+ Cantidad_de_Items__c &gt; 0
+)</errorConditionFormula>
+    <errorDisplayField>Obtentor__c</errorDisplayField>
+    <errorMessage>No se puede modificar el obtentor de la transacción.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Ejecuta el Flow de consulta de Tipo de Cambio (Pedido por Matías)</description>
+    <label>Consulta Tipo de Cambio</label>
+    <motif>Custom41: Stack of Cash</motif>
+    <page>TipoCambio</page>
+</CustomTab>

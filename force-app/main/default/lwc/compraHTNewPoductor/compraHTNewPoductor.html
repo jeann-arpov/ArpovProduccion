@@ -1,0 +1,114 @@
+<template>
+    <div class="containerPrincipal">
+    <!-- Estado de Cuenta -->
+        <div class="estado-cuenta-card">
+            <div class="header">
+                <h2>🌱 Estado de Cuenta</h2>
+            </div>
+
+            <!-- Step de Cultivos -->
+            <div class="step active">
+                <div class="step-header">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Seleccionar Cultivo</div>
+                </div>
+                <div class="step-content">
+                    <template for:each={decoratedCultivos} for:item="c">
+                        <div key={c.id}
+                            class={c.cssClass}
+                            data-id={c.id}
+                            data-nombre={c.nombre}
+                            onclick={handleSelectCultivo}>
+                            <div class="cultivo-card">
+                                <img src={c.icono} alt="" class="cultivo-icon"/>
+                            </div>
+                            <div class="cultivo-label">{c.nombre}</div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Totales -->
+            <div if:true={cultivoId} class="totales-container">
+                <h3>Total por Biotecnología</h3>
+                <div class="totales-box">
+                    <template for:each={totalPorBiotecnologia} for:item="total">
+                        <div key={total.key} class="total-item">
+                            <span class="bio-label">{total.key}</span>
+                            <span class="bio-value">
+                                <lightning-formatted-number value={total.value}></lightning-formatted-number>
+                            </span>
+                        </div>
+                    </template>
+                    <div class="total-item total-final">
+                        <span class="bio-label">TOTAL HT</span>
+                        <span class="bio-value">
+                            <lightning-formatted-number value={total}></lightning-formatted-number>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Detalle de Movimientos -->
+        <div if:true={cultivoId} class="movimientos-container">
+            <!-- TOP BAR con título -->
+            <div class="movimientos-top-bar">
+                <div class="movimientos-header">
+                    <div class="breadcrumbs">HT / MOVIMIENTOS</div>
+                    <div class="title">Detalle de Movimientos</div>
+                </div>
+
+                <!-- Buscador -->
+                <div class="movimientos-search">
+                    <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
+                    <span class="search-icon">
+                        <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cultivo</th>
+                        <th>Biotecnología</th>
+                        <!-- <th>Comercio</th> -->
+                        <th>Fecha Transacción</th>
+                        <th>Débito</th>
+                        <th>Crédito</th>
+                        <th>Origen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={pageSlice} for:item="row">
+                        <tr key={row.id}>
+                            <td>{row.cultivo}</td>
+                            <td>{row.biotecnologia}</td>
+                            <!-- <td>{row.comercio}</td> -->
+                            <td>{row.fechaTransaccion}</td>
+                            <td>{row.debito}</td>
+                            <td>{row.credito}</td>
+                            <td>{row.origen}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+            <!-- Navegación -->
+            <div class="paginacion">
+                <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+                <span>Página {currentPage}</span>
+                <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Spinner -->
+        <template if:true={processing}>
+            <lightning-spinner variant="brand" alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+    </div>
+    
+</template>

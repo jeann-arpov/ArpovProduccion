@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Proyecto 31/07/2024: Migración PB a Flow por discontinuación de la herramienta Salesforce
+Reemplaza a PB: MOV.Actualiza campos por cambios en las APL y Flow: MOV.Actualiza Importe y Tipo de Cambio (Flow)</description>
+    <environments>Default</environments>
+    <interviewLabel>MOV.Actualiza campos por cambios en las APL (Migrada) {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>MOV.Actualiza campos por cambios en las APL (Migrada)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_MOV</name>
+        <label>Actualiza MOV</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Aplicacion__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Importe__c</field>
+            <value>
+                <elementReference>$Record.Importe_Aplicar__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_de_Cambio__c</field>
+            <value>
+                <elementReference>$Record.Tipo_de_Cambio__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Movimientos__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualiza_MOV</targetReference>
+        </connector>
+        <filterFormula>ISCHANGED({!$Record.Tipo_de_Cambio__c})</filterFormula>
+        <object>Aplicacion__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

@@ -1,0 +1,141 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.related-wrap {
+    position: relative;
+    width: 38%;
+    margin-left: auto;
+    margin-right: 0;
+    box-sizing: border-box;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    background: #ffffff;
+    margin-top: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    .related-wrap {
+        width: 100%;
+    }
+}
+
+.related-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #dddbda;
+    background: #f3f3f3;
+}
+
+.related-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.related-title-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: #5867e8;
+    border-radius: 0.25rem;
+    padding: 0.125rem;
+    box-sizing: border-box;
+}
+
+.disc-icon {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.related-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #080707;
+}
+
+.lic-link {
+    color: #0176d3;
+    text-decoration: none;
+    font-size: inherit;
+}
+
+.lic-link:hover {
+    text-decoration: underline;
+    color: #014486;
+}
+
+.related-portal-spinner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.65);
+    z-index: 2;
+    border-radius: 0.25rem;
+}
+
+.related-state,
+.related-error {
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+}
+
+.related-error {
+    color: #ba0517;
+}
+
+.related-list {
+    margin: 0;
+    padding: 0.5rem 1rem 0.75rem;
+    list-style: none;
+}
+
+.related-li {
+    padding: 0.35rem 0;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid #f3f2f2;
+}
+
+.related-li:last-child {
+    border-bottom: none;
+}
+
+.related-pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem 0.75rem;
+    border-top: 1px solid #e5e5e5;
+    background: #fafaf9;
+}
+
+.pager-btn {
+    font-size: 0.8125rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.pager-btn:hover:not(:disabled) {
+    background: #f3f2f2;
+}
+
+.pager-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.pager-info {
+    font-size: 0.75rem;
+    color: #3e3e3c;
+}

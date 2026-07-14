@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_Sin_Procesar</fullName>
+    <columns>Estado_Resultado_Obtentor__c</columns>
+    <columns>Estado_Resultado_Comercio__c</columns>
+    <columns>Estado__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>CUIT_Originante__c</columns>
+    <columns>CUIT_Destinatario__c</columns>
+    <columns>Razon_Social_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>NAME</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>notEqual</operation>
+        <value>Procesado</value>
+    </filters>
+    <label>.Ventas Informadas Sin Procesar</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

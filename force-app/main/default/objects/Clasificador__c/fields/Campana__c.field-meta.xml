@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campana__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Campaña</label>
+    <referenceTo>Campana_Agricola__c</referenceTo>
+    <relationshipLabel>Clasificadores</relationshipLabel>
+    <relationshipName>Clasificadores</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

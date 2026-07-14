@@ -1,0 +1,52 @@
+@page { 
+    margin-top: 285px;
+    margin-left: 10px;
+    margin-bottom: 300px;
+    margin-right: 10px;
+    @top-center { 
+        content: element(header); 
+    }
+    @bottom-center { 
+        content: element(footer); 
+    }
+    
+}
+
+div.header {
+    display: block;
+    margin-top: 10px;
+    margin-left:10px;
+    position: running(header);
+    font-family:arial,sans-serif;
+}
+
+div.footer {
+    margin-left:10px;
+    display: block;
+    position: running(footer);
+    font-family:arial,sans-serif;
+}
+.divPage {
+    display: block;
+    page-break-after: always;
+    margin-top: 0px;
+}
+.lastPage {
+    display: block;
+    margin-top: 0px;
+}
+.report{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box;
+    width:90%;
+    font-family:arial,sans-serif;
+}
+
+body{ 
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+} 

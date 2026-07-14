@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validacion_Productor</fullName>
+    <active>false</active>
+    <description>Valida que no se pueda seleccionar una cuenta tipo productor como originante.</description>
+    <errorConditionFormula>Originante__r.RecordType.Name = &quot;Productor&quot;</errorConditionFormula>
+    <errorMessage>No puede seleccionar a una cuenta tipo Productor como Originante</errorMessage>
+</ValidationRule>

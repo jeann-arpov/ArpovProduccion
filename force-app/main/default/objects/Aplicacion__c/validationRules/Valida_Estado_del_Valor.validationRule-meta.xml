@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Estado_del_Valor</fullName>
+    <active>true</active>
+    <description>No se puede aplicar un valor que no haya sido confirmado</description>
+    <errorConditionFormula>AND(
+TEXT(Valor_Aplicado__r.Estado__c) &lt;&gt; &quot;Confirmado&quot;,
+TEXT(Valor_Aplicado__r.Estado__c) &lt;&gt; &quot;Indefinido&quot;
+)</errorConditionFormula>
+    <errorDisplayField>Valor_Aplicado__c</errorDisplayField>
+    <errorMessage>No se puede aplicar un valor Pendiente de Confirmación.</errorMessage>
+</ValidationRule>

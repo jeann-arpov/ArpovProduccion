@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bloquea_registro_con_HT</fullName>
+    <active>false</active>
+    <description>Si una Venta CRM ya generó una HT no se puede modificar.
+14/09/2022 - JLI: Se agrega excepción para atributos de integración AFC con GDM.</description>
+    <errorConditionFormula>AND(NOT( ISBLANK( HT_Id__c ) ), NOT( ISNEW() ),
+    NOT( ISCHANGED( HT_Id__c ) ), 
+    NOT( ISCHANGED( SembraEvolucion__c ) ),
+    NOT( ISCHANGED( AFC_ADM__c ) ),
+    NOT( ISCHANGED( AFCD_UUID__c ) ),
+    NOT( $Profile.Name = &quot;Interfaces&quot;),
+    NOT( $Profile.Name = &quot;Administrador&quot;  )
+)</errorConditionFormula>
+    <errorMessage>No se puede modificar un registro con Hectárea Tecnológica creada.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Modo_de_Contacto__c</fullName>
+    <label>Modo de Contacto</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Llamada</fullName>
+                <default>true</default>
+                <label>Llamada</label>
+            </value>
+            <value>
+                <fullName>Email Entrante</fullName>
+                <default>false</default>
+                <label>Email Entrante</label>
+            </value>
+            <value>
+                <fullName>Email Saliente</fullName>
+                <default>false</default>
+                <label>Email Saliente</label>
+            </value>
+            <value>
+                <fullName>Visita</fullName>
+                <default>false</default>
+                <label>Visita</label>
+            </value>
+            <value>
+                <fullName>Chat</fullName>
+                <default>false</default>
+                <label>Chat</label>
+            </value>
+            <value>
+                <fullName>Whatsapp</fullName>
+                <default>false</default>
+                <label>Whatsapp</label>
+            </value>
+            <value>
+                <fullName>Búsqueda de Contacto</fullName>
+                <default>false</default>
+                <label>Búsqueda de Contacto</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

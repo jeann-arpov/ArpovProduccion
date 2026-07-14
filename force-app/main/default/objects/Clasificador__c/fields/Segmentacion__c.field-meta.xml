@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Segmentacion__c</fullName>
+    <label>Segmentacion</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>TOP</fullName>
+                <default>false</default>
+                <label>TOP</label>
+            </value>
+            <value>
+                <fullName>Grandes</fullName>
+                <default>false</default>
+                <label>Grandes</label>
+            </value>
+            <value>
+                <fullName>Medianos</fullName>
+                <default>false</default>
+                <label>Medianos</label>
+            </value>
+            <value>
+                <fullName>Chicos</fullName>
+                <default>false</default>
+                <label>Chicos</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

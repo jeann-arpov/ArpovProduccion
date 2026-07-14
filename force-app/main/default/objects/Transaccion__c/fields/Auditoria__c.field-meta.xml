@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Auditoria__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Auditoría que Cancela la DUP o Auditoróa Original cuando se hace NC</description>
+    <inlineHelpText>Auditoría que Cancela la DUP. Obligatorio si se informa el estado &quot;Cancelada por Auditoría&quot; o Auditoría relacionada cuando se emite NC</inlineHelpText>
+    <label>Auditoría Original</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Debe seleccionar la auditoría relacionada y que sea válida para los criterios del filtro.</errorMessage>
+        <filterItems>
+            <field>Transaccion__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Auditoría</value>
+        </filterItems>
+        <filterItems>
+            <field>$Source.Nombre_de_la_cuenta__c</field>
+            <operation>equals</operation>
+            <valueField>Transaccion__c.Nombre_de_la_cuenta__c</valueField>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Transaccion__c</referenceTo>
+    <relationshipLabel>Transacciones (Auditoría)</relationshipLabel>
+    <relationshipName>Auditorias</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

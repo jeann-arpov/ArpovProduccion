@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Change_Estado_to_Borrador</fullName>
+    <active>true</active>
+    <description>Restringe la modificación del estado a Borrador.</description>
+    <errorConditionFormula>AND(ISCHANGED( Estado__c ), ISPICKVAL(Estado__c, &quot;Borrador&quot;),  $User.Usuario_de_Integracion__c = false)</errorConditionFormula>
+    <errorMessage>No se puede modificar el estado con una etapa anterior.</errorMessage>
+</ValidationRule>

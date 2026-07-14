@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Dia__c</fullName>
+    <externalId>false</externalId>
+    <formula>CASE( MOD( DATEVALUE( Fecha_y_Hora__c )  - DATE(1900, 1, 6), 7 ),
+ 0, &quot;07.Sábado&quot;,
+ 1, &quot;01.Domingo&quot;,
+ 2, &quot;02.Lunes&quot;,
+ 3, &quot;03.Martes&quot;,
+ 4, &quot;04.Miércoles&quot;,
+ 5, &quot;05.Jueves&quot;,
+ 6, &quot;06.Viernes&quot;,
+ &quot;&quot;
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Día</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

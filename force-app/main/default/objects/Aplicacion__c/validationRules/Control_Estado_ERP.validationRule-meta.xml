@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Estado_ERP</fullName>
+    <active>true</active>
+    <description>No se puede modificar un Comprobante de Pago PROCESADO</description>
+    <errorConditionFormula>AND( $User.Usuario_de_Integracion__c = false, $User.ProfileName__c &lt;&gt; &quot;Usuario de Administración&quot;,
+Comprobante_de_Pago__r.Estado_ERP__c = &quot;PROCESADO&quot;, NOT(ISCHANGED(Liquido_Producto__c)))</errorConditionFormula>
+    <errorMessage>No puede modificar un Comprobante de Pago PROCESADO.</errorMessage>
+</ValidationRule>

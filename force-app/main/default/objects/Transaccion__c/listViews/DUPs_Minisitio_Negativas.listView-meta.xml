@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DUPs_Minisitio_Negativas</fullName>
+    <columns>NAME</columns>
+    <columns>Campana__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Nombre_de_la_cuenta__c</columns>
+    <columns>Cantidad_Bolsas_RE__c</columns>
+    <columns>Obtentor__c</columns>
+    <columns>UPDATEDBY_USER.ALIAS</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Transaccion__c.DUP</value>
+    </filters>
+    <filters>
+        <field>Respondida_via_Minisitio__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Resultado_Validacion_Analista__c</field>
+        <operation>equals</operation>
+        <value>Negativa</value>
+    </filters>
+    <label>DUPs Minisitio Negativas</label>
+    <sharedTo>
+        <role>Lider_de_Comunidad</role>
+    </sharedTo>
+</ListView>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Generar_Lote__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica si es el lote que está en proceso de generación.</description>
+    <inlineHelpText>Indica si es el lote que está en proceso de generación. Solo puede haber uno activo.</inlineHelpText>
+    <label>Generar Lote</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

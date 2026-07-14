@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Coordenadas_campo_requerido</fullName>
+    <active>true</active>
+    <description>Valida que el Campo Coordenadas este completo cuando  el Productor NO es Grandes Cuentas</description>
+    <errorConditionFormula>AND(ISBLANK(Coordenadas__c ), 
+     NOT Productor__r.Grandes_Cuentas__c 
+    )</errorConditionFormula>
+    <errorDisplayField>Coordenadas__Latitude__s</errorDisplayField>
+    <errorMessage>Indique las Coordenadas del Establecimiento.</errorMessage>
+</ValidationRule>

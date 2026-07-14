@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_procesadas_para_convertir_Luciano1</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>Categoria_Portal__c</columns>
+    <columns>N_de_Comprobante__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Venta_Interna__c</columns>
+    <columns>NAME</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Pendiente,Preprocesado</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterOrEqual</operation>
+        <value>7/2/2026 12:00 AM</value>
+    </filters>
+    <filters>
+        <field>Variedades_SE__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Ventas procesadas para convertir_Luciano</label>
+</ListView>

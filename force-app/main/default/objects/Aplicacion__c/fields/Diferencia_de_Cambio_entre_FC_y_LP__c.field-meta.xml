@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Diferencia_de_Cambio_entre_FC_y_LP__c</fullName>
+    <description>Muestra la diferencia generada en la afectación del LP al comparar el TC FC vs TC LP</description>
+    <externalId>false</externalId>
+    <formula>IF( Liquido_Producto__r.ERPvs__Moneda__r.Name = &quot;ARS&quot;, 0, ( Tipo_de_Cambio_del_Comprobante__c - TC_del_LP__c ) *  Importe_Aplicar__c )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Muestra la diferencia generada en la afectación del LP al comparar el TC FC vs TC LP</inlineHelpText>
+    <label>Diferencia de Cambio entre FC y LP</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

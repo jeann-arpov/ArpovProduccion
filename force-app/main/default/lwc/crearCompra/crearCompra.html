@@ -1,0 +1,149 @@
+<template>
+    <div class="body">
+        <lightning-layout vertical-align="center" class="slds-m-bottom_medium">
+            <lightning-layout-item flexibility="auto">
+                <h1 style="font-size: 1.2rem">Compra de Hectárea Tecnológica</h1>
+            </lightning-layout-item>
+            <button type="button" onclick={redirectMisFacturas} class="slds-button slds-m-right_large">
+                <svg class="slds-m-right_small" width="13.464" height="17.954" >;
+                    <use xlink:href={icons.facturas}></use>
+                </svg>
+                Ver facturas
+            </button>
+            <button type="button" onclick={redirectMisLicencias} class="slds-button">
+                <svg class="slds-m-right_small" width="14.763" height="17.954" >;
+                    <use xlink:href={icons.licencias}></use>
+                </svg>
+                Ver licencias
+            </button>
+        </lightning-layout>
+
+        <template if:true={loading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>  
+
+        <lightning-card>
+            <lightning-layout vertical-align="center" class="slds-m-bottom_small">
+                <lightning-layout-item if:false={semilleroData} size="5" padding="horizontal-small" style="border-right: 2px solid grey;">
+                    <lightning-combobox options={cultivos} value={parametroCultivo} onchange={cultivoSelected} variant="label-hidden" placeholder="1) Seleccionar cultivo"></lightning-combobox>
+                </lightning-layout-item>
+                <lightning-layout-item if:true={semilleroData} size="2" padding="horizontal-small" style="border-right: 2px solid grey;">
+                    <lightning-layout>
+                        <lightning-layout-item style="width: 30px" padding="horizontal-small">
+                            <svg style="margin-top:8px" xmlns="http://www.w3.org/2000/svg" width="26.348" height="20.599" >
+                                <use xlink:href={icons.seed}></use>
+                            </svg>
+                        </lightning-layout-item>
+                        <lightning-layout-item flexibility="grow" padding="horizontal-small">
+                            <lightning-layout multiple-rows="true" if:true={semilleroData}>
+                                <lightning-layout-item size="12" padding="horizontal-small">
+                                    Cultivo
+                                </lightning-layout-item>
+                                <lightning-layout-item size="12" padding="horizontal-small">
+                                    <b>{cultivoName}</b>
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </lightning-layout-item>
+                <lightning-layout-item size="6" padding="horizontal-small">
+                    <c-semillero-data placeholder="2) Seleccionar marca" missing-confirm-data={missingConfirmData} semilleros={semilleros} semillero-data={semilleroData} onopencondicionescomerciales={openCondicionesComerciales} onsemilleroselected={semilleroSelected} onconfirm={confirm} onredirectmislicencias={redirectMisLicencias}></c-semillero-data>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+
+        <div class="slds-m-vertical_medium">
+            <b if:true={finalizada}>DETALLE DE LA COMPRA</b>
+        </div>
+
+        <lightning-card class="variedades-card" title={variedadesTitle} if:true={semilleroData}>
+            <div class = "variedades">
+                <lightning-layout vertical-align="center" class="slds-m-bottom_medium slds-text-align_center">
+                    <lightning-layout-item size="2"  padding="horizontal-small">
+                        <b if:false={finalizada}>Seleccioná&nbsp;</b>
+                        <b>Variedad</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="2" padding="horizontal-small">
+                        <b>Seleccione tipo de HT según momento de entrega del grano</b>
+                        <a class="c-tooltip" style="padding: 3px;">
+                            <lightning-icon icon-name="utility:info" size="small"></lightning-icon>
+                        </a>
+                        <div class="tooltipContainer">
+                            <div class="help-header"><b>¿Qué significa HT Disponible?</b></div>
+                            <p class="help-text">{labels.htDisponibles}</p>
+                            <div class="help-header"><b>¿Qué significa HT Futura?</b></div>
+                            <p class="help-text">{descripcionHtFuturas}</p>
+                        </div>
+                    </lightning-layout-item>
+                    <!-- Pre Campaña 
+                    <lightning-layout-item lwc:if={showFinanciamientoColumn} size="1" padding="horizontal-small">
+                        <b>Tipo de Financiamiento</b>
+                    </lightning-layout-item>-->
+                    <lightning-layout-item  size="1" padding="horizontal-small">
+                        <b>Fecha de Conversión a Toneladas</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="1" padding="horizontal-small">
+                        <b>Cantidad HT</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="1" padding="horizontal-small">
+                        <b>Precio Unitario (USD)</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item  size="1" padding="horizontal-small">
+                        <b>Total (USD)</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" padding="horizontal-small" >
+                        <b>Estado</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" padding="horizontal-small" >
+                        <b>Licencia</b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" padding="horizontal-small">
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <template for:each={items} for:item="item" for:index="index">
+                    <c-crear-linea-compra record={item.record} factura={item.factura} index={item.id} key={item.id} price-book-entries={variedades} ondelete={removeRow} onrecord={updateRecord} onsave={saveRow} onopenfactura={openFactura} ontipohtchange={handleTipoHtChange}></c-crear-linea-compra>
+                </template>
+            </div>
+
+            <lightning-layout class="slds-m-vertical_medium" if:true={puedeEditar}>
+                <lightning-layout-item padding="horizontal-small" size="6">
+                    <button type="button" onclick={addRow} class="slds-button add-variedad">
+                        <span><b class="plus-sign">+</b></span>
+                        <b>Agregar nueva variedad</b>
+                    </button>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout class="totals">
+                <lightning-layout-item padding="horizontal-small" size="6" if:true={data.record} >
+                    <b>Totales</b>
+                </lightning-layout-item>
+                <lightning-layout-item class="slds-text-align_center" padding="horizontal-small" size="2" if:true={data.record}>
+                    <b>Total HT: {data.record.Total_HT__c}</b>
+                </lightning-layout-item>
+                <lightning-layout-item size="1" padding="horizontal-small"></lightning-layout-item>
+                <lightning-layout-item class="slds-text-align_center" padding="horizontal-small" size="1" if:true={data.record}>
+                    <b>Total USD: {data.record.Total_USD__c}</b>
+                </lightning-layout-item>
+            </lightning-layout>
+
+        </lightning-card>
+
+        <lightning-layout class="slds-m-top_large footer" horizontal-align="center">
+            <lightning-layout-item>
+                <template if:false={created}>
+                    <lightning-button onclick={close} class="slds-m-top_medium" type="submit" label={closeLabel}></lightning-button>
+                    <lightning-button if:true={puedeFinalizar} variant="brand" onclick={finalizar} class="slds-m-top_medium slds-m-left--medium finalizar" type="submit" label="Finalizar Compra"></lightning-button>
+                    <lightning-button if:true={puedeFacturar} variant="brand" onclick={facturar} class="slds-m-top_medium slds-m-left--medium facturar" type="submit" label="Facturar"></lightning-button>
+                    <lightning-button if:true={puedeAnular} variant="brand" onclick={showAnularConfirm} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Anular"></lightning-button>
+                    <lightning-button if:true={puedeRealizarNueva} variant="brand" onclick={redirectToNew} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Nueva Compra"></lightning-button>
+                </template>
+            </lightning-layout-item>
+        </lightning-layout>
+    </div>
+    <c-pdf-reader></c-pdf-reader>
+    <c-ht-modals current-modal={currentModal} community={community} es-punto-venta={obtentorEsPuntoDeVenta} show-factura-regalia-enlist-msg={showFacturaRegaliaEnlistMsg} onclose={closeModal} onredirect={redirect} onanular={anular}></c-ht-modals>
+</template>

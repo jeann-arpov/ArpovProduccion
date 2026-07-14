@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validacion_Tipo_de_Venta</fullName>
+    <active>false</active>
+    <errorConditionFormula>(Originante__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp; NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TD&quot;)))
+||
+(Originante__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Distribuidor&quot; &amp;&amp; NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;C&quot;)))
+||
+(Originante__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Comercio&quot; &amp;&amp; NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;C&quot;)))
+||
+(Originante__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Productor&quot; &amp;&amp; NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;Venta&quot;)))
+||
+(Originante__r.RecordType.Name = &quot;Distribuidor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp; (NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TD&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TDS&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TC&quot;))))
+||
+(Originante__r.RecordType.Name = &quot;Distribuidor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Distribuidor&quot; &amp;&amp; (NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TD&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TDD&quot;))))
+||
+(Originante__r.RecordType.Name = &quot;Distribuidor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Comercio&quot; &amp;&amp; (NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TD&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TDD&quot;))))
+||
+(Originante__r.RecordType.Name = &quot;Distribuidor&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Productor&quot; &amp;&amp; NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;Venta&quot;)))
+||
+(Originante__r.RecordType.Name = &quot;Comercio&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp; (NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TD&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TM&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TDS&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TC&quot;))))
+|| 
+(Originante__r.RecordType.Name = &quot;Comercio&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Distribuidor&quot; &amp;&amp; (NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TD&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TDD&quot;))))
+|| 
+(Originante__r.RecordType.Name = &quot;Comercio&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Comercio&quot; &amp;&amp; (NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TD&quot;))||NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;TDD&quot;))))
+||
+(Originante__r.RecordType.Name = &quot;Comercio&quot; &amp;&amp; Destinatario__r.RecordType.Name = &quot;Productor&quot; &amp;&amp; NOT(ISPICKVAL( Tipo_de_Venta__c ,&quot;Venta&quot;)))</errorConditionFormula>
+    <errorDisplayField>Tipo_de_Venta__c</errorDisplayField>
+    <errorMessage>Tipo de Venta inválido para los roles de CUIT originante y destinatario seleccionados.</errorMessage>
+</ValidationRule>

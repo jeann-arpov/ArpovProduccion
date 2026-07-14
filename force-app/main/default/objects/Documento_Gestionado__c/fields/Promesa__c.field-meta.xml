@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Promesa__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+   AND( ISBLANK(Fecha_Comprometida_Respuesta__c) &amp;&amp;  ISBLANK(Fecha_Comprometida_Pago__c) ), &quot;Sin Promesa&quot;,
+   IF( NOT( ISBLANK(Fecha_Comprometida_Respuesta__c) ), &quot;Promesa de Respuesta&quot;,
+   &quot;Promesa de Pago&quot;
+   )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Promesa</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

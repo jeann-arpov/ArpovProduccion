@@ -1,0 +1,18 @@
+<template>
+    <h3 class="slds-section__title slds-theme_shade">
+        Expediente de Negativos
+    </h3>
+    <c-lookup onselectionchange={cuentaSelected} onsearch={search} label="Cuenta" placeholder="Ingrese cuit:">
+        <div slot="no-results" >
+            <span style="color:#FF0000;font-size:18px;">CUIT NO REGISTRADO</span>
+            <div style="color:#1C1C1C;font-size: 14px">Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.</div>
+            <div style="color:#1C1C1C;font-size: 14px">Por favor póngase en contacto con la mesa de ayuda de Sembrá Evolución</div>
+        </div>
+    </c-lookup>
+    <template lwc:if={expediente}>
+        <div class="slds-var-m-vertical_medium">
+            <c-acciones-expediente-negativos record-id={expediente.Id}></c-acciones-expediente-negativos>
+        </div>
+        <lightning-record-form record-id={expediente.Id} object-api-name="Expediente_de_Negativos__c" mode="readonly" layout-type="Full" density="comfy" columns="1"></lightning-record-form>
+    </template>
+</template>

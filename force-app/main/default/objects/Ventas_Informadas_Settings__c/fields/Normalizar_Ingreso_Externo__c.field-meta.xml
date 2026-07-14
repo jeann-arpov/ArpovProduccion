@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Normalizar_Ingreso_Externo__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Activa la normalización en before insert/update para registros que ingresan por API o carga directa (CUIT, variedad texto, campaña año, etc.), con la misma lógica que Nueva Venta e importación Excel.</description>
+    <inlineHelpText>Desactivar temporalmente en producción si hay un incidente. Setup → Custom Settings → Ventas Informadas Settings → Manage.</inlineHelpText>
+    <label>Normalizar ingreso externo (API)</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

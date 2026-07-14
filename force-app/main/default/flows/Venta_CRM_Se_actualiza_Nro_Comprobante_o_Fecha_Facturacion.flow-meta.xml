@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Actualizar_Fecha_Facturacion</name>
+        <label>Actualizar Fecha Facturación</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
+        <assignmentItems>
+            <assignToReference>varFechaFacturacion</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Fecha_Facturacion__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Actualizar_HT</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Hay_HT_asociada</name>
+        <label>Hay HT asociada?</label>
+        <locationX>336</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>No hay</defaultConnectorLabel>
+        <rules>
+            <name>Hay</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.HT_Id__r.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Se_actualiza_Fecha_en_la_HT</targetReference>
+            </connector>
+            <label>Hay</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Se_actualiza_Fecha_en_la_HT</name>
+        <label>Se actualiza Fecha en la HT?</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference>Actualizar_HT</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>1 OR (2 AND (3 OR 4))</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Tipo_de_Venta__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Venta</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Tipo_de_Venta__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>C</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Categoria__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Original o Fundadora</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Categoria__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Pre Básica</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar_Fecha_Facturacion</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Para ventas CRM con productos de Sembrá Evolución:
+Cada vez que se actualiza el nro. de comprobante de la venta CRM, se actualiza el nro. de comprobante en la HT asociada.
+Y cada vez que se actualiza la fecha de facturación de la venta CRM, se actualiza la fecha de facturación en la HT asociada si:
+* el tipo de venta = Venta, o
+* el tipo de venta = C y la categoría es Original o Fundadora / Pre Básica.</description>
+    <environments>Default</environments>
+    <interviewLabel>Venta CRM - Se actualiza Nro. Comprobante o Fecha Facturación {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Venta CRM - Se actualiza Nro. Comprobante o Fecha Facturación</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_HT</name>
+        <label>Actualizar HT</label>
+        <locationX>182</locationX>
+        <locationY>731</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.HT_Id__r.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Fecha_de_Facturacion__c</field>
+            <value>
+                <elementReference>varFechaFacturacion</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Numero_de_Comprobante__c</field>
+            <value>
+                <elementReference>$Record.Nro_de_Comprobante__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Hectareas_Tecnologicas__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>210</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Hay_HT_asociada</targetReference>
+        </connector>
+        <filterFormula>{!$Record.Producto__r.Sembra_Evolucion__c} &amp;&amp; 
+( ISCHANGED({!$Record.Fecha_Facturacion__c}) || ISCHANGED({!$Record.Nro_de_Comprobante__c}) )</filterFormula>
+        <object>Venta__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>varFechaFacturacion</name>
+        <dataType>Date</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <elementReference>$Record__Prior.Fecha_Facturacion__c</elementReference>
+        </value>
+    </variables>
+</Flow>

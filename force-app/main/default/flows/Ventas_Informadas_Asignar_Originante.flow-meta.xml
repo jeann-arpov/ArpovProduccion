@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Es_un_usuario_de_Interfase</name>
+        <label>Es un usuario de Interfase?</label>
+        <locationX>503</locationX>
+        <locationY>125</locationY>
+        <defaultConnectorLabel>No es usuario de Interfase API</defaultConnectorLabel>
+        <rules>
+            <name>Es_un_usuario_de_Interfase_API</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Profile.Name</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Interfaz Ventas</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Buscar_Originante</targetReference>
+            </connector>
+            <label>Es un usuario de Interfase API</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Verificar si existe la cuenta originante con CUIT_Originante</description>
+        <name>Existe_Cuenta_Originante</name>
+        <label>Existe Cuenta Originante?</label>
+        <locationX>802</locationX>
+        <locationY>287</locationY>
+        <defaultConnector>
+            <targetReference>Asignar_Originante</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Existe Originante</defaultConnectorLabel>
+        <rules>
+            <name>No_existe_cuenta_Originante</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Originante.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Registrar_Resultado_en_Venta_Informada</targetReference>
+            </connector>
+            <label>No existe cuenta Originante</label>
+        </rules>
+    </decisions>
+    <description>Asigna el nombre de la cuenta cuyo cuit es el CUIT_Originante del registro que se está creando. Si no existe la cuenta originante, se cambia el estado a Preprocesado y en Resultado se agrega &quot;No existe la cuenta originante.&quot;</description>
+    <interviewLabel>Ventas Informadas - Asignar Originante {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Ventas Informadas - Asignar Originante</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Buscar_Originante</name>
+        <label>Buscar Originante</label>
+        <locationX>810</locationX>
+        <locationY>124</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Existe_Cuenta_Originante</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>N_CUIT__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CUIT_Originante__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Asignar Originante</description>
+        <name>Asignar_Originante</name>
+        <label>Asignar Originante</label>
+        <locationX>558</locationX>
+        <locationY>292</locationY>
+        <inputAssignments>
+            <field>Originante__c</field>
+            <value>
+                <elementReference>Buscar_Originante.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Se agregará un resultado &quot;No existe la cuenta originante.&quot; y el estado se cambiará a &quot;Preprocesado&quot;</description>
+        <name>Registrar_Resultado_en_Venta_Informada</name>
+        <label>Registrar Resultado en Venta Informada</label>
+        <locationX>811</locationX>
+        <locationY>478</locationY>
+        <inputAssignments>
+            <field>Estado__c</field>
+            <value>
+                <stringValue>Preprocesado</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Resultado__c</field>
+            <value>
+                <stringValue>No existe la cuenta originante.</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Es_un_usuario_de_Interfase</targetReference>
+        </connector>
+        <object>Ventas_Informadas__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

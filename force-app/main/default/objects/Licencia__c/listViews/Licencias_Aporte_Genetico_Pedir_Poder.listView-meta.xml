@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Aporte_Genetico_Pedir_Poder</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>Fecha_de_Creacion_de_Licencia__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <columns>NAME</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Firmante_Cuit__c</columns>
+    <columns>Firmante_First_Name__c</columns>
+    <columns>Firmante_Last_Name__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <columns>Fecha_Licencia_Firmada__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>notEqual</operation>
+        <value>Enlist</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Licencia Firmada</value>
+    </filters>
+    <filters>
+        <field>Pedir_Poder__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Licencias Aporte Genético - Pedir Poder</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

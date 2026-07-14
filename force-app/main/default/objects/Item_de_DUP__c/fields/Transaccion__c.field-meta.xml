@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Transaccion__c</fullName>
+    <description>Identifica la transacción DUP Cabecera</description>
+    <label>Transacción</label>
+    <referenceTo>Transaccion__c</referenceTo>
+    <relationshipLabel>Variedades de la Declaración</relationshipLabel>
+    <relationshipName>Item_de_DUP</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

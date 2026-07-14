@@ -1,0 +1,108 @@
+.tabla_gris {
+    width: 601px ;
+    align: center;
+    margin: 0px auto;
+    border-spacing: 0px;
+    padding: 0px;
+}
+
+.tabla_gris thead{
+    background:url({!URLFOR($Resource.DUP_PDF_Files,'images/cabecera_tabla.png')});
+    background-repeat:no-repeat; 
+}
+
+.tabla_gris tbody tr td{
+    text-align: left;
+    border: 1px solid #A2A7AA;
+}
+
+.tabla_sin_borde tr td {
+    text-align: left;
+    border: 0px solid #A2A7AA;
+}
+
+.fondo_gris{
+    background-color: #A2A7AA;
+    border: 1px solid #A2A7AA;
+}
+
+div.box{
+    border: 1px solid #000;
+    background-color: #ccc;
+    padding: 5px;
+    margin-top: 100px;
+}
+
+div.box span.underline{
+    text-decoration: underline;
+}
+
+.divPage {
+    display: block;
+    font-family: "arial";  
+}
+
+.divPageDeclaRacionSiembra{
+    page-break-after: avoid; 
+    page-break-inside: avoid;   
+}
+
+.divLastPage{
+    display: block;
+    margin-top: 1px;
+}
+
+#fakeBarcode{
+    visibility: hidden;
+}
+
+.divPageDeclaRacionSiembra p{
+    font-size: 14px;
+}
+
+.divPage .frase-obtentor{
+    font-size: 14px;
+    page-break-inside: avoid;
+    page-break-after: always;
+}
+
+.divLastPage .frase-obtentor{
+    font-size: 14px;
+    page-break-before: avoid;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+}
+
+.frase-obtentor-last{
+    font-size: 14px;
+    page-break-before: avoid;
+    page-break-inside: avoid;
+}
+
+.inportante-advice{
+    height: 115px;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+    width: 85%;
+    margin: 0 auto;
+    font-weight: bold;
+    text-align: justify;
+}
+
+.tabla-declaraciones{
+    margin: 1% 0;
+}
+
+.advice-info-left{
+    padding-top: 10px;
+    padding-left: 40px;
+    width: 68%;
+}
+
+.advice-info-right{
+    width: 32%;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+}

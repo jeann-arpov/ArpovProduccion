@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Programar_Env_o_de_Emails</fullName>
+    <availability>online</availability>
+    <displayType>button</displayType>
+    <linkType>page</linkType>
+    <masterLabel>Programar Envío de Emails</masterLabel>
+    <openType>replace</openType>
+    <page>ProgramacionEnvioEmails</page>
+    <protected>false</protected>
+</WebLink>

@@ -1,0 +1,74 @@
+table {
+    border-collapse: collapse;
+}
+  
+td {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+th{
+    padding: 10px;
+    text-align: center;
+}
+
+thead{
+    background-color:black;
+    color:white;
+}
+
+.total{
+    font-size: medium;
+    background-color: #C4FE00;
+}
+
+.tooltipContainer {
+    position: absolute;
+    background-color: #1c1c1c;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    /* Set the initial visibility to hidden */
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    max-width: 230px;
+    left:30%;
+    color:white;
+    font-size:small;
+}
+
+a.c-tooltip {
+    text-decoration: none;
+    cursor: default;
+    color: #0070d2; /* Adjust the color as needed */
+    position: relative;
+    display: inline-block; /* Ensure the anchor tag respects its dimensions */
+}
+
+.help-icon{
+    background-color: #bfff00;
+    border-radius: 50%;
+    margin: 5px;
+    padding: 3px;
+}
+
+.help-header{
+    color:#bfff00;
+    font-size:small;
+}
+
+.help-text{
+    color:white;
+    font-size:small;
+}
+
+a.c-tooltip:hover + .tooltipContainer,
+.tooltipContainer:hover {
+    /* Show the tooltip on hover */
+    visibility: visible;
+    opacity: 1;
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_comprometida_obligatoria</fullName>
+    <active>true</active>
+    <description>Cuando hay Promesa de Pago se requiere ingresar una fecha respuesta comprometida</description>
+    <errorConditionFormula>AND(OR( ISPICKVAL(Accion__c ,&quot;Promesa de pago&quot;),
+     ISPICKVAL(Accion__c ,&quot;Promesa de rta&quot;)  
+       ),
+     ISBLANK( Fecha_Comprometida_Respuesta__c )
+    )</errorConditionFormula>
+    <errorDisplayField>Fecha_Comprometida_Respuesta__c</errorDisplayField>
+    <errorMessage>Es requerido el ingreso de una Fecha Comprometida de Respuesta</errorMessage>
+</ValidationRule>

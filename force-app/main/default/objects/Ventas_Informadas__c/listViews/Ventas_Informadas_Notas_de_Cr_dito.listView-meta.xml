@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_Notas_de_Cr_dito</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>CUIT_Originante__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>CUIT_Destinatario__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>Tipo_de_Comprobante__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tipo_de_Comprobante__c</field>
+        <operation>equals</operation>
+        <value>NC</value>
+    </filters>
+    <label>Ventas Informadas Notas de Crédito</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

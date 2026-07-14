@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campana__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+    TEXT(Origen__c) = &apos;Compra SF&apos;,  Venta__r.Campana_Agricola__r.Name,
+    IF(
+       TEXT(Origen__c) = &apos;Compra HT&apos;,   Linea_de_Compra_HT__r.Campana__r.Name,
+       &apos;--&apos;
+    )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Campaña Agrícola</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Motivo_DAP_obligatorio</fullName>
+    <active>true</active>
+    <description>El campo Motivo Desaplicación es obligatorio cuando se genera una aplicación con signo negativo</description>
+    <errorConditionFormula>Importe__c &lt; 0 &amp;&amp; ISPICKVAL( Motivo_Desaplicacion__c , &quot;&quot;)</errorConditionFormula>
+    <errorDisplayField>Motivo_Desaplicacion__c</errorDisplayField>
+    <errorMessage>El campo no puede estar en blanco o vacío para una desaplicación. Seleccione un valor de la lista para continuar</errorMessage>
+</ValidationRule>

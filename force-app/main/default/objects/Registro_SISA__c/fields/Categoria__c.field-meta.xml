@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Categoria__c</fullName>
+    <description>Se corresponde con el Código de Categoría</description>
+    <label>Categoría</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>PRODUCTOR</fullName>
+                <default>false</default>
+                <label>PRODUCTOR</label>
+            </value>
+            <value>
+                <fullName>ACOPIADOR</fullName>
+                <default>false</default>
+                <label>ACOPIADOR</label>
+            </value>
+            <value>
+                <fullName>PROVEEDOR DE INSUMOS, SERVICIOS Y/O BIENES DE CAPITAL</fullName>
+                <default>false</default>
+                <label>PROVEEDOR DE INSUMOS, SERVICIOS Y/O BIENES DE CAPITAL</label>
+            </value>
+            <value>
+                <fullName>OTRO SIN PLANTA</fullName>
+                <default>false</default>
+                <label>OTRO SIN PLANTA</label>
+            </value>
+            <value>
+                <fullName>COMERCIANTE DE GRANOS</fullName>
+                <default>false</default>
+                <label>COMERCIANTE DE GRANOS</label>
+            </value>
+            <value>
+                <fullName>OTRO CON PLANTA</fullName>
+                <default>false</default>
+                <label>OTRO CON PLANTA</label>
+            </value>
+            <value>
+                <fullName>ARRENDADOR</fullName>
+                <default>false</default>
+                <label>ARRENDADOR</label>
+            </value>
+            <value>
+                <fullName>CORREDOR</fullName>
+                <default>false</default>
+                <label>CORREDOR</label>
+            </value>
+            <value>
+                <fullName>CONTRATISTA RURAL</fullName>
+                <default>false</default>
+                <label>CONTRATISTA RURAL</label>
+            </value>
+            <value>
+                <fullName>EXPORTADOR</fullName>
+                <default>false</default>
+                <label>EXPORTADOR</label>
+            </value>
+            <value>
+                <fullName>EXPORTADOR CON PLANTA</fullName>
+                <default>false</default>
+                <label>EXPORTADOR CON PLANTA</label>
+            </value>
+            <value>
+                <fullName>DESMOTADOR DE ALGODÓN</fullName>
+                <default>false</default>
+                <label>DESMOTADOR DE ALGODÓN</label>
+            </value>
+            <value>
+                <fullName>MERCADO DE CEREALES A TÉRMINO</fullName>
+                <default>false</default>
+                <label>MERCADO DE CEREALES A TÉRMINO</label>
+            </value>
+            <value>
+                <fullName>PROFESIONAL</fullName>
+                <default>false</default>
+                <label>PROFESIONAL</label>
+            </value>
+            <value>
+                <fullName>APLICADOR AÉREO</fullName>
+                <default>false</default>
+                <label>APLICADOR AÉREO</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

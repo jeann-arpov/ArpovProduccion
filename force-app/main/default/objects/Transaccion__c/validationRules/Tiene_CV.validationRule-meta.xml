@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tiene_CV</fullName>
+    <active>false</active>
+    <description>No se puede modificar una transacción ya integrada con el ERP.</description>
+    <errorConditionFormula>AND(
+    $User.Usuario_de_Integracion__c = false,
+    Tiene_CV__c = true
+)</errorConditionFormula>
+    <errorMessage>No se puede modificar una transacción ya procesada por el ERP</errorMessage>
+</ValidationRule>

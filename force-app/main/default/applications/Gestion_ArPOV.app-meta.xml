@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <defaultLandingTab>standard-home</defaultLandingTab>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>Gestion ArPOV</label>
+    <logo>SharedDocuments/Logo_ArPOV.png</logo>
+    <tabs>standard-Chatter</tabs>
+    <tabs>standard-Account</tabs>
+    <tabs>standard-Contact</tabs>
+    <tabs>Transaccion__c</tabs>
+    <tabs>Venta__c</tabs>
+    <tabs>standard-Opportunity</tabs>
+    <tabs>standard-Case</tabs>
+    <tabs>standard-Product2</tabs>
+    <tabs>Comprobante_de_Pago__c</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Dashboard</tabs>
+    <tabs>Campana_Agricola__c</tabs>
+    <tabs>Consulta_Tipo_de_Cambio</tabs>
+    <tabs>activities__Activities</tabs>
+    <tabs>Interaccion_Nueva__c</tabs>
+    <tabs>Entidades_Bancarias__c</tabs>
+    <tabs>Registro_SISA__c</tabs>
+    <tabs>Qlik_Config__c</tabs>
+    <tabs>Linea_de_Compra_HT__c</tabs>
+    <tabs>muestreo_y_testeo__c</tabs>
+    <tabs>Cuenta_Granaria__c</tabs>
+</CustomApplication>

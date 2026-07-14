@@ -1,0 +1,68 @@
+<template>
+    <template if:true={isLoading}>
+        <lightning-card class="pc-card pc-loading" title="Cargando..." icon-name="utility:spinner">
+            <div class="pc-padded">
+                <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
+            </div>
+        </lightning-card>
+    </template>
+
+    <template if:true={error}>
+        <lightning-card class="pc-card pc-error" title="Error" icon-name="utility:error">
+            <div class="pc-padded pc-text-error">
+                Se produjo un error al cargar la información.
+            </div>
+        </lightning-card>
+    </template>
+
+    <template if:true={hasData}>
+        <div class="pc-container">
+            <div class="pc-header">
+                <h2 class="pc-title">{producto.Name}</h2>
+                <div class="pc-subtitle">
+                    <span class="pc-pill">Producto Obtentor</span>
+                    <span class="pc-variedad">{producto.Nombre_Variedad__c}</span>
+                </div>
+            </div>
+
+            <div class="pc-content">
+                <div class="pc-column">
+                    <div class="pc-field">
+                        <span class="pc-label">Variedad</span>
+                        <span class="pc-value">{producto.Nombre_Variedad__c}</span>
+                    </div>
+                    <div class="pc-field">
+                        <span class="pc-label">Marca</span>
+                        <span class="pc-value">{producto.Marca__c}</span>
+                    </div>
+                    <div class="pc-field pc-status">
+                        <span class="pc-label">Vigente</span>
+                        <span class="pc-pill pc-pill-status {vigenteIconClass}">{vigenteLabel}</span>
+                    </div>
+                </div>
+
+                <div class="pc-column">
+                    <div class="pc-field">
+                        <span class="pc-label">Nombre Obtentor</span>
+                        <span class="pc-value">{producto.Obtentor__r.Name}</span>
+                    </div>
+                    <div class="pc-field">
+                        <span class="pc-label">Tipo de Compra</span>
+                        <span class="pc-value">{producto.Tipo_de_Compra__c}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pc-table-section">
+                <h3 class="pc-table-title">Entradas Precio Obtentor <span class="pc-count">({entradasCount})</span></h3>
+                <div class="pc-table-wrapper">
+                    <c-entradas-precio-table 
+                        precios={precios}
+                        product-id={productId}
+                        onrefresh={handleRefresh}>
+                    </c-entradas-precio-table>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

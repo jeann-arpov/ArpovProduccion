@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_sin_Sab_Dom__c</fullName>
+    <formula>CASE(
+       WEEKDAY( Fecha_Analisis__c ) , 
+       1, Fecha_Analisis__c + 8 + FLOOR(7/5)*2, 
+       2, Fecha_Analisis__c + 8 + FLOOR(8/5)*2,
+       3, Fecha_Analisis__c + 8 + FLOOR(9/5)*2,
+       4, Fecha_Analisis__c + 8 + FLOOR(10/5)*2,
+       5, Fecha_Analisis__c + 8 + FLOOR(11/5)*2,
+       6, Fecha_Analisis__c + 8 + CEILING(8/5)*2,
+       7, Fecha_Analisis__c + 8 - 1 + CEILING(8/5)*2,
+null)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Fecha sin Sab Dom</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

@@ -1,0 +1,14 @@
+<template>
+    <div if:true={processing}><lightning-spinner alternative-text="Loading"></lightning-spinner></div>
+    <!-- <lightning-button label="Facturar Regalía Enlist" onclick={facturarRegaliaEnlist} lwc:if={expediente}></lightning-button> -->
+    <lightning-button label="Cerrar Expediente" onclick={cerrarExpediente} lwc:if={expediente}></lightning-button>
+    <c-modal>
+        <div class="slds-align_absolute-center slds-text-heading_small">
+            Está seguro que desea continuar con la facturación de la regalía Enlist? Esta acción no puede deshacerse
+        </div>
+        <div class="slds-align_absolute-center slds-var-m-top_small">
+            <lightning-button label="Cancelar" onclick={closeModal}></lightning-button>
+            <lightning-button label="Continuar" onclick={confirmFacturarRegaliaEnlist}></lightning-button>
+        </div>
+    </c-modal>
+</template>

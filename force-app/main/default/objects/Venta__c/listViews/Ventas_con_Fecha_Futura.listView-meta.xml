@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_con_Fecha_Futura</fullName>
+    <columns>NAME</columns>
+    <columns>Originante__c</columns>
+    <columns>Originante_CUIT__c</columns>
+    <columns>Fecha__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Destinatario_CUIT__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Estado__c</columns>
+    <columns>Nro_de_Comprobante__c</columns>
+    <columns>Fecha_Facturacion__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Fecha_Futura_de_Comprobante__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Ventas con Fecha Futura</label>
+</ListView>

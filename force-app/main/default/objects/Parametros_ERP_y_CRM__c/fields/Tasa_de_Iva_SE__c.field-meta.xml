@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tasa_de_Iva_SE__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Tasa de Iva SE</label>
+    <referenceTo>ERPvs__Tasa_de_Iva__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Tasa de Iva SE)</relationshipLabel>
+    <relationshipName>Parametros_ERP_y_CRM_23</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

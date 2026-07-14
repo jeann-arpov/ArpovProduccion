@@ -1,0 +1,76 @@
+<template>
+    <div class="slds-grid slds-grid_align-end">
+
+        <button onclick={handleSolicitarLicencia} class="btn-solicitar">Solicitar Licencia</button>
+        
+    </div>
+
+    <!-- <section if:true={showModal} style="margin:auto" role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-text-align_center slds-modal_small">
+        <div if:true={loading} class="exampleHolder">
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </div>
+        <div class="slds-modal__container">
+            <div class="slds-modal__content" id="modal-content-id-1">
+                <lightning-layout horizontal-align="end">
+                    <button class="slds-button slds-button_icon slds-button_icon-inverse">
+                        <lightning-icon style="--slds-c-icon-color-foreground-default: black" size="small" icon-name="utility:close" onclick={closeModal}></lightning-icon>
+                    </button>
+                </lightning-layout>
+
+                <div class="slds-p-around_xx-large slds-m-bottom_x-large content" onclick={setDefaultSelection}>
+                    <b class="heading">Nueva Solicitud de licencia</b>
+                    <div class="separator slds-m-bottom_large"></div>
+                    <div style="font-size: 16px" class="slds-m-bottom_x-large">Ingresá los datos de la licencia que necesitás</div>
+
+                    <lightning-layout class={selectLicenseClass} horizontal-align="center">
+                        <lightning-layout-item class="slds-m-right_small" padding="around-small" data-type="e3" onclick={selectLicenseType}>
+                            <div class="title heading slds-m-bottom_small"><b>E3®/CKE3®</b></div>
+                            <span>Seleccioná esta opción para todas las variedades de Soja con tecnología Enlist® y Conkesta®</span>
+                        </lightning-layout-item>
+                        <lightning-layout-item padding="around-small" data-type="genetico" onclick={selectLicenseType}>
+                            <div class="title heading slds-m-bottom_small"><b>Aporte Genético</b></div>
+                            <span>Seleccioná esta opción para todas las variedades de Soja y Trigo que no tengan una biotecnología patentada</span>
+                        </lightning-layout-item> -->
+    <!--lightning-layout-item padding="around-small" data-type="hb4" onclick={selectLicenseType}>
+                            <div class="title heading slds-m-bottom_small"><b>HB4®</b></div>
+                            <span>Seleccioná esta opción para todas las variedades de Trigo con tecnología HB4®</span>
+                        </lightning-layout-item-->
+    <!-- </lightning-layout>
+
+                    <lightning-layout class="slds-m-bottom_medium" horizontal-align="center" if:true={shouldShowMarcas}>
+                        <lightning-layout-item size="6">
+                            <lightning-combobox variant="label-hidden" placeholder="Seleccione la Marca para Aporte Genético" label="Marca" options={marcas} class="marca" onchange={marcaChanged}></lightning-combobox>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout class="slds-m-bottom_medium" horizontal-align="center" if:true={shouldShowTipoLicencia}>
+                        <lightning-layout-item size="6">
+                            <lightning-radio-group variant="label-inline" placeholder="Seleccione el tipo de licencia" label="Tipo de licencia" options={licenceTypes} class="licence-type" value={licenceType} onchange={licenceTypeChanged}></lightning-radio-group>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout class="slds-m-bottom_x-large" horizontal-align="center" if:true={shouldShowTercero}>
+                        <lightning-layout-item size="6">
+                            <c-lookup variant="label-hidden" onselectionchange={terceroSelected} onsearch={search} label="Gestionar a tercero" selection={account} placeholder="Ingrese CUIT del tercero">
+                                <div slot="no-results">
+                                    <span style="color:#FF0000;font-size:18px;">CUIT NO REGISTRADO</span>
+                                    <div style="color:#1C1C1C;font-size: 14px">Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.</div>
+                                    <div style="color:#1C1C1C;font-size: 14px">Por favor póngase en contacto con la mesa de ayuda de Sembrá Evolución</div>
+                                </div>
+                            </c-lookup>
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <lightning-layout class="slds-m-bottom_x-large" horizontal-align="center">
+                        <lightning-layout-item size="6">
+                            <lightning-button label="Continuar" onclick={redirectToSolicitarLicencia} disabled={cantContinue}></lightning-button>
+                        </lightning-layout-item>
+                    </lightning-layout>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <div if:true={showModal} class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+
+</template>

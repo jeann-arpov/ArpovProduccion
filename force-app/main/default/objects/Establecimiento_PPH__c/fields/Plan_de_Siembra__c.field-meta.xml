@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plan_de_Siembra__c</fullName>
+    <label>Plan de Siembra</label>
+    <referenceTo>Plan_de_Siembra__c</referenceTo>
+    <relationshipLabel>Establecimientos PPH</relationshipLabel>
+    <relationshipName>Establecimientos_PPH</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

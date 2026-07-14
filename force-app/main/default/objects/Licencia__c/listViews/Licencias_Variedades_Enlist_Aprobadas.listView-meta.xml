@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Variedades_Enlist_Aprobadas</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>NAME</columns>
+    <columns>Cuit_Productor__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Email__c</columns>
+    <columns>Fecha_de_Vencimiento__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>equals</operation>
+        <value>Enlist</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Aprobada</value>
+    </filters>
+    <filters>
+        <field>Fecha_de_Vencimiento__c</field>
+        <operation>equals</operation>
+        <value>7/24/2032</value>
+    </filters>
+    <label>Licencias Variedades Enlist Aprobadas</label>
+</ListView>

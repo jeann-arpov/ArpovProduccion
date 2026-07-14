@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Permite a un usuario conectarse a Salesforce a través de los conectores de Excel y Power BI para poder visualizar datos e informes directamente desde las aplicaciones de Microsoft</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Acceso Conector Salesforce para Excel</label>
+    <license>Salesforce</license>
+</PermissionSet>

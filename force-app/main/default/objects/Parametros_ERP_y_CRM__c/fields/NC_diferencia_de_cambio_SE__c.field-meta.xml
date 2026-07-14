@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NC_diferencia_de_cambio_SE__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>NC diferencia de cambio SE</label>
+    <referenceTo>ERPvs__Tipo_comprobante_venta__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (NC diferencia de cambio SE)</relationshipLabel>
+    <relationshipName>Par_metros_ERP_y_CRM4</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

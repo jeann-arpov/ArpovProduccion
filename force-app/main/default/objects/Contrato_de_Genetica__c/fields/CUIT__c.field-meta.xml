@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CUIT__c</fullName>
+    <description>Identifica el CUIT firmante del Contrato</description>
+    <inlineHelpText>Indique el CUIT del Productor / Comercio firmante del contrato</inlineHelpText>
+    <label>Cuenta</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Contratos de Genética</relationshipLabel>
+    <relationshipName>Contratos_de_Genetica</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

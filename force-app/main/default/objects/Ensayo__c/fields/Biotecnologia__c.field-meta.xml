@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Biotecnologia__c</fullName>
+    <label>Biotecnología</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Convencional</fullName>
+                <default>false</default>
+                <label>Convencional</label>
+            </value>
+            <value>
+                <fullName>RR1</fullName>
+                <default>false</default>
+                <label>RR1</label>
+            </value>
+            <value>
+                <fullName>RR2 - BT</fullName>
+                <default>false</default>
+                <label>RR2 - BT</label>
+            </value>
+            <value>
+                <fullName>Enlist E3</fullName>
+                <default>false</default>
+                <label>Enlist E3</label>
+            </value>
+            <value>
+                <fullName>Conkesta E3</fullName>
+                <default>false</default>
+                <label>Conkesta E3</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

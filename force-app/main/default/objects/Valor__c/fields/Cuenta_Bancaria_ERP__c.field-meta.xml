@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_Bancaria_ERP__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF (AND (Depositado__c = FALSE, En_Custodia__c = FALSE), &quot;&quot;,
+    IF (AND (Depositado__c = TRUE, En_Custodia__c = FALSE), &quot;141-048828-2&quot;, &quot;111636/7&quot;))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Cuenta Bancaria ERP</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

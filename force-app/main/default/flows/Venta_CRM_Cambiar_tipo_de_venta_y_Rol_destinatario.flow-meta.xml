@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Es_NC</name>
+        <label>Es NC?</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference>Actualizar_Rol_Destinatario</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Otro</defaultConnectorLabel>
+        <rules>
+            <name>NC</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Origen__r.Tipo_de_Comprobante__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>NC</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar_Tipo_de_Venta_y_Rol_Originante</targetReference>
+            </connector>
+            <label>NC</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Tiene_Venta_Informada_con_Venta_Interna_True</name>
+        <label>Tiene Venta Informada con Venta Interna True?</label>
+        <locationX>380</locationX>
+        <locationY>311</locationY>
+        <defaultConnectorLabel>No tiene</defaultConnectorLabel>
+        <rules>
+            <name>Si_tiene</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Origen__r.Venta_Interna__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Es_NC</targetReference>
+            </connector>
+            <label>Si tiene</label>
+        </rules>
+    </decisions>
+    <description>Si se crea una venta CRM con tipo de venta = Venta y si la venta informada asociada (si tiene) tiene Venta Interna = True:
+Si el tipo de comprobante = NC
+* se cambia el rol originario a Productor
+* se cambia el tipo de venta = DPD
+Si el tipo de comprobante &lt;&gt; NC
+* se cambia el rol destinatario a Productor
+* se cambia el tipo de venta = Venta</description>
+    <environments>Default</environments>
+    <interviewLabel>Venta CRM - Cambiar tipo de venta y Rol destinatario {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Venta CRM - Cambiar tipo de venta y Rol destinatario</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Rol_Destinatario</name>
+        <label>Actualizar Rol Destinatario</label>
+        <locationX>314</locationX>
+        <locationY>551</locationY>
+        <inputAssignments>
+            <field>Rol_Destinatario__c</field>
+            <value>
+                <stringValue>Productor</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_de_Venta__c</field>
+            <value>
+                <stringValue>Venta</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Actualizar_Tipo_de_Venta_y_Rol_Originante</name>
+        <label>Actualizar Tipo de Venta y  Rol Originante</label>
+        <locationX>50</locationX>
+        <locationY>551</locationY>
+        <inputAssignments>
+            <field>Rol_Originante__c</field>
+            <value>
+                <stringValue>Productor</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_de_Venta__c</field>
+            <value>
+                <stringValue>DPD</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>254</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Tiene_Venta_Informada_con_Venta_Interna_True</targetReference>
+        </connector>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>Tipo_de_Venta__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Venta</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Tipo_de_Venta__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>TD</stringValue>
+            </value>
+        </filters>
+        <object>Venta__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

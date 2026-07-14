@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Alerta_PCV_difiere_precio_de_lista_compra_HT</name>
+        <label>Alerta PCV difiere precio de lista compra HT</label>
+        <locationX>308</locationX>
+        <locationY>839</locationY>
+        <actionName>ERPvs__Productos_Comprobante_de_Venta__c.Alerta_cambio_de_precio_en_PCV</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>ERPvs__Productos_Comprobante_de_Venta__c.Alerta_cambio_de_precio_en_PCV</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <apiVersion>62.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Precio_de_lista_compra_HT_completo</name>
+        <label>Precio de lista compra HT completo</label>
+        <locationX>176</locationX>
+        <locationY>323</locationY>
+        <defaultConnector>
+            <targetReference>Actualiza_precio_de_lista_compra_HT</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Vacio</defaultConnectorLabel>
+        <rules>
+            <name>Completo</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Precio_de_Lista_Compra_HT__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Precio_PCV_distinto_precio_de_lista_compra_HT</targetReference>
+            </connector>
+            <label>Completo</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Precio_PCV_distinto_precio_de_lista_compra_HT</name>
+        <label>Precio PCV distinto precio de lista compra HT</label>
+        <locationX>176</locationX>
+        <locationY>623</locationY>
+        <defaultConnector>
+            <targetReference>Actualiza_precio_unitario</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Distinto</defaultConnectorLabel>
+        <rules>
+            <name>Igual</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>precioListaLineaCompraHT</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>precioUnitarioCVsinIVA</elementReference>
+                </rightValue>
+            </conditions>
+            <label>Igual</label>
+        </rules>
+    </decisions>
+    <description>V1: Actualiza precio producto SE si el mismo difiere del precio de lista de la compra HT
+V2: Se completa el campo Observaciones
+V3: Se incorpora Email de alerta cuando se cambió el PCV por el precio de lista de la línea de compra HT
+V4: Se agregan observaciones a los registros
+V5: Se cambia el campo ERPvs__Observaciones__c por Observaciones_Flows__c
+V6: Se agrega la validación del campo No_controlar_precio_producto_SE__c = false como condición disparadora del trigger</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>precioListaLineaCompraHT</name>
+        <dataType>Number</dataType>
+        <expression>{!$Record.OpportunityLineItem__r.Linea_de_Compra_HT__r.Precio_de_Lista__c}</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>precioListaLineaCompraHTconIva</name>
+        <dataType>Number</dataType>
+        <expression>ROUND({!$Record.OpportunityLineItem__r.Linea_de_Compra_HT__r.Precio_de_Lista__c} * 1.21, 2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>precioUnitarioCVsinIVA</name>
+        <dataType>Number</dataType>
+        <expression>ROUND({!$Record.ERPvs__Precio_unitario__c} / 1.21, 2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <interviewLabel>PCV.Actualiza precio producto SE {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>PCV.Actualiza precio producto SE</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_precio_de_lista_compra_HT</name>
+        <label>Actualiza precio de lista compra HT</label>
+        <locationX>264</locationX>
+        <locationY>431</locationY>
+        <connector>
+            <targetReference>Precio_PCV_distinto_precio_de_lista_compra_HT</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Observaciones_Flows__c</field>
+            <value>
+                <elementReference>varObservaciones</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Precio_de_Lista_Compra_HT__c</field>
+            <value>
+                <elementReference>precioListaLineaCompraHT</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Actualiza_precio_unitario</name>
+        <label>Actualiza precio unitario</label>
+        <locationX>308</locationX>
+        <locationY>731</locationY>
+        <connector>
+            <targetReference>Alerta_PCV_difiere_precio_de_lista_compra_HT</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>ERPvs__Precio_unitario__c</field>
+            <value>
+                <elementReference>precioListaLineaCompraHTconIva</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Observaciones_Flows__c</field>
+            <value>
+                <elementReference>varObservaciones</elementReference>
+            </value>
+        </inputAssignments>
+        <object>ERPvs__Productos_Comprobante_de_Venta__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Precio_de_lista_compra_HT_completo</targetReference>
+        </connector>
+        <filterFormula>(CONTAINS({!$Record.Producto_Nombre__c}, &apos;Futura&apos;) || CONTAINS({!$Record.Producto_Nombre__c}, &apos;Disponible&apos;)) &amp;&amp;
+{!$Record.ERPvs__Precio_unitario__c} &gt; 0 &amp;&amp; {!$Record.No_controlar_precio_producto_SE__c} = false</filterFormula>
+        <object>ERPvs__Productos_Comprobante_de_Venta__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>varObservaciones</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;Flow: PCV.Actualiza precio producto SE&lt;/p&gt;&lt;p&gt;FlowInterview GUID: {!$Flow.InterviewGuid}&lt;/p&gt;&lt;p&gt;Record Name: {!$Record.Name}&lt;/p&gt;&lt;p&gt;Precio Unitario (Sin IVA) antes de actualizarse: {!precioUnitarioCVsinIVA}&lt;/p&gt;</text>
+    </textTemplates>
+    <variables>
+        <name>precioUnitarioSinIVA</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>5</scale>
+        <value>
+            <elementReference>$Record.Precio_Unitario_Sin_IVA__c</elementReference>
+        </value>
+    </variables>
+</Flow>

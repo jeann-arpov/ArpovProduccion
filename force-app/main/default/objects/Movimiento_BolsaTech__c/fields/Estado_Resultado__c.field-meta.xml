@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_Resultado__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+   ISBLANK( Resultado__c ), IMAGE(&quot;/resource/Status_Icons/pending.png&quot;,&quot;Error&quot;,25,25),
+   IF( OR( CONTAINS( Resultado__c, &quot;Fecha de Análisis Vacia&quot; ), CONTAINS( Resultado__c, &quot;Cultivo Vacio&quot;), 
+           CONTAINS(Resultado__c, &quot;Tecnologia Vacia&quot;), CONTAINS(Resultado__c, &quot;Código de Trazabilidad de Granos Vacio&quot;), 
+           CONTAINS(Resultado__c, &quot;Peso Neto Vacio&quot;), CONTAINS(Resultado__c, &quot;Cuit Titular Vacio&quot;), 
+           CONTAINS(Resultado__c, &quot;Cuit Destinatario Vacio&quot;), CONTAINS(Resultado__c, &quot;Código de Muestra Vacio&quot;) ),
+      IMAGE(&quot;/resource/Status_Icons/rejected.png&quot;,&quot;OK&quot;,25,25),
+      IF( OR( CONTAINS( Resultado__c, &quot;El cuit titular no se encuentra en el sistema&quot; ), 
+              CONTAINS( Resultado__c, &quot;El cuit destinatario no se encuentra en el sistema&quot; ), 
+              CONTAINS( Resultado__c, &quot;Ya existe un movimiento con mismo código de trazabilidad de granos/código de muestra&quot; ) ),
+         IMAGE(&quot;/resource/Status_Icons/warning.png&quot;,&quot;OK&quot;,25,25),
+         IF( CONTAINS( Resultado__c, &quot;OK&quot; ), 
+             IMAGE(&quot;/resource/Status_Icons/approved.png&quot;,&quot;OK&quot;,25,25),
+             IMAGE(&quot;/resource/Status_Icons/rejected.png&quot;,&quot;OK&quot;,25,25)
+
+         )
+      )
+   )
+)</formula>
+    <label>Estado Resultado</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

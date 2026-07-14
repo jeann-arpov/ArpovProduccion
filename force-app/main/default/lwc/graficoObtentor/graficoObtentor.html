@@ -1,0 +1,14 @@
+<template>
+    
+    <lightning-card class="card">
+        <div slot="title" class="title">Historial de Semilla Fiscalizada y Uso Propio</div>
+        <div class="calcdm" style={cssStyle}>
+            <lightning-tree-grid
+                hide-checkbox-column="true"
+                columns={gridColumns}
+                data={gridData}
+                key-field="key"></lightning-tree-grid>
+        </div>
+    </lightning-card>
+
+</template>

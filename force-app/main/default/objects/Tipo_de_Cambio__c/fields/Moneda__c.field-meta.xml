@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Moneda__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Moneda</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Moneda__c.Name</field>
+            <operation>notEqual</operation>
+            <value>ARS</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Moneda__c</referenceTo>
+    <relationshipLabel>Tipos de Cambio</relationshipLabel>
+    <relationshipName>Tipos_de_Cambio</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

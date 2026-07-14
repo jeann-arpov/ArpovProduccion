@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TC_Promedio_DUP__c</fullName>
+    <description>Tipo de cambio promedio para la transaccion.</description>
+    <label>TC_Promedio_DUP</label>
+    <summarizedField>Item_de_DUP__c.Tipo_de_Cambio__c</summarizedField>
+    <summaryFilterItems>
+        <field>Item_de_DUP__c.Estado__c</field>
+        <operation>equals</operation>
+        <value>Uso Propio</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Item_de_DUP__c.Transaccion__c</summaryForeignKey>
+    <summaryOperation>max</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

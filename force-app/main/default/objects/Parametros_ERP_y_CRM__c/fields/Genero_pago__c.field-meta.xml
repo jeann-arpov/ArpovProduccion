@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Genero_pago__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Seleccionar para que se genere un pago al obtentor para las cuentas destinatarias marcadas</inlineHelpText>
+    <label>Genero pago</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

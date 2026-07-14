@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Productor__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Productor</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>La cuenta seleccionada no es del tipo Productor</errorMessage>
+        <filterItems>
+            <field>Account.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Productor, Distribuidor</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Establecimientos</relationshipLabel>
+    <relationshipName>Establecimientos</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

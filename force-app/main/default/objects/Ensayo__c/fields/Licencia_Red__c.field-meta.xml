@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencia_Red__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Es la licencia que debe tener el productor con el obtentor de la red propia.</description>
+    <label>Licencia Red</label>
+    <referenceTo>Licencia__c</referenceTo>
+    <relationshipLabel>Ensayos (Licencia Red)</relationshipLabel>
+    <relationshipName>EnsayosRedPropia</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

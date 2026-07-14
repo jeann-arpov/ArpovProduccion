@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha__c</fullName>
+    <description>Fecha Contable ERP</description>
+    <formula>IF( Comprobante_Venta__c &lt;&gt; &quot;&quot;,
+    Comprobante_Venta__r.ERPvs__Fecha__c,
+    Aplicacion__r.Fecha_Contable_ERP__c 
+  )</formula>
+    <label>Fecha</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

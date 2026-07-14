@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Nuevo_Item</fullName>
+    <availability>online</availability>
+    <displayType>massActionButton</displayType>
+    <linkType>javascript</linkType>
+    <masterLabel>Nuevo Item</masterLabel>
+    <openType>onClickJavaScript</openType>
+    <protected>false</protected>
+    <requireRowSelection>false</requireRowSelection>
+    <url>{!REQUIRESCRIPT(&quot;/soap/ajax/49.0/connection.js&quot;)} 
+
+//Obtenemos el id de la organizacion
+var idOrganizacion = &apos;{!$Organization.Id}&apos;;
+
+//Objeto url
+var parametros = {};
+
+var url = &apos;&apos;;
+
+if(checkCanAddItem()){
+
+console.log(1);
+
+if(idOrganizacion == &apos;00DJ0000003K208&apos;){
+
+//Cargamos parámetro y valor
+
+parametros[&apos;CF00NJ0000001Fncr&apos;] = &apos;{!Transaccion__c.Name}&apos;;
+parametros[&apos;CF00NJ0000001Fncr_lkid&apos;] = &apos;{!Item_de_DUP__c.TransaccionId__c}&apos;;
+parametros[&apos;CF00NJ0000001GHrh&apos;] = &apos;{!Transaccion__c.Obtentor__c}&apos;;
+parametros[&apos;CF00NJ0000001GHrh_lkid&apos;] = &apos;{!Item_de_DUP__c.Obtentor__c}&apos;;
+parametros[&apos;CF00NJ0000001Gkln&apos;] = &apos;{!Transaccion__c.Campana__c}&apos;;
+parametros[&apos;CF00NJ0000001Gkln_lkid&apos;] = &apos;{!Item_de_DUP__c.Campana_Agricola__c}&apos;;
+
+url = &apos;/a0P/e?&apos;;
+
+
+}else if(idOrganizacion == &apos;00DJ0000003KAs8&apos;){
+
+//Cargamos parámetro y valor
+
+parametros[&apos;CF00NG000000DvZj3&apos;] = &apos;{!Transaccion__c.Name}&apos;;
+parametros[&apos;CF00NG000000DvZj3_lkid&apos;] = &apos;{!Item_de_DUP__c.TransaccionId__c}&apos;;
+parametros[&apos;CF00NG000000DvZjx&apos;] = &apos;{!Transaccion__c.Obtentor__c}&apos;;
+parametros[&apos;CF00NG000000DvZjx_lkid&apos;] =  &apos;{!Item_de_DUP__c.Obtentor__c}&apos;;
+parametros[&apos;CF00NJ0000001A7Ke&apos;] = &apos;{!Transaccion__c.Campana__c}&apos;;
+parametros[&apos;CF00NJ0000001A7Ke_lkid&apos;] = &apos;{!Item_de_DUP__c.Campana_Agricola__c}&apos;;
+
+url = &apos;/a0L/e?&apos;;
+
+}else if(idOrganizacion == &apos;00DG0000000ii42&apos;){
+
+//Cargamos parámetro y valor
+
+parametros[&apos;CF00NG000000DvZj3&apos;] = &apos;{!Transaccion__c.Name}&apos;;
+parametros[&apos;CF00NG000000DvZj3_lkid&apos;] = &apos;{!Transaccion__c.Id}&apos;;
+parametros[&apos;CF00NG000000DvZjx&apos;] = &apos;{!Transaccion__c.Obtentor__c}&apos;;
+parametros[&apos;CF00NG000000DvZjx_lkid&apos;] =  &apos;{!Item_de_DUP__c.Obtentor__c}&apos;;
+parametros[&apos;CF00NG000000Dww8P&apos;] = &apos;{!Transaccion__c.Campana__c}&apos;;
+parametros[&apos;CF00NG000000Dww8P_lkid&apos;] = &apos;{!Transaccion__c.CampanaId__c}&apos;;
+
+url = &apos;/a0L/e?&apos;;
+}
+
+//Si se introdujeron parametros
+if(!isEmpty(parametros)){
+
+var p = &apos;&apos;;        
+
+//Obtenemos la parametros
+for(var prop in parametros) {
+if(parametros.hasOwnProperty(prop)){
+p += (p.length == 0)?prop+&apos;=&apos;+parametros[prop]:&apos;&amp;&apos;+prop+&apos;=&apos;+parametros[prop];
+}
+}
+
+//Completamos la URL
+url += p+&apos;&amp;retURL=&apos;+&apos;{!Transaccion__c.Id}&apos;;
+
+//Redirigimos
+redirect(url);
+
+}
+
+}
+
+function redirect(url){
+
+if(inIframe()){
+
+window.top.location.href = url;
+
+}else{
+
+
+window.location.href = url;
+
+
+}
+
+}
+
+function isEmpty(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+
+    return true;
+}
+
+function inIframe() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
+function checkCanAddItem(){
+
+// Obtenemos el Nombre del obtentor
+var query = &quot;SELECT Id, Name, Z9_Lineas_Totales_DUP__c, Obtentor__r.Name FROM Transaccion__c WHERE Id = &apos;{!Transaccion__c.Id}&apos; limit 1&quot;;
+
+var result = sforce.connection.query(query); 
+var records = result.getArray(&quot;records&quot;); 
+
+console.log(records);
+
+if(records[0]){
+
+var transaccion = records[0];
+
+if(parseInt(transaccion.Z9_Lineas_Totales_DUP__c)&gt;0){
+
+if(transaccion.Obtentor__r.Name.toLowerCase().indexOf(&apos;XX&apos;)!=-1){
+
+alert(&apos;{!$Label.Error_Nuevo_Item_BUCK}&apos;);
+return false;
+
+}
+
+}
+
+}
+
+
+return true;
+
+}</url>
+</WebLink>

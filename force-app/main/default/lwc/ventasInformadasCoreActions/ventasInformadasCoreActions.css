@@ -1,0 +1,40 @@
+.mainButton {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-start;
+}
+
+.custom-action-button {
+    background-color: #b7f302;
+    color: #1c1c1c;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Salesforce Sans', sans-serif;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.custom-action-button:hover:not(:disabled) {
+    background-color: #a6da02;
+}
+
+.custom-action-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.icon-download {
+    --slds-c-icon-color-foreground-default: #1c1c1c;
+}
+
+.originante-resumen {
+    background-color: #f3f3f3;
+    border-left: 3px solid #b7f302;
+}

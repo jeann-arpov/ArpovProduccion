@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ensayos</fullName>
+    <columns>NAME</columns>
+    <columns>Productor__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>Biotecnologia__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Fecha_Inicio__c</columns>
+    <columns>Fecha_Fin__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Ensayo</value>
+    </filters>
+    <filters>
+        <field>TN_Vigente__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>5/30/2025 12:00 AM</value>
+    </filters>
+    <label>Ensayos</label>
+</ListView>

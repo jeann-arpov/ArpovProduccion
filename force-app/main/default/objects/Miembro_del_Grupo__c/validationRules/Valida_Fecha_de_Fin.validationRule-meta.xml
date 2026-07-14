@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Fecha_de_Fin</fullName>
+    <active>true</active>
+    <description>La fecha de fin de validez debe ser posterior a la fecha de inicioi.</description>
+    <errorConditionFormula>Fecha_de_Fin__c &lt;=  Fecha_de_Inicio__c</errorConditionFormula>
+    <errorDisplayField>Fecha_de_Fin__c</errorDisplayField>
+    <errorMessage>Verifique la fecha de fin. Esta debe ser posterior a la fecha de inicio.</errorMessage>
+</ValidationRule>

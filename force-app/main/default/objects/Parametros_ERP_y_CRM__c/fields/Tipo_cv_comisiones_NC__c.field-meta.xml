@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_cv_comisiones_NC__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <label>Tipo cv comisiones NC</label>
+    <referenceTo>ERPvs__Tipo_comprobante_venta__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Tipo cv comisiones NC)</relationshipLabel>
+    <relationshipName>Parametros_ERP_y_CRM_1</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

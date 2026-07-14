@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Biotecnologia_esta_OK</name>
+        <label>Biotecnología está OK?</label>
+        <locationX>176</locationX>
+        <locationY>252</locationY>
+        <defaultConnector>
+            <targetReference>Actualizar_Biotecnologia</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Biotecnologia__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Variedad__r.Biotecnologia__c</elementReference>
+                </rightValue>
+            </conditions>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Si HT tiene biotecnología distinta a la variedad.biotecnología__c --&gt; se cambia a variedad.biotecnología__c.</description>
+    <environments>Default</environments>
+    <interviewLabel>HT - PPH y Biotecnología {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>HT - PPH y Biotecnología</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualizar_Biotecnologia</name>
+        <label>Actualizar Biotecnología</label>
+        <locationX>308</locationX>
+        <locationY>360</locationY>
+        <inputAssignments>
+            <field>Biotecnologia__c</field>
+            <value>
+                <elementReference>$Record.Variedad__r.Biotecnologia__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Biotecnologia_esta_OK</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Origen__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>PPH</stringValue>
+            </value>
+        </filters>
+        <object>Hectareas_Tecnologicas__c</object>
+        <schedule>
+            <frequency>Once</frequency>
+            <startDate>2023-12-28</startDate>
+            <startTime>12:30:00.000Z</startTime>
+        </schedule>
+        <triggerType>Scheduled</triggerType>
+    </start>
+    <status>Obsolete</status>
+</Flow>

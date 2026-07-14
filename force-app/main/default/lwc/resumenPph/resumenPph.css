@@ -1,0 +1,39 @@
+@import 'c/pphCss';
+
+.account div {
+    padding: 10px 0px;
+}
+
+.account {
+    background-color: #BCBCBC;
+    font-size: 16px;
+}
+
+.info{
+    border-right: 1px solid #BCBCBC;
+    border-left: 1px solid #BCBCBC;
+    border-bottom: 1px solid #BCBCBC;
+    box-shadow: 1px 1px 2px 2px var(--pph-gray);
+    border-radius: var(--lwc-borderRadiusLarge);
+}
+
+.info > lightning-layout {
+    border-top-left-radius: var(--lwc-borderRadiusLarge);
+    border-top-right-radius: var(--lwc-borderRadiusLarge);
+}
+
+.establecimiento {
+    border-bottom: 1px solid #BCBCBC;
+}
+
+.establecimiento:last-of-type {
+    border-bottom: none;
+}
+
+.edit-icon {
+    --lwc-colorTextIconDefault: black;
+}
+
+.extra.collapsed {
+    display:none;
+}

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Existe_cuenta_destinatario</name>
+        <label>Existe cuenta destinatario?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Limpiar_razon_social</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No existe</defaultConnectorLabel>
+        <rules>
+            <name>Si_existe</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_cuenta_por_CUIT.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_razon_social_y_destinatario</targetReference>
+            </connector>
+            <label>Si existe</label>
+        </rules>
+    </decisions>
+    <description>Al crear o editar CUIT Destinatario en la ficha de Venta Informada, completa Razón Social Destinatario (y Destinatario) desde la cuenta en Salesforce. ARCA pendiente.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>CUIT_Destinatario_limpio</name>
+        <dataType>String</dataType>
+        <expression>SUBSTITUTE(
+SUBSTITUTE(
+SUBSTITUTE(
+SUBSTITUTE(
+SUBSTITUTE({!$Record.CUIT_Destinatario__c}, &quot;-&quot;, &quot;&quot;),
+&quot;.&quot;, &quot;&quot;),
+&quot; &quot;, &quot;&quot;),
+&quot;/&quot;, &quot;&quot;),
+&quot;,&quot;, &quot;&quot;)</expression>
+    </formulas>
+    <interviewLabel>Venta Informada - Razón Social desde CUIT {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Venta Informada - Razón Social desde CUIT</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Buscar_cuenta_por_CUIT</name>
+        <label>Buscar cuenta por CUIT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Existe_cuenta_destinatario</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>N_CUIT__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>CUIT_Destinatario_limpio</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Asignar_razon_social_y_destinatario</name>
+        <label>Asignar razón social y destinatario</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Destinatario__c</field>
+            <value>
+                <elementReference>Buscar_cuenta_por_CUIT.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Razon_Social_Destinatario__c</field>
+            <value>
+                <elementReference>Buscar_cuenta_por_CUIT.Name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Limpiar_razon_social</name>
+        <label>Limpiar razón social</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Razon_Social_Destinatario__c</field>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Normalizar_CUIT_destinatario</name>
+        <label>Normalizar CUIT destinatario</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Buscar_cuenta_por_CUIT</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>CUIT_Destinatario__c</field>
+            <value>
+                <elementReference>CUIT_Destinatario_limpio</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Normalizar_CUIT_destinatario</targetReference>
+        </connector>
+        <filterFormula>AND(
+NOT(ISBLANK({!$Record.CUIT_Destinatario__c})),
+OR(ISNEW(), ISCHANGED({!$Record.CUIT_Destinatario__c}))
+)</filterFormula>
+        <object>Ventas_Informadas__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Draft</status>
+</Flow>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Grandes_Cuentas</fullName>
+    <columns>NAME</columns>
+    <columns>Productor__c</columns>
+    <columns>Vigente__c</columns>
+    <columns>Coordenadas__Latitude__s</columns>
+    <columns>Coordenadas__Longitude__s</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Grandes Cuentas</value>
+    </filters>
+    <label>Grandes Cuentas</label>
+</ListView>

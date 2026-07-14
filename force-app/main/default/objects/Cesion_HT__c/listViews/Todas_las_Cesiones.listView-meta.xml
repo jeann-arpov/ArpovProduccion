@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Todas_las_Cesiones</fullName>
+    <columns>NAME</columns>
+    <columns>Cedente__c</columns>
+    <columns>Estado__c</columns>
+    <columns>Variedades__c</columns>
+    <columns>Nombre_del_cultivo__c</columns>
+    <columns>Tipo_de_Cesion__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>.Todas las Cesiones</label>
+</ListView>

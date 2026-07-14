@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Zona__c</fullName>
+    <description>Asigna la Zona Comercial de la Transacción en función del Obtentor.</description>
+    <externalId>false</externalId>
+    <formula>CASE( Obtentor__r.Id_Obtentor__c ,
+&quot;01&quot;,  Nombre_de_la_cuenta__r.Localidad_Envio__r.Zona_Obtentor_01__c ,
+&quot;03&quot;,  Nombre_de_la_cuenta__r.Localidad_Envio__r.Zona_Obtentor_03__c ,
+&quot;04&quot;,  Nombre_de_la_cuenta__r.Localidad_Envio__r.Zona_Obtentor_04__c ,
+&quot;06&quot;,  Nombre_de_la_cuenta__r.Localidad_Envio__r.Zona_Obtentor_06__c ,
+Nombre_de_la_cuenta__r.Localidad_Envio__r.Zona_Bolsa_Cereales__c )</formula>
+    <label>Zona</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

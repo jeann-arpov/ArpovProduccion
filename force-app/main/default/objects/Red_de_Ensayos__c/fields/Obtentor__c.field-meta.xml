@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Obtentor__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Es el obtentor de la red privada</description>
+    <label>Obtentor</label>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Por favor, seleccione un Obtentor.</errorMessage>
+        <filterItems>
+            <field>Account.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Obtentor</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Redes de Ensayos</relationshipLabel>
+    <relationshipName>Redes_de_Ensayos</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

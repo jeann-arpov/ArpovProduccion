@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comision_por_Monto_Fijo__c</fullName>
+    <description>Importe de la comisión por el Monto Fijo</description>
+    <formula>IF(YEAR(Fecha_de_Creacion__c) &gt;= 2024, Cobrado_por_Monto_Fijo__c  * 0.15, Cobrado_por_Monto_Fijo__c  * 0.95)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Importe de la comisión por el Monto Fijo</inlineHelpText>
+    <label>Comision por Monto Fijo</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

@@ -1,0 +1,290 @@
+/* ====== Tarjetas principales ====== */
+.estado-cuenta-card, .movimientos-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin: 1.5rem auto;
+    padding: 1.5rem;
+    max-width: 90%;
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+}
+
+.containerPrincipal{
+    padding: 16px 200px 16px 200px;
+}
+
+/* ====== Header ====== */
+.header h2 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2a4d69;
+    margin-bottom: 1rem;
+}
+
+/* ====== Step selector ====== */
+.step {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #181818;
+    border-radius: 0.8rem;
+    color: white;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.step-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #9acd32;
+    color: black;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+}
+
+.step-label {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.step-content {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+}
+
+/* Cultivos */
+.cultivo-card {
+    background: transparent;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.cultivo-card:hover {
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+}
+
+.cultivo-icon {
+    width: 60px;
+    height: 60px;
+    filter: brightness(0) invert(1); /* blanco por defecto */
+    transition: transform 0.2s, filter 0.2s;
+}
+
+.item.selected .cultivo-icon {
+    filter: brightness(0) saturate(100%) invert(66%) sepia(54%) saturate(629%) hue-rotate(47deg) brightness(95%) contrast(92%);
+}
+
+.cultivo-label {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+}
+
+.item.selected .cultivo-card {
+    border: 2px solid #9acd32;
+}
+
+.item.selected .cultivo-label {
+    color: #4caf50;
+}
+
+/* ====== Totales por Biotecnología ====== */
+/* Totales por Biotecnología moderno */
+.totales-container {
+    margin-top: 1.5rem;
+}
+
+.totales-container h3 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #2a4d69;
+}
+
+.totales-box {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+/* Cada tarjeta de biotecnología */
+.total-item {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.total-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* Nombre de biotecnología */
+.bio-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 0.4rem;
+}
+
+/* Valor */
+.bio-value lightning-formatted-number {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #2a4d69;
+}
+
+/* TOTAL final destacado */
+.total-final {
+    grid-column: span 2; /* ocupa dos columnas */
+    background: #ffffff;   /* 👈 verde sólido */
+    color: white !important;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.total-final .bio-value lightning-formatted-number {
+    color: #555 !important;
+    font-size: 1.5rem;
+}
+
+.total-final .bio-value lightning-formatted-number {
+    color: #555 !important;
+    font-size: 1.5rem;
+}
+
+/* ====== Contenedor Movimientos ====== */
+.movimientos-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    padding: 2rem;
+    margin-top: 1.5rem;
+}
+
+/* Top Bar */
+.movimientos-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.movimientos-header .breadcrumbs {
+    font-size: 12px;
+    color: #555;
+}
+
+.movimientos-header .title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 4px;
+    color: #333;
+}
+
+/* Buscador */
+.movimientos-search {
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+    max-width: 300px;
+    margin-left: auto;
+}
+
+.movimientos-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 2px solid #B7F302;
+    padding-right: 30px;
+}
+
+.movimientos-search .search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* ====== Tabla ====== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th {
+    background-color: #f5f5f5;
+    text-align: left;
+    padding: 12px;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+/* ====== Paginación ====== */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px;
+    gap: 10px;
+}
+
+.paginacion button {
+    background-color: #B7F302;
+    color: #1C1C1C;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.paginacion button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* Links en tabla */
+.name-link {
+    color: #0070d2;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.name-link:hover {
+    color: #005fb2;
+}

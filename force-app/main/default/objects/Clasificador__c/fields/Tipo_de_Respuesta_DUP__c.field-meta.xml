@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Respuesta_DUP__c</fullName>
+    <label>Tipo de Respuesta DUP</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>TOTAL</fullName>
+                <default>false</default>
+                <label>TOTAL</label>
+            </value>
+            <value>
+                <fullName>PARCIAL</fullName>
+                <default>false</default>
+                <label>PARCIAL</label>
+            </value>
+            <value>
+                <fullName>NO RESPONDE</fullName>
+                <default>false</default>
+                <label>NO RESPONDE</label>
+            </value>
+            <value>
+                <fullName>CONSUMO</fullName>
+                <default>false</default>
+                <label>CONSUMO</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,124 @@
+:host {
+    display: block;
+}
+
+.pc-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    font-family: "Salesforce Sans", Arial, sans-serif;
+}
+
+/* Header */
+.pc-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.pc-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.pc-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.pc-pill {
+    background: #10b981;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.pc-variedad {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+/* Content */
+.pc-content {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.pc-column {
+    flex: 1;
+}
+
+.pc-field {
+    margin-bottom: 0.75rem;
+}
+
+.pc-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.pc-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Status pill */
+.pc-pill-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.vigente-true {
+    background: #10b981;
+    color: #fff;
+}
+
+.vigente-false {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Table section */
+.pc-table-section {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+.pc-table-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.pc-count {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.pc-table-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f9fafb;
+    padding: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pc-content {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Difiere_Estado_Etapa__c</fullName>
+    <formula>AND( 
+NOT( ISBLANK( Factura__c ) ),
+TEXT( Estado__c ) &lt;&gt;  TEXT( Factura__r.StageName ),
+TEXT( Estado__c ) &lt;&gt; &quot;Respondida&quot;,
+TEXT( Estado__c ) &lt;&gt; &quot;Respondida Parcialmente&quot;,
+TEXT( Estado__c ) &lt;&gt; &quot;Completa&quot;
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Difiere Estado / Etapa</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

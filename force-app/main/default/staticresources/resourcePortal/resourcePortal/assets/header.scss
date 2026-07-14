@@ -1,0 +1,287 @@
+@use "generales.scss";
+
+body {
+    header {
+        background: generales.$black;
+        position: relative;
+        display: flex;
+        flex-flow: column;
+        z-index: 200;
+        position: fixed;
+        top: 0;
+        width: 100vw;
+
+        .prenav,
+        .mainav {
+            position: relative;
+            .content {
+                padding: 0 35px !important;
+                display: flex !important;
+                flex-flow: row wrap !important;
+                justify-content: space-between !important;
+                min-height: 30px !important;
+                background: none !important;
+                width: calc(100% - 70px);
+                max-width: 1400px;
+            }
+        }
+        .prenav {
+            background: generales.$white;
+            min-height: 30px;
+            display: block;
+            width: 100%;
+            z-index: 10;
+            .content {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+                .platform {
+                    font-weight: bold;
+                    font-size: 0.8125rem;
+                    color: generales.$black;
+                    text-transform: uppercase;
+                    display: flex;
+                    flex-flow: column;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    align-content: center;
+                    a {
+                        display: flex;
+                        flex-flow: row;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        text-decoration: none;
+                        color: generales.$black;
+                        padding: 10px 5px;
+                        background: generales.$white;
+                        min-height: 30px;
+                        margin: 5px 0 0;
+                        &:hover {
+                            background: generales.$black;
+                            color: generales.$green;
+                        }
+                    }
+                }
+                .usernav {
+                    display: flex;
+                    flex-flow: row wrap;
+                    justify-content: flex-end;
+                    align-items: center;
+                    align-content: center;
+                    .user {
+                        position: relative;
+                        button {
+                            padding: 6px 16px 6px 8px;
+                            margin-right: 5px;
+                            font-size: 0.8125rem;
+                            color: generales.$black;
+                            text-transform: uppercase;
+                            &::after {
+                                content: "";
+                                display: inline-flex;
+                                position: absolute;
+                                bottom: 8px;
+                                right: 6px;
+                                width: 0;
+                                height: 3px;
+                                border-left: 5px solid transparent;
+                                border-right: 5px solid transparent;
+                                border-top: 6px solid generales.$black;
+                                border-bottom: 0;
+                                @extend .animar;
+                            }
+                        }
+                        .submenu {
+                            position: absolute;
+                            width: 100%;
+                            right: -50vw;
+                            padding: 10px 0;
+                            background: generales.$white;
+                            border: 1px solid generales.$black;
+                            border-radius: 10px;
+                            display: flex;
+                            flex-flow: column;
+                            justify-content: flex-start;
+                            align-items: center;
+                            a {
+                                display: flex;
+                                width: calc(100% - 30px);
+                                text-decoration: none;
+                                color: generales.$black;
+                                font-size: 0.75rem;
+                                text-transform: uppercase;
+                                margin: 2px 0;
+                                padding: 5px 15px;
+                                background: generales.$white;
+                                &:hover {
+                                    color: generales.$green;
+                                    background: generales.$black;
+                                }
+                            }
+                        }
+                        &:hover {
+                            button {
+                                &::after {
+                                    transform: rotate(180deg);
+                                    bottom: 11px;
+                                }
+                            }
+                            .submenu {
+                                right: 3px;
+                            }
+                        }
+                    }
+                    .circled {
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 12px;
+                        margin: 0 0 0 5px;
+                        border: 1px solid generales.$black;
+                        display: flex;
+                        flex-flow: row;
+                        justify-content: center;
+                        align-items: center;
+                        align-content: center;
+                        svg {
+                            padding: 1px;
+                            path {
+                                @extend .animar;
+                            }
+                        }
+                        &:hover {
+                            background: generales.$black;
+                            svg {
+                                padding: 1px;
+                                path {
+                                    fill: generales.$white;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .mainav {
+            z-index: 5;
+            .content {
+                display: flex;
+                flex-flow: row;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+                .logow {
+                    display: flex;
+                    height: 45px;
+                    img {
+                        display: flex;
+                    }
+                }
+                nav {
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: space-between;
+                    width: 50%;
+                    min-width: 360px;
+                    .item {
+                        position: relative;
+                        button, > a {
+                            color: generales.$white;
+                            text-transform: uppercase;
+                            padding: 32px 5px;
+                        }
+                        a {
+                            font-weight: 700;
+                            font-size: 0.875rem;
+                            display: flex;
+                            text-decoration: none;
+                        }
+
+                        .submenu {
+                            position: absolute;
+                            width: 180px;
+                            top: -50vw;
+                            right: 0;
+                            padding: 20px 0 10px;
+                            background: generales.$black;
+                            border-top: 3px solid generales.$green;
+                            border-bottom-left-radius: 10px;
+                            border-bottom-right-radius: 10px;
+                            display: flex;
+                            flex-flow: column;
+                            justify-content: flex-start;
+                            align-items: center;
+                            &::before {
+                                content: "";
+                                display: inline-flex;
+                                position: absolute;
+                                top: -12px;
+                                right: calc(20% - 5px);
+                                width: 0;
+                                height: 0;
+                                border-left: 10px solid transparent;
+                                border-right: 10px solid transparent;
+                                border-bottom: 10px solid generales.$green;
+                            }
+                            a {
+                                display: flex;
+                                width: calc(100% - 30px);
+                                text-decoration: none;
+                                color: generales.$white;
+                                font-size: 0.8125rem;
+                                font-weight: 400;
+                                text-transform: uppercase;
+                                margin: 2px 0;
+                                padding: 5px 15px;
+                                background: none;
+                                &:hover {
+                                    color: generales.$green;
+                                }
+                            }
+                        }
+                        &:hover {
+                            button, > a {
+                            color: generales.$green;
+                            }
+                            .submenu {
+                                top: 70px;
+                            }
+                        }
+                    }
+                    &.sgl {
+                        height: 80px;
+                        display: flex;
+                        flex-flow: row;
+                        justify-content: flex-end;
+                        align-items: center;
+                        align-content: center;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    body {
+        header {
+            .prenav {
+                .content {
+                    .platform {
+                        flex-flow: row;
+                        align-items: center;
+                        align-content: center;
+                        a {
+                            padding: 5px 10px;
+                            margin: 0 10px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+@media (min-width: 1600px) {
+}

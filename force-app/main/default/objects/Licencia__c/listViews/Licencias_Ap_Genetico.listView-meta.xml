@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Ap_Genetico</fullName>
+    <columns>Estado__c</columns>
+    <columns>Estado_IMG__c</columns>
+    <columns>Fecha_de_Creacion_de_Licencia__c</columns>
+    <columns>NAME</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Metodo_firma__c</columns>
+    <columns>Fecha_Licencia_Firmada__c</columns>
+    <columns>Pedir_Poder__c</columns>
+    <columns>Firmante_Cuit__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <columns>Opcion_Validacion__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>equals</operation>
+        <value>RR,Aporte Genético</value>
+    </filters>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Aprobada</value>
+    </filters>
+    <filters>
+        <field>Razon_Social_Obtentor__c</field>
+        <operation>equals</operation>
+        <value>Don Mario</value>
+    </filters>
+    <label>Licencias Ap. Genético</label>
+</ListView>

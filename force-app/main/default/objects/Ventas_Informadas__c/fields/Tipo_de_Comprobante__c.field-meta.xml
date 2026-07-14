@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Comprobante__c</fullName>
+    <description>Tipo interno para lógica de reproceso. Solo contiene FC o NC. El tipo original/externo se guarda en Tipo_Comprobante_Externo__c.</description>
+    <inlineHelpText>Tipo interno para lógica de reproceso. Solo contiene FC o NC. El tipo original/externo se guarda en Tipo de Comprobante</inlineHelpText>
+    <label>Tipo de Comprobante Interno</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>FC</fullName>
+                <default>false</default>
+                <label>FC</label>
+            </value>
+            <value>
+                <fullName>NC</fullName>
+                <default>false</default>
+                <label>NC</label>
+            </value>
+            <value>
+                <fullName>REMITO</fullName>
+                <default>false</default>
+                <label>Remito</label>
+            </value>
+            <value>
+                <fullName>Remito de Devolución</fullName>
+                <default>false</default>
+                <label>Remito de Devolución</label>
+            </value>
+            <value>
+                <fullName>CE</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>CE</label>
+            </value>
+            <value>
+                <fullName>CEC</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>CEC</label>
+            </value>
+            <value>
+                <fullName>FA</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FA</label>
+            </value>
+            <value>
+                <fullName>FA A</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FA A</label>
+            </value>
+            <value>
+                <fullName>FAC</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FAC</label>
+            </value>
+            <value>
+                <fullName>FACTURA</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FACTURA</label>
+            </value>
+            <value>
+                <fullName>FC.</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FC.</label>
+            </value>
+            <value>
+                <fullName>FCB</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FCB</label>
+            </value>
+            <value>
+                <fullName>Factura A</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Factura A</label>
+            </value>
+            <value>
+                <fullName>NC.</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>NC.</label>
+            </value>
+            <value>
+                <fullName>ND</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>ND</label>
+            </value>
+            <value>
+                <fullName>RE</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>RE</label>
+            </value>
+            <value>
+                <fullName>Rem</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Rem</label>
+            </value>
+            <value>
+                <fullName>Rem.</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Rem.</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sembra_Evolucion__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica si está Variedad corresponde a Sembrá Evolución</description>
+    <label>Sembrá Evolución</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

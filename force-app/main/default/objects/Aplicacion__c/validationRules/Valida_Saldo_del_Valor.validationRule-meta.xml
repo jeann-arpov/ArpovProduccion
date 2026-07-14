@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Saldo_del_Valor</fullName>
+    <active>true</active>
+    <description>El valor aplicado no puede ser superior al saldo disponible en le valor</description>
+    <errorConditionFormula>AND(  
+ISBLANK( Importe_Aplicado_ARS__c ),
+Importe__c &gt; Valor_Aplicado__r.Saldo__c
+)</errorConditionFormula>
+    <errorDisplayField>Importe__c</errorDisplayField>
+    <errorMessage>El valor aplicado no puede superar el saldo disponible del valor seleccionado.</errorMessage>
+</ValidationRule>

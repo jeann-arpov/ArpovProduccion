@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Id_Usuario__c</fullName>
+    <description>Id Salesforce del Usuario</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Id Salesforce del Usuario</inlineHelpText>
+    <label>Id - Usuario</label>
+    <required>true</required>
+    <type>TextArea</type>
+</CustomField>

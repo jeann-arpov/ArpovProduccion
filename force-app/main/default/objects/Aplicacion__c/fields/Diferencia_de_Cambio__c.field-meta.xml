@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Diferencia_de_Cambio__c</fullName>
+    <description>Muestra la diferencia de cambio real  implícita en el pago</description>
+    <externalId>false</externalId>
+    <formula>IF( Divisa_Comprobante__c = &quot;ARS&quot;, 0,  Importe_Aplicar__c * ( Tipo_de_Cambio__c -  Tipo_de_Cambio_del_Comprobante__c ))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Muestra la diferencia de cambio real  implícita en el pago</inlineHelpText>
+    <label>Diferencia de Cambio</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

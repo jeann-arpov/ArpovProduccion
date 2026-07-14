@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Cultivo</fullName>
+    <active>false</active>
+    <description>Verifica que el cultivo se corresponda con el cultivo de la campaña</description>
+    <errorConditionFormula>OR(
+   Producto__r.Cultivo__r.Name  &lt;&gt;  Campana_Agricola__r.Cultivo__r.Name,
+   Cultivo__r.Name &lt;&gt;  Campana_Agricola__r.Cultivo__r.Name
+)</errorConditionFormula>
+    <errorMessage>El cultivo de la venta y del producto tienen que corresponder al cultivo de la campaña</errorMessage>
+</ValidationRule>

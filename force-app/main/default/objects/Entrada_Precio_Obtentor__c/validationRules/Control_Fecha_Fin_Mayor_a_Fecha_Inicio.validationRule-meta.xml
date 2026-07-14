@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Fecha_Fin_Mayor_a_Fecha_Inicio</fullName>
+    <active>true</active>
+    <description>La fecha fin ingresada debe ser mayor a la fecha inicio</description>
+    <errorConditionFormula>Fecha_Fin__c &lt;= Fecha_Inicio__c</errorConditionFormula>
+    <errorMessage>La Fecha Fin debe ser mayor a la Fecha Inicio</errorMessage>
+</ValidationRule>

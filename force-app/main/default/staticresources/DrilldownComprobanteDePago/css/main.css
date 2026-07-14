@@ -1,0 +1,152 @@
+body{
+	font-family: Arial,Helvetica,sans-serif;	
+	font-size: 12px;
+}
+
+div.container{
+	display: grid;
+  width: 1295px;
+  border: 1px solid #e0e3e5;
+}
+
+div.headers{
+  display: grid;
+  grid-template-columns: 130px 150px 130px 100px 100px 110px 100px 120px 100px 100px 100px;
+  grid-gap: 5px;
+  width: 1295px;
+  background: #f2f3f3;
+  border-bottom: 1px solid #e0e3e5;
+}
+
+div.headers span{
+  background: #f2f3f3;
+  color: #000;
+  font-size: .9em;
+  font-weight: bold;
+  padding: 5px 2px 4px 5px !important;
+  display: inline-block;
+  border-right: 1px solid #e0e3e5;
+  text-align: center;
+}
+
+div.headers > span:last-child{
+  border: none;
+}
+
+div.comprobante{
+	display: grid;
+	grid-template-columns: 130px 150px 130px 100px 100px 110px 100px 120px 100px 100px 100px;
+	grid-gap: 5px;
+	width: 1295px;
+}
+
+div.comprobante > span.obtentor{
+  grid-column: 2;
+}
+
+div.valor{
+	display: grid;
+  grid-template-columns: 130px 150px 130px 100px 100px 110px 100px 120px 100px 100px 100px;
+	grid-gap: 5px;
+	width: 1295px;
+  grid-column-end: 11;
+  grid-column-start: 1;
+}
+
+div.valor > span.nombre,div.valor.no-hay-datos > span{
+  grid-column: 3;
+}
+
+div.valor > span.importe,div.comprobante > span.importe,div.aplicacion > span.importe{
+  grid-column: 9;
+}
+
+div.valor > span.forma-de-pago{
+  grid-column:4;
+}
+
+div.valor > span.fecha-de-pago{
+  grid-column:5;
+}
+
+div.aplicacion{
+	display: grid;
+	grid-column-end: 11;
+	grid-column-start: 1;
+	grid-template-columns: 130px 150px 130px 100px 100px 110px 100px 120px 100px 100px 100px;
+	grid-gap: 5px;
+	width: 1295px;
+}
+
+div.aplicacion > a.nombre, div.aplicacion.no-hay-datos > span{
+  grid-column:6;
+}
+
+div.aplicacion > span.comprobante{
+  grid-column:8;
+}
+
+div.aplicacion > span.fecha-contable{
+  grid-column:7;
+}
+
+div.aplicacion > span.importe-aplicar{
+  grid-column:10;
+}
+
+div.aplicacion > span.tipo-de-cambio{
+  grid-column:11;
+}
+
+div.even{
+	background: #eee;
+}
+
+div.odd{
+	background: #fff;
+}
+
+div.container span{
+	padding: 2%;
+}
+
+div.apexp{
+  width: 1325px;
+}
+
+#ajaxSpinner{
+  position: fixed;
+  z-index: 999;
+  height: 2em;
+  width: 2em;
+  overflow: show;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+
+#ajaxSpinner:before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.15);
+  background-image: url(../images/spinner_sf.gif);
+  background-repeat: no-repeat;
+  background-position-x: center;
+  background-position-y: center;
+}
+
+span.nombre{
+  cursor: pointer;
+}
+
+span.nombre > span{
+  margin-right: 5%;
+}

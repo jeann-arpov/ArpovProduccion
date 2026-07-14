@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_CRM_Vs_Ventas_Informadas</fullName>
+    <columns>NAME</columns>
+    <columns>Originante__c</columns>
+    <columns>Originante_CUIT__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Fecha__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Destinatario_CUIT__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Tipo_de_Venta__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Producto__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>NAME</field>
+        <operation>equals</operation>
+        <value>25101328781,25111343014,25101328622,25111345428,25101328762,25101328533,25111342955,25101328526,25101328468,25111342933,25101328715,25101328717,25101328775,25101328773,25101328645,25101328736,25101328782</value>
+    </filters>
+    <label>Ventas CRM Vs Ventas Informadas</label>
+</ListView>

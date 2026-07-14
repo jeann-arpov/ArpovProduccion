@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HT_con_Origen_Semilla_Fiscalizada</fullName>
+    <columns>NAME</columns>
+    <columns>Origen__c</columns>
+    <columns>Cultivo__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Productor__c</columns>
+    <columns>Venta__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad__c</columns>
+    <columns>Fecha_de_la_Transaccion__c</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>Numero_de_Comprobante__c</columns>
+    <columns>Fecha_de_Pago__c</columns>
+    <columns>Etapa__c</columns>
+    <columns>Tipo_de_Movimiento__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Origen__c</field>
+        <operation>equals</operation>
+        <value>Compra SF</value>
+    </filters>
+    <filters>
+        <field>Etapa__c</field>
+        <operation>equals</operation>
+        <value>Facturada,Cobrada</value>
+    </filters>
+    <filters>
+        <field>Cultivo__c</field>
+        <operation>equals</operation>
+        <value>TRIGO</value>
+    </filters>
+    <filters>
+        <field>Campania__c</field>
+        <operation>equals</operation>
+        <value>2025 - TRIGO</value>
+    </filters>
+    <label>HT Origen Semilla Fiscalizada</label>
+</ListView>

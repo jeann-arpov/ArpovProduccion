@@ -1,0 +1,71 @@
+<template>
+    <div class={destinatarioClass}>
+        <div class = "title slds-p-left_large slds-p-right_small slds-p-vertical_small slds-m-bottom_medium">
+            <b>Ingresá el CUIT del productor que recibirá las toneladas</b>
+            <lightning-button-icon size="large" class="slds-float_right" icon-name="utility:delete" variant="bare" alternative-text="Eliminar Establecimiento" title="Eliminar Establecimiento" onclick={remove}></lightning-button-icon>    
+        </div>
+        
+        <div>
+            <c-lookup variant="label-hidden" onselectionchange={destinatarioSelected} onsearch={search} label="Productor" placeholder="Ingrese CUIT del productor" selection={destinatario}>
+                <div slot="no-results" >
+                    <span style="color:#FF0000;font-size:18px;">CUIT NO REGISTRADO</span>
+                    <div style="color:#1C1C1C;font-size: 14px">Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.</div>
+                    <li role="presentation" class="slds-listbox__item">
+                        <div
+                            class="slds-media slds-media_center slds-listbox__option slds-listbox__option_entity"
+                            onclick={registerCuit}
+                            role="option"
+                        >
+                            <span class="slds-media__figure slds-listbox__option-icon">
+                                <lightning-icon
+                                    icon-name="utility:add"
+                                    size="x-small"
+                                    alternative-text="Registrar CUIT"
+                                ></lightning-icon>
+                            </span>
+                            <span class="slds-media__body">
+                                <span style="color:#FF0000;font-size:18px;" class="slds-listbox__option-text">Registrar CUIT</span>
+                            </span>
+                        </div>
+                    </li>
+                </div>
+            </c-lookup>
+        </div>
+
+        <div class={infoClass}>
+            <div class="heading gray slds-p-vertical_small slds-m-vertical_medium">
+                <span class="slds-m-horizontal_large">Detallá las toneladas a ceder de SEMBRÁ EVOLUCIÓN</span>
+            </div>
+
+            <div class="slds-m-horizontal_large variedades">
+                <svg class="slds-m-horizontal_small" xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531" >
+                    <use xlink:href={icons.seed}></use>
+                </svg>
+                Variedades
+                <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center variedades-titles slds-p-vertical_medium slds-m-top_small">
+                    <lightning-layout-item size="2">
+                        Marca
+                    </lightning-layout-item>
+                    <lightning-layout-item size="2">
+                        Variedad
+                    </lightning-layout-item>
+                    <lightning-layout-item size="2">
+                        Toneladas
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" title="Saldo de Toneladas disponibles">
+                        Toneladas Disponibles
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <template for:each={info.lineas} for:item="linea">
+                    <c-linea-destinatario-pph key={linea.id} info={linea} onupdatecantidad={updateCantidad} onautosave={autosave}></c-linea-destinatario-pph>
+                </template>
+            </div>
+        </div>
+
+        <lightning-layout horizontal-align="center">
+            <lightning-button-icon size="large" if:false={collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed}></lightning-button-icon>
+            <lightning-button-icon size="large" if:true={collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed}></lightning-button-icon>
+        </lightning-layout>
+    </div>
+</template>

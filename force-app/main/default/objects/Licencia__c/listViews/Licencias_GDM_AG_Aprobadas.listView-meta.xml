@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_GDM_AG_Aprobadas</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>Estado_Obtentor__c</columns>
+    <columns>NAME</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>N_CUIT__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Tipo_de_Licencia__c</columns>
+    <columns>Fecha_Carta_de_Aceptacion_Firmada__c</columns>
+    <columns>Metodo_firma__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>notEqual</operation>
+        <value>Enlist</value>
+    </filters>
+    <filters>
+        <field>Metodo_firma__c</field>
+        <operation>equals</operation>
+    </filters>
+    <label>Licencias Aporte Genético Aprobadas</label>
+</ListView>

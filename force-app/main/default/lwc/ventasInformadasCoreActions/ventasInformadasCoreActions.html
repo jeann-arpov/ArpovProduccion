@@ -1,0 +1,88 @@
+<template>
+    <lightning-card title="Ventas informadas" icon-name="standard:orders">
+        <div class="slds-var-p-horizontal_medium slds-var-p-bottom_medium">
+            <template if:true={showOriginanteSelector}>
+                <div class="originante-block slds-var-m-bottom_medium">
+                    <p class="slds-text-title_bold slds-var-m-bottom_x-small">1. Cuenta originante</p>
+                    <p class="slds-text-body_small slds-var-m-bottom_small">
+                        Elegí la cuenta en cuyo nombre se cargarán las ventas (operador interno).
+                    </p>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-record-picker
+                                label="Buscar cuenta"
+                                placeholder="Distribuidor u Obtentor"
+                                object-api-name="Account"
+                                value={selectedAccountId}
+                                filter={accountFilter}
+                                onchange={handleAccountPickerChange}
+                            ></lightning-record-picker>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <div class="slds-grid slds-grid_vertical-align-end">
+                                <lightning-input
+                                    class="slds-grow"
+                                    type="text"
+                                    label="O buscar por CUIT"
+                                    value={cuitBusqueda}
+                                    onchange={handleCuitChange}
+                                ></lightning-input>
+                                <lightning-button
+                                    class="slds-var-m-left_x-small slds-var-m-bottom_xx-small"
+                                    label="Buscar"
+                                    onclick={handleBuscarPorCuit}
+                                    disabled={isSearchingCuit}
+                                ></lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={originanteResumen}>
+                <div class="originante-resumen slds-box slds-box_x-small slds-var-m-bottom_medium">
+                    <span class="slds-text-title_caps">Originante</span>
+                    <p class="slds-var-m-top_xx-small">{originanteResumen}</p>
+                </div>
+            </template>
+
+            <p class="slds-text-title_bold slds-var-m-bottom_x-small">2. Acciones</p>
+            <div class="mainButton">
+                <button
+                    class="custom-action-button"
+                    onclick={handleNuevaVenta}
+                    disabled={actionsDisabled}
+                >
+                    Nueva venta
+                </button>
+                <template if:true={showDescargarPlantilla}>
+                    <button
+                        class="custom-action-button"
+                        onclick={handleDescargarPlantilla}
+                        disabled={actionsDisabled}
+                    >
+                        Descargar plantilla Excel
+                        <lightning-icon
+                            icon-name="utility:download"
+                            size="x-small"
+                            class="icon-download"
+                        ></lightning-icon>
+                    </button>
+                </template>
+                <button
+                    class="custom-action-button"
+                    onclick={handleImportar}
+                    disabled={actionsDisabled}
+                >
+                    Importar desde Excel
+                </button>
+            </div>
+
+            <c-ventas-import-from-csv
+                originante-account-id={selectedAccountId}
+                suppress-action-bar
+                core-import-mode
+            ></c-ventas-import-from-csv>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_Cultivo</fullName>
+    <active>true</active>
+    <description>El cultivo de la transacción debe ser el mismo que el de la campaña</description>
+    <errorConditionFormula>AND(
+    Cultivo__r.Name &lt;&gt; Campana__r.Cultivo__r.Name,
+     Ano_Campana__c  &gt;= 2020
+)</errorConditionFormula>
+    <errorMessage>El cultivo de la transacción debe ser el mismo que el de la campaña</errorMessage>
+</ValidationRule>

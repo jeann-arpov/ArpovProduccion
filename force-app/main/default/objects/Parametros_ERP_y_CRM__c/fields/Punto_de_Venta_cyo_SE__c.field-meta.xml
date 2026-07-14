@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Punto_de_Venta_cyo_SE__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Punto de Venta cyo SE</label>
+    <referenceTo>ERPvs__Sucursal__c</referenceTo>
+    <relationshipLabel>Parámetros ERP y CRM (Punto de Venta cyo SE)</relationshipLabel>
+    <relationshipName>Par_metros_ERP_y_CRM3</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

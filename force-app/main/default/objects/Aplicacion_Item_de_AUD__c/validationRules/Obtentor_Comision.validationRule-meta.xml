@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Obtentor_Comision</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND( NOT( ISBLANK(Comprobante_Comision_Old__c) ),
+Id_Obtentor__c &lt;&gt; Comprobante_Comision_Old__r.Id_Obtentor__c )</errorConditionFormula>
+    <errorDisplayField>Comprobante_Comision_Old__c</errorDisplayField>
+    <errorMessage>El Comprobante de Pago por comisiones debe estar emitido para el mismo obtentor de la factura aplicada.</errorMessage>
+</ValidationRule>

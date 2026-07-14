@@ -1,0 +1,78 @@
+/* --- Modal --- */
+
+.ept-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.45);
+    z-index: 9998;
+}
+
+.ept-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    width: 420px;
+    border-radius: 8px;
+    padding: 1rem;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    font-family: "Salesforce Sans", Arial, sans-serif;
+}
+
+.ept-modal-header h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+}
+
+.ept-field {
+    margin-bottom: 1rem;
+}
+
+.ept-field label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.ept-input {
+    width: 100%;
+    padding: 0.45rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+}
+
+.ept-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.ept-btn-cancel {
+    background: #e5e7eb;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.ept-btn-save {
+    background: #10b981;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.ept-actions {
+    text-align: right;
+    margin-bottom: 0.5rem;
+}
+
+.ept-btn-new {
+    background: #10b981;
+    color: white;
+    padding: 0.45rem 0.9rem;
+    border-radius: 4px;
+}

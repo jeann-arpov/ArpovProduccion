@@ -1,0 +1,280 @@
+@page{
+    margin-right: 50px;
+    margin-left: 50px;
+    margin-bottom: 120px;
+    @bottom-left {
+        content: element(footer);
+    }
+}
+/*RESET TABLE BORDER*/
+table { border-collapse: collapse; }
+table tr td, table tr th { padding: 0; }
+
+div.box{
+    border: 1px solid #000;
+    background-color: #ccc;
+    padding: 5px;
+    margin-top: 100px;
+}
+
+div.box span.underline{
+    text-decoration: underline;
+}
+
+/*REST P EN CARTA DUP*/
+.divPage p, .divLastPage p{
+    line-height: 15px;
+    padding: 0;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.divPage {
+    display: block;
+    font-family: "Dialog";
+}
+
+.divPageDeclaRacionSiembra{
+    page-break-after: avoid; 
+    page-break-inside: avoid;   
+}
+
+.divLastPage{
+    display: block;
+    margin-top: 1px;
+    font-family: "Dialog";
+}
+
+#fakeBarcode{
+    visibility: hidden;
+}
+
+.divPageDeclaRacionSiembra p{
+    font-size: 14px;
+}
+
+.divPage .frase-obtentor{
+    page-break-inside: avoid;
+    page-break-after: always;
+}
+
+.divLastPage .frase-obtentor{
+    page-break-before: avoid;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+}
+
+.frase-obtentor-last{
+    page-break-before: avoid;
+    page-break-inside: avoid;
+}
+
+.important-advice{
+    font-size: 11px !important;
+    margin: 0;
+    padding: 0 5px;
+    width: 85%;
+    margin: 0 auto;
+    font-weight: bold;
+    text-align: center;
+}
+
+.important-advice table tbody tr td{
+    border-right: 1px solid #000;
+    vertical-align: middle;
+    padding: 5px;
+    border-left: 1px solid #000;
+}
+
+.important-advice table tbody tr td, .important-advice table thead tr th{
+    border: 1px solid #000;
+}
+
+.tabla-declaraciones{
+    margin: 1% 0;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.tabla-declaraciones table thead tr th, .tabla-declaraciones table tbody tr td{
+    border: 1px solid #000; 
+}
+
+.tabla-declaraciones table thead tr th{
+    padding: 5%;
+}
+
+.advice-info-left{
+    padding-top: 10px;
+    padding-left: 40px;
+    width: 68%;
+}
+
+.advice-info-right{
+    width: 32%;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+}
+
+.bordered-table{
+    border: 1px solid #000;
+    width: 601px ;
+    align: center;
+    margin: 0px auto;
+    border-spacing: 0px;
+    padding: 0px;
+}
+
+.tabla-header-dup{
+    margin: 0px auto;
+    border-spacing: 0px;
+    padding: 0px;
+    font-size: 11px;
+    width: 100%;
+    margin-left: 2%;
+}
+
+.tabla-header-dup table{
+    width: 95%;
+}
+
+
+.tabla-datos-dup table thead tr th{
+    background-color: #DCD8C4;
+    font-size: 16px;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000; 
+    padding: 5px 0;
+}
+
+.tabla-datos-dup table tbody tr td{
+    border-right: 1px solid #000;
+    padding: 5px;
+    font-size: 12px;
+    text-align: left;
+}
+
+.tabla-datos-dup table{
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.aclaration-dup-message p{
+    line-height: 15px;
+    font-size: 12px;
+    text-align: left;
+}
+
+.aclaration-dup-message, .leyenda{
+    width: 90%;
+    display: block;
+    margin-left: 7%;
+}
+
+.important-advice a{
+    color: blue !important;
+    text-decoration: underline !important;
+}
+
+.leyenda p{
+    text-align: left;
+    font-size: 11px;
+}
+
+.location-table table{
+    width: 100%;
+    text-align: left;
+    font-size: 12px;
+}
+
+.location-table table thead tr th{
+    border-right: 1px solid #000;
+    padding: 5px 10px;
+}
+
+.datos-impositivos{
+    font-weight: bold;
+    font-style: italic;
+}
+
+.datos-impositivos p{
+    font-size: 13px;
+}
+
+.productor-data table{
+    width: 100%;
+    text-align: left;
+    font-size: 11px !important;
+}
+
+.productor-data > table > thead > tr > th, .productor-data > table > tbody > tr > td, .productor-data > table > tbody > tr > th{
+    border: 1px solid #000;
+    padding: 5px 10px;
+}
+
+.productor-sign{
+    vertical-align: bottom;
+}
+
+.productor-sign p{
+    font-size: 10px;
+    margin: 0;
+}
+
+.productor-data table thead tr th{
+    font-size: 16px;
+    text-align: center;
+}
+
+.frase-obtentor{
+    width: 601px ;
+    align: center;
+    margin: 0px auto;
+    border-spacing: 0px;
+    padding: 0px;
+    font-weight: bold;
+}
+
+.frase-obtentor table{
+    width: 100%;
+    height: 80px;
+    font-size: 10px;
+    text-align: center;
+}
+
+.frase-obtentor table tbody td{
+    padding: 10px;
+    vertical-align: middle;
+}
+
+.footer h1{
+    text-align: left;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+}
+
+.footer h2{
+    text-align: left;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+}
+
+.footer h3{
+    text-align: left;
+    font-size: 10px;
+    font-weight: normal;
+    padding: 0;
+    margin: 0;
+}
+
+.footer {
+    position: running(footer);
+    display: block;
+    height: 45px;
+    overflow: hidden;
+    font-family: "Dialog";
+}

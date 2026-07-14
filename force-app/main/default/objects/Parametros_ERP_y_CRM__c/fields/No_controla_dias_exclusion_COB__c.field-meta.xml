@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_controla_dias_exclusion_COB__c</fullName>
+    <defaultValue>false</defaultValue>
+    <label>No controla días exclusión (COB)</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cancela_DUP_Original</fullName>
+    <active>true</active>
+    <description>Controla que se informe el nro de transacción cuando se marca Cancela DUP Original</description>
+    <errorConditionFormula>Cancela_DUP_Original__c  &amp;&amp;  DUP_Original__c = null</errorConditionFormula>
+    <errorDisplayField>Cancela_DUP_Original__c</errorDisplayField>
+    <errorMessage>Si Cancela DUP Original debe informar la transacción.</errorMessage>
+</ValidationRule>

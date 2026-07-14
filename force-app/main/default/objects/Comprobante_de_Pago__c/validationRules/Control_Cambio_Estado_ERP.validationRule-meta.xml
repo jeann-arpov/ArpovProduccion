@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Control_Cambio_Estado_ERP</fullName>
+    <active>false</active>
+    <description>No se puede modificar un registro cuando ya está procesado.
+Desactivado, porque sino no podemos ponerlo en no procesado, cuando eliminamos en mov de fondos.</description>
+    <errorConditionFormula>AND( Estado_ERP__c = UPPER( &quot;SIN PROCESAR&quot; ), PRIORVALUE( Estado_ERP__c ) = UPPER( &quot;PROCESADO&quot; ) )</errorConditionFormula>
+    <errorMessage>No puede modificar un Comprobante de Pago ya procesado.</errorMessage>
+</ValidationRule>

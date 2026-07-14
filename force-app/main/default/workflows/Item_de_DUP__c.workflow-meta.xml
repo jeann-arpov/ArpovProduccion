@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>Solicitud_de_Aprobacion_de_No_Facturacion</fullName>
+        <description>Solicitud de Aprobación de No Facturación</description>
+        <protected>false</protected>
+        <recipients>
+            <recipient>yanina.moglia@sembraevolucion.com.ar</recipient>
+            <type>user</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>Documentos/No_Facturar</template>
+    </alerts>
+    <fieldUpdates>
+        <fullName>Aprobado</fullName>
+        <field>Estado_de_Aprobaci_n__c</field>
+        <formula>&quot;Aprobado&quot;</formula>
+        <name>Aprobado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Asigna_Tipo_de_Cambio</fullName>
+        <description>Asigna el tipo de cambio  de la DUP relacionada cuando el Subestado de la Transacción relacionada es &quot;Negativa&quot;.</description>
+        <field>Tipo_de_Cambio__c</field>
+        <formula>Transaccion__r.Tipo_de_Cambio__c</formula>
+        <name>Asigna Tipo de Cambio</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Calcula_el_total</fullName>
+        <description>Realiza el cáculo y actualiza el campo</description>
+        <field>Total_a_Facturar__c</field>
+        <formula>IF(  Cantidad_Declarada__c  &lt;&gt; 0,
+     ( ( Cantidad_de_Facturacion__c * Precio_Unitario_Producto__c ) * Tipo_de_Cambio__c ) - 
+( ( ( Cantidad_de_Facturacion__c * Precio_Unitario_Producto__c ) * Tipo_de_Cambio__c ) * NULLVALUE( Descuento__c, 0 ) ) -  
+( ( ( Cantidad_de_Facturacion__c * Precio_Unitario_Producto__c ) * Tipo_de_Cambio__c ) * NULLVALUE( Descuento_Producto__c, 0 ) ) ,
+     0
+)</formula>
+        <name>Calcula el total</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Consumo</fullName>
+        <description>Se asigna el valor consumo al estado del ítem de la DUP</description>
+        <field>Estado__c</field>
+        <literalValue>Consumo</literalValue>
+        <name>Consumo</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Hectareas_Declaradas</fullName>
+        <field>Hectareas_Declaradas__c</field>
+        <formula>IF( Densidad_de_Siembra__c &lt;&gt; null,
+	IF( OR( TEXT(Unidad_de_Medida_Declarada__c) = &apos;Hectáreas&apos;, TEXT(Unidad_de_Medida_Declarada__c) = &apos;Hectareas&apos;), Cantidad_Declarada__c,
+		IF( TEXT(Unidad_de_Medida_Declarada__c) = &apos;Granel&apos;, Cantidad_Declarada__c / Densidad_de_Siembra__c,
+			( VALUE(TEXT(Unidad_de_Medida_Declarada__c)) * Cantidad_Declarada__c ) / Densidad_de_Siembra__c
+		)
+	),
+	IF( OR(TEXT(Unidad_de_Medida_Declarada__c) = &apos;Hectáreas&apos;, TEXT(Unidad_de_Medida_Declarada__c) = &apos;Hectareas&apos;), Cantidad_Declarada__c,
+	0 )
+)</formula>
+        <name>Hectareas Declaradas</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_DUP_Flow_Trigger_False</fullName>
+        <field>Flow_Trigger__c</field>
+        <literalValue>0</literalValue>
+        <name>Item DUP. Flow Trigger (False)</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_DUP_Flow_Trigger_True</fullName>
+        <field>Flow_Trigger__c</field>
+        <literalValue>1</literalValue>
+        <name>Item DUP. Flow Trigger (True)</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_Sin_Regalia</fullName>
+        <field>Sin_Regalia_Extendida__c</field>
+        <literalValue>1</literalValue>
+        <name>Item Sin Regalia</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_de_DUP_Cambio_Transaccion</fullName>
+        <description>Setea a true el campo Cambio de la Transacción &quot;Parent&quot;.</description>
+        <field>Z9_Cambio__c</field>
+        <literalValue>1</literalValue>
+        <name>Item de DUP. Cambio Transaccion</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Transaccion__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_de_DUP_No_facturar</fullName>
+        <field>No_Facturar__c</field>
+        <literalValue>1</literalValue>
+        <name>Item de DUP - No facturar</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_de_DUP_No_facturar_por_Deuda</fullName>
+        <field>No_Facturar_por_Deuda__c</field>
+        <literalValue>1</literalValue>
+        <name>Item de DUP - No facturar por Deuda</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Item_de_DUP_Tipo_de_Producto</fullName>
+        <field>Z9_Tipo_de_Producto__c</field>
+        <formula>TEXT(Producto__r.Family)</formula>
+        <name>Item de DUP. Tipo de Producto</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>No_Facturar_DUP</fullName>
+        <field>No_Facturar__c</field>
+        <literalValue>1</literalValue>
+        <name>No_Facturar_DUP</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>No_Informada</fullName>
+        <description>Define el estado de la línea de DUP a No Informada</description>
+        <field>Estado__c</field>
+        <literalValue>No Informada</literalValue>
+        <name>No Informada</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Rechazado</fullName>
+        <field>Estado_de_Aprobaci_n__c</field>
+        <formula>&quot;Rechazado&quot;</formula>
+        <name>Rechazado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Respondida_via_Minisitio</fullName>
+        <description>Marca la Transaccion como respondida via Minisitio</description>
+        <field>Respondida_via_Minisitio__c</field>
+        <literalValue>1</literalValue>
+        <name>Respondida via Minisitio</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Transaccion__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Transaccion_No_Facturar_por_Deuda_ID</fullName>
+        <field>No_Facturar_por_Deuda__c</field>
+        <literalValue>1</literalValue>
+        <name>Transaccion. No Facturar por Deuda ID</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+        <targetObject>Transaccion__c</targetObject>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Uso_Propio</fullName>
+        <description>Si la cantidad informada &gt; 0 asigna el valor &quot;Uso Propio&quot; al estado del Ítem de la DUP.</description>
+        <field>Estado__c</field>
+        <literalValue>Uso Propio</literalValue>
+        <name>Uso Propio</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>tem_de_DUP_Comision</fullName>
+        <field>Comision_por_Regalia_Simple__c</field>
+        <formula>IF( Cantidad_Declarada__c &lt;&gt; 0,
+    Total_a_Facturar__c * 12 /100,
+    0
+)</formula>
+        <name>Ítem de DUP. Comision</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>tem_de_DUP_Precio_Producto</fullName>
+        <field>Precio_Unitario_Producto__c</field>
+        <formula>Producto__r.Precio__c</formula>
+        <name>Ítem de DUP. Precio Producto</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Actualización Portal de Gestion</fullName>
+        <active>false</active>
+        <criteriaItems>
+            <field>User.UserType</field>
+            <operation>notEqual</operation>
+            <value>Estándar</value>
+        </criteriaItems>
+        <description>Actualización de item de DUP desde el Portal de Gestión</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Actualización Transaccion Respondida</fullName>
+        <actions>
+            <name>Respondida_via_Minisitio</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.Respondida_via_Minisitio__c</field>
+            <operation>equals</operation>
+            <value>False</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Cantidad_Declarada__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Lugar_de_Siembra_Nombre__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Densidad_de_Siembra__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>User.UserType</field>
+            <operation>notEqual</operation>
+            <value>Estándar</value>
+        </criteriaItems>
+        <description>Actualiza Respondida via Minisitio cuando el usuario del Portal de Gestión completa Item de DUP</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>BAYER_BASF_NO_FACTURAR_DUP</fullName>
+        <actions>
+            <name>No_Facturar_DUP</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <booleanFilter>1 AND 2 AND 3  AND 4</booleanFilter>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Estado__c</field>
+            <operation>equals</operation>
+            <value>Uso Propio</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Kilos_Totales__c</field>
+            <operation>notEqual</operation>
+            <value>0</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Id_Obtentor__c</field>
+            <operation>equals</operation>
+            <value>66</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>User.Alias</field>
+            <operation>notEqual</operation>
+            <value>AFernan</value>
+        </criteriaItems>
+        <description>Marca automáticamente como No Facturar los Ítems de DUP de BAYER y BASF.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item DUP%2E Flow Trigger</fullName>
+        <actions>
+            <name>Item_DUP_Flow_Trigger_True</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Item_de_DUP__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item DUP%2E Total a Facturar</fullName>
+        <actions>
+            <name>Calcula_el_total</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Item_DUP_Flow_Trigger_False</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Flow_Trigger__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <description>Asigna el valor total a facturar al campo de la línea de la DUP. No se hace por fórmula porque debe utilizarse para resumen en la transacción.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item de DUP - No facturar por Deuda</fullName>
+        <actions>
+            <name>Item_de_DUP_No_facturar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Item_de_DUP_No_facturar_por_Deuda</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Transaccion_No_Facturar_por_Deuda_ID</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <formula>AND(
+    Cantidad_Declarada__c &gt; 0,
+    Transaccion__r.Nombre_de_la_cuenta__r.Clasificador_Moroso__c = true
+)</formula>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item de DUP%2E Cambio</fullName>
+        <actions>
+            <name>Item_de_DUP_Cambio_Transaccion</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Se ejecuta cuando el registro de Item de DUP fue modificado</description>
+        <formula>NOT( $User.Usuario_de_Integracion__c )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item de DUP%2E Sin Regalia</fullName>
+        <actions>
+            <name>Item_Sin_Regalia</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Tratamiento del Ítem cuando el producto es del tipo Sin Regalía Extendida</description>
+        <formula>TEXT(Producto__r.Family) = &quot;Sin Regalía Extendida&quot;</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item de DUP%2E Tipo de Producto</fullName>
+        <actions>
+            <name>Item_de_DUP_Tipo_de_Producto</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <formula>NOT( ISBLANK( Producto__c ) )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Item_DUP%2EDeslintadora</fullName>
+        <actions>
+            <name>Item_de_DUP_No_facturar</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <formula>AND(
+     Cantidad_Declarada__c  &gt; 0,
+     OR(
+         TEXT(Transaccion__r.Lote__r.Tipo__c) = &quot;Deslintadora&quot;,
+         TEXT(Transaccion__r.Lote__r.Tipo__c) = &quot;Informe&quot;
+     )
+)</formula>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Ítem de DUP%2E Comision</fullName>
+        <actions>
+            <name>tem_de_DUP_Comision</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Transaccion__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>igna el precio al line item de DUP de acuerdo al campo de Precio definido a nivel producto.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Ítem de DUP%2E Consumo</fullName>
+        <actions>
+            <name>Consumo</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Si la cantidad informada es 0 se asigna el valor Consumo al campo Estado</description>
+        <formula>AND(Cantidad_Declarada__c = 0,
+Transaccion__r.RecordType.Name = &quot;DUP&quot;,  NOT( ISPICKVAL(Estado__c, &quot;Cancelada por Auditoría&quot; ) ) )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Ítem de DUP%2E No informada</fullName>
+        <actions>
+            <name>No_Informada</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>Controla el Estado de la DUP</description>
+        <formula>ISBLANK(   Cantidad_Declarada__c   )  &amp;&amp; NOT(ISPICKVAL(Estado__c, &quot;Vencida&quot;) )</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Ítem de DUP%2E Precio Producto</fullName>
+        <actions>
+            <name>tem_de_DUP_Precio_Producto</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <description>igna el precio al line item de DUP de acuerdo al campo de Precio definido a nivel producto.</description>
+        <formula>ISCHANGED( Producto__c ) || (OR(PRIORVALUE( Cantidad_Declarada__c ) = 0, ISBLANK(PRIORVALUE( Cantidad_Declarada__c ))) &amp;&amp; Cantidad_Declarada__c &gt; 0)  || (ISNEW() &amp;&amp; NOT(ISBLANK(Producto__c )))</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Ítem de DUP%2E Uso Propio</fullName>
+        <actions>
+            <name>Hectareas_Declaradas</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <actions>
+            <name>Uso_Propio</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Cantidad_Declarada__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Item_de_DUP__c.Cantidad_Declarada__c</field>
+            <operation>notEqual</operation>
+            <value>0</value>
+        </criteriaItems>
+        <description>Asigna el Estado del Ítem de la DUP en función de la cantidad declarada.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

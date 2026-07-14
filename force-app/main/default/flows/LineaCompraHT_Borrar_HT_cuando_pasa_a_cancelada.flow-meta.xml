@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Tiene_HT_asociada</name>
+        <label>Tiene HT asociada?</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_HTs_asociadas_a_la_linea.Name</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Borrar_HT_Asociada</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Cada vez que la línea de compra HT pasa a Cancelada --&gt; si tiene HT asociada, se borra.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Si es Futura --&gt; Fecha Vto TN con año_actual + 1  si Fecha Inicio de Compra Futura &lt;= HOY &lt;= 31/12/año_actual, o bien
+                            Fecha Vto TN                                  si 01/01/año_actual &lt;= HOY &lt; Fecha Inicio de Compra Futura
+Si es Disponible --&gt; HOY.</description>
+        <name>forFechaFin</name>
+        <dataType>Date</dataType>
+        <expression>IF(TEXT({!$Record.Tipo_de_Compra__c})=&quot;Disponible&quot;, TODAY(), 
+     IF( (DATE(YEAR(TODAY()), 01, 01) &lt;= TODAY() ) &amp;&amp;
+          (TODAY() &lt;  {!$Record.Producto__r.Variedad2__r.Cultivo__r.Fecha_Inicio_de_Compra_Futura__c}),
+           forFechaVtoTN,
+           DATE(YEAR(TODAY()) + 1, MONTH(forFechaVtoTN), DAY(forFechaVtoTN)))
+)</expression>
+    </formulas>
+    <formulas>
+        <name>forFechaInicio</name>
+        <dataType>Date</dataType>
+        <expression>TODAY()</expression>
+    </formulas>
+    <formulas>
+        <name>forFechaVtoTN</name>
+        <dataType>Date</dataType>
+        <expression>{!$Record.Producto__r.Variedad2__r.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c}</expression>
+    </formulas>
+    <interviewLabel>LineaCompraHT - Borrar HT cuando pasa a cancelada {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>LineaCompraHT - Borrar HT cuando pasa a cancelada</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordDeletes>
+        <name>Borrar_HT_Asociada</name>
+        <label>Borrar HT Asociada</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Buscar_HTs_asociadas_a_la_linea.Id</elementReference>
+            </value>
+        </filters>
+        <object>Hectareas_Tecnologicas__c</object>
+    </recordDeletes>
+    <recordLookups>
+        <name>Buscar_HTs_asociadas_a_la_linea</name>
+        <label>Buscar HTs asociadas a la línea</label>
+        <locationX>182</locationX>
+        <locationY>323</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Tiene_HT_asociada</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Linea_de_Compra_HT__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Hectareas_Tecnologicas__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Buscar_HTs_asociadas_a_la_linea</targetReference>
+        </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Estado__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Cancelada</stringValue>
+            </value>
+        </filters>
+        <object>Linea_de_Compra_HT__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

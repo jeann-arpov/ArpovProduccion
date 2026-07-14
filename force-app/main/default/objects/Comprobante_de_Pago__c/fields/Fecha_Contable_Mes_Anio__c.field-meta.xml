@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Contable_Mes_Anio__c</fullName>
+    <description>Mes y Año de la Fecha de Creación interpretada como Fecha Contable.</description>
+    <externalId>false</externalId>
+    <formula>LPAD( TEXT(  MONTH( DATEVALUE( CreatedDate ) ) ),2, &quot;0&quot; ) &amp; &quot;-&quot; &amp; TEXT( YEAR( DATEVALUE( CreatedDate ) ) )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Fecha Contable (Mes Año)</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

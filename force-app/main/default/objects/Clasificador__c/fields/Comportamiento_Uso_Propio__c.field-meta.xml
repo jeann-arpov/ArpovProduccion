@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Comportamiento_Uso_Propio__c</fullName>
+    <label>Comportamiento Uso Propio</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Siempre UP</fullName>
+                <default>false</default>
+                <label>Siempre UP</label>
+            </value>
+            <value>
+                <fullName>Alguna Vez UP</fullName>
+                <default>false</default>
+                <label>Alguna Vez UP</label>
+            </value>
+            <value>
+                <fullName>Nunca UP</fullName>
+                <default>false</default>
+                <label>Nunca UP</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

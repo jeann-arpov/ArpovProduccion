@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pagos_Recibidos__c</fullName>
+    <description>Importe Neto Cobrado para este Ítem</description>
+    <formula>IF( OR( ISPICKVAL(  Item_de_Auditoria__r.Auditoria__r.Estado__c  , &quot;Facturada&quot;), ISPICKVAL( Item_de_Auditoria__r.Auditoria__r.Estado__c, &quot;Cobrada&quot; ) ),   Aplicacion__r.Importe__c   * Item_de_Auditoria__r.Auditoria__r.Factura__r.Percepciones__c *  Item_de_Auditoria__r.Porcentaje_sobre_Total_ARS__c  , 0 )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Importe Neto Cobrado para este Ítem</inlineHelpText>
+    <label>Pagos Recibidos</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

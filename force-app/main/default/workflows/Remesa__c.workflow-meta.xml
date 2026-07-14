@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Remesa_Estado_Enviada</fullName>
+        <field>Estado__c</field>
+        <literalValue>Enviado</literalValue>
+        <name>Remesa. Estado Enviada</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Remesa_Modo_de_Envio_Email</fullName>
+        <field>Modo_de_Envio__c</field>
+        <literalValue>Correo Electrónico</literalValue>
+        <name>Remesa. Modo de Envio Email</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Remesa_Modo_de_Envio_Postal</fullName>
+        <field>Modo_de_Envio__c</field>
+        <literalValue>Correo Postal</literalValue>
+        <name>Remesa. Modo de Envio Postal</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Remesa_Nombre</fullName>
+        <field>Name</field>
+        <formula>Productor__r.Codigo_Postal_Envio__c &amp; Numerador__c</formula>
+        <name>Remesa. Nombre</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Remesa%2E Estado Enviada</fullName>
+        <actions>
+            <name>Remesa_Estado_Enviada</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Remesa__c.Fecha_de_envio__c</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Cuando se carga la fecha de envío, se cambia el estado a &quot;Enviada&quot;.</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
+    <rules>
+        <fullName>Remesa%2E Modo de Envio Email</fullName>
+        <actions>
+            <name>Remesa_Modo_de_Envio_Email</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <description>Determina el modo de envío &quot;Correo Electrónico&quot; si el CUIT tiene cargada una Dirección de Correo electrónico.</description>
+        <formula>NOT(ISBLANK(Productor__r.Direccion_de_Correo_electronico_del_CUIT__c))</formula>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Remesa%2E Modo de Envio Postal</fullName>
+        <actions>
+            <name>Remesa_Modo_de_Envio_Postal</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <description>Determina el modo de envío &quot;Correo Postal&quot; si el CUIT no tiene cargada una Dirección de Correo electrónico.</description>
+        <formula>ISBLANK(Productor__r.Direccion_de_Correo_electronico_del_CUIT__c)</formula>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Remesa%2E Nombre</fullName>
+        <actions>
+            <name>Remesa_Nombre</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Remesa__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Determina el Name del registro remesa.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

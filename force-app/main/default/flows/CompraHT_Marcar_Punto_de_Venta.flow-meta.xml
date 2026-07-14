@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <description>Si es NC debe heredar la marca de punto de venta de la compra HT original.</description>
+        <name>Es_NC</name>
+        <label>Es NC?</label>
+        <locationX>248</locationX>
+        <locationY>287</locationY>
+        <defaultConnector>
+            <targetReference>Buscar_si_es_Punto_de_Venta</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No es NC</defaultConnectorLabel>
+        <rules>
+            <name>Si_es_NC</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Es_NC__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Heredar_marca_Punto_de_Venta_de_la_compra_HT_original</targetReference>
+            </connector>
+            <label>Si es NC</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Es_Punto_de_Venta</name>
+        <label>Es Punto de Venta?</label>
+        <locationX>446</locationX>
+        <locationY>503</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>1 OR 2</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_si_es_Punto_de_Venta.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Obtentor__r.Factura_por_Cuenta_y_Orden_SE__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Marcar_la_compra_como_Punto_de_Venta</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Si el obtentor y el productor existen en el objeto Punto de Venta, o bien, el obtentor tiene Factura por Cuenta y Orden SE = False 
+--&gt; se marca la compra HT como Punto de Venta.
+Si la compra HT es una NC --&gt; debe heredar la marca de Punto de Venta de la compra HT original</description>
+    <environments>Default</environments>
+    <interviewLabel>CompraHT - Marcar Punto de Venta {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CompraHT - Marcar Punto de Venta</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Verificar en el objeto Punto de Venta si existe la marca y la cuenta productor</description>
+        <name>Buscar_si_es_Punto_de_Venta</name>
+        <label>Buscar si es Punto de Venta</label>
+        <locationX>446</locationX>
+        <locationY>395</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Es_Punto_de_Venta</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Marca__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Obtentor__r.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Cuenta__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Cuenta_Productor__r.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Punto_de_Venta__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Heredar_marca_Punto_de_Venta_de_la_compra_HT_original</name>
+        <label>Heredar marca Punto de Venta de la compra HT original</label>
+        <locationX>50</locationX>
+        <locationY>395</locationY>
+        <inputAssignments>
+            <field>Punto_de_Venta__c</field>
+            <value>
+                <elementReference>$Record.Compra_Original__r.Punto_de_Venta__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Marcar_la_compra_como_Punto_de_Venta</name>
+        <label>Marcar la compra como Punto de Venta</label>
+        <locationX>314</locationX>
+        <locationY>611</locationY>
+        <inputAssignments>
+            <field>Punto_de_Venta__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>122</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Es_NC</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Venta_HT__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Compra_HT__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

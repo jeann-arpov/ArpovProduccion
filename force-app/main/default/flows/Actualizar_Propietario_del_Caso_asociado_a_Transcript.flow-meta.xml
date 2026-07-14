@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>50.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Asignacion_Propietario_segun_Motivo_del_Caso</name>
+        <label>Asignacion Propietario segun Motivo del Caso</label>
+        <locationX>1078</locationX>
+        <locationY>508</locationY>
+        <defaultConnector>
+            <targetReference>Asignar_Caso_al_Operador_de_Gestion</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Otro Motivo</defaultConnectorLabel>
+        <rules>
+            <name>Motivo_Informar_Pago</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Obtener_Caso_del_Transcript.Reason</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>&quot;Informar Pago&quot;</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_Caso_al_Operador_de_Cobranza</targetReference>
+            </connector>
+            <label>Motivo Informar Pago</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Si el Transcript no tiene como propietario al Usuario Automated Process se actualiza el Caso con el propietario del Transcript</description>
+        <name>Evaluacion_del_Propietario_del_Transcript</name>
+        <label>Evaluacion del Propietario del Transcript</label>
+        <locationX>787</locationX>
+        <locationY>114</locationY>
+        <defaultConnector>
+            <targetReference>Transcript_asociado_a_Contacto</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Propietario Automated Process</defaultConnectorLabel>
+        <rules>
+            <name>Propietario_NO_es_Automated_Process</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Owner:User.UserType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>&quot;AutomatedProcess&quot;</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar_Propietario_del_Caso</targetReference>
+            </connector>
+            <label>Propietario NO es Automated Process</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Transcript_asociado_a_Contacto</name>
+        <label>Transcript asociado a Contacto</label>
+        <locationX>796</locationX>
+        <locationY>316</locationY>
+        <defaultConnectorLabel>Transcript sin Cuenta asociada</defaultConnectorLabel>
+        <rules>
+            <name>Transcript_con_Contacto</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.ContactId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Obtener_Contacto_del_Transcript</targetReference>
+            </connector>
+            <label>Transcript con Contacto</label>
+        </rules>
+    </decisions>
+    <description>Asigna el mismo propietario del Transcript al caso asociado una vez que el transcript es aceptado por el operador.</description>
+    <interviewLabel>Actualizar Propietario del Caso asociado a Transcript {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Actualizar Propietario del Caso asociado a Transcript</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Obtener_Caso_del_Transcript</name>
+        <label>Obtener Caso del Transcript</label>
+        <locationX>524</locationX>
+        <locationY>111</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Evaluacion_del_Propietario_del_Transcript</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CaseId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Case</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>AccountId</queriedFields>
+        <queriedFields>Reason</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Obtener_Contacto_del_Transcript</name>
+        <label>Obtener Contacto del Transcript</label>
+        <locationX>1093</locationX>
+        <locationY>314</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Asignacion_Propietario_segun_Motivo_del_Caso</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.ContactId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualizar_Propietario_del_Caso</name>
+        <label>Actualizar Propietario del Caso</label>
+        <locationX>1068</locationX>
+        <locationY>108</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Obtener_Caso_del_Transcript.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Asignar_Caso_al_Operador_de_Cobranza</name>
+        <label>Asignar Caso al Operador de Cobranza</label>
+        <locationX>867</locationX>
+        <locationY>604</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CaseId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>Obtener_Contacto_del_Transcript.Account.Operador_de_Cobranza__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Asignar_Caso_al_Operador_de_Gestion</name>
+        <label>Asignar Caso al Operador de Gestion</label>
+        <locationX>1250</locationX>
+        <locationY>604</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CaseId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>Obtener_Contacto_del_Transcript.Account.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Obtener_Caso_del_Transcript</targetReference>
+        </connector>
+        <object>LiveChatTranscript</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+</Flow>

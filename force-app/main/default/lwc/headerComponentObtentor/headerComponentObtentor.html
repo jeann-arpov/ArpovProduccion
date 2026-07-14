@@ -1,0 +1,86 @@
+<template>
+  <!-- HEADER SALESFORCE -->
+  <div class="header-container">
+    <header if:true={isSalesforce}>
+      <!-- Bloque superior -->
+      <div class="prenav">
+        <div class="content">
+          <div class="platform"></div>
+
+          <!-- Usuario -->
+          <div class="usernav">
+            <div class="usermenu">
+              <button class="userbtn" aria-haspopup="true">
+                {userName} <span class="caret">▲</span>
+              </button>
+              <div class="submenu">
+                <a data-page="editProfile" onclick={handleNavigate}>Editar Perfil</a>
+              </div>
+            </div>
+            <lightning-icon 
+              icon-name="utility:logout" 
+              alternative-text="Logout" 
+              size="xx-small" 
+              onclick={handleCommunityLogout} 
+              class="circled">
+            </lightning-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menú principal -->
+      <div class="mainav">
+        <div class="content">
+          <a href="" onclick={clic} class="logow">
+            <img src={logoUrl} alt="Sembrá Evolución - Login" />
+          </a>
+          <nav>
+            <template for:each={navItems} for:item="item">
+              <template if:true={item.submenu}>
+                <div key={item.label} class="item has-submenu">
+                  <button>{item.label}</button>
+                  <div class="submenu">
+                    <template for:each={item.submenu} for:item="sub">
+                      <a key={sub.label} href={sub.url} onclick={clic}>{sub.label}</a>
+                    </template>
+                  </div>
+                </div>
+              </template>
+              <template if:false={item.submenu}>
+                <div key={item.label} class="item">
+                  <a href={item.url} onclick={clic}>{item.label}</a>
+                </div>
+              </template>
+            </template>
+          </nav>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <!-- HEADER SGL -->
+  <header if:false={isSalesforce}>
+    <div class="prenav">
+      <div class="content">
+        <div class="platform">
+          <span>Plataforma Comercios</span>
+        </div>
+        <div class="usernav">
+          <a class="circled" onclick={handleLogout}>
+            <lightning-icon icon-name="utility:logout" size="xx-small"></lightning-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="mainav">
+      <div class="content">
+        <a href="" class="logow">
+          <img src={logorl} alt="Sembrá Evolución - Login" />
+        </a>
+        <nav class="sgl"> 
+          <a href="" class="button altborder">&larr; Volver al Portal</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+</template>

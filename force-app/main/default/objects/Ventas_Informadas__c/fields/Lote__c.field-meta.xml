@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lote__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Identifica el lote que dio origen al registro cuando es creado a traves de la importación de archivos del Portal de Distribuidores.</description>
+    <label>Lote</label>
+    <referenceTo>Lote__c</referenceTo>
+    <relationshipLabel>Ventas Informadas</relationshipLabel>
+    <relationshipName>Ventas_Informadas</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pagos_Recibidos__c</fullName>
+    <description>Proporcional del total cobrado para esta línea de la transacción</description>
+    <formula>IF( OR( ISPICKVAL(Transaccion__r.Estado__c, &quot;Facturada&quot;), ISPICKVAL(Transaccion__r.Estado__c, &quot;COBRADA&quot; ) ),
+Transaccion__r.Factura__r.Pagos_Recibidos__c * Transaccion__r.Factura__r.Percepciones__c * Porcentaje_sobre_Total_Kilos__c , 0 )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Proporcional del total cobrado para esta línea de la transacción</inlineHelpText>
+    <label>Pagos Recibidos</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

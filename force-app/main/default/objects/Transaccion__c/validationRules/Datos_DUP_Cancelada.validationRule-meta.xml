@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Datos_DUP_Cancelada</fullName>
+    <active>true</active>
+    <description>Valida que la auditoría corresponda a los datos de la DUP cancelada</description>
+    <errorConditionFormula>IF( Cancela_DUP_Original__c  &amp;&amp;  NOT( $User.Usuario_de_Integracion__c ) , 
+OR( DUP_Original__r.Nombre_de_la_cuenta__c &lt;&gt; Nombre_de_la_cuenta__c, DUP_Original__r.Obtentor__c &lt;&gt; Obtentor__c, DUP_Original__r.Cultivo__c &lt;&gt; Cultivo__c ), false)</errorConditionFormula>
+    <errorMessage>Verifique que la Cuenta, el Obtentor y el Cultivo correspondan a la DUP cancelada por esta Auditoría.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,47 @@
+<template>
+    <div style={backgroundStyle}>
+      <lightning-spinner if:true={showSpinner} alternative-text="Loading" size="medium"></lightning-spinner>
+        <template if:false={identifier}> 
+            <div class="login-form">
+            <div class = "login">
+                <div class="container">
+                <template if:false={isPortalArpov}>
+                    <div if:true={urlLogoSe.data}>
+                        <center><img src={urlLogoSe.data}/></center>
+                    </div>
+                </template>
+                <div if:true={showMessage} class={messageClass} data-message-container></div>
+                <div class="slds-p-vertical_small lgc-bg">
+                    <lightning-input variant="label-hidden" placeholder="CUIT" message-when-value-missing="Completá este campo" value={cuit} type="string" required onchange={handleChange} onkeypress={checkEnterKey} max-length="11" pattern="[0-9]+" message-when-pattern-mismatch="Ingrese los dígitos de cuit sin espacios ni guiones"></lightning-input>
+                </div>
+                <div class="slds-p-bottom_small lgc-bg">
+                    <lightning-input variant="label-hidden" placeholder="Email" message-when-value-missing="Completá este campo" value={email} type="email" required onchange={handleChange} onkeypress={checkEnterKey}></lightning-input>
+                </div>
+                <div class="slds-p-bottom_small lgc-bg" if:false={isPortalArpov}>
+                    <lightning-input variant="label-hidden" message-when-value-missing="Completá este campo" value={password} type="password" required onchange={handleChange} placeholder="Contraseña" ></lightning-input>
+                </div>
+                <button class="slds-button slds-button_brand slds-button_stretch" onclick={login}>Ingresar</button>
+                 </div>
+                <div class="card-options">
+                    <div class="option"><p style="font-size: 13px;">No tenés cuenta? <a href="#" onclick={register}>Registrate</a></p></div>
+                    <div class="option"><p style="font-size: 13px;">Olvidaste la contraseña? <a href="#" onclick={forgotPassword}>Hace click aquí</a></p></div>
+
+                </div>
+                </div>
+            </div>
+        </template>
+        <template if:true={identifier}>
+            <div class = "confirmation-form">
+                <div class="slds-p-vertical_small lgc-bg">
+                    <lightning-input variant="label-hidden" message-when-value-missing="Completá este campo" type="string" onchange={handleChange} placeholder="Código"></lightning-input>
+                </div>
+
+                <button class="slds-button slds-button_brand slds-button_stretch" onclick={confirm}>Enviar</button>
+
+                <div class = "slds-align_absolute-center slds-p-top_small">
+                    <a href="#" class= "slds-text-link_reset" onclick={cancel}><span class="slds-text-link">Cancelar</span></a>
+                </div>
+            </div>
+        </template>  
+    </div>    
+</template>

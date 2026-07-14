@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Tipo_de_Cambio_Moneda_y_Dia</fullName>
+        <field>Codigo_Univoco__c</field>
+        <formula>TEXT(Fecha__c) &amp;  Moneda__r.Name</formula>
+        <name>Tipo de Cambio. Moneda y Dia</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Formula</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Tipo de Cambio%2E Moneda y Dia</fullName>
+        <actions>
+            <name>Tipo_de_Cambio_Moneda_y_Dia</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Tipo_de_Cambio__c.CreatedDate</field>
+            <operation>notEqual</operation>
+        </criteriaItems>
+        <description>Esta regla impide crear varias veces la cotización de una moneda para el mismo día.</description>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+</Workflow>

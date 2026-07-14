@@ -1,0 +1,96 @@
+@page{
+    margin-bottom: 120px;
+}
+               
+.divPageCarta * {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.divPageCarta  p {
+    font-size: 11px;
+    margin: 0;
+    padding: 0 !important;
+    line-height: 12px !important;
+}
+
+div.header p{
+    margin: 0 !important;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+div.body > p{
+    text-align:justify;
+    text-indent:20px;
+    margin-top:8px !important;
+    margin-bottom:8px !important;   
+    padding: 0 !important;
+}
+
+.divPageCarta  div.body ul li p{
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+div.sign p{
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+div.sign{
+    display:table;
+}
+div.sign img{
+    margin:0;
+    padding:0;
+}
+
+div.sign div{
+    line-height:normal;
+    display:table-footer-group;
+    margin:0;
+    text-align:center;
+}
+
+.url{
+    color: blue;
+    text-decoration: underline;
+}
+
+.underline{
+    text-decoration: underline;
+}
+
+.consideraciones{
+    border: 1px solid #000;
+    font-size: 13px;
+    padding: 10px 5px;
+}
+
+.consideraciones h2{
+    text-align: center;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.consideraciones h4{
+    text-align: center;
+    font-style: italic;
+    font-weight: normal;
+}
+
+.consideraciones li{
+    margin: 10px 0;
+}
+
+.consideraciones li p{
+    font-size: 13px;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.divPageCarta{
+    page-break-after: always;
+    display: block;    
+}

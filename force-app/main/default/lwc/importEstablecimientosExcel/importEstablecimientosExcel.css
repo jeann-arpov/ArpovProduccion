@@ -1,0 +1,34 @@
+.m-info {
+    display: flex;
+    padding: 1em;
+}
+
+.mainButton {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.centered {
+    margin: auto;
+
+}
+
+.m-fileData {
+    display: flex;
+    padding: 1em;
+}
+
+.m-fileData p {
+    margin-left: 1em;
+    margin-top: auto;
+}
+
+.m-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1em;
+}
+
+.spinner>* {
+    background-color: transparent;
+}

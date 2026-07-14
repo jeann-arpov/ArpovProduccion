@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_Movimiento__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>FC = Factura 
+DC = Documento Compensatorio
+ND = Nota de Débito (Cantidad)
+NDT = Nota de Débito (Dif. de Cambio)
+NDP = Nota de Débito (Precio)
+NDA = Nota de Débito (Ajuste)
+NC = Nota de Crédito (Cantidad) 
+NCT Nota de Crédito (dif. de Cambio) 
+NCP Nota de Crédito (Precio)
+NCA = Nota de Crébito (Ajuste)
+DAP = Desaplicación (SRE)
+AP = Aplicación (SRE)
+APSE = Aplicación (SE)
+DAPSE = Desaplicación (SE)
+VA</inlineHelpText>
+    <label>Tipo de Movimiento</label>
+    <length>5</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Asigna Importe Afectado ME cuando la moneda es USD</description>
+    <environments>Default</environments>
+    <interviewLabel>DA. {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>DA.Asigna Importe Afectado ME (Flow)</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Actualiza_Importe_Afectado_ME</name>
+        <label>Actualiza Importe Afectado ME</label>
+        <locationX>176</locationX>
+        <locationY>335</locationY>
+        <inputAssignments>
+            <field>Importe_Afectado_ME__c</field>
+            <value>
+                <elementReference>$Record.ERPvs__Importe_Afectado__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Actualiza_Importe_Afectado_ME</targetReference>
+        </connector>
+        <filterFormula>{!$Record.ERPvs__Movimiento_de_Fondo__r.ERPvs__Tipo_Comprobante_Movimiento_Fondo__r.Name} =  &quot;Cobranzas CYO SE (sin aplicar)&quot; &amp;&amp; 
+{!$Record.ERPvs__Movimiento_de_Fondo__r.ERPvs__Estado__c} = &quot;NO CONTABILIZADO&quot; &amp;&amp;
+ISPICKVAL({!$Record.ERPvs__Vencimientos__r.ERPvs__Comprobante_Venta__r.Oportunidad__r.Type}, &quot;SE&quot;) &amp;&amp;
+{!$Record.ERPvs__Vencimientos__r.ERPvs__Comprobante_Venta__r.ERPvs__Moneda__r.Name} = &quot;USD&quot;</filterFormula>
+        <object>ERPvs__Documento_Afectado__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

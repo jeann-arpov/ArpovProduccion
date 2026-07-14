@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lectora_de_Cheques__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Si es verdadero la carga de identificación se hizo mediante la lectora de cheques</description>
+    <label>Lectora de Cheques</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

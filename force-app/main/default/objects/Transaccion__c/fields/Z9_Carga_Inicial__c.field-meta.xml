@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Carga_Inicial__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Este campo indentifica los registros creados durante la carga inicial. Normalmente proveniente de los sistemas aneriores (C&amp;M y Agrositio). Es un campo de trabajo y es visible solo para los administradores.</description>
+    <inlineHelpText>Indica que el registro proviene de la carga inicial. Su origen es alguno de los sistemas anteriores.</inlineHelpText>
+    <label>Carga Inicial</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

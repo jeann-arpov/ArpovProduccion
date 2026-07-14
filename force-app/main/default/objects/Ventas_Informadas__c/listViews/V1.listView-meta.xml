@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>V1</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Campana_Agricola__c</columns>
+    <columns>Originante__c</columns>
+    <columns>Rol_Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Rol_Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Categoria__c</columns>
+    <columns>Cantidad_Bolsas_40__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Fecha_de_Facturacion__c</columns>
+    <columns>Producto__c</columns>
+    <columns>Tipo_de_Material__c</columns>
+    <columns>NAME</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>contains</operation>
+        <value>Preprocesado,Pendiente</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>equals</operation>
+        <value>7/25/2025 12:00 AM</value>
+    </filters>
+    <filters>
+        <field>CREATEDBY_USER</field>
+        <operation>contains</operation>
+        <value>nora</value>
+    </filters>
+    <label>Copia de Ventas Informadas con error</label>
+</ListView>

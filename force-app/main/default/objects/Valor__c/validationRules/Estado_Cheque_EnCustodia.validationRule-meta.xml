@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_Cheque_EnCustodia</fullName>
+    <active>true</active>
+    <errorConditionFormula>ISCHANGED(En_Custodia__c) &amp;&amp;
+PRIORVALUE(En_Custodia__c) = false &amp;&amp; 
+Acreditado__c = TRUE</errorConditionFormula>
+    <errorDisplayField>En_Custodia__c</errorDisplayField>
+    <errorMessage>No se puede depositar un cheque que ya fue acreditado.</errorMessage>
+</ValidationRule>

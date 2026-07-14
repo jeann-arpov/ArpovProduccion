@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Dup_Original_Valida</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(  NOT( ISBLANK( DUP_Original__c ) ),
+      $Profile.Name = &quot;Coordinador Regional&quot;,
+      OR( TEXT( DUP_Original__r.Estado__c ) &lt;&gt; &quot;Creada&quot;,
+          TEXT( DUP_Original__r.Campana__r.Estado__c ) = &quot;Activa&quot; 
+ )
+)</errorConditionFormula>
+    <errorDisplayField>DUP_Original__c</errorDisplayField>
+    <errorMessage>La DUP seleccionada no es válida para esta operación.</errorMessage>
+</ValidationRule>

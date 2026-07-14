@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Auditoria_Regular__c</fullName>
+    <description>Indica si el ítem de la Auditoría tiene resultado Irregular. (Utilizado para filtros en reportes)</description>
+    <formula>TEXT(Item_de_Auditoria__r.Resultado__c) = &quot;Regular&quot;</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Indica si el ítem de la Auditoría tiene resultado Irregular. (Utilizado para filtros en reportes)</inlineHelpText>
+    <label>Auditoría Regular</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

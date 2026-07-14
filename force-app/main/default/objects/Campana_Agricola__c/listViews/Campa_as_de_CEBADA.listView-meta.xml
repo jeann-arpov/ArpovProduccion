@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campa_as_de_CEBADA</fullName>
+    <columns>NAME</columns>
+    <columns>OBJECT_ID</columns>
+    <columns>Estado__c</columns>
+    <columns>Gestion_Venta__c</columns>
+    <columns>Densidad__c</columns>
+    <columns>Bolsas_SF__c</columns>
+    <columns>Bolsas_UP__c</columns>
+    <columns>Cuits_Participantes__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Cultivo__c</field>
+        <operation>equals</operation>
+        <value>CEBADA</value>
+    </filters>
+    <label>Campañas de CEBADA</label>
+</ListView>

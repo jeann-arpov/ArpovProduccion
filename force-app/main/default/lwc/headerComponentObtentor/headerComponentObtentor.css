@@ -1,0 +1,220 @@
+:host {
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  display: block;
+}
+
+/* HEADER */
+.header-container header {
+  background: #181819;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  z-index: 200;
+}
+
+/* BLOQUE SUPERIOR */
+:host .prenav {
+  background: #fff;
+  min-height: 30px;
+  width: 100%;
+}
+:host .prenav .content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 35px;
+}
+:host .platform {
+  font-weight: bold;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  display: flex;
+  gap: 20px;
+}
+:host .platform a {
+  text-decoration: none;
+  color: #181819;
+  padding: 10px 5px;
+}
+:host .platform a:hover {
+  background: #181819;
+  color: #bfff00;
+}
+
+/* USUARIO */
+:host .usernav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+:host .usermenu {
+  position: relative;
+}
+:host .userbtn {
+  padding: 6px 16px;
+  font-size: .8125rem;
+  font-weight: 700;
+  color: #181819;
+  text-transform: uppercase;
+  border: none;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+:host .userbtn .caret {
+  font-size: 10px;
+  transition: transform .15s ease;
+}
+:host .usermenu .submenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.18);
+  padding: 8px 0;
+  z-index: 1000;
+}
+:host .usermenu:hover .submenu,
+:host .usermenu:focus-within .submenu {
+  display: block;
+}
+:host .usermenu .submenu a {
+  display: block;
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: #181819;
+  text-transform: uppercase;
+  font-size: .8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+:host .usermenu .submenu a:hover {
+  background: #F6F7F9;
+}
+:host .circled {
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
+  border: 1px solid #181819;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+:host .circled:hover {
+  background: #181819;
+  color: #bfff00;
+}
+
+/* MENÚ PRINCIPAL */
+:host .mainav {
+  background: #000;
+}
+:host .mainav .content {
+  display: flex;
+  align-items: center;
+  padding: 0 35px;
+}
+:host .logow {
+  flex: 0 0 auto;
+}
+:host .logow img {
+  height: 75px;
+}
+
+/* Menú centrado */
+:host nav {
+  flex: 1;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+
+/* Ítems */
+:host .item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 80px;
+}
+:host .item a,
+:host .item button {
+  background: none;
+  border: none;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0 15px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+:host .item:hover > a,
+:host .item:hover > button {
+  color: #bfff00;
+}
+:host .item.active > a,
+:host .item.active > button {
+  color: #bfff00;
+  border-bottom: 3px solid #bfff00;
+}
+
+/* Submenús */
+:host .item .submenu {
+  display: none;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #181819;
+  border-top: 3px solid #bfff00;
+  border-radius: 0 0 10px 10px;
+  padding: 10px 0;
+  white-space: nowrap;
+  z-index: 999;
+}
+:host .item:hover .submenu {
+  display: flex;
+  flex-direction: column;
+}
+:host .item .submenu a {
+  color: #fff;
+  padding: 10px 15px;
+  font-size: 0.8125rem;
+}
+:host .item .submenu a:hover {
+  color: #bfff00;
+}
+
+/* Triangulito indicador en submenús */
+:host .item.has-submenu:hover .submenu::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #bfff00; /* verde fosforescente */
+}
+
+:host .item.has-submenu:hover .submenu::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #bfff00; /* negro (fondo del header) */
+}

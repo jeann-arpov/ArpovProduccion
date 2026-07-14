@@ -1,0 +1,94 @@
+<template>
+    <lightning-record-edit-form object-api-name="Linea_de_Compra_HT__c" record-id={record.id}>
+        <template if:true={loading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>   
+        <lightning-layout vertical-align="center" class="slds-m-bottom_medium slds-text-align_center">
+            <lightning-layout-item size="2" padding="horizontal-small">
+                <lightning-combobox lwc:if={hasId} read-only class="variedad" variant="label-hidden" label="Variedad" value={variedad}  options={variedades} ></lightning-combobox>
+                <c-lookup lwc:else variant="label-hidden" required onselectionchange={variedadChange} onsearch={searchVariedades} label="Variedad" placeholder="Buscar Variedad">
+                    <div slot="no-results" >
+                        <span style="color:#FF0000;font-size:18px;">No se encontraron variedades</span>
+                    </div>
+                </c-lookup>
+            </lightning-layout-item>
+            <lightning-layout-item  size="2" padding="horizontal-small">
+                <lightning-combobox disabled={disableTipoHt} read-only={hasId} class="preCampaign" variant="label-hidden" label="Momento de entrega del grano" value={preCampaign} placeholder="Seleccionar Momento de Entrega" options={tiposDeCompra} required onchange={preCampaignChange} message-when-value-missing="Seleccione Momento de Entrega"></lightning-combobox>
+            </lightning-layout-item>
+            <!-- <lightning-layout-item lwc:if={isFutura} size="1" padding="horizontal-small">
+                <lightning-combobox 
+                    read-only={hasId} 
+                    class="tipoFinanciamiento" 
+                    variant="label-hidden" 
+                    label="Tipo de Financiamiento" 
+                    value={record.Tipo_de_Pago__c} 
+                    placeholder="Seleccionar Tipo" 
+                    options={tiposDePago} 
+                    required 
+                    onchange={tipoFinanciamientoChange} 
+                    message-when-value-missing="Seleccione Tipo de Financiamiento">
+                </lightning-combobox>
+            </lightning-layout-item>-->
+            <lightning-layout-item  size="1" padding="horizontal-small">
+                <lightning-formatted-date-time time-zone="UTC" value={record.Fecha_de_Activacion__c}></lightning-formatted-date-time>
+            </lightning-layout-item>  
+            <lightning-layout-item  size="1" padding="horizontal-small">
+                <lightning-input type="number" step="1" variant="label-hidden" value={record.Cantidad__c} onchange={syncCantidad} onblur={checkAutoSave} readonly={cantEdit} required></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item  size="1" padding="horizontal-small">
+            <lightning-input variant="label-hidden" label="Precio Lista" value={precioLista} read-only="true"></lightning-input>
+            </lightning-layout-item>
+            <lightning-layout-item  size="1" padding="horizontal-small">
+                <lightning-input variant="label-hidden" label="Precio" value={precio} read-only="true"></lightning-input>
+            </lightning-layout-item>                
+            <lightning-layout-item size="1"  padding="horizontal-small">
+                <span class={estadoClass}>{estado}</span>
+                <button if:true={factura} type="button" onclick={openFactura} class="slds-button slds-m-left_small">
+                    <svg width="13.464" height="17.954" >;
+                        <use xlink:href={icons.facturas}></use>
+                    </svg>
+                </button>
+            </lightning-layout-item>
+            <lightning-layout-item  size="1" padding="horizontal-small">
+                <span if:true={record.Licencia__c}>{record.Licencia__r.Name}</span>
+                <div if:true={showEstadoLicencia}>
+                    <svg if:true={record.Licencia__c} width="19.908" height="19.908">;
+                        <use xlink:href={iconsCompraVenta.valid}></use>
+                    </svg>
+                    <svg if:false={record.Licencia__c} width="22.757" height="22.757">;
+                        <use xlink:href={iconsCompraVenta.invalid}></use>
+                    </svg>
+                </div>
+            </lightning-layout-item>   
+            <lightning-layout-item size="1" padding="horizontal-small">
+                <button type="button" title="Eliminar Variedad" if:true={canEdit} onclick={removeRow} class="slds-button">
+                    <svg width="15.25" height="19.607">;
+                        <use xlink:href={icons.delete}></use>
+                    </svg>
+                </button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-record-edit-form>
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">¡Atención!</h2>
+                </header>
+
+                <div class="slds-modal__content slds-p-around_medium">
+                    Este precio es válido solo para pago contado dentro del plazo definido. Si no se cancela en término, la condición se pierde y la operación se revierte.
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Cerrar" onclick={closeModal}></lightning-button>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Fondo oscuro -->
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

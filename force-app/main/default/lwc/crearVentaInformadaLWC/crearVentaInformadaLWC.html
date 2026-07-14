@@ -1,0 +1,434 @@
+<template>
+    <lightning-card class={formCardClass}>
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="xx-small"></lightning-spinner>
+        </template>
+        <div class={formShellClass}>
+            <template lwc:if={isModal}>
+                <p class="form-intro">Complet&aacute; los datos del comprobante y del producto. Los campos con asterisco son obligatorios.</p>
+            </template>
+            <lightning-record-edit-form 
+                object-api-name="Ventas_Informadas__c"
+                style={formStyle}
+                class="form-layout"
+                onsubmit={handleSubmit}
+            >
+                <div class="form-grid slds-grid slds-wrap slds-gutters_small">
+                    <!-- Originante / Rol Originante: ocultos en el Pop Up (isModal). -->
+                    <template lwc:if={showOriginanteFields}>
+                        <div class={modalClass}>
+                            <lightning-record-picker
+                                object-api-name="Account"
+                                label="Originante"
+                                matching-info={matchingInfo}
+                                onchange={handleSelect}
+                                name="originante"
+                                value={originante}
+                                required
+                            >
+                            </lightning-record-picker>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox
+                                name="rolOriginante"
+                                label="Rol Originante"
+                                value={valueRolOriginante}
+                                options={options}
+                                onchange={handleChange}
+                                class={comboboxClass}
+                                message-when-value-missing = 'Complete este campo'
+                                required
+                            ></lightning-combobox>
+                        </div>
+                    </template>
+
+                    <div class="form-section slds-col slds-size_1-of-1">
+                        <h3 class="form-section__title">Destinatario</h3>
+                        <div class="slds-grid slds-wrap slds-gutters_small">
+                    <!-- CUIT Destinatario -->
+                    <div class={destinatarioClass}>
+                        <template lwc:if={isModal}>
+                            <div class="form-field">
+                                <label class="slds-form-element__label form-field__label">
+                                    <abbr class="slds-required" title="required">* </abbr>
+                                    CUIT Destinatario
+                                    <c-field-help content="Ingres&aacute; el CUIT del destinatario sin guiones (11 d&iacute;gitos). Si est&aacute; dado de alta en SF, se recuperar&aacute; la Raz&oacute;n Social autom&aacute;ticamente."></c-field-help>
+                                </label>
+                                <div class="form-field__control">
+                                    <lightning-input-field 
+                                        field-name="CUIT_Destinatario__c"
+                                        variant="label-hidden"
+                                        onchange={DestinatarioSelect}
+                                        value={prefillCuitDestinatario}
+                                        disabled={ventaInternaChecked}
+                                        required
+                                    ></lightning-input-field>
+                                </div>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <lightning-record-picker
+                                object-api-name="Account"
+                                label="Destinatario"
+                                matching-info={matchingInfo}
+                                onchange={handleSelect}
+                                name="destinatario"
+                                value={destinatario}
+                                disabled={ventaInternaChecked}
+                                required
+                            >
+                            </lightning-record-picker>
+                        </template>
+                    </div>
+
+                    <!-- Raz&oacute;n Social Destinatario (solo lectura, grisado) -->
+                    <template lwc:if={isModal}>
+                        <div class="slds-col slds-size_1-of-2">
+                            <div class="form-field">
+                                <label class="slds-form-element__label form-field__label">
+                                    Raz&oacute;n Social Destinatario
+                                    <c-field-help content="Se completa autom&aacute;ticamente al validar el CUIT Destinatario. Si la cuenta no existe, se da de alta con datos de ARCA al guardar."></c-field-help>
+                                </label>
+                                <div class="form-field__control">
+                                    <lightning-input
+                                        class="razon-social-input"
+                                        value={razonSocialDestinatario}
+                                        variant="label-hidden"
+                                        readonly
+                                        disabled
+                                    ></lightning-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Rol Destinatario: oculto en pop-up -->
+                    <template lwc:if={showRolDestinatario}>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox
+                                name="rolDestinatario"
+                                label="Rol Destinatario"
+                                value={valueRolDestinatario}
+                                options={options}
+                                onchange={handleChange} 
+                                class={comboboxClass}
+                                message-when-value-missing = 'Complete este campo'
+                                disabled={ventaInternaChecked}
+                                required
+                            ></lightning-combobox>
+                        </div>
+                    </template>
+
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                Venta Interna
+                                <c-field-help content="Si se tilda, el CUIT y Raz&oacute;n Social del Destinatario se completan autom&aacute;ticamente con los datos del Originante (autoventa / siembra propia)."></c-field-help>
+                            </label>
+                            <div class="form-field__control form-field__control--checkbox">
+                                <lightning-input
+                                    type="checkbox"
+                                    variant="label-hidden"
+                                    label="Venta Interna"
+                                    checked={ventaInternaChecked}
+                                    onchange={handleVentaInternaChange}
+                                ></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section slds-col slds-size_1-of-1">
+                        <h3 class="form-section__title">Comprobante</h3>
+                        <div class="slds-grid slds-wrap slds-gutters_small">
+                    <!-- Fecha Comprobante -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                Fecha Comprobante
+                                <c-field-help content="Fecha de emisi&oacute;n del comprobante (Factura, NC, Remito o Remito de Devoluci&oacute;n)."></c-field-help>
+                            </label>
+                            <div class="form-field__control form-field__control--date">
+                                <lightning-input
+                                    class="fecha-input"
+                                    type="date"
+                                    name="fechaComprobante"
+                                    variant="label-hidden"
+                                    value={fechaComprobante}
+                                    onchange={handleFechaChange}
+                                    required
+                                    message-when-value-missing="Complet&aacute; la fecha."
+                                ></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Comprobante -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                Tipo de Comprobante
+                                <c-field-help content="FC: Factura. NC: Nota de Cr&eacute;dito. Remito: equivale a FC al reprocesar. Remito de Devoluci&oacute;n: equivale a NC al reprocesar."></c-field-help>
+                            </label>
+                            <div class="form-field__control">
+                                <lightning-combobox
+                                    name="tipoComprobante"
+                                    variant="label-hidden"
+                                    value={tipoComprobanteValue}
+                                    options={optionsTipoComprobante}
+                                    onchange={handleChange}
+                                    class={comboboxClass}
+                                    message-when-value-missing="Complete este campo"
+                                    required
+                                ></lightning-combobox>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- N&uacute;mero de Comprobante -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                N&deg; de Comprobante
+                                <c-field-help content="FC/NC: n&uacute;mero libre. Remito debe comenzar con R- (fijo). Remito de Devoluci&oacute;n debe comenzar con RD- (fijo)."></c-field-help>
+                            </label>
+                            <div class="form-field__control">
+                                <template lwc:if={requierePrefijoNComprobante} key={nComprobanteModoKey}>
+                                    <div class="n-comprobante-prefijado">
+                                        <span class="n-comprobante-prefijado__prefijo" aria-hidden="true">{prefijoNComprobanteVisible}</span>
+                                        <input
+                                            type="text"
+                                            class="n-comprobante-prefijado__input"
+                                            value={nComprobanteCuerpo}
+                                            placeholder={placeholderNComprobanteCuerpo}
+                                            oninput={handleNComprobanteCuerpoInput}
+                                            autocomplete="off"
+                                            aria-label="N&uacute;mero de comprobante"
+                                        />
+                                    </div>
+                                </template>
+                                <template lwc:else key={nComprobanteModoKey}>
+                                    <lightning-input-field 
+                                        field-name="N_de_Comprobante__c"
+                                        variant="label-hidden"
+                                        value={prefillNComprobante}
+                                        onchange={handleNComprobanteChange}
+                                        required
+                                    ></lightning-input-field>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- L&iacute;nea del Comprobante -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                L&iacute;nea del Comprobante
+                                <c-field-help content="N&uacute;mero correlativo de la l&iacute;nea dentro del comprobante (1, 2, 3...)."></c-field-help>
+                            </label>
+                            <div class="form-field__control">
+                                <lightning-input-field 
+                                    field-name="Linea_Facturacion__c"
+                                    variant="label-hidden"
+                                    value={prefillLineaFacturacion}
+                                    required
+                                ></lightning-input-field>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section slds-col slds-size_1-of-1">
+                        <h3 class="form-section__title">Producto</h3>
+                        <div class="slds-grid slds-wrap slds-gutters_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                Campa&ntilde;a Agr&iacute;cola
+                                <c-field-help content="Campa&ntilde;a agr&iacute;cola. Escrib&iacute; para filtrar opciones."></c-field-help>
+                            </label>
+                            <div class="form-field__control">
+                                <div class="slds-combobox_container">
+                                    <div class={campanaComboboxClass} data-id="campana-combobox">
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                            <input
+                                                type="text"
+                                                class="slds-input slds-combobox__input"
+                                                id="campana-input"
+                                                placeholder="Escribir para buscar..."
+                                                value={campanaDisplayValue}
+                                                oninput={handleCampanaInput}
+                                                onfocus={handleCampanaFocus}
+                                                onblur={handleCampanaBlur}
+                                                required
+                                                autocomplete="off"
+                                            />
+                                            <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_right">
+                                                <lightning-icon icon-name="utility:down" size="x-small" alternative-text="Mostrar opciones"></lightning-icon>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <template lwc:if={campanaDropdownOpen}>
+                                    <div class="lookup-combobox__dropdown" data-id="campana-dropdown" role="listbox" onmousedown={handleCampanaDropdownMouseDown}>
+                                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                            <template if:true={hasFilteredOptions}>
+                                                <template for:each={filteredCampanaOptions} for:item="option">
+                                                    <li key={option.value} role="presentation" class="slds-listbox__item">
+                                                        <div
+                                                            class={option.itemClass}
+                                                            role="option"
+                                                            data-value={option.value}
+                                                            onmousedown={handleCampanaSelect}
+                                                        >
+                                                            <span class="slds-truncate">{option.label}</span>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </template>
+                                            <template if:false={hasFilteredOptions}>
+                                                <li role="presentation" class="slds-listbox__item">
+                                                    <div class="slds-media slds-listbox__option slds-listbox__option_plain">
+                                                        <span class="slds-truncate">No se encontraron campañas</span>
+                                                    </div>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Variedad -->
+                    <div class={modalClass}>
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                Variedad
+                                <c-field-help content="Seleccion&aacute; primero la Campa&ntilde;a Agr&iacute;cola. Escrib&iacute; para filtrar cultivares INASE del mismo cultivo."></c-field-help>
+                            </label>
+                            <div class="form-field__control">
+                                <template lwc:if={campanaAgricolaId}>
+                                    <div class="slds-combobox_container">
+                                        <div class={variedadComboboxClass} data-id="variedad-combobox">
+                                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                                <input
+                                                    type="text"
+                                                    class="slds-input slds-combobox__input"
+                                                    id="variedad-input"
+                                                    placeholder="Escribir para filtrar..."
+                                                    value={variedadDisplayValue}
+                                                    oninput={handleVariedadInput}
+                                                    onfocus={handleVariedadFocus}
+                                                    onblur={handleVariedadBlur}
+                                                    required
+                                                    autocomplete="off"
+                                                />
+                                                <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_right">
+                                                    <lightning-icon icon-name="utility:down" size="x-small" alternative-text="Mostrar opciones"></lightning-icon>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <template lwc:if={variedadDropdownOpen}>
+                                        <div class="lookup-combobox__dropdown" data-id="variedad-dropdown" role="listbox" onmousedown={handleVariedadDropdownMouseDown}>
+                                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <template if:true={hasFilteredVariedadOptions}>
+                                                    <template for:each={filteredVariedadOptions} for:item="option">
+                                                        <li key={option.value} role="presentation" class="slds-listbox__item">
+                                                            <div
+                                                                class={option.itemClass}
+                                                                role="option"
+                                                                data-value={option.value}
+                                                                onmousedown={handleVariedadSelect}
+                                                            >
+                                                                <span class="slds-truncate">{option.label}</span>
+                                                            </div>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:false={hasFilteredVariedadOptions}>
+                                                    <li role="presentation" class="slds-listbox__item">
+                                                        <div class="slds-media slds-listbox__option slds-listbox__option_plain">
+                                                            <span class="slds-truncate">{variedadDropdownEmptyMessage}</span>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-input
+                                        variant="label-hidden"
+                                        disabled
+                                        placeholder="Seleccion&aacute; Campa&ntilde;a Agr&iacute;cola primero"
+                                    ></lightning-input>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categor&iacute;a -->
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                Categor&iacute;a
+                                <c-field-help content="Categor&iacute;a INASE de la semilla (Pre B&aacute;sica, Original o Fundadora, Primera/Segunda/Tercera Multiplicaci&oacute;n)."></c-field-help>
+                            </label>
+                            <div class="form-field__control">
+                                <lightning-combobox
+                                    name="categoria"
+                                    variant="label-hidden"
+                                    value={categoria}
+                                    options={optionsCategoria}
+                                    onchange={handleChange}
+                                    class={categoriaClass}
+                                    message-when-value-missing="Complete este campo"
+                                    required
+                                ></lightning-combobox>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kilos Totales -->
+                    <div class={modalClass}>
+                        <div class="form-field">
+                            <label class="slds-form-element__label form-field__label">
+                                <abbr class="slds-required" title="required">* </abbr>
+                                Kilos Totales
+                                <c-field-help content="Kilos totales de la l&iacute;nea del comprobante. No colocar valores en negativo."></c-field-help>
+                            </label>
+                            <div class="form-field__control">
+                                <lightning-input-field 
+                                    field-name="Cantidad_de_Bolsas__c"
+                                    variant="label-hidden"
+                                    value={prefillCantidadBolsas}
+                                    required
+                                ></lightning-input-field>
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="form-actions">
+                    <lightning-button variant="brand" type="submit" label="Guardar" onclick={handleClick} data-id="save-button" class={saveButtonClass}>
+                    </lightning-button>
+                </div>
+            </lightning-record-edit-form>
+        </div>
+        
+    </lightning-card>
+</template>

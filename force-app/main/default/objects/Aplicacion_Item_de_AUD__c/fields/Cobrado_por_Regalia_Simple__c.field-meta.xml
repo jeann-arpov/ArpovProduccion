@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cobrado_por_Regalia_Simple__c</fullName>
+    <description>Importe Neto Cobrado por Regalía Simple.</description>
+    <formula>( Pagos_Recibidos__c - NULLVALUE( VALUE( TEXT( Item_de_Auditoria__r.Monto_Fijo__c ) ), 0 ) ) 
+/ 
+( NULLVALUE( VALUE( TEXT(  Item_de_Auditoria__r.Resarcimiento_Porcentaje__c ) ), 0 ) + 1 )</formula>
+    <inlineHelpText>Importe Neto Cobrado por Regalía Simple.</inlineHelpText>
+    <label>Cobrado por Regalía Simple</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>8</scale>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

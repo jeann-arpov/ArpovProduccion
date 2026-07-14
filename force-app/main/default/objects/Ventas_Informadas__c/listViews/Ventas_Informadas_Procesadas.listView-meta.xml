@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_Informadas_Procesadas</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>Venta__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Originante__c</columns>
+    <columns>Destinatario__c</columns>
+    <columns>Variedad__c</columns>
+    <columns>Cantidad_de_Bolsas__c</columns>
+    <columns>NAME</columns>
+    <columns>Campana_de_Ventas__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Procesado</value>
+    </filters>
+    <filters>
+        <field>Originante__c</field>
+        <operation>contains</operation>
+        <value>ldc</value>
+    </filters>
+    <filters>
+        <field>Destinatario__c</field>
+        <operation>contains</operation>
+        <value>LAS LAGUNAS</value>
+    </filters>
+    <label>Ventas Informadas Procesadas - Operador</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

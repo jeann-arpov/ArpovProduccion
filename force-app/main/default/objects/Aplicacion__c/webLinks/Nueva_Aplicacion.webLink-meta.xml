@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebLink xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Nueva_Aplicacion</fullName>
+    <availability>online</availability>
+    <description>Personalización del botón de nuevo registro</description>
+    <displayType>massActionButton</displayType>
+    <linkType>javascript</linkType>
+    <masterLabel>Nueva Aplicación</masterLabel>
+    <openType>onClickJavaScript</openType>
+    <protected>false</protected>
+    <requireRowSelection>true</requireRowSelection>
+    <url>//Obtenemos el id de la organizacion
+var idOrganizacion = &apos;{!$Organization.Id}&apos;;
+
+//Objeto url
+var parametros = {};
+
+var url = &apos;&apos;;
+
+if(idOrganizacion == &apos;00DZ000000MiG3Y&apos;){
+
+	//Cargamos parámetro y valor [ TEST ]
+
+	parametros[&apos;CF00NZ0000001PAKy&apos;] = &apos;{!JSENCODE(Comprobante_de_Pago__c.Cliente__c)}&apos;;
+	//parametros[&apos;CF00NZ0000001PAKy_lkid&apos;] = &apos;{!Aplicacion__c.Cuenta_OriginanteId__c}&apos;;
+	parametros[&apos;CF00NG000000Dy8rW&apos;] = &apos;{!Comprobante_de_Pago__c.Name}&apos;;
+	//parametros[&apos;CF00NG000000Dy8rW_lkid&apos;] = &apos;{!Aplicacion__c.Comprobante_de_PagoId__c}&apos;;
+
+	url = &apos;/a0C/e?&apos;;
+
+}else if(idOrganizacion == &apos;00DG0000000ii42&apos;){
+
+	//Cargamos parámetro y valor [ PROD ]
+
+	parametros[&apos;CF00NG000000ERvfp&apos;] = &apos;{!JSENCODE(Comprobante_de_Pago__c.Cliente__c)}&apos;;
+	//parametros[&apos;CF00NG000000ERvfp_lkid&apos;] = &apos;{!Aplicacion__c.Cuenta_OriginanteId__c}&apos;;
+	parametros[&apos;CF00NG000000Dy8rW&apos;] = &apos;{!Comprobante_de_Pago__c.Name}&apos;;
+	//parametros[&apos;CF00NG000000Dy8rW_lkid&apos;] = &apos;{!Aplicacion__c.Comprobante_de_PagoId__c}&apos;;
+
+	url = &apos;/a0C/e?&apos;;
+}
+
+
+
+//Si se introdujeron parametros
+if(!isEmpty(parametros)){
+
+	var p = &apos;&apos;; 
+
+	//Obtenemos la parametros
+	for(var prop in parametros) {
+		if(parametros.hasOwnProperty(prop)){
+			p += (p.length == 0)?prop+&apos;=&apos;+parametros[prop]:&apos;&amp;&apos;+prop+&apos;=&apos;+parametros[prop]; 
+		}
+	}
+
+	//Completamos la URL
+	url += p+&apos;&amp;retURL=&apos;+&apos;{!Comprobante_de_Pago__c.Id}&apos;;
+
+	//Redirigimos
+	window.location.href = url;
+
+}
+
+function isEmpty(obj) {
+	for(var prop in obj) {
+		if(obj.hasOwnProperty(prop))
+			return false;
+		}
+
+	return true;
+}</url>
+</WebLink>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campana_Actual_SE__c</fullName>
+    <description>Indica si a la fecha de hoy esta campaña es la actual para el sistema Sembrá Evolución.</description>
+    <formula>AND(
+    TODAY()  &gt;=  Fecha_Inicio_SE__c,
+    TODAY()  &lt;=  Fecha_Fin_SE__c 
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Campaña Actual SE</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

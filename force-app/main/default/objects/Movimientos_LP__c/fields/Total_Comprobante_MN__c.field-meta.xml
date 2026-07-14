@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_Comprobante_MN__c</fullName>
+    <description>Total Comprobante MN</description>
+    <externalId>false</externalId>
+    <formula>IF( Comprobante_Venta__c &lt;&gt; &quot;&quot;,
+    Comprobante_Venta__r.Total_ARS__c,
+    Aplicacion__r.Importe__c
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Total Comprobante MN</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

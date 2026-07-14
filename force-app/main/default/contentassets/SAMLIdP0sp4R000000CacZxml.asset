@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://arpov.my.salesforce.com" validUntil="2031-11-04T19:09:17.165Z" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+   <md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+      <md:KeyDescriptor use="signing">
+         <ds:KeyInfo>
+            <ds:X509Data>
+               <ds:X509Certificate>MIIEljCCA36gAwIBAgIOAXlqnSupAAAAABsYJ7gwDQYJKoZIhvcNAQELBQAwgYkxITAfBgNVBAMMGFNlbGZTaWduZWRDZXJ0XzE0TWF5MjAyMTEYMBYGA1UECwwPMDBERzAwMDAwMDBpaTQyMRcwFQYDVQQKDA5TYWxlc2ZvcmNlLmNvbTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzELMAkGA1UECAwCQ0ExDDAKBgNVBAYTA1VTQTAeFw0yMTA1MTQxMTIyMzVaFw0yMjA1MTQwMDAwMDBaMIGJMSEwHwYDVQQDDBhTZWxmU2lnbmVkQ2VydF8xNE1heTIwMjExGDAWBgNVBAsMDzAwREcwMDAwMDAwaWk0MjEXMBUGA1UECgwOU2FsZXNmb3JjZS5jb20xFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xCzAJBgNVBAgMAkNBMQwwCgYDVQQGEwNVU0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCXvy1dSXE+kYGYs9/q+Nc/iJC7zSDdkm9qteF4GzoBhx/jMi2fEUsvVYsgFbDgUJLHn5U5Ep4Su0sVpIDA2Z7G20ne6SpxKqI4jNePGXWhM74ljM1fEU+wz4L15FmfahDZmcheXgfw46YrcEDePSolZV+IZCV5pq0wHvIRzWrPKEvYmBEDT2VFV/diBu/Wpd/KoUm7D56wewYHDGV+Hp5FTpZQ3Dyv9IkTOK7g1DA+pXylJ+kPPVyshl9muaEqPB2WqgeNiUXh6eSpfmHcb4/tchGX/7+6OSbDK0g8TpIOsiJ3fQI+p6yo5ORUFgU8rEwEoTImnwWtCUCTVWKa64J/AgMBAAGjgfkwgfYwHQYDVR0OBBYEFBPDmwaHimJ0nv0ZfL+Ned88eInbMA8GA1UdEwEB/wQFMAMBAf8wgcMGA1UdIwSBuzCBuIAUE8ObBoeKYnSe/Rl8v4153zx4iduhgY+kgYwwgYkxITAfBgNVBAMMGFNlbGZTaWduZWRDZXJ0XzE0TWF5MjAyMTEYMBYGA1UECwwPMDBERzAwMDAwMDBpaTQyMRcwFQYDVQQKDA5TYWxlc2ZvcmNlLmNvbTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzELMAkGA1UECAwCQ0ExDDAKBgNVBAYTA1VTQYIOAXlqnSupAAAAABsYJ7gwDQYJKoZIhvcNAQELBQADggEBAFef/A4J1+VZ2qzetv7zHylZbYvum12k9zBNcZ8Z/8POdVKVpj8xi8ffLQ5aIM3QkCJxjK3VtcYhxdmaR86kxBqXpmvYMRNLT+QGHpC1OfTbh9WidJiCHQXzpHcktgbbXghziLDG+AoFyxIyfGyQVwrJ87K9jw9qjjP2/A8qjBZibKCDGLTDnuSXYMlRyYp5NzxZKXdEG+AcxJUJNQQj9sLDsuoXHT7ollTz60m9q9Ec1qbj+naYAwm42iHS+16JSD1AXOnbTYCfYt7fEHjiVqSAMC4BmWgV24vp7hKDsL+PQGSUGKF97jCoC6/H/pKlaklwdefNrTTU/UyKZ90gcmk=</ds:X509Certificate>
+            </ds:X509Data>
+         </ds:KeyInfo>
+      </md:KeyDescriptor>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://arpov.my.salesforce.com/services/auth/idp/saml2/logout"/>
+      <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://arpov.my.salesforce.com/services/auth/idp/saml2/logout"/>
+      <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+      <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://arpov.my.salesforce.com/idp/endpoint/HttpPost"/>
+      <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://arpov.my.salesforce.com/idp/endpoint/HttpRedirect"/>
+   </md:IDPSSODescriptor>
+</md:EntityDescriptor>

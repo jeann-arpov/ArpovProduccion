@@ -1,0 +1,117 @@
+.main-container {
+  min-height: 100vh;
+  padding: 2rem;
+  justify-content: flex-end;
+  background-color: #f4f6f9;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 380px;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+/* 🔹 Input con íconos internos */
+.password-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.password-input lightning-input {
+  width: 100%;
+}
+
+.input-icons {
+  position: absolute;
+  right: 0.5rem;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.help-icon,
+.password-toggle {
+  cursor: pointer;
+}
+
+/* Tooltip flotante */
+.tooltip {
+  position: absolute;
+  top: 105%;
+  right: 0;
+  width: 250px;
+  background: #000; /* 🔹 fondo negro */
+  border: 1px solid #444;
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  z-index: 3;
+  display: none;
+}
+
+/* Visible */
+.tooltip.visible {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Título del tooltip */
+.help-header {
+  color: #bfff00; /* 🔹 mismo color que el ícono */
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+/* Lista del tooltip */
+.help-text li {
+  color: #fff; /* 🔹 blanco */
+  font-weight: bold; /* 🔹 negrita */
+  margin-left: 1rem;
+  line-height: 1.4;
+}
+
+/* Pequeña animación */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .tooltip {
+    right: auto;
+    left: 0;
+    width: 90%;
+  }
+}
+
+/* 🔹 Botón "Registrarse" */
+.slds-button_brand {
+  background-color: #7fff00 !important; /* mismo color que el ícono */
+  color: #000 !important; /* texto negro */
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* 🔹 Efecto hover */
+.slds-button_brand:hover {
+  background-color: #7fff00 !important; /* tono ligeramente más oscuro */
+  color: #000 !important;
+}
+
+/* 🔹 Enlace "Logueate" en negrita */
+.login-link {
+ font-weight: bold;
+    color: #333;
+    text-decoration: none;
+}

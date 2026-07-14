@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Marcas_Obtentor__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(OR(CONTAINS( Id_Obtentor__c , &quot;03&quot;),CONTAINS( Id_Obtentor__c , &quot;14&quot;), CONTAINS( Id_Obtentor__c , &quot;85&quot;) ), IMAGE(&quot;/Obtentores/resource/MarcasSE/GDM.jpg&quot;,&quot;GDM&quot;,100,100),
+IF(CONTAINS( Id_Obtentor__c , &quot;13&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/Pioneer.jpg&quot;,&quot;Pioneer&quot;,48,100),
+IF(CONTAINS( Id_Obtentor__c , &quot;87&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/Brevant.jpg&quot;,&quot;Brevant&quot;,48,100),
+IF(OR(CONTAINS( Id_Obtentor__c , &quot;04&quot;),CONTAINS( Id_Obtentor__c , &quot;23&quot;) ), IMAGE(&quot;/Obtentores/resource/MarcasSE/Syngenta.jpg&quot;,&quot;Syngenta&quot;,61,100),
+IF(CONTAINS( Id_Obtentor__c , &quot;24&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/Stine.jpg&quot;,&quot;Stine&quot;,28,100),
+IF(CONTAINS( Id_Obtentor__c , &quot;26&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/ACA.jpg&quot;,&quot;ACA&quot;,36,100),
+IF(CONTAINS( Id_Obtentor__c , &quot;15&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/MacroSeed.jpg&quot;,&quot;Macroseed&quot;,36,100),
+IF(CONTAINS( Id_Obtentor__c , &quot;16&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/MacroSeed.jpg&quot;,&quot;Macroseed&quot;,36,100),
+			
+IF(CONTAINS( Id_Obtentor__c , &quot;77&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/BASF_Credenz.jpg&quot;,&quot;Credenz&quot;,46,193),
+IF(CONTAINS( Id_Obtentor__c , &quot;19&quot;), IMAGE(&quot;/Obtentores/resource/MarcasSE/Bioceres.jpg&quot;,&quot;Bioceres&quot;,80,80),
+IF(CONTAINS( Id_Obtentor__c , &quot;12&quot;), IMAGE(&quot;/resource/1740148165000/MarcaLG.png&quot;,&quot;LG&quot;,36,100),		
+IF(CONTAINS( Id_Obtentor__c , &quot;90&quot;), IMAGE(&quot;/resource/1740148165000/Nord.png&quot;,&quot;Nord&quot;,36,100),		
+
+IF(CONTAINS( Id_Obtentor__c , &quot;12&quot;), IMAGE(&quot;/Obtentores/resource/MarcaLG/Logo LG.png&quot;,&quot;LG&quot;,80,80),
+IF(CONTAINS( Id_Obtentor__c , &quot;05&quot;), IMAGE(&quot;/Obtentores/resource/buck.png&quot;,&quot;BUCK&quot;,80,80),
+IF(CONTAINS( Id_Obtentor__c , &quot;92&quot;), IMAGE(&quot;/Obtentores/resource/Cerfoly.png&quot;,&quot;Cerfoly&quot;,80,80),
+
+			
+			
+			
+&quot;&quot;
+) ) ) ) ) ) ) )) ) )))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Marcas</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

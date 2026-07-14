@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valor_Futuro__c</fullName>
+    <formula>Valor_Aplicado__r.Valor_Futuro__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Indica si el valor asociado es diferido y la fecha de vigencia es posterior a la fecha actual.</inlineHelpText>
+    <label>Valor Futuro</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

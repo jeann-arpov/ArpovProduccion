@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Movimientos_BolsaTech_No_Debitados</fullName>
+    <columns>Estado_Resultado__c</columns>
+    <columns>NAME</columns>
+    <columns>TN_Id__c</columns>
+    <columns>CUIT_Titular__c</columns>
+    <columns>Titular__c</columns>
+    <columns>No_Debitar__c</columns>
+    <columns>Fecha_Entrega__c</columns>
+    <columns>Fecha_Analisis__c</columns>
+    <columns>Procesar__c</columns>
+    <columns>Carta_de_Porte__c</columns>
+    <columns>CTG__c</columns>
+    <columns>Peso_Neto__c</columns>
+    <columns>Destino__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>Resultado__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>No_Debitar__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>CREATED_DATE</field>
+        <operation>greaterOrEqual</operation>
+        <value>3/1/2025 12:00 AM</value>
+    </filters>
+    <label>Movimientos BolsaTech No Debitados</label>
+</ListView>

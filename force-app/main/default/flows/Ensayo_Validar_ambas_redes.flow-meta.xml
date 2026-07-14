@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Se asigna a la lista de productores a los cuáles se les crearán TNs (si es que no las tienen) la lista de productores validados OK.</description>
+        <name>Asignar_productores_OK_a_lista_TNs</name>
+        <label>Asignar productores OK a lista TNs</label>
+        <locationX>50</locationX>
+        <locationY>674</locationY>
+        <assignmentItems>
+            <assignToReference>varProdOK</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Validar_productores_con_Red_Propia.varProdValidadosOK</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <description>Se cuentan los productores de Red de Terceros con todas las licencias aprobadas.</description>
+        <name>Contar_productores_Red_de_Terceros</name>
+        <label>Contar productores Red de Terceros</label>
+        <locationX>182</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>varCantidadProdDeTercerosOK</assignToReference>
+            <operator>AssignCount</operator>
+            <value>
+                <elementReference>Validar_ensayos_de_red_de_terceros.varProductoresOK</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Hay_productores_de_Red_De_Terceros_OK</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Inicializar_Variables</name>
+        <label>Inicializar Variables</label>
+        <locationX>182</locationX>
+        <locationY>134</locationY>
+        <assignmentItems>
+            <assignToReference>varProdOK</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <connector>
+            <targetReference>Validar_ensayos_de_red_de_terceros</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Se verifica si hay productores con ensayos de Red de Terceros con todas las licencias aprobadas.</description>
+        <name>Hay_productores_de_Red_De_Terceros_OK</name>
+        <label>Hay productores de Red De Terceros OK?</label>
+        <locationX>182</locationX>
+        <locationY>458</locationY>
+        <defaultConnectorLabel>No hay Prod de Terceros OK</defaultConnectorLabel>
+        <rules>
+            <name>Hay_Prod_De_Terceros_OK</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varCantidadProdDeTercerosOK</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Validar_productores_con_Red_Propia</targetReference>
+            </connector>
+            <label>Hay Prod De Terceros OK</label>
+        </rules>
+    </decisions>
+    <description>Dada una lista de productores que tienen ambas redes, valida si tiene todas las licencias aprobadas los ensayos de red de terceros, valida si tiene la licencia de red aprobada los ensayos con red propia, y verifica que sus ventas CRM asociadas tengan licencia aprobada.
+Devuelve una lista de productores OK.</description>
+    <environments>Default</environments>
+    <interviewLabel>Ensayo - Validar ambas redes {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Ensayo - Validar ambas redes</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Inicializar_Variables</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <description>Se pasa la lista de productores en ambas redes, devuelve la lista de productores con todas las licencias aprobadas.</description>
+        <name>Validar_ensayos_de_red_de_terceros</name>
+        <label>Validar ensayos de red de terceros</label>
+        <locationX>182</locationX>
+        <locationY>242</locationY>
+        <connector>
+            <targetReference>Contar_productores_Red_de_Terceros</targetReference>
+        </connector>
+        <flowName>Ensayo_Validar_Red_de_Terceros</flowName>
+        <inputAssignments>
+            <name>varIdParamEnsayo</name>
+            <value>
+                <elementReference>varParamEnsayo</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varProductores</name>
+            <value>
+                <elementReference>varListaProdAmbasRedes</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
+    <subflows>
+        <description>Dada una lista de productores que tienen red propia, valida si tienen las licencias de red aprobadas y verifica que sus ventas CRM asociadas tengan licencia aprobada.
+Devuelve una lista de productores OK.</description>
+        <name>Validar_productores_con_Red_Propia</name>
+        <label>Validar productores con Red Propia</label>
+        <locationX>50</locationX>
+        <locationY>566</locationY>
+        <connector>
+            <targetReference>Asignar_productores_OK_a_lista_TNs</targetReference>
+        </connector>
+        <flowName>Ensayo_Validar_Red_Propia</flowName>
+        <inputAssignments>
+            <name>varListaProdSoloRP</name>
+            <value>
+                <elementReference>Validar_ensayos_de_red_de_terceros.varProductoresOK</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varParamEnsayo</name>
+            <value>
+                <elementReference>varParamEnsayo</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
+    <variables>
+        <description>Cuenta la cantidad de productores de Red de Terceros con todas las licencias aprobadas.</description>
+        <name>varCantidadProdDeTercerosOK</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Contiene productores con ensayos en ambas redes.</description>
+        <name>varListaProdAmbasRedes</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varParamEnsayo</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Es la lista de productores validados OK.</description>
+        <name>varProdOK</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

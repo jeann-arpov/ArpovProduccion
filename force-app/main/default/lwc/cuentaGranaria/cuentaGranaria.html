@@ -1,0 +1,152 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <div if:true={loading}>
+        <lightning-spinner alternative-text="Loading"></lightning-spinner>
+    </div>
+    <div>
+        <div lwc:if={cultivos} class="slds-align_absolute-center slds-var-m-around_medium">
+            <img src={images.cultivo} width="35" height="35"/>
+            <lightning-combobox 
+                options={cultivoOptions} 
+                value={cultivo} 
+                onchange={selectCultivo} 
+                label="cultivos" 
+                variant="label-hidden" 
+                placeholder="Seleccionar Cultivo" 
+                style="width:30%;margin-left:15px;"
+            ></lightning-combobox>
+        </div>
+        <div class="slds-align_absolute-center slds-var-m-around_medium" lwc:if={showFilterTech}>
+            <img src={images.tecnologia} width="35" height="35"/>
+            <lightning-combobox 
+                options={biotecnologias}
+                value={biotecnologia} 
+                onchange={selectTech} 
+                label="tecnologias" 
+                variant="label-hidden" 
+                placeholder="Seleccionar plataforma tecnológica" 
+                style="width:30%;margin-left:15px;"
+            ></lightning-combobox>
+        </div>
+    </div><br/>
+    <div class="slds-var-m-around_large" if:true={totales}>
+        <div class="slds-var-m-around_medium">
+            <lightning-layout horizontal-align="space">
+                <lightning-layout-item size="4">
+                    <table>
+                        <thead><th></th><th></th></thead>
+                        <tbody>
+                            <tr class="total">
+                                <td><b>Toneladas disponibles para entregar</b></td>
+                                <td>{totalDisponibles}</td>
+                            </tr>
+                        </tbody>
+                    </table><br/>
+                    <table>
+                        <thead><th></th><th></th></thead>
+                        <tbody>
+                            <tr class="total" style="background-color:white;">
+                                <td><b>Toneladas entregadas desde el {fechaEntregadasWithFormat}</b></td>
+                                <td>{totalEntregadas}</td>
+                            </tr>
+                            <tr class="total" style="background-color:white;">
+                                <td><b>Toneladas a vencer el {fechaVencimientoToDisplay}</b></td>
+                                <td>{totalVencer}</td>
+                            </tr>
+                        </tbody>
+                    </table><br/>
+                    <table>
+                        <thead><th></th><th></th></thead>
+                        <tbody>
+                            <tr class="total" style="background-color:#FFDCAF;">
+                                <td>
+                                    <b>Toneladas a regularizar</b>
+                                    <a class="c-tooltip" style="padding: 3px;">
+                                        <lightning-icon icon-name="utility:info" size="small"></lightning-icon>
+                                    </a>
+                                    <div class="tooltipContainer">
+                                        Compre sus HT
+                                    </div>
+                                </td>
+                                <td>{totalToneladasRegularizar}</td>
+                            </tr>
+                            <tr class="total" style="background-color:#FFDCAF;" lwc:if={showInfoRegaliaEnlist}>
+                                <td>
+                                    <b>Toneladas a pagar de Regalía Enlist</b>
+                                    <a class="c-tooltip" style="padding: 3px;">
+                                        <lightning-icon icon-name="utility:info" size="small"></lightning-icon>
+                                    </a>
+                                    <div class="tooltipContainer">
+                                        Ante cualquier duda comunicarse con licenciasenlist@corteva.com
+                                    </div>
+                                </td>
+                                <td>{totalRegaliaEnlistPendientes}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </lightning-layout-item>
+                <lightning-layout-item size="6">
+                    <table>
+                        <thead>
+                            <th>Originado Por</th>
+                            <th>Toneladas Vigentes</th>
+                            <th>Descargar</th>
+                        </thead>
+                        <tbody>
+                            <tr></tr>
+                            <tr key={total.label} for:each={totales} for:item="total">
+                                <td>{total.label}</td>
+                                <td>{total.value}</td>
+                                <td>
+                                    <!-- <button onclick={descargarDetalle} data-name={total.origen}>
+                                        <lightning-icon icon-name="utility:download" size="small"></lightning-icon>
+                                    </button> -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>{totalBolsatech.label}</td>
+                                <td>{totalBolsatech.value}</td>
+                                <td>
+                                    <button onclick={descargarDetalle} data-name={totalBolsatech.origen}>
+                                        <lightning-icon icon-name="utility:download" size="small"></lightning-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>{totalBalanceAnual.label}</td>
+                                <td>{totalBalanceAnual.value}</td>
+                                <td>
+                                    <!-- <button onclick={descargarDetalle} data-name={total.origen}>
+                                        <lightning-icon icon-name="utility:download" size="small"></lightning-icon>
+                                    </button> -->
+                                </td>
+                            </tr>
+                            <tr lwc:if={showInfoRegaliaEnlist}>
+                                <td>{totalRegaliaEnlistPagada.label}</td>
+                                <td>{totalRegaliaEnlistPagada.value}</td>
+                                <td>
+                                    <!-- <button onclick={descargarDetalle} data-name={total.origen}>
+                                        <lightning-icon icon-name="utility:download" size="small"></lightning-icon>
+                                    </button> -->
+                                </td>
+                            </tr>
+                            <tr style="background-color:black;color:white;">
+                                <td>Total Toneladas</td>
+                                <td>{totalTodo}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div><br/>
+        <div class="slds-var-m-around_medium" style="font-size:small;">* Ante cualquier duda al respecto contactanos a info@sembraevolucion.com.ar o vía Whatsapp al +54 9 11 3117 2022.</div>
+    </div>
+    <div class="slds-var-m-around_large" if:true={adhesion}>
+        <div class="slds-text-heading_medium slds-text-align_center" style="font-weight:bold;">Estás adherido al programa de pre certificación de hectáreas</div>
+        <div class="slds-text-heading_small slds-text-align_center" style="font-weight:bold;">Vigente hasta el <lightning-formatted-date-time value={fechaVencimientoPPH}></lightning-formatted-date-time></div>
+        <div class="slds-align_absolute-center slds-var-m-around_small">
+            <img src={images.pph} width="180" height="180"/>
+        </div>
+    </div>
+</template>

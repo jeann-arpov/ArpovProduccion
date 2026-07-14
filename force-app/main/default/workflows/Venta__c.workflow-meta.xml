@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldUpdates>
+        <fullName>Venta_Clear_AFCD_Id</fullName>
+        <field>AFC_ADM__c</field>
+        <name>Venta. Clear AFCD_ADM</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Null</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>true</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Venta_Tipo_C</fullName>
+        <field>Tipo_de_Venta__c</field>
+        <literalValue>C</literalValue>
+        <name>Venta. Tipo C</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Venta_Tipo_TD</fullName>
+        <field>Tipo_de_Venta__c</field>
+        <literalValue>TD</literalValue>
+        <name>Venta. Tipo TD</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>Venta_Tipo_V</fullName>
+        <field>Tipo_de_Venta__c</field>
+        <literalValue>Venta</literalValue>
+        <name>Venta. Tipo V</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <rules>
+        <fullName>Venta%2E After Update</fullName>
+        <actions>
+            <name>Venta_Clear_AFCD_Id</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <formula>PRIORVALUE( AFC_ADM__c ) &lt;&gt; null</formula>
+        <triggerType>onAllChanges</triggerType>
+    </rules>
+    <rules>
+        <fullName>Venta%2E Tipo C</fullName>
+        <actions>
+            <name>Venta_Tipo_C</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <description>Si el Orginante es un obtentor y el destinario un comercio o distribuidor es una venta del tipo &quot;C&quot;</description>
+        <formula>Cargado_desde_Archivo__c = TRUE &amp;&amp; Originante__r.RecordType.Name = &quot;Obtentor&quot; &amp;&amp;(Destinatario__r.RecordType.Name = &quot;Distribuidor&quot; || Destinatario__r.RecordType.Name = &quot;Comercio&quot;)</formula>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Venta%2E Tipo TD</fullName>
+        <actions>
+            <name>Venta_Tipo_TD</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <description>Si el Originainte y el destinatario son comercio o distribuidor es una venta del tipo &quot;TD&quot;</description>
+        <formula>Cargado_desde_Archivo__c = TRUE &amp;&amp; (Originante__r.RecordType.Name = &quot;Distribuidor&quot; || Originante__r.RecordType.Name = &quot;Comercio&quot;) &amp;&amp;(Destinatario__r.RecordType.Name = &quot;Distribuidor&quot; || Destinatario__r.RecordType.Name = &quot;Comercio&quot;)</formula>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+    <rules>
+        <fullName>Venta%2E Tipo Venta</fullName>
+        <actions>
+            <name>Venta_Tipo_V</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>false</active>
+        <description>Si el destinatario es un Productor es una venta del tipo &quot;Venta&quot;</description>
+        <formula>Cargado_desde_Archivo__c = TRUE &amp;&amp; Destinatario__r.RecordType.Name = &quot;Productor&quot;</formula>
+        <triggerType>onCreateOnly</triggerType>
+    </rules>
+</Workflow>

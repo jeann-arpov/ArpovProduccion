@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Licencias_Aprobadas</fullName>
+    <columns>Estado_IMG__c</columns>
+    <columns>NAME</columns>
+    <columns>Razon_Social_Licenciatario__c</columns>
+    <columns>Razon_Social_Obtentor__c</columns>
+    <columns>Fecha_de_Aprobacion__c</columns>
+    <columns>Fecha_de_Vencimiento__c</columns>
+    <columns>Firmante_Celular__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Aprobada</value>
+    </filters>
+    <filters>
+        <field>Tecnologia__c</field>
+        <operation>equals</operation>
+        <value>Enlist</value>
+    </filters>
+    <label>Licencias Aprobadas</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

@@ -1,0 +1,7 @@
+lightning-layout {
+    margin-top: 1rem;
+}
+
+lightning-input, h1 {
+    display:inline-block;
+}

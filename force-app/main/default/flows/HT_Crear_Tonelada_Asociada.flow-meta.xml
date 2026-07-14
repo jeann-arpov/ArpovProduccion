@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Asignar_expediente</name>
+        <label>Asignar expediente</label>
+        <locationX>242</locationX>
+        <locationY>492</locationY>
+        <assignmentItems>
+            <assignToReference>varExpDeNeg</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Expediente_Abierto.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Crear_la_tonelada_asociada</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Tiene_expediente_abierto</name>
+        <label>Tiene expediente abierto?</label>
+        <locationX>374</locationX>
+        <locationY>384</locationY>
+        <defaultConnector>
+            <targetReference>Crear_la_tonelada_asociada</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>1 AND 2 AND (3 OR 4)</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Expediente_Abierto.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Fecha_Fin__c</leftValueReference>
+                <operator>LessThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Flow.CurrentDate</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Biotecnologia__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Enlist E3</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Biotecnologia__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Conkesta E3</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_expediente</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <description>Cada vez que se crea una HT con origen &lt;&gt; PPH, se crea la Tonelada asociada con:
+* Fecha_Inicio__c = HT.Fecha_Fin__c
+* Fecha_Fin__c = con 3 años o 2 años de vigencia, según corresponda.
+Se agrega que la TN se cree de manera asincrónica.
+Se agrega el expediente de negativos si existe y está abierto, y si HT.Fecha_Fin_c &lt;= HOY.
+Se agrega que si el origen es Semilla Original o Pre-Básica --&gt; Fecha Inicio de la TN + 1 año.
+Se modifica la condición de expediente abierto.
+Se agrega que cuando se crea la TN se ata al expediente de negativos si la biotecnología es Enlist o Conkesta</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Si es Futura  o Compra SF --&gt; Fecha Inicio de la TN  + 3 años.
+Si es Disponible --&gt;  Fecha Vto TN con año actual + 3, si Fecha Vto TN &lt;= HOY &lt;= 31/12/año_actual, o bien
+                                   Fecha Vto TN  con año actual + 2, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN.
+Si es Semilla Original o Pre-Básica --&gt; Fecha Inicio de la TN + 1 año.</description>
+        <name>forFechaFin</name>
+        <dataType>Date</dataType>
+        <expression>IF((TEXT({!$Record.Origen__c})=&quot;Compra HT&quot;) &amp;&amp; (forTipoCompra=&quot;Disponible&quot;),
+     IF( (DATE(YEAR(TODAY()), 01, 01) &lt;= TODAY() ) &amp;&amp; (TODAY() &lt; forFechaVtoTN ), 
+            DATE(YEAR(TODAY()) + 2, MONTH(forFechaVtoTN), DAY(forFechaVtoTN) ), 
+            DATE(YEAR(TODAY()) + 3, MONTH(forFechaVtoTN), DAY(forFechaVtoTN) ) ), 
+     IF(((TEXT({!$Record.Origen__c})=&quot;Compra HT&quot;) &amp;&amp; (forTipoCompra=&quot;Futura&quot;)) || (TEXT({!$Record.Origen__c})=&quot;Compra SF&quot;),
+           DATE(YEAR({!$Record.Fecha_Fin__c}) + 3, MONTH({!$Record.Fecha_Fin__c}), DAY({!$Record.Fecha_Fin__c}) ),
+          IF((TEXT({!$Record.Origen__c})=&quot;Semilla Original&quot;) || (TEXT({!$Record.Origen__c})=&quot;Semilla Pre Básica&quot;),
+               DATE(YEAR({!$Record.Fecha_Fin__c}) + 1, MONTH({!$Record.Fecha_Fin__c}), DAY({!$Record.Fecha_Fin__c})),
+               TODAY()))
+)</expression>
+    </formulas>
+    <formulas>
+        <name>forFechaVtoTN</name>
+        <dataType>Date</dataType>
+        <expression>{!$Record.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c}</expression>
+    </formulas>
+    <formulas>
+        <description>Si la HT tiene origen = Compra HT --&gt; será Disponible o Futura.</description>
+        <name>forTipoCompra</name>
+        <dataType>String</dataType>
+        <expression>IF(TEXT({!$Record.Origen__c})=&quot;Compra HT&quot;, 
+    TEXT({!$Record.Linea_de_Compra_HT__r.Producto__r.Tipo_de_Compra__c}), &quot;&quot;)</expression>
+    </formulas>
+    <interviewLabel>HT - Crear Tonelada Asociada {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>HT - Crear Tonelada Asociada</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Crear_la_tonelada_asociada</name>
+        <label>Crear la tonelada asociada</label>
+        <locationX>374</locationX>
+        <locationY>684</locationY>
+        <connector>
+            <targetReference>Actualizar_tonelada_en_la_HT_creada</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Biotecnologia__c</field>
+            <value>
+                <elementReference>$Record.Biotecnologia__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Campania__c</field>
+            <value>
+                <elementReference>$Record.Campania__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Canal_de_Venta__c</field>
+            <value>
+                <elementReference>$Record.Canal_de_Venta__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Cantidad__c</field>
+            <value>
+                <elementReference>$Record.Toneladas__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Cultivo__c</field>
+            <value>
+                <elementReference>$Record.Cultivo__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Etapa__c</field>
+            <value>
+                <elementReference>$Record.Etapa__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Expediente_de_Negativos__c</field>
+            <value>
+                <elementReference>varExpDeNeg</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Fecha_Fin_Original__c</field>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Fecha_Fin__c</field>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Fecha_Inicio__c</field>
+            <value>
+                <elementReference>$Record.Fecha_Fin__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>HT_Id__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Licencia__c</field>
+            <value>
+                <elementReference>$Record.Licencia__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>N_CUIT__c</field>
+            <value>
+                <elementReference>$Record.N_CUIT__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Origen__c</field>
+            <value>
+                <elementReference>$Record.Origen__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Parametro_Ensayos__c</field>
+            <value>
+                <elementReference>$Record.Parametro_Ensayos__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Productor__c</field>
+            <value>
+                <elementReference>$Record.Productor__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Signo__c</field>
+            <value>
+                <elementReference>$Record.Signo__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_de_Movimiento__c</field>
+            <value>
+                <elementReference>$Record.Tipo_de_Movimiento__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Variedad__c</field>
+            <value>
+                <elementReference>$Record.Variedad__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Tonelada__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <name>Buscar_Expediente_Abierto</name>
+        <label>Buscar Expediente Abierto</label>
+        <locationX>374</locationX>
+        <locationY>276</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Tiene_expediente_abierto</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Cuenta__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Productor__r.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Estado_de_la_Etapa__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Finalizado</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Expediente_de_Negativos__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Actualizar_tonelada_en_la_HT_creada</name>
+        <label>Actualizar tonelada en la HT creada</label>
+        <locationX>374</locationX>
+        <locationY>792</locationY>
+        <inputAssignments>
+            <field>TN_Id__c</field>
+            <value>
+                <elementReference>Crear_la_tonelada_asociada</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Origen__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>PPH</stringValue>
+            </value>
+        </filters>
+        <object>Hectareas_Tecnologicas__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>Buscar_Expediente_Abierto</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>varExpDeNeg</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

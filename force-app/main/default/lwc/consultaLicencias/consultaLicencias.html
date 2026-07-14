@@ -1,0 +1,171 @@
+<template>
+    <!-- Contenedor principal -->
+    <div class="ventas-container">
+        <!-- TOP BAR con título + filtros -->
+        <div class="ventas-top-bar">
+            <!-- Encabezado con breadcrumbs y título -->
+            <div class="ventas-header">
+                <div class="breadcrumbs">LICENCIAS / CONSULTA DE LICENCIAS</div>
+                <div class="title">Consulta de Licencias</div>
+            </div>
+
+            <!-- Contenedor de filtros -->
+            <div class="acciones-derecha">
+                <!-- Contenedor de filtros -->
+                <div class="filtros-container">
+                    <!-- Renderizar filtros solo cuando están cargados -->
+                    <template if:true={renderFilters}>
+                        <!-- Filtro por estado -->
+                        <select data-id="estadoSelect"
+                                onchange={handleEstadoChange}
+                                title="Filtrar por estado">
+                            <option value="">Estado</option>
+                            <option value="En curso">En curso</option>
+                            <option value="Aprobada">Aprobada</option>
+                            <option value="Rechazada">Rechazada</option>
+                        </select>
+                        
+                        <!-- Filtro por tipo de licencia -->
+                        <select data-id="tipoSelect" onchange={handleTipoChange}>
+                            <option value="">Tipo</option>
+                            <template for:each={tipos} for:item="item">
+                                <option key={item} value={item}>{item}</option>
+                            </template>
+                        </select>
+                        
+                        <!-- Filtro por tecnología -->
+                       <!-- <select data-id="origenSelect" onchange={handleOrigenChange}>
+                            <option value="">Tecnología</option>
+                            <template for:each={origenes} for:item="item">
+                                <option key={item} value={item}>{item}</option>
+                            </template>
+                        </select>-->
+                    </template>
+                    
+                    <!-- Mensaje de carga para filtros -->
+                    <template if:false={renderFilters}>
+                        <div class="cargando-filtros">Cargando filtros...</div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de información y búsqueda -->
+        <div class="info-busqueda">
+            <!-- Información de registros y estado -->
+            <div class="ventas-info">
+                <template if:true={selectedProductor}>
+                    {totalRegistros} elementos • 
+                    <template if:true={loadingLicencias}>Actualizando...</template>
+                    <template if:false={loadingLicencias}>Actualizado</template>
+                </template>
+                <template if:false={selectedProductor}>
+                    Seleccione un productor para consultar sus licencias
+                </template>
+            </div>
+
+            <!-- Campo de búsqueda -->
+            <div class="ventas-search">
+                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
+                <span class="search-icon">
+                    <img src={iconSearchUrl} alt="Search" class="icon-svg" />
+                </span>
+            </div>
+        </div>
+
+        <!-- Filtro Productor -->
+        <div class="filtro-productor-container">
+            <label class="filtro-productor-label">Nombre del productor</label>
+            <c-lookup onselectionchange={updateLicencias} 
+                      variant="label-hidden" 
+                      required 
+                      onsearch={search} 
+                      label="Productor" 
+                      placeholder="Ingrese CUIT o nombre">
+                <div slot="no-results">
+                    <span class="no-result-title">CUIT NO REGISTRADO</span>
+                    <div class="no-result-info">
+                        Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.
+                    </div>
+                    <div class="no-result-info">
+                        Por favor póngase en contacto con la mesa de ayuda de Sembrá Evolución
+                    </div>
+                </div>
+            </c-lookup>
+        </div>
+
+        <!-- Tabla de licencias -->
+        <template if:true={mostrarTabla}>
+            <table class="tabla-licencias">
+                <thead>
+                    <tr>
+                        <th>CÓDIGO</th>
+                        <th>MARCA</th>
+                        <th>TÉCNOLOGÍA</th>
+                        <th>TIPO</th>
+                        <th>ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Estado de carga -->
+                    <template if:true={loadingLicencias}>
+                        <tr>
+                            <td colspan="5" class="cargando-tabla">
+                                <lightning-spinner alternative-text="Cargando" size="small"></lightning-spinner>
+                                Cargando licencias...
+                            </td>
+                        </tr>
+                    </template>
+                    
+                    <!-- Contenido de la tabla -->
+                    <template if:false={loadingLicencias}>
+                        <!-- Mostrar licencias si hay resultados -->
+                        <template if:true={hayLicencias}>
+                            <template for:each={licencias} for:item="licencia">
+                                <tr key={licencia.Id}>
+                                    <td>{licencia.Name}</td>
+                                    <td class="marca-cell">
+                                        <template if:true={licencia.marcaUrl}>
+                                            <img src={licencia.marcaUrl} alt="Marca" class="marca-logo" />
+                                        </template>
+                                        <template if:false={licencia.marcaUrl}>
+                                            <span>-</span>
+                                        </template>
+                                    </td>
+                                    <td>{licencia.Origen_de_Licencia__c}</td>
+                                    <td>{licencia.Tipo_de_Licencia__c}</td>
+                                    <td>{licencia.estadoVisual}</td>
+                                </tr>
+                            </template>
+                        </template>
+                        
+                        <!-- Mensaje cuando no hay resultados -->
+                        <template if:true={noHayLicencias}>
+                            <tr>
+                                <td colspan="5" class="sin-datos">
+                                    No se encontraron licencias con los filtros aplicados
+                                </td>
+                            </tr>
+                        </template>
+                    </template>
+                </tbody>
+            </table>
+
+            <!-- Controles de paginación -->
+            <template if:true={hayLicencias}>
+                <div class="paginacion">
+                    <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+                    <span>Página {currentPage} de {totalPages} ({totalRegistros} registros totales)</span>
+                    <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+                </div>
+            </template>
+        </template>
+
+        <!-- Mensaje si no hay productor seleccionado -->
+        <template if:false={selectedProductor}>
+            <div class="sin-productor">
+                <p>Seleccione un productor para consultar sus licencias.</p>
+            </div>
+        </template>
+    </div>
+</template>

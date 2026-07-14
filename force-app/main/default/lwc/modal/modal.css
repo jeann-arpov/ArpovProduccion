@@ -1,0 +1,4 @@
+.slds-modal__container {
+    width: var(--modal-width, 80%);
+    max-width: var(--modal-width, 80%);
+}

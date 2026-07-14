@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mis_Compras_Pedido_de_Facturaci_n</fullName>
+    <columns>CREATED_DATE</columns>
+    <columns>NAME</columns>
+    <columns>Total_HT__c</columns>
+    <columns>Total_USD__c</columns>
+    <columns>Nombre_Cultivo__c</columns>
+    <columns>Variedades__c</columns>
+    <columns>Punto_de_Venta__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Pedido de Facturacion</value>
+    </filters>
+    <label>.Mis Compras - Pedido de Facturación</label>
+</ListView>

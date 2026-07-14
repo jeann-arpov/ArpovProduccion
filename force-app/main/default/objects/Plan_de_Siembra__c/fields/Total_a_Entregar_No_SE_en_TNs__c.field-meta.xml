@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_a_Entregar_No_SE_en_TNs__c</fullName>
+    <externalId>false</externalId>
+    <formula>Total_a_Entregar_No_SE__c * Parametro_PPH__r.Cultivo__r.HT2Kilos__c / 1000</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Total a Entregar No SE (en TNs)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

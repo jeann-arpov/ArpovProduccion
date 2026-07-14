@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Descuento_Producto__c</fullName>
+    <defaultValue>0</defaultValue>
+    <description>Descuento definido por el obtentor. Se hereda del producto y se carga por WF al momento de crear el registro.</description>
+    <inlineHelpText>Descuento definido por el obtentor para el producto.</inlineHelpText>
+    <label>Descuento Producto</label>
+    <precision>4</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Percent</type>
+</CustomField>

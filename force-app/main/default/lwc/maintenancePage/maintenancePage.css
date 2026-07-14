@@ -1,0 +1,53 @@
+/* maintenancePage.css */
+:host {
+  background: #000000;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #ffffff;
+  display: block;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 850px;
+  margin: 80px auto;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 25px;
+  color: #A6FF00;
+}
+
+p {
+  font-size: 20px;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.highlight {
+  color: #A6FF00;
+  font-weight: bold;
+}
+
+.strong {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.footer {
+  margin-top: 50px;
+  text-align: center;
+  border-top: 1px solid #555;
+  padding-top: 20px;
+}
+
+.footer a {
+  display: block;
+  margin-top: 8px;
+  color: #A6FF00;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: bold;
+}

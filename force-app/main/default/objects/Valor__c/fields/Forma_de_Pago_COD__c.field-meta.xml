@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Forma_de_Pago_COD__c</fullName>
+    <externalId>false</externalId>
+    <formula>CASE(
+  TEXT( Forma_de_Pago__c ), 
+  &quot;Transferencia&quot;, &quot;01&quot;,
+  &quot;Cheque&quot;, &quot;02&quot;,
+  &quot;Cheque Diferido&quot;, &quot;03&quot;,
+  &quot;Depósito&quot;, &quot;04&quot;,
+  &quot;Efectivo&quot;, &quot;05&quot;,
+  &quot;Retención SUSS&quot;, &quot;06&quot;,
+  &quot;Retención IVA&quot;, &quot;07&quot;,
+  &quot;Retención Ganancias&quot;, &quot;08&quot;,
+  &quot;Retención IIBB&quot;, &quot;09&quot;,
+  &quot;Otras Retenciones&quot;, &quot;10&quot;,
+  &quot;Tarjeta de Crédito&quot;, &quot;11&quot;,
+  &quot;Pago en Especies&quot;, &quot;12&quot;,
+  &quot;Cheque Electronico&quot;, &quot;13&quot;,
+  &quot;99&quot;
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Forma de Pago (COD)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

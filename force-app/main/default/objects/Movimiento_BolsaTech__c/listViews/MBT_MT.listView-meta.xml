@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MBT_MT</fullName>
+    <columns>TN_Id__c</columns>
+    <columns>NAME</columns>
+    <columns>CUIT_Titular__c</columns>
+    <columns>Expediente_de_Negativos__c</columns>
+    <columns>Peso_Neto__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>CTG__c</columns>
+    <columns>Cosecha__c</columns>
+    <columns>Fecha_Entrega__c</columns>
+    <columns>Fecha_de_Entrega__c</columns>
+    <columns>Fecha_Analisis__c</columns>
+    <columns>Fecha_de_Analisis__c</columns>
+    <columns>Fecha_de_Reconsideracion__c</columns>
+    <columns>Fecha_Reconsideracion__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CUIT_Titular_MBT__c</field>
+        <operation>equals</operation>
+        <value>27045760230</value>
+    </filters>
+    <label>.MBT (MT)</label>
+</ListView>

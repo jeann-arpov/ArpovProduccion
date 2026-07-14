@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_a_FacturarDUP__c</fullName>
+    <description>Suma de los Importes a Facturar de todas las líneas que integran la DUP.</description>
+    <inlineHelpText>Calculado en base a la cantidad y el precio del producto. Podría diferir con el importe facturado por el semillero debido a las condiciones impositivas en cada caso. (Ver sección Información de Facturación).</inlineHelpText>
+    <label>Total a Facturar DUP</label>
+    <summarizedField>Item_de_DUP__c.Total_a_Facturar__c</summarizedField>
+    <summaryForeignKey>Item_de_DUP__c.Transaccion__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Z9_Lineas_Totales_DUP__c</fullName>
+    <description>Contador del total de lineas de la DUP. Se utiliza para analizar el estado de respuesta de la transacción de tipo DUP</description>
+    <label>Z9_Lineas_Totales_DUP</label>
+    <summaryForeignKey>Item_de_DUP__c.Transaccion__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

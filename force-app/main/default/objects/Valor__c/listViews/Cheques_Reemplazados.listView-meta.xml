@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cheques_Reemplazados</fullName>
+    <columns>NAME</columns>
+    <columns>Pagador__c</columns>
+    <columns>Identificacion__c</columns>
+    <columns>Fecha_de_Pago__c</columns>
+    <columns>Fecha_Rechazo__c</columns>
+    <columns>Cuenta_Destinataria__c</columns>
+    <columns>Obtentor_Destinatario__c</columns>
+    <columns>Fecha_Reemplazado__c</columns>
+    <columns>MOV_Cheque_Reemplazado__c</columns>
+    <columns>Cuenta_Bancaria_Reemplazo__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Rechazado__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <filters>
+        <field>Cuenta_Destinataria__c</field>
+        <operation>equals</operation>
+        <value>Cuenta Cheques ArPOV,Cheques a nombre de ArPOV - Casos especiales</value>
+    </filters>
+    <filters>
+        <field>MOV_Cheque_Reemplazado__c</field>
+        <operation>notEqual</operation>
+    </filters>
+    <label>Cheques Reemplazados</label>
+</ListView>

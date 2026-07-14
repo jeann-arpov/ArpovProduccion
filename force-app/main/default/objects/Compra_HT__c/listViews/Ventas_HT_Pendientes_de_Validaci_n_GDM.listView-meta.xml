@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Ventas_HT_Pendientes_de_Validaci_n_GDM</fullName>
+    <columns>Obtentor__c</columns>
+    <columns>Punto_de_Venta__c</columns>
+    <columns>Comercio__c</columns>
+    <columns>CREATEDBY_USER</columns>
+    <columns>Oportunidad__c</columns>
+    <columns>Cuenta_Productor__c</columns>
+    <columns>Estado__c</columns>
+    <columns>No_Validar__c</columns>
+    <columns>PV_GDM__c</columns>
+    <columns>Resultado_Validacion_Analista__c</columns>
+    <columns>Total_HT__c</columns>
+    <columns>Variedades__c</columns>
+    <columns>CREATED_DATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Estado__c</field>
+        <operation>equals</operation>
+        <value>Pendiente de Facturación</value>
+    </filters>
+    <filters>
+        <field>Resultado_Validacion_Analista__c</field>
+        <operation>equals</operation>
+        <value>Pendiente de Validación</value>
+    </filters>
+    <filters>
+        <field>Lineas_Pendientes__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <filters>
+        <field>Obtentor__c</field>
+        <operation>contains</operation>
+        <value>GDM</value>
+    </filters>
+    <filters>
+        <field>Venta_Canal__c</field>
+        <operation>equals</operation>
+        <value>1</value>
+    </filters>
+    <label>Ventas HT Pendientes de Validación GDM</label>
+</ListView>

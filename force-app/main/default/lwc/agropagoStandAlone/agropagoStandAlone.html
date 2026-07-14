@@ -1,0 +1,159 @@
+<template>
+    
+    <template if:true={showForm}>
+        <!-- Modal/Popup Box LWC starts here -->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-modal_large slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box LWC header here -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleOnCloseModal}>
+                        <lightning-icon icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small" ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                        <img src={logo_url} style="height:70px;">
+                    </h2>
+                </header>
+                <!-- Modal/Popup Box LWC body starts here -->
+                <div class="slds-modal__content slds-p-around_medium slds-is-relative" id="modal-content-id-1">
+                    
+                    <template if:true={showCrediCardForm}>
+
+                        <lightning-layout vertical-align="center" multiple-rows="true" class="slds-p-around_medium">
+                            <lightning-layout-item flexibility="shrink" padding="around-small">
+                                <p class="slds-text-heading_medium">Saldo a Pagar: </p>
+                                <p class="slds-text-heading_medium">Gastos Gestión del Pago: </p>
+                                <p class="slds-text-heading_medium"><b>Total a Pagar: </b></p>
+                            </lightning-layout-item>
+                            <lightning-layout-item class="slds-text-align_right" flexibility="shrink" padding="around-small">
+                                <p class="slds-text-heading_medium"><lightning-formatted-number value={amount} format-style="currency" currency-code="ARS"></lightning-formatted-number></p>
+                                <p class="slds-text-heading_medium"><lightning-formatted-number value={managementAmount} format-style="currency" currency-code="ARS"></lightning-formatted-number></p>
+                                <p class="slds-text-heading_medium"><b><lightning-formatted-number value={totalAmount} format-style="currency" currency-code="ARS"></lightning-formatted-number></b></p>
+                            </lightning-layout-item>
+                
+                            <lightning-layout-item size="12" padding="around-small">
+                                <lightning-combobox
+                                        required
+                                        label="Método de Pago"
+                                        placeholder="Método de Pago"
+                                        options={paymentMethodsOptions}
+                                        onchange={handleOnPaymentMethodChange}>
+                                </lightning-combobox>
+                            </lightning-layout-item>
+                
+                            <lightning-layout-item size="6" padding="around-small">
+                                <lightning-input required value={cardNumberFormating} max-length="19" label="Número Tarjeta de Credito" onchange={handleOnCardNumberChange}></lightning-input>
+                            </lightning-layout-item>
+                
+                            <lightning-layout-item size="2" padding="around-small">
+                                <lightning-input required min-length="3" max-length="4" type="password" label="Código de Seguridad" onchange={handleOnSecurityCodeChange}></lightning-input>
+                            </lightning-layout-item>
+                
+                            <lightning-layout-item size="2" padding="around-small">
+                                <lightning-input required min-length="2" max-length="2" type="text" label="Mes Vencimiento" onchange={handleOnCardExpirationMonthChange} ></lightning-input>
+                            </lightning-layout-item>
+                
+                            <lightning-layout-item size="2" padding="around-small">
+                                <lightning-input  required min-length="2" max-length="2" type="text" label="Año Vencimiento" onchange={handleOnCardExpirationYearChange} ></lightning-input>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="3" padding="around-small">
+                                <lightning-input type="text" label="Token Agro" onchange={handleOnAgroTokenChange}></lightning-input>
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="3" padding="around-small">
+                                <lightning-input required type="text" label="Nombre Titular de la Tarjeta" onchange={handleOnCardHolderNameChange}></lightning-input>
+                            </lightning-layout-item>
+                
+                            <lightning-layout-item size="3" padding="around-small">
+                                <lightning-combobox
+                                        required
+                                        label="Tipo de Documento"
+                                        placeholder="Tipo de Documento"
+                                        options={options}
+                                        onchange={handleOnCardHoldeIdentificationTypeChange}>
+                                </lightning-combobox>
+                            </lightning-layout-item>
+                
+                            <lightning-layout-item size="3" padding="around-small">
+                                <lightning-input required type="number" max="99999999" min-length="7" max-length="8" label="Número" onchange={handleOnCardHoldeIdentificationNumberChange}></lightning-input>
+                            </lightning-layout-item>
+                
+                        </lightning-layout>
+                
+                    </template>
+                
+                    <template if:true={showTransactionResults}>
+                        
+                        <lightning-layout vertical-align="center" multiple-rows="true" class="slds-p-around_medium">
+                            
+                            <template if:true={operationSuccess}>
+                                
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <p class="slds-text-heading_medium">Operación Exitosa!</p>
+                                </lightning-layout-item>
+
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <p>Se ha enviado el detalle de la compra a la casilla de correo: {operationResult.email}.</p>
+                                </lightning-layout-item>
+                    
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <p><b>Identificador:</b> {operationResult.operation_id}</p>
+                                </lightning-layout-item>
+                                
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <p><b>Monto:</b> <lightning-formatted-number value={totalAmount} format-style="currency" currency-code="ARS"></lightning-formatted-number></p>
+                                </lightning-layout-item>
+                    
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <p><b>Cód. Autorización:</b> {operationResult.authorization_code}</p>
+                                </lightning-layout-item>
+
+                            </template>
+
+                            <template if:true={operationRejected}>
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <p class="slds-text-heading_medium">Operación Rechazada.</p>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="12" padding="around-small">
+                                    <p><b>Motivo Rechazo:</b> {operationResult.reason_error_description}</p>
+                                </lightning-layout-item>
+                            </template>
+                
+                        </lightning-layout>
+                
+                    </template>
+                
+                    <!-- Spinner -->
+                    <template if:true={showSpinner}>
+                        <lightning-spinner variant="brand" alternative-text="Loading" size="medium"></lightning-spinner>
+                    </template>
+
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button 
+                        class="slds-p-around_small"
+                        label="Cerrar" 
+                        variant="neutral" 
+                        onclick={handleOnCloseModal}></lightning-button>
+
+                    <template if:false={approved}>
+                        <lightning-button 
+                            class="slds-p-around_small"
+                            label="Pagar"
+                            variant="brand" 
+                            onclick={handleOnPayClick} disabled={showSpinner}></lightning-button>
+                    </template>
+                </footer>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+
+    </template>
+
+</template>

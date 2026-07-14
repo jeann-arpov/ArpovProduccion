@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado__c</fullName>
+    <description>Determina el estado de la Campaña. Se actualiza por WF cuando al crear una nueva campaña se asigna la fecha de fin.</description>
+    <label>Estado</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Activa</fullName>
+                <default>true</default>
+                <label>Activa</label>
+            </value>
+            <value>
+                <fullName>Completa</fullName>
+                <default>false</default>
+                <label>Completa</label>
+            </value>
+            <value>
+                <fullName>En Preparación</fullName>
+                <default>false</default>
+                <label>En Preparación</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Grupo__c</fullName>
+    <label>Grupo</label>
+    <referenceTo>Grupo_de_Influencia__c</referenceTo>
+    <relationshipLabel>Miembros del Grupo</relationshipLabel>
+    <relationshipName>Miembros_del_Grupo</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>true</writeRequiresMasterRead>
+</CustomField>

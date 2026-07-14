@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Motivo__c</fullName>
+    <label>Motivo</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Resultado__c</controllingField>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Consumo</fullName>
+                <default>false</default>
+                <label>Consumo</label>
+            </value>
+            <value>
+                <fullName>DUP Vencido plazo Centro de Gestión</fullName>
+                <default>false</default>
+                <label>DUP Vencido plazo Centro de Gestión</label>
+            </value>
+            <value>
+                <fullName>Falta acreditar documentación</fullName>
+                <default>false</default>
+                <label>Falta acreditar documentación</label>
+            </value>
+            <value>
+                <fullName>Falta autorización Obtentor</fullName>
+                <default>false</default>
+                <label>Falta autorización Obtentor</label>
+            </value>
+            <value>
+                <fullName>Falta ccto</fullName>
+                <default>false</default>
+                <label>Falta ccto</label>
+            </value>
+            <value>
+                <fullName>Falta Origen Legal</fullName>
+                <default>false</default>
+                <label>Falta Origen Legal</label>
+            </value>
+            <value>
+                <fullName>Falta rótulo/Estampilla</fullName>
+                <default>false</default>
+                <label>Falta rótulo/Estampilla</label>
+            </value>
+            <value>
+                <fullName>No entrega base de ventas</fullName>
+                <default>false</default>
+                <label>No entrega base de ventas</label>
+            </value>
+            <value>
+                <fullName>No permite Ingreso</fullName>
+                <default>false</default>
+                <label>No permite Ingreso</label>
+            </value>
+            <value>
+                <fullName>DUP Vencida</fullName>
+                <default>false</default>
+                <label>DUP Vencida</label>
+            </value>
+            <value>
+                <fullName>DUP Rectificativa</fullName>
+                <default>false</default>
+                <label>DUP Rectificativa</label>
+            </value>
+            <value>
+                <fullName>DUP ArPOV</fullName>
+                <default>false</default>
+                <label>DUP ArPOV</label>
+            </value>
+            <value>
+                <fullName>Blanqueo</fullName>
+                <default>false</default>
+                <label>Blanqueo</label>
+            </value>
+            <value>
+                <fullName>Visita de Rutina</fullName>
+                <default>false</default>
+                <label>Visita de Rutina</label>
+            </value>
+            <value>
+                <fullName>Se Niega a Declarar</fullName>
+                <default>false</default>
+                <label>Se Niega a Declarar</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Regular</controllingFieldValue>
+            <valueName>Consumo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Regular</controllingFieldValue>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>No entrega base de ventas</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Regular</controllingFieldValue>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>No permite Ingreso</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Regular</controllingFieldValue>
+            <valueName>Visita de Rutina</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Regular</controllingFieldValue>
+            <valueName>Se Niega a Declarar</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>DUP Vencido plazo Centro de Gestión</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>Falta acreditar documentación</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>Falta autorización Obtentor</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>Falta ccto</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>Falta Origen Legal</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>Falta rótulo/Estampilla</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>DUP Vencida</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>DUP Rectificativa</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>DUP ArPOV</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Irregular</controllingFieldValue>
+            <controllingFieldValue>Irregular en seguimiento</controllingFieldValue>
+            <valueName>Blanqueo</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

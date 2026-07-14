@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_a_Entregar__c</fullName>
+    <description>Es la suma de la cantidad declarada de cada línea PPH del establecimiento</description>
+    <inlineHelpText>Es la suma de HTs de cada línea PPH del establecimiento</inlineHelpText>
+    <label>Total HTs SE</label>
+    <summarizedField>Linea_PPH__c.Cantidad_Declarada__c</summarizedField>
+    <summaryForeignKey>Linea_PPH__c.Establecimiento_PPH__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>
