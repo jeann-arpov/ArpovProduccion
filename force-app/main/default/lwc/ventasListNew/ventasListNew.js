@@ -2,6 +2,7 @@ import { LightningElement, track, wire } from 'lwc';
 import getVentas from '@salesforce/apex/VentaListController.getVentas';
 import getVentasHT from '@salesforce/apex/VentaListController.getVentasHT';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import { normalizeCuit } from 'c/utils';
 
 export default class VentasListNew extends LightningElement {
     // ======== Ventas ========
@@ -101,10 +102,12 @@ export default class VentasListNew extends LightningElement {
 
     // ======== HANDLERS VENTAS ========
     handleSearchChange(event) {
-        this.searchKey = event.target.value.toLowerCase();
+        const rawValue = event.target.value.toLowerCase();
+        this.searchKey = rawValue;
+        const searchKeyNorm = normalizeCuit(rawValue);
         this.filteredVentas = this.ventas.filter(v =>
             (v.name && v.name.toLowerCase().includes(this.searchKey)) ||
-            (v.Destinatario_CUIT__c && v.Destinatario_CUIT__c.toLowerCase().includes(this.searchKey)) ||
+            (searchKeyNorm && v.Destinatario_CUIT__c && v.Destinatario_CUIT__c.toLowerCase().includes(searchKeyNorm)) ||
             (v.Destinatario__c && v.Destinatario__c.toLowerCase().includes(this.searchKey)) ||
             (v.comercio && v.comercio.toLowerCase().includes(this.searchKey)) ||
             (v.productor && v.productor.toLowerCase().includes(this.searchKey))
@@ -123,9 +126,11 @@ export default class VentasListNew extends LightningElement {
 
     // ======== HANDLERS VENTAS HT ========
     handleSearchChangeHT(event) {
-        this.searchKeyHT = event.target.value.toLowerCase();
+        const rawValue = event.target.value.toLowerCase();
+        this.searchKeyHT = rawValue;
+        const searchKeyNorm = normalizeCuit(rawValue);
         this.filteredVentasHT = this.ventasHT.filter(v =>
-            (v.CUIT_Productor__c && v.CUIT_Productor__c.toLowerCase().includes(this.searchKeyHT)) ||
+            (searchKeyNorm && v.CUIT_Productor__c && v.CUIT_Productor__c.toLowerCase().includes(searchKeyNorm)) ||
             (v.name && v.name.toLowerCase().includes(this.searchKeyHT)) ||
             (v.name && v.name.toLowerCase().includes(this.searchKeyHT)) ||
             (v.comercio && v.comercio.toLowerCase().includes(this.searchKeyHT)) ||

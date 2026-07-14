@@ -8,7 +8,15 @@ public without sharing class VariedadesSREProductor {
 
     @AuraEnabled(cacheable=true)
     public static List<LookupSearchResult> searchAccounts(String searchTerm, List<String> selectedIds) {
-        return CrearVentaController.accountsToLookup([SELECT Id, Name, RecordType.DeveloperName, N_CUIT__c FROM Account WHERE (Name LIKE: '%'+ searchTerm +'%' OR N_CUIT__c LIKE: '%'+ searchTerm +'%') AND RecordType.DeveloperName IN ('Productor', 'Comercio', 'Distribuidor') LIMIT 5]);
+        String safeTerm = String.escapeSingleQuotes(searchTerm);
+        String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(searchTerm);
+        String cuitCondition = String.isNotBlank(normalizedCuitTerm)
+            ? ' or N_CUIT__c like \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\''
+            : '';
+        return CrearVentaController.accountsToLookup(Database.query(
+            'SELECT Id, Name, RecordType.DeveloperName, N_CUIT__c FROM Account WHERE (Name LIKE \'%' + safeTerm + '%\'' + cuitCondition + ') ' +
+            'AND RecordType.DeveloperName IN (\'Productor\', \'Comercio\', \'Distribuidor\') LIMIT 5'
+        ));
     }
 
     @AuraEnabled

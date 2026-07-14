@@ -21,10 +21,10 @@
         <div class="registration-form slds-form">
           <!-- CUIT -->
           <lightning-input class="slds-m-bottom_small" label="CUIT" variant="label-hidden"
-            value={cuit} required onchange={handleChange} placeholder="CUIT"
-            max-length="11" pattern="[0-9]+"
+            value={cuitFormatted} required onchange={handleChange} onblur={handleCuitBlur} onkeydown={handleCuitKeydown} placeholder="CUIT sin guiones (-)"
+            max-length="13" pattern="[0-9]{2}-?[0-9]{8}-?[0-9]{1}"
             message-when-value-missing="Completá este campo"
-            message-when-pattern-mismatch="Ingrese los dígitos de cuit sin espacios ni guiones">
+            message-when-pattern-mismatch="Formato esperado: XX-XXXXXXXX-X o XXXXXXXXXXX">
           </lightning-input>
 
           <!-- DNI -->

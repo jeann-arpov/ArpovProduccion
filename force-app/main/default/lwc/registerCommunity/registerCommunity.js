@@ -5,7 +5,7 @@ import doCreateUser from '@salesforce/apex/RegisterCommunityController.doCreateU
 import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLogoSE';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import sitePath from '@salesforce/community/basePath';
-import { reduceErrors, validateInputs } from 'c/utils';
+import { reduceErrors, validateInputs, normalizeCuit, formatCuit } from 'c/utils';
 
 export default class RegisterCommunity extends LightningElement {
     sitePath = sitePath;
@@ -144,7 +144,7 @@ export default class RegisterCommunity extends LightningElement {
             this.lastName = value;
             console.log('🔵 LastName actualizado:', value);
         } else if (label === 'CUIT') {
-            this.cuit = value;
+            this.cuit = normalizeCuit(value);
             console.log('🔵 CUIT actualizado:', value);
         } else if (label === 'DNI') {
             this.dni = value;
@@ -202,6 +202,21 @@ export default class RegisterCommunity extends LightningElement {
                 console.log('✅ Passwords coinciden');
             }
             inputCmp.reportValidity();
+        }
+    }
+
+    handleCuitBlur(event) {
+        const normalized = normalizeCuit(event.target.value);
+        this.cuit = normalized;
+    }
+
+    get cuitFormatted() {
+        return formatCuit(this.cuit);
+    }
+
+    handleCuitKeydown(event) {
+        if (event.key.length === 1 && !/^[0-9\-]$/.test(event.key)) {
+            event.preventDefault();
         }
     }
 

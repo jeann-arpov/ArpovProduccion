@@ -11,7 +11,15 @@ public without sharing class ConsultaLicenciasController {
 
     @AuraEnabled(Cacheable=true)
     public static List<LookupSearchResult> searchProductores(String searchTerm, List<String> selectedIds) {
-        return CrearVentaController.accountsToLookup([select RecordType.DeveloperName, N_CUIT__c, Name from account where (name like: '%'+searchTerm+'%' or N_CUIT__c like: '%'+searchTerm+'%') and Type IN ('Productor', 'Comercio', 'Distribuidor', 'Obtentor') and ParentId = null limit 5]);
+        String safeTerm = String.escapeSingleQuotes(searchTerm);
+        String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(searchTerm);
+        String cuitCondition = String.isNotBlank(normalizedCuitTerm)
+            ? ' or N_CUIT__c like \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\''
+            : '';
+        return CrearVentaController.accountsToLookup(Database.query(
+            'select RecordType.DeveloperName, N_CUIT__c, Name from account where (name like \'%' + safeTerm + '%\'' + cuitCondition + ') ' +
+            'and Type IN (\'Productor\', \'Comercio\', \'Distribuidor\', \'Obtentor\') and ParentId = null limit 5'
+        ));
     }
 
     @AuraEnabled(Cacheable=true)
@@ -188,7 +196,15 @@ public without sharing class ConsultaLicenciasController {
 
     @AuraEnabled(Cacheable=true)
     public static List<LookupSearchResult> searchLicenciatarios(String searchTerm, List<String> selectedIds) {
-        return Test.isRunningTest() ? null : CrearVentaController.accountsToLookup([select RecordType.DeveloperName, N_CUIT__c, Name from account where (name like: '%'+searchTerm+'%' or N_CUIT__c like: '%'+searchTerm+'%') and id in (select Cuenta_Productor__c from Licencia__c where Cuenta_Obtentor__c =: CrearCompraController.getAccount().id) limit 5]);
+        String safeTerm = String.escapeSingleQuotes(searchTerm);
+        String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(searchTerm);
+        String cuitCondition = String.isNotBlank(normalizedCuitTerm)
+            ? ' or N_CUIT__c like \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\''
+            : '';
+        return Test.isRunningTest() ? null : CrearVentaController.accountsToLookup(Database.query(
+            'select RecordType.DeveloperName, N_CUIT__c, Name from account where (name like \'%' + safeTerm + '%\'' + cuitCondition + ') ' +
+            'and id in (select Cuenta_Productor__c from Licencia__c where Cuenta_Obtentor__c = \'' + String.escapeSingleQuotes(CrearCompraController.getAccount().id) + '\') limit 5'
+        ));
     }
 
     //portal SE Obtentor 

@@ -2,7 +2,16 @@ public without sharing class ExpedienteNegativo {
 
     @AuraEnabled(Cacheable=true)
     public static List<LookupSearchResult> searchAccounts(String searchTerm, List<String> selectedIds) {
-        return CrearVentaController.accountsToLookup([select RecordType.DeveloperName, N_CUIT__c, Name from account where (name like: '%'+searchTerm+'%' or N_CUIT__c like: '%'+searchTerm+'%') and recordType.DeveloperName in ('Productor', 'Comercio', 'Distribuidor') and id !=: CrearCompraController.getAccount().id limit 5]);
+        String safeTerm = String.escapeSingleQuotes(searchTerm);
+        String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(searchTerm);
+        String cuitCondition = String.isNotBlank(normalizedCuitTerm)
+            ? ' or N_CUIT__c like \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\''
+            : '';
+        return CrearVentaController.accountsToLookup(Database.query(
+            'select RecordType.DeveloperName, N_CUIT__c, Name from account where (name like \'%' + safeTerm + '%\'' + cuitCondition + ') ' +
+            'and recordType.DeveloperName in (\'Productor\', \'Comercio\', \'Distribuidor\') ' +
+            'and id != \'' + String.escapeSingleQuotes(CrearCompraController.getAccount().id) + '\' limit 5'
+        ));
     }
 
     @AuraEnabled

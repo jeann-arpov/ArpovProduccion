@@ -3,7 +3,7 @@ import requestResetPassword from '@salesforce/apex/CommunityUser.requestResetPas
 import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLogoSE';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import { NavigationMixin } from 'lightning/navigation';
-import { doRequest, validateInputs, reduceErrors } from 'c/utils'; 
+import { doRequest, validateInputs, reduceErrors, normalizeCuit, formatCuit } from 'c/utils'; 
 export default class ForgotPasswordCommunity extends NavigationMixin(LightningElement) {
 
     cuit = '';
@@ -41,7 +41,22 @@ export default class ForgotPasswordCommunity extends NavigationMixin(LightningEl
         if(label == 'Email'){
             this.email = value;
         }else if(label == 'CUIT'){
-            this.cuit = value;
+            this.cuit = normalizeCuit(value);
+        }
+    }
+
+    handleCuitBlur(event) {
+        const normalized = normalizeCuit(event.target.value);
+        this.cuit = normalized;
+    }
+
+    get cuitFormatted() {
+        return formatCuit(this.cuit);
+    }
+
+    handleCuitKeydown(event) {
+        if (event.key.length === 1 && !/^[0-9\-]$/.test(event.key)) {
+            event.preventDefault();
         }
     }
 

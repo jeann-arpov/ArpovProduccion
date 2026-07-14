@@ -89,11 +89,16 @@ public static Boolean esUsuarioEspecial() {
         }
         
         if (filterMap.containsKey('searchTerm') && String.isNotBlank((String)filterMap.get('searchTerm'))) {
-            String searchTerm = '%' + String.escapeSingleQuotes((String)filterMap.get('searchTerm')) + '%';
-            conditions.add('(CodigoLicenciaTexto__c LIKE \'' + searchTerm + '\' OR ' +
-                          'Nombres_Marcas__c LIKE \'' + searchTerm + '\' OR ' +
-                          'Razon_Social_Licenciatario__c LIKE \'' + searchTerm + '\' OR ' +
-                          'N_CUIT__c LIKE \'' + searchTerm + '\')');
+            String rawTerm = (String)filterMap.get('searchTerm');
+            String searchTerm = '%' + String.escapeSingleQuotes(rawTerm) + '%';
+            String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(rawTerm);
+            String conditionsList = 'CodigoLicenciaTexto__c LIKE \'' + searchTerm + '\' OR ' +
+                                   'Nombres_Marcas__c LIKE \'' + searchTerm + '\' OR ' +
+                                   'Razon_Social_Licenciatario__c LIKE \'' + searchTerm + '\'';
+            if (String.isNotBlank(normalizedCuitTerm)) {
+                conditionsList += ' OR N_CUIT__c LIKE \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\'';
+            }
+            conditions.add('(' + conditionsList + ')');
         }
         
         // Agregar cláusula WHERE si existen condiciones
@@ -242,18 +247,23 @@ public static PaginatedResult getLicencias(Integer pageNumber, Integer pageSize,
     
     // Filtro de búsqueda
     if (filterMap.containsKey('searchTerm') && String.isNotBlank((String)filterMap.get('searchTerm'))) {
-        String searchTerm = '%' + String.escapeSingleQuotes((String)filterMap.get('searchTerm')) + '%';
-        conditions.add('(CodigoLicenciaTexto__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Nombres_Marcas__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Razon_Social_Licenciatario__c LIKE \'' + searchTerm + '\' OR ' +
-                      'N_CUIT__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Cuenta_Obtentor__r.Name LIKE \'' + searchTerm + '\' OR ' +
-                      'Cuenta_Distribuidor__r.Name LIKE \'' + searchTerm + '\' OR ' +
-                      'Email__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Firmante_Celular__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Origen_de_Licencia__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Tipo_de_Licencia__c LIKE \'' + searchTerm + '\')');
-    }
+            String rawTerm = (String)filterMap.get('searchTerm');
+            String searchTerm = '%' + String.escapeSingleQuotes(rawTerm) + '%';
+            String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(rawTerm);
+            String conditionsList = 'CodigoLicenciaTexto__c LIKE \'' + searchTerm + '\' OR ' +
+                                   'Nombres_Marcas__c LIKE \'' + searchTerm + '\' OR ' +
+                                   'Razon_Social_Licenciatario__c LIKE \'' + searchTerm + '\'';
+            if (String.isNotBlank(normalizedCuitTerm)) {
+                conditionsList += ' OR N_CUIT__c LIKE \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\'';
+            }
+            conditionsList += ' OR Cuenta_Obtentor__r.Name LIKE \'' + searchTerm + '\' OR ' +
+                              'Cuenta_Distribuidor__r.Name LIKE \'' + searchTerm + '\' OR ' +
+                              'Email__c LIKE \'' + searchTerm + '\' OR ' +
+                              'Firmante_Celular__c LIKE \'' + searchTerm + '\' OR ' +
+                              'Origen_de_Licencia__c LIKE \'' + searchTerm + '\' OR ' +
+                              'Tipo_de_Licencia__c LIKE \'' + searchTerm + '\'';
+            conditions.add('(' + conditionsList + ')');
+        }
     
     // Agregar cláusula WHERE si existen condiciones
     String whereClause = '';
@@ -645,16 +655,21 @@ public static PaginatedResult getLicenciasProductor(Integer pageNumber, Integer 
     
     // Filtro de búsqueda
     if (filterMap.containsKey('searchTerm') && String.isNotBlank((String)filterMap.get('searchTerm'))) {
-        String searchTerm = '%' + String.escapeSingleQuotes((String)filterMap.get('searchTerm')) + '%';
-        conditions.add('(Name LIKE \'' + searchTerm + '\' OR ' +
-                      'Nombres_Marcas__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Cuenta_Productor__r.Name LIKE \'' + searchTerm + '\' OR ' +
-                      'N_CUIT__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Cuenta_Distribuidor__r.Name LIKE \'' + searchTerm + '\' OR ' +
-                      'Email__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Firmante_Celular__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Origen_de_Licencia__c LIKE \'' + searchTerm + '\' OR ' +
-                      'Tipo_de_Licencia__c LIKE \'' + searchTerm + '\')');
+        String rawTerm = (String)filterMap.get('searchTerm');
+        String searchTerm = '%' + String.escapeSingleQuotes(rawTerm) + '%';
+        String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(rawTerm);
+        String conditionsList = 'Name LIKE \'' + searchTerm + '\' OR ' +
+                               'Nombres_Marcas__c LIKE \'' + searchTerm + '\' OR ' +
+                               'Cuenta_Productor__r.Name LIKE \'' + searchTerm + '\'';
+        if (String.isNotBlank(normalizedCuitTerm)) {
+            conditionsList += ' OR N_CUIT__c LIKE \'%' + String.escapeSingleQuotes(normalizedCuitTerm) + '%\'';
+        }
+        conditionsList += ' OR Cuenta_Distribuidor__r.Name LIKE \'' + searchTerm + '\' OR ' +
+                          'Email__c LIKE \'' + searchTerm + '\' OR ' +
+                          'Firmante_Celular__c LIKE \'' + searchTerm + '\' OR ' +
+                          'Origen_de_Licencia__c LIKE \'' + searchTerm + '\' OR ' +
+                          'Tipo_de_Licencia__c LIKE \'' + searchTerm + '\'';
+        conditions.add('(' + conditionsList + ')');
     }
     
     // Agregar cláusula WHERE si existen condiciones

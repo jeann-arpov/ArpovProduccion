@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import getBolsasPrimeraMultiplicacionActual from '@salesforce/apex/UserControllerComunidad.getBolsasPrimeraMultiplicacionActualList';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import { normalizeCuit } from 'c/utils';
 
 export default class BolsasPrimeraMultiplicacionList extends LightningElement {
     iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
@@ -52,11 +53,12 @@ export default class BolsasPrimeraMultiplicacionList extends LightningElement {
     }
 
     applyFilters() {
+        const searchKeyNorm = normalizeCuit(this.searchKey);
         this.filteredVentas = this.ventas.filter(v => {
             const matchSearch = this.searchKey === '' ||
                 (v.Campana_Agricola__r?.Name || '').toLowerCase().includes(this.searchKey) ||
                 (v.Destinatario__r?.Name || '').toLowerCase().includes(this.searchKey) ||
-                (v.Destinatario__r?.N_CUIT__c || '').toLowerCase().includes(this.searchKey) ||
+                (searchKeyNorm && (v.Destinatario__r?.N_CUIT__c || '').toLowerCase().includes(searchKeyNorm)) ||
                 (v.Variedad__c || '').toLowerCase().includes(this.searchKey) ||
                 (v.Categoria__c || '').toLowerCase().includes(this.searchKey) ||
                 (v.Estado_Licencia__c || '').toLowerCase().includes(this.searchKey) ||

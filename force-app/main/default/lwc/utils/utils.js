@@ -115,4 +115,15 @@ async function doRequest(callback) {
     this.loading = false;
 }
 
-export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest}
+const normalizeCuit = (value) => {
+    if (!value) return '';
+    return value.replace(/[^0-9]/g, '');
+};
+
+const formatCuit = (value) => {
+    const digits = normalizeCuit(value);
+    if (digits.length !== 11) return digits;
+    return digits.replace(/^(\d{2})(\d{8})(\d{1})$/, '$1-$2-$3');
+};
+
+export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit}
