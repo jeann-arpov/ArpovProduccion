@@ -62,7 +62,7 @@
     <formulas>
         <name>fechaCreacion</name>
         <dataType>String</dataType>
-        <expression>TEXT(DATEVALUE({!$Record.Linea_de_Compra_HT__r.CreatedDate}))</expression>
+        <expression>IF(ISBLANK({!$Record.Linea_de_Compra_HT__r.CreatedDate}), '', TEXT(DATEVALUE({!$Record.Linea_de_Compra_HT__r.CreatedDate})))</expression>
     </formulas>
     <interviewLabel>HT- Asignar Campaña {!$Flow.CurrentDateTime}</interviewLabel>
     <label>HT- Asignar Campaña</label>
