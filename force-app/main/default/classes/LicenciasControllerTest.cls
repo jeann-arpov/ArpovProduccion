@@ -39,7 +39,10 @@ public class LicenciasControllerTest {
         );
         insert testContact;
         
-       Account acc = new Account(Name = 'Cuenta Portal');
+       Account acc = new Account(
+            Name = 'Cuenta Portal',
+            RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Comercio').getRecordTypeId()
+        );
         insert acc;
         
         Contact c = new Contact(

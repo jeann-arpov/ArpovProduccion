@@ -114,7 +114,7 @@
             <value>
                 <fullName>Deriva a CTV</fullName>
                 <default>false</default>
-                <isActive>false</isActive>
+                <isActive>true</isActive>
                 <label>Deriva a CTV</label>
             </value>
             <value>
