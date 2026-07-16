@@ -2537,6 +2537,11 @@
         <field>Aplicacion_Item_DUP__c.Ano_Aplicacion__c</field>
         <readable>true</readable>
     </fieldPermissions>
+     <fieldPermissions>
+        <editable>false</editable>
+        <field>Account.Umbral_Pagada__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Aplicacion_Item_DUP__c.Aplicacion__c</field>
@@ -8474,6 +8479,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Movimientos__c.Nro_de_Recibo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Movimientos__c.Numero_Transferencia__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -8561,6 +8571,11 @@
         <editable>false</editable>
         <field>Notificacion_Batch_Apex__e.IsSuccess__c</field>
         <readable>false</readable>
+    </fieldPermissions>
+     <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.Avance_Cobranza_SE__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
