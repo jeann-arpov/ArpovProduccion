@@ -41,7 +41,7 @@ public class LicenciasControllerTest {
         
        Account acc = new Account(
             Name = 'Cuenta Portal',
-            RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Comercio').getRecordTypeId()
+            RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Obtentor').getRecordTypeId()
         );
         insert acc;
         

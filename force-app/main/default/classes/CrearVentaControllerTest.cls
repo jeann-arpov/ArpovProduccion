@@ -993,4 +993,140 @@ public class CrearVentaControllerTest {
 
         System.assertNotEquals(null, results);
     }
+
+    // ============================================================
+    // TESTS: canFinish variantes adicionales de getTotal
+    // ============================================================
+
+    @isTest
+    static void testCanFinish_RegaliaComercial_TDS() {
+        Test_TestUtils.disableFlows();
+        Account obtentor = Test_TestUtils.crearObtentor();
+        Account productor = Test_TestUtils.crearProductor();
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('Cultivo Test', 75);
+        Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola('2025', cultivo, Date.today(), Date.today().addDays(30), 'Camp TDS');
+
+        Variedad__c var = new Variedad__c(
+            Name = 'test_var_tds', Sembra_Evolucion__c = true,
+            Biotecnologia__c = 'Convencional', Obtentor_Comercializa__c = obtentor.Id
+        );
+        insert var;
+
+        Product2 prod = new Product2(
+            IsActive = true, Name = 'Prod TDS Test', Producto_Vigente__c = true,
+            Variedad__c = var.Name, Variedad2__c = var.Id,
+            Obtentor_Comercializa__c = obtentor.Id, Cultivo__c = cultivo.Id,
+            Family = 'Regalía Comercial', Categoria__c = 'Original o Fundadora',
+            Sembra_Evolucion__c = true
+        );
+        insert prod;
+
+        Venta__c ventaTDS = new Venta__c(
+            Producto__c = prod.Id, Campana_Agricola__c = campana.Id,
+            Cultivo__c = cultivo.Id, Cantidad__c = 30,
+            Originante__c = productor.Id, Destinatario__c = productor.Id,
+            Tipo_de_Venta__c = 'TDS',
+            Rol_Destinatario__c = 'Distribuidor', Rol_Originante__c = 'Distribuidor'
+        );
+        insert ventaTDS;
+
+        Map<String, Object> semillero = new Map<String, Object>{
+            'ParentId' => null, 'Id' => obtentor.Id, 'Id_Obtentor__c' => '11'
+        };
+
+        Test.startTest();
+        Map<String, Object> result = CrearVentaController.canFinish(semillero, productor.Id, false, new List<Id>());
+        Test.stopTest();
+
+        System.assertEquals(false, result.get('origenLegal'));
+        System.assertEquals(-30, result.get('VentasCRM'));
+    }
+
+    @isTest
+    static void testCanFinish_PreBasica_DPO() {
+        Test_TestUtils.disableFlows();
+        Account obtentor = Test_TestUtils.crearObtentor();
+        Account productor = Test_TestUtils.crearProductor();
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('Cultivo Test', 75);
+        Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola('2025', cultivo, Date.today(), Date.today().addDays(30), 'Camp PB');
+
+        Variedad__c var = new Variedad__c(
+            Name = 'test_var_pb', Sembra_Evolucion__c = true,
+            Biotecnologia__c = 'Convencional', Obtentor_Comercializa__c = obtentor.Id
+        );
+        insert var;
+
+        Product2 prod = new Product2(
+            IsActive = true, Name = 'Prod PB Test', Producto_Vigente__c = true,
+            Variedad__c = var.Name, Variedad2__c = var.Id,
+            Obtentor_Comercializa__c = obtentor.Id, Cultivo__c = cultivo.Id,
+            Family = 'Semilla Fiscalizada', Categoria__c = 'Pre Básica',
+            Sembra_Evolucion__c = true
+        );
+        insert prod;
+
+        Venta__c ventaDPO = new Venta__c(
+            Producto__c = prod.Id, Campana_Agricola__c = campana.Id,
+            Cultivo__c = cultivo.Id, Cantidad__c = 20,
+            Originante__c = productor.Id, Destinatario__c = productor.Id,
+            Tipo_de_Venta__c = 'C',
+            Rol_Destinatario__c = 'Distribuidor', Rol_Originante__c = 'Distribuidor'
+        );
+        insert ventaDPO;
+
+        Map<String, Object> semillero = new Map<String, Object>{
+            'ParentId' => null, 'Id' => obtentor.Id, 'Id_Obtentor__c' => '11'
+        };
+
+        Test.startTest();
+        Map<String, Object> result = CrearVentaController.canFinish(semillero, productor.Id, false, new List<Id>());
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('origenLegal'));
+        System.assertEquals(20, result.get('VentasCRM'));
+    }
+
+    @isTest
+    static void testCanFinish_PrimeraMultiplicacion() {
+        Test_TestUtils.disableFlows();
+        Account obtentor = Test_TestUtils.crearObtentor();
+        Account productor = Test_TestUtils.crearProductor();
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('Cultivo Test', 75);
+        Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola('2025', cultivo, Date.today(), Date.today().addDays(30), 'Camp PM');
+
+        Variedad__c var = new Variedad__c(
+            Name = 'test_var_pm', Sembra_Evolucion__c = true,
+            Biotecnologia__c = 'Convencional', Obtentor_Comercializa__c = obtentor.Id
+        );
+        insert var;
+
+        Product2 prod = new Product2(
+            IsActive = true, Name = 'Prod PM Test', Producto_Vigente__c = true,
+            Variedad__c = var.Name, Variedad2__c = var.Id,
+            Obtentor_Comercializa__c = obtentor.Id, Cultivo__c = cultivo.Id,
+            Family = 'Semilla Fiscalizada', Categoria__c = 'Primera Multiplicación',
+            Sembra_Evolucion__c = true
+        );
+        insert prod;
+
+        Venta__c ventaV = new Venta__c(
+            Producto__c = prod.Id, Campana_Agricola__c = campana.Id,
+            Cultivo__c = cultivo.Id, Cantidad__c = 15,
+            Originante__c = productor.Id, Destinatario__c = productor.Id,
+            Tipo_de_Venta__c = 'Venta',
+            Rol_Destinatario__c = 'Distribuidor', Rol_Originante__c = 'Distribuidor'
+        );
+        insert ventaV;
+
+        Map<String, Object> semillero = new Map<String, Object>{
+            'ParentId' => null, 'Id' => obtentor.Id, 'Id_Obtentor__c' => '11'
+        };
+
+        Test.startTest();
+        Map<String, Object> result = CrearVentaController.canFinish(semillero, productor.Id, false, new List<Id>());
+        Test.stopTest();
+
+        System.assertEquals(true, result.get('origenLegal'));
+        System.assertEquals(15, result.get('VentasCRM'));
+    }
 }
