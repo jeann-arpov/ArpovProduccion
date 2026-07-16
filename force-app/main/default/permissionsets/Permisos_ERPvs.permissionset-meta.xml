@@ -5787,6 +5787,11 @@
     <description>Conjunto de permisos para operar ERPvs si no pertenece al grupo Usuario Administración</description>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Account.Umbral_Pagada__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Aplicacion_Item_DUP__c.Aplicacion__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -9651,6 +9656,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Movimientos__c.Nro_de_Recibo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Movimientos__c.Observaciones_PB_y_Flows__c</field>
         <readable>true</readable>
@@ -9733,6 +9743,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Opportunity.Ano__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.Avance_Cobranza_SE__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

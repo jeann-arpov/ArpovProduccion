@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>cobradaCien</name>
+        <label>¿esta 100% Cobrada?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>siEsta</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>calcularAvanceCobranza</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Obtentor__r.Umbral_Pagada__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>estado_pagada</targetReference>
+            </connector>
+            <label>siCumple</label>
+        </rules>
+        <rules>
+            <name>esMenor</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>calcularAvanceCobranza</leftValueReference>
+                <operator>LessThan</operator>
+                <rightValue>
+                    <elementReference>$Record.Obtentor__r.Umbral_Pagada__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>estado_parcialmente_pagada</targetReference>
+            </connector>
+            <label>esMenor</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>ObtentorGDM</name>
+        <label>Obtentor GDM</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>siEs</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Obtentor__r.Name</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>GDM ARGENTINA S. A. (03)</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Obtentor__r.Name</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>GDM ARGENTINA S. A. (14)</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Obtentor__r.Name</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>GDM ARGENTINA S. A. (85)</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>cobradaCien</targetReference>
+            </connector>
+            <label>siEs</label>
+        </rules>
+    </decisions>
+    <description>20260302 JN Pago Parciales</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>calcularAvanceCobranza</name>
+        <dataType>Number</dataType>
+        <expression>({!$Record.Total_Comprobante__c} - {!$Record.Saldo_a_Gestionar__c})/{!$Record.Total_Comprobante__c}</expression>
+        <scale>2</scale>
+    </formulas>
+    <interviewLabel>CambioEstadoPagada {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>CambioEstadoPagada</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>estado_pagada</name>
+        <label>Modificar estado pagada</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <stringValue>Pagada</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>estado_parcialmente_pagada</name>
+        <label>estado  parcialmente pagada</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>StageName</field>
+            <value>
+                <stringValue>Pagada Parcialmente</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>ObtentorGDM</targetReference>
+        </connector>
+        <filterLogic>1 AND (2 OR 3 OR 4)</filterLogic>
+        <filters>
+            <field>Saldo_a_Gestionar__c</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Facturada</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Pagada Parcialmente</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Ajustada por NC</stringValue>
+            </value>
+        </filters>
+        <object>Opportunity</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

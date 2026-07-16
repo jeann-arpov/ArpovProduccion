@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>Facturada</fullName>
+        <default>false</default>
+        <label>Facturada</label>
+        <closed>true</closed>
+        <forecastCategory>Closed</forecastCategory>
+        <probability>100</probability>
+        <won>true</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Cobrada</fullName>
+        <default>false</default>
+        <label>Cobrada</label>
+        <closed>true</closed>
+        <forecastCategory>Closed</forecastCategory>
+        <probability>100</probability>
+        <won>true</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Rechazada</fullName>
+        <default>false</default>
+        <label>Rechazada</label>
+        <closed>true</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Valida</fullName>
+        <default>false</default>
+        <label>Valida</label>
+        <closed>true</closed>
+        <forecastCategory>Closed</forecastCategory>
+        <probability>100</probability>
+        <won>true</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Incorrecta</fullName>
+        <default>false</default>
+        <label>Incorrecta</label>
+        <closed>true</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Creada</fullName>
+        <default>false</default>
+        <label>Creada</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Recibida</fullName>
+        <default>false</default>
+        <label>Recibida</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>10</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Respondida</fullName>
+        <default>false</default>
+        <label>Respondida</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>50</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Desestimada</fullName>
+        <color>#DDDDDD</color>
+        <default>false</default>
+        <label>Desestimada</label>
+        <closed>true</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Gestiona Legales</fullName>
+        <default>false</default>
+        <label>Gestiona Legales</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>25</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>En Análisis</fullName>
+        <default>false</default>
+        <description>Comprobantes en proceso de análisis de soporte o del semillero.</description>
+        <label>En Análisis</label>
+        <closed>false</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Gestiona Semillero</fullName>
+        <default>false</default>
+        <label>Gestiona Semillero</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>50</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Pendiente de Procesar</fullName>
+        <default>false</default>
+        <label>Pendiente de Procesar</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>50</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Pedido de Facturacion</fullName>
+        <default>false</default>
+        <label>Pedido de Facturacion</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>50</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Aplicada</fullName>
+        <default>false</default>
+        <label>Aplicada</label>
+        <closed>true</closed>
+        <forecastCategory>Closed</forecastCategory>
+        <probability>100</probability>
+        <won>true</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Cancelada por NC</fullName>
+        <default>false</default>
+        <description>Se asigna esta etapa cuando la factura es cancelada por una Nota de Crédito.</description>
+        <label>Cancelada por NC</label>
+        <closed>true</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Pendiente Facturacion Obtentor</fullName>
+        <default>false</default>
+        <label>Pendiente Facturacion Obtentor</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>50</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Pendiente Facturacion</fullName>
+        <default>false</default>
+        <label>Pendiente Facturacion</label>
+        <closed>false</closed>
+        <forecastCategory>Pipeline</forecastCategory>
+        <probability>50</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Incobrable</fullName>
+        <color>#FF0000</color>
+        <default>false</default>
+        <description>Estado Manual que lleva el saldo a gestiona a 0 y deja el saldo del comprobante intacto. No debe considerarse en los saldos en la calle.</description>
+        <label>Incobrable</label>
+        <closed>true</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Saldo Incobrable</fullName>
+        <color>#FF0000</color>
+        <default>false</default>
+        <description>Se asigna a las oportunidades con pagos registrados y saldos que se definen incobrables. Esta etapa lleva el saldo a gestionar a 0.</description>
+        <label>Saldo Incobrable</label>
+        <closed>true</closed>
+        <forecastCategory>Closed</forecastCategory>
+        <probability>0</probability>
+        <won>true</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Pendiente de Facturación</fullName>
+        <default>false</default>
+        <label>Pendiente de Facturación</label>
+        <closed>false</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Pagada</fullName>
+        <default>false</default>
+        <label>Pagada</label>
+        <closed>false</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Vencida</fullName>
+        <default>false</default>
+        <label>Vencida</label>
+        <closed>false</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Cancelada</fullName>
+        <default>false</default>
+        <label>Cancelada</label>
+        <closed>true</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>10</probability>
+        <won>false</won>
+    </standardValue>
+    <standardValue>
+        <fullName>Pagada Parcialmente</fullName>
+        <default>false</default>
+        <label>Pagada Parcialmente</label>
+        <closed>false</closed>
+        <forecastCategory>Omitted</forecastCategory>
+        <probability>0</probability>
+        <won>false</won>
+    </standardValue>
+</StandardValueSet>
