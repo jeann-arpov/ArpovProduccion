@@ -98,7 +98,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     }
 
     get mostrarFacturaYObs() {
-        if (this.data?.record?.Estado__c === 'Pagada') {
+        const estado = this.data?.record?.Estado__c;
+        if (estado === 'Pagada' || estado === 'Facturada') {
             return false;
         }
         return Boolean(this.mostrarBoton);

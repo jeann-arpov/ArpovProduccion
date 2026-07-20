@@ -442,8 +442,8 @@ public without sharing class CrearVentaController {
             WHERE Id = :recordId
             LIMIT 1
         ];
-        if (venta.Estado__c == 'Pagada') {
-            throw new AuraHandledException('No se puede subir factura para una venta en estado Pagada.');
+        if (venta.Estado__c == 'Pagada' || venta.Estado__c == 'Facturada') {
+            throw new AuraHandledException('No se puede subir factura para una venta en estado ' + venta.Estado__c + '.');
         }
 
         Opportunity opp = [select id,AccountId,Total_Comprobante__c,CloseDate from Opportunity where Compra_HT__r.Venta_HT__c =: recordId LIMIT 1];

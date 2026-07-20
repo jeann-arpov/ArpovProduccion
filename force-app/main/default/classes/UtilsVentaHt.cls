@@ -77,7 +77,7 @@ public without sharing class UtilsVentaHt {
                 LIMIT 1
             ];
 
-            if (venta.Estado__c == 'Pagada') {
+            if (venta.Estado__c == 'Pagada' || venta.Estado__c == 'Facturada') {
                 return false;
             }
 
@@ -133,7 +133,7 @@ public without sharing class UtilsVentaHt {
                 FROM Venta_HT__c
                 WHERE Id IN :result.keySet()
             ]) {
-                if (venta.Estado__c == 'Pagada') {
+                if (venta.Estado__c == 'Pagada' || venta.Estado__c == 'Facturada') {
                     result.put(venta.Id, false);
                     continue;
                 }

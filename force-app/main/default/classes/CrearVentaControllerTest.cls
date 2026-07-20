@@ -243,6 +243,25 @@ public class CrearVentaControllerTest {
         Test.stopTest();
     }
 
+    @IsTest
+    static void testUpdateOpportunityBloqueaVentaFacturada() {
+        Account cuenta = Test_TestUtils.crearObtentor();
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('Cultivo Test',75);
+        Venta_HT__c venta = CrearVentaController.createVenta(cuenta.id, cuenta, cultivo.Id);
+        venta.Estado__c = 'Facturada';
+        update venta;
+
+        Test.startTest();
+        Boolean exceptionThrown = false;
+        try {
+            CrearVentaController.updateOpportunity(venta.Id, Date.today(), 'C-0001-34567654');
+        } catch (AuraHandledException e) {
+            exceptionThrown = true;
+        }
+        System.assert(exceptionThrown, 'Se esperaba una excepción para venta Facturada');
+        Test.stopTest();
+    }
+
     // ------- COBERTURA ADICIONAL ---------
 
     @isTest
