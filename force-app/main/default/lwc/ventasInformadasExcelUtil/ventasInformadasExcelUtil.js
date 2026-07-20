@@ -1,5 +1,6 @@
 import xlsx from '@salesforce/resourceUrl/XLSX';
 import { loadScript } from 'lightning/platformResourceLoader';
+import { normalizeCuit } from 'c/utils';
 
 let xlsxLoadPromise;
 
@@ -27,20 +28,29 @@ export function filterVentas(ventas, searchTerm, columnFilters) {
 
     if (searchTerm) {
         const term = searchTerm.toLowerCase();
+        const termNorm = normalizeCuit(term);
         filtered = filtered.filter((v) =>
             v.numero?.toString().toLowerCase().includes(term) ||
             v.destinatario?.toLowerCase().includes(term) ||
-            v.variedad?.toLowerCase().includes(term)
+            v.variedad?.toLowerCase().includes(term) ||
+            (termNorm && v.cuitDest?.toLowerCase().includes(termNorm))
         );
     }
 
     Object.keys(columnFilters || {}).forEach((field) => {
         const filterValue = columnFilters[field];
         if (filterValue) {
-            const term = filterValue.toLowerCase();
-            filtered = filtered.filter((v) =>
-                v[field]?.toString().toLowerCase().includes(term)
-            );
+            if (field === 'cuitDest') {
+                const termNorm = normalizeCuit(filterValue);
+                filtered = filtered.filter((v) =>
+                    termNorm && normalizeCuit(v[field]?.toString() || '').includes(termNorm)
+                );
+            } else {
+                const term = filterValue.toLowerCase();
+                filtered = filtered.filter((v) =>
+                    v[field]?.toString().toLowerCase().includes(term)
+                );
+            }
         }
     });
 

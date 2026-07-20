@@ -2,7 +2,7 @@ import { LightningElement, track, api } from 'lwc';
 import getVencimientos from '@salesforce/apex/MisFacturasController.getVencimientos';
 //import getPaymentLink from '@salesforce/apex/AgroPagoAuraController_V2.getPaymentLink';
 import getAgroPago from '@salesforce/apex/AgroPagoAuraController.getAgroPago';
-import {reduceErrors} from 'c/utils';
+import {reduceErrors, normalizeCuit} from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 //import basePath from '@salesforce/community/basePath';
 import { doRequest } from 'c/utils';
@@ -240,9 +240,11 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
 
         if (this.searchTerm) {
             const term = this.searchTerm.toLowerCase();
+            const searchKeyNorm = normalizeCuit(term);
             filtered = filtered.filter(l =>
                 (l.cultivo && l.cultivo.toLowerCase().includes(term)) ||
-                (l.obtentorMarca && l.obtentorMarca.toLowerCase().includes(term))
+                (l.obtentorMarca && l.obtentorMarca.toLowerCase().includes(term)) ||
+                (searchKeyNorm && l.cuit && l.cuit.toLowerCase().includes(searchKeyNorm))
             );
         }
 
