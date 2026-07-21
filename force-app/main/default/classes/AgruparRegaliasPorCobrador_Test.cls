@@ -12,19 +12,19 @@ public class AgruparRegaliasPorCobrador_Test {
         // Crear registros TN_Regalia_Enlist__c
         TN_Regalia_Enlist__c r1 = new TN_Regalia_Enlist__c(
             Cobrador__c = cobradorA.Id,
-            CTGs_Involucrados__c = '1015834753',
+            CTGs_Involucrados_Largo__c = '1015834753',
             Cantidad__c = 10
         );
 
         TN_Regalia_Enlist__c r2 = new TN_Regalia_Enlist__c(
             Cobrador__c = cobradorB.Id,
-            CTGs_Involucrados__c = '1015834755',
+            CTGs_Involucrados_Largo__c = '1015834755',
             Cantidad__c = 5
         );
 
         TN_Regalia_Enlist__c r3 = new TN_Regalia_Enlist__c(
             Cobrador__c = cobradorA.Id,
-            CTGs_Involucrados__c ='1015834754',
+            CTGs_Involucrados_Largo__c = '1015834754',
             Cantidad__c = 7
         );
 

@@ -45,9 +45,12 @@ public with sharing class AgruparRegaliasPorCobrador {
                 existente.Cantidad__c = actual + nueva;
             }
 
-            // Acumular CTGs (permitiendo duplicados)
-            if (reg.CTGs_Involucrados__c != null) {
-                ctgsPorCobrador.get(cobrador).add(reg.CTGs_Involucrados__c);
+            // Acumular CTGs (permitiendo duplicados). Preferir campo largo; fallback al histórico.
+            String ctgsValor = reg.CTGs_Involucrados_Largo__c != null
+                ? reg.CTGs_Involucrados_Largo__c
+                : reg.CTGs_Involucrados__c;
+            if (ctgsValor != null) {
+                ctgsPorCobrador.get(cobrador).add(ctgsValor);
             }
         }
 
@@ -57,7 +60,7 @@ public with sharing class AgruparRegaliasPorCobrador {
 
             if (ctgs != null && !ctgs.isEmpty()) {
                 String listaFormateada = '[' + String.join(ctgs, ', ') + ']';
-                agrupados.get(cobradorId).CTGs_Involucrados__c = listaFormateada;
+                agrupados.get(cobradorId).CTGs_Involucrados_Largo__c = listaFormateada;
             }
         }
 
