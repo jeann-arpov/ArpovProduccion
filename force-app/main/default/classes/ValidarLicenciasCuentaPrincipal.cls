@@ -14,13 +14,14 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
 
     @InvocableMethod(label='Buscar Licencias de Productores' description='Devuelve lista de productores con licencias válidas según su rol')
     public static List<Response> execute(List<Request> requests) {
-        Set<Id> productoresOk = new Set<Id>();
         Request parametros = requests[0];
         Set<Id> productores = new Set<Id>(parametros.productores);
         String rol = parametros.rol;
 
         List<Venta__c> ventasObtenidas = getVentas(productores, rol);
         Set<Id> productoresIds = obtenerProductores(ventasObtenidas);
+        // Solo devolver productores que estaban en el input original
+        productoresIds.retainAll(productores);
 
         Response res = new Response();
         res.productoresOk = new List<Id>(productoresIds);
@@ -69,10 +70,10 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
         List<Venta__c> vTecnologiaRROrig = mapearTecnologiaRR(vProductorOriginante);//ventas de tecnología RR
         List<Venta__c> vTecnoOtraOrig = mapearTecnologiaOtra(vProductorOriginante);//lista de ventas de otras tecnologías
 
-        //Obtengo las claves para productores Destinatarios según la tecnología para buscar las licencias
-        Set<String> claveProductorEnlistOrig = getClaveVentasRolDestinatario(vTecnologiaEnlistOrig);
-        Set<String> claveProductorRROrig = getClaveVentasRolDestinatario(vTecnologiaRROrig);
-        Set<String> claveProductorOtraOrig = getClaveVentasRolDestinatario(vTecnoOtraOrig);
+        //Obtengo las claves para productores Originantes según la tecnología para buscar las licencias
+        Set<String> claveProductorEnlistOrig = getClaveVentasRolOriginante(vTecnologiaEnlistOrig);
+        Set<String> claveProductorRROrig = getClaveVentasRolOriginante(vTecnologiaRROrig);
+        Set<String> claveProductorOtraOrig = getClaveVentasRolOriginante(vTecnoOtraOrig);
 
         //Obtengo las licencias según las claves obtenidas
         List<Licencia__c> licenciasEnlistOrig = getLicencias(claveProductorEnlistOrig, 'Enlist');
@@ -101,7 +102,9 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
 
         List<Venta__c> ventasEnlist = new List<Venta__c>();
         for (Venta__c v : ventas) {
-            String tecnoLicencia = (v.Producto__r.Variedad2__r.Biotecnologia__c);
+            String tecnoLicencia = (v.Producto__r != null && v.Producto__r.Variedad2__r != null)
+                ? v.Producto__r.Variedad2__r.Biotecnologia__c : null;
+            if (String.isBlank(tecnoLicencia)) continue;
             if (tecnoLicencia.startsWith('Enlist') || tecnoLicencia == 'Conkesta E3') {
                 ventasEnlist.add(v);
             }
@@ -113,7 +116,9 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
         
         List<Venta__c> ventasRR = new List<Venta__c>();
         for (Venta__c v : ventas) {
-            String tecnoLicencia = (v.Producto__r.Variedad2__r.Biotecnologia__c);
+            String tecnoLicencia = (v.Producto__r != null && v.Producto__r.Variedad2__r != null)
+                ? v.Producto__r.Variedad2__r.Biotecnologia__c : null;
+            if (String.isBlank(tecnoLicencia)) continue;
             if (tecnoLicencia.startsWith('RR') || tecnoLicencia == 'Convencional') {
                 ventasRR.add(v);
             }
@@ -125,7 +130,9 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
         
         List<Venta__c> ventasOtras = new List<Venta__c>();
         for (Venta__c v : ventas) {
-            String tecnoLicencia = (v.Producto__r.Variedad2__r.Biotecnologia__c);
+            String tecnoLicencia = (v.Producto__r != null && v.Producto__r.Variedad2__r != null)
+                ? v.Producto__r.Variedad2__r.Biotecnologia__c : null;
+            if (String.isBlank(tecnoLicencia)) continue;
             if (tecnoLicencia == 'BGRR' || tecnoLicencia == 'HB4') {
                 ventasOtras.add(v);
             }
@@ -141,22 +148,77 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
             SELECT Id, Cuenta_Productor__c, Cuenta_Obtentor__c, Tecnologia__c FROM Licencia__c WHERE Tipo_de_Licencia__c = 'Productor' AND Tecnologia__c = :tecno AND Estado__c = 'Aprobada' AND Clave_Licencia_Productor_Obtentor__c IN :claveLicencia ];
     }
 
+    /**
+     * Obtiene combinaciones únicas de ventas (AggregateResult) en lugar de todas las filas,
+     * para no superar el límite de 50.000 query rows cuando hay muchos registros Venta__c.
+     */
     public static List<Venta__c> getVentas(Set<Id> productores, String rol){
         List<Venta__c> ventas = new List<Venta__c>();
-        if (!Schema.sObjectType.Venta__c.isAccessible()) return ventas;
+        if (!Schema.sObjectType.Venta__c.isAccessible() || productores == null || productores.isEmpty()) {
+            return ventas;
+        }
 
-        if (rol == 'Destinatario') { 
-            ventas = [SELECT Id, Tipo_de_Venta__c, Originante__c, Destinatario__c, Rol_Destinatario__c,Rol_Originante__c,
-                            Producto__r.Variedad2__r.Biotecnologia__c, 
-                            Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId
-                    FROM Venta__c
-                    WHERE Semba_Evolucion__c = true AND Destinatario__c IN :productores];
+        // Solo tipos usados luego en obtenerProductores / filtros por tipo
+        Set<String> tiposRelevantes = new Set<String>{ 'C', 'Venta', 'TDS', 'DPO', 'DPD' };
+
+        List<AggregateResult> agrupadas;
+        if (rol == 'Destinatario') {
+            agrupadas = [
+                SELECT COUNT(Id) cnt, Originante__c, Destinatario__c, Tipo_de_Venta__c,
+                       Rol_Destinatario__c, Rol_Originante__c, Producto__c
+                FROM Venta__c
+                WHERE Semba_Evolucion__c = true
+                  AND Destinatario__c IN :productores
+                  AND Tipo_de_Venta__c IN :tiposRelevantes
+                GROUP BY Originante__c, Destinatario__c, Tipo_de_Venta__c,
+                         Rol_Destinatario__c, Rol_Originante__c, Producto__c
+            ];
         } else {
-            ventas = [SELECT Id, Tipo_de_Venta__c, Originante__c, Destinatario__c,Rol_Destinatario__c,Rol_Originante__c,
-                            Producto__r.Variedad2__r.Biotecnologia__c,
-                            Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId
-                    FROM Venta__c
-                    WHERE Semba_Evolucion__c = true AND Originante__c IN :productores];
+            agrupadas = [
+                SELECT COUNT(Id) cnt, Originante__c, Destinatario__c, Tipo_de_Venta__c,
+                       Rol_Destinatario__c, Rol_Originante__c, Producto__c
+                FROM Venta__c
+                WHERE Semba_Evolucion__c = true
+                  AND Originante__c IN :productores
+                  AND Tipo_de_Venta__c IN :tiposRelevantes
+                GROUP BY Originante__c, Destinatario__c, Tipo_de_Venta__c,
+                         Rol_Destinatario__c, Rol_Originante__c, Producto__c
+            ];
+        }
+
+        Set<Id> productIds = new Set<Id>();
+        for (AggregateResult ar : agrupadas) {
+            Id productoId = (Id) ar.get('Producto__c');
+            if (productoId != null) {
+                productIds.add(productoId);
+            }
+        }
+
+        Map<Id, Product2> productosById = productIds.isEmpty()
+            ? new Map<Id, Product2>()
+            : new Map<Id, Product2>([
+                SELECT Id,
+                       Variedad2__r.Biotecnologia__c,
+                       Variedad2__r.Obtentor_Comercializa__c,
+                       Variedad2__r.Obtentor_Comercializa__r.ParentId
+                FROM Product2
+                WHERE Id IN :productIds
+            ]);
+
+        for (AggregateResult ar : agrupadas) {
+            Id productoId = (Id) ar.get('Producto__c');
+            Venta__c v = new Venta__c(
+                Originante__c = (Id) ar.get('Originante__c'),
+                Destinatario__c = (Id) ar.get('Destinatario__c'),
+                Tipo_de_Venta__c = (String) ar.get('Tipo_de_Venta__c'),
+                Rol_Originante__c = (String) ar.get('Rol_Originante__c'),
+                Rol_Destinatario__c = (String) ar.get('Rol_Destinatario__c'),
+                Producto__c = productoId
+            );
+            if (productoId != null && productosById.containsKey(productoId)) {
+                v.Producto__r = productosById.get(productoId);
+            }
+            ventas.add(v);
         }
         return ventas;
     }
@@ -165,8 +227,9 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
 
         Set<String> claves = new Set<String>();
         for (Venta__c v : ventas) {
+            if (v.Producto__r == null || v.Producto__r.Variedad2__r == null) continue;
             String obtentor = String.valueOf(v.Producto__r.Variedad2__r.Obtentor_Comercializa__c);
-            if (v.Destinatario__c != null) {
+            if (v.Destinatario__c != null && obtentor != null && obtentor != 'null') {
                 claves.add(v.Destinatario__c + obtentor);
             }
         }
@@ -177,9 +240,10 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
 
         Set<String> claves = new Set<String>();
         for (Venta__c v : ventas) {
+            if (v.Producto__r == null || v.Producto__r.Variedad2__r == null) continue;
             String obtentor = String.valueOf(v.Producto__r.Variedad2__r.Obtentor_Comercializa__c);
             
-            if (v.Originante__c != null) {
+            if (v.Originante__c != null && obtentor != null && obtentor != 'null') {
                 claves.add(v.Originante__c +  obtentor );
             }
         }
