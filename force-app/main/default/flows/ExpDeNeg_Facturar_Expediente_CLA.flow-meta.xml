@@ -350,12 +350,6 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>CTGs_Involucrados__c</field>
-            <value>
-                <elementReference>CTGs</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Cantidad__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Saldo_Expediente__c</elementReference>
@@ -395,6 +389,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <field>Productor__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Cuenta__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CTGs_Involucrados_Largo__c</field>
+            <value>
+                <elementReference>CTGs</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -421,12 +421,6 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>CTGs_Involucrados__c</field>
-            <value>
-                <elementReference>CTGs</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Cantidad__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Saldo_Expediente__c</elementReference>
@@ -466,6 +460,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <field>Productor__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Cuenta__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CTGs_Involucrados_Largo__c</field>
+            <value>
+                <elementReference>CTGs</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>

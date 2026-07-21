@@ -63,7 +63,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>CTGs_Involucrados__c</field>
+                <field>CTGs_Involucrados_Largo__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
