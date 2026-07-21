@@ -15,6 +15,7 @@ import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import getAccountFromUserByVentas from '@salesforce/apex/UtilsVentaHt.getAccountFromUserByVentas';
 
 const ESTADO_HT_VENDIDAS = 'Pagada';
+const ESTADOS_SIN_SUBIR_FACTURA = new Set(['Pagada', 'Facturada']);
 
 export default class VentasHTList extends NavigationMixin(LightningElement) {
     iconVenderHTUrl = `${resourcePortal}/resourcePortal/images/icon-vender-ht.svg`;
@@ -327,7 +328,7 @@ export default class VentasHTList extends NavigationMixin(LightningElement) {
             const visibilityByVenta = await getAccountFromUserByVentas({ ventaIds });
             this.ventasAll = this.ventasAll.map(venta => ({
                 ...venta,
-                mostrarBoton: venta.estado !== ESTADO_HT_VENDIDAS && Boolean(visibilityByVenta?.[venta.id])
+                mostrarBoton: !ESTADOS_SIN_SUBIR_FACTURA.has(venta.estado) && Boolean(visibilityByVenta?.[venta.id])
             }));
         } catch (error) {
             console.error('Error evaluando visibilidad por venta:', error);
