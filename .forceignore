@@ -13,5 +13,5 @@ package.xml
 
 node_modules/
 
-# DevOps Center app (managed, no desplegar)
-**/standard__AlmDevops.app-meta.xml
+# Perfil con referencias a paquetes managed - no incluir en bundles
+**/profiles/Interfaces.profile-meta.xml
