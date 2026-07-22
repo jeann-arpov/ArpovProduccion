@@ -1,4 +1,5 @@
 public with sharing class AgruparRegaliasPorCobrador {
+    // WI-000009 registro changeset BUG-03 factura PRI Y TN
 
     @InvocableMethod(label='Agrupar TN_Regalia_Enlist por Cobrador y sumar Cantidad')
     public static List<SalidaWrapper> procesar(List<EntradaWrapper> inputList) {
