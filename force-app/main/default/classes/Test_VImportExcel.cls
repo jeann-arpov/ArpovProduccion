@@ -493,4 +493,65 @@ public class Test_VImportExcel {
         lwcVentasImportFromExcel.applyNComprobantePrefijoRemito(rd);
         System.assertEquals('RD-99', (String)rd.get('N_de_Comprobante__c'));
     }
+
+    /** Plantilla SP1 (labels + Kilos por Bolsa + col vacía) y legacy (API + Kilos Totales). */
+    @isTest static void importPlantillasVersionesAnterioresTest() {
+        Map<String, Object> sp1 = new Map<String, Object>{
+            'Campaña Agrícola' => '2026',
+            'Kilos Totales' => '400',
+            'Categoría' => 'Primera Multiplicación',
+            'CUIT Destinatario' => '30711969523',
+            '__EMPTY' => '',
+            'Fecha Comprobante' => '15/07/2026',
+            'Kilos por Bolsa' => '1',
+            'Línea del Comprobante' => '1',
+            'N° Comprobante' => 'A-0001-00000001',
+            'Razón Social Destinatario' => 'TEST SA',
+            'Tipo de Comprobante' => 'FC',
+            'Variedad' => 'ARAUCARIA',
+            'ColumnaExtraNoMapeada' => 'ignorar'
+        };
+        lwcVentasImportFromExcel.normalizeColumnAliases(sp1);
+        lwcVentasImportFromExcel.normalizeTipoComprobanteField(sp1);
+        lwcVentasImportFromExcel.normalizeKilosTotalesField(sp1);
+
+        System.assert(!sp1.containsKey('__EMPTY'), 'Debe quitar columnas vacías de plantilla SP1.');
+        System.assertEquals('400', String.valueOf(sp1.get('Cantidad_de_Bolsas__c')));
+
+        Map<String, Object> strippedSp1 = lwcVentasImportFromExcel.stripRowForDeserialize(sp1);
+        strippedSp1.remove('Fecha_de_Facturacion__c');
+        System.assert(!strippedSp1.containsKey('ColumnaExtraNoMapeada'));
+        Ventas_Informadas__c vSp1 = (Ventas_Informadas__c) JSON.deserializeStrict(
+            JSON.serialize(strippedSp1),
+            Ventas_Informadas__c.class
+        );
+        System.assertEquals('FC', vSp1.Tipo_de_Comprobante__c);
+
+        Map<String, Object> legacy = new Map<String, Object>{
+            'Campana_de_Ventas__c' => '2026',
+            'Kilos Totales' => '800',
+            'Categoria__c' => 'Original o Fundadora',
+            'CUIT_Destinatario__c' => '30711969523',
+            'CUIT_Originante__c' => '30709538418',
+            'Fecha_de_Facturacion__c' => '46183',
+            'Kilos_por_Bolsa__c' => '1',
+            'Linea_Facturacion__c' => '1',
+            'N_de_Comprobante__c' => 'A-0001-00000002',
+            'Razon_Social_Destinatario__c' => 'LEGACY SA',
+            'Tipo_de_Comprobante__c' => 'FC',
+            'Variedad__c' => 'ARAUCARIA'
+        };
+        lwcVentasImportFromExcel.normalizeColumnAliases(legacy);
+        lwcVentasImportFromExcel.normalizeTipoComprobanteField(legacy);
+        lwcVentasImportFromExcel.normalizeKilosTotalesField(legacy);
+
+        Map<String, Object> strippedLegacy = lwcVentasImportFromExcel.stripRowForDeserialize(legacy);
+        strippedLegacy.remove('Fecha_de_Facturacion__c');
+        Ventas_Informadas__c vLegacy = (Ventas_Informadas__c) JSON.deserializeStrict(
+            JSON.serialize(strippedLegacy),
+            Ventas_Informadas__c.class
+        );
+        System.assertEquals('800', String.valueOf(strippedLegacy.get('Cantidad_de_Bolsas__c')));
+        System.assertEquals('FC', vLegacy.Tipo_de_Comprobante__c);
+    }
 }

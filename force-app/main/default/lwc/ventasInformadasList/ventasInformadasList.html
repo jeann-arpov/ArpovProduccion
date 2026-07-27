@@ -8,6 +8,9 @@
             </div>
 
             <div class="acciones-derecha">
+                <button class={stineFilterButtonClass} onclick={handleToggleStineSinUbicacion} title="Mostrar solo ventas pendientes de ubicación (sin provincia o localidad)">
+                    {stineFilterLabel}
+                </button>
                 <div class="page-size-selector">
                     <label>Registros/pág:</label>
                     <div class="dropdown-control">
@@ -33,7 +36,7 @@
             {totalRegistros} de {totalCargados} elementos • Ordenado por Fecha de creación • Estado != Procesado
         </div>
         <div class="ventas-ayuda">
-            Utilice los filtros en cada columna para refinar la grilla. Puede modificar la cantidad de registros por página desde el selector superior y ajustar el ancho de columnas arrastrando el borde del encabezado.
+            Utilice los filtros en cada columna para refinar la grilla. Active “Ventas pendientes de ubicación” para ver solo las que no tienen provincia o localidad.
         </div>
 
         <!-- Tabla -->
@@ -96,6 +99,14 @@
                         <span class="th-content">Venta Informada <span class="sort-icon">{getSortIcon('name')}</span></span>
                         <span class="col-resize-handle" data-col-index="10" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
                     </th>
+                    <th class="sortable resizable-th" data-field="provinciaUbicacion" title="Provincia" onclick={handleSort}>
+                        <span class="th-content">Provincia <span class="sort-icon">{getSortIcon('provinciaUbicacion')}</span></span>
+                        <span class="col-resize-handle" data-col-index="11" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                    </th>
+                    <th class="sortable resizable-th" data-field="localidadUbicacion" title="Localidad" onclick={handleSort}>
+                        <span class="th-content">Localidad <span class="sort-icon">{getSortIcon('localidadUbicacion')}</span></span>
+                        <span class="col-resize-handle" data-col-index="12" onmousedown={handleColumnResizeStart} onclick={handleColumnResizeClick} title="Ajustar ancho"></span>
+                    </th>
                     <th class="col-acciones-header" title="Acciones">Acciones</th>
                 </tr>
                 <tr>
@@ -118,6 +129,8 @@
                     <th><input type="text" class="filter-input" data-field="numero" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
                     <th><input type="text" class="filter-input" data-field="lineaComprobante" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
                     <th><input type="text" class="filter-input" data-field="name" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                    <th><input type="text" class="filter-input" data-field="provinciaUbicacion" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
+                    <th><input type="text" class="filter-input" data-field="localidadUbicacion" oninput={handleColumnFilter} placeholder="Filtrar..." /></th>
                     <th></th>
                 </tr>
             </thead>
@@ -135,6 +148,30 @@
                         <td class="col-comprobante" title={v.numero}>{v.numero}</td>
                         <td class="col-centered">{v.lineaComprobante}</td>
                         <td class="col-venta-informada" title={v.name}>{v.name}</td>
+                        <td class={v.provinciaCellClass}>
+                            <c-ventas-informadas-ubicacion-lookup
+                                venta-id={v.id}
+                                field-type="provincia"
+                                editable={v.ubicacionEditable}
+                                saving={v.ubicacionSaving}
+                                selected-id={v.ubicacionProvinciaId}
+                                display-label={v.ubicacionProvinciaLabel}
+                                provincia-options={provinciaOptions}
+                                onlookupchange={handleUbicacionLookupChange}
+                            ></c-ventas-informadas-ubicacion-lookup>
+                        </td>
+                        <td class={v.localidadCellClass}>
+                            <c-ventas-informadas-ubicacion-lookup
+                                venta-id={v.id}
+                                field-type="localidad"
+                                editable={v.ubicacionEditable}
+                                saving={v.ubicacionSaving}
+                                selected-id={v.ubicacionLocalidadId}
+                                display-label={v.ubicacionLocalidadLabel}
+                                provincia-id={v.ubicacionProvinciaId}
+                                onlookupchange={handleUbicacionLookupChange}
+                            ></c-ventas-informadas-ubicacion-lookup>
+                        </td>
                         <td class="col-acciones">
                             <button class="btn-duplicar" data-id={v.id} onclick={handleDuplicateClick}>Duplicar</button>
                             <button class="btn-eliminar" data-id={v.id} onclick={handleDeleteClick}>Eliminar</button>

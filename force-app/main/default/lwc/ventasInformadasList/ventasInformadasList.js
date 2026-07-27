@@ -6,6 +6,8 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getVentasInformadas from '@salesforce/apex/VentasInformadasController.getVentasInformadasSinProcesar';
 import deleteVentaInformada from '@salesforce/apex/VentasInformadasController.deleteVentaInformada';
 import getVentaInformadaById from '@salesforce/apex/VentasInformadasController.getVentaInformadaById';
+import getProvinciasDestinoParaLookup from '@salesforce/apex/VentasInformadasDestinoGeoService.getProvinciasDestinoParaLookup';
+import updateUbicacionVentaProcesada from '@salesforce/apex/VentasInformadasController.updateUbicacionVentaProcesada';
 import VentaInformadaModal from 'c/ventaInformadaModal';
 import {
     hasActiveFilters,
@@ -27,11 +29,20 @@ const UNIDADES = {
 
 const PAGE_SIZES = [10, 25, 50, 100, 200];
 
+function isStineSinUbicacion(venta) {
+    return (
+        venta?.esStine === true &&
+        (!venta.provinciaUbicacionId || !venta.localidadUbicacionId)
+    );
+}
+
 export default class VentasInformadasList extends NavigationMixin(LightningElement) {
     @wire(MessageContext)
     messageContext;
 
     @track ventas = [];
+    @track ubicacionDraftByVentaId = {};
+    @track provinciaOptions = [];
     @track searchTerm = '';
     @track showModal = false;
     @track showExportModal = false;
@@ -46,12 +57,28 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
     @track columnWidths = [...DEFAULT_WIDTHS_SIN_PROCESAR];
     @track isResizingColumns = false;
     @track isLoading = true;
+    @track savingUbicacionVentaId = null;
+    @track soloStineSinUbicacion = false;
     currentPage = 1;
     refreshSubscription = null;
     columnResizeController;
 
     get totalCargados() {
         return this.ventas.length;
+    }
+
+    get stineSinUbicacionCount() {
+        return this.ventas.filter(isStineSinUbicacion).length;
+    }
+
+    get stineFilterButtonClass() {
+        return this.soloStineSinUbicacion
+            ? 'btn-stine-filter is-active'
+            : 'btn-stine-filter';
+    }
+
+    get stineFilterLabel() {
+        return `Ventas pendientes de ubicación (${this.stineSinUbicacionCount})`;
     }
 
     get pageSizeValue() {
@@ -101,6 +128,19 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
         );
     }
 
+    @wire(getProvinciasDestinoParaLookup, { searchTerm: '' })
+    wiredProvincias({ data, error }) {
+        if (data) {
+            this.provinciaOptions = data.map((item) => ({
+                label: item.title,
+                value: item.id
+            }));
+        } else if (error) {
+            console.error('Error cargando provincias:', error);
+            this.provinciaOptions = [];
+        }
+    }
+
     @api
     refresh() {
         this.currentPage = 1;
@@ -112,12 +152,30 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
         try {
             const data = await getVentasInformadas();
             this.ventas = Array.isArray(data) ? [...data] : [];
+            this.initUbicacionDrafts(this.ventas);
         } catch (error) {
             console.error('Error cargando ventas informadas:', error);
             this.ventas = [];
+            this.ubicacionDraftByVentaId = {};
         } finally {
             this.isLoading = false;
         }
+    }
+
+    initUbicacionDrafts(ventas) {
+        const drafts = {};
+        (ventas || []).forEach((venta) => {
+            if (!venta?.id) {
+                return;
+            }
+            drafts[venta.id] = {
+                provinciaId: venta.provinciaUbicacionId || null,
+                localidadId: venta.localidadUbicacionId || null,
+                provinciaLabel: venta.provinciaUbicacion || '',
+                localidadLabel: venta.localidadUbicacion || ''
+            };
+        });
+        this.ubicacionDraftByVentaId = drafts;
     }
 
     get totalRegistros() {
@@ -125,11 +183,11 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
     }
 
     get ventasFiltradasYOrdenadas() {
-        return sortVentas(
-            filterVentas(this.ventas, this.searchTerm, this.columnFilters),
-            this.sortField,
-            this.sortDirection
-        );
+        let filtered = filterVentas(this.ventas, this.searchTerm, this.columnFilters);
+        if (this.soloStineSinUbicacion) {
+            filtered = filtered.filter(isStineSinUbicacion);
+        }
+        return sortVentas(filtered, this.sortField, this.sortDirection);
     }
 
     get ventasOrdenadas() {
@@ -137,7 +195,7 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
     }
 
     get tieneFiltrosActivos() {
-        return hasActiveFilters(this.searchTerm, this.columnFilters);
+        return hasActiveFilters(this.searchTerm, this.columnFilters) || this.soloStineSinUbicacion;
     }
 
     get exportTotalTodos() {
@@ -168,10 +226,29 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
         const start = (this.currentPage - 1) * this.pageSize;
         return this.ventasFiltradasYOrdenadas
             .slice(start, start + this.pageSize)
-            .map((venta) => ({
-                ...venta,
-                cantidadDisplay: this.formatCantidad(venta)
-            }));
+            .map((venta) => this.enrichVentaRow(venta));
+    }
+
+    enrichVentaRow(venta) {
+        const draft = this.ubicacionDraftByVentaId[venta.id] || {
+            provinciaId: venta.provinciaUbicacionId || null,
+            localidadId: venta.localidadUbicacionId || null,
+            provinciaLabel: venta.provinciaUbicacion || '',
+            localidadLabel: venta.localidadUbicacion || ''
+        };
+
+        return {
+            ...venta,
+            cantidadDisplay: this.formatCantidad(venta),
+            ubicacionEditable: true,
+            ubicacionProvinciaId: draft.provinciaId,
+            ubicacionProvinciaLabel: draft.provinciaLabel,
+            ubicacionLocalidadId: draft.localidadId,
+            ubicacionLocalidadLabel: draft.localidadLabel,
+            ubicacionSaving: this.savingUbicacionVentaId === venta.id,
+            provinciaCellClass: 'col-ubicacion',
+            localidadCellClass: 'col-ubicacion'
+        };
     }
 
     get disablePrev() {
@@ -180,6 +257,87 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
 
     get disableNext() {
         return this.currentPage * this.pageSize >= this.ventasFiltradasYOrdenadas.length;
+    }
+
+    handleToggleStineSinUbicacion() {
+        this.soloStineSinUbicacion = !this.soloStineSinUbicacion;
+        this.currentPage = 1;
+    }
+
+    async handleUbicacionLookupChange(event) {
+        const { ventaId, fieldType, selectedId, selectedLabel } = event.detail || {};
+        if (!ventaId || !fieldType) {
+            return;
+        }
+
+        const current = this.ubicacionDraftByVentaId[ventaId] || {};
+        const nextDraft = { ...current };
+
+        if (fieldType === 'provincia') {
+            const provinciaChanged = current.provinciaId !== selectedId;
+            nextDraft.provinciaId = selectedId;
+            nextDraft.provinciaLabel = selectedLabel;
+            if (provinciaChanged) {
+                nextDraft.localidadId = null;
+                nextDraft.localidadLabel = '';
+            }
+            this.ubicacionDraftByVentaId = {
+                ...this.ubicacionDraftByVentaId,
+                [ventaId]: nextDraft
+            };
+            await this.saveUbicacion(ventaId);
+            return;
+        }
+
+        if (fieldType === 'localidad') {
+            nextDraft.localidadId = selectedId;
+            nextDraft.localidadLabel = selectedLabel;
+            this.ubicacionDraftByVentaId = {
+                ...this.ubicacionDraftByVentaId,
+                [ventaId]: nextDraft
+            };
+            await this.saveUbicacion(ventaId);
+        }
+    }
+
+    async saveUbicacion(ventaId) {
+        const draft = this.ubicacionDraftByVentaId[ventaId];
+        if (!draft) {
+            return;
+        }
+
+        this.savingUbicacionVentaId = ventaId;
+        try {
+            await updateUbicacionVentaProcesada({
+                ventaId,
+                provinciaUbicacionId: draft.provinciaId || null,
+                localidadUbicacionId: draft.localidadId || null
+            });
+
+            this.ventas = this.ventas.map((venta) => {
+                if (venta.id !== ventaId) {
+                    return venta;
+                }
+                return {
+                    ...venta,
+                    provinciaUbicacionId: draft.provinciaId,
+                    provinciaUbicacion: draft.provinciaLabel,
+                    localidadUbicacionId: draft.localidadId,
+                    localidadUbicacion: draft.localidadLabel
+                };
+            });
+
+            this.showToast('Éxito', 'Ubicación actualizada.', 'success');
+        } catch (error) {
+            const message =
+                error?.body?.message ||
+                error?.message ||
+                'No se pudo guardar provincia/localidad.';
+            this.showToast('Error', message, 'error');
+            await this.loadVentas();
+        } finally {
+            this.savingUbicacionVentaId = null;
+        }
     }
 
     handleSearchChange(event) {
@@ -250,7 +408,7 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
     }
 
     get unidadLabel() {
-        switch(this.unidadSeleccionada) {
+        switch (this.unidadSeleccionada) {
             case UNIDADES.KILOS:
                 return 'Kilos';
             case UNIDADES.BIGBAGS:

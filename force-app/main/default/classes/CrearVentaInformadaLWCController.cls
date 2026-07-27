@@ -110,10 +110,16 @@ public without sharing class CrearVentaInformadaLWCController {
         ordenadas.sort();
 
         List<LookupSearchResult> resultados = new List<LookupSearchResult>();
+        Set<String> labelsVistos = new Set<String>();
         String icon = 'standard:data_streams';
 
         for (CampanaSortable cs : ordenadas) {
             if (String.isBlank(searchLower) || cs.label.toLowerCase().contains(searchLower)) {
+                String labelKey = cs.label != null ? cs.label.trim().toLowerCase() : null;
+                if (String.isBlank(labelKey) || labelsVistos.contains(labelKey)) {
+                    continue;
+                }
+                labelsVistos.add(labelKey);
                 LookupSearchResult resultado = new LookupSearchResult(
                     cs.rec.Id,
                     'Campana_Agricola__c',
@@ -302,7 +308,7 @@ public without sharing class CrearVentaInformadaLWCController {
         }
         if (String.isBlank(searchTerm)) {
             return [
-                SELECT Id, Name
+                SELECT Id, Name, Cultivar_INASE__c
                 FROM Variedad__c
                 WHERE Cultivo__c = :cultivoId
                 ORDER BY Name
@@ -311,10 +317,10 @@ public without sharing class CrearVentaInformadaLWCController {
         }
         String likeTerm = '%' + escapeSoqlLike(searchTerm) + '%';
         return [
-            SELECT Id, Name
+            SELECT Id, Name, Cultivar_INASE__c
             FROM Variedad__c
             WHERE Cultivo__c = :cultivoId
-            AND Name LIKE :likeTerm
+            AND (Name LIKE :likeTerm OR Cultivar_INASE__c LIKE :likeTerm)
             ORDER BY Name
             LIMIT :VARIEDADES_MAX_LIMIT
         ];
@@ -338,7 +344,7 @@ public without sharing class CrearVentaInformadaLWCController {
                 continue;
             }
             List<Variedad__c> selected = [
-                SELECT Id, Name
+                SELECT Id, Name, Cultivar_INASE__c
                 FROM Variedad__c
                 WHERE Id = :selectedId
                 AND Cultivo__c = :cultivoId
@@ -353,11 +359,20 @@ public without sharing class CrearVentaInformadaLWCController {
 
      public static List<LookupSearchResult> VariedadToLookup(List<Variedad__c> variedades) {
         List<LookupSearchResult> results = new List<LookupSearchResult>();
+        // Evita duplicados por Cultivar INASE (o Name si falta cultivar).
+        Set<String> keysVistos = new Set<String>();
 
         String accountIcon = 'custom:custom24';
 
         for (Variedad__c variedad : variedades) {
-            String name = variedad.Name;
+            String key = variedadKeyUnica(variedad);
+            if (String.isBlank(key) || keysVistos.contains(key)) {
+                continue;
+            }
+            keysVistos.add(key);
+            String name = String.isNotBlank(variedad.Cultivar_INASE__c)
+                ? variedad.Cultivar_INASE__c
+                : variedad.Name;
             results.add(new LookupSearchResult(variedad.Id, 'Variedad__c', accountIcon,  ' - ' + name, ''));
             results[results.size() - 1].record = variedad;
         }
@@ -365,6 +380,20 @@ public without sharing class CrearVentaInformadaLWCController {
         results.sort();
 
         return results;
+    }
+
+    @TestVisible
+    private static String variedadKeyUnica(Variedad__c variedad) {
+        if (variedad == null) {
+            return null;
+        }
+        if (String.isNotBlank(variedad.Cultivar_INASE__c)) {
+            return variedad.Cultivar_INASE__c.trim().toLowerCase();
+        }
+        if (String.isNotBlank(variedad.Name)) {
+            return variedad.Name.trim().toLowerCase();
+        }
+        return String.valueOf(variedad.Id);
     }
 
     /**

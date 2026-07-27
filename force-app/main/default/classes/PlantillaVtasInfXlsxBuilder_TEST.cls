@@ -98,6 +98,32 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
     }
 
     @isTest
+    static void referenciasNoDuplicaCeldaF2SiYaExiste() {
+        Map<String, List<String>> dicc = new Map<String, List<String>>{
+            'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
+            'TIPO_COMP'  => new List<String>{ 'FC', 'NC' },
+            'VARIEDADES' => new List<String>{ 'VAR-1' },
+            'CAMPANAS'   => new List<String>{ '2025' }
+        };
+
+        // Como la plantilla geo real: F2 ya está por sharedStrings (sin texto "Provincia Destino").
+        String base = '<?xml version="1.0"?>'
+            + '<worksheet><sheetData>'
+            + '<row r="1" spans="2:6"><c r="C1" s="31" t="s"><v>0</v></c></row>'
+            + '<row r="2" spans="2:6">'
+            + '<c r="B2" s="2" t="s"><v>1</v></c>'
+            + '<c r="F2" s="2" t="s"><v>12</v></c>'
+            + '</row>'
+            + '<row r="3" spans="2:6"><c r="F3" s="1" t="s"><v>43</v></c></row>'
+            + '</sheetData></worksheet>';
+
+        String xml = PlantillaVtasInfXlsxBuilder.patchReferenciasSheet(base, dicc);
+        Integer f2Count = xml.split('r="F2"', -1).size() - 1;
+        System.assertEquals(1, f2Count, 'No debe duplicar la celda F2 del encabezado.');
+        System.assert(xml.contains('r="F3"'), 'Debe conservar provincias existentes.');
+    }
+
+    @isTest
     static void comentariosSheetIncluyeVariedadesYCampanas() {
         Map<String, List<String>> dicc = new Map<String, List<String>>{
             'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },

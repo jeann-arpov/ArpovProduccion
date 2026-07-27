@@ -47,6 +47,14 @@ public without sharing class BatchApexVentasInformeFromExcel implements Database
             lwcVentasImportFromExcel.normalizeKilosTotalesField(fr);
         }
         Map<String, Variedad__c> variedadByName = lwcVentasImportFromExcel.getVariedadesPorNombre(scope);
+        Map<String, Id> provinciasByKey = VentasInformadasDestinoGeoService.loadProvinciasByKey();
+        Map<Id, Map<String, Id>> localidadesByProvinciaId =
+            VentasInformadasDestinoGeoService.buildLocalidadesCacheForProvinciaIds(
+                VentasInformadasDestinoGeoService.collectProvinciaIdsDesdeFilas(
+                    scope,
+                    provinciasByKey
+                )
+            );
         Map<String, Campana_Agricola__c> campanaByCultivoAno = lwcVentasImportFromExcel.getCampanasPorCultivoYAno(scope, variedadByName);
         VentasInformadasCuitResolver.CuitResolverCache cuitCache = VentasInformadasCuitResolver.buildCuitResolverCache(
             lwcVentasImportFromExcel.collectCuitsDesdeFilas(scope, true),
@@ -98,6 +106,12 @@ public without sharing class BatchApexVentasInformeFromExcel implements Database
                             cuitCache
                         );
                         VentasInformadasCuitResolver.aplicarVentaInterna(venta, cuitCache.accountsById);
+                        VentasInformadasDestinoGeoService.aplicarDestinoDesdeFilas(
+                            venta,
+                            fileRow,
+                            provinciasByKey,
+                            localidadesByProvinciaId
+                        );
                         if (String.isBlank(venta.Campana_de_Ventas__c)) {
                             AddError(fileRow, 'Falta Campaña Agrícola (año)');
                         } else {

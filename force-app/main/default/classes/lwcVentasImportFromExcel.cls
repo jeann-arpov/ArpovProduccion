@@ -34,13 +34,38 @@ public without sharing class lwcVentasImportFromExcel {
     /** Clave temporal en el Map de fila (no es campo de SF); se usa antes del deserialize. */
     @TestVisible private static final String CAMPANA_AGRICOLA_NOMBRE_KEY = '_CampanaAgricolaNombre';
 
-    // Alias de columnas: nombres idénticos al Pop Up "Nueva Venta" + API legacy.
+    /**
+     * Campos de Ventas_Informadas__c aceptados al importar (plantilla actual, SP1 y legacy).
+     * Columnas extra del Excel se ignoran en lugar de rechazar todo el archivo.
+     */
+    @TestVisible private static final Set<String> IMPORT_FIELD_WHITELIST = new Set<String>{
+        'Campana_de_Ventas__c',
+        'Cantidad_de_Bolsas__c',
+        'Categoria__c',
+        'Categoria_Portal__c',
+        'CUIT_Destinatario__c',
+        'CUIT_Originante__c',
+        'Fecha_de_Facturacion__c',
+        'Kilos_por_Bolsa__c',
+        'Linea_Facturacion__c',
+        'Localidad_Destino__c',
+        'N_de_Comprobante__c',
+        'Provincia_Destino__c',
+        'Razon_Social_Destinatario__c',
+        'Tipo_Comprobante_Externo__c',
+        'Tipo_de_Comprobante__c',
+        'Variedad__c'
+    };
+
+    // Alias de columnas: Pop Up "Nueva Venta", PLANIL-1 (CARGA), SP1 y legacy (Planilla/API).
     private static final Map<String, String> COLUMN_ALIASES = new Map<String, String>{
         'Campaña de Ventas' => 'Campana_de_Ventas__c',
         'Campana de Ventas' => 'Campana_de_Ventas__c',
         'Campana Agricola' => 'Campana_de_Ventas__c',
         'Campaña Agrícola' => 'Campana_de_Ventas__c',
         'Categoria' => 'Categoria__c',
+        'Cantidad' => 'Cantidad_de_Bolsas__c',
+        'Cantidad de Bolsas' => 'Cantidad_de_Bolsas__c',
         'Kilos Totales' => 'Cantidad_de_Bolsas__c',
         'Categoría' => 'Categoria__c',
         'CUIT Destinatario' => 'CUIT_Destinatario__c',
@@ -54,12 +79,16 @@ public without sharing class lwcVentasImportFromExcel {
         'Linea del Comprobante' => 'Linea_Facturacion__c',
         'Línea Facturación' => 'Linea_Facturacion__c',
         'Linea Facturacion' => 'Linea_Facturacion__c',
+        'Línea de Comprobante' => 'Linea_Facturacion__c',
+        'Linea de Comprobante' => 'Linea_Facturacion__c',
+        'Localidad Destino' => 'Localidad_Destino__c',
         'Nº de Comprobante' => 'N_de_Comprobante__c',
         'N° de Comprobante' => 'N_de_Comprobante__c',
         'N de Comprobante' => 'N_de_Comprobante__c',
         'N° Comprobante' => 'N_de_Comprobante__c',
         'Nº Comprobante' => 'N_de_Comprobante__c',
         'N Comprobante' => 'N_de_Comprobante__c',
+        'Provincia Destino' => 'Provincia_Destino__c',
         'Razón Social Destinatario' => 'Razon_Social_Destinatario__c',
         'Razon Social Destinatario' => 'Razon_Social_Destinatario__c',
         'Tipo de Comprobante' => 'Tipo_Comprobante_Externo__c',
@@ -163,6 +192,15 @@ public without sharing class lwcVentasImportFromExcel {
             if (!cuentasPorCuit.isEmpty()) {
                 cuitCache.mergeCuentasPorCuit(cuentasPorCuit);
             }
+            // Provincia/Localidad Destino: nombres (o Ids) → lookups, misma lógica que el batch.
+            Map<String, Id> provinciasByKey = VentasInformadasDestinoGeoService.loadProvinciasByKey();
+            Map<Id, Map<String, Id>> localidadesByProvinciaId =
+                VentasInformadasDestinoGeoService.buildLocalidadesCacheForProvinciaIds(
+                    VentasInformadasDestinoGeoService.collectProvinciaIdsDesdeFilas(
+                        fileRows,
+                        provinciasByKey
+                    )
+                );
 
             for(Map<String,Object> fileRow : fileRows){
                 fileRow.remove('Error'); 
@@ -248,6 +286,12 @@ public without sharing class lwcVentasImportFromExcel {
                                 cuitCache
                             );
                             VentasInformadasCuitResolver.aplicarVentaInterna(venta, cuitCache.accountsById);
+                            VentasInformadasDestinoGeoService.aplicarDestinoDesdeFilas(
+                                venta,
+                                fileRow,
+                                provinciasByKey,
+                                localidadesByProvinciaId
+                            );
                         }
                     }
 
@@ -658,6 +702,7 @@ public without sharing class lwcVentasImportFromExcel {
         @TestVisible
         public static void normalizeColumnAliases(Map<String,Object> fileRow){
             if (fileRow == null) return;
+            removeIgnorableColumnKeys(fileRow);
             List<String> keys = new List<String>(fileRow.keySet());
             for (String key : keys) {
                 String trimmed = key == null ? null : key.trim();
@@ -679,6 +724,33 @@ public without sharing class lwcVentasImportFromExcel {
                     }
                 }
             }
+            removeIgnorableColumnKeys(fileRow);
+        }
+
+        /** Quita encabezados vacíos o generados por SheetJS (__EMPTY) en plantillas SP1/legacy. */
+        @TestVisible
+        public static void removeIgnorableColumnKeys(Map<String,Object> fileRow) {
+            if (fileRow == null) {
+                return;
+            }
+            for (String key : new List<String>(fileRow.keySet())) {
+                if (isIgnorableColumnKey(key)) {
+                    fileRow.remove(key);
+                }
+            }
+        }
+
+        @TestVisible
+        private static Boolean isIgnorableColumnKey(String key) {
+            if (key == null) {
+                return true;
+            }
+            String trimmed = key.trim();
+            if (String.isBlank(trimmed)) {
+                return true;
+            }
+            String lower = trimmed.toLowerCase();
+            return lower.startsWith('__empty');
         }
 
         /**
@@ -1015,11 +1087,21 @@ public without sharing class lwcVentasImportFromExcel {
 
         @TestVisible
         public static Map<String,Object> stripRowForDeserialize(Map<String,Object> fileRow) {
-            Map<String,Object> out = new Map<String,Object>(fileRow);
+            Map<String,Object> out = new Map<String,Object>();
+            if (fileRow != null) {
+                for (String key : fileRow.keySet()) {
+                    if (IMPORT_FIELD_WHITELIST.contains(key)) {
+                        out.put(key, fileRow.get(key));
+                    }
+                }
+            }
             out.remove(CAMPANA_AGRICOLA_NOMBRE_KEY);
             out.remove('Error');
             out.remove('isSucces');
             out.remove('debug');
+            // Lookups Destino se resuelven por nombre/Id en aplicarDestinoDesdeFilas (no van al deserialize).
+            out.remove('Provincia_Destino__c');
+            out.remove('Localidad_Destino__c');
             return out;
         }
 
