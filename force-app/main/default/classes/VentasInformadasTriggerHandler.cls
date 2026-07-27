@@ -24,6 +24,36 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         procesarBeforeSave(ventas, oldMap);
     }
 
+    public override void afterInsert() {
+        reenlazarNcsSiHayFcs((List<Ventas_Informadas__c>) Trigger.new);
+    }
+
+    public override void afterUpdate() {
+        reenlazarNcsSiHayFcs((List<Ventas_Informadas__c>) Trigger.new);
+    }
+
+    /**
+     * Si entra/actualiza una FC, intenta vincular NCs que quedaron "sin Origen"
+     * (caso: primero NC, después FC).
+     */
+    @TestVisible
+    private static void reenlazarNcsSiHayFcs(List<Ventas_Informadas__c> ventas) {
+        if (VentasInformadasNcOrigenUtil.bypassReenlace || ventas == null || ventas.isEmpty()) {
+            return;
+        }
+        List<Ventas_Informadas__c> ncs =
+            VentasInformadasNcOrigenUtil.reenlazarNcsHuerfanas(ventas, null);
+        if (ncs.isEmpty()) {
+            return;
+        }
+        VentasInformadasNcOrigenUtil.bypassReenlace = true;
+        try {
+            update ncs;
+        } finally {
+            VentasInformadasNcOrigenUtil.bypassReenlace = false;
+        }
+    }
+
     @TestVisible
     private static void procesarBeforeSave(
         List<Ventas_Informadas__c> ventas,
@@ -40,31 +70,15 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         sincronizarTextoVariedadDesdeLookup(ventas);
         validarCultivoCampanaConVariedad(ventas, oldMap);
         actualizarProducto(ventas, oldMap);
-        VentasInformadasExclusionUtil.marcarPendientesValidarSiCorresponde(ventas, null);
+        // Checkbox regalía comercial → Tipo Material + producto RC (o revertir al desmarcar).
+        VentasInformadasTipoMaterialUtil.aplicarBeforeSave(ventas, oldMap);
+        VentasInformadasExclusionUtil.marcarPendientesValidarSiCorresponde(ventas);
         resolverCuentasDesdeCuit(ventas);
         aplicarRolesDesdeCuentas(ventas);
-    }
-
-    /** Post-normalización portal: cultivo campaña, producto y CUIT (backfill API / scripts). */
-    public static void completarEnriquecimientoPortal(List<Ventas_Informadas__c> ventas) {
-        completarEnriquecimientoPortal(ventas, false);
-    }
-
-    public static void completarEnriquecimientoPortal(
-        List<Ventas_Informadas__c> ventas,
-        Boolean omitirCuit
-    ) {
-        if (ventas == null || ventas.isEmpty()) {
-            return;
-        }
-        aplicarCultivoDesdeCampana(ventas);
-        sincronizarCategoria(ventas, null);
-        sincronizarTextoVariedadDesdeLookup(ventas);
-        actualizarProducto(ventas, null);
-        if (omitirCuit != true) {
-            resolverCuentasDesdeCuit(ventas);
-            aplicarRolesDesdeCuentas(ventas);
-        }
+        // NC: intentar vincular FC Origen ya existente (misma planilla se resuelve en el batch).
+        VentasInformadasNcOrigenUtil.aplicar(ventas);
+        // Ticket 1916: bolsas SF = 0 → Resultado al crear/editar (no recién al convertir).
+        ConvertirVentasInformadasResumenUtil.aplicarValidacionBolsasAlGuardar(ventas);
     }
 
     /** Completa Originante / Destinatario / roles desde CUIT cuando el import no pudo resolver lookups. */
@@ -94,6 +108,7 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
             Boolean faltaLookup = (venta.Destinatario__c == null && tieneCuitDest)
                 || (venta.Originante__c == null && tieneCuitOrigen);
 
+            // Con variedad conocida, re-resolver siempre (corrige flow/lookup que elige la primera cuenta por CUIT).
             if (faltaLookup || obtComId != null) {
                 ventasAResolver.add(venta);
             }
@@ -515,29 +530,19 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         List<Ventas_Informadas__c> ventas,
         Map<Id, Ventas_Informadas__c> oldMap
     ) {
-        if (!VentasInformadasApiNormalizer.tieneCampoTipoComprobanteExterno()) {
-            return;
-        }
         for (Ventas_Informadas__c venta : ventas) {
             Ventas_Informadas__c oldV =
                 oldMap != null && venta.Id != null ? oldMap.get(venta.Id) : null;
 
             if (oldV == null) {
-                if (VentasInformadasApiNormalizer.puedeEscribirTipoComprobanteExterno()) {
-                    aplicarTipoComprobanteInicial(venta);
-                }
-                continue;
-            }
-
-            if (!VentasInformadasApiNormalizer.puedeEscribirTipoComprobanteExterno()) {
+                aplicarTipoComprobanteInicial(venta);
                 continue;
             }
 
             Boolean internoCambio =
                 venta.Tipo_de_Comprobante__c != oldV.Tipo_de_Comprobante__c;
-            Boolean externoCambio = VentasInformadasApiNormalizer.puedeLeerTipoComprobanteExterno(venta)
-                && VentasInformadasApiNormalizer.puedeLeerTipoComprobanteExterno(oldV)
-                && venta.Tipo_Comprobante_Externo__c != oldV.Tipo_Comprobante_Externo__c;
+            Boolean externoCambio =
+                venta.Tipo_Comprobante_Externo__c != oldV.Tipo_Comprobante_Externo__c;
 
             if (internoCambio && !externoCambio) {
                 venta.Tipo_Comprobante_Externo__c = resolverExternoPorCambioInterno(

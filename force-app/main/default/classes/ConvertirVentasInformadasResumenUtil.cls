@@ -41,6 +41,9 @@ public with sharing class ConvertirVentasInformadasResumenUtil {
     public static final String MSG_CANTIDAD_BOLSAS_CERO =
         'Cantidad (Bolsas SF) = 0. Verificar Cantidad Kilos Informados';
 
+    /** Ticket 1916: por debajo de este umbral de kilos totales → 0 bolsas. */
+    public static final Decimal KILOS_TOTALES_MIN_PARA_BOLSA = 20;
+
     @TestVisible
     static Resumen buildResumenForTest(
         Integer totalSeleccionados,
@@ -75,7 +78,8 @@ public with sharing class ConvertirVentasInformadasResumenUtil {
 
         List<Ventas_Informadas__c> records = [
             SELECT Cantidad_Bolsas_40__c, Resultado__c, Estado__c, Venta__c,
-                   CUIT_Originante__c, CUIT_Destinatario__c, Categoria__c, Categoria_Portal__c
+                   CUIT_Originante__c, CUIT_Destinatario__c, Categoria__c, Categoria_Portal__c,
+                   Tipo_de_Comprobante__c, FC_Origen__c
             FROM Ventas_Informadas__c
             WHERE Id IN :recordIds
         ];
@@ -117,6 +121,15 @@ public with sharing class ConvertirVentasInformadasResumenUtil {
     }
 
     public static Boolean esElegibleParaConvertir(Ventas_Informadas__c vi) {
+        if (vi == null) {
+            return false;
+        }
+        if (
+            VentasInformadasNcOrigenUtil.requiereFcOrigenParaConvertir(vi)
+            && !VentasInformadasNcOrigenUtil.tieneFcOrigen(vi)
+        ) {
+            return false;
+        }
         return vi.Venta__c == null
             && (vi.Estado__c == null || vi.Estado__c == 'Preprocesado')
             && vi.Resultado__c == 'OK'
@@ -124,17 +137,167 @@ public with sharing class ConvertirVentasInformadasResumenUtil {
             && !VentasInformadasExclusionUtil.esAutoventaCategoriaNoConvertible(vi);
     }
 
+    /** Solo bolsas SF explícitamente en 0. Null = aún no calculado (no es cero). */
     public static Boolean tieneBolsasCero(Ventas_Informadas__c vi) {
-        return vi.Cantidad_Bolsas_40__c == null || vi.Cantidad_Bolsas_40__c == 0;
+        return vi != null && vi.Cantidad_Bolsas_40__c == 0;
     }
 
     /**
-     * Resultado final del preproceso: conserva errores parciales; si no hay errores,
-     * marca bolsas en cero o OK según Cantidad_Bolsas_40__c.
+     * Al crear/actualizar: si ya se sabe que bolsas SF = 0 (campo en 0 o kilos &lt; 20),
+     * setea Resultado sin esperar a la conversión.
+     */
+    public static void aplicarValidacionBolsasAlGuardar(List<Ventas_Informadas__c> ventas) {
+        if (ventas == null || ventas.isEmpty()) {
+            return;
+        }
+        for (Ventas_Informadas__c vi : ventas) {
+            if (vi == null) {
+                continue;
+            }
+            Decimal kilos = vi.Cantidad_de_Bolsas__c;
+            if (kilos != null && kilos.abs() < KILOS_TOTALES_MIN_PARA_BOLSA) {
+                vi.Cantidad_Bolsas_40__c = 0;
+            }
+
+            if (vi.Cantidad_Bolsas_40__c != null && vi.Cantidad_Bolsas_40__c > 0) {
+                if (vi.Resultado__c == MSG_CANTIDAD_BOLSAS_CERO) {
+                    vi.Resultado__c = null;
+                }
+                continue;
+            }
+
+            // null = todavía no calculado (p. ej. kilos ≥ 20 sin producto): no marcar aún.
+            if (vi.Cantidad_Bolsas_40__c == null) {
+                continue;
+            }
+
+            marcarResultadoBolsasCero(vi);
+        }
+    }
+
+    @TestVisible
+    private static void marcarResultadoBolsasCero(Ventas_Informadas__c vi) {
+        if (String.isBlank(vi.Resultado__c) || vi.Resultado__c == 'OK') {
+            vi.Resultado__c = MSG_CANTIDAD_BOLSAS_CERO;
+            return;
+        }
+        if (!vi.Resultado__c.contains(MSG_CANTIDAD_BOLSAS_CERO)) {
+            vi.Resultado__c = vi.Resultado__c + ';' + MSG_CANTIDAD_BOLSAS_CERO;
+        }
+    }
+
+    /**
+     * Calcula Cantidad_Bolsas_40__c desde kilos (misma regla que el preproceso) cuando aún es null.
+     * Kilos &lt; 20 → 0 sin producto. Con producto → round(kilos / unidad).
+     */
+    public static void aplicarCalculoBolsasSiCorresponde(List<Ventas_Informadas__c> ventas) {
+        if (ventas == null || ventas.isEmpty()) {
+            return;
+        }
+
+        Set<Id> productoIds = new Set<Id>();
+        for (Ventas_Informadas__c vi : ventas) {
+            if (vi == null || vi.Cantidad_Bolsas_40__c != null) {
+                continue;
+            }
+            Decimal kilos = vi.Cantidad_de_Bolsas__c;
+            if (kilos == null) {
+                continue;
+            }
+            if (kilos.abs() < KILOS_TOTALES_MIN_PARA_BOLSA) {
+                vi.Cantidad_Bolsas_40__c = 0;
+                continue;
+            }
+            if (vi.Producto__c != null) {
+                productoIds.add(vi.Producto__c);
+            }
+        }
+
+        Map<Id, Product2> productosById = new Map<Id, Product2>();
+        if (!productoIds.isEmpty()) {
+            productosById = new Map<Id, Product2>([
+                SELECT Id, Unidad_de_Medida__c
+                FROM Product2
+                WHERE Id IN :productoIds
+            ]);
+        }
+
+        for (Ventas_Informadas__c vi : ventas) {
+            if (vi == null || vi.Cantidad_Bolsas_40__c != null || vi.Producto__c == null) {
+                continue;
+            }
+            Product2 producto = productosById.get(vi.Producto__c);
+            Decimal qty = unidadMedidaAQty(producto != null ? producto.Unidad_de_Medida__c : null);
+            if (qty == null) {
+                continue;
+            }
+            vi.Cantidad_Bolsas_40__c = BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(
+                vi.Cantidad_de_Bolsas__c,
+                vi.Kilos_por_Bolsa__c,
+                qty
+            );
+        }
+    }
+
+    @TestVisible
+    private static void aplicarCalculoBolsasSiCorresponde(Ventas_Informadas__c vi) {
+        if (vi == null) {
+            return;
+        }
+        aplicarCalculoBolsasSiCorresponde(new List<Ventas_Informadas__c>{ vi });
+    }
+
+    /** Granel → 1; valor numérico de Unidad_de_Medida__c (ej. "40"); inválido → null. */
+    @TestVisible
+    private static Decimal unidadMedidaAQty(String unidad) {
+        if (String.isBlank(unidad)) {
+            return null;
+        }
+        if (unidad == 'Granel') {
+            return 1;
+        }
+        try {
+            Decimal qty = Decimal.valueOf(unidad);
+            return qty == 0 ? null : qty;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Quita el mensaje de bolsas en cero del parcial (se recalcula); conserva otros errores.
+     */
+    @TestVisible
+    private static String limpiarMensajeBolsasCero(String resultadoParcial) {
+        if (String.isBlank(resultadoParcial)) {
+            return '';
+        }
+        if (!resultadoParcial.contains(MSG_CANTIDAD_BOLSAS_CERO)) {
+            return resultadoParcial;
+        }
+        List<String> partes = new List<String>();
+        for (String parte : resultadoParcial.split(';')) {
+            String trimmed = parte != null ? parte.trim() : '';
+            if (String.isNotBlank(trimmed) && trimmed != MSG_CANTIDAD_BOLSAS_CERO) {
+                partes.add(trimmed);
+            }
+        }
+        return partes.isEmpty() ? '' : String.join(partes, ';');
+    }
+
+    /**
+     * Resultado final: calcula bolsas si falta; conserva otros errores parciales;
+     * bolsas 0 → mensaje; bolsas &gt; 0 → OK; bolsas null → vacío (no forzar OK ni bolsa 0).
      */
     public static String resolverResultadoFinal(Ventas_Informadas__c vi, String resultadoParcial) {
-        if (String.isNotEmpty(resultadoParcial)) {
-            return resultadoParcial;
+        aplicarCalculoBolsasSiCorresponde(vi);
+
+        String parcial = limpiarMensajeBolsasCero(resultadoParcial);
+        if (String.isNotEmpty(parcial)) {
+            return parcial;
+        }
+        if (vi == null || vi.Cantidad_Bolsas_40__c == null) {
+            return '';
         }
         if (tieneBolsasCero(vi)) {
             return MSG_CANTIDAD_BOLSAS_CERO;

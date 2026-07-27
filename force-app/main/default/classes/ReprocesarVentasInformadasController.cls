@@ -63,6 +63,9 @@ public without sharing class ReprocesarVentasInformadasController {
             return null;
         }
 
+        // Checkbox en el registro → Tipo Material + Producto Family Regalía Comercial.
+        VentasInformadasTipoMaterialUtil.aplicarDesdeCheckbox(idsElegibles);
+
         Id batchId = Database.executeBatch(
             new BatchApexProcesaVentasInformadas(idsElegibles, true),
             200

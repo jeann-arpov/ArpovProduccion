@@ -32,6 +32,10 @@ private class ConvertirVentasInformadasResumenUtilTest {
     static void resolverResultadoFinalTest() {
         Ventas_Informadas__c conBolsas = new Ventas_Informadas__c(Cantidad_Bolsas_40__c = 2);
         Ventas_Informadas__c sinBolsas = new Ventas_Informadas__c(Cantidad_Bolsas_40__c = 0);
+        Ventas_Informadas__c bolsasNull = new Ventas_Informadas__c(
+            Cantidad_de_Bolsas__c = 80,
+            Cantidad_Bolsas_40__c = null
+        );
 
         System.assertEquals('OK', ConvertirVentasInformadasResumenUtil.resolverResultadoFinal(conBolsas, ''));
         System.assertEquals(
@@ -41,6 +45,84 @@ private class ConvertirVentasInformadasResumenUtilTest {
         System.assertEquals(
             'No existe la campaña.',
             ConvertirVentasInformadasResumenUtil.resolverResultadoFinal(sinBolsas, 'No existe la campaña.')
+        );
+        System.assertEquals(
+            '',
+            ConvertirVentasInformadasResumenUtil.resolverResultadoFinal(bolsasNull, ''),
+            'Sin producto y bolsas null no debe forzar bolsa 0 ni OK'
+        );
+        System.assertEquals(false, ConvertirVentasInformadasResumenUtil.tieneBolsasCero(bolsasNull));
+    }
+
+    @IsTest
+    static void resolverResultadoFinalCalculaBolsasDesdeProductoTest() {
+        Test_TestUtils.disableFlows();
+
+        Account obtentor = Test_TestUtils.crearObtentor();
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('SOJA', 1);
+        cultivo.Unidad_de_Medida_Por_Defecto__c = '40';
+        update cultivo;
+
+        Product2 producto = Test_TestUtils.crearProducto(
+            true,
+            'Prod Bolsas Calc',
+            'BOLCALC',
+            'VAR-BOLSAS-CALC',
+            cultivo,
+            'Semilla Fiscalizada',
+            1,
+            obtentor
+        );
+        producto.Unidad_de_Medida__c = '40';
+        update producto;
+
+        Ventas_Informadas__c vi = new Ventas_Informadas__c(
+            Cantidad_de_Bolsas__c = 2000,
+            Kilos_por_Bolsa__c = 1,
+            Cantidad_Bolsas_40__c = null,
+            Producto__c = producto.Id,
+            Resultado__c = ConvertirVentasInformadasResumenUtil.MSG_CANTIDAD_BOLSAS_CERO
+        );
+
+        Test.startTest();
+        String resultado = ConvertirVentasInformadasResumenUtil.resolverResultadoFinal(vi, vi.Resultado__c);
+        Test.stopTest();
+
+        System.assertEquals(50, vi.Cantidad_Bolsas_40__c, '2000 kg / 40 = 50 bolsas');
+        System.assertEquals('OK', resultado);
+    }
+
+    @IsTest
+    static void aplicarValidacionBolsasAlGuardarMarcaAlCrear() {
+        Ventas_Informadas__c pocosKilos = new Ventas_Informadas__c(
+            Cantidad_de_Bolsas__c = 10,
+            Resultado__c = null
+        );
+        Ventas_Informadas__c conBolsasOk = new Ventas_Informadas__c(
+            Cantidad_de_Bolsas__c = 80,
+            Cantidad_Bolsas_40__c = 2,
+            Resultado__c = ConvertirVentasInformadasResumenUtil.MSG_CANTIDAD_BOLSAS_CERO
+        );
+        Ventas_Informadas__c kilosOkSinCalcular = new Ventas_Informadas__c(
+            Cantidad_de_Bolsas__c = 80,
+            Cantidad_Bolsas_40__c = null,
+            Resultado__c = null
+        );
+
+        ConvertirVentasInformadasResumenUtil.aplicarValidacionBolsasAlGuardar(
+            new List<Ventas_Informadas__c>{ pocosKilos, conBolsasOk, kilosOkSinCalcular }
+        );
+
+        System.assertEquals(0, pocosKilos.Cantidad_Bolsas_40__c);
+        System.assertEquals(
+            ConvertirVentasInformadasResumenUtil.MSG_CANTIDAD_BOLSAS_CERO,
+            pocosKilos.Resultado__c
+        );
+        System.assertEquals(null, conBolsasOk.Resultado__c, 'Con bolsas > 0 limpia el mensaje de cero');
+        System.assertEquals(
+            null,
+            kilosOkSinCalcular.Resultado__c,
+            'Sin bolsas calculadas y kilos ≥ 20 no marca aún'
         );
     }
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FC_Origen__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>FC (o Remito) de origen vinculada a una NC / Remito de Devolución. Se completa al preprocesar cuando existe match por CUITs, Campaña, Variedad, Categoría y kilos.</description>
+    <label>FC Origen</label>
+    <referenceTo>Ventas_Informadas__c</referenceTo>
+    <relationshipLabel>NCs Relacionadas</relationshipLabel>
+    <relationshipName>NCs_Relacionadas</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

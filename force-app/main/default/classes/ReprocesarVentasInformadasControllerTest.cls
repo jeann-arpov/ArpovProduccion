@@ -21,6 +21,33 @@ public with sharing class ReprocesarVentasInformadasControllerTest {
         System.assert(result.getUrl().contains('batchApexMonitorContainer'));
     }
 
+    @IsTest
+    static void reprocesarConCheckboxRegaliaSeteaTipoMaterial() {
+        List<Ventas_Informadas__c> ventas = [SELECT Id FROM Ventas_Informadas__c WHERE Venta__c = null LIMIT 1];
+        System.assert(!ventas.isEmpty());
+        update new Ventas_Informadas__c(
+            Id = ventas[0].Id,
+            Tipo_de_regalia_comercial__c = true
+        );
+
+        ApexPages.StandardSetController std = new ApexPages.StandardSetController(ventas);
+        std.setSelected(ventas);
+        ReprocesarVentasInformadasController cnt = new ReprocesarVentasInformadasController(std);
+
+        Test.startTest();
+        PageReference result = cnt.reprocesar();
+        Test.stopTest();
+
+        System.assertNotEquals(null, result);
+        Ventas_Informadas__c updated = [
+            SELECT Tipo_de_Material__c FROM Ventas_Informadas__c WHERE Id = :ventas[0].Id
+        ];
+        System.assertEquals(
+            VentasInformadasTipoMaterialUtil.REGALIA_COMERCIAL,
+            updated.Tipo_de_Material__c
+        );
+    }
+
     @isTest
     static void reprocesarSinSeleccionMuestraErrorTest() {
         ApexPages.StandardSetController std = new ApexPages.StandardSetController([
