@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_de_regalia_comercial__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Si está marcado, el trigger setea Tipo de Material = Regalía Comercial y el Producto Family Regalía Comercial (misma variedad y categoría). Al desmarcar, limpia Tipo de Material y restaura el Producto Semilla Fiscalizada.</description>
+    <externalId>false</externalId>
+    <label>Tipo de regalía comercial</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
