@@ -30,7 +30,7 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
     }
 
     public Database.QueryLocator start(Database.BatchableContext BC) {
-        String qry = 'SELECT Venta_Interna__c,Rol_Destinatario__c,Rol_Originante__c,Categoria_Portal__c, Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Variedad__c,Venta__c FROM Ventas_Informadas__c';
+        String qry = 'SELECT Venta_Interna__c,Rol_Destinatario__c,Rol_Originante__c,Categoria_Portal__c, Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Tipo_de_Material__c,Tipo_de_regalia_comercial__c,Variedad__c,Venta__c FROM Ventas_Informadas__c';
         qry += ' WHERE Venta__c = null';
         if (recordIds != null && !recordIds.isEmpty()) {
             // Reproceso manual: solo los IDs elegidos por el usuario (sin filtrar por Resultado).
@@ -107,7 +107,12 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
             categorias.add(vInformada.Categoria__c);
             variedades.add(vInformada.Variedad__c);
 
-            String key = vInformada.Categoria__c + vInformada.Variedad__c;
+            // Checkbox / Tipo Material Regalía Comercial → producto Family Regalía Comercial;
+            // caso normal → Semilla Fiscalizada.
+            String family = VentasInformadasTipoMaterialUtil.esRegaliaComercial(vInformada)
+                ? VentasInformadasTipoMaterialUtil.REGALIA_COMERCIAL
+                : 'Semilla Fiscalizada';
+            String key = family + '|' + vInformada.Categoria__c + vInformada.Variedad__c;
 
             if(!ventasByProductKey.containsKey(key)){
                 ventasByProductKey.put(key,new List<Ventas_Informadas__c>());
@@ -183,13 +188,21 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
             agregarErroresCuentasNoResueltas(vInformada);
         }
 
-        for(Product2 product : [SELECT Id, Unidad_de_Medida__c, Cultivo__c, Cultivo__r.Name, Cultivo__r.Unidad_de_Medida_Por_Defecto__c, Categoria__c, Variedad__c, Cultivar_Inase__c FROM Product2 WHERE Categoria__c IN :categorias AND Cultivar_Inase__c IN :variedades AND Family = 'Semilla Fiscalizada' AND IsActive = true]){
-
-            String key = product.Categoria__c + product.Cultivar_Inase__c; 
+        for(Product2 product : [
+            SELECT Id, Family, Unidad_de_Medida__c, Cultivo__c, Cultivo__r.Name,
+                   Cultivo__r.Unidad_de_Medida_Por_Defecto__c, Categoria__c, Variedad__c, Cultivar_Inase__c
+            FROM Product2
+            WHERE Categoria__c IN :categorias
+                AND Cultivar_Inase__c IN :variedades
+                AND Family IN ('Semilla Fiscalizada', :VentasInformadasTipoMaterialUtil.REGALIA_COMERCIAL)
+                AND IsActive = true
+        ]){
+            String key = product.Family + '|' + product.Categoria__c + product.Cultivar_Inase__c;
             System.debug(product.Cultivo__r.Unidad_de_Medida_Por_Defecto__c);
             System.debug(product.Unidad_de_Medida__c);
-            if(ventasByProductKey.containsKey(key) && product.Cultivo__r.Unidad_de_Medida_Por_Defecto__c == product.Unidad_de_Medida__c) { // de los varios productos que hay, tomo el que tenga unidad de medida igual al defecto del cultivo. Si Unidad_de_Medida_Por_Defecto__c esta en null no matcheara ninguno
-                Decimal qty = product.Unidad_de_Medida__c == 'Granel' ? 1 : Decimal.valueOf(product.Unidad_de_Medida__c); // hectareas no aparece para las semilla fiscalizada
+            // De los varios productos, tomo el que tenga unidad = defecto del cultivo.
+            if(ventasByProductKey.containsKey(key) && product.Cultivo__r.Unidad_de_Medida_Por_Defecto__c == product.Unidad_de_Medida__c) {
+                Decimal qty = product.Unidad_de_Medida__c == 'Granel' ? 1 : Decimal.valueOf(product.Unidad_de_Medida__c);
 
                 for(Ventas_Informadas__c vInformada : ventasByProductKey.get(key)){
                     vInformada.Cultivo__c = product.Cultivo__c;
@@ -198,9 +211,7 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
                 }
 
                 ventasByProductKey.remove(key);
-            
             }
-
         }
 
         for(String key: ventasByProductKey.keySet()){
@@ -251,12 +262,19 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
             if(String.isEmpty(vInformada.Campana_Agricola__c)){
                 vInformada.Resultado__c += ((String.isNotEmpty(vInformada.Resultado__c)) ? ';' : '') + 'No existe la campaña.';    
             }
+        }
 
+        // NC / Remito de Devolución: vincular FC Origen o marcar "NC sin Origen".
+        VentasInformadasNcOrigenUtil.aplicar(scope, omitirProcesamientoIds);
+
+        for (Ventas_Informadas__c vInformada : scope) {
+            if (omitirProcesamientoIds.contains(vInformada.Id)) {
+                continue;
+            }
             vInformada.Resultado__c = ConvertirVentasInformadasResumenUtil.resolverResultadoFinal(
                 vInformada,
                 vInformada.Resultado__c
             );
-        
         }
 
         List<Database.SaveResult> svsrs = Database.update(scope,false);
@@ -271,6 +289,24 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
 
             i++;
                 
+        }
+
+        // Si en este lote hay FCs (p. ej. NC creada antes y FC reprocesada después),
+        // revincula NCs huérfanas que no estaban en el scope.
+        Set<Id> idsEnScope = new Map<Id, Ventas_Informadas__c>(scope).keySet();
+        List<Ventas_Informadas__c> ncsReenlazadas =
+            VentasInformadasNcOrigenUtil.reenlazarNcsHuerfanas(scope, idsEnScope);
+        if (!ncsReenlazadas.isEmpty()) {
+            for (Database.SaveResult svr : Database.update(ncsReenlazadas, false)) {
+                if (!svr.isSuccess()) {
+                    this.errors.add(
+                        String.format(
+                            'Record {0} : Error {1}',
+                            new List<String>{ svr.getId(), svr.getErrors()[0].getMessage() }
+                        )
+                    );
+                }
+            }
         }
 
     }
