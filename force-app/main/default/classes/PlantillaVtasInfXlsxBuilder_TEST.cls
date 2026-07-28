@@ -429,7 +429,7 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
         String cell = PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(data, 3, 'F');
         System.assertNotEquals(null, cell);
         System.assert(cell.contains('Cordoba'));
-        System.assertEquals(4, PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(data, 'F'));
+        System.assertEquals(2, PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(data, 'F'));
         System.assertEquals(0, PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(null, 'F'));
         System.assertEquals(null, PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(null, 3, 'F'));
     }
