@@ -304,6 +304,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Venta__c.Provincia_Destino__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Venta__c.Localidad_Destino__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Venta__c.Rol_Originante__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -429,6 +439,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Ventas_Informadas__c.Localidad_Destino__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Ventas_Informadas__c.N_de_Comprobante__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -440,6 +455,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Ventas_Informadas__c.Producto__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Ventas_Informadas__c.Provincia_Destino__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

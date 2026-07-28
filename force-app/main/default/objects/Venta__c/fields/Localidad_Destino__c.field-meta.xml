@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Localidad_Destino__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Localidad de destino de la semilla fiscalizada (copiada desde Venta Informada al convertir).</description>
+    <inlineHelpText>Seleccioná la localidad después de elegir la provincia.</inlineHelpText>
+    <label>Localidad Destino</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>Localidad__c.Provincia__c</field>
+            <operation>equals</operation>
+            <valueField>$Source.Provincia_Destino__c</valueField>
+        </filterItems>
+        <isOptional>true</isOptional>
+    </lookupFilter>
+    <referenceTo>Localidad__c</referenceTo>
+    <relationshipLabel>Ventas CRM (Localidad Destino)</relationshipLabel>
+    <relationshipName>Ventas_CRM_Localidad_Destino</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

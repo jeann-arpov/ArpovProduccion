@@ -23,7 +23,7 @@ public with sharing class BatchApexConvertirVentasInformadas implements Database
     }
 
     public Database.QueryLocator start(Database.BatchableContext BC) {
-        String qry = 'SELECT Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,Categoria_Portal__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Variedad__c,Venta__c,Venta_Interna__c,Rol_Destinatario__c,Rol_Originante__c FROM Ventas_Informadas__c WHERE Venta__c = null and (Estado__c = null OR Estado__c =\'Preprocesado\') AND Resultado__c = \'OK\' AND Estado__c != \'Pendiente de Validar\' ';
+        String qry = 'SELECT Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,Categoria_Portal__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Localidad_Destino__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Provincia_Destino__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Variedad__c,Venta__c,Venta_Interna__c,Rol_Destinatario__c,Rol_Originante__c FROM Ventas_Informadas__c WHERE Venta__c = null and (Estado__c = null OR Estado__c =\'Preprocesado\') AND Resultado__c = \'OK\' AND Estado__c != \'Pendiente de Validar\' ';
 
         if (recordIds != null) qry += ' AND id in: recordIds';
 
@@ -78,6 +78,8 @@ public with sharing class BatchApexConvertirVentasInformadas implements Database
             venta.Origen__c = vInformadas.Id;
             venta.Tipo_de_Comprobante__c = vInformadas.Tipo_de_Comprobante__c;
             venta.Linea_Facturacion__c = vInformadas.Linea_Facturacion__c;
+            venta.Provincia_Destino__c = vInformadas.Provincia_Destino__c;
+            venta.Localidad_Destino__c = vInformadas.Localidad_Destino__c;
             ventasToInsert.add(venta);
         }
 

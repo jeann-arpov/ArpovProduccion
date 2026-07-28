@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Provincia_Destino__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Provincia de destino de la semilla fiscalizada (copiada desde Venta Informada al convertir).</description>
+    <inlineHelpText>Jurisdicción de destino de la semilla (24 provincias argentinas).</inlineHelpText>
+    <label>Provincia Destino</label>
+    <referenceTo>Provincia__c</referenceTo>
+    <relationshipLabel>Ventas CRM (Provincia Destino)</relationshipLabel>
+    <relationshipName>Ventas_CRM_Provincia_Destino</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
