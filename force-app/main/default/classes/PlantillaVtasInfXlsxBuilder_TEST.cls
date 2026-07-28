@@ -98,6 +98,32 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
     }
 
     @isTest
+    static void referenciasNoDuplicaCeldaF2SiYaExiste() {
+        Map<String, List<String>> dicc = new Map<String, List<String>>{
+            'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
+            'TIPO_COMP'  => new List<String>{ 'FC', 'NC' },
+            'VARIEDADES' => new List<String>{ 'VAR-1' },
+            'CAMPANAS'   => new List<String>{ '2025' }
+        };
+
+        // Como la plantilla geo real: F2 ya está por sharedStrings (sin texto "Provincia Destino").
+        String base = '<?xml version="1.0"?>'
+            + '<worksheet><sheetData>'
+            + '<row r="1" spans="2:6"><c r="C1" s="31" t="s"><v>0</v></c></row>'
+            + '<row r="2" spans="2:6">'
+            + '<c r="B2" s="2" t="s"><v>1</v></c>'
+            + '<c r="F2" s="2" t="s"><v>12</v></c>'
+            + '</row>'
+            + '<row r="3" spans="2:6"><c r="F3" s="1" t="s"><v>43</v></c></row>'
+            + '</sheetData></worksheet>';
+
+        String xml = PlantillaVtasInfXlsxBuilder.patchReferenciasSheet(base, dicc);
+        Integer f2Count = xml.split('r="F2"', -1).size() - 1;
+        System.assertEquals(1, f2Count, 'No debe duplicar la celda F2 del encabezado.');
+        System.assert(xml.contains('r="F3"'), 'Debe conservar provincias existentes.');
+    }
+
+    @isTest
     static void comentariosSheetIncluyeVariedadesYCampanas() {
         Map<String, List<String>> dicc = new Map<String, List<String>>{
             'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
@@ -214,7 +240,9 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
         String pegar = PlantillaVtasInfXlsxBuilder.buildPegarDatosSheet();
         System.assert(pegar.contains('Pegá aquí los datos'), 'Debe instruir pegar en esta hoja.');
         System.assert(pegar.contains('Campaña Agrícola'), 'Debe repetir encabezados de Datos.');
-        System.assert(pegar.contains('A1:J'), 'Hoja Pegar datos con 10 columnas A-J.');
+        System.assert(pegar.contains('A1:L'), 'Hoja Pegar datos con 12 columnas A-L (incluye Provincia/Localidad Destino).');
+        System.assert(pegar.contains('Provincia Destino'), 'Debe incluir encabezado Provincia Destino.');
+        System.assert(pegar.contains('Localidad Destino'), 'Debe incluir encabezado Localidad Destino.');
 
         Map<String, Blob> entradasNuevo = new Map<String, Blob>{
             'xl/worksheets/sheet3.xml' => Blob.valueOf('<worksheet>CampanaAgricola</worksheet>')
@@ -317,7 +345,7 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
         System.assert(!sheet1.contains('Kilos Totales debe ser un entero mayor o igual a 20'),
             'Kilos Totales ya no debe imponer mínimo 20 kg en plantilla.');
         System.assert(!sheet1.contains('hidden="1"'),
-            'No debe ocultar columnas: el SR ya define el layout A-J.');
+            'No debe ocultar columnas: el SR ya define el layout A-L.');
     }
 
     @isTest
@@ -333,5 +361,173 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
             'Debe permitir seleccionar celdas bloqueadas para copiar.');
         System.assert(patched.contains('insertRows="1"'),
             'Debe bloquear inserción de filas.');
+    }
+
+    @isTest
+    static void stripRichDataFromPackageEliminaPartes365() {
+        Map<String, Blob> entradas = new Map<String, Blob>{
+            'xl/metadata.xml' => Blob.valueOf('<metadata/>'),
+            'xl/richData/rdrichvalue.xml' => Blob.valueOf('<rv/>'),
+            '[Content_Types].xml' => Blob.valueOf(
+                '<Types>'
+                + '<Override PartName="/xl/metadata.xml" ContentType="x"/>'
+                + '<Override PartName="/xl/richData/rdrichvalue.xml" ContentType="y"/>'
+                + '<Override PartName="/xl/workbook.xml" ContentType="z"/>'
+                + '</Types>'
+            ),
+            'xl/_rels/workbook.xml.rels' => Blob.valueOf(
+                '<Relationships>'
+                + '<Relationship Id="rId7" Type="sheetMetadata" Target="metadata.xml"/>'
+                + '<Relationship Id="rId1" Type="worksheet" Target="worksheets/sheet1.xml"/>'
+                + '</Relationships>'
+            ),
+            'xl/worksheets/sheet1.xml' => Blob.valueOf('<worksheet/>')
+        };
+
+        PlantillaVtasInfXlsxBuilder.stripRichDataFromPackage(entradas);
+
+        System.assert(!entradas.containsKey('xl/metadata.xml'));
+        System.assert(!entradas.containsKey('xl/richData/rdrichvalue.xml'));
+        System.assert(!entradas.get('[Content_Types].xml').toString().contains('/xl/metadata.xml'));
+        System.assert(!entradas.get('xl/_rels/workbook.xml.rels').toString().contains('sheetMetadata'));
+    }
+
+    @isTest
+    static void sanitizeXmlTextQuitaCaracteresInvalidos() {
+        System.assertEquals('ABCD', PlantillaVtasInfXlsxBuilder.sanitizeXmlText('AB\u0007CD'));
+        System.assertEquals('', PlantillaVtasInfXlsxBuilder.sanitizeXmlText(null));
+    }
+
+    @isTest
+    static void patchSheet1EncabezadosYColumnasDestino() {
+        String sheet1 = '<worksheet><sheetData>'
+            + '<row r="3"><c r="A3" t="inlineStr"><is><t>H1</t></is></c></row>'
+            + '</sheetData><dataValidations count="1">'
+            + '<dataValidation sqref="A1"/></dataValidations>REFERENCIAS!$B$3</worksheet>';
+        String headers = PlantillaVtasInfXlsxBuilder.patchSheet1EncabezadosDestino(sheet1);
+        System.assert(headers.contains('Provincia Destino'));
+        System.assert(headers.contains('Localidad Destino'));
+
+        Map<String, List<String>> dicc = new Map<String, List<String>>{
+            'PROVINCIAS' => new List<String>{ 'Buenos Aires', 'Cordoba' }
+        };
+        String out = PlantillaVtasInfXlsxBuilder.patchSheet1ColumnasDestino(sheet1, dicc);
+        System.assert(out.contains('Provincia de destino'));
+        System.assert(out.contains('REFERENCIAS!$F$3:$F$4'));
+
+        // Openpyxl geo: no modifica.
+        System.assertEquals(
+            'INDIRECT("Loc_")',
+            PlantillaVtasInfXlsxBuilder.patchSheet1ColumnasDestino('INDIRECT("Loc_")', dicc)
+        );
+    }
+
+    @isTest
+    static void helpersReferenciasYCelda() {
+        String data = '<row r="3"><c r="F3" t="inlineStr"><is><t>Cordoba</t></is></c></row>'
+            + '<row r="4"><c r="F4" t="inlineStr"><is><t>Santa Fe</t></is></c></row>';
+        String cell = PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(data, 3, 'F');
+        System.assertNotEquals(null, cell);
+        System.assert(cell.contains('Cordoba'));
+        System.assertEquals(2, PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(data, 'F'));
+        System.assertEquals(0, PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(null, 'F'));
+        System.assertEquals(null, PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(null, 3, 'F'));
+    }
+
+    @isTest
+    static void buildReferenciasYLegacySheets() {
+        Map<String, List<String>> dicc = new Map<String, List<String>>{
+            'CATEGORIAS' => new List<String>{ 'A', 'B' },
+            'TIPO_COMP'  => new List<String>{ 'FC', 'NC' },
+            'VARIEDADES' => new List<String>{ 'VAR-1' },
+            'CAMPANAS'   => new List<String>{ '2025', '2026' }
+        };
+        String refs = PlantillaVtasInfXlsxBuilder.buildReferenciasSheet(dicc);
+        System.assert(refs.contains('VAR-1'));
+        System.assert(refs.contains('CampanaAgricola') || refs.contains('Campa'));
+
+        String legacy = PlantillaVtasInfXlsxBuilder.buildReferenciasSheetLegacy(dicc);
+        System.assert(legacy.contains('VAR-1'));
+
+        String patchedLegacy = PlantillaVtasInfXlsxBuilder.patchReferenciasSheetLegacy(
+            '<?xml version="1.0"?><worksheet><sheetData>'
+            + '<row r="4"><c r="B4"/></row></sheetData></worksheet>',
+            dicc
+        );
+        System.assert(patchedLegacy.contains('VAR-1'));
+        System.assert(PlantillaVtasInfXlsxBuilder.patchReferenciasSheetLegacy(null, dicc).contains('VAR-1'));
+    }
+
+    @isTest
+    static void patchWorkbookLtscYDocPropsApp() {
+        String wb = '<workbook><sheets>'
+            + '<sheet name="CARGA" sheetId="1"/>'
+            + '<sheet name="INSTRUCCIONES" sheetId="2"/>'
+            + '</sheets>'
+            + '<mc:AlternateContent><mc:Choice/></mc:AlternateContent>'
+            + '<ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}"><x/></ext>'
+            + '</workbook>';
+        String outWb = PlantillaVtasInfXlsxBuilder.patchWorkbookCompatibilidadLtsc(wb);
+        System.assert(!outWb.contains('AlternateContent'));
+        System.assert(!outWb.contains('B58B0392'));
+
+        String app = '<Properties><HeadingPairs><vt:vector size="2" baseType="variant">'
+            + '<vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant>'
+            + '<vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs>'
+            + '<TitlesOfParts><vt:vector size="1" baseType="lpstr">'
+            + '<vt:lpstr>Old</vt:lpstr></vt:vector></TitlesOfParts></Properties>';
+        String outApp = PlantillaVtasInfXlsxBuilder.patchDocPropsApp(app, wb);
+        System.assert(outApp.contains('CARGA'));
+        System.assert(outApp.contains('<vt:i4>2</vt:i4>'));
+
+        System.assertEquals(true, PlantillaVtasInfXlsxBuilder.esPlantillaOpenpyxlBase('INDIRECT("Loc_")'));
+        System.assertEquals(
+            true,
+            PlantillaVtasInfXlsxBuilder.esPlantillaConGeoEstatica(
+                new Map<String, Blob>{ 'xl/worksheets/sheet4.xml' => Blob.valueOf('x') }
+            )
+        );
+    }
+
+    @isTest
+    static void migrarX14YRecalcularCount() {
+        String xml = '<worksheet><dataValidations count="1"><dataValidation sqref="A1"/>'
+            + '</dataValidations><extLst><ext uri="{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}">'
+            + '<x14:dataValidations xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">'
+            + '<x14:dataValidation type="list" allowBlank="1">'
+            + '<x14:formula1><xm:f>REFERENCIAS!$E$3:$E$10</xm:f></x14:formula1>'
+            + '<xm:sqref>J4:J1048576</xm:sqref></x14:dataValidation>'
+            + '</x14:dataValidations></ext></extLst><pageMargins/></worksheet>';
+        String out = PlantillaVtasInfXlsxBuilder.patchSheet1MigrarX14Legacy(xml);
+        System.assert(out.contains('sqref="J4:J1048576"'));
+        System.assert(!out.contains('<x14:dataValidation'));
+
+        String counted = PlantillaVtasInfXlsxBuilder.recalcularDataValidationsCount(
+            '<dataValidations count="1"><dataValidation sqref="A1"/>'
+            + '<dataValidation sqref="B1"/></dataValidations>'
+        );
+        System.assert(counted.contains('count="2"'));
+
+        String sanit = PlantillaVtasInfXlsxBuilder.patchSheet1SanitizarValidacionesLegacy(
+            '<dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1"'
+            + ' prompt="Kilos totales" sqref="B4:B503" xr:uid="{abc}"/>'
+            + ' horizontalDpi="4294967292" verticalDpi="4294967292"'
+        );
+        System.assert(!sanit.contains('xr:uid'));
+        System.assert(!sanit.contains('4294967292'));
+    }
+
+    @isTest
+    static void patchSheetCargaYProteccionSinMerge() {
+        String sheet = '<worksheet><sheetViews><sheetView workbookViewId="0"/></sheetViews>'
+            + '<sheetData/><pageMargins/></worksheet>';
+        String activa = PlantillaVtasInfXlsxBuilder.patchSheetCargaActiva(sheet);
+        System.assert(activa.contains('tabSelected="1"'));
+
+        String prot = PlantillaVtasInfXlsxBuilder.patchSheetReferenciasProtegida(
+            '<worksheet><sheetData/></worksheet>'
+        );
+        System.assert(prot.contains('<sheetProtection'));
+        System.assert(prot.contains('selectLockedCells="0"'));
     }
 }

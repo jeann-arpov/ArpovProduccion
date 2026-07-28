@@ -407,14 +407,20 @@ public with sharing class BatchApexConvertirVentasInformadasTest {
         vInformadas.Rol_Destinatario__c = 'Productor';
         vInformadas.Rol_Originante__c = 'Distribuidor';
         vInformadas.Venta_Interna__c = false;
+        Provincia__c prov = [SELECT Id FROM Provincia__c WHERE Name = 'Test' LIMIT 1];
+        Localidad__c loc = new Localidad__c(Name = 'Test Loc Conv', Provincia__c = prov.Id);
+        insert loc;
+        vInformadas.Provincia_Destino__c = prov.Id;
+        vInformadas.Localidad_Destino__c = loc.Id;
         update vInformadas;
 
         vInformadas = [
             SELECT Campana_Agricola__c, Campana_de_Ventas__c, Cantidad_de_Bolsas__c, Cantidad_Bolsas_40__c,
                 Categoria__c, Categoria_Portal__c, CreatedById, CreatedDate, CUIT_Destinatario__c, CUIT_Originante__c,
                 Cultivo__c, Destinatario__c, Estado__c, Fecha_de_Facturacion__c, Id, Kilos_por_Bolsa__c,
-                Linea_Facturacion__c, N_de_Comprobante__c, Originante__c, Producto__c, Resultado__c,
-                Rol_Destinatario__c, Rol_Originante__c, Tipo_de_Comprobante__c, Variedad__c, Venta__c, Venta_Interna__c
+                Linea_Facturacion__c, Localidad_Destino__c, N_de_Comprobante__c, Originante__c, Producto__c,
+                Provincia_Destino__c, Resultado__c, Rol_Destinatario__c, Rol_Originante__c, Tipo_de_Comprobante__c,
+                Variedad__c, Venta__c, Venta_Interna__c
             FROM Ventas_Informadas__c
             WHERE Id = :vInformadas.Id
         ];
@@ -440,6 +446,13 @@ public with sharing class BatchApexConvertirVentasInformadasTest {
             ];
             System.assertEquals('Procesado', vInformadas.Estado__c);
             System.assertNotEquals(null, vInformadas.Venta__c);
+            Venta__c ventaCrm = [
+                SELECT Provincia_Destino__c, Localidad_Destino__c
+                FROM Venta__c
+                WHERE Id = :vInformadas.Venta__c
+            ];
+            System.assertEquals(prov.Id, ventaCrm.Provincia_Destino__c);
+            System.assertEquals(loc.Id, ventaCrm.Localidad_Destino__c);
         }
     }
 

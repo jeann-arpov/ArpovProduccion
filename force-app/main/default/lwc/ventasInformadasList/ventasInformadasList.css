@@ -40,6 +40,7 @@
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .ventas-info {
@@ -236,6 +237,34 @@ td.col-acciones {
     max-width: none;
     white-space: normal;
     overflow: visible;
+}
+
+td.col-ubicacion {
+    overflow: visible;
+    white-space: normal;
+    vertical-align: middle;
+}
+
+.btn-stine-filter {
+    border: 1px solid #747474;
+    background: #fff;
+    color: #1c1c1c;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0.35rem 0.7rem;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-stine-filter:hover {
+    background: #f3f3f3;
+}
+
+.btn-stine-filter.is-active {
+    background: #1c1c1c;
+    border-color: #1c1c1c;
+    color: #fff;
 }
 
 .paginacion {

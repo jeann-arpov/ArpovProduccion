@@ -1,0 +1,77 @@
+.ubicacion-lookup-cell {
+    position: relative;
+    overflow: visible;
+    min-width: 0;
+}
+
+.ubicacion-readonly {
+    color: #444;
+}
+
+.ubicacion-lookup-cell .slds-combobox_container {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+}
+
+.ubicacion-lookup-cell .slds-combobox__input.slds-input {
+    height: 1.65rem;
+    min-height: 1.65rem;
+    font-size: inherit;
+    padding: 2px 1.25rem 2px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.ubicacion-lookup-cell .slds-combobox__input.slds-input:focus {
+    border-color: #8bc400;
+    box-shadow: 0 0 0 1px rgba(139, 196, 0, 0.35);
+    outline: none;
+}
+
+.ubicacion-lookup-cell .slds-combobox__input.slds-input:disabled {
+    background-color: #f3f3f3;
+    color: #706e6b;
+    cursor: not-allowed;
+}
+
+.ubicacion-lookup-cell .slds-input__icon_right {
+    right: 0.2rem;
+    pointer-events: none;
+}
+
+.lookup-combobox__dropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: 2px;
+    max-height: 10rem;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    z-index: 10001;
+}
+
+.lookup-combobox__dropdown .slds-listbox__option {
+    cursor: pointer;
+    padding: 0.35rem 0.5rem;
+    font-size: inherit;
+}
+
+.lookup-combobox__dropdown .slds-listbox__option:hover {
+    background-color: #f3f3f3;
+}
+
+.lookup-combobox__dropdown .slds-listbox__option.slds-is-selected {
+    background-color: #ecebea;
+}
+
+.ubicacion-saving {
+    opacity: 0.55;
+    pointer-events: none;
+}

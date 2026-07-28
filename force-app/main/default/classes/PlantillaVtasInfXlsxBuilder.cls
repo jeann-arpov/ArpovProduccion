@@ -4,7 +4,8 @@
  * Base: StaticResource "Vtas_Informadas_Vacio" (planilla actualizada PLANIL-1).
  * Hojas: CARGA (datos), INSTRUCCIONES, REFERENCIAS (listas para desplegables).
  *
- * REFERENCIAS usa columnas B–E (Campaña, Categoría, Tipo, Variedad). La hoja queda protegida
+ * REFERENCIAS usa columnas B–F (Campaña, Categoría, Tipo, Variedad, Provincia Destino).
+ * Geo estático: hoja LOCALIDADES (oculta) + desplegables K/L en CARGA vienen del Static Resource.
  * (sin editar) pero permite seleccionar y copiar valores.
  *   - REFERENCIAS (sheet3): campañas, categorías, tipos de comprobante y variedades INASE.
  *   - CARGA (sheet1): rangos de data validation que apuntan a REFERENCIAS.
@@ -20,7 +21,8 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
     @TestVisible private static final Integer ULT_FILA_DATOS_LEGACY = 23;
     /** Última fila con validaciones en CARGA modelo nuevo (1-based). */
     @TestVisible private static final Integer ULT_FILA_DATOS = 503;
-    @TestVisible private static final String ULT_COL_DATOS = 'J';
+    @TestVisible private static final String ULT_COL_DATOS = 'L';
+    @TestVisible private static final String REF_COL_PROVINCIA = 'F';
     @TestVisible private static final Integer REF_FILA_ENCABEZADO = 2;
     /** Columnas en REFERENCIAS: B=Campaña, C=Categoría, D=Tipo, E=Variedad. */
     @TestVisible private static final String REF_COL_CAMPANA = 'B';
@@ -55,6 +57,7 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         }
 
         Map<String, List<String>> dicc = loadDiccionarios();
+        Boolean plantillaGeoEstatica = esPlantillaConGeoEstatica(entradas);
 
         if (entradas.containsKey('xl/worksheets/sheet3.xml')) {
             String sheet3Xml = patchReferenciasSheet(
@@ -62,10 +65,9 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
                 dicc
             );
             sheet3Xml = patchSheetQuitarTabSelected(sheet3Xml);
-            entradas.put(
-                'xl/worksheets/sheet3.xml',
-                Blob.valueOf(patchSheetReferenciasProtegida(sheet3Xml))
-            );
+            // Siempre proteger REFERENCIAS (también con plantilla geo estática / sheet4).
+            sheet3Xml = patchSheetReferenciasProtegida(sheet3Xml);
+            entradas.put('xl/worksheets/sheet3.xml', Blob.valueOf(sheet3Xml));
         } else if (entradas.containsKey('xl/worksheets/sheet2.xml')) {
             entradas.put(
                 'xl/worksheets/sheet2.xml',
@@ -77,10 +79,16 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
             ? 'xl/worksheets/sheet1.xml'
             : null;
         if (sheet1Key != null) {
-            String sheet1Modificado = patchSheet1DataValidations(
-                entradas.get(sheet1Key).toString(),
-                dicc
-            );
+            String sheet1Original = entradas.get(sheet1Key).toString();
+            Boolean plantillaOpenpyxl = esPlantillaOpenpyxlBase(sheet1Original);
+            String sheet1Modificado = patchSheet1DataValidations(sheet1Original, dicc);
+            if (!plantillaGeoEstatica) {
+                sheet1Modificado = patchSheet1ColumnasDestino(sheet1Modificado, dicc);
+            }
+            if (!plantillaOpenpyxl) {
+                sheet1Modificado = patchSheet1MigrarX14Legacy(sheet1Modificado);
+            }
+            sheet1Modificado = patchSheet1SanitizarValidacionesLegacy(sheet1Modificado);
             entradas.put(sheet1Key, Blob.valueOf(patchSheetCargaActiva(sheet1Modificado)));
         }
 
@@ -92,14 +100,27 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         }
 
         if (entradas.containsKey('xl/workbook.xml')) {
-            entradas.put(
-                'xl/workbook.xml',
-                Blob.valueOf(patchWorkbookActiveTab(entradas.get('xl/workbook.xml').toString(), 0))
-            );
+            String workbookXml = entradas.get('xl/workbook.xml').toString();
+            workbookXml = patchWorkbookActiveTab(workbookXml, 0);
+            if (!plantillaGeoEstatica) {
+                workbookXml = patchWorkbookCompatibilidadLtsc(workbookXml);
+            }
+            entradas.put('xl/workbook.xml', Blob.valueOf(workbookXml));
+
+            if (entradas.containsKey('docProps/app.xml')) {
+                entradas.put(
+                    'docProps/app.xml',
+                    Blob.valueOf(patchDocPropsApp(entradas.get('docProps/app.xml').toString(), workbookXml))
+                );
+            }
         }
 
+        stripRichDataFromPackage(entradas);
+
         Compression.ZipWriter zw = new Compression.ZipWriter();
-        for (String nombre : entradas.keySet()) {
+        List<String> nombres = new List<String>(entradas.keySet());
+        nombres.sort();
+        for (String nombre : nombres) {
             zw.addEntry(nombre, entradas.get(nombre));
         }
 
@@ -160,18 +181,22 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         List<String> tiposComp = dicc.get('TIPO_COMP');
         List<String> variedades = dicc.get('VARIEDADES');
 
+        String originalData = sheetXml.substring(idxData + '<sheetData>'.length(), idxEndData);
+
         Integer maxItems = Math.max(
             Math.max(campanas.size(), categorias.size()),
             Math.max(tiposComp.size(), variedades.size())
         );
+        Integer maxProv = contarFilasConDatosColumna(originalData, REF_COL_PROVINCIA);
+        maxItems = Math.max(maxItems, maxProv);
         Integer ultRow = REF_FILA_INICIO + Math.max(1, maxItems) - 1;
 
         String header = sheetXml.substring(0, idxData);
         String footer = sheetXml.substring(idxEndData + '</sheetData>'.length());
-        String originalData = sheetXml.substring(idxData + '<sheetData>'.length(), idxEndData);
 
-        header = header.replaceAll('<dimension ref="B1:E\\d+"', '<dimension ref="B1:E' + ultRow + '"');
-        header = header.replaceAll('<dimension ref="A1:D\\d+"', '<dimension ref="B1:E' + ultRow + '"');
+        header = header.replaceAll('<dimension ref="B1:F\\d+"', '<dimension ref="B1:F' + ultRow + '"');
+        header = header.replaceAll('<dimension ref="B1:E\\d+"', '<dimension ref="B1:F' + ultRow + '"');
+        header = header.replaceAll('<dimension ref="A1:D\\d+"', '<dimension ref="B1:F' + ultRow + '"');
 
         String row1 = extraerFilaSheet(originalData, 1);
         String row2 = extraerFilaSheet(originalData, 2);
@@ -181,18 +206,27 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
                 + '</row>';
         }
         if (row2 == null) {
-            row2 = '<row r="2" ht="24" customHeight="1" spans="2:5">'
+            row2 = '<row r="2" ht="24" customHeight="1" spans="2:6">'
                 + inlineStrCell('B2', '2', 'CampanaAgricola')
                 + inlineStrCell('C2', '2', 'Categoria')
                 + inlineStrCell('D2', '2', 'Tipo de Comprobante')
                 + inlineStrCell('E2', '2', 'Variedad')
+                + inlineStrCell('F2', '2', 'Provincia Destino')
                 + '</row>';
+        } else if (
+            !row2.contains('Provincia Destino')
+            // Plantilla geo (sharedStrings): F2 ya existe aunque el texto no esté inline.
+            && !row2.contains('r="F2"')
+        ) {
+            row2 = row2.replace('</row>', inlineStrCell('F2', '2', 'Provincia Destino') + '</row>');
         }
 
         String dataRows = '';
         for (Integer i = 0; i < maxItems; i++) {
             Integer r = REF_FILA_INICIO + i;
-            dataRows += '<row r="' + r + '" spans="2:5">';
+            String celdaProvincia = extraerCeldaColumna(originalData, r, REF_COL_PROVINCIA);
+            Boolean tieneProvincia = String.isNotBlank(celdaProvincia);
+            dataRows += '<row r="' + r + '" spans="' + (tieneProvincia ? '2:6' : '2:5') + '">';
             if (i < campanas.size()) {
                 dataRows += inlineStrCell(REF_COL_CAMPANA + r, '20', campanas[i]);
             } else {
@@ -207,8 +241,13 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
             if (i < variedades.size()) {
                 dataRows += inlineStrCell(REF_COL_VARIEDAD + r, '1', variedades[i]);
             }
+            if (tieneProvincia) {
+                dataRows += celdaProvincia;
+            }
             dataRows += '</row>';
         }
+
+        footer = footer.replace('mergeCell ref="C1:E1"', 'mergeCell ref="C1:F1"');
 
         return header + '<sheetData>' + row1 + row2 + dataRows + '</sheetData>' + footer;
     }
@@ -260,6 +299,38 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         }
 
         return header + '<sheetData>' + rowHeader + dataRows + '</sheetData>' + footer;
+    }
+
+    @TestVisible
+    private static String extraerCeldaColumna(String sheetDataInner, Integer rowNum, String col) {
+        if (String.isBlank(sheetDataInner) || rowNum == null || String.isBlank(col)) {
+            return null;
+        }
+        String row = extraerFilaSheet(sheetDataInner, rowNum);
+        if (row == null) {
+            return null;
+        }
+        Pattern p = Pattern.compile(
+            '<c r="' + col + rowNum + '"[^>]*(?:/>|>.*?</c>)'
+        );
+        Matcher m = p.matcher(row);
+        return m.find() ? m.group() : null;
+    }
+
+    @TestVisible
+    private static Integer contarFilasConDatosColumna(String sheetDataInner, String col) {
+        if (String.isBlank(sheetDataInner) || String.isBlank(col)) {
+            return 0;
+        }
+        Integer maxRow = 0;
+        Matcher m = Pattern.compile('<c r="' + col + '(\\d+)"').matcher(sheetDataInner);
+        while (m.find()) {
+            Integer rowNum = Integer.valueOf(m.group(1));
+            if (rowNum >= REF_FILA_INICIO && rowNum > maxRow) {
+                maxRow = rowNum;
+            }
+        }
+        return maxRow >= REF_FILA_INICIO ? maxRow - REF_FILA_INICIO + 1 : 0;
     }
 
     @TestVisible
@@ -421,7 +492,7 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         }
 
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+              + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
             + '<dimension ref="B4:F' + maxRow + '"/>'
             + '<sheetViews><sheetView workbookViewId="0"/></sheetViews>'
             + '<sheetFormatPr defaultRowHeight="13.2"/>'
@@ -433,7 +504,7 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
             + '</cols>'
             + '<sheetData>' + rows + '</sheetData>'
             + '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>'
-            + '</worksheet>';
+              + '</worksheet>';
     }
 
     /** Alias de tests legacy. */
@@ -458,8 +529,81 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
   /**
      * CARGA (Modelo Nuevo V.1) — encabezados fila 3, datos desde fila 4:
      *   A=Campaña  B=Kilos  C=Categoría  D=CUIT  E=Razón Social  F=Fecha
-     *   G=Línea  H=N° Comprobante  I=Tipo  J=Variedad
+     *   G=Línea  H=N° Comprobante  I=Tipo  J=Variedad  K=Provincia Destino  L=Localidad Destino
      */
+    @TestVisible
+    private static String patchSheet1ColumnasDestino(String sheet1, Map<String, List<String>> dicc) {
+        if (sheet1 != null && sheet1.contains('INDIRECT("Loc_"')) {
+            return sheet1;
+        }
+        if (!esPlantillaNuevoModelo(sheet1)) {
+            return sheet1;
+        }
+        sheet1 = patchSheet1EncabezadosDestino(sheet1);
+        List<String> provincias = dicc != null && dicc.containsKey('PROVINCIAS')
+            ? dicc.get('PROVINCIAS')
+            : new List<String>();
+        if (provincias.isEmpty()) {
+            return sheet1;
+        }
+        Integer ultRowProv = REF_FILA_INICIO + provincias.size() - 1;
+        String sqK = 'K' + FILA_INICIO_DATOS + ':K' + ULT_FILA_DATOS;
+        String formulaProv = 'REFERENCIAS!$' + REF_COL_PROVINCIA + '$' + REF_FILA_INICIO
+            + ':$' + REF_COL_PROVINCIA + '$' + ultRowProv;
+        if (!sheet1.contains('sqref="' + sqK + '"')) {
+            String dv = '<dataValidation type="list" allowBlank="1" showInputMessage="1" showErrorMessage="1"'
+                + ' prompt="Provincia de destino de la semilla" sqref="' + sqK + '">'
+                + '<formula1>' + escapeXml(formulaProv) + '</formula1></dataValidation>';
+            if (sheet1.contains('</dataValidations>')) {
+                sheet1 = sheet1.replace('</dataValidations>', dv + '</dataValidations>');
+                Pattern pCnt = Pattern.compile('<dataValidations count="(\\d+)"');
+                Matcher mCnt = pCnt.matcher(sheet1);
+                if (mCnt.find()) {
+                    Integer c = Integer.valueOf(mCnt.group(1)) + 1;
+                    sheet1 = mCnt.replaceFirst('<dataValidations count="' + c + '"');
+                }
+            }
+        }
+        return sheet1;
+    }
+
+    @TestVisible
+    private static String patchSheet1EncabezadosDestino(String sheet1) {
+        if (sheet1 == null || sheet1.contains('Provincia Destino')) {
+            return sheet1;
+        }
+        Integer idxData = sheet1.indexOf('<sheetData>');
+        Integer idxEnd = sheet1.indexOf('</sheetData>');
+        if (idxData < 0 || idxEnd < 0) {
+            return sheet1;
+        }
+        String row3 = extraerFilaSheet(
+            sheet1.substring(idxData + '<sheetData>'.length(), idxEnd),
+            FILA_ENCABEZADOS_CARGA
+        );
+        if (row3 == null) {
+            return sheet1;
+        }
+        String row3Nuevo = row3.replace(
+            '</row>',
+            inlineStrCell('K3', '4', 'Provincia Destino')
+            + inlineStrCell('L3', '4', 'Localidad Destino')
+            + '</row>'
+        );
+        return sheet1.replace(row3, row3Nuevo);
+    }
+
+    @TestVisible
+    private static Boolean esPlantillaConGeoEstatica(Map<String, Blob> entradas) {
+        return entradas != null && entradas.containsKey('xl/worksheets/sheet4.xml');
+    }
+
+    /** Plantilla base openpyxl: geo en SR + listas x14 en extLst (no migrar a legacy). */
+    @TestVisible
+    private static Boolean esPlantillaOpenpyxlBase(String sheet1) {
+        return sheet1 != null && sheet1.contains('INDIRECT("Loc_"');
+    }
+
     @TestVisible
     private static String patchSheet1DataValidationsNuevo(String sheet1, Map<String, List<String>> dicc) {
         Integer ultRowVar = REF_FILA_INICIO + Math.max(1, dicc.get('VARIEDADES').size()) - 1;
@@ -472,8 +616,21 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         sheet1 = reemplazarRangoReferencias(sheet1, REF_COL_CATEGORIA, ultRowCat);
         sheet1 = reemplazarRangoReferencias(sheet1, REF_COL_TIPO, ultRowTc);
         sheet1 = reemplazarRangoReferencias(sheet1, REF_COL_VARIEDAD, ultRowVar);
+        sheet1 = reemplazarRangoReferenciasXmF(sheet1, REF_COL_CAMPANA, ultRowCam);
+        sheet1 = reemplazarRangoReferenciasXmF(sheet1, REF_COL_CATEGORIA, ultRowCat);
+        sheet1 = reemplazarRangoReferenciasXmF(sheet1, REF_COL_TIPO, ultRowTc);
+        sheet1 = reemplazarRangoReferenciasXmF(sheet1, REF_COL_VARIEDAD, ultRowVar);
 
         return sheet1;
+    }
+
+    @TestVisible
+    private static String reemplazarRangoReferenciasXmF(String sheet1, String col, Integer ultRow) {
+        String patron = '<xm:f>REFERENCIAS!\\$' + col + '\\$3:\\$' + col + '\\$\\d+</xm:f>';
+        String reemplazo = Matcher.quoteReplacement(
+            '<xm:f>REFERENCIAS!$' + col + '$3:$' + col + '$' + ultRow + '</xm:f>'
+        );
+        return Pattern.compile(patron).matcher(sheet1).replaceAll(reemplazo);
     }
 
     private static String reemplazarRangoReferencias(String sheet1, String col, Integer ultRow) {
@@ -608,9 +765,11 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         List<String> headers = new List<String>{
             'Campaña Agrícola', 'Kilos Totales', 'Categoría', 'CUIT Destinatario',
             'Razón Social Destinatario', 'Fecha Comprobante', 'Línea del Comprobante', 'N° de Comprobante',
-            'Tipo de Comprobante', 'Variedad'
+            'Tipo de Comprobante', 'Variedad', 'Provincia Destino', 'Localidad Destino'
         };
-        List<String> cols = new List<String>{ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J' };
+        List<String> cols = new List<String>{
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'
+        };
 
         String rows = '';
         rows += '<row r="1" ht="28" customHeight="1">';
@@ -669,10 +828,201 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
             + escapeXml(texto) + '</t></is></c>';
     }
 
+    /**
+     * Office LTSC no tolera bien x14:dataValidations tras reempaquetar el ZIP.
+     * Migra listas a dataValidations estándar y elimina la extensión x14.
+     */
+    @TestVisible
+    private static String patchSheet1MigrarX14Legacy(String sheet1) {
+        if (String.isBlank(sheet1) || !sheet1.contains('<x14:dataValidation')) {
+            return recalcularDataValidationsCount(sheet1);
+        }
+
+        List<String> migradas = new List<String>();
+        Pattern blockPat = Pattern.compile(
+            '<x14:dataValidation type="list"([^>]*)>\\s*<x14:formula1><xm:f>([^<]*)</xm:f></x14:formula1>\\s*<xm:sqref>([^<]*)</xm:sqref>\\s*</x14:dataValidation>'
+        );
+        Matcher blockMatcher = blockPat.matcher(sheet1);
+        while (blockMatcher.find()) {
+            String attrs = blockMatcher.group(1).replaceAll(' xr:uid="\\{[^}]*\\}"', '');
+            migradas.add(
+                '<dataValidation type="list"' + attrs
+                + ' sqref="' + blockMatcher.group(3) + '">'
+                + '<formula1>' + blockMatcher.group(2) + '</formula1></dataValidation>'
+            );
+        }
+
+        Pattern extPat = Pattern.compile(
+            '<extLst>\\s*<ext uri="\\{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF\\}"[\\s\\S]*?</ext>\\s*</extLst>'
+        );
+        sheet1 = extPat.matcher(sheet1).replaceAll('');
+
+        if (!migradas.isEmpty()) {
+            if (sheet1.contains('</dataValidations>')) {
+                sheet1 = sheet1.replace('</dataValidations>', String.join(migradas, '') + '</dataValidations>');
+            } else {
+                sheet1 = sheet1.replace(
+                    '<pageMargins',
+                    '<dataValidations count="' + migradas.size() + '">'
+                    + String.join(migradas, '')
+                    + '</dataValidations><pageMargins'
+                );
+            }
+        }
+
+        return recalcularDataValidationsCount(sheet1);
+    }
+
+    /** Quita atributos x14/uid y validaciones mal formadas que Office LTSC rechaza. */
+    @TestVisible
+    private static String patchSheet1SanitizarValidacionesLegacy(String sheet1) {
+        if (String.isBlank(sheet1)) {
+            return sheet1;
+        }
+        sheet1 = sheet1.replaceAll(' xr:uid="\\{[^}]*\\}"', '');
+        sheet1 = sheet1.replaceAll(
+            '<dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1" prompt="Kilos[^"]*" sqref="B4:B\\d+"[^>]*/>',
+            ''
+        );
+        sheet1 = sheet1.replace(' horizontalDpi="4294967292"', '');
+        sheet1 = sheet1.replace(' verticalDpi="4294967292"', '');
+        return recalcularDataValidationsCount(sheet1);
+    }
+
+    /** Sincroniza docProps/app.xml con las hojas reales del workbook (incl. ocultas). */
+    @TestVisible
+    private static String patchDocPropsApp(String appXml, String workbookXml) {
+        if (String.isBlank(appXml) || String.isBlank(workbookXml)) {
+            return appXml;
+        }
+        List<String> sheetNames = new List<String>();
+        Matcher sheetMatcher = Pattern.compile('<sheet name="([^"]+)"').matcher(workbookXml);
+        while (sheetMatcher.find()) {
+            sheetNames.add(sheetMatcher.group(1));
+        }
+        if (sheetNames.isEmpty()) {
+            return appXml;
+        }
+
+        if (esAppXmlPlantillaOpenpyxl(appXml)) {
+            return appXml.replaceAll(
+                '(<HeadingPairs>[\\s\\S]*?<vt:i4>)\\d+(</vt:i4>)',
+                '$1' + sheetNames.size() + '$2'
+            );
+        }
+
+        String titles = '';
+        for (String name : sheetNames) {
+            titles += '<vt:lpstr>' + escapeXml(name) + '</vt:lpstr>';
+        }
+
+        String patched = appXml.replaceAll('<vt:i4>\\d+</vt:i4>', '<vt:i4>' + sheetNames.size() + '</vt:i4>');
+        return Pattern.compile(
+            '<TitlesOfParts><vt:vector size="\\d+" baseType="lpstr">[\\s\\S]*?</vt:vector></TitlesOfParts>'
+        ).matcher(patched).replaceAll(
+            Matcher.quoteReplacement(
+                '<TitlesOfParts><vt:vector size="' + sheetNames.size() + '" baseType="lpstr">'
+                + titles + '</vt:vector></TitlesOfParts>'
+            )
+        );
+    }
+
+    /** app.xml openpyxl incluye rangos Loc_* en TitlesOfParts: no reemplazar todo el bloque. */
+    @TestVisible
+    private static Boolean esAppXmlPlantillaOpenpyxl(String appXml) {
+        return appXml != null
+            && appXml.contains('<vt:lpstr>LOCALIDADES</vt:lpstr>')
+            && appXml.contains('Loc_BUENOS_AIRES');
+    }
+
+    /** Elimina extensiones Excel 365 que Office LTSC no tolera tras re-zip. */
+    @TestVisible
+    private static String patchWorkbookCompatibilidadLtsc(String workbookXml) {
+        if (String.isBlank(workbookXml)) {
+            return workbookXml;
+        }
+        workbookXml = Pattern.compile('<mc:AlternateContent[\\s\\S]*?</mc:AlternateContent>')
+            .matcher(workbookXml).replaceAll('');
+        workbookXml = Pattern.compile('<ext uri="\\{B58B0392-4F1F-4190-BB64-5DF3571DCE5F\\}"[\\s\\S]*?</ext>')
+            .matcher(workbookXml).replaceAll('');
+        workbookXml = Pattern.compile('<ext uri="\\{D14903EA-33C4-47F7-8F05-3474C54BE107\\}"[\\s\\S]*?</ext>')
+            .matcher(workbookXml).replaceAll('');
+        return workbookXml;
+    }
+
+    @TestVisible
+    private static String recalcularDataValidationsCount(String sheet1) {
+        if (String.isBlank(sheet1) || !sheet1.contains('<dataValidations')) {
+            return sheet1;
+        }
+        Integer total = 0;
+        Matcher m = Pattern.compile('<dataValidation ').matcher(sheet1);
+        while (m.find()) {
+            total++;
+        }
+        return Pattern.compile('<dataValidations count="\\d+"')
+            .matcher(sheet1)
+            .replaceFirst('<dataValidations count="' + total + '"');
+    }
+
+    /** Quita richData/metadata (Excel 365) que rompe la apertura en Office LTSC tras re-zip. */
+    @TestVisible
+    private static void stripRichDataFromPackage(Map<String, Blob> entradas) {
+        if (entradas == null || entradas.isEmpty()) {
+            return;
+        }
+        List<String> toRemove = new List<String>();
+        for (String key : entradas.keySet()) {
+            if (key.startsWith('xl/richData/') || key == 'xl/metadata.xml') {
+                toRemove.add(key);
+            }
+        }
+        for (String key : toRemove) {
+            entradas.remove(key);
+        }
+        if (entradas.containsKey('[Content_Types].xml')) {
+            String ct = entradas.get('[Content_Types].xml').toString();
+            ct = ct.replaceAll('<Override PartName="/xl/metadata\\.xml"[^>]*/>', '');
+            ct = ct.replaceAll('<Override PartName="/xl/richData/[^"]*"[^>]*/>', '');
+            entradas.put('[Content_Types].xml', Blob.valueOf(ct));
+        }
+        if (entradas.containsKey('xl/_rels/workbook.xml.rels')) {
+            String rels = entradas.get('xl/_rels/workbook.xml.rels').toString();
+            rels = rels.replaceAll('<Relationship[^>]*richValue[^>]*/>', '');
+            rels = rels.replaceAll('<Relationship[^>]*sheetMetadata[^>]*/>', '');
+            rels = rels.replaceAll('<Relationship[^>]*rdRichValue[^>]*/>', '');
+            entradas.put('xl/_rels/workbook.xml.rels', Blob.valueOf(rels));
+        }
+    }
+
+    @TestVisible
+    private static String sanitizeXmlText(String s) {
+        if (s == null) {
+            return '';
+        }
+        String out = '';
+        for (Integer i = 0; i < s.length(); i++) {
+            Integer cp = s.charAt(i);
+            if (
+                cp == 9
+                || cp == 10
+                || cp == 13
+                || (cp >= 32 && cp <= 55295)
+                || (cp >= 57344 && cp <= 65533)
+            ) {
+                out += s.substring(i, i + 1);
+            }
+        }
+        return out;
+    }
+
     @TestVisible
     private static String escapeXml(String s) {
-        if (s == null) return '';
-        return s.replace('&', '&amp;')
+        if (s == null) {
+            return '';
+        }
+        String clean = sanitizeXmlText(s);
+        return clean.replace('&', '&amp;')
             .replace('<', '&lt;')
             .replace('>', '&gt;')
             .replace('"', '&quot;')

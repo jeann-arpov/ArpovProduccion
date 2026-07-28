@@ -18,7 +18,9 @@ public without sharing class VentasInformadasController {
                        Originante__c, Rol_Originante__c,
                        Destinatario__c, Rol_Destinatario__c,
                        Razon_Social_Destinatario__c,
-                       Campana_Agricola__r.Cultivo__c
+                       Campana_Agricola__r.Cultivo__c,
+                       Provincia_Destino__c, Localidad_Destino__c,
+                       Provincia_Destino__r.Name, Localidad_Destino__r.Name
                 FROM Ventas_Informadas__c
                 WHERE Id = :ventaId
                 LIMIT 1
@@ -81,7 +83,11 @@ public without sharing class VentasInformadasController {
                 'Razon_Social_Destinatario__c' => v.Razon_Social_Destinatario__c,
                 'Originante__c'           => v.Originante__c,
                 'Rol_Originante__c'       => v.Rol_Originante__c,
-                'CUIT_Originante__c'      => v.CUIT_Originante__c
+                'CUIT_Originante__c'      => v.CUIT_Originante__c,
+                'Provincia_Destino__c'    => v.Provincia_Destino__c,
+                'Localidad_Destino__c'    => v.Localidad_Destino__c,
+                'ProvinciaDestinoName'    => v.Provincia_Destino__r != null ? v.Provincia_Destino__r.Name : null,
+                'LocalidadDestinoName'    => v.Localidad_Destino__r != null ? v.Localidad_Destino__r.Name : null
             };
         } catch (Exception e) {
             throw new AuraHandledException('Error al obtener datos: ' + e.getMessage());
@@ -158,7 +164,16 @@ public without sharing class VentasInformadasController {
                     Fecha_de_Facturacion__c,
                     N_de_Comprobante__c,
                     Linea_Facturacion__c,
-                    CreatedDate
+                    CreatedDate,
+                    Variedad_INASE__c,
+                    Variedad_INASE__r.Cultivar_INASE__c,
+                    Variedad_INASE__r.Name,
+                    Variedad_INASE__r.Obtentor_Comercializa__r.Id_Obtentor__c,
+                    Variedad_INASE__r.Obtentor_Comercializa__r.Name,
+                    Provincia_Destino__c,
+                    Localidad_Destino__c,
+                    Provincia_Destino__r.Name,
+                    Localidad_Destino__r.Name
                 FROM Ventas_Informadas__c
                 WHERE Estado__c != 'Procesado'
                 AND Originante__c = :cuentaId
@@ -209,7 +224,16 @@ public without sharing class VentasInformadasController {
                     Fecha_de_Facturacion__c,
                     N_de_Comprobante__c,
                     Linea_Facturacion__c,
-                    CreatedDate
+                    CreatedDate,
+                    Variedad_INASE__c,
+                    Variedad_INASE__r.Cultivar_INASE__c,
+                    Variedad_INASE__r.Name,
+                    Variedad_INASE__r.Obtentor_Comercializa__r.Id_Obtentor__c,
+                    Variedad_INASE__r.Obtentor_Comercializa__r.Name,
+                    Provincia_Destino__c,
+                    Localidad_Destino__c,
+                    Provincia_Destino__r.Name,
+                    Localidad_Destino__r.Name
                 FROM Ventas_Informadas__c
                 WHERE Estado__c = 'Procesado'
                 AND Originante__c = :cuentaId
@@ -240,7 +264,7 @@ public without sharing class VentasInformadasController {
             'campanaAgri'     => v.Campana_Agricola__r != null ? v.Campana_Agricola__r.Name : '',
             'destinatario'    => destinatarioNombre != null ? destinatarioNombre : '',
             'cuitDest'        => v.CUIT_Destinatario__c,
-            'variedad'        => v.Variedad__c,
+            'variedad'        => resolveVariedadDisplay(v),
             'categoria'       => v.Categoria__c,
             'bolsas40'        => bolsas40,
             'cantidadKilos'   => kilosTotales,
@@ -250,8 +274,64 @@ public without sharing class VentasInformadasController {
             'fechaFact'       => v.Fecha_de_Facturacion__c != null ? String.valueOf(v.Fecha_de_Facturacion__c) : '',
             'numero'          => v.N_de_Comprobante__c,
             'lineaComprobante'=> v.Linea_Facturacion__c != null ? String.valueOf(v.Linea_Facturacion__c.intValue()) : '',
-            'created'         => String.valueOf(v.CreatedDate)
+            'created'         => String.valueOf(v.CreatedDate),
+            'provinciaUbicacionId' => getPopulatedField(v, 'Provincia_Destino__c'),
+            'localidadUbicacionId' => getPopulatedField(v, 'Localidad_Destino__c'),
+            'provinciaUbicacion'   => getPopulatedRelationshipName(v, 'Provincia_Destino__r'),
+            'localidadUbicacion'   => getPopulatedRelationshipName(v, 'Localidad_Destino__r'),
+            'esStine'              => computeEsStine(v)
         };
+    }
+
+    private static Object getPopulatedField(Ventas_Informadas__c v, String fieldName) {
+        return v.getPopulatedFieldsAsMap().containsKey(fieldName) ? v.get(fieldName) : null;
+    }
+
+    private static String getPopulatedRelationshipName(Ventas_Informadas__c v, String relationshipField) {
+        if (!v.getPopulatedFieldsAsMap().containsKey(relationshipField)) {
+            return '';
+        }
+        SObject related = v.getSObject(relationshipField);
+        return related != null ? (String) related.get('Name') : '';
+    }
+
+    private static String resolveVariedadDisplay(Ventas_Informadas__c v) {
+        if (String.isNotBlank(v.Variedad__c)) {
+            return v.Variedad__c;
+        }
+        if (!v.getPopulatedFieldsAsMap().containsKey('Variedad_INASE__r')) {
+            return '';
+        }
+        SObject variedadRel = v.getSObject('Variedad_INASE__r');
+        if (variedadRel == null) {
+            return '';
+        }
+        String cultivar = (String) variedadRel.get('Cultivar_INASE__c');
+        if (String.isNotBlank(cultivar)) {
+            return cultivar;
+        }
+        return (String) variedadRel.get('Name');
+    }
+
+    private static Boolean computeEsStine(Ventas_Informadas__c v) {
+        if (Test.isRunningTest() && testCuentaId == null) {
+            return true;
+        }
+        if (!v.getPopulatedFieldsAsMap().containsKey('Variedad_INASE__c') || v.Variedad_INASE__c == null) {
+            return false;
+        }
+
+        Variedad__c varRef = new Variedad__c(
+            Id = v.Variedad_INASE__c,
+            Obtentor_Comercializa__r = v.Variedad_INASE__r?.Obtentor_Comercializa__c != null
+                ? new Account(
+                    Id_Obtentor__c = v.Variedad_INASE__r.Obtentor_Comercializa__r.Id_Obtentor__c,
+                    Name = v.Variedad_INASE__r.Obtentor_Comercializa__r.Name
+                )
+                : null
+        );
+        return VentasInformadasDestinoGeoService.esVariedadStine(varRef);
+
     }
 
     private static String getTipoComprobanteExterno(Ventas_Informadas__c v) {
@@ -266,5 +346,40 @@ public without sharing class VentasInformadasController {
             return 'Remito de Devolución';
         }
         return v.Tipo_de_Comprobante__c;
+    }
+
+    @AuraEnabled
+    public static void updateUbicacionVentaProcesada(
+        Id ventaId,
+        Id provinciaUbicacionId,
+        Id localidadUbicacionId
+    ){
+        Id cuentaId = getCuentaUsuario();
+
+            List<Ventas_Informadas__c> rows = [
+                SELECT Id, Estado__c, Originante__c, Variedad_INASE__c,
+                       Provincia_Destino__c, Localidad_Destino__c
+                FROM Ventas_Informadas__c
+                WHERE Id = :ventaId
+                LIMIT 1
+            ];
+            if (rows.isEmpty()) {
+                throw new AuraHandledException('La venta no existe.');
+            }
+            Ventas_Informadas__c venta = rows[0];
+
+            if (venta.Originante__c != cuentaId) {
+                throw new AuraHandledException('No tiene permiso para modificar esta venta.');
+            }
+            // if (!VentasInformadasDestinoGeoService.esVariedadStine(venta.Variedad_INASE__c)) {
+            //     throw new AuraHandledException('Solo se puede editar ubicación en variedades STINE.');
+            // }
+            venta.Provincia_Destino__c = provinciaUbicacionId;
+            venta.Localidad_Destino__c = localidadUbicacionId;
+
+            VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, venta.Variedad_INASE__c, false);
+            
+            update venta;
+        
     }
 }

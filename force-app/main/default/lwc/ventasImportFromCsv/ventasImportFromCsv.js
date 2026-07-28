@@ -443,14 +443,31 @@ export default class LwcCSVUploader extends LightningElement {
             return rows;
         }
         return rows.map((row) => {
-            const copy = { ...row };
+            const copy = {};
+            for (const key of Object.keys(row)) {
+                if (this.isIgnorableColumnKey(key)) {
+                    continue;
+                }
+                copy[key] = row[key];
+            }
             for (const key of Object.keys(copy)) {
-                if (/kilos\s*totales/i.test(key) || key === 'Cantidad_de_Bolsas__c') {
+                if (/kilos\s*totales/i.test(key) || key === 'Cantidad_de_Bolsas__c' || /^cantidad(\s*de\s*bolsas)?$/i.test(key)) {
                     copy[key] = this.parseKilosTotalesForUpload(copy[key]);
                 }
             }
             return copy;
         });
+    }
+
+    isIgnorableColumnKey(key) {
+        if (key == null) {
+            return true;
+        }
+        const trimmed = String(key).trim();
+        if (!trimmed) {
+            return true;
+        }
+        return trimmed.toLowerCase().startsWith('__empty');
     }
 
     numberToPlainString(value) {
@@ -476,7 +493,8 @@ export default class LwcCSVUploader extends LightningElement {
         const markers = [
             'kilos totales', 'cuit destinatario', 'cuit_destinatario', 'variedad',
             'campana agricola', 'campaña agrícola', 'campana_de_ventas',
-            'categoria', 'tipo_de_comprobante', 'tipo de comprobante'
+            'categoria', 'tipo_de_comprobante', 'tipo de comprobante',
+            'kilos_por_bolsa', 'kilos por bolsa', 'cuit_originante', 'razon_social'
         ];
         for (let r = range.s.r; r <= Math.min(range.s.r + 8, range.e.r); r++) {
             let text = '';
@@ -715,11 +733,17 @@ export default class LwcCSVUploader extends LightningElement {
             })
             .catch((err) => {
                 console.error('[ventasImportFromCsv] Error generando plantilla dinámica, fallback a estática.', err);
+                const apexMsg =
+                    err?.body?.message ||
+                    err?.body?.pageErrors?.[0]?.message ||
+                    err?.message ||
+                    'Error desconocido al generar la plantilla';
                 this.descargarRecursoEstatico('Plantilla_Ventas_Informadas.xlsx');
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Plantilla con limitaciones',
-                    message: 'Se descargó la plantilla estática sin variedades dinámicas. Reintentá o contactá soporte.',
-                    variant: 'warning'
+                    title: 'Error al generar plantilla dinámica',
+                    message: apexMsg + ' Se descargó la plantilla estática (sin listas dinámicas).',
+                    variant: 'error',
+                    mode: 'sticky'
                 }));
             })
             .finally(() => {
@@ -739,17 +763,33 @@ export default class LwcCSVUploader extends LightningElement {
     }
 
     /** Convierte un base64 en archivo descargable.
-     *  Usa data URL en lugar de Blob para esquivar la whitelist de MIME types
-     *  del Locker Service de Experience Cloud (rechaza el MIME oficial de xlsx).
-     *  El nombre del archivo (.xlsx) hace que Excel lo abra correctamente. */
+     *  Preferimos Blob + object URL (más estable con archivos ~400KB).
+     *  Fallback a data URL octet-stream por Locker Service en Experience Cloud. */
     descargarBase64ComoXlsx(base64, fileName) {
         const a = document.createElement('a');
-        a.href = 'data:application/octet-stream;base64,' + base64;
         a.download = fileName;
         a.style.display = 'none';
+        let objectUrl;
+        try {
+            const binary = window.atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'application/octet-stream' });
+            objectUrl = URL.createObjectURL(blob);
+            a.href = objectUrl;
+        } catch (e) {
+            console.warn('[ventasImportFromCsv] Blob download failed, using data URL', e);
+            a.href = 'data:application/octet-stream;base64,' + base64;
+        }
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        if (objectUrl) {
+            // Revocar después del click para no cortar la descarga.
+            setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
+        }
     }
 
     descargarPlantillaEstatica() {

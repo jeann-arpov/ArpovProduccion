@@ -1,0 +1,57 @@
+<template>
+    <div class={cellClass}>
+        <template lwc:if={editable}>
+            <div class="slds-combobox_container">
+                <div class={comboboxClass} data-id="ubicacion-combobox">
+                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                        <input
+                            type="text"
+                            class="slds-input slds-combobox__input"
+                            placeholder={inputPlaceholder}
+                            value={displayValue}
+                            disabled={inputDisabled}
+                            oninput={handleInput}
+                            onfocus={handleFocus}
+                            onblur={handleBlur}
+                            autocomplete="off"
+                        />
+                        <span class="slds-icon_container slds-icon-utility-down slds-input__icon slds-input__icon_right">
+                            <lightning-icon icon-name="utility:down" size="xx-small" alternative-text="Opciones"></lightning-icon>
+                        </span>
+                    </div>
+                    <template lwc:if={dropdownOpen}>
+                        <div class="lookup-combobox__dropdown" role="listbox" onmousedown={handleDropdownMouseDown}>
+                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                <template lwc:if={hasOptions}>
+                                    <template for:each={filteredOptions} for:item="option">
+                                        <li key={option.value} role="presentation" class="slds-listbox__item">
+                                            <div
+                                                class={option.itemClass}
+                                                role="option"
+                                                data-value={option.value}
+                                                data-label={option.label}
+                                                onmousedown={handleSelect}
+                                            >
+                                                <span class="slds-truncate">{option.label}</span>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </template>
+                                <template lwc:else>
+                                    <li role="presentation" class="slds-listbox__item">
+                                        <div class="slds-media slds-listbox__option slds-listbox__option_plain">
+                                            <span class="slds-truncate">{emptyMessage}</span>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+        <template lwc:else>
+            <span class="ubicacion-readonly" title={readonlyDisplay}>{readonlyDisplay}</span>
+        </template>
+    </div>
+</template>
