@@ -65,9 +65,8 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
                 dicc
             );
             sheet3Xml = patchSheetQuitarTabSelected(sheet3Xml);
-            if (!plantillaGeoEstatica) {
-                sheet3Xml = patchSheetReferenciasProtegida(sheet3Xml);
-            }
+            // Siempre proteger REFERENCIAS (también con plantilla geo estática / sheet4).
+            sheet3Xml = patchSheetReferenciasProtegida(sheet3Xml);
             entradas.put('xl/worksheets/sheet3.xml', Blob.valueOf(sheet3Xml));
         } else if (entradas.containsKey('xl/worksheets/sheet2.xml')) {
             entradas.put(

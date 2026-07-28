@@ -70,13 +70,14 @@ private class VentasInformadasDestinoGeoServiceTest {
     @IsTest
     static void destinoOpcionalInclusoParaStineConFlagActivo() {
         activarFlagStine();
-        Account stine = obtenerOStineObtentor('STINE TEST');
-        Variedad__c varStine = crearVariedad(stine.Id, 'STINE 99TEST');
-        System.assertEquals(true, VentasInformadasDestinoGeoService.esVariedadStine(varStine.Id));
-        System.assertEquals(false, VentasInformadasDestinoGeoService.requiereDestinoParaVariedad(varStine.Id));
+        // Sin insert de Account: en PROD el flow "Cuenta. Creación Datos ERP" falla en tests.
+        Variedad__c varStine = variedadConObtentorInMemory('24', 'STINE TEST');
+        System.assertEquals(true, VentasInformadasDestinoGeoService.esVariedadStine(varStine));
+        System.assertEquals(false, VentasInformadasDestinoGeoService.requiereDestinoParaVariedad(varStine));
+        System.assertEquals(false, VentasInformadasDestinoGeoService.requiereDestinoParaVariedad((Id) null));
 
         Ventas_Informadas__c venta = new Ventas_Informadas__c();
-        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, varStine.Id);
+        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, null);
 
         Provincia__c prov = new Provincia__c(Name = 'Buenos Aires Test');
         insert prov;
@@ -84,29 +85,28 @@ private class VentasInformadasDestinoGeoServiceTest {
         insert loc;
         venta.Provincia_Destino__c = prov.Id;
         venta.Localidad_Destino__c = loc.Id;
-        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, varStine.Id);
+        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, null);
     }
 
     @IsTest
     static void noStineNoRequiereDestino() {
-        Account otro = crearObtentor('99', 'OTRO OBTENTOR');
-        Variedad__c varOtro = crearVariedad(otro.Id, 'VAR NO STINE');
+        Variedad__c varOtro = variedadConObtentorInMemory('99', 'OTRO OBTENTOR');
 
         Ventas_Informadas__c venta = new Ventas_Informadas__c();
-        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, varOtro.Id);
-        System.assertEquals(false, VentasInformadasDestinoGeoService.esVariedadStine(varOtro.Id));
+        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, null);
+        System.assertEquals(false, VentasInformadasDestinoGeoService.esVariedadStine(varOtro));
+        System.assertEquals(false, VentasInformadasDestinoGeoService.esVariedadStine((Id) null));
     }
 
     @IsTest
     static void flagApagadoNoObligaStine() {
         desactivarFlagStine();
 
-        Account stine = obtenerOStineObtentor('STINE FLAG OFF');
-        Variedad__c varStine = crearVariedad(stine.Id, 'STINE FLAG');
-
+        Variedad__c varStine = variedadConObtentorInMemory('24', 'STINE FLAG OFF');
         Ventas_Informadas__c venta = new Ventas_Informadas__c();
-        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, varStine.Id);
+        VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, null);
         System.assertEquals(false, VentasInformadasDestinoGeoService.requiereDestinoStineActivo());
+        System.assertEquals(true, VentasInformadasDestinoGeoService.esVariedadStine(varStine));
     }
 
     @IsTest
@@ -155,8 +155,6 @@ private class VentasInformadasDestinoGeoServiceTest {
         insert new List<Provincia__c>{ provA, provB };
         Localidad__c locB = new Localidad__c(Name = 'Loc B Test', Provincia__c = provB.Id);
         insert locB;
-        Account stine = obtenerOStineObtentor('STINE LOC');
-        Variedad__c varStine = crearVariedad(stine.Id, 'STINE LOC VAR');
 
         Ventas_Informadas__c venta = new Ventas_Informadas__c(
             Provincia_Destino__c = provA.Id,
@@ -164,7 +162,7 @@ private class VentasInformadasDestinoGeoServiceTest {
         );
         Boolean ex = false;
         try {
-            VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, varStine.Id);
+            VentasInformadasDestinoGeoService.validarDestinoObligatorio(venta, null);
         } catch (AuraHandledException e) {
             ex = true;
         }
@@ -206,15 +204,28 @@ private class VentasInformadasDestinoGeoServiceTest {
     @IsTest
     static void requiereDestinoParaVariedadSiempreOpcional() {
         activarFlagStine();
-        Account stine = obtenerOStineObtentor('STINE VAR OBJ');
-        Variedad__c varStine = crearVariedad(stine.Id, 'STINE VAR OBJ');
-        varStine = [
-            SELECT Id, Obtentor_Comercializa__r.Id_Obtentor__c, Obtentor_Comercializa__r.Name
-            FROM Variedad__c
-            WHERE Id = :varStine.Id
-            LIMIT 1
-        ];
+        Variedad__c varStine = variedadConObtentorInMemory('24', 'STINE VAR OBJ');
         System.assertEquals(false, VentasInformadasDestinoGeoService.requiereDestinoParaVariedad(varStine));
+        System.assertEquals(true, VentasInformadasDestinoGeoService.esVariedadStine(varStine));
+
+        // Nombre STINE / M.S. TECHNOLOGIES sin Id_Obtentor 24
+        Variedad__c porNombre = variedadConObtentorInMemory(null, 'M.S. TECHNOLOGIES SA');
+        System.assertEquals(true, VentasInformadasDestinoGeoService.esVariedadStine(porNombre));
+    }
+
+    @IsTest
+    static void esVariedadStinePorIdSinObtentorEsFalse() {
+        // Variedad sin Account: cubre query path sin disparar flow ERP de Cuenta.
+        Cultivo__c cultivo = new Cultivo__c(Name = 'SOJA GEO', Densidad_de_Siembra__c = 1);
+        insert cultivo;
+        Variedad__c v = new Variedad__c(
+            Name = 'VAR SIN OBT',
+            Cultivar_Inase__c = 'VAR SIN OBT',
+            Cultivo__c = cultivo.Id
+        );
+        insert v;
+        System.assertEquals(false, VentasInformadasDestinoGeoService.esVariedadStine(v.Id));
+        System.assertEquals(false, VentasInformadasDestinoGeoService.esVariedadStine((Variedad__c) null));
     }
 
     @IsTest
@@ -259,63 +270,16 @@ private class VentasInformadasDestinoGeoServiceTest {
         System.assert(provinciaIds.contains(prov.Id));
     }
 
-    private static Integer cuitSeq = 0;
-
-    private static String nextValidCuit() {
-        List<String> cuits = new List<String>{
-            '33645022659',
-            '20144462980',
-            '30709538418',
-            '30711969523',
-            '30500120882'
-        };
-        String cuit = cuits[Math.mod(cuitSeq, cuits.size())];
-        cuitSeq++;
-        return cuit;
-    }
-
-    private static Account crearObtentor(String idObtentor, String nombre) {
-        Id rtObt = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
-            .get('Obtentor')
-            .getRecordTypeId();
-        Account acc = new Account(
-            Name = nombre,
-            RecordTypeId = rtObt,
-            Id_Obtentor__c = idObtentor,
-            N_CUIT__c = nextValidCuit()
-        );
-        insert acc;
-        return acc;
-    }
-
-    private static Variedad__c crearVariedad(Id obtentorId, String cultivar) {
-        Cultivo__c cultivo = new Cultivo__c(Name = 'SOJA GEO', Densidad_de_Siembra__c = 1);
-        insert cultivo;
-        Variedad__c v = new Variedad__c(
-            Name = cultivar,
-            Cultivar_Inase__c = cultivar,
-            Cultivo__c = cultivo.Id,
-            Obtentor_Comercializa__c = obtentorId
-        );
-        insert v;
-        return [
-            SELECT Id, Obtentor_Comercializa__c
-            FROM Variedad__c
-            WHERE Id = :v.Id
-            LIMIT 1
-        ];
-    }
-
-    private static Account obtenerOStineObtentor(String nombreFallback) {
-        List<Account> existentes = [
-            SELECT Id
-            FROM Account
-            WHERE Id_Obtentor__c = '24'
-            LIMIT 1
-        ];
-        if (!existentes.isEmpty()) {
-            return existentes[0];
+    /** Variedad en memoria con relación Obtentor (sin DML Account → evita flow ERP en PROD). */
+    private static Variedad__c variedadConObtentorInMemory(String idObtentor, String nombre) {
+        Account obt = new Account(Name = nombre);
+        if (String.isNotBlank(idObtentor)) {
+            obt.Id_Obtentor__c = idObtentor;
         }
-        return crearObtentor('24', nombreFallback);
+        return new Variedad__c(
+            Name = nombre,
+            Cultivar_Inase__c = nombre,
+            Obtentor_Comercializa__r = obt
+        );
     }
 }
