@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Requiere_Destino_Stine__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Activa obligatoriedad de Provincia/Localidad Destino solo para variedades STINE (Id_Obtentor 24).</description>
+    <inlineHelpText>Puerta trasera: desactivado = destino opcional para todos. Activado = obligatorio al informar variedad STINE.</inlineHelpText>
+    <label>Requiere destino geo STINE</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
