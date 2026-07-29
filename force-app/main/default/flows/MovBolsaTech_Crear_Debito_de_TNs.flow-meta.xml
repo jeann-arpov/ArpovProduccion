@@ -8,7 +8,7 @@
         <actionName>ObtenerCampana</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>GetTN</targetReference>
+            <targetReference>Ya_Facturado_PRI_SEC</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -63,7 +63,23 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Obtener_campania</targetReference>
+            <targetReference>GetTN</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Preservar_Expediente_PRI_SEC</name>
+        <label>Preservar Expediente PRI/SEC</label>
+        <locationX>182</locationX>
+        <locationY>1406</locationY>
+        <assignmentItems>
+            <assignToReference>varExpDeNeg</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Mov_BolsaTech.Expediente_de_Negativos__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>GetTN</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -111,6 +127,52 @@
             </value>
         </assignmentItems>
     </assignments>
+    <decisions>
+        <name>Ya_Facturado_PRI_SEC</name>
+        <label>Ya Facturado PRI/SEC?</label>
+        <locationX>446</locationX>
+        <locationY>1280</locationY>
+        <defaultConnector>
+            <targetReference>Buscar_Expediente_Abierto</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No facturado / EXP normal</defaultConnectorLabel>
+        <rules>
+            <name>Preservar_por_factura</name>
+            <conditionLogic>1 OR (2 AND (3 OR 4))</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Mov_BolsaTech.FT_RE3_Id__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Buscar_Mov_BolsaTech.Expediente_de_Negativos__r.Etapa__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Facturar Regalía E3</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Buscar_Mov_BolsaTech.Expediente_de_Negativos__r.Tipo_expendiente__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>PRI</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Buscar_Mov_BolsaTech.Expediente_de_Negativos__r.Tipo_expendiente__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>SEC</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Preservar_Expediente_PRI_SEC</targetReference>
+            </connector>
+            <label>Preservar PRI/SEC facturado</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Actualizar_expediente_en_TN_existente</name>
         <label>Actualizar expediente en TN existente?</label>
@@ -210,7 +272,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Buscar_Expediente_Abierto</targetReference>
+                <targetReference>Obtener_campania</targetReference>
             </connector>
             <label>Yes</label>
         </rules>
@@ -246,7 +308,7 @@
         <locationX>446</locationX>
         <locationY>1298</locationY>
         <defaultConnector>
-            <targetReference>Obtener_campania</targetReference>
+            <targetReference>GetTN</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No</defaultConnectorLabel>
         <rules>
@@ -300,7 +362,9 @@ Se modifica la condición de expediente abierto.
 Se crea la TN de manera asincrónica.
 Se agrega al movim Bolsa Tech el expediente de negativos y el obtentor
 Se agrega Evaluacion de usuario Enlist para la creacion de la TN
-No sobrescribe expediente/obtentor en MBT ni TN cuando varExpDeNeg es nulo (evita race con trigger).</description>
+No sobrescribe expediente/obtentor en MBT ni TN cuando varExpDeNeg es nulo (evita race con trigger).
+Si el MBT ya tiene FCRE3 o el EXP PRI/SEC está en Facturar Regalía E3, no pisa el expediente con un EXP normal.
+En TN nuevas, Expediente_de_Origen__c conserva el PRI/SEC del MBT cuando aplica.</description>
     <environments>Default</environments>
     <formulas>
         <name>fechaCreacion</name>
@@ -312,6 +376,18 @@ No sobrescribe expediente/obtentor en MBT ni TN cuando varExpDeNeg es nulo (evit
         <dataType>Number</dataType>
         <expression>{!Buscar_Mov_BolsaTech.Peso_Neto__c} / 1000</expression>
         <scale>0</scale>
+    </formulas>
+    <formulas>
+        <name>forExpOrigenPriSec</name>
+        <dataType>String</dataType>
+        <expression>IF(
+  OR(
+    TEXT({!Buscar_Mov_BolsaTech.Expediente_de_Negativos__r.Tipo_expendiente__c}) = &quot;PRI&quot;,
+    TEXT({!Buscar_Mov_BolsaTech.Expediente_de_Negativos__r.Tipo_expendiente__c}) = &quot;SEC&quot;
+  ),
+  {!Buscar_Mov_BolsaTech.Expediente_de_Negativos__c},
+  NULL
+)</expression>
     </formulas>
     <formulas>
         <description>Fecha Vto TN con año actual + 1, si Fecha Vto TN &lt;= HOY &lt;= 31/12/año_actual, o bien
@@ -389,6 +465,18 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <field>Expediente_de_Negativos__c</field>
             <value>
                 <elementReference>varExpDeNeg</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Expediente_de_Origen__c</field>
+            <value>
+                <elementReference>forExpOrigenPriSec</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FT_RE3_Id__c</field>
+            <value>
+                <elementReference>Buscar_Mov_BolsaTech.FT_RE3_Id__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -505,6 +593,13 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <operator>NotEqualTo</operator>
             <value>
                 <stringValue>SEC</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Campania__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>campanaId</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -745,6 +840,18 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
                 <elementReference>varExpDeNeg</elementReference>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>Expediente_de_Origen__c</field>
+            <value>
+                <elementReference>forExpOrigenPriSec</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FT_RE3_Id__c</field>
+            <value>
+                <elementReference>Buscar_Mov_BolsaTech.FT_RE3_Id__c</elementReference>
+            </value>
+        </inputAssignments>
         <object>Tonelada__c</object>
     </recordUpdates>
     <start>
@@ -754,7 +861,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <targetReference>Buscar_Mov_BolsaTech</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <subflows>
         <name>Evaluar_Usuario</name>
         <label>Evaluar Usuario</label>

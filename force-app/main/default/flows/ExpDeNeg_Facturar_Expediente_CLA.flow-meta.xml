@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Relacionar_FCRE3_a_MBT</name>
+        <label>Relacionar FCRE3 a MBT</label>
+        <locationX>248</locationX>
+        <locationY>2280</locationY>
+        <actionName>RelacionarFacturaEnlistMbt</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Actualizar_expediente</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>expedienteId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>RelacionarFacturaEnlistMbt</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
     <apiVersion>60.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -31,7 +52,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Actualizar_expediente</targetReference>
+            <targetReference>Relacionar_FCRE3_a_MBT</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -47,7 +68,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Actualizar_expediente</targetReference>
+            <targetReference>Relacionar_FCRE3_a_MBT</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -110,7 +131,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Actualizar_expediente</targetReference>
+            <targetReference>Relacionar_FCRE3_a_MBT</targetReference>
         </connector>
     </assignments>
     <decisions>
