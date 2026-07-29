@@ -140,16 +140,24 @@ private class RelacionarFacturaEnlistMbtTest {
         System.assertEquals(false, RelacionarFacturaEnlistMbt.contieneCtg('[10227330342]', '999'));
         System.assertEquals(true, RelacionarFacturaEnlistMbt.contieneCtg('10227330342', '10227330342'));
 
-        Movimiento_BolsaTech__c mbt = new Movimiento_BolsaTech__c(CTG__c = 'AAA');
-        TN_Regalia_Enlist__c f = new TN_Regalia_Enlist__c(CTGs_Involucrados_Largo__c = '[AAA]');
-        System.assertEquals(null, RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
-            new Movimiento_BolsaTech__c(CTG__c = null),
-            new List<TN_Regalia_Enlist__c>{ f }
-        ));
-        System.assertNotEquals(null, RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
-            mbt,
-            new List<TN_Regalia_Enlist__c>{ f }
-        ));
+        TN_Regalia_Enlist__c f = (TN_Regalia_Enlist__c) JSON.deserialize(
+            '{"attributes":{"type":"TN_Regalia_Enlist__c"},"Id":"a7P000000000001AAA","CTGs_Involucrados_Largo__c":"[AAA]"}',
+            TN_Regalia_Enlist__c.class
+        );
+        System.assertEquals(
+            null,
+            RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
+                new Movimiento_BolsaTech__c(CTG__c = null),
+                new List<TN_Regalia_Enlist__c>{ f }
+            )
+        );
+        System.assertEquals(
+            f.Id,
+            RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
+                new Movimiento_BolsaTech__c(CTG__c = 'AAA'),
+                new List<TN_Regalia_Enlist__c>{ f }
+            )
+        );
     }
 
     @isTest
