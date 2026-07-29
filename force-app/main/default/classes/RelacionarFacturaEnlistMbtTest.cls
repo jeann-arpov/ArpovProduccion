@@ -8,10 +8,12 @@ private class RelacionarFacturaEnlistMbtTest {
         Cultivo__c soja = new Cultivo__c(Name = 'SOJA', Densidad_de_Siembra__c = 75, Sembra_Evolucion__c = true);
         insert soja;
 
+        // Usuario_Enlist = true: si se dispara "Creacion de Expedientes PRI Y SEC",
+        // sale en EsUsuarioEnlist sin llamar Apex (evita NPE en promoción/prod).
         Account productor = new Account(
             Name = 'Prod Relacionar FCRE3',
             N_CUIT__c = '30641405554',
-            Usuario_Enlist__c = false
+            Usuario_Enlist__c = true
         );
         insert productor;
 
@@ -26,26 +28,27 @@ private class RelacionarFacturaEnlistMbtTest {
         );
         insert exp;
 
+        // Sin Tipo_de_entrega + Estado Con error + cuenta Enlist = no crea PRI/SEC.
         insert new List<Movimiento_BolsaTech__c>{
             new Movimiento_BolsaTech__c(
                 Expediente_de_Negativos__c = exp.Id,
                 CTG__c = '11111111111',
-                Cultivo__c = soja.Id,
+                Cultivo__c = 'SOJA',
                 Tecnologia__c = 'ENLIST',
                 Peso_Neto__c = 30000,
                 Estado__c = 'Con error',
-                Tipo_de_entrega__c = 'Segunda Disposición',
-                Cuit_Remitente_Comercial__c = '30641405554'
+                Cuit_Remitente_Comercial__c = '30641405554',
+                CUIT_Titular__c = '30641405554'
             ),
             new Movimiento_BolsaTech__c(
                 Expediente_de_Negativos__c = exp.Id,
                 CTG__c = '22222222222',
-                Cultivo__c = soja.Id,
+                Cultivo__c = 'SOJA',
                 Tecnologia__c = 'ENLIST',
                 Peso_Neto__c = 31000,
                 Estado__c = 'Con error',
-                Tipo_de_entrega__c = 'Segunda Disposición',
-                Cuit_Remitente_Comercial__c = '30641405554'
+                Cuit_Remitente_Comercial__c = '30641405554',
+                CUIT_Titular__c = '30641405554'
             )
         };
     }
@@ -136,6 +139,17 @@ private class RelacionarFacturaEnlistMbtTest {
         System.assertEquals(true, RelacionarFacturaEnlistMbt.contieneCtg('[10227330342, 10227330688]', '10227330342'));
         System.assertEquals(false, RelacionarFacturaEnlistMbt.contieneCtg('[10227330342]', '999'));
         System.assertEquals(true, RelacionarFacturaEnlistMbt.contieneCtg('10227330342', '10227330342'));
+
+        Movimiento_BolsaTech__c mbt = new Movimiento_BolsaTech__c(CTG__c = 'AAA');
+        TN_Regalia_Enlist__c f = new TN_Regalia_Enlist__c(CTGs_Involucrados_Largo__c = '[AAA]');
+        System.assertEquals(null, RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
+            new Movimiento_BolsaTech__c(CTG__c = null),
+            new List<TN_Regalia_Enlist__c>{ f }
+        ));
+        System.assertNotEquals(null, RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
+            mbt,
+            new List<TN_Regalia_Enlist__c>{ f }
+        ));
     }
 
     @isTest
