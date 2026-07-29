@@ -140,22 +140,37 @@ private class RelacionarFacturaEnlistMbtTest {
         System.assertEquals(false, RelacionarFacturaEnlistMbt.contieneCtg('[10227330342]', '999'));
         System.assertEquals(true, RelacionarFacturaEnlistMbt.contieneCtg('10227330342', '10227330342'));
 
-        TN_Regalia_Enlist__c f = (TN_Regalia_Enlist__c) JSON.deserialize(
+        TN_Regalia_Enlist__c f1 = (TN_Regalia_Enlist__c) JSON.deserialize(
             '{"attributes":{"type":"TN_Regalia_Enlist__c"},"Id":"a7P000000000001AAA","CTGs_Involucrados_Largo__c":"[AAA]"}',
             TN_Regalia_Enlist__c.class
         );
+        TN_Regalia_Enlist__c f2 = (TN_Regalia_Enlist__c) JSON.deserialize(
+            '{"attributes":{"type":"TN_Regalia_Enlist__c"},"Id":"a7P000000000002AAA","CTGs_Involucrados_Largo__c":"[BBB]"}',
+            TN_Regalia_Enlist__c.class
+        );
+        List<TN_Regalia_Enlist__c> varias = new List<TN_Regalia_Enlist__c>{ f1, f2 };
+
+        // Con varias facturas, sin CTG no se puede matchear
         System.assertEquals(
             null,
             RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
                 new Movimiento_BolsaTech__c(CTG__c = null),
-                new List<TN_Regalia_Enlist__c>{ f }
+                varias
             )
         );
         System.assertEquals(
-            f.Id,
+            f1.Id,
             RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
                 new Movimiento_BolsaTech__c(CTG__c = 'AAA'),
-                new List<TN_Regalia_Enlist__c>{ f }
+                varias
+            )
+        );
+        // Una sola factura se aplica aunque no haya CTG
+        System.assertEquals(
+            f1.Id,
+            RelacionarFacturaEnlistMbt.resolverFacturaParaMbt(
+                new Movimiento_BolsaTech__c(CTG__c = null),
+                new List<TN_Regalia_Enlist__c>{ f1 }
             )
         );
     }
