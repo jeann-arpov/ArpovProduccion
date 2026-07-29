@@ -21,6 +21,27 @@
         <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
+    <actionCalls>
+        <name>Relacionar_FCRE3_a_MBT</name>
+        <label>Relacionar FCRE3 a MBT</label>
+        <locationX>50</locationX>
+        <locationY>2610</locationY>
+        <actionName>RelacionarFacturaEnlistMbt</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Actualizar_expediente</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>expedienteId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>RelacionarFacturaEnlistMbt</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
     <apiVersion>60.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -545,7 +566,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <locationX>50</locationX>
         <locationY>2564</locationY>
         <connector>
-            <targetReference>Actualizar_expediente</targetReference>
+            <targetReference>Relacionar_FCRE3_a_MBT</targetReference>
         </connector>
         <inputReference>Agrupar_facturas_a_crear.registrosAgrupados</inputReference>
     </recordCreates>
