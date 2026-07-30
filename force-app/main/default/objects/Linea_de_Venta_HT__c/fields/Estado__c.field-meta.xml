@@ -56,9 +56,19 @@
                 <label>Aplicada</label>
             </value>
             <value>
+                <fullName>Ajustada por NC</fullName>
+                <default>false</default>
+                <label>Ajustada por NC</label>
+            </value>
+            <value>
                 <fullName>Cancelada</fullName>
                 <default>false</default>
                 <label>Cancelada</label>
+            </value>
+            <value>
+                <fullName>Pagada Parcialmente</fullName>
+                <default>false</default>
+                <label>Pagada Parcialmente</label>
             </value>
         </valueSetDefinition>
     </valueSet>

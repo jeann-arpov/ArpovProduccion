@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Ajuste__c</fullName>
+    <label>Tipo_Ajuste</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>NC</fullName>
+                <default>false</default>
+                <label>NC</label>
+            </value>
+            <value>
+                <fullName>NCC</fullName>
+                <default>false</default>
+                <label>NCC</label>
+            </value>
+            <value>
+                <fullName>NCP</fullName>
+                <default>false</default>
+                <label>NCP</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

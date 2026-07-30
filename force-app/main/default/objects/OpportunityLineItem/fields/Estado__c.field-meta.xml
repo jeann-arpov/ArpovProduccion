@@ -3,22 +3,15 @@
     <fullName>Estado__c</fullName>
     <label>Estado</label>
     <required>false</required>
-    <trackHistory>true</trackHistory>
-    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Creada</fullName>
+                <fullName>Facturable</fullName>
                 <default>false</default>
-                <label>Creada</label>
-            </value>
-            <value>
-                <fullName>Pendiente de Facturación</fullName>
-                <default>false</default>
-                <label>Pendiente de Facturación</label>
+                <label>Facturable</label>
             </value>
             <value>
                 <fullName>Facturada</fullName>
@@ -26,14 +19,24 @@
                 <label>Facturada</label>
             </value>
             <value>
-                <fullName>Pagada</fullName>
+                <fullName>Pendiente</fullName>
                 <default>false</default>
-                <label>Pagada</label>
+                <label>Pendiente</label>
+            </value>
+            <value>
+                <fullName>Creada</fullName>
+                <default>false</default>
+                <label>En Curso</label>
             </value>
             <value>
                 <fullName>Vencida</fullName>
                 <default>false</default>
                 <label>Vencida</label>
+            </value>
+            <value>
+                <fullName>Pagada</fullName>
+                <default>false</default>
+                <label>Pagada</label>
             </value>
             <value>
                 <fullName>Cancelada por NC</fullName>
@@ -51,31 +54,19 @@
                 <label>Aplicada</label>
             </value>
             <value>
-                <fullName>Ajustada por NC</fullName>
-                <default>false</default>
-                <label>Ajustada por NC</label>
-            </value>
-            <value>
                 <fullName>Cancelada</fullName>
                 <default>false</default>
                 <label>Cancelada</label>
             </value>
             <value>
+                <fullName>Ajustada por NC</fullName>
+                <default>false</default>
+                <label>Ajustada por NC</label>
+            </value>
+            <value>
                 <fullName>Pagada Parcialmente</fullName>
                 <default>false</default>
                 <label>Pagada Parcialmente</label>
-            </value>
-            <value>
-                <fullName>Parcialmente Facturada</fullName>
-                <default>false</default>
-                <isActive>false</isActive>
-                <label>Parcialmente Facturada</label>
-            </value>
-            <value>
-                <fullName>Parcialmente Pagada</fullName>
-                <default>false</default>
-                <isActive>false</isActive>
-                <label>Parcialmente Pagada</label>
             </value>
         </valueSetDefinition>
     </valueSet>

@@ -328,7 +328,7 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Label columna observaciones</shortDescription>
-        <value>Observaciones *</value>
+        <value>Observaciones</value>
     </labels>
     <labels>
         <fullName>NC_Observaciones_Required</fullName>
@@ -650,5 +650,93 @@
         <protected>false</protected>
         <shortDescription>expediente negativos 7</shortDescription>
         <value>El numero no debe ser mayor al saldo de la cuenta</value>
+    </labels>
+    <labels>
+        <fullName>NC_Add_Variety</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón agregar variedad</shortDescription>
+        <value>Agregar Variedad</value>
+    </labels>
+    <labels>
+        <fullName>NC_Anular_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón anular</shortDescription>
+        <value>Anular</value>
+    </labels>
+    <labels>
+        <fullName>NC_Confirm_Modal_Confirm</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón confirmar modal NC Total</shortDescription>
+        <value>Confirmar</value>
+    </labels>
+    <labels>
+        <fullName>NC_Confirm_Modal_Message</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje modal confirmación NC Total</shortDescription>
+        <value>¿Está seguro que desea crear una Nota de Crédito Total? Esta acción no se puede deshacer.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Confirm_Modal_Title</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Título modal confirmación NC Total</shortDescription>
+        <value>Confirmar Nota de Crédito Total</value>
+    </labels>
+    <labels>
+        <fullName>NC_Facturar_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón facturar</shortDescription>
+        <value>Facturar</value>
+    </labels>
+    <labels>
+        <fullName>NC_Finalize_Sale</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón finalizar venta</shortDescription>
+        <value>Finalizar Venta</value>
+    </labels>
+    <labels>
+        <fullName>NC_New_Sale</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón nueva venta</shortDescription>
+        <value>Nueva Venta</value>
+    </labels>
+    <labels>
+        <fullName>NC_Observaciones_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón observaciones</shortDescription>
+        <value>Observaciones</value>
+    </labels>
+    <labels>
+        <fullName>NC_Total_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón NC Total</shortDescription>
+        <value>NC Total</value>
+    </labels>
+    <labels>
+        <fullName>NC_Upload_Invoice</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón subir factura</shortDescription>
+        <value>Subir Factura</value>
     </labels>
 </CustomLabels>

@@ -66,6 +66,11 @@
                 <default>false</default>
                 <label>Cancelada por NC</label>
             </value>
+            <value>
+                <fullName>Ajustada por NC</fullName>
+                <default>false</default>
+                <label>Ajustada por NC</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

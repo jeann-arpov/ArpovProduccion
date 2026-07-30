@@ -99,12 +99,19 @@
         <defaultConnectorLabel>Otro estado</defaultConnectorLabel>
         <rules>
             <name>Cancelada_por_NC</name>
-            <conditionLogic>and</conditionLogic>
+            <conditionLogic>1 OR 2</conditionLogic>
             <conditions>
                 <leftValueReference>Recorrer_las_lineas_de_opp_SE.Estado__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelada por NC</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Recorrer_las_lineas_de_opp_SE.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -233,7 +240,7 @@ Se agrega la condición si la opp es punto de venta = true</description>
         <connector>
             <targetReference>Es_Punto_de_Venta</targetReference>
         </connector>
-        <filterLogic>(1 OR 2 OR 3 OR 5) AND 4</filterLogic>
+        <filterLogic>(1 OR 2 OR 3 OR 5 OR 6  OR 7) AND 4</filterLogic>
         <filters>
             <field>StageName</field>
             <operator>EqualTo</operator>
@@ -267,6 +274,20 @@ Se agrega la condición si la opp es punto de venta = true</description>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Aplicada</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Ajustada por NC</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Pagada Parcialmente</stringValue>
             </value>
         </filters>
         <object>Opportunity</object>

@@ -1,68 +1,64 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>*</members>
+        <members>CrearVentaController2</members>
         <name>ApexClass</name>
     </types>
     <types>
-        <members>*</members>
-        <name>ApexTrigger</name>
+        <members>crearLineaVentaNew3</members>
+        <members>crearVenta3</members>
+        <members>ncCreditoTotal</members>
+         <members>utilsHT</members>
+        <name>LightningComponentBundle</name>
     </types>
     <types>
-        <members>*</members>
+        <members>Compra_HT__c.Estado__c</members>
+        <members>Hectareas_Tecnologicas__c.Etapa__c</members>
+        <members>Linea_de_Compra_HT__c.Es_NC__c</members>
+        <members>Linea_de_Compra_HT__c.Estado__c</members>
+        <members>Linea_de_Compra_HT__c.Linea_de_Compra_HT__c</members>
+        <members>Linea_de_Compra_HT__c.Tipo_Ajuste__c</members>
+        <members>Linea_de_Venta_HT__c.Es_NC__c</members>
+        <members>Linea_de_Venta_HT__c.Estado__c</members>
+        <members>Linea_de_Venta_HT__c.Linea_de_Venta_HT__c</members>
+        <members>Linea_de_Venta_HT__c.Tipo_Ajuste__c</members>
+        <members>OpportunityLineItem.Es_NC__c</members>
+        <members>OpportunityLineItem.Estado__c</members>
+        <members>OpportunityLineItem.Opportunity_Product__c</members>
+        <members>OpportunityLineItem.Tipo_Ajuste__c</members>
+        <members>Venta_HT__c.Estado__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>CompraHT_Cambia_a_Pedido_de_Facturacion</members>
+        <members>CompraHT_Crea_Modifica_Oportunidad_Asociada</members>
+        <members>Factura_Estado_Facturada</members>
+        <members>LineaOportunidad_Crear_Hect_rea_Tecnol_gica_negativa</members>
+        <members>LineaVentaHT_Crear_Modificar_Linea_de_Compra_HT</members>
+        <members>Oportunidad_Cambio_estado_a_Compra_HT_y_Venta_HT</members>
+        <members>Venta_HT_Crear_NC</members>
+        <members>VentaHT_Crea_Modifica_Compra_HT</members>
         <name>Flow</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>CustomApplication</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>CustomTab</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>Layout</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>PermissionSet</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>Profile</name>
     </types>
     <types>
         <members>*</members>
         <name>CustomLabels</name>
     </types>
     <types>
-        <members>*</members>
-        <name>LightningComponentBundle</name>
-    </types>
-    <types>
-        <members>*</members>
+        <members>Nota_de_Credito__c</members>
         <name>CustomObject</name>
     </types>
     <types>
-        <members>*</members>
-        <name>FlexiPage</name>
+        <members>Notas_de_Creditos</members>
+        <name>PermissionSet</name>
     </types>
     <types>
-        <members>*</members>
-        <name>StaticResource</name>
+        <members>Opportunity.Sembra_Evolucion</members>
+        <name>RecordType</name>
     </types>
     <types>
-        <members>*</members>
-        <name>ContentAsset</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>Report</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>Workflow</name>
+        <members>OpportunityStage</members>
+        <name>StandardValueSet</name>
     </types>
     <version>65.0</version>
 </Package>

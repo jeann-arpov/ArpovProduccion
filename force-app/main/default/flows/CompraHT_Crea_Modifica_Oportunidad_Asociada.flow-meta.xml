@@ -5,7 +5,7 @@
     <decisions>
         <name>Crea_o_modifica_la_compra_HT</name>
         <label>Crea o modifica la compra HT?</label>
-        <locationX>396</locationX>
+        <locationX>429</locationX>
         <locationY>323</locationY>
         <defaultConnector>
             <targetReference>Se_modifica_la_oportunidad</targetReference>
@@ -62,7 +62,7 @@
     <decisions>
         <name>Estado_Compra_HT_es_igual_a_Stage_Opp</name>
         <label>Estado Compra HT es igual a Stage Opp?</label>
-        <locationX>1040</locationX>
+        <locationX>1172</locationX>
         <locationY>539</locationY>
         <defaultConnector>
             <targetReference>Modifica_Nombre_Opp</targetReference>
@@ -94,7 +94,7 @@
     <decisions>
         <name>Hay_venta_HT_asociada</name>
         <label>Hay venta HT asociada?</label>
-        <locationX>1238</locationX>
+        <locationX>974</locationX>
         <locationY>755</locationY>
         <defaultConnectorLabel>No hay Venta HT</defaultConnectorLabel>
         <rules>
@@ -116,7 +116,7 @@
     <decisions>
         <name>Se_modifica_la_oportunidad</name>
         <label>Se modifica la oportunidad?</label>
-        <locationX>743</locationX>
+        <locationX>809</locationX>
         <locationY>431</locationY>
         <defaultConnector>
             <targetReference>Estado_Compra_HT_es_igual_a_Stage_Opp</targetReference>
@@ -124,7 +124,7 @@
         <defaultConnectorLabel>Si se modifica</defaultConnectorLabel>
         <rules>
             <name>No_se_modifica</name>
-            <conditionLogic>(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8) OR (9 AND 10)</conditionLogic>
+            <conditionLogic>(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8) OR (9 AND 10) OR (11 AND 12)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
@@ -193,6 +193,20 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelada</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -201,7 +215,7 @@
             <label>No se modifica</label>
         </rules>
     </decisions>
-    <description>Cada vez que se crea o modifica una compra HT, se crea o modifica la oportunidad asociada. El propietario de la opp será el usuario VCS Admin.
+    <description>20260317 JN - Notas de Crédito Parciales , Cada vez que se crea o modifica una compra HT, se crea o modifica la oportunidad asociada. El propietario de la opp será el usuario VCS Admin.
 Se agrega el cultivo en la opp.
 Se pasa la marca de Punto de Venta cuando se crea la Opp.
 Cuando la compra HT pasa a estado Pedido de Facturación, si tiene Venta HT asociada --&gt; se cambia.</description>
@@ -219,7 +233,7 @@ Cuando la compra HT pasa a estado Pedido de Facturación, si tiene Venta HT asoc
     <formulas>
         <name>varTipoComprobante</name>
         <dataType>String</dataType>
-        <expression>IF({!$Record.Es_NC__c}, &quot;NC&quot;, &quot;FC&quot;)</expression>
+        <expression>IF({!$Record.Es_NC__c}, TEXT({!$Record.Tipo_Ajuste__c}), &quot;FC&quot;)</expression>
     </formulas>
     <interviewLabel>CompraHT - Crea / Modifica Oportunidad Asociada {!$Flow.CurrentDateTime}</interviewLabel>
     <label>CompraHT - Crea / Modifica Oportunidad Asociada</label>
@@ -440,7 +454,7 @@ Cuando la compra HT pasa a estado Pedido de Facturación, si tiene Venta HT asoc
     <recordUpdates>
         <name>Modifica_Estado_de_la_Venta_HT</name>
         <label>Modifica Estado de la Venta HT</label>
-        <locationX>1106</locationX>
+        <locationX>842</locationX>
         <locationY>863</locationY>
         <filterLogic>and</filterLogic>
         <filters>
@@ -467,7 +481,7 @@ Cuando la compra HT pasa a estado Pedido de Facturación, si tiene Venta HT asoc
     <recordUpdates>
         <name>Modifica_Etapa_de_la_Oportunidad</name>
         <label>Modifica Etapa de la Oportunidad</label>
-        <locationX>1238</locationX>
+        <locationX>974</locationX>
         <locationY>647</locationY>
         <connector>
             <targetReference>Hay_venta_HT_asociada</targetReference>
@@ -524,7 +538,7 @@ Cuando la compra HT pasa a estado Pedido de Facturación, si tiene Venta HT asoc
     <recordUpdates>
         <name>Modifica_Nombre_Opp</name>
         <label>Modifica Nombre Opp</label>
-        <locationX>842</locationX>
+        <locationX>1370</locationX>
         <locationY>647</locationY>
         <filterLogic>and</filterLogic>
         <filters>
@@ -543,7 +557,7 @@ Cuando la compra HT pasa a estado Pedido de Facturación, si tiene Venta HT asoc
         <object>Opportunity</object>
     </recordUpdates>
     <start>
-        <locationX>270</locationX>
+        <locationX>303</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Crea_o_modifica_la_compra_HT</targetReference>
@@ -552,7 +566,7 @@ Cuando la compra HT pasa a estado Pedido de Facturación, si tiene Venta HT asoc
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>varRecordTypeId</name>
         <dataType>String</dataType>

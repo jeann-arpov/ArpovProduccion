@@ -249,8 +249,8 @@
             <label>Facturada</label>
         </rules>
         <rules>
-            <name>Cancelada_por_NC</name>
-            <conditionLogic>and</conditionLogic>
+            <name>Cancelada_por_NC_o_Ajustada_por_NC</name>
+            <conditionLogic>(1 AND 2) OR (3 AND 4)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Estado__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -265,10 +265,24 @@
                     <stringValue>Cancelada por NC</stringValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>Buscar_HT_Facturada</targetReference>
             </connector>
-            <label>Cancelada por NC</label>
+            <label>Cancelada por NC o Ajustada por NC</label>
         </rules>
     </decisions>
     <decisions>
@@ -386,7 +400,7 @@
         <defaultConnectorLabel>Si se modifica</defaultConnectorLabel>
         <rules>
             <name>No_se_modifica</name>
-            <conditionLogic>(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8)</conditionLogic>
+            <conditionLogic>(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8) OR (9 AND 10)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
@@ -441,6 +455,20 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Aplicada</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -449,7 +477,7 @@
             <label>No se modifica</label>
         </rules>
     </decisions>
-    <description>Cada vez que se crea o modifica una venta HT, se crea o modifica la compra HT asociada.
+    <description>JN notas credito parciales Cada vez que se crea o modifica una venta HT, se crea o modifica la compra HT asociada.
 Se agrega el cultivo a la compra HT.
 Se pasa la marca de Punto de Venta cuando se crea la compra HT.
 Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
@@ -566,6 +594,12 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
             <field>Punto_de_Venta__c</field>
             <value>
                 <elementReference>$Record.Punto_de_Venta__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_Ajuste__c</field>
+            <value>
+                <elementReference>$Record.Tipo_Ajuste__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>

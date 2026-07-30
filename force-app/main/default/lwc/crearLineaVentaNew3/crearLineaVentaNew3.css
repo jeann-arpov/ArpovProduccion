@@ -1,0 +1,294 @@
+/* Layout general */
+lightning-layout {
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    
+    background-color: white;
+    border-radius: 100px;
+    margin: 0.5rem 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+/* Estilo de los campos de texto */
+lightning-input,
+lightning-combobox {
+    --slds-c-input-radius-border: 50px;
+    --slds-c-input-color-border: #d9d9d9;
+    --slds-c-input-color-background: #f8f8f8;
+    --slds-c-input-color-text: #1c1c1c;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Campo variedad solo lectura */
+.variedad-readonly {
+    display: flex;
+    align-items: center;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-overflow: clip;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #1c1c1c;
+    background-color: #f8f8f8;
+    border-radius: 50px;
+    border: 1px solid #d9d9d9;
+    line-height: 1.3;
+}
+
+/* Fecha y valores en campos */
+lightning-formatted-date-time {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1c1c1c;
+    background-color: #f8f8f8;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+}
+
+/* Badge de estado */
+.estado-success {
+    background-color: #00c853;
+    color: #fff;
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    display: inline-block;
+    min-width: 100px;
+    text-align: center;
+}
+
+/* Iconos de botones */
+.slds-button svg {
+    fill: #1c1c1c;
+    transition: transform 0.2s ease;
+}
+
+.slds-button:hover svg {
+    transform: scale(1.1);
+}
+
+/* Icono eliminar redondo */
+button[title="Eliminar Variedad"] {
+    background-color: white;
+    border: 2px solid #1c1c1c;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button[title="Eliminar Variedad"]:hover {
+    background-color: #eee;
+}
+
+/* Estilo para licencia con ícono */
+lightning-layout-item span,
+lightning-layout-item div svg {
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+
+.layout-limpio {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.spinner-overlay {
+    position: absolute; /* o fixed si quieres que cubra toda la pantalla */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); /* Fondo translúcido */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Bien arriba */
+}
+.linea-venta-wrapper {
+    position: relative;
+}
+/* ===== ESTILOS PARA EL CAMPO DE OBSERVACIONES ===== */
+.observaciones-textarea {
+    width: 100%;
+    min-height: 60px;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    background-color: #f8f8f8;
+    color: #1c1c1c;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    resize: vertical;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.observaciones-textarea::placeholder {
+    color: #d32f2f;
+    font-weight: bold;
+    opacity: 1;
+}
+
+.observaciones-textarea:focus {
+    border-color: #B5EC08;
+    box-shadow: 0 0 0 1px #B5EC08;
+    outline: none;
+}
+
+.campo-deshabilitado {
+    color: #ccc;
+    font-style: italic;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Ajustar alineación del layout */
+lightning-layout {
+    align-items: start; /* Para mejor alineación con textarea */
+}
+
+/* MEJORAR estilos para campos de nota de crédito */
+lightning-input[type="number"] {
+    --slds-c-input-radius-border: 8px;
+    --slds-c-input-color-border: #ff9e2c;
+    --slds-c-input-color-background: #fffaf0;
+    --slds-c-input-color-text: #1c1c1c;
+}
+
+lightning-input[type="number"]:focus {
+    --slds-c-input-color-border: #B5EC08;
+    --slds-c-input-shadow-focus: 0 0 0 1px #B5EC08;
+}
+
+/* Resaltar filas seleccionadas */
+lightning-layout[data-selected="true"] {
+    background-color: #fffaf0;
+    border: 2px solid #ff9e2c;
+    box-shadow: 0 0 8px rgba(255, 158, 44, 0.3);
+}
+
+/* ===== ESTILOS PARA LINK VER HT DEBAJO DE CANTIDAD ===== */
+.col-cantidad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.link-ver-ht {
+    font-size: 0.65rem;
+    color: #0176d3;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+.link-ver-ht:hover {
+    color: #005fb2;
+}
+
+/* ===== ESTILOS PARA TABLA DE SALDO HT EN MODAL ===== */
+.saldo-ht-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.saldo-ht-table th {
+    background-color: #f4f6f9;
+    color: #444;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.75rem;
+    border-bottom: 2px solid #e0e0e0;
+    text-align: left;
+}
+
+.saldo-ht-table td {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.saldo-ht-table tr:last-child td {
+    border-bottom: none;
+}
+
+.saldo-ht-table tr:hover td {
+    background-color: #fafbfc;
+}
+
+.saldo-ht-label {
+    font-weight: 600;
+    color: #3e3e3e;
+    white-space: nowrap;
+    width: 45%;
+}
+
+.saldo-ht-valor {
+    font-weight: 700;
+    color: #1c1c1c;
+    font-size: 0.95rem;
+}
+
+.ht-ajustada {
+    color: #d32f2f;
+}
+
+.ht-restante {
+    color: #0d47a1;
+    font-size: 1rem;
+}
+
+/* ===== ESTILOS PARA BADGE DE ESTADO HT ===== */
+.badge-estado-ht {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-align: center;
+    min-width: 80px;
+}
+
+.badge-estado-ht.Aplicada {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.badge-estado-ht.Ajustada_por_NC {
+    background-color: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffcc80;
+}
+
+.badge-estado-ht.Cancelada_por_NC {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.badge-estado-ht.Pendiente {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+}

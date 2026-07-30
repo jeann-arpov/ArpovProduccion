@@ -121,6 +121,20 @@
                 <elementReference>varNombreLinea</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varLineaVentaHT.Linea_de_Venta_HT__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Recorrer_las_lineas.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varLineaVentaHT.Es_NC__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>Asignar_linea_corriente_a_coleccion</targetReference>
         </connector>
@@ -233,6 +247,7 @@ Se agrega cultivo al encabezado de Venta HT - NC</description>
         <expression>{!Buscar_Venta_HT_asociada.Name} &amp; &quot;-NC&quot;</expression>
     </formulas>
     <interviewLabel>Venta HT - Crear NC {!$Flow.CurrentDateTime}</interviewLabel>
+    <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>
     <label>Venta HT - Crear NC</label>
     <loops>
         <name>Recorrer_las_lineas</name>
@@ -392,6 +407,13 @@ Se agrega cultivo al encabezado de Venta HT - NC</description>
                 <elementReference>Buscar_Venta_HT_asociada.Id</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Es_NC__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Venta_HT__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -500,7 +522,7 @@ Se agrega cultivo al encabezado de Venta HT - NC</description>
         <allowPause>false</allowPause>
         <fields>
             <name>Copy_1_of_Copy_1_of_MensajeEsNC</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;La venta HT {!Buscar_Venta_HT_asociada.Name} &lt;/strong&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;ya tiene una Nota de Crédito &lt;/strong&gt;&lt;strong&gt;{!Buscar_si_ya_existe_NC_para_esta_venta_HT.Id}&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong&gt;La venta HT {!Buscar_Venta_HT_asociada.Name} &lt;/strong&gt;&lt;strong style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;ya tiene una Nota de Crédito &lt;/strong&gt;&lt;strong&gt;{!Buscar_si_ya_existe_NC_para_esta_venta_HT.Name}&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
