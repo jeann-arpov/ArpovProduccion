@@ -5,7 +5,8 @@ public without sharing class CesionPPH {
         
         if (cesionId != 'new' && String.isNotBlank(cesionId)) return loadData(true, cesionId);
 
-        List<Cesion_HT__c> cesiones = [select Id from Cesion_HT__c where Cuenta_Cedente__c =: CrearCompraController.getAccount().id and Estado__c not in ('Cancelada', 'Validada') order by createddate desc limit 1];
+        // No retomar borradores ni canceladas/validadas: el listado solo muestra cesiones confirmadas.
+        List<Cesion_HT__c> cesiones = [select Id from Cesion_HT__c where Cuenta_Cedente__c =: CrearCompraController.getAccount().id and Estado__c not in ('Cancelada', 'Validada', 'Borrador') order by createddate desc limit 1];
 
         //si vengo del boton de new o no hay cesiones que no esten cancelada/validada, devuelvo cultivos
         if (cesionId == 'new' || cesiones.isEmpty()) {
@@ -20,10 +21,14 @@ public without sharing class CesionPPH {
     @AuraEnabled
     public static Map<String, Object> getNewCesionData(String cultivoId, String tipoCesion){
         Cultivo__c cultivo = [select HT2Kilos__c from Cultivo__c where Id = :cultivoId];
+        Id cuentaId = CrearCompraController.getAccount().id;
+
+        cancelEmptyDrafts(cuentaId);
 
         Cesion_HT__c cesion = new Cesion_HT__c();
-        cesion.Estado__c = 'En Curso';
-        cesion.Cuenta_Cedente__c = CrearCompraController.getAccount().id;
+        // Borrador: permite adjuntar archivos (necesita Id) sin aparecer en Mis Cesiones hasta el primer save.
+        cesion.Estado__c = 'Borrador';
+        cesion.Cuenta_Cedente__c = cuentaId;
         cesion.Multiplicador__c = Test.isRunningTest() ? 3 : cultivo.HT2Kilos__c / 1000;
         cesion.Biotecnologia__c = 'Enlist E3';
         cesion.Cultivo__c = cultivo.id;
@@ -35,6 +40,21 @@ public without sharing class CesionPPH {
         update cesion;
 
         return loadData(true, cesion.id);
+    }
+
+    /** Cancela borradores/huérfanos sin destinatarios al iniciar una nueva cesión. */
+    private static void cancelEmptyDrafts(Id cuentaId) {
+        List<Cesion_HT__c> toCancel = [
+            SELECT Id
+            FROM Cesion_HT__c
+            WHERE Cuenta_Cedente__c = :cuentaId
+            AND Estado__c IN ('Borrador', 'En Curso')
+            AND Id NOT IN (SELECT Cesion_HT__c FROM Destinatario_Cesion_HT__c WHERE Cesion_HT__c != null)
+        ];
+        for (Cesion_HT__c c : toCancel) {
+            c.Estado__c = 'Cancelada';
+        }
+        if (!toCancel.isEmpty()) update toCancel;
     }
 
     private static List<Map<String, Object>> getCultivos(){
@@ -97,7 +117,7 @@ public without sharing class CesionPPH {
             SELECT SUM(Cantidad__c) cant, Variedad__c 
             FROM Linea_Cesion_HT__c 
             WHERE Destinatario_Cesion_HT__r.Cesion_HT__c !=: cesionId 
-                AND Destinatario_Cesion_HT__r.Cesion_HT__r.Estado__c not IN ('Cancelada', 'Rechazada', 'Validada') 
+                AND Destinatario_Cesion_HT__r.Cesion_HT__r.Estado__c not IN ('Cancelada', 'Rechazada', 'Validada', 'Borrador') 
                 AND Variedad__c IN: byVariedad.keySet() 
                 AND Destinatario_Cesion_HT__r.Cesion_HT__r.Cuenta_Cedente__c =: accountId 
                 AND Destinatario_Cesion_HT__r.Cesion_HT__r.Tipo_de_Cesion__c = :tipoCesion GROUP BY Variedad__c
@@ -282,7 +302,9 @@ public without sharing class CesionPPH {
         List<Destinatario_Cesion_HT__c> destinatarios = new List<Destinatario_Cesion_HT__c>();
         List<Linea_Cesion_HT__c> lineas = new List<Linea_Cesion_HT__c>();
         Map<Id, Linea_Cesion_HT__c> lineasToDelete = new Map<Id, Linea_Cesion_HT__c>();
-        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Parcialmente Validada') throw new AuraHandledException('La Cesión debe encontrarse en estado En Curso o Parcialmente Validada');
+        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Borrador' && cesion.Estado__c != 'Parcialmente Validada') {
+            throw new AuraHandledException('La Cesión debe encontrarse en estado Borrador, En Curso o Parcialmente Validada');
+        }
 
         Set<Id> ids = checkForDuplicateDestinatario(data.destinatarios);
         Map<Id, String> destinatarioCuits = getDestinatarioCuits(ids);
@@ -331,6 +353,11 @@ public without sharing class CesionPPH {
         
         upsert lineas;
         delete lineasToDelete.values();
+
+        // Primer guardado con destinatarios: el borrador pasa a En Curso y queda visible en el listado.
+        if (cesion.Estado__c == 'Borrador') {
+            update new Cesion_HT__c(Id = cesion.Id, Estado__c = 'En Curso');
+        }
 
         return loadData(false, cesion.id);
     }
@@ -460,18 +487,18 @@ public without sharing class CesionPPH {
         Map<Id, List<Contact>> accountsToContacts = BatchApexCVsEnviarEmails.getAccountContactsSE(allAccounts);
         List<Contact> accountOwnerContacts = accountsToContacts.containsKey(ownerAccount) ? accountsToContacts.get(ownerAccount) : new List<Contact>();
 
-        EmailTemplate templateDestinatario = [Select Subject, Body, Name From EmailTemplate Where Name =: 'Cesión Tns - Finalización Destinatario'];
-        EmailTemplate templateOwner = [Select Subject, Body, Name From EmailTemplate Where Name =: 'Cesión Tns - Finalización Destinatario / Originante'];
+        // SE-30: P07/P08 unificados en un solo template (Finalización Destinatario / Originante). P08 desactivado.
+        EmailTemplate templateFinalizada = [Select Subject, Body, Name From EmailTemplate Where Name =: 'Cesión Tns - Finalización Destinatario / Originante'];
 
         for (Id destinatario: destinatarios.keySet()) {
             List<Contact> destinatarioContacts = accountsToContacts.containsKey(destinatario) ? accountsToContacts.get(destinatario) : new List<Contact>();
             
             for (Contact c: destinatarioContacts) {
-                mails.add(BatchApexCVsEnviarEmails.makeEmail(BatchApexCVsEnviarEmails.getEmailForTemplate(templateDestinatario.Name), templateDestinatario, null, c.Id, destinatarios.get(destinatario).Id));
+                mails.add(BatchApexCVsEnviarEmails.makeEmail(BatchApexCVsEnviarEmails.getEmailForTemplate(templateFinalizada.Name), templateFinalizada, null, c.Id, destinatarios.get(destinatario).Id));
             }
 
             for (Contact c: accountOwnerContacts) {
-                mails.add(BatchApexCVsEnviarEmails.makeEmail(BatchApexCVsEnviarEmails.getEmailForTemplate(templateOwner.Name), templateOwner, null, c.Id, destinatarios.get(destinatario).Id));
+                mails.add(BatchApexCVsEnviarEmails.makeEmail(BatchApexCVsEnviarEmails.getEmailForTemplate(templateFinalizada.Name), templateFinalizada, null, c.Id, destinatarios.get(destinatario).Id));
             }
 
             if (destinatarioContacts.isEmpty()) destinatariosWithoutContacts.add(new Destinatario_Cesion_HT__c(Id = destinatarios.get(destinatario).Id, Motivo_de_Contacto__c = 'Toneladas Acreditadas'));
@@ -581,7 +608,9 @@ public without sharing class CesionPPH {
         List<Destinatario_Cesion_HT__c> destinatarios = [select id from Destinatario_Cesion_HT__c where Cesion_HT__c =: cesion.id];
         List<Linea_Cesion_HT__c> lineas = [select id from Linea_Cesion_HT__c where Destinatario_Cesion_HT__c in: destinatarios];
 
-        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Pendiente de Validación') throw new AuraHandledException('La Cesión debe encontrarse en estado en curso o pendiente de validación');
+        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Borrador' && cesion.Estado__c != 'Pendiente de Validación') {
+            throw new AuraHandledException('La Cesión debe encontrarse en estado Borrador, En Curso o Pendiente de Validación');
+        }
 
         List<Sobject> toUpdate = new List<Sobject>{new Cesion_HT__c(Id = cesion.id, Estado__c = 'Cancelada')};
 
@@ -752,7 +781,7 @@ public without sharing class CesionPPH {
     private static Decimal getStockEnlist(Cesion_HT__c cesion){
         Decimal stockEnlist = cesion.Cuenta_Cedente__r.TN_Disponibles__c;
         Set<String> biotechs = new Set<String>{'Enlist E3', 'Conkesta E3'};
-        for (AggregateResult resLineas: [select sum(Cantidad__c) cant, Variedad__c from Linea_Cesion_HT__c where Destinatario_Cesion_HT__r.Cesion_HT__c !=: cesion.Id and Destinatario_Cesion_HT__r.Cesion_HT__r.Estado__c not in ('Cancelada', 'Rechazada', 'Validada') and Variedad__r.Biotecnologia__c IN :biotechs and Destinatario_Cesion_HT__r.Cesion_HT__r.Cuenta_Cedente__c =: cesion.Cuenta_Cedente__c group by Variedad__c]) {
+        for (AggregateResult resLineas: [select sum(Cantidad__c) cant, Variedad__c from Linea_Cesion_HT__c where Destinatario_Cesion_HT__r.Cesion_HT__c !=: cesion.Id and Destinatario_Cesion_HT__r.Cesion_HT__r.Estado__c not in ('Cancelada', 'Rechazada', 'Validada', 'Borrador') and Variedad__r.Biotecnologia__c IN :biotechs and Destinatario_Cesion_HT__r.Cesion_HT__r.Cuenta_Cedente__c =: cesion.Cuenta_Cedente__c group by Variedad__c]) {
             stockEnlist -= (Decimal) resLineas.get('cant');
         }
 

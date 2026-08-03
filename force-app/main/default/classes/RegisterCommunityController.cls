@@ -219,20 +219,13 @@ public without sharing class RegisterCommunityController {
             
             System.debug('✅ Nombre del usuario para email: ' + usuario.FirstName);
             
-            // Buscar plantilla
-            System.debug('📧 Buscando plantilla "Nuevo Usuario Productor"...');
-            List<EmailTemplate> templates = [SELECT Id, Name, DeveloperName 
-                                            FROM EmailTemplate 
-                                            WHERE Name = 'Nuevo Usuario Productor' 
-                                            OR DeveloperName = 'Nuevo_Usuario_Productor'
-                                            LIMIT 1];
-            
-            System.debug('📧 Plantillas encontradas: ' + templates.size());
-            System.debug('✅ Plantilla encontrada: ' + templates[0].Name + ' (ID: ' + templates[0].Id + ')');
+            // SE-30: plantilla de bienvenida según perfil (Comercio / Obtentor / Productor)
+            EmailTemplate welcomeTemplate = getWelcomeEmailTemplate(usuario.Profile.Name);
+            System.debug('✅ Plantilla encontrada: ' + welcomeTemplate.Name + ' (ID: ' + welcomeTemplate.Id + ')');
             
             // **SOLUCIÓN CRÍTICA: Usar el USER como targetObjectId**
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-            email.setTemplateId(templates[0].Id);
+            email.setTemplateId(welcomeTemplate.Id);
             
             // **USAR EL USER ID COMO targetObjectId**
             System.debug('✅ Usando UserId como targetObjectId: ' + usuario.Id);
@@ -699,21 +692,13 @@ public without sharing class RegisterCommunityController {
             
             System.debug('✅ Nombre para email: ' + nombreParaEmail);
             
-            // Buscar plantilla
-            System.debug('📧 Buscando plantilla "Nuevo Usuario Productor"...');
-            List<EmailTemplate> templates = [SELECT Id, Name, DeveloperName 
-                                            FROM EmailTemplate 
-                                            WHERE Name = 'Nuevo Usuario Productor' 
-                                            OR DeveloperName = 'Nuevo_Usuario_Productor'
-                                            LIMIT 1];
-            
-            System.debug('📧 Plantillas encontradas: ' + templates.size());
-            
-            System.debug('✅ Plantilla encontrada: ' + templates[0].Name + ' (ID: ' + templates[0].Id + ')');
+            // SE-30: plantilla de bienvenida según perfil (Comercio / Obtentor / Productor)
+            EmailTemplate welcomeTemplate = getWelcomeEmailTemplate(usuario.Profile.Name);
+            System.debug('✅ Plantilla encontrada: ' + welcomeTemplate.Name + ' (ID: ' + welcomeTemplate.Id + ')');
             
             // **SOLUCIÓN: Enviar email usando el Contacto como targetObjectId**
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-            email.setTemplateId(templates[0].Id);
+            email.setTemplateId(welcomeTemplate.Id);
             
             // **IMPORTANTE: Si el usuario tiene Contacto, usar el Contacto como targetObjectId**
             if (usuario.ContactId != null) {
@@ -805,6 +790,41 @@ public without sharing class RegisterCommunityController {
         System.debug(e);
         System.debug(e.getStackTraceString());
         return error(e.getMessage());
+    }
+
+    /**
+     * SE-30: resuelve la plantilla de bienvenida según el perfil del usuario.
+     */
+    @TestVisible
+    private static EmailTemplate getWelcomeEmailTemplate(String profileName) {
+        String templateName = 'Nuevo Usuario Productor';
+        if (String.isNotBlank(profileName)) {
+            String profileLower = profileName.toLowerCase();
+            if (profileLower.contains('obtentor')) {
+                templateName = 'Nuevo Usuario Obtentor';
+            } else if (profileLower.contains('comercio') || profileLower.contains('distribuidor')) {
+                templateName = 'Nuevo Usuario Comercio';
+            }
+        }
+
+        List<EmailTemplate> templates = [
+            SELECT Id, Name, DeveloperName
+            FROM EmailTemplate
+            WHERE Name = :templateName
+            LIMIT 1
+        ];
+        if (templates.isEmpty()) {
+            templates = [
+                SELECT Id, Name, DeveloperName
+                FROM EmailTemplate
+                WHERE Name = 'Nuevo Usuario Productor'
+                LIMIT 1
+            ];
+        }
+        if (templates.isEmpty()) {
+            throw new AuraHandledException('No se encontró plantilla de bienvenida: ' + templateName);
+        }
+        return templates[0];
     }
 
     /**
