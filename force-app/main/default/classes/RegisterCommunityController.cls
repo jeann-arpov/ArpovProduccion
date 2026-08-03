@@ -811,6 +811,7 @@ public without sharing class RegisterCommunityController {
             SELECT Id, Name, DeveloperName
             FROM EmailTemplate
             WHERE Name = :templateName
+            AND IsActive = true
             LIMIT 1
         ];
         if (templates.isEmpty()) {
@@ -818,6 +819,7 @@ public without sharing class RegisterCommunityController {
                 SELECT Id, Name, DeveloperName
                 FROM EmailTemplate
                 WHERE Name = 'Nuevo Usuario Productor'
+                AND IsActive = true
                 LIMIT 1
             ];
         }

@@ -488,7 +488,13 @@ public without sharing class CesionPPH {
         List<Contact> accountOwnerContacts = accountsToContacts.containsKey(ownerAccount) ? accountsToContacts.get(ownerAccount) : new List<Contact>();
 
         // SE-30: P07/P08 unificados en un solo template (Finalización Destinatario / Originante). P08 desactivado.
-        EmailTemplate templateFinalizada = [Select Subject, Body, Name From EmailTemplate Where Name =: 'Cesión Tns - Finalización Destinatario / Originante'];
+        EmailTemplate templateFinalizada = [
+            SELECT Subject, Body, Name
+            FROM EmailTemplate
+            WHERE Name = 'Cesión Tns - Finalización Destinatario / Originante'
+            AND IsActive = true
+            LIMIT 1
+        ];
 
         for (Id destinatario: destinatarios.keySet()) {
             List<Contact> destinatarioContacts = accountsToContacts.containsKey(destinatario) ? accountsToContacts.get(destinatario) : new List<Contact>();
