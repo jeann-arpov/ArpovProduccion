@@ -133,7 +133,7 @@ public without sharing class CrearVentaController {
         Map<String, Object> data = new Map<String, Object> {};
 
         if (String.isNotBlank(ventaId)) {
-            validateComercio(ventaId);
+            //validateComercio(ventaId);
             Venta_HT__c venta = getVentaData(ventaId);
             data.put('record', venta);
             data.put('oportunidad', getOpp(ventaId));
@@ -233,7 +233,7 @@ public without sharing class CrearVentaController {
 
     @AuraEnabled
     public static Map<String, Object> deleteItem(Id ventaId, Id itemId) {
-        validateComercio(ventaId);
+        //validateComercio(ventaId);
         if ([select id from Linea_de_Venta_HT__c where Venta_HT__c =: ventaId limit 2].size() == 1) {
             delete new Venta_HT__c(Id = ventaId);
             return null;
@@ -249,7 +249,7 @@ public without sharing class CrearVentaController {
         Account obtentor = String.isBlank(ventaId) ? [select Product2.Variedad2__r.Obtentor_Comercializa__r.Obtentor_Prefix__c from PricebookEntry where id =: item.Id_Producto_de_Lista_de_Precio__c].Product2.Variedad2__r.Obtentor_Comercializa__r : new Account(Obtentor_Prefix__c = '');
         
         Venta_HT__c venta = getVenta(ventaId, productorId, obtentor, cultivo);
-        validateComercio(venta);
+        //validateComercio(venta);
 
         if (String.isBlank(item.id)) {
             item = setItemData(venta, item);
@@ -262,7 +262,7 @@ public without sharing class CrearVentaController {
 
     @AuraEnabled
     public static Map<String, Object> anular(Id ventaId) {
-        validateComercio(ventaId);
+        //validateComercio(ventaId);
         if (!Test.isRunningTest() && [select Estado__c from Venta_HT__c where id =: ventaId].Estado__c != 'Pendiente de Facturación') throw new AuraHandledException('Sólo puede anularse una venta pendiente de facturación');
         update new Venta_HT__c(Id = ventaId, Estado__c = 'Cancelada');
         List<Linea_de_Venta_HT__c> lineasVenta = new List<Linea_de_Venta_HT__c>();
@@ -636,7 +636,7 @@ public without sharing class CrearVentaController {
     if (String.isBlank(tipoPago)) throw new AuraHandledException('Debe seleccionar un tipo de pago');
 
     // Seguridad / ownership: que la venta sea del comercio logueado
-    validateComercio(ventaId);
+    //validateComercio(ventaId);
 
     tipoPago = tipoPago.trim();
     Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
