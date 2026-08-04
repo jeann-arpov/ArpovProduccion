@@ -1,9 +1,9 @@
 import { api, LightningElement, track, wire } from 'lwc';
-import saveItem from '@salesforce/apex/CrearVentaController2.saveItem'; 
-import deleteItem from '@salesforce/apex/CrearVentaController2.deleteItem'; 
+import saveItem from '@salesforce/apex/CrearVentaController.saveItem'; 
+import deleteItem from '@salesforce/apex/CrearVentaController.deleteItem'; 
 import searchVariedades from '@salesforce/apex/CrearCompraController.searchVariedades';
-import obtenerSaldoHTPorLinea from '@salesforce/apex/CrearVentaController2.obtenerSaldoHTPorLinea';
-import tieneHTONCPorLinea from '@salesforce/apex/CrearVentaController2.tieneHTONCPorLinea';
+import obtenerSaldoHTPorLinea from '@salesforce/apex/CrearVentaController.obtenerSaldoHTPorLinea';
+import tieneHTONCPorLinea from '@salesforce/apex/CrearVentaController.tieneHTONCPorLinea';
 import { LineaCompraVentaMixin } from 'c/utilsHT';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';

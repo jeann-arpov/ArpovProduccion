@@ -1049,3 +1049,184 @@ a.c-tooltip {
     padding: 1rem 1.5rem;
     margin-top: 1rem;
 }
+
+/* ===== ESTILOS PARA NOTAS DE CRÉDITO PARCIAL ===== */
+
+/* Badges de estado y tipo NC */
+.badge-estado-venta {
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+}
+
+.badge-tipo-nc {
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+}
+
+.badge-nc-total, .badge-ncp-precio, .badge-ncc-cantidad, .badge-nc-default {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+}
+
+/* NC Relacionadas */
+.nc-relacionadas-container {
+    border-radius: 12px;
+    border: 2px solid #0176d3;
+    background-color: #f0f7ff;
+}
+
+.nc-relacionadas-container .slds-notice_info {
+    background-color: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+}
+
+.nc-relacionadas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.nc-relacionadas-table th {
+    text-align: left;
+    font-weight: bold;
+    color: #555;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid #d8dde6;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.nc-relacionadas-table td {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid #eef2f7;
+    color: #1c1c1c;
+}
+
+.btn-ver-nc {
+    --slds-c-button-text-color: #0176d3;
+    --slds-c-button-font-size: 0.75rem;
+    text-decoration: underline;
+}
+
+.estado-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.estado-Facturada { background-color: #e8f5e9; color: #2e7d32; }
+.estado-Aplicada { background-color: #e3f2fd; color: #1565c0; }
+.estado-Pendiente_de_Facturaci_n { background-color: #fff3e0; color: #e65100; }
+.estado-Cancelada { background-color: #ffebee; color: #c62828; }
+.estado-Ajustada_por_NC { background-color: #f3e5f5; color: #7b1fa2; }
+
+/* Dropdown NC */
+.dropdown-nc-wrapper {
+    display: inline-block;
+    margin-top: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+lightning-button-menu.nota-credito {
+    --slds-c-button-brand-color-background: #1c1c1c;
+    --slds-c-button-brand-color-border: #1c1c1c;
+    --slds-c-button-brand-text-color: #B5EC08;
+    --slds-c-button-radius-border: 30px;
+}
+
+lightning-button-menu.nota-credito lightning-button-icon {
+    --slds-c-icon-color-foreground: #B5EC08;
+}
+
+lightning-button-menu.nota-credito .slds-button {
+    background-color: rgb(28, 28, 28) !important;
+    border-color: rgb(28, 28, 28) !important;
+    color: rgb(181, 236, 8) !important;
+    border-radius: 30px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    line-height: 1.875rem;
+    min-height: calc(1.875rem + 2px);
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+lightning-button-menu.nota-credito .slds-button:hover,
+lightning-button-menu.nota-credito .slds-button:focus {
+    background-color: rgb(0, 0, 0) !important;
+    border-color: rgb(0, 0, 0) !important;
+}
+
+lightning-button-menu.nota-credito lightning-primitive-icon svg {
+    fill: rgb(181, 236, 8) !important;
+}
+
+/* Botones NC */
+.procesar-nc {
+    background-color: #00c853;
+    color: white;
+    border: 2px solid #00c853;
+}
+
+.procesar-nc:hover {
+    background-color: #00b248;
+    border-color: #00b248;
+}
+
+.cancelar-nc {
+    background-color: #f44336;
+    color: white;
+    border: 2px solid #f44336;
+}
+
+.cancelar-nc:hover {
+    background-color: #d32f2f;
+    border-color: #d32f2f;
+}
+
+/* Fila NC con layout propio */
+.linea-variedad-nc {
+    margin-bottom: 0.5rem;
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: visible;
+    padding: 0.25rem 0;
+}
+
+.linea-variedad-nc:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+/* Badge estados en tabla */
+.badge-estado-Facturada, .badge-estado-Pendiente_de_Facturaci_n, .badge-estado-Creada, .badge-estado-Cancelada, .badge-estado-Pagada {
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}

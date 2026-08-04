@@ -124,6 +124,10 @@
             </lightning-layout-item>
             <div class="info-box">
                 <div class="info-card">
+                    <label>VENTA HT</label>
+                    <div>{nombreVenta}</div>
+                </div>
+                <div class="info-card">
                     <label>CULTIVO</label>
                     <div>{cultivoNombre}</div>
                 </div>
@@ -131,18 +135,56 @@
                     <label>PRODUCTOR</label>
                     <div>{productorNombre}</div>
                 </div>
+                <div class="info-card" if:true={mostrarVentaOriginal}>
+                    <label>VENTA ORIGINAL</label>
+                    <div>{ventaOriginalName}</div>
+                </div>
                 <div class="info-card">
                     <label>CUIT NRO.</label>
                     <div>{cuit}</div>
                 </div>
+                <div class="info-card" if:true={comercioNombre}>
+                    <label>COMERCIO</label>
+                    <div>{comercioNombre}</div>
+                </div>
+                <div class="info-card">
+                    <label>ESTADO</label>
+                    <div class="badge-estado-venta {estadoVentaClass}">{estadoVenta}</div>
+                </div>
+                <div class="info-card" if:true={mostrarColumnaTipoNC}>
+                    <label>TIPO NC</label>
+                    <div class="badge-tipo-nc {tipoNotaCreditoClass}">{tipoNotaCredito}</div>
+                </div>
             </div>
-            <!-- <div class="boton-comercial">
-                <button class="btn-comercial" onclick={openCondicionesComerciales}>
-                    <span>
-                        <img src={iconCondicionesHTUrl} alt="Condiciones" class="icon-svg" />
-                    </span> CONDICIONES COMERCIALES
-                </button>
-            </div> -->
+        </div>
+
+        <!-- ===== NOTAS DE CRÉDITO RELACIONADAS ===== -->
+        <div if:true={mostrarNCRelacionadas} class="nc-relacionadas-container slds-m-bottom_medium">
+            <div class="slds-notice slds-notice_info">
+                <div class="slds-notice__content">
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                        <div class="slds-col"><strong>Notas de Crédito Relacionadas</strong></div>
+                    </div>
+                    <table class="nc-relacionadas-table">
+                        <thead>
+                            <tr><th>NC</th><th>Tipo</th><th>Estado</th><th>Fecha</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={ncRelacionadas} for:item="nc">
+                                <tr key={nc.id}>
+                                    <td>{nc.name}</td>
+                                    <td>{nc.tipoLabel}</td>
+                                    <td><span class="estado-badge estado-{nc.estadoClass}">{nc.estado}</span></td>
+                                    <td>{nc.fecha}</td>
+                                    <td>
+                                        <lightning-button label="Ver" variant="base" class="btn-ver-nc" data-id={nc.id} onclick={navegarANotaCredito}></lightning-button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Card de variedades -->
@@ -160,9 +202,42 @@
                     <div class="col-header">Total (USD)</div>
                     <div class="col-header">Estado</div>
                     <div class="col-header">Licencia</div>
+                    <div if:true={modoNotaCreditoPrecio} class="col-header">Nuevo Precio</div>
+                    <div if:true={modoNotaCreditoCantidad} class="col-header">Nueva Cantidad</div>
+                    <div if:true={mostrarCamposNotaCredito} class="col-header">Observaciones</div>
+                    <div if:true={mostrarCamposNotaCredito} class="col-header">Sel.</div>
                     <div class="col-header"></div>
                 </div>
 
+                <!-- ===== FILAS MODO NOTA DE CRÉDITO ===== -->
+                <template if:true={mostrarCamposNotaCredito}>
+                    <template for:each={items} for:item="item" for:index="index">
+                        <div key={item.id} class="linea-variedad-nc">
+                            <c-crear-linea-venta-new3
+                                record={item.record}
+                                factura={item.factura}
+                                index={item.id}
+                                price-book-entries={variedades}
+                                cultivo-seleccionado={cultivoNombre}
+                                modo-nota-credito-precio={modoNotaCreditoPrecio}
+                                modo-nota-credito-cantidad={modoNotaCreditoCantidad}
+                                onloadingchange={handleLoadingChange}
+                                ondelete={removeRow}
+                                onrecord={updateRecord}
+                                onsave={saveRow}
+                                onopenfactura={openFactura}
+                                ontipohtchange={handleTipoHtChange}
+                                oncheckboxchange={handleCheckboxChange}
+                                onpreciochange={handlePrecioChange}
+                                oncantidadchange={handleCantidadChange}
+                                onobservacioneschange={handleObservacionesChange}>
+                            </c-crear-linea-venta-new3>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- ===== FILAS MODO NORMAL ===== -->
+                <template if:false={mostrarCamposNotaCredito}>
                 <!-- Filas dinámicas -->
                 <template if:true={guardandoLineas}>
                     <div class="guardando-lineas-panel">
@@ -194,11 +269,12 @@
                         </div>
                     </template>
                 </template>
+                </template>
             </div>
 
             <!-- Botón agregar -->
             <template if:false={guardandoLineas}>
-            <div class="acciones-variedad">
+            <div class="acciones-variedad" if:true={puedeAgregarVariedad}>
                 <button type="button" onclick={addRow} class="add-variedad">
                     <span class="plus-sign">+</span> Agregar Variedad
                 </button>
@@ -277,13 +353,37 @@
                                   label="Facturar">
                 </lightning-button>
 
-                 <!-- NUEVO BOTÓN: Nota de Crédito Total -->
-                <lightning-button if:true={puedeCrearNotaCredito}
+                 <!-- MENÚ DESPLEGABLE DE NOTAS DE CRÉDITO -->
+                <div if:true={mostrarMenuNC} class="dropdown-nc-wrapper">
+                    <lightning-button-menu label="Notas de Crédito" variant="brand" class="nota-credito" onselect={handleNCMenuSelect}>
+                        <lightning-menu-item if:true={tieneNCTotal} value="NC_Total" label={labels.ncTotalButton}></lightning-menu-item>
+                        <lightning-menu-item if:true={tieneNCPrecio} value="NC_Precio" label={labels.ncButtonPrice}></lightning-menu-item>
+                        <lightning-menu-item if:true={tieneNCCantidad} value="NC_Cantidad" label={labels.ncButtonQuantity}></lightning-menu-item>
+                    </lightning-button-menu>
+                </div>
+
+                <lightning-button if:true={botonProcesarNCVisible}
                                   variant="brand"
-                                  onclick={crearNotaCreditoTotal}
-                                  class="slds-m-top_medium slds-m-left--medium nota-credito circle"
+                                  onclick={procesarNotaCreditoParcial}
+                                  class="slds-m-top_medium slds-m-left--medium procesar-nc circle"
                                   type="submit"
-                                  label="Nota de Crédito Total">
+                                  label={textoBotonProcesarNC}>
+                </lightning-button>
+
+                <lightning-button if:true={botonProcesarNCVisible}
+                                  variant="neutral"
+                                  onclick={cancelarNotaCredito}
+                                  class="slds-m-top_medium slds-m-left--medium cancelar-nc circle"
+                                  type="submit"
+                                  label={labels.ncButtonCancel}>
+                </lightning-button>
+
+                <lightning-button if:true={mostrarVentaOriginal}
+                                  variant="brand"
+                                  onclick={navegarAVentaOriginal}
+                                  class="slds-m-top_medium slds-m-left--medium new circle"
+                                  type="submit"
+                                  label="Volver a venta original">
                 </lightning-button>
 
                 <lightning-button if:true={puedeRealizarNueva}
@@ -609,6 +709,25 @@
                         disabled={isLoading}
                         class="slds-m-left_x-small">
                     </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Modal Confirmacion NC Total -->
+    <template if:true={showConfirmNCTotalModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open" aria-labelledby="modal-heading-confirm-nc" aria-modal="true">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 id="modal-heading-confirm-nc" class="slds-modal__title slds-hyphenate">{labels.ncConfirmModalTitle}</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p>{labels.ncConfirmModalMessage}</p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Cancelar" title="Cancelar" onclick={cancelarNCTotal}></lightning-button>
+                    <lightning-button variant="brand" label={labels.ncConfirmModalConfirm} title={labels.ncConfirmModalConfirm} onclick={confirmarNCTotal} class="slds-m-left_x-small"></lightning-button>
                 </footer>
             </div>
         </section>

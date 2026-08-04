@@ -27,10 +27,31 @@ import updateTipoPago from '@salesforce/apex/CrearVentaController.updateTipoPago
 import verificarExpedienteEnHTDisponible from '@salesforce/apex/ExpedientesController.verificarExpedienteEnHTDisponible';
 
 
+import procesarNotaCreditoParcialPrecio from '@salesforce/apex/CrearVentaController.crearNotaCreditoParcialPrecio';
+import procesarNotaCreditoParcialCantidad from '@salesforce/apex/CrearVentaController.crearNotaCreditoParcialCantidad';
+import verificarNotasCreditoPendientes from '@salesforce/apex/CrearVentaController.verificarNotasCreditoPendientes';
 import { NavigationMixin } from 'lightning/navigation';
 import basePath from '@salesforce/community/basePath';
 import icons from 'c/icons';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import NC_ALERT_TITLE from '@salesforce/label/c.NC_Alert_Title';
+import NC_ALERT_MESSAGE from '@salesforce/label/c.NC_Alert_Message';
+import NC_CLOSE_ALERT from '@salesforce/label/c.NC_Close_Alert';
+import NC_VIEW_LABEL from '@salesforce/label/c.NC_View_Label';
+import NC_NO_LINES_SELECTED from '@salesforce/label/c.NC_No_Lines_Selected';
+import NC_ALL_OBSERVACIONES_REQUIRED from '@salesforce/label/c.NC_All_Observaciones_Required';
+import NC_PROCESS_SUCCESS from '@salesforce/label/c.NC_Process_Success';
+import NC_MODE_CANCELED from '@salesforce/label/c.NC_Mode_Canceled';
+import NC_PROCESS_PRICE from '@salesforce/label/c.NC_Process_Price';
+import NC_PROCESS_QUANTITY from '@salesforce/label/c.NC_Process_Quantity';
+import NC_PROCESS_GENERIC from '@salesforce/label/c.NC_Process_Generic';
+import NC_BUTTON_PRICE from '@salesforce/label/c.NC_Button_Price';
+import NC_BUTTON_QUANTITY from '@salesforce/label/c.NC_Button_Quantity';
+import NC_BUTTON_CANCEL from '@salesforce/label/c.NC_Button_Cancel';
+import NC_TOTAL_BUTTON from '@salesforce/label/c.NC_Total_Button';
+import NC_CONFIRM_MODAL_TITLE from '@salesforce/label/c.NC_Confirm_Modal_Title';
+import NC_CONFIRM_MODAL_MESSAGE from '@salesforce/label/c.NC_Confirm_Modal_Message';
+import NC_CONFIRM_MODAL_CONFIRM from '@salesforce/label/c.NC_Confirm_Modal_Confirm';
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
@@ -74,6 +95,36 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
     subscription = null;
     @track isLoading = false;
+    @track modoNotaCreditoPrecio = false;
+    @track modoNotaCreditoCantidad = false;
+    @track lineasSeleccionadasNC = [];
+    @track botonProcesarNCVisible = false;
+    @track observacionesLineasNC = {};
+    @track infoNotasCredito = {};
+    @track mostrarAlertaNotaCredito = false;
+    @track notasCreditoPendientes = [];
+    @track todasLasNC = [];
+    @track showConfirmNCTotalModal = false;
+    labels = {
+        ncAlertTitle: NC_ALERT_TITLE,
+        ncAlertMessage: NC_ALERT_MESSAGE,
+        ncCloseAlert: NC_CLOSE_ALERT,
+        ncViewLabel: NC_VIEW_LABEL,
+        ncNoLinesSelected: NC_NO_LINES_SELECTED,
+        ncAllObservacionesRequired: NC_ALL_OBSERVACIONES_REQUIRED,
+        ncProcessSuccess: NC_PROCESS_SUCCESS,
+        ncModeCanceled: NC_MODE_CANCELED,
+        ncProcessPrice: NC_PROCESS_PRICE,
+        ncProcessQuantity: NC_PROCESS_QUANTITY,
+        ncProcessGeneric: NC_PROCESS_GENERIC,
+        ncButtonPrice: NC_BUTTON_PRICE,
+        ncButtonQuantity: NC_BUTTON_QUANTITY,
+        ncButtonCancel: NC_BUTTON_CANCEL,
+        ncTotalButton: NC_TOTAL_BUTTON,
+        ncConfirmModalTitle: NC_CONFIRM_MODAL_TITLE,
+        ncConfirmModalMessage: NC_CONFIRM_MODAL_MESSAGE,
+        ncConfirmModalConfirm: NC_CONFIRM_MODAL_CONFIRM
+    };
 
     tipoPago = null;          // 'Contado' | 'Financiado'
     pendingFinalizar = false; // para reintentar
@@ -99,7 +150,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
     get mostrarFacturaYObs() {
         const estado = this.data?.record?.Estado__c;
-        if (estado === 'Pagada' || estado === 'Facturada') {
+        if (estado === 'Pagada' || estado === 'Facturada' || this.esNotaCredito) {
             return false;
         }
         return Boolean(this.mostrarBoton);
@@ -123,6 +174,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
                     this.getAccount(),
                     this.getObservaciones()
                 ]);
+                await this.verificarNotasCreditoPendientes();
                 await this.finish();
 
                 if (PROMO_HT_FUTURA_HABILITADA) {
@@ -208,6 +260,13 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         this.setDataAndItems(data, lineas);
         this.productor = data.record ? data.record.Cuenta_Productor__r : null;
 
+        if (data.infoNotasCredito) {
+            this.infoNotasCredito = data.infoNotasCredito;
+            this.mostrarAlertaNotaCredito = data.infoNotasCredito.tieneNotasCreditoPendientes;
+            this.notasCreditoPendientes = data.infoNotasCredito.detalleNotas || [];
+            this.todasLasNC = data.infoNotasCredito.todasLasNC || [];
+        }
+
         if (!this.tipoCompraSeleccionado && lineas && lineas.length > 0 && data.products) {
             const primerProductoId = lineas[0].Producto__c;
             const prod = data.products.find(p => p.Product2Id === primerProductoId);
@@ -236,50 +295,155 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     get cuit() { return this.productor?.PersonDocumentNumber || this.productor?.N_CUIT__c || ''; }
     get productorMissing() { return this.productor == null; }
 
- // NUEVA PROPIEDAD: Determina si se puede crear Nota de Crédito
+ // NUEVA PROPIEDAD: Determina si se puede crear Nota de Crédito Total
     get puedeCrearNotaCredito() {
-        return this.data.record && this.data.record.Estado__c === 'Facturada';
+        return this.data && this.data.record
+            && this.data.record.Estado__c === 'Facturada'
+            && (this.data.record.Obtentor__r.Id_Obtentor__c == '03'
+                || this.data.record.Obtentor__r.Id_Obtentor__c == '14'
+                || this.data.record.Obtentor__r.Id_Obtentor__c == '85')
+            && !this.infoNotasCredito?.existeNCTotal
+            && !this.infoNotasCredito?.existeNCPPendiente
+            && !this.infoNotasCredito?.existeNCCPendiente;
+    }
+
+    get puedeCrearNotaCreditoParcial() {
+        return this.data && this.data.record
+            && (this.data.record.Estado__c == 'Facturada')
+            && (this.data.record.Obtentor__r.Id_Obtentor__c == '03'
+                || this.data.record.Obtentor__r.Id_Obtentor__c == '14'
+                || this.data.record.Obtentor__r.Id_Obtentor__c == '85')
+            && !this.infoNotasCredito?.existeNCTotal;
+    }
+
+    get puedeCrearNotaCreditoPrecio() {
+        return this.puedeCrearNotaCreditoParcial
+            && !this.infoNotasCredito?.existeNCPPendiente
+            && !this.infoNotasCredito?.existeNCCPendiente;
+    }
+
+    get puedeCrearNotaCreditoCantidad() {
+        return this.puedeCrearNotaCreditoParcial
+            && !this.infoNotasCredito?.existeNCCPendiente
+            && !this.infoNotasCredito?.existeNCPPendiente;
+    }
+
+    get mostrarMenuNC() {
+        return this.puedeCrearNotaCredito || this.puedeCrearNotaCreditoPrecio || this.puedeCrearNotaCreditoCantidad;
+    }
+
+    get tieneNCTotal() { return this.puedeCrearNotaCredito; }
+    get tieneNCPrecio() { return this.puedeCrearNotaCreditoPrecio; }
+    get tieneNCCantidad() { return this.puedeCrearNotaCreditoCantidad; }
+
+    get mostrarCamposNotaCredito() {
+        return this.modoNotaCreditoPrecio || this.modoNotaCreditoCantidad;
+    }
+
+    get textoBotonProcesarNC() {
+        if (this.modoNotaCreditoPrecio) return this.labels.ncProcessPrice;
+        if (this.modoNotaCreditoCantidad) return this.labels.ncProcessQuantity;
+        return this.labels.ncProcessGeneric;
+    }
+
+    get esNotaCredito() {
+        return this.data?.record?.Es_NC__c === true;
+    }
+    get tipoNotaCredito() {
+        if (!this.data?.record) return '';
+        const venta = this.data.record;
+        if (venta.Es_NC__c && venta.Tipo_Ajuste__c) {
+            switch (venta.Tipo_Ajuste__c) {
+                case 'NC': return 'NC Total';
+                case 'NCP': return 'NCP Precio';
+                case 'NCC': return 'NCC Cantidad';
+                default: return venta.Tipo_Ajuste__c;
+            }
+        }
+        return '';
+    }
+    get tipoNotaCreditoClass() {
+        switch (this.tipoNotaCredito) {
+            case 'NC Total': return 'badge-nc-total';
+            case 'NCP Precio': return 'badge-ncp-precio';
+            case 'NCC Cantidad': return 'badge-ncc-cantidad';
+            default: return 'badge-nc-default';
+        }
+    }
+    get mostrarColumnaTipoNC() { return this.tipoNotaCredito !== ''; }
+    get nombreVenta() { return this.data?.record?.Name || ''; }
+    get ventaOriginalId() { return this.data?.record?.Venta_Original__c; }
+    get ventaOriginalName() { return this.data?.record?.Venta_Original__r?.Name; }
+    get mostrarVentaOriginal() { return this.esNotaCredito && this.ventaOriginalId; }
+    get comercioNombre() { return this.data?.record?.Nombre_del_comercio__c || ''; }
+    get estadoVenta() { return this.data?.record?.Estado__c || ''; }
+    get estadoVentaClass() { return 'badge-estado-' + (this.estadoVenta || '').replace(/ /g, '_'); }
+
+    get puedeAnular() {
+        if (this.esNotaCredito) return false;
+        return this.data?.record?.Estado__c == 'Pendiente de Facturación';
+    }
+    get puedeRealizarNueva() {
+        if (this.esNotaCredito) return false;
+        return this.recordId && !this.puedeEditar && !this.puedeFacturar;
+    }
+    get puedeAgregarVariedad() {
+        if (this.esNotaCredito) return false;
+        return true;
+    }
+    get ncRelacionadas() {
+        if (!this.todasLasNC || this.todasLasNC.length === 0) return [];
+        return this.todasLasNC.map(nc => ({
+            ...nc,
+            tipoLabel: this.obtenerTipoNCLabel(nc.tipo),
+            estadoClass: (nc.estado || '').replace(/ /g, '_')
+        }));
+    }
+    get mostrarNCRelacionadas() {
+        return this.todasLasNC && this.todasLasNC.length > 0 && !this.esNotaCredito;
+    }
+
+    obtenerTipoNCLabel(tipo) {
+        if (tipo === 'NC') return 'Total';
+        if (tipo === 'NCC') return 'Cantidad';
+        if (tipo === 'NCP') return 'Precio';
+        return tipo || '';
+    }
+
+    get mensajeAlertaNotaCredito() {
+        if (!this.infoNotasCredito || !this.labels.ncAlertMessage) {
+            return 'Existe ' + (this.infoNotasCredito?.cantidadPendientes || 0) + ' nota(s) de crédito pendiente(s) de facturación.';
+        }
+        return this.labels.ncAlertMessage.replace('{0}', this.infoNotasCredito.cantidadPendientes || 0);
     }
 
     // ALTERNATIVA: Usar lightning/navigation
 async crearNotaCreditoTotal() {
-    console.log('this.recordId', this.recordId);
-    
     if (!this.recordId) {
         this.onError('No se encontró el ID de la venta');
         return;
     }
-
     try {
-        // Validar que la venta existe y está en estado Facturada
         if (!this.data.record || this.data.record.Estado__c !== 'Facturada') {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Error',
-                    message: 'Solo se puede crear Nota de Crédito para ventas en estado Facturada',
-                    variant: 'error'
-                })
-            );
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: 'Solo se puede crear Nota de Crédito para ventas en estado Facturada',
+                variant: 'error'
+            }));
             return;
         }
-
-        // Usar NavigationMixin con tipo correcto para Community
+        const pageUrl = `${basePath}/-nota-credito-total?c__recordId=${this.recordId}`;
         this[NavigationMixin.Navigate]({
             type: 'standard__webPage',
-            attributes: {
-                url: `/flow/Venta_HT_Crear_NC?recordId=${this.recordId}`
-            }
-        }, true); // true para reemplazar la URL actual
-        
+            attributes: { url: pageUrl }
+        });
     } catch (error) {
         console.error('Error al abrir el Flow:', error);
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: 'Error',
-                message: 'No se pudo abrir el Flow: ' + error.message,
-                variant: 'error'
-            })
-        );
+        this.dispatchEvent(new ShowToastEvent({
+            title: 'Error',
+            message: 'No se pudo abrir el Flow: ' + error.message,
+            variant: 'error'
+        }));
     }
 }
 
@@ -1033,6 +1197,229 @@ async crearNotaCreditoTotal() {
             // eslint-disable-next-line no-console
             console.error('Error validando expediente en HT disponible (venta):', error);
             return false;
+        }
+    }
+
+    // ===== MÉTODOS PARA NOTAS DE CRÉDITO PARCIAL (precio y cantidad) =====
+
+    async verificarNotasCreditoPendientes() {
+        try {
+            if (this.currentVentaId) {
+                const resultado = await verificarNotasCreditoPendientes({ ventaId: this.currentVentaId });
+                this.infoNotasCredito = resultado;
+                if (resultado.tieneNotasCreditoPendientes) {
+                    this.notasCreditoPendientes = resultado.detalleNotas || [];
+                    this.mostrarAlertaNotaCredito = true;
+                }
+            }
+        } catch (error) {
+            console.error('Error al verificar notas de crédito:', error);
+        }
+    }
+
+    cerrarAlertaNotaCredito() {
+        this.mostrarAlertaNotaCredito = false;
+    }
+
+    navegarANotaCredito(event) {
+        const notaCreditoId = event.currentTarget.dataset.id;
+        if (notaCreditoId) {
+            const url = `${basePath}/venta-ht/${notaCreditoId}/${notaCreditoId}`;
+            this[NavigationMixin.Navigate]({ type: 'standard__webPage', attributes: { url } });
+        }
+    }
+
+    navegarAVentaOriginal() {
+        if (this.ventaOriginalId) {
+            const url = `${basePath}/venta-ht/${this.ventaOriginalId}/${this.ventaOriginalName || this.ventaOriginalId}`;
+            this[NavigationMixin.Navigate]({ type: 'standard__webPage', attributes: { url } });
+        }
+    }
+
+    handleNCMenuSelect(event) {
+        const value = event.detail.value;
+        if (value === 'NC_Total') {
+            this.mostrarConfirmacionNCTotal();
+        } else if (value === 'NC_Precio') {
+            this.activarNotaCreditoPrecio();
+        } else if (value === 'NC_Cantidad') {
+            this.activarNotaCreditoCantidad();
+        }
+    }
+
+    mostrarConfirmacionNCTotal() {
+        this.showConfirmNCTotalModal = true;
+    }
+
+    confirmarNCTotal() {
+        this.showConfirmNCTotalModal = false;
+        this.crearNotaCreditoTotal();
+    }
+
+    cancelarNCTotal() {
+        this.showConfirmNCTotalModal = false;
+    }
+
+    activarNotaCreditoPrecio() {
+        this.modoNotaCreditoPrecio = true;
+        this.modoNotaCreditoCantidad = false;
+        this.botonProcesarNCVisible = true;
+        this.resetearSeleccionNC();
+    }
+
+    activarNotaCreditoCantidad() {
+        this.modoNotaCreditoCantidad = true;
+        this.modoNotaCreditoPrecio = false;
+        this.botonProcesarNCVisible = true;
+        this.resetearSeleccionNC();
+    }
+
+    resetearSeleccionNC() {
+        this.lineasSeleccionadasNC = [];
+        this.template.querySelectorAll('c-crear-linea-venta-new3').forEach(child => {
+            child.resetearSeleccionNC();
+        });
+    }
+
+    cancelarNotaCredito() {
+        this.resetearModosNC();
+        this.dispatchEvent(new ShowToastEvent({
+            title: 'Cancelado',
+            message: this.labels.ncModeCanceled,
+            variant: 'info'
+        }));
+    }
+
+    resetearModosNC() {
+        this.modoNotaCreditoPrecio = false;
+        this.modoNotaCreditoCantidad = false;
+        this.botonProcesarNCVisible = false;
+        this.observacionesLineasNC = {};
+        this.resetearSeleccionNC();
+    }
+
+    handleCheckboxChange(event) {
+        const lineaId = event.detail.lineaId;
+        const isChecked = event.detail.checked;
+        if (isChecked) {
+            this.lineasSeleccionadasNC.push(lineaId);
+        } else {
+            this.lineasSeleccionadasNC = this.lineasSeleccionadasNC.filter(id => id !== lineaId);
+        }
+    }
+
+    handlePrecioChange(event) {
+        // Validaciones delegadas al hijo
+    }
+
+    handleCantidadChange(event) {
+        // Validaciones delegadas al hijo
+    }
+
+    handleObservacionesChange(event) {
+        const lineaId = event.detail.lineaId;
+        const observaciones = event.detail.observaciones;
+        this.observacionesLineasNC = { ...this.observacionesLineasNC, [lineaId]: observaciones };
+    }
+
+    async procesarNotaCreditoParcial() {
+        if (this.lineasSeleccionadasNC.length === 0) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: this.labels.ncNoLinesSelected,
+                variant: 'error'
+            }));
+            return;
+        }
+
+        const lineasSinObservaciones = [];
+        for (const lineaId of this.lineasSeleccionadasNC) {
+            if (!this.observacionesLineasNC[lineaId] || this.observacionesLineasNC[lineaId].trim() === '') {
+                lineasSinObservaciones.push(lineaId);
+            }
+        }
+        if (lineasSinObservaciones.length > 0) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: this.labels.ncAllObservacionesRequired,
+                variant: 'error'
+            }));
+            return;
+        }
+
+        this.isLoading = true;
+        try {
+            const lineasConAjustes = [];
+            const componentesHijos = this.template.querySelectorAll('c-crear-linea-venta-new3');
+            for (const componente of componentesHijos) {
+                if (this.lineasSeleccionadasNC.includes(componente.record.Id)) {
+                    const ajuste = componente.obtenerDatosAjusteNC();
+                    if (ajuste && ajuste.lineaId) {
+                        lineasConAjustes.push({
+                            lineaId: ajuste.lineaId,
+                            tipoAjuste: ajuste.tipoAjuste,
+                            valorAnterior: Number(ajuste.valorAnterior),
+                            valorNuevo: Number(ajuste.valorNuevo),
+                            observaciones: this.observacionesLineasNC[ajuste.lineaId]
+                        });
+                    }
+                }
+            }
+
+            if (lineasConAjustes.length === 0) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Error',
+                    message: 'No se encontraron datos válidos para procesar',
+                    variant: 'error'
+                }));
+                return;
+            }
+
+            let resultado;
+            if (this.modoNotaCreditoPrecio) {
+                resultado = await procesarNotaCreditoParcialPrecio({
+                    ventaId: this.recordId,
+                    lineasConAjustes: JSON.stringify(lineasConAjustes)
+                });
+            } else if (this.modoNotaCreditoCantidad) {
+                resultado = await procesarNotaCreditoParcialCantidad({
+                    ventaId: this.recordId,
+                    lineasConAjustes: JSON.stringify(lineasConAjustes)
+                });
+            }
+
+            if (resultado) {
+                const mensajeExito = this.labels.ncProcessSuccess
+                    .replace('{0}', resultado.notaCreditoName)
+                    .replace('{1}', resultado.lineasCreadas);
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Éxito',
+                    message: mensajeExito,
+                    variant: 'success'
+                }));
+                this.resetearModosNC();
+                await this.recargarDatos();
+            }
+        } catch (error) {
+            console.error('Error al procesar nota de crédito:', error);
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: error.body?.message || 'Error al procesar nota de crédito',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async recargarDatos() {
+        try {
+            const compraData = await getData({ ventaId: this.currentVentaId, isFirstLoad: true });
+            this.DataCompra = compraData;
+            this.setData(compraData);
+            await this.verificarNotasCreditoPendientes();
+        } catch (error) {
+            this.onError(error);
         }
     }
 }
