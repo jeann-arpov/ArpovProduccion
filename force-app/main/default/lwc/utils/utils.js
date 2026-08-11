@@ -80,6 +80,7 @@ const getRecordsFromForms = (elem) => {
 }
 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import logClientError from '@salesforce/apex/ErrorLogLWCController.logClientError';
 
 const errorEvent = (err) => {
     return new ShowToastEvent({
@@ -97,6 +98,22 @@ const warningEvent = (war) => {
         variant: 'warning',
         mode: 'sticky'
     });
+}
+
+function logAndDisplayError(error, componentName, context = {}) {
+    const userMessage = reduceErrors(error).join('\n');
+    const contextPayload = {
+        ...context,
+        pageUrl: window.location.href,
+        timestamp: new Date().toISOString()
+    };
+    logClientError({
+        errorMessage: userMessage,
+        componentName: componentName,
+        pageUrl: window.location.href,
+        userMessage: userMessage,
+        contextJson: JSON.stringify(contextPayload)
+    }).catch(() => {});
 }
 
 function getPageParameter(name) {
@@ -126,4 +143,4 @@ const formatCuit = (value) => {
     return digits.replace(/^(\d{2})(\d{8})(\d{1})$/, '$1-$2-$3');
 };
 
-export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit}
+export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, logAndDisplayError}
