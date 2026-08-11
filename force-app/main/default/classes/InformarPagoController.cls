@@ -1,4 +1,4 @@
-public without sharing class InformarPagoController {
+public without sharing class InformarPagoController extends ApexErrorHandler {
     @AuraEnabled
     public static void sendEmail(Map<String,Object> caseFields, List<Id> versionIds){
         try {
@@ -22,7 +22,7 @@ public without sharing class InformarPagoController {
             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
 
         } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            throw handleException(e, 'ERR-FAC-001', 'InformarPago');
         }
     }
 
@@ -84,7 +84,7 @@ public without sharing class InformarPagoController {
             delete cd;
                   
         } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            throw handleException(e, 'ERR-FAC-001', 'InformarPago');
         }
     }
 }

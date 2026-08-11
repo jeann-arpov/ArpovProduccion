@@ -8,7 +8,7 @@
 * 1.0.0        01/09/2025      Rodrigo Lopez         Creación.
 *--------------------------------------------------------------------------
 */
-public without sharing class ExcelDownloadController {
+public without sharing class ExcelDownloadController extends ApexErrorHandler {
     
     public class ExcelDataWrapper {
         @AuraEnabled public Object mainRecord { get; set; }
@@ -36,7 +36,7 @@ public without sharing class ExcelDownloadController {
             return wrapper;
         } catch (Exception e) {
             System.debug('ExcelDownloadController - Stack trace: ' + e.getStackTraceString());
-            throw new AuraHandledException('Error obteniendo datos: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-004', 'ExcelDownload');
         }
     }
     

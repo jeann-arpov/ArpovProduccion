@@ -1,4 +1,4 @@
-public without sharing class CesionPPH {
+public without sharing class CesionPPH extends ApexErrorHandler {
     @AuraEnabled
     public static Map<String, Object> getLoadData(String cesionId) {
         Cesion_HT__c cesion;
@@ -429,15 +429,20 @@ public without sharing class CesionPPH {
     }
 
     private static void sendEmails(List<Messaging.SingleEmailMessage> mails) {
-        if (!Test.isRunningTest()) Messaging.sendEmail(mails, true);
-
-        /*for (Messaging.SendEmailResult res : results) {
-            if (!res.isSuccess()) {
-                List<String> errors = new List<String>();
-                for(Messaging.SendEmailError err : res.getErrors()) errors.add(err.getMessage() + ' on fields ' + err.getFields());
-                throw new AuraHandledException(String.join(errors, '\n'));
+        try {
+            if (!Test.isRunningTest()) {
+                Messaging.SendEmailResult[] results = Messaging.sendEmail(mails, true);
+                for (Messaging.SendEmailResult res : results) {
+                    if (!res.isSuccess()) {
+                        List<String> errors = new List<String>();
+                        for(Messaging.SendEmailError err : res.getErrors()) errors.add(err.getMessage() + ' on fields ' + err.getFields());
+                        throw new AuraHandledException(String.join(errors, '\n'));
+                    }
+                }
             }
-        }*/
+        } catch (Exception e) {
+            throw handleException(e, 'ERR-CES-001', 'CesionPPH');
+        }
     }
 
     private static void sendValidationEmails(List<Linea_Cesion_HT__c> lineas, Id ownerId) {

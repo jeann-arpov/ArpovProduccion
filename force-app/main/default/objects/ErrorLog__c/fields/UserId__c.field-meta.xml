@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UserId__c</fullName>
+    <externalId>false</externalId>
+    <label>Usuario</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Errores Log (Usuario)</relationshipLabel>
+    <relationshipName>Errores_Log_Usuario</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

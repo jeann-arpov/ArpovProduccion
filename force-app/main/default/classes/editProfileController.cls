@@ -1,4 +1,4 @@
-public with sharing class editProfileController {
+public with sharing class editProfileController extends ApexErrorHandler {
     @AuraEnabled(cacheable=true)
     public static List<User> getUserInfo() {
         list<user> userInfo = [
@@ -26,7 +26,7 @@ public with sharing class editProfileController {
             WHERE Id = :UserInfo.getUserId() limit 1];
             return usr;
         } catch (Exception e){
-            throw new AuraHandledException(e.getMessage());
+            throw handleException(e, 'ERR-SYS-003', 'EditProfile');
         }
     }
 

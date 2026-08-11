@@ -4,7 +4,7 @@
  * Autor: Sistema
  * Fecha: 2026-03-06
  */
-public class EncolarProcesoAsincronoAction {
+public class EncolarProcesoAsincronoAction extends ApexErrorHandler {
     
     /**
      * Método invocable que encola el procesamiento asíncrono
@@ -26,7 +26,7 @@ public class EncolarProcesoAsincronoAction {
                 System.debug('   Account ID: ' + req.accountId);
                 System.debug('   Account Name: ' + req.accountName);
             }
-        } catch (Exception e) {System.debug('❌ Error al encolar el proceso: ' + e.getMessage());System.debug('   Tipo: ' + e.getTypeName());System.debug('   Stack: ' + e.getStackTraceString());throw new AuraHandledException('Error al procesar: ' + e.getMessage());
+        } catch (Exception e) {System.debug('❌ Error al encolar el proceso: ' + e.getMessage());System.debug('   Tipo: ' + e.getTypeName());System.debug('   Stack: ' + e.getStackTraceString());throw handleException(e, 'ERR-SYS-001', 'EncolarProcesoAsincrono');
         }
     }
     

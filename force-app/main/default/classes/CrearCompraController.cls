@@ -1,4 +1,4 @@
-public without sharing class CrearCompraController {
+public without sharing class CrearCompraController extends ApexErrorHandler {
     public static Id getListViewId(String sobjectName, String developerName) {
         return [select id from listview where developername =: developerName and SobjectType =: sobjectName].id;
     }
@@ -403,7 +403,8 @@ public without sharing class CrearCompraController {
                 result.put('error', 'El usuario no tiene una Cuenta asociada a su Contacto.');
             }
         } catch (Exception e) {
-            result.put('error', e.getMessage());
+            ApexErrorHandler.logWarning(e, 'ERR-COM-001', 'CrearCompra', new Map<String,Object>{'method' => 'getUserData'});
+            result.put('error', ErrorLogService.getUserFriendlyMessage('ERR-COM-001'));
         }
 
         return result;

@@ -1,4 +1,4 @@
-public without sharing class AdhesionPPH {
+public without sharing class AdhesionPPH extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> getLoadData(Id parametroId) {
@@ -309,12 +309,16 @@ public without sharing class AdhesionPPH {
             WHERE id =: plan.Parametro_PPH__c
         ];
 
-        validateInPeriodoAdhesion(parametro, plan.Version__c);
-        if ([select id from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_siembra__c =: planId and Cantidad_Declarada__c > 0 limit 1].isEmpty()) throw new AuraHandledException('No se puede realizar la adhesión sin tener hectareas SE en al menos un establecimiento');
-        if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado') throw new AuraHandledException('El plan debe encontrarse en estado en preparación o rectificado');
+        try {
+            validateInPeriodoAdhesion(parametro, plan.Version__c);
+            if ([select id from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_siembra__c =: planId and Cantidad_Declarada__c > 0 limit 1].isEmpty()) throw new AuraHandledException('No se puede realizar la adhesión sin tener hectareas SE en al menos un establecimiento');
+            if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado') throw new AuraHandledException('El plan debe encontrarse en estado en preparación o rectificado');
 
-        String error = validateStockAndGetError(getStockPorVariedad(parametro), plan, false);
-        if (String.isBlank(error) == false) throw new AuraHandledException(error);
+            String error = validateStockAndGetError(getStockPorVariedad(parametro), plan, false);
+            if (String.isBlank(error) == false) throw new AuraHandledException(error);
+        } catch (Exception e) {
+            throw handleException(e, 'ERR-ADH-001', 'AdhesionPPH', planId);
+        }
 
         if(plan.Version__c == 'Original'){
             plan.Fecha_de_Adhesion__c = System.today();
