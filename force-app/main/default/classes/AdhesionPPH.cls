@@ -1,4 +1,4 @@
-public without sharing class AdhesionPPH {
+public without sharing class AdhesionPPH extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> getLoadData(Id parametroId) {
@@ -308,13 +308,16 @@ public without sharing class AdhesionPPH {
             FROM Parametro_PPH__c 
             WHERE id =: plan.Parametro_PPH__c
         ];
-
+        try {
         validateInPeriodoAdhesion(parametro, plan.Version__c);
         if ([select id from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_siembra__c =: planId and Cantidad_Declarada__c > 0 limit 1].isEmpty()) throw new AuraHandledException(Label.PPH_Adhesion_Sin_Hectareas_SE);
         if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado') throw new AuraHandledException(Label.PPH_Plan_Estado_Invalido);
 
-        String error = validateStockAndGetError(getStockPorVariedad(parametro), plan, false);
-        if (String.isBlank(error) == false) throw new AuraHandledException(error);
+            String error = validateStockAndGetError(getStockPorVariedad(parametro), plan, false);
+            if (String.isBlank(error) == false) throw new AuraHandledException(error);
+        } catch (Exception e) {
+            throw handleException(e, 'ERR-ADH-001', 'AdhesionPPH', planId);
+        }
 
         if(plan.Version__c == 'Original'){
             plan.Fecha_de_Adhesion__c = System.today();

@@ -1,4 +1,4 @@
-public without sharing class CustomJWTSigner {
+public without sharing class CustomJWTSigner extends ApexErrorHandler {
     @AuraEnabled(cacheable=true)
     public static String CustomJWTSigner(String userId, String url, String contactId) {
     
@@ -66,7 +66,7 @@ public without sharing class CustomJWTSigner {
         try {
             return runCustomJWTSignerLicencias(userId, url, contactId);            
         } catch (Exception ex) {
-            throw new AuraHandledException('userId: '+ System.UserInfo.getUserId() + ' ex_message +'+ex.getMessage() + ' stack_trace: ' +ex.getStackTraceString());            
+            throw handleException(ex, 'ERR-INT-002', 'JWT_Signer');            
         }
     }
 

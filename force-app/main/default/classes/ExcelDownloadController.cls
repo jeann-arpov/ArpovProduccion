@@ -36,7 +36,7 @@ public without sharing class ExcelDownloadController extends ApexErrorHandler {
             return wrapper;
         } catch (Exception e) {
             System.debug('ExcelDownloadController - Stack trace: ' + e.getStackTraceString());
-            throw handleException(e, 'ERR-SYS-011', 'ExcelDownload');
+            throw handleException(e, 'ERR-SYS-004', 'ExcelDownload');
         }
     }
     

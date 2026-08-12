@@ -3,7 +3,7 @@
 * @date 11/09/2018
 * @description Controlador del Componente Lightning gestionCmp
 */
-public class GestionController {
+public class GestionController extends ApexErrorHandler {
 
     /**
     * @author Maximo Martinez
@@ -255,7 +255,9 @@ public class GestionController {
 
         // Si hay error, hacemos rollback e indicamos al usuario del error
         if(!errors.isEmpty()){
-            throw new AuraHandledException(String.join(errors,'\n'));
+            String errorMsg = String.join(errors,'\n');
+            ErrorLogService.logMessage(errorMsg, 'ERR-SYS-005', ErrorLogService.Severity.ERROR, 'Gestion', new Map<String,Object>{'errorCount' => errors.size()});
+            throw new AuraHandledException(ErrorLogService.getUserFriendlyMessage('ERR-SYS-005'));
         }
 
     }
@@ -272,7 +274,9 @@ public class GestionController {
 
         // Si hay error, hacemos rollback e indicamos al usuario del error
         if(!errors.isEmpty()){
-            throw new AuraHandledException(String.join(errors,'\n'));
+            String errorMsg = String.join(errors,'\n');
+            ErrorLogService.logMessage(errorMsg, 'ERR-SYS-005', ErrorLogService.Severity.ERROR, 'Gestion', new Map<String,Object>{'errorCount' => errors.size()});
+            throw new AuraHandledException(ErrorLogService.getUserFriendlyMessage('ERR-SYS-005'));
         }
 
     }

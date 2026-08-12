@@ -1,4 +1,4 @@
-public without sharing class ExpedientesController {
+public without sharing class ExpedientesController extends ApexErrorHandler {
 
     /**
      * Verifica si una Cuenta_Granaria tiene expedientes abiertos (NO finalizados)
@@ -189,7 +189,7 @@ public without sharing class ExpedientesController {
             System.debug(LoggingLevel.ERROR,
                 '[ExpedientesController] Error verificando expediente: ' + e.getMessage()
             );
-            throw new AuraHandledException(e.getMessage());
+            throw handleException(e, 'ERR-EXP-001', 'Expedientes');
         }
 
         System.debug(LoggingLevel.INFO,

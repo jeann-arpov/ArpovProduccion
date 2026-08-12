@@ -1,4 +1,4 @@
-public with sharing class LWCSendWhatsapp {
+public with sharing class LWCSendWhatsapp extends ApexErrorHandler {
 
     @AuraEnabled
     public static List<MessagingTemplate> getTemplates() {

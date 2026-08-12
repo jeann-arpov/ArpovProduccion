@@ -1,4 +1,4 @@
-public without sharing class CrearVentaController {
+public without sharing class CrearVentaController extends ApexErrorHandler {
     /*
         Producción es un desastre puede haber licencia vinculada a cuenta hija pero la variedad estar con la parent o viceversa
         Además por ejemplo GDM puede tener una licencia para la hija y eso habilita variedades de las demas hijas del parent
@@ -166,66 +166,70 @@ public without sharing class CrearVentaController {
 
     @AuraEnabled
     public static Map<String, Object> finalizarVenta(Id ventaId, Boolean checkDuplicates, Boolean origen, Boolean marcarRevisarCompra) {
-        List<Sobject> toUpdate = new List<SObject>();
-        Boolean tieneLicencia;
+        try {
+            List<Sobject> toUpdate = new List<SObject>();
+            Boolean tieneLicencia;
 
-        Venta_HT__c venta = getVentaData(ventaId);
+            Venta_HT__c venta = getVentaData(ventaId);
 
-        if (checkDuplicates == true && hasDuplicate(venta)) {
-            return new Map<String, Object>{'duplicate' => true};
-        }
-
-        venta.Estado__c = 'Pendiente de Facturación';
-        toUpdate.add(venta);
-        if (Boolean.valueOf(marcarRevisarCompra) && venta.Compra_HT__c != null) {
-            toUpdate.add(new Compra_HT__c(
-                Id = venta.Compra_HT__c,
-                Revisar_Compra__c = true
-            ));
-        }
-
-        Map<String, Licencia__c> licenciasProductor = CrearCompraController.getLicences(venta.Cuenta_Productor__c);
-
-        for (Linea_de_Venta_HT__c linea: venta.Lineas_de_Venta_HT__r) {
-            String key = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__c + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
-            String keyParent = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
-
-            Licencia__c licence = licenciasProductor.get(key) ?? licenciasProductor.get(keyParent);
-
-            if (licence != null) {
-                tieneLicencia = true;
-            }
-            
-            if (licence != null && origen != false) {
-                linea.Estado__c = 'Facturable';
-            }
-            else {
-                 linea.Estado__c = 'Pendiente';
+            if (checkDuplicates == true && hasDuplicate(venta)) {
+                return new Map<String, Object>{'duplicate' => true};
             }
 
-            linea.Licencia__c = licence != null ? licence.id : null;
-            
-            System.debug(linea);
-            toUpdate.add(linea);
-        }
+            venta.Estado__c = 'Pendiente de Facturación';
+            toUpdate.add(venta);
+            if (Boolean.valueOf(marcarRevisarCompra) && venta.Compra_HT__c != null) {
+                toUpdate.add(new Compra_HT__c(
+                    Id = venta.Compra_HT__c,
+                    Revisar_Compra__c = true
+                ));
+            }
 
-        Id oppId = [select Compra_HT__r.Oportunidad__c from Venta_HT__c where Id =: ventaId limit 1].Compra_HT__r.Oportunidad__c;
-        Opportunity opp = [select id, hasLicence__c, hasLegalOrigin__c,Blanqueo__c from Opportunity where id =: oppId];
+            Map<String, Licencia__c> licenciasProductor = CrearCompraController.getLicences(venta.Cuenta_Productor__c);
 
-        if(tieneLicencia == true){
-            opp.hasLicence__c = true;
-        }
-        if(origen == false){
-            opp.Blanqueo__c = true;
-        }
-        else if(origen == true){
-            opp.hasLegalOrigin__c = true;
-        }
+            for (Linea_de_Venta_HT__c linea: venta.Lineas_de_Venta_HT__r) {
+                String key = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__c + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
+                String keyParent = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
 
-        update toUpdate;
-        update opp;
+                Licencia__c licence = licenciasProductor.get(key) ?? licenciasProductor.get(keyParent);
 
-        return getData(ventaId);
+                if (licence != null) {
+                    tieneLicencia = true;
+                }
+                
+                if (licence != null && origen != false) {
+                    linea.Estado__c = 'Facturable';
+                }
+                else {
+                     linea.Estado__c = 'Pendiente';
+                }
+
+                linea.Licencia__c = licence != null ? licence.id : null;
+                
+                System.debug(linea);
+                toUpdate.add(linea);
+            }
+
+            Id oppId = [select Compra_HT__r.Oportunidad__c from Venta_HT__c where Id =: ventaId limit 1].Compra_HT__r.Oportunidad__c;
+            Opportunity opp = [select id, hasLicence__c, hasLegalOrigin__c,Blanqueo__c from Opportunity where id =: oppId];
+
+            if(tieneLicencia == true){
+                opp.hasLicence__c = true;
+            }
+            if(origen == false){
+                opp.Blanqueo__c = true;
+            }
+            else if(origen == true){
+                opp.hasLegalOrigin__c = true;
+            }
+
+            update toUpdate;
+            update opp;
+
+            return getData(ventaId);
+        } catch (Exception e) {
+            throw handleException(e, 'ERR-VTA-001', 'CrearVenta', ventaId);
+        }
     }
 
     @AuraEnabled
@@ -409,7 +413,7 @@ public without sharing class CrearVentaController {
             }
             
         } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            throw handleException(e, 'ERR-VTA-001', 'CrearVenta');
         }
     }
     
@@ -425,7 +429,7 @@ public without sharing class CrearVentaController {
             String Obs = [Select Observaciones__c from Venta_HT__c where id =: recordId].Observaciones__c;
             return Obs;
         } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            throw handleException(e, 'ERR-VTA-002', 'CrearVenta');
         }
     } 
     /***********************************************************************************************************************
@@ -496,7 +500,7 @@ public without sharing class CrearVentaController {
             System.debug('Oportunidad actualizada correctamente');
         } catch (Exception e) {
             System.debug('Error al actualizar la oportunidad: ' + e.getMessage());
-            throw new AuraHandledException('Error en updateOpportunity (Admin Context): ' + e.getMessage());
+            throw handleException(e, 'ERR-VTA-003', 'CrearVenta', recordId);
         }
      }
     
@@ -621,7 +625,7 @@ public without sharing class CrearVentaController {
                     'CuentaProductor' => CuentaProductor
                 };
             } catch (Exception e) {
-                throw new AuraHandledException('Error en canFinish: ' + e.getMessage());
+                throw handleException(e, 'ERR-VTA-004', 'CrearVenta');
             }
         }
 
