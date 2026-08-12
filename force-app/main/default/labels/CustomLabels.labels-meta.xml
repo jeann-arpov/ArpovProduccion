@@ -651,4 +651,722 @@
         <shortDescription>expediente negativos 7</shortDescription>
         <value>El numero no debe ser mayor al saldo de la cuenta</value>
     </labels>
+    <labels>
+        <fullName>PPH_Periodo_Rectificacion_No_Comenzado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de rectificación a este plan de siembra no ha comenzado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Periodo_Rectificacion_Finalizado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de rectificación a este plan de siembra ya ha finalizado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Periodo_Adhesion_No_Comenzado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de adhesión a este plan de siembra no ha comenzado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Periodo_Adhesion_Finalizado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de adhesión a este plan de siembra ya ha finalizado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Periodo_Rectificacion_1_No_Comenzado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de rectificación 1 a este plan de siembra no ha comenzado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Periodo_Rectificacion_1_Finalizado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de rectificación 1 a este plan de siembra ya ha finalizado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Periodo_Rectificacion_2_No_Comenzado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de rectificación 2 a este plan de siembra no ha comenzado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Periodo_Rectificacion_2_Finalizado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El período de rectificación 2 a este plan de siembra ya ha finalizado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Adhesion_Sin_Hectareas_SE</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>No se puede realizar la adhesión sin tener hectareas SE en al menos un establecimiento</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Plan_Estado_Invalido</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>El plan debe encontrarse en estado en preparación o rectificado</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Establecimiento_Duplicado</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value>No puede seleccionar el mismo establecimiento más de una vez en un mismo plan de siembra</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Destinatarios_Duplicados</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>No puede haber 2 destinatarios iguales</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Destinatario_No_En_Curso</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>No se pueden modificar destinatarios que no estén en curso</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Estado_En_Curso_O_Parcial</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>La Cesión debe encontrarse en estado En Curso o Parcialmente Validada</value>
+    </labels>
+    <labels>
+        <fullName>CESION_No_Ceder_Consigo_Mismo</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>No puede ceder consigo mismo</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Fechas_Fuera_De_Rango</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>No se puede enviar la cesión porque no estamos dentro de las fechas correspondientes para este cultivo</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Sin_Destinatarios</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>No hay destinatarios en curso</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Sin_Contrato</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>Debe haber al menos 1 contrato subido</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Debito_Bolsa_Tech_Supera_Stock_Enlist</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>Los debitos Bolsa Tech no pueden superar el stock Enlist restante</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Linea_Cantidad_Menor_Minimo</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>La linea no puede tener cantidad menor a</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Estado_Pendiente_O_Parcial</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>La Cesión debe encontrarse en estado Pendiente de Validación o Parcialmente Validada</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Estado_En_Curso_O_Pendiente</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>La Cesión debe encontrarse en estado en curso o pendiente de validación</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Email_Requerido</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>Debe ingresar un email</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Cuit_Ya_Existe</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>Ya existe ese cuit</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Estado_Pendiente_Validacion_O_Parcial</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>La Cesión debe encontrarse en estado pendiente de validación o Parcialmente Validada</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Destinatario_Estado_Invalido</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>El destinatario debe encontrarse en estado pendiente de validación</value>
+    </labels>
+    <labels>
+        <fullName>CESION_Motivo_Contacto_Invalido</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>El motivo de contacto no puede ser</value>
+    </labels>
+    <labels>
+        <fullName>CESION_TNs_Pendientes_Destinatario</fullName>
+        <categories>CesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Cesion</shortDescription>
+        <value>Hay TNs pendientes asignadas al destinatario</value>
+    </labels>
+    <labels>
+        <fullName>VENTAHT_Anular_Solo_Pendiente_Facturacion</fullName>
+        <categories>CrearVenta</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta HT</shortDescription>
+        <value>Sólo puede anularse una venta pendiente de facturación</value>
+    </labels>
+    <labels>
+        <fullName>VENTAHT_Venta_No_Existe_No_Pertenece</fullName>
+        <categories>CrearVenta</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta HT</shortDescription>
+        <value>La venta no existe o no le pertenece</value>
+    </labels>
+    <labels>
+        <fullName>VENTAHT_No_Subir_Factura_Estado</fullName>
+        <categories>CrearVenta</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta HT</shortDescription>
+        <value>No se puede subir factura para una venta en estado</value>
+    </labels>
+    <labels>
+        <fullName>VENTAHT_VentaId_Requerido</fullName>
+        <categories>CrearVenta</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta HT</shortDescription>
+        <value>ventaId es requerido</value>
+    </labels>
+    <labels>
+        <fullName>GENERAL_Tipo_Pago_Requerido</fullName>
+        <categories>General</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion general</shortDescription>
+        <value>Debe seleccionar un tipo de pago</value>
+    </labels>
+    <labels>
+        <fullName>GENERAL_Tipo_Pago_Invalido</fullName>
+        <categories>General</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion general</shortDescription>
+        <value>Tipo de pago inválido</value>
+    </labels>
+    <labels>
+        <fullName>COMPRAHT_No_Existe_No_Pertenece</fullName>
+        <categories>CrearCompra</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Compra HT</shortDescription>
+        <value>La compra no existe o no le pertenece</value>
+    </labels>
+    <labels>
+        <fullName>COMPRAHT_Anular_Solo_Pendiente_Facturacion</fullName>
+        <categories>CrearCompra</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Compra HT</shortDescription>
+        <value>Sólo puede anularse una compra pendiente de facturación</value>
+    </labels>
+    <labels>
+        <fullName>COMPRAHT_Vinculada_Venta_HT</fullName>
+        <categories>CrearCompra</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Compra HT</shortDescription>
+        <value>Esta compra está asociada a una Venta HT. Ponete en contacto con tu vendedor de hectáreas para pedirle que anule la venta. Muchas gracias!</value>
+    </labels>
+    <labels>
+        <fullName>COMPRAHT_CompraId_Requerido</fullName>
+        <categories>CrearCompra</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Compra HT</shortDescription>
+        <value>compraId es requerido</value>
+    </labels>
+    <labels>
+        <fullName>COMPRAHT_Usuario_Sin_Cuenta</fullName>
+        <categories>CrearCompra</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Compra HT</shortDescription>
+        <value>El usuario no tiene una Cuenta asociada a su Contacto.</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Solo_Gestionar_Tercero_Desde_Comercio</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Sólo puede gestionarse una licencia de un tercero desde el portal de comercio</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Tipo_Licencia_Invalido</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Tipo de licencia Inválido</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Portal_Productor_Solo_Tipo_Productor</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>El portal productor sólo puede pedir una licencia de tipo productor</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Cuenta_Tercera_No_Mismo</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>La cuenta tercera no puede ser uno mismo</value>
+    </labels>
+    <labels>
+        <fullName>LIC_No_Posee_Licencia_Comercio_Marca</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>No posee una licencia de comercio con la marca seleccionada para gestionar a un tercero</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Marca_Debe_Ser_Mismo</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>La marca debe ser uno mismo</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Solicitud_No_Editable</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>La solicitud ya no se puede editar</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Ya_Tiene_Licencia</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Ya tiene una licencia</value>
+    </labels>
+    <labels>
+        <fullName>LIC_No_Generar_PDF_Comercio_Obtentor</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>No se puede generar el pdf de licencia Comercio para este obtentor</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Archivo_Ya_Enviado_Firmar</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Este archivo ya se envió para firmar, no se puede generar nuevamente</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Licencia_Archivos_Enviar_Intervinientes</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>La licencia y sus archivos deben ser enviados por el productor, comercio u obtentor intervinientes</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Estado_Licencia_Debe_Ser_Creada</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>El estado de la licencia debe ser creada</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Debe_Subir_Licencia_Firmada</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Debes subir la licencia firmada</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Debe_Subir_Poder</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Debes subir el poder</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Debe_Subir_Resolucion_Judicial_Sucesion</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Debes subir la resolución judicial de Sucesion</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Frente_DNI_Obligatorio</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>El frente del DNI es obligatorio</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Dorso_DNI_Obligatorio</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>El dorso del DNI es obligatorio</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Constancia_AFIP_Obligatoria</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>La constancia de AFIP es obligatoria</value>
+    </labels>
+    <labels>
+        <fullName>LIC_Archivos_Licencia_Cargar_Intervinientes</fullName>
+        <categories>SolicitarLicencia</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje validacion Licencia</shortDescription>
+        <value>Los archivos de la licencia deben ser cargados por el productor, comercio u obtentor intervinientes</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Cuenta_Originante_Requerida</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Debe seleccionar la cuenta originante.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Cuenta_Originante_No_Encontrada</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Cuenta originante no encontrada.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Cuenta_Originante_Rol_Invalido</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>La cuenta originante debe ser Distribuidor u Obtentor.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Cuenta_Originante_Sin_Cuit</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>La cuenta originante no tiene CUIT cargado.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Falta_Kilos_Totales</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Falta Kilos Totales.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Usuario_Sin_Cuenta</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>El usuario no posee una cuenta asociada</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Solo_Obtentor_Importa</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Sólo usuarios obtentores pueden importar ventas</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Solo_Distribuidor_Importa</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Sólo usuarios distribuidores pueden importar ventas</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Falta_Cuit_Originante</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Falta CUIT Originante.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Distribuidor_No_Encontrado</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>No existe cuenta distribuidora con el CUIT_Originante__c</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Cuit_Originante_Propio</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>El cuit originante debe ser igual al propio</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Cuenta_Originante_Antes_Guardar</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Debe seleccionar la cuenta originante antes de guardar.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Variedad_Inexistente</fullName>
+        <categories>CrearVentaInformada</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <value>Debes seleccionar una Variedad existente en Salesforce.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Usuario_Sin_Cuenta</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Ventas Informadas - Usuario sin cuenta</shortDescription>
+        <value>El usuario debe estar asociado a una cuenta</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Solo_Obtentor_Importa</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Ventas Informadas - Solo obtentor importa</shortDescription>
+        <value>Sólo usuarios obtentores pueden importar ventas</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Solo_Distribuidor_Importa</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Ventas Informadas - Solo distribuidor importa</shortDescription>
+        <value>Sólo usuarios distribuidores pueden importar ventas</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Cuenta_Originante_Antes_Importar</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Ventas Informadas - Cuenta originante antes de importar</shortDescription>
+        <value>Debe seleccionar la cuenta originante antes de importar.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Sin_Filas_Importar</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Ventas Informadas - Sin filas para importar</shortDescription>
+        <value>No hay filas de ventas para importar. Eliminá las filas de ayuda al final de la planilla o completá al menos una fila de datos.</value>
+    </labels>
+    <labels>
+        <fullName>VENTA_INF_Columna_Invalida</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Ventas Informadas - Columna inválida</shortDescription>
+        <value>Nombre de columna inválida. NO cambiar el nombre de las columnas</value>
+    </labels>
+    <labels>
+        <fullName>FAC_Debe_Informar_Rango_Fechas</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Facturación - Debe informar rango fechas</shortDescription>
+        <value>Debe informar el rango de fechas de creación.</value>
+    </labels>
+    <labels>
+        <fullName>FAC_Fecha_Desde_Mayor_Hasta</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Facturación - Fecha desde mayor hasta</shortDescription>
+        <value>La fecha desde no puede ser mayor que la fecha hasta.</value>
+    </labels>
+    <labels>
+        <fullName>FAC_Email_Requerido</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Facturación - Email requerido</shortDescription>
+        <value>Debe proporcionar un correo electrónico.</value>
+    </labels>
+    <labels>
+        <fullName>FAC_Sin_Comprobantes</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Facturación - Sin comprobantes</shortDescription>
+        <value>No se encontraron comprobantes para enviar.</value>
+    </labels>
+    <labels>
+        <fullName>INT_Messaging_User_No_Whatsapp</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Integración - Messaging user no WhatsApp</shortDescription>
+        <value>El messaging user no es de whatsapp</value>
+    </labels>
+    <labels>
+        <fullName>INT_Consent_Status_Invalido</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Integración - Consent status inválido</shortDescription>
+        <value>El MessagingConsentStatus no es ImplicitlyOptedIn</value>
+    </labels>
+    <labels>
+        <fullName>INT_Messaging_Session_24hs</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Integración - Messaging session 24hs</shortDescription>
+        <value>No han pasado 24hs desde el último MessagingSession</value>
+    </labels>
+    <labels>
+        <fullName>BT_Estado_Movimiento_Invalido</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>BolsaTech - Estado movimiento inválido</shortDescription>
+        <value>El estado del movimiento debe ser creado o con error</value>
+    </labels>
+    <labels>
+        <fullName>GENERAL_Usuario_Sin_Cuenta</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>General - Usuario sin cuenta</shortDescription>
+        <value>Usuario no tiene una cuenta asociada</value>
+    </labels>
+    <labels>
+        <fullName>EXP_No_Encontrado_Abierto</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Expediente - No encontrado abierto</shortDescription>
+        <value>No se encontró un expediente de negativos abierto para la cuenta seleccionada</value>
+    </labels>
+    <labels>
+        <fullName>DUP_Sin_Toneladas_HT</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>DUP - Sin toneladas HT</shortDescription>
+        <value>No hay toneladas HT disponibles para consumir.</value>
+    </labels>
+    <labels>
+        <fullName>DUP_Error_Crear_Toneladas</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>DUP - Error crear toneladas</shortDescription>
+        <value>No se pudieron crear las toneladas de consumo.</value>
+    </labels>
+    <labels>
+        <fullName>COM_Usuario_Sin_Cuenta_Comercio</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Comunidad - Usuario sin cuenta comercio</shortDescription>
+        <value>El usuario no tiene una cuenta de comercio asociada.</value>
+    </labels>
+    <labels>
+        <fullName>COM_Usuario_Sin_Cuenta</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Comunidad - Usuario sin cuenta</shortDescription>
+        <value>El usuario no tiene una cuenta asociada.</value>
+    </labels>
+    <labels><fullName>GENERAL_Usuario_Sin_Cuenta</fullName><categories>General</categories><language>es</language><protected>false</protected><shortDescription>Mensaje usuario sin cuenta</shortDescription><value>Usuario no tiene una cuenta asociada</value></labels>
+    <labels><fullName>LIC_Usuario_Sin_Cuenta</fullName><categories>Licencias</categories><language>es</language><protected>false</protected><shortDescription>Mensaje licencia sin cuenta</shortDescription><value>Usuario sin cuenta asociada</value></labels>
+    <labels><fullName>PWD_No_Tiene_Permisos_Consultar_Usuarios</fullName><categories>PasswordReset</categories><language>es</language><protected>false</protected><shortDescription>Mensaje permisos password</shortDescription><value>No tiene permisos para consultar usuarios.</value></labels>
+    <labels><fullName>PWD_Cuit_11_Digitos</fullName><categories>PasswordReset</categories><language>es</language><protected>false</protected><shortDescription>Mensaje CUIT password</shortDescription><value>El CUIT debe contener exactamente 11 digitos numericos.</value></labels>
+    <labels><fullName>GENERAL_IdProduct_Obligatorio</fullName><categories>General</categories><language>es</language><protected>false</protected><shortDescription>Mensaje producto obligatorio</shortDescription><value>El parámetro IdProduct es obligatorio.</value></labels>
+    <labels><fullName>GENERAL_No_Permisos_Operacion</fullName><categories>General</categories><language>es</language><protected>false</protected><shortDescription>Mensaje sin permisos</shortDescription><value>No tiene permisos para realizar esta operación. Contacte a su administrador.</value></labels>
+    <labels><fullName>VENTASINF_Venta_No_Existe</fullName><categories>VentasInformadas</categories><language>es</language><protected>false</protected><shortDescription>Validacion ventas informadas</shortDescription><value>La venta no existe.</value></labels>
+    <labels><fullName>VENTASINF_No_Permiso_Modificar</fullName><categories>VentasInformadas</categories><language>es</language><protected>false</protected><shortDescription>Validacion ventas informadas</shortDescription><value>No tiene permiso para modificar esta venta.</value></labels>
+    <labels><fullName>LIC_No_Permiso_Acceder</fullName><categories>Licencias</categories><language>es</language><protected>false</protected><shortDescription>Mensaje sin permiso licencia</shortDescription><value>No tiene permiso para acceder a Licencia__c</value></labels>
+    <labels><fullName>EXCEL_Tipo_Objeto_No_Soportado</fullName><categories>Excel</categories><language>es</language><protected>false</protected><shortDescription>Mensaje tipo objeto no soportado</shortDescription><value>Tipo de objeto no soportado:</value></labels>
 </CustomLabels>

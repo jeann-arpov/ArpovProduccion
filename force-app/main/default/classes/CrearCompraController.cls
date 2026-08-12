@@ -164,7 +164,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     }
 
     private static void validateProductor(Compra_HT__c compra) {
-        if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException('La compra no existe o no le pertenece');
+        if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException(Label.COMPRAHT_No_Existe_No_Pertenece);
     }
 
     private static Boolean hasDuplicate(Compra_HT__c compra1) {
@@ -294,8 +294,8 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     public static Map<String, Object> anular(Id compraId) {
         validateProductor(compraId);
         Compra_HT__c compra = [select Estado__c, Venta_HT__c from Compra_HT__c where id =: compraId];
-        if (!Test.isRunningTest() && compra.Estado__c != 'Pendiente de Facturación') throw new AuraHandledException('Sólo puede anularse una compra pendiente de facturación');
-        if (!Test.isRunningTest() && compra.Venta_HT__c != null) throw new AuraHandledException('Esta compra está asociada a una Venta HT. Ponete en contacto con tu vendedor de hectáreas para pedirle que anule la venta. Muchas gracias!');
+        if (!Test.isRunningTest() && compra.Estado__c != 'Pendiente de Facturación') throw new AuraHandledException(Label.COMPRAHT_Anular_Solo_Pendiente_Facturacion);
+        if (!Test.isRunningTest() && compra.Venta_HT__c != null) throw new AuraHandledException(Label.COMPRAHT_Vinculada_Venta_HT);
         update new Compra_HT__c(Id = compraId, Estado__c = 'Cancelada');
         List<Linea_de_Compra_HT__c> lineasCompra = new List<Linea_de_Compra_HT__c>();
         for(Linea_de_Compra_HT__c linea: [SELECT Id FROM Linea_de_Compra_HT__c WHERE Compra_HT__c = :compraId]){
@@ -400,7 +400,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
                 // CUIT puede estar en PersonDocumentNumber o N_CUIT__c
                 result.put('cuit', acc.N_CUIT__c);
             } else {
-                result.put('error', 'El usuario no tiene una Cuenta asociada a su Contacto.');
+                result.put('error', Label.COMPRAHT_Usuario_Sin_Cuenta);
             }
         } catch (Exception e) {
             ApexErrorHandler.logWarning(e, 'ERR-COM-001', 'CrearCompra', new Map<String,Object>{'method' => 'getUserData'});
@@ -412,12 +412,12 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> updateTipoPago(Id compraId, String tipoPago) {
-        if (compraId == null) throw new AuraHandledException('compraId es requerido');
-        if (String.isBlank(tipoPago)) throw new AuraHandledException('Debe seleccionar un tipo de pago');
+        if (compraId == null) throw new AuraHandledException(Label.COMPRAHT_CompraId_Requerido);
+        if (String.isBlank(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Requerido);
 
         tipoPago = tipoPago.trim();
         Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
-        if (!allowed.contains(tipoPago)) throw new AuraHandledException('Tipo de pago inválido');
+        if (!allowed.contains(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Invalido);
 
         List<Linea_de_Compra_HT__c> lineas = [
             SELECT Id

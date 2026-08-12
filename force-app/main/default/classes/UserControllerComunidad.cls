@@ -63,7 +63,7 @@ public without sharing class UserControllerComunidad {
         ];
 
         if (u.Contact.AccountId == null) {
-            throw new AuraHandledException('El usuario no tiene una cuenta de comercio asociada.');
+            throw new AuraHandledException(Label.COM_Usuario_Sin_Cuenta_Comercio);
         }
 
         Id comercioId = u.Contact.AccountId;
@@ -137,7 +137,7 @@ public without sharing class UserControllerComunidad {
             : [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
     
         if (u.AccountId == null && !Test.isRunningTest()) {
-            throw new AuraHandledException('El usuario no tiene una cuenta asociada.');
+            throw new AuraHandledException(Label.COM_Usuario_Sin_Cuenta);
         }
     
         Id cuentaId = u.AccountId;
@@ -199,7 +199,7 @@ public without sharing class UserControllerComunidad {
         User u = Test.isRunningTest()
             ? new User(Id = UserInfo.getUserId()): [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
 
-        if (u.AccountId == null && !Test.isRunningTest()) { throw new AuraHandledException('El usuario no tiene una cuenta asociada.');}
+        if (u.AccountId == null && !Test.isRunningTest()) { throw new AuraHandledException(Label.COM_Usuario_Sin_Cuenta);}
         Id cuentaId = u.AccountId;
 
         List<Campaign> campanias = Test.isRunningTest()
@@ -244,7 +244,7 @@ public without sharing class UserControllerComunidad {
     public static List<Map<String, String>> getBolsasObtentorCampaniaActivaList() {
         User u = Test.isRunningTest()
             ? new User(Id = UserInfo.getUserId()) : [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
-        if (u.AccountId == null && !Test.isRunningTest()) {throw new AuraHandledException('El usuario no tiene una cuenta asociada.');}
+        if (u.AccountId == null && !Test.isRunningTest()) {throw new AuraHandledException(Label.COM_Usuario_Sin_Cuenta);}
         Id cuentaId = u.AccountId;
 
         List<Campaign> campanias = Test.isRunningTest()
@@ -302,7 +302,7 @@ public without sharing class UserControllerComunidad {
             ? new User(Id = UserInfo.getUserId())
             : [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         if (u.AccountId == null && !Test.isRunningTest()) {
-            throw new AuraHandledException('El usuario no tiene una cuenta asociada.');
+            throw new AuraHandledException(Label.COM_Usuario_Sin_Cuenta);
         }
         Id cuentaId = u.AccountId;
 
@@ -351,7 +351,7 @@ public without sharing class UserControllerComunidad {
             ? new User(Id = UserInfo.getUserId())
             : [SELECT Id, AccountId FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
         if (u.AccountId == null && !Test.isRunningTest()) {
-            throw new AuraHandledException('El usuario no tiene una cuenta asociada.');
+            throw new AuraHandledException(Label.COM_Usuario_Sin_Cuenta);
         }
         Id cuentaId = u.AccountId;
 

@@ -487,7 +487,7 @@ public without sharing class CrearVentaInformadaLWCController {
 
     public static Account resolveOriginanteAccount(Id originanteAccountId) {
         if (originanteAccountId == null) {
-            throw new AuraHandledException('Debe seleccionar la cuenta originante.');
+            throw new AuraHandledException(Label.VENTA_INF_Cuenta_Originante_Requerida);
         }
         List<Account> accs = [
             SELECT Id, Name, Type, N_CUIT__c, RecordType.DeveloperName
@@ -496,7 +496,7 @@ public without sharing class CrearVentaInformadaLWCController {
             LIMIT 1
         ];
         if (accs.isEmpty()) {
-            throw new AuraHandledException('Cuenta originante no encontrada.');
+            throw new AuraHandledException(Label.VENTA_INF_Cuenta_Originante_No_Encontrada);
         }
         Account acc = accs[0];
         if (
@@ -504,10 +504,10 @@ public without sharing class CrearVentaInformadaLWCController {
             && acc.RecordType.DeveloperName != 'Distribuidor'
             && acc.RecordType.DeveloperName != 'Obtentor'
         ) {
-            throw new AuraHandledException('La cuenta originante debe ser Distribuidor u Obtentor.');
+            throw new AuraHandledException(Label.VENTA_INF_Cuenta_Originante_Rol_Invalido);
         }
         if (String.isBlank(acc.N_CUIT__c)) {
-            throw new AuraHandledException('La cuenta originante no tiene CUIT cargado.');
+            throw new AuraHandledException(Label.VENTA_INF_Cuenta_Originante_Sin_Cuit);
         }
         return acc;
     }
@@ -526,7 +526,7 @@ public without sharing class CrearVentaInformadaLWCController {
 
         // Ticket 2444: Kilos Totales obligatorio; sin mínimo de 20 kg al guardar.
         if (venta.Cantidad_de_Bolsas__c == null) {
-            throw new AuraHandledException('Falta Kilos Totales.');
+            throw new AuraHandledException(Label.VENTA_INF_Falta_Kilos_Totales);
         }
         // if (venta.Cantidad_de_Bolsas__c < 0) {
         //     throw new AuraHandledException('Kilos Totales no puede ser negativo.');
@@ -537,14 +537,14 @@ public without sharing class CrearVentaInformadaLWCController {
             Account userAccont = [SELECT Account.N_CUIT__c, Account.RecordType.DeveloperName, Account.Type FROM User WHERE id =: UserInfo.getUserId()].Account;
             Id accountId;
             
-            if(userAccont == null) throw new AuraHandledException('El usuario no posee una cuenta asociada');
+            if(userAccont == null) throw new AuraHandledException(Label.VENTA_INF_Usuario_Sin_Cuenta);
             accountId = userAccont.Id;
 
             Boolean isPortalObtentor = [SELECT Name FROM Network WHERE id =:networkId].Name == 'Sembrá Evolución Obtentor';
 
-            if (isPortalObtentor && userAccont.RecordType.DeveloperName != 'Obtentor') throw new AuraHandledException('Sólo usuarios obtentores pueden importar ventas');
+            if (isPortalObtentor && userAccont.RecordType.DeveloperName != 'Obtentor') throw new AuraHandledException(Label.VENTA_INF_Solo_Obtentor_Importa);
 
-            if (!isPortalObtentor && userAccont.RecordType.DeveloperName != 'Distribuidor' && userAccont.N_CUIT__c != '30500120882') throw new AuraHandledException('Sólo usuarios distribuidores pueden importar ventas');
+            if (!isPortalObtentor && userAccont.RecordType.DeveloperName != 'Distribuidor' && userAccont.N_CUIT__c != '30500120882') throw new AuraHandledException(Label.VENTA_INF_Solo_Distribuidor_Importa);
 
             List<Account> cuentas = isPortalObtentor ? 
                 [
@@ -561,7 +561,7 @@ public without sharing class CrearVentaInformadaLWCController {
         
             if (isPortalObtentor) {
                 if (String.isBlank(venta.CUIT_Originante__c)) {
-                    throw new AuraHandledException('Falta CUIT Originante.');
+                    throw new AuraHandledException(Label.VENTA_INF_Falta_Cuit_Originante);
                 }
                 Account originante = VentasInformadasCuitResolver.resolveCuentaPorCuit(
                     venta.CUIT_Originante__c,
@@ -569,7 +569,7 @@ public without sharing class CrearVentaInformadaLWCController {
                     cuentasPorCuit.get(venta.CUIT_Originante__c)
                 );
                 if (originante == null) {
-                    throw new AuraHandledException('No existe cuenta distribuidora con el CUIT_Originante__c');
+                    throw new AuraHandledException(Label.VENTA_INF_Distribuidor_No_Encontrado);
                 }
                 venta.Originante__c = originante.Id;
                 VentasInformadasCuitResolver.aplicarRolOriginante(venta, originante);
@@ -578,14 +578,14 @@ public without sharing class CrearVentaInformadaLWCController {
                 if (venta.CUIT_Originante__c == userAccont.N_CUIT__c) {
                     venta.Originante__c = accountId;
                     VentasInformadasCuitResolver.aplicarRolOriginante(venta, userAccont);
-                } else throw new AuraHandledException('El cuit originante debe ser igual al propio');
+                } else throw new AuraHandledException(Label.VENTA_INF_Cuit_Originante_Propio);
             }
         } else if (originanteAccountId != null) {
             aplicarOriginanteCore(venta, originanteAccountId);
         } else if (Test.isRunningTest()) {
             // Tests unitarios sin comunidad ni cuenta originante explícita.
         } else {
-            throw new AuraHandledException('Debe seleccionar la cuenta originante antes de guardar.');
+            throw new AuraHandledException(Label.VENTA_INF_Cuenta_Originante_Antes_Guardar);
         }
 
         // Venta Interna: respeta el checkbox del formulario; si no vino marcado, infiere por CUITs iguales.
@@ -595,7 +595,7 @@ public without sharing class CrearVentaInformadaLWCController {
         }
 
         if (String.isBlank(variedadId)) {
-            throw new AuraHandledException('Debes seleccionar una Variedad existente en Salesforce.');
+            throw new AuraHandledException(Label.VENTA_INF_Variedad_Inexistente);
         }
         Variedad__c variedad = [
             SELECT Id, Cultivar_INASE__c, Cultivo__c, Obtentor_Comercializa__c

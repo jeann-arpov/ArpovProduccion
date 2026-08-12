@@ -30,7 +30,7 @@ public without sharing class ExcelDownloadController extends ApexErrorHandler {
                 System.debug('ExcelDownloadController - Venta obtenida: ' + wrapper.mainRecord);
                 System.debug('ExcelDownloadController - Líneas obtenidas: ' + wrapper.relatedRecords?.size());
             } else {
-                throw new AuraHandledException('Tipo de objeto no soportado: ' + objectType);
+                throw new AuraHandledException(Label.EXCEL_Tipo_Objeto_No_Soportado + ' ' + objectType);
             }
             
             return wrapper;

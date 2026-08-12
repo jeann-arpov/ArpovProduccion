@@ -264,7 +264,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     @AuraEnabled
     public static Map<String, Object> anular(Id ventaId) {
         validateComercio(ventaId);
-        if (!Test.isRunningTest() && [select Estado__c from Venta_HT__c where id =: ventaId].Estado__c != 'Pendiente de Facturación') throw new AuraHandledException('Sólo puede anularse una venta pendiente de facturación');
+        if (!Test.isRunningTest() && [select Estado__c from Venta_HT__c where id =: ventaId].Estado__c != 'Pendiente de Facturación') throw new AuraHandledException(Label.VENTAHT_Anular_Solo_Pendiente_Facturacion);
         update new Venta_HT__c(Id = ventaId, Estado__c = 'Cancelada');
         List<Linea_de_Venta_HT__c> lineasVenta = new List<Linea_de_Venta_HT__c>();
         for(Linea_de_Venta_HT__c linea: [SELECT Id FROM Linea_de_Venta_HT__c WHERE Venta_HT__c = :ventaId]){
@@ -366,7 +366,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     }
 
     private static void validateComercio(Venta_HT__c venta) {
-        if (venta.Comercio__c != getAccount(null).id) throw new AuraHandledException('La venta no existe o no le pertenece');
+        if (venta.Comercio__c != getAccount(null).id) throw new AuraHandledException(Label.VENTAHT_Venta_No_Existe_No_Pertenece);
     }
 
     private static Boolean hasDuplicate(Venta_HT__c venta1) {
@@ -447,7 +447,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
             LIMIT 1
         ];
         if (venta.Estado__c == 'Pagada' || venta.Estado__c == 'Facturada') {
-            throw new AuraHandledException('No se puede subir factura para una venta en estado ' + venta.Estado__c + '.');
+            throw new AuraHandledException(Label.VENTAHT_No_Subir_Factura_Estado + ' ' + venta.Estado__c + '.');
         }
 
         Opportunity opp = [select id,AccountId,Total_Comprobante__c,CloseDate from Opportunity where Compra_HT__r.Venta_HT__c =: recordId LIMIT 1];
@@ -631,15 +631,15 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> updateTipoPago(Id ventaId, String tipoPago) {
-    if (ventaId == null) throw new AuraHandledException('ventaId es requerido');
-    if (String.isBlank(tipoPago)) throw new AuraHandledException('Debe seleccionar un tipo de pago');
+    if (ventaId == null) throw new AuraHandledException(Label.VENTAHT_VentaId_Requerido);
+    if (String.isBlank(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Requerido);
 
     // Seguridad / ownership: que la venta sea del comercio logueado
     validateComercio(ventaId);
 
     tipoPago = tipoPago.trim();
     Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
-    if (!allowed.contains(tipoPago)) throw new AuraHandledException('Tipo de pago inválido');
+    if (!allowed.contains(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Invalido);
 
     // 1) Lineas de venta de esa venta
     List<Linea_de_Venta_HT__c> lineasVenta = [

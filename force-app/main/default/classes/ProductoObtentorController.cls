@@ -3,7 +3,7 @@ public with sharing class ProductoObtentorController {
     @AuraEnabled(cacheable=true)
     public static ProductoWrapper getProductoObtentorData(String productId) {
         if (String.isBlank(productId)) {
-            throw new AuraHandledException('El parámetro IdProduct es obligatorio.');
+            throw new AuraHandledException(Label.GENERAL_IdProduct_Obligatorio);
         }
 
         Producto_Obtentor__c producto = [

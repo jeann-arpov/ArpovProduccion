@@ -159,7 +159,7 @@ public with sharing class ValidarLicenciasAction {
     @TestVisible
     private static List<Licencia__c> getLicencias(List<Id> productores, Set<Id> obtentores){
         if (!Schema.sObjectType.Licencia__c.isAccessible()) {
-            throw new AuraHandledException('No tiene permiso para acceder a Licencia__c');
+            throw new AuraHandledException(Label.LIC_No_Permiso_Acceder);
         }
         return [
             SELECT Id, Cuenta_Productor__c, Cuenta_Obtentor__c, Tecnologia__c

@@ -213,7 +213,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
 
         for (Destinatario dest: destinatarios) {
             if (dest.destinatarioId != null) {
-                if (ids.contains(dest.destinatarioId)) throw new AuraHandledException('No puede haber 2 destinatarios iguales');
+                if (ids.contains(dest.destinatarioId)) throw new AuraHandledException(Label.CESION_Destinatarios_Duplicados);
                 ids.add(dest.destinatarioId);    
             }
         }
@@ -256,7 +256,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
             }
         }
 
-        if (ids.isEmpty() == false && [select id from Destinatario_Cesion_HT__c where id in: ids and Estado__c != 'En Curso' limit 1].isEmpty() == false) throw new AuraHandledException('No se pueden modificar destinatarios que no estén en curso');
+        if (ids.isEmpty() == false && [select id from Destinatario_Cesion_HT__c where id in: ids and Estado__c != 'En Curso' limit 1].isEmpty() == false) throw new AuraHandledException(Label.CESION_Destinatario_No_En_Curso);
     }
 
     private static Decimal getBolsaTechQuantity(String cultivoId, String productor){
@@ -282,11 +282,11 @@ public without sharing class CesionPPH extends ApexErrorHandler {
         List<Destinatario_Cesion_HT__c> destinatarios = new List<Destinatario_Cesion_HT__c>();
         List<Linea_Cesion_HT__c> lineas = new List<Linea_Cesion_HT__c>();
         Map<Id, Linea_Cesion_HT__c> lineasToDelete = new Map<Id, Linea_Cesion_HT__c>();
-        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Parcialmente Validada') throw new AuraHandledException('La Cesión debe encontrarse en estado En Curso o Parcialmente Validada');
+        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Parcialmente Validada') throw new AuraHandledException(Label.CESION_Estado_En_Curso_O_Parcial);
 
         Set<Id> ids = checkForDuplicateDestinatario(data.destinatarios);
         Map<Id, String> destinatarioCuits = getDestinatarioCuits(ids);
-        if (ids.contains(cesion.Cuenta_Cedente__c) && !Test.isRunningTest()) throw new AuraHandledException('No puede ceder consigo mismo');
+        if (ids.contains(cesion.Cuenta_Cedente__c) && !Test.isRunningTest()) throw new AuraHandledException(Label.CESION_No_Ceder_Consigo_Mismo);
         checkForDestinatariosNotEnCurso(data.destinatarios);
 
         Set<Id> variedadesIds = new Set<Id>();
@@ -494,13 +494,13 @@ public without sharing class CesionPPH extends ApexErrorHandler {
         Date fechaInicioCesion = cesion.Tipo_de_Cesion__c == 'Explotacion Conjunta' ? cesion.Cultivo__r.Fecha_Inicio_de_Cesion__c : cesion.Cultivo__r.Fecha_Inicio_de_Cesion_Semilla_Original__c;
         Date fechaFinCesion = cesion.Tipo_de_Cesion__c == 'Explotacion Conjunta' ? cesion.Cultivo__r.Fecha_Fin_de_Cesion__c : cesion.Cultivo__r.Fecha_Fin_de_Cesion_Semilla_Original__c;
         
-        if (fechaInicioCesion > Date.today() || fechaFinCesion < Date.today()) throw new AuraHandledException('No se puede enviar la cesión porque no estamos dentro de las fechas correspondientes para este cultivo');
+        if (fechaInicioCesion > Date.today() || fechaFinCesion < Date.today()) throw new AuraHandledException(Label.CESION_Fechas_Fuera_De_Rango);
         
         List<Destinatario_Cesion_HT__c> destinatarios = [select id from Destinatario_Cesion_HT__c where Cesion_HT__c =: cesion.id and Estado__c = 'En Curso'];
         List<Linea_Cesion_HT__c> lineas = [select Cantidad__c, Variedad__r.Obtentor_Comercializa__r.ParentId, Variedad__r.Biotecnologia__c, Destinatario_Cesion_HT__r.Destinatario__c from Linea_Cesion_HT__c where Destinatario_Cesion_HT__c in: destinatarios];
 
-        if (destinatarios.isEmpty()) throw new AuraHandledException('No hay destinatarios en curso');
-        if ([select ContentDocument.Title, ContentDocument.Id from ContentDocumentLink where LinkedEntityId =: cesionId limit 1].isEmpty()) throw new AuraHandledException('Debe haber al menos 1 contrato subido');
+        if (destinatarios.isEmpty()) throw new AuraHandledException(Label.CESION_Sin_Destinatarios);
+        if ([select ContentDocument.Title, ContentDocument.Id from ContentDocumentLink where LinkedEntityId =: cesionId limit 1].isEmpty()) throw new AuraHandledException(Label.CESION_Sin_Contrato);
 
         List<Sobject> toUpdate = new List<Sobject>();
 
@@ -515,7 +515,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
             Decimal restoStockEnlist = getStockEnlist(cesion) - cantidadEnlist;
     
             if(restoStockEnlist < 0){
-                throw new AuraHandledException('Los debitos Bolsa Tech no pueden superar el stock Enlist restante');
+                throw new AuraHandledException(Label.CESION_Debito_Bolsa_Tech_Supera_Stock_Enlist);
             }
         }
 
@@ -528,7 +528,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
         Map<String, Map<String, Licencia__c>> licencesByProductor = getLicenses(cesionId);
 
         for (Linea_Cesion_HT__c linea: lineas) {
-            if (linea.Cantidad__c < cesion.Multiplicador__c && linea.Cantidad__c > 0) throw new AuraHandledException('La linea no puede tener cantidad menor a ' + cesion.Multiplicador__c);
+            if (linea.Cantidad__c < cesion.Multiplicador__c && linea.Cantidad__c > 0) throw new AuraHandledException(Label.CESION_Linea_Cantidad_Menor_Minimo + ' ' + cesion.Multiplicador__c);
 
             String key = linea.Variedad__r.Obtentor_Comercializa__c + getMapBiotecnologias().get(linea.Variedad__r.Biotecnologia__c);
             String keyParent = linea.Variedad__r.Obtentor_Comercializa__r.ParentId + getMapBiotecnologias().get(linea.Variedad__r.Biotecnologia__c);
@@ -564,7 +564,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
         List<Destinatario_Cesion_HT__c> destinatarios = [select id from Destinatario_Cesion_HT__c where Cesion_HT__c =: cesion.id and Estado__c = 'Pendiente de Validación'];
         List<Linea_Cesion_HT__c> lineas = [select id from Linea_Cesion_HT__c where Destinatario_Cesion_HT__c in: destinatarios];
 
-        if (cesion.Estado__c != 'Pendiente de Validación' && cesion.Estado__c != 'Parcialmente Validada') throw new AuraHandledException('La Cesión debe encontrarse en estado Pendiente de Validación o Parcialmente Validada');
+        if (cesion.Estado__c != 'Pendiente de Validación' && cesion.Estado__c != 'Parcialmente Validada') throw new AuraHandledException(Label.CESION_Estado_Pendiente_O_Parcial);
 
         List<Sobject> toUpdate = new List<Sobject>();
 
@@ -586,7 +586,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
         List<Destinatario_Cesion_HT__c> destinatarios = [select id from Destinatario_Cesion_HT__c where Cesion_HT__c =: cesion.id];
         List<Linea_Cesion_HT__c> lineas = [select id from Linea_Cesion_HT__c where Destinatario_Cesion_HT__c in: destinatarios];
 
-        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Pendiente de Validación') throw new AuraHandledException('La Cesión debe encontrarse en estado en curso o pendiente de validación');
+        if (cesion.Estado__c != 'En Curso' && cesion.Estado__c != 'Pendiente de Validación') throw new AuraHandledException(Label.CESION_Estado_En_Curso_O_Pendiente);
 
         List<Sobject> toUpdate = new List<Sobject>{new Cesion_HT__c(Id = cesion.id, Estado__c = 'Cancelada')};
 
@@ -614,8 +614,8 @@ public without sharing class CesionPPH extends ApexErrorHandler {
     public static List<LookupSearchResult> registerCuit(String cuit, String email) {
         Account acc = new Account();
 
-        if (String.isBlank(email)) throw new AuraHandledException('Debe ingresar un email');
-        if ([select id from account where N_CUIT__c =: cuit limit 1].isEmpty() == false) throw new AuraHandledException('Ya existe ese cuit');
+        if (String.isBlank(email)) throw new AuraHandledException(Label.CESION_Email_Requerido);
+        if ([select id from account where N_CUIT__c =: cuit limit 1].isEmpty() == false) throw new AuraHandledException(Label.CESION_Cuit_Ya_Existe);
 
         acc.N_CUIT__c = cuit;
         acc.Direccion_de_Correo_Electronico_del_CUIT__C = email;
@@ -649,14 +649,14 @@ public without sharing class CesionPPH extends ApexErrorHandler {
             FROM Cesion_HT__c WHERE id =: cesionId WITH SECURITY_ENFORCED FOR UPDATE
         ];
         
-        if (cesion.Estado__c != 'Pendiente de Validación' && cesion.Estado__c != 'Parcialmente Validada') throw new AuraHandledException('La Cesión debe encontrarse en estado pendiente de validación o Parcialmente Validada');
+        if (cesion.Estado__c != 'Pendiente de Validación' && cesion.Estado__c != 'Parcialmente Validada') throw new AuraHandledException(Label.CESION_Estado_Pendiente_Validacion_O_Parcial);
 
         List<Destinatario_Cesion_HT__c> destinatarios = [SELECT Motivo_de_Contacto__c, Name, Estado__c, Tiene_TNs_Pendientes__c FROM Destinatario_Cesion_HT__c WHERE id IN: destinatarioIds FOR UPDATE];
 
         for (Destinatario_Cesion_HT__c destinatario: destinatarios) {
-            if (destinatario.Estado__c != 'Pendiente de Validación') throw new AuraHandledException('El destinatario ' + destinatario.Name + ' debe encontrarse en estado pendiente de validación');
-            if ((destinatario.Motivo_de_Contacto__c == 'Toneladas Acreditadas' || destinatario.Motivo_de_Contacto__c == 'Gestionar Licencia') && !Test.isRunningTest()) throw new AuraHandledException('El motivo de contacto no puede ser ' + destinatario.Motivo_de_Contacto__c);
-            if (destinatario.Tiene_TNs_Pendientes__c) throw new AuraHandledException('Hay TNs pendientes asignadas al destinatario ' + destinatario.Name);
+            if (destinatario.Estado__c != 'Pendiente de Validación') throw new AuraHandledException(Label.CESION_Destinatario_Estado_Invalido + ' ' + destinatario.Name);
+            if ((destinatario.Motivo_de_Contacto__c == 'Toneladas Acreditadas' || destinatario.Motivo_de_Contacto__c == 'Gestionar Licencia') && !Test.isRunningTest()) throw new AuraHandledException(Label.CESION_Motivo_Contacto_Invalido + ' ' + destinatario.Motivo_de_Contacto__c);
+            if (destinatario.Tiene_TNs_Pendientes__c) throw new AuraHandledException(Label.CESION_TNs_Pendientes_Destinatario + ' ' + destinatario.Name);
 
             destinatario.Estado__c = 'Validada';
             destinatario.Motivo_de_Contacto__c = 'Toneladas Acreditadas';
@@ -670,7 +670,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
         for (Linea_Cesion_HT__c linea: lineas) {
             variedadesIds.add(linea.Variedad__c);
             linea.Estado__c = 'Validada';
-            if (linea.Cantidad__c < cesion.Multiplicador__c && linea.Cantidad__c > 0) throw new AuraHandledException('La linea no puede tener cantidad menor a ' + cesion.Multiplicador__c);
+            if (linea.Cantidad__c < cesion.Multiplicador__c && linea.Cantidad__c > 0) throw new AuraHandledException(Label.CESION_Linea_Cantidad_Menor_Minimo + ' ' + cesion.Multiplicador__c);
 
             if(getMapBiotecnologias().get(linea.Variedad__r.Biotecnologia__c) == 'Enlist'){
                 cantidadEnlist += linea.Cantidad__c;
@@ -692,7 +692,7 @@ public without sharing class CesionPPH extends ApexErrorHandler {
             Decimal restoStockEnlist = getStockEnlist(cesion) - cantidadEnlist;
     
             if(restoStockEnlist < 0){
-                throw new AuraHandledException('Los debitos Bolsa Tech no pueden superar el stock Enlist restante');
+                throw new AuraHandledException(Label.CESION_Debito_Bolsa_Tech_Supera_Stock_Enlist);
             }
         }
 

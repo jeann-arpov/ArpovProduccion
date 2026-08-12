@@ -4,7 +4,7 @@
  * Autor: Sistema
  * Fecha: 2026-03-04
  */
-public with sharing class RegistrarGestionController {
+public with sharing class RegistrarGestionController extends ApexErrorHandler {
     
     /**
      * Obtiene el próximo número de gestión secuencial
@@ -16,7 +16,7 @@ public with sharing class RegistrarGestionController {
             Integer numeroGestion = (Integer)(Math.random() * 99000) + 1000;
             return numeroGestion;
         } catch (Exception e) {
-            throw new AuraHandledException('Error al obtener número de gestión: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-008', 'RegistrarGestion');
         }
     }
     
@@ -92,7 +92,7 @@ public with sharing class RegistrarGestionController {
             
             return opciones;
         } catch (Exception e) {
-            throw new AuraHandledException('Error al obtener opciones: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-008', 'RegistrarGestion');
         }
     }
 }

@@ -1,4 +1,4 @@
-public without sharing class VentasInformadasController {
+public without sharing class VentasInformadasController extends ApexErrorHandler {
 
     @TestVisible
     private static Id testCuentaId;
@@ -90,7 +90,7 @@ public without sharing class VentasInformadasController {
                 'LocalidadDestinoName'    => v.Localidad_Destino__r != null ? v.Localidad_Destino__r.Name : null
             };
         } catch (Exception e) {
-            throw new AuraHandledException('Error al obtener datos: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-007', 'VentasInformadas');
         }
     }
 
@@ -100,7 +100,7 @@ public without sharing class VentasInformadasController {
             Ventas_Informadas__c venta = [SELECT Id FROM Ventas_Informadas__c WHERE Id = :ventaId LIMIT 1];
             delete venta;
         } catch (Exception e) {
-            throw new AuraHandledException('Error al eliminar: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-007', 'VentasInformadas');
         }
     }
 
@@ -364,12 +364,12 @@ public without sharing class VentasInformadasController {
                 LIMIT 1
             ];
             if (rows.isEmpty()) {
-                throw new AuraHandledException('La venta no existe.');
+                throw new AuraHandledException(Label.VENTASINF_Venta_No_Existe);
             }
             Ventas_Informadas__c venta = rows[0];
 
             if (venta.Originante__c != cuentaId) {
-                throw new AuraHandledException('No tiene permiso para modificar esta venta.');
+                throw new AuraHandledException(Label.VENTASINF_No_Permiso_Modificar);
             }
             // if (!VentasInformadasDestinoGeoService.esVariedadStine(venta.Variedad_INASE__c)) {
             //     throw new AuraHandledException('Solo se puede editar ubicación en variedades STINE.');

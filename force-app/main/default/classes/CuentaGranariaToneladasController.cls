@@ -183,7 +183,7 @@ public with sharing class CuentaGranariaToneladasController {
         Decimal consumoTotal = Math.min(deficit, Math.min(saldoHT, htDisponibleLotes));
 
         if (consumoTotal <= 0) {
-            throw new AuraHandledException('No hay toneladas HT disponibles para consumir.');
+            throw new AuraHandledException(Label.DUP_Sin_Toneladas_HT);
         }
 
         List<Tonelada__c> nuevasConsumiciones = new List<Tonelada__c>();
@@ -240,7 +240,7 @@ public with sharing class CuentaGranariaToneladasController {
         }
 
         if (nuevasConsumiciones.isEmpty()) {
-            throw new AuraHandledException('No se pudieron crear las toneladas de consumo.');
+            throw new AuraHandledException(Label.DUP_Error_Crear_Toneladas);
         }
 
         insert nuevasConsumiciones;
