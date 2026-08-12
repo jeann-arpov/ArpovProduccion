@@ -37,7 +37,7 @@ public static Boolean esUsuarioEspecial() {
         Id obtentorId = (currentUser.ContactId != null) ? currentUser.Contact.AccountId : null;
         
         if (obtentorId == null) {
-            throw new AuraHandledException('Usuario sin cuenta asociada');
+            throw new AuraHandledException(Label.LIC_Usuario_Sin_Cuenta);
         }
         
         // Construir consulta SOQL dinámica
@@ -205,7 +205,7 @@ public static PaginatedResult getLicencias(Integer pageNumber, Integer pageSize,
     Id accountId = (currentUser.ContactId != null) ? currentUser.Contact.AccountId : null;
     
     if (accountId == null) {
-        throw new AuraHandledException('Usuario sin cuenta asociada');
+        throw new AuraHandledException(Label.LIC_Usuario_Sin_Cuenta);
     }
     
     // Construir consulta SOQL dinámica para distribuidor
@@ -606,7 +606,7 @@ public static PaginatedResult getLicenciasProductor(Integer pageNumber, Integer 
         : null;
     
     if (accountId == null && !Test.isRunningTest()) {
-        throw new AuraHandledException('Usuario sin cuenta asociada');
+        throw new AuraHandledException(Label.LIC_Usuario_Sin_Cuenta);
     }
     
     // Construir consulta SOQL dinámica manteniendo la estructura original

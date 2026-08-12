@@ -148,7 +148,7 @@ public class Bolsatech {
         ];
 
         if (movimiento.Estado__c != 'Creado' && movimiento.Estado__c != 'Con error') {
-            throw new AuraHandledException('El estado del movimiento debe ser creado o con error');
+            throw new AuraHandledException(Label.BT_Estado_Movimiento_Invalido);
         }
 
         validate(new List<Movimiento_BolsaTech__c>{movimiento});

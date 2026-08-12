@@ -130,25 +130,25 @@ public without sharing class SolicitarLicencia {
         String licenceType = data.licenceType;
 
         //algunas validaciones por seguridad
-        if (String.isNotBlank(data.tercero) && isGestionTercero == false) throw new AuraHandledException('Sólo puede gestionarse una licencia de un tercero desde el portal de comercio');
-        if (licenceType != 'Productor' && licenceType != 'Comercio') throw new AuraHandledException('Tipo de licencia Inválido');
-        if (isGestionTercero == false && licenceType != 'Productor') throw new AuraHandledException('El portal productor sólo puede pedir una licencia de tipo productor');
-        if (String.isNotBlank(data.tercero) && data.tercero == CrearCompraController.getAccount().id) throw new AuraHandledException('La cuenta tercera no puede ser uno mismo');
-        if (isGestionTercero && String.isNotBlank(data.tercero) && isPortalComercio && hasComercioLicence(obtentor) == false) throw new AuraHandledException('No posee una licencia de comercio con la marca seleccionada para gestionar a un tercero');
-        if (isGestionTercero && isPortalObtentor && CrearCompraController.getAccount().id != data.marca) throw new AuraHandledException('La marca debe ser uno mismo');
+        if (String.isNotBlank(data.tercero) && isGestionTercero == false) throw new AuraHandledException(Label.LIC_Solo_Gestionar_Tercero_Desde_Comercio);
+        if (licenceType != 'Productor' && licenceType != 'Comercio') throw new AuraHandledException(Label.LIC_Tipo_Licencia_Invalido);
+        if (isGestionTercero == false && licenceType != 'Productor') throw new AuraHandledException(Label.LIC_Portal_Productor_Solo_Tipo_Productor);
+        if (String.isNotBlank(data.tercero) && data.tercero == CrearCompraController.getAccount().id) throw new AuraHandledException(Label.LIC_Cuenta_Tercera_No_Mismo);
+        if (isGestionTercero && String.isNotBlank(data.tercero) && isPortalComercio && hasComercioLicence(obtentor) == false) throw new AuraHandledException(Label.LIC_No_Posee_Licencia_Comercio_Marca);
+        if (isGestionTercero && isPortalObtentor && CrearCompraController.getAccount().id != data.marca) throw new AuraHandledException(Label.LIC_Marca_Debe_Ser_Mismo);
 
         Licencia__c licencia = new Licencia__c();
 
         if (data.id != null) {
             licencia = [select Name, Estado__c from Licencia__c where id =: data.id];
-            if (licencia.Estado__c != 'Creada') throw new AuraHandledException('La solicitud ya no se puede editar');
+            if (licencia.Estado__c != 'Creada') throw new AuraHandledException(Label.LIC_Solicitud_No_Editable);
         } else {
             if (Test.isRunningTest() || (UserInfo.getOrganizationId() != (ID) '00D8K0000008aLL')) {
                 List<Id> accounts = new List<Id>{obtentor.id};
                 if (obtentor.ParentId != null) accounts.add(obtentor.ParentId);
                 
                 List<Licencia__c> others = [select Estado__c from Licencia__c where (Cuenta_Obtentor__c in: accounts or Cuenta_Obtentor__r.ParentId in: accounts) and Estado__c != 'Rechazada' and Cuenta_Productor__c =: productor.id and Tipo_de_licencia__c =: licenceType and Tecnologia__c in: AdhesionPPH.tecnologiasEquivalentes(data.tecnologia) limit 1];
-                if (others.isEmpty() == false) throw new AuraHandledException('Ya tiene una licencia ' + others[0].Estado__c + ' con ese obtentor');
+                if (others.isEmpty() == false) throw new AuraHandledException(Label.LIC_Ya_Tiene_Licencia + ' ' + others[0].Estado__c + ' con ese obtentor');
             }
         }
 
@@ -208,7 +208,7 @@ public without sharing class SolicitarLicencia {
         Set<String> cuitsNoPermitidos = new Set<String>{'30646328450', '30707285563', '33710831659'};
         //Set<String> cuitsNoPermitidos = new Set<String>{'30707285563', '33710831659'};
         if(isPdfComercio && cuitsNoPermitidos.contains(licencia.Cuenta_Obtentor__r.N_CUIT__c)){
-            throw new AuraHandledException('No se puede generar el pdf de licencia Comercio para este obtentor');
+            throw new AuraHandledException(Label.LIC_No_Generar_PDF_Comercio_Obtentor);
         }
 
         String fileName = licencia.Name + '-Licencia';
@@ -224,7 +224,7 @@ public without sharing class SolicitarLicencia {
             if(String.isBlank(version.Estado__c) && String.isBlank(version.Id_Documento_Proveedor__c)){
                 delete files;
             }else{
-                throw new AuraHandledException('Este archivo ya se envió para firmar, no se puede generar nuevamente');
+                throw new AuraHandledException(Label.LIC_Archivo_Ya_Enviado_Firmar);
             }
         }
         createFiles(new List<PagePDF>{pdf});
@@ -321,10 +321,10 @@ public without sharing class SolicitarLicencia {
             Id accountId = CrearCompraController.getAccount().Id;
             licencia = [select Firmante_Cuit__c, Metodo_firma__c, Name, Estado__c, Cuenta_Productor__r.N_CUIT__c, CreatedById from Licencia__c where id =: licenciaId and (Cuenta_Productor__c =: accountId or Cuenta_Distribuidor__c =: accountId or Cuenta_Obtentor__c = :accountId) and Origen__c = 'Portal'];
         } catch (Exception e) {
-            throw new AuraHandledException('La licencia y sus archivos deben ser enviados por el productor, comercio u obtentor intervinientes');
+            throw new AuraHandledException(Label.LIC_Licencia_Archivos_Enviar_Intervinientes);
         }
 
-        if (licencia.Estado__c != 'Creada') throw new AuraHandledException('El estado de la licencia debe ser creada');
+        if (licencia.Estado__c != 'Creada') throw new AuraHandledException(Label.LIC_Estado_Licencia_Debe_Ser_Creada);
         validateFiles(licencia);
 
         Boolean validada = licencia.Metodo_firma__c == 'Electronica' && !needsPoder(licencia.Cuenta_Productor__r.N_CUIT__c, licencia.Firmante_Cuit__c);
@@ -348,10 +348,10 @@ public without sharing class SolicitarLicencia {
     private static void validateFiles(Licencia__c licencia) {
         Map<String, ContentDocumentLink> files = getLicenciaFiles(licencia.id);
 
-        if (licencia.Metodo_firma__c == 'Holografica' && files.containsKey(licencia.Name + '-Licencia-Firmada') == false) throw new AuraHandledException('Debes subir la licencia firmada');
+        if (licencia.Metodo_firma__c == 'Holografica' && files.containsKey(licencia.Name + '-Licencia-Firmada') == false) throw new AuraHandledException(Label.LIC_Debe_Subir_Licencia_Firmada);
         if (licencia.Metodo_firma__c == 'Electronica'){
-            if(needsPoder(licencia.Cuenta_Productor__r.N_CUIT__c, licencia.Firmante_Cuit__c) && files.containsKey(licencia.Name + '-Poder') == false) throw new AuraHandledException('Debes subir el poder');
-            if(needsResolucionSucesion(licencia) && files.containsKey(licencia.Name + '-Poder / Resolucion Judicial de Sucesion') == false) throw new AuraHandledException('Debes subir la resolución judicial de Sucesion');
+            if(needsPoder(licencia.Cuenta_Productor__r.N_CUIT__c, licencia.Firmante_Cuit__c) && files.containsKey(licencia.Name + '-Poder') == false) throw new AuraHandledException(Label.LIC_Debe_Subir_Poder);
+            if(needsResolucionSucesion(licencia) && files.containsKey(licencia.Name + '-Poder / Resolucion Judicial de Sucesion') == false) throw new AuraHandledException(Label.LIC_Debe_Subir_Resolucion_Judicial_Sucesion);
         }
         
         if (licencia.Metodo_firma__c == 'Holografica' || Test.isRunningTest()) {
@@ -365,9 +365,9 @@ public without sharing class SolicitarLicencia {
             if(isPersonaJuridica(licencia.Cuenta_Productor__r.N_CUIT__c) || licencia.Cuenta_Productor__r.N_CUIT__c != licencia.Firmante_Cuit__c){
                 //if(fileNames.isEmpty() && !Test.isRunningTest()) throw new AuraHandledException('La certificación de firma es obligatoria');
             }else{
-                if(fileNames.contains(licencia.Name + '-Frente DNI') == false) throw new AuraHandledException('El frente del DNI es obligatorio');
-                if(fileNames.contains(licencia.Name + '-Dorso DNI') == false) throw new AuraHandledException('El dorso del DNI es obligatorio');
-                if(fileNames.contains(licencia.Name + '-Constancia AFIP') == false) throw new AuraHandledException('La constancia de AFIP es obligatoria');
+                if(fileNames.contains(licencia.Name + '-Frente DNI') == false) throw new AuraHandledException(Label.LIC_Frente_DNI_Obligatorio);
+                if(fileNames.contains(licencia.Name + '-Dorso DNI') == false) throw new AuraHandledException(Label.LIC_Dorso_DNI_Obligatorio);
+                if(fileNames.contains(licencia.Name + '-Constancia AFIP') == false) throw new AuraHandledException(Label.LIC_Constancia_AFIP_Obligatoria);
             }
         }
     }
@@ -382,7 +382,7 @@ public without sharing class SolicitarLicencia {
             Id accountId = CrearCompraController.getAccount().Id;
             Licencia__c licencia = [select id from Licencia__c where id =: licenciaId and (Cuenta_Productor__c =: accountId or Cuenta_Distribuidor__c =: accountId or Cuenta_Obtentor__c = :accountId) and Origen__c = 'Portal'];     
         } catch (Exception e) {
-            throw new AuraHandledException('Los archivos de la licencia deben ser cargados por el productor, comercio u obtentor intervinientes');
+            throw new AuraHandledException(Label.LIC_Archivos_Licencia_Cargar_Intervinientes);
         }
 
         List<ContentDocument> docs = new List<ContentDocument>();

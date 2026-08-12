@@ -9,7 +9,7 @@ public without sharing class UtilsVentaHt {
             //Id accountId = currentUser.Contact != null ? currentUser.Contact.AccountId : null;
 
             if (accountId == null) {
-                throw new AuraHandledException('Usuario no tiene una cuenta asociada');
+                throw new AuraHandledException(Label.GENERAL_Usuario_Sin_Cuenta);
             }
             
             List<Venta_HT__c> ventas = [

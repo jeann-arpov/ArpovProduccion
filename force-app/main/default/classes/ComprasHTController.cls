@@ -9,7 +9,7 @@ public with sharing class ComprasHTController {
 
         Id accountId = (u.ContactId != null) ? u.Contact.AccountId : null;
 
-        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException('Usuario no tiene una cuenta asociada');}
+        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException(Label.GENERAL_Usuario_Sin_Cuenta);}
 
         // Compras dummy si es test
         List<Compra_HT__c> compras = Test.isRunningTest()
@@ -57,7 +57,7 @@ public with sharing class ComprasHTController {
 
         Id accountId = (u.ContactId != null) ? u.Contact.AccountId : null;
 
-        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException('Usuario no tiene una cuenta asociada');}
+        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException(Label.GENERAL_Usuario_Sin_Cuenta);}
 
         List<Compra_HT__c> compras = Test.isRunningTest()
             ? new List<Compra_HT__c>{

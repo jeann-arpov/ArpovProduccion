@@ -10,7 +10,7 @@
  *   - REFERENCIAS (sheet3): campañas, categorías, tipos de comprobante y variedades INASE.
  *   - CARGA (sheet1): rangos de data validation que apuntan a REFERENCIAS.
  */
-public without sharing class PlantillaVtasInfXlsxBuilder {
+public without sharing class PlantillaVtasInfXlsxBuilder extends ApexErrorHandler {
 
     @TestVisible private static final String NOMBRE_STATIC_RESOURCE = 'Vtas_Informadas_Vacio';
     /** Fila de encabezados en hoja CARGA (1-based). */
@@ -37,7 +37,7 @@ public without sharing class PlantillaVtasInfXlsxBuilder {
         try {
             return buildXlsxBase64();
         } catch (Exception e) {
-            throw new AuraHandledException('No se pudo generar la plantilla: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-009', 'PlantillaVtasInf');
         }
     }
 

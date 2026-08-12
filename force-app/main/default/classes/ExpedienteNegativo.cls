@@ -25,7 +25,7 @@ public without sharing class ExpedienteNegativo {
         try {
             expediente = [SELECT Id, Name FROM Expediente_de_Negativos__c WHERE Obtentor__c = :CrearCompraController.getAccount().Id AND Cuenta__c = :cuentaId AND Estado_de_la_Etapa__c != 'Finalizado' LIMIT 1];
         } catch (Exception e) {
-            throw new AuraHandledException('No se encontró un expediente de negativos abierto para la cuenta seleccionada');
+            throw new AuraHandledException(Label.EXP_No_Encontrado_Abierto);
         }
 
         return expediente;

@@ -9,7 +9,7 @@
 * 1.0.1        12/08/2025      Rodrigo Lopez         Metodo removeFileFromVenta para ContentDocument
 *--------------------------------------------------------------------------
 */
-public without sharing class UtilsContentDocumentLink {
+public without sharing class UtilsContentDocumentLink extends ApexErrorHandler {
     public static Boolean isRunning = false;
 
     public static void changeEntity(Map<Id, Id> ventaToContentDocumentMap, Set<Id> contentDocumentIds, Set<Id> cdlIds ){
@@ -231,9 +231,9 @@ public without sharing class UtilsContentDocumentLink {
                        
             return documentLinks;
         } catch (StringException e) {
-        throw new AuraHandledException('ID de venta inválido: ' + e.getMessage());
+        throw handleException(e, 'ERR-SYS-010', 'UtilsContentDocument');
         } catch (Exception e) {
-            throw new AuraHandledException('Error al obtener adjuntos: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-010', 'UtilsContentDocument');
         }
     }
 }

@@ -8,10 +8,10 @@ public with sharing class ExportEstadoCuentaCyOController {
     @AuraEnabled
     public static ExportData getEstadoCuenta(Id accountId, Date fechaCreacionDesde, Date fechaCreacionHasta) {
         if (fechaCreacionDesde == null || fechaCreacionHasta == null) {
-            throw new AuraHandledException('Debe informar el rango de fechas de creación.');
+            throw new AuraHandledException(Label.FAC_Debe_Informar_Rango_Fechas);
         }
         if (fechaCreacionDesde > fechaCreacionHasta) {
-            throw new AuraHandledException('La fecha desde no puede ser mayor que la fecha hasta.');
+            throw new AuraHandledException(Label.FAC_Fecha_Desde_Mayor_Hasta);
         }
 
         DateTime createdFrom = DateTime.newInstance(fechaCreacionDesde, Time.newInstance(0, 0, 0, 0));
@@ -102,13 +102,13 @@ public with sharing class ExportEstadoCuentaCyOController {
     @AuraEnabled
     public static void sendEstadoCuentaEmail(Id accountId, Date fechaCreacionDesde, Date fechaCreacionHasta, String email) {
         if (String.isBlank(email)) {
-            throw new AuraHandledException('Debe proporcionar un correo electrónico.');
+            throw new AuraHandledException(Label.FAC_Email_Requerido);
         }
 
         ExportData data = getEstadoCuenta(accountId, fechaCreacionDesde, fechaCreacionHasta);
 
         if (data.rows == null || data.rows.isEmpty()) {
-            throw new AuraHandledException('No se encontraron comprobantes para enviar.');
+            throw new AuraHandledException(Label.FAC_Sin_Comprobantes);
         }
 
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();

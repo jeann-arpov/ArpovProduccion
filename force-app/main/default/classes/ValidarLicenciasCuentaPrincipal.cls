@@ -142,7 +142,7 @@ public with sharing class ValidarLicenciasCuentaPrincipal {
 
     public static List<Licencia__c> getLicencias(Set<String> claveLicencia, String tecno) {
         if (!Schema.sObjectType.Licencia__c.isAccessible()) {
-            throw new AuraHandledException('No tiene permiso para acceder a Licencia__c');
+            throw new AuraHandledException(Label.LIC_No_Permiso_Acceder);
         }
         return [
             SELECT Id, Cuenta_Productor__c, Cuenta_Obtentor__c, Tecnologia__c FROM Licencia__c WHERE Tipo_de_Licencia__c = 'Productor' AND Tecnologia__c = :tecno AND Estado__c = 'Aprobada' AND Clave_Licencia_Productor_Obtentor__c IN :claveLicencia ];

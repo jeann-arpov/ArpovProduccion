@@ -134,9 +134,9 @@ public without sharing class lwcVentasImportFromExcel {
                 }
                 isPortalObtentor = Test.isRunningTest() == false && [SELECT Name FROM Network WHERE id =: networkId].Name == 'Sembrá Evolución Obtentor';
 
-            if (Test.isRunningTest() == false && userAccont == null) throw new AuraHandledException('El usuario debe estar asociado a una cuenta');
-            if (Test.isRunningTest() == false && isPortalObtentor && userAccont.RecordType.DeveloperName != 'Obtentor') throw new AuraHandledException('Sólo usuarios obtentores pueden importar ventas');
-            if (Test.isRunningTest() == false && !isPortalObtentor && userAccont.RecordType.DeveloperName != 'Distribuidor' && userAccont.N_CUIT__c != '30500120882') throw new AuraHandledException('Sólo usuarios distribuidores pueden importar ventas');
+            if (Test.isRunningTest() == false && userAccont == null) throw new AuraHandledException(Label.VENTA_INF_Usuario_Sin_Cuenta);
+            if (Test.isRunningTest() == false && isPortalObtentor && userAccont.RecordType.DeveloperName != 'Obtentor') throw new AuraHandledException(Label.VENTA_INF_Solo_Obtentor_Importa);
+            if (Test.isRunningTest() == false && !isPortalObtentor && userAccont.RecordType.DeveloperName != 'Distribuidor' && userAccont.N_CUIT__c != '30500120882') throw new AuraHandledException(Label.VENTA_INF_Solo_Distribuidor_Importa);
             } else if (isCoreImport) {
                 originanteCore = CrearVentaInformadaLWCController.resolveOriginanteAccount(originanteAccountId);
                 accountId = originanteCore.Id;
@@ -144,12 +144,12 @@ public without sharing class lwcVentasImportFromExcel {
                 userAccont = null;
                 accountId = null;
             } else {
-                throw new AuraHandledException('Debe seleccionar la cuenta originante antes de importar.');
+                throw new AuraHandledException(Label.VENTA_INF_Cuenta_Originante_Antes_Importar);
             }
 
             fileRows = filterFilasDatosVentas(fileRows);
             if (fileRows.isEmpty()) {
-                throw new AuraHandledException('No hay filas de ventas para importar. Eliminá las filas de ayuda al final de la planilla o completá al menos una fila de datos.');
+                throw new AuraHandledException(Label.VENTA_INF_Sin_Filas_Importar);
             }
 
             List<Ventas_Informadas__c> ventasInformadasAInsertar = new List<Ventas_Informadas__c>();
@@ -226,7 +226,7 @@ public without sharing class lwcVentasImportFromExcel {
                 try{
                     venta =(Ventas_Informadas__c)JSON.deserializeStrict(cObjJsonDrunk , Ventas_Informadas__c.class);
                 }catch(Exception e){
-                    throw new AuraHandledException('Nombre de columna inválida. NO cambiar el nombre de las columnas');
+                    throw new AuraHandledException(Label.VENTA_INF_Columna_Invalida);
                 }
 
                 if (cantidadBolsas != null) venta.Cantidad_de_Bolsas__c = cantidadBolsas;

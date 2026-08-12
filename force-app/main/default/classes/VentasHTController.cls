@@ -12,7 +12,7 @@ public without sharing class VentasHTController {
         Id accountId = (u.ContactId != null) ? u.Contact.AccountId : null;
 
         if (accountId == null && !Test.isRunningTest()) {
-            throw new AuraHandledException('Usuario no tiene una cuenta asociada');
+            throw new AuraHandledException(Label.GENERAL_Usuario_Sin_Cuenta);
         }
 
         // 🔹 Ventas dummy si es test

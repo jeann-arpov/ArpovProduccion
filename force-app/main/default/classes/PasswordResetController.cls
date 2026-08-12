@@ -1,10 +1,10 @@
-public with sharing class PasswordResetController {
+public with sharing class PasswordResetController extends ApexErrorHandler {
 
     private static void validateReadAccessForUserSearch() {
         if (!Schema.sObjectType.User.isAccessible() ||
             !Schema.sObjectType.Contact.isAccessible() ||
             !Schema.sObjectType.Account.isAccessible()) {
-            throw new AuraHandledException('No tiene permisos para consultar usuarios.');
+            throw new AuraHandledException(Label.PWD_No_Tiene_Permisos_Consultar_Usuarios);
         }
     }
     
@@ -27,7 +27,7 @@ public with sharing class PasswordResetController {
             String normalizedCuit = cuit.trim();
 
             if (normalizedCuit.length() != 11 || !Pattern.matches('^[0-9]{11}$', normalizedCuit)) {
-                throw new AuraHandledException('El CUIT debe contener exactamente 11 digitos numericos.');
+                throw new AuraHandledException(Label.PWD_Cuit_11_Digitos);
             }
             
             List<User> users = [
@@ -55,7 +55,7 @@ public with sharing class PasswordResetController {
             
             return results;
         } catch (Exception e) {
-            throw new AuraHandledException('Error en búsqueda: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-006', 'PasswordReset');
         }
     }
     
@@ -89,7 +89,7 @@ public with sharing class PasswordResetController {
             
             return userData;
         } catch (Exception e) {
-            throw new AuraHandledException('Error al obtener usuario: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-006', 'PasswordReset');
         }
     }
     
@@ -103,7 +103,7 @@ public with sharing class PasswordResetController {
     public static Map<String, String> resetUserPassword(String userId, String newPassword) {
         try {
             if (!Schema.sObjectType.User.isAccessible()) {
-                throw new AuraHandledException('No tiene permisos para consultar usuarios.');
+                throw new AuraHandledException(Label.PWD_No_Tiene_Permisos_Consultar_Usuarios);
             }
 
             if (String.isBlank(userId) || String.isBlank(newPassword)) {
@@ -134,7 +134,7 @@ public with sharing class PasswordResetController {
             
             return result;
         } catch (Exception e) {
-            throw new AuraHandledException('Error al actualizar contraseña: ' + e.getMessage());
+            throw handleException(e, 'ERR-SYS-006', 'PasswordReset');
         }
     }
 }
