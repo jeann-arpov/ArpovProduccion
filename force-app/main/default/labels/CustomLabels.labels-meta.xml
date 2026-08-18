@@ -1369,4 +1369,11 @@
     <labels><fullName>VENTASINF_No_Permiso_Modificar</fullName><categories>VentasInformadas</categories><language>es</language><protected>false</protected><shortDescription>Validacion ventas informadas</shortDescription><value>No tiene permiso para modificar esta venta.</value></labels>
     <labels><fullName>LIC_No_Permiso_Acceder</fullName><categories>Licencias</categories><language>es</language><protected>false</protected><shortDescription>Mensaje sin permiso licencia</shortDescription><value>No tiene permiso para acceder a Licencia__c</value></labels>
     <labels><fullName>EXCEL_Tipo_Objeto_No_Soportado</fullName><categories>Excel</categories><language>es</language><protected>false</protected><shortDescription>Mensaje tipo objeto no soportado</shortDescription><value>Tipo de objeto no soportado:</value></labels>
+    <labels>
+        <fullName>ArPOV_Deploy_Smoke</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Prueba panel ArPOV Deploy</shortDescription>
+        <value>Label de prueba para el panel de deploy. Se puede borrar.</value>
+    </labels>
 </CustomLabels>
