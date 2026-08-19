@@ -9,7 +9,8 @@ import anular from "@salesforce/apex/CesionPPH.anular";
 import deleteFile from "@salesforce/apex/CesionPPH.deleteFile";
 import getNewCesionData from "@salesforce/apex/CesionPPH.getNewCesionData";
 
-import { errorEvent, trackEvent } from "c/utils";
+import { errorEvent } from "c/utils";
+import { trackGa4Event } from "c/portalGa4Events";
 import icons from "c/icons";
 
 function validateCuit(cuit) {
@@ -486,7 +487,7 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
       (acc, v) => acc + (v.totals?.current || 0),
       0
     );
-    trackEvent("cesion_confirmada", { cultivo, cantidad_ht });
+    trackGa4Event("cesion_confirmada", { cultivo, cantidad_ht });
   }
 
   get title() {

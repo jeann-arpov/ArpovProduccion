@@ -4,7 +4,8 @@ import getLoadData from "@salesforce/apex/AdhesionPPHHome.getLoadData";
 import rectificarAdhesion from "@salesforce/apex/AdhesionPPH.rectificarAdhesion";
 import rectificarAdhesion2 from "@salesforce/apex/AdhesionPPH.rectificarAdhesion2";
 
-import { errorEvent, trackEvent } from "c/utils";
+import { errorEvent } from "c/utils";
+import { trackGa4Event } from "c/portalGa4Events";
 import SVG_ICONS from "@salesforce/resourceUrl/iconos_SE";
 
 export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
@@ -47,7 +48,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         });
       });
       this.loaded = true;
-      trackEvent("pph_vista");
+      trackGa4Event("pph_vista");
     } catch (error) {
       this.onError(error);
     }
@@ -89,6 +90,11 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
       .find((w) => w.cultivo.Id == cultivoId)
       .parametros.find((wp) => wp.parametro.Id == paramId);
     console.log(wParam);
+
+    if (wParam.actionName == "Adherir" || wParam.actionName == "Continuar") {
+      console.log("EVENTO GA4 disparado → pph_declaracion_iniciada");
+      trackGa4Event("pph_declaracion_iniciada");
+    }
 
     if (
       wParam.actionName == "Adherir" ||

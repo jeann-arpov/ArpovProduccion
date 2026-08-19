@@ -8,7 +8,8 @@ import getLoadData from "@salesforce/apex/CuentaGranaria.getLoadData";
 import getDetalleBT from "@salesforce/apex/CuentaGranaria.getDetalleBT";
 import IMAGENES from "@salesforce/resourceUrl/CuentaGranariaIcons";
 import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
-import { doRequest, errorEvent, warningEvent, trackEvent } from "c/utils";
+import { doRequest, errorEvent, warningEvent } from "c/utils";
+import { trackGa4Event } from "c/portalGa4Events";
 
 export default class CuentaGranariaNew extends LightningElement {
   // ====== DATA PRINCIPAL ======
@@ -95,7 +96,7 @@ export default class CuentaGranariaNew extends LightningElement {
     doRequest.call(this, async (_) => {
       const data = await getLoadData();
       this.cultivos = data.cultivos;
-      trackEvent("cuenta_granaria_vista");
+      trackGa4Event("cuenta_granaria_vista");
       if (this.paramCultivo) {
         this.cultivo = this.paramCultivo;
         this.verificarAdhesion();
@@ -374,7 +375,7 @@ export default class CuentaGranariaNew extends LightningElement {
       console.log("totales", JSON.stringify(totales));
 
       this.totales = Object.values(totales);
-      trackEvent("cuenta_granaria_creditos", {
+      trackGa4Event("cuenta_granaria_creditos", {
         cultivo: this.cultivoName,
         campaña: this.campanaSeleccionadaPeriod
       });

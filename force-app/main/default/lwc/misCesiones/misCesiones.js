@@ -2,7 +2,8 @@ import { LightningElement, track, api } from "lwc";
 import getCesiones from "@salesforce/apex/misCesionesController.getCesiones";
 import { reduceErrors } from "c/utils";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import { doRequest, trackEvent } from "c/utils";
+import { doRequest } from "c/utils";
+import { trackGa4Event } from "c/portalGa4Events";
 import icons from "c/icons";
 import { NavigationMixin } from "lightning/navigation";
 
@@ -91,7 +92,7 @@ export default class MisCesiones extends NavigationMixin(LightningElement) {
     await doRequest.call(this, async (_) => {
       this.data = await getCesiones();
       console.log(this.data);
-      trackEvent("cesion_vista");
+      trackGa4Event("cesion_vista");
 
       // Inicializamos los rows con link vacío
       this.data = this.data.map((row) => {
