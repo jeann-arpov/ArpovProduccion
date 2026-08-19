@@ -5,7 +5,8 @@ import deleteEstablecimiento from "@salesforce/apex/AdhesionPPH.deleteEstablecim
 import acceptTerms from "@salesforce/apex/AdhesionPPH.acceptTerms";
 import sendAdhesion from "@salesforce/apex/AdhesionPPH.sendAdhesion";
 import rectificarAdhesion from "@salesforce/apex/AdhesionPPH.rectificarAdhesion";
-import { errorEvent, warningEvent, trackEvent } from "c/utils";
+import { errorEvent, warningEvent } from "c/utils";
+import { trackGa4Event } from "c/portalGa4Events";
 
 const CSS = `
 .toastMessage{
@@ -62,14 +63,6 @@ export default class AdhesionPph extends LightningElement {
 
     if (data.account) this.account = data.account;
     if (data.plan) this.plan = data.plan;
-
-    if (
-      this.plan &&
-      (this.plan.Estado__c === "Sin adherir" ||
-        this.plan.Estado__c === "En Preparación")
-    ) {
-      trackEvent("pph_declaracion_iniciada");
-    }
 
     if (this.plan) {
       const campaña =
@@ -223,6 +216,7 @@ export default class AdhesionPph extends LightningElement {
   }
 
   connectedCallback() {
+    console.log("connectedCallback");
     if (!this.initialized) {
       this.init();
     }
@@ -239,7 +233,7 @@ export default class AdhesionPph extends LightningElement {
   reportStep(paso, nombre) {
     if (this.reportedSteps[paso]) return;
     this.reportedSteps[paso] = true;
-    trackEvent("pph_paso_completado", { paso, nombre_paso: nombre });
+    trackGa4Event("pph_paso_completado", { paso, nombre_paso: nombre });
   }
 
   handlePasoEstablecimiento() {
@@ -514,7 +508,7 @@ export default class AdhesionPph extends LightningElement {
       (acc, e) => acc + (e.cantidadNoSE || 0),
       0
     );
-    trackEvent("pph_enviado", {
+    trackGa4Event("pph_enviado", {
       cantidad_establecimientos,
       hectareas_se,
       hectareas_no_se

@@ -1,10 +1,10 @@
 import { LightningElement } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
-import { trackEvent } from "c/utils";
+import { trackGa4Event } from "c/portalGa4Events";
 
 export default class CrearCesionPph extends NavigationMixin(LightningElement) {
   redirect(event) {
-    trackEvent("cesion_iniciada");
+    trackGa4Event("cesion_iniciada");
     this[NavigationMixin.Navigate]({
       type: "comm__namedPage",
       attributes: {
