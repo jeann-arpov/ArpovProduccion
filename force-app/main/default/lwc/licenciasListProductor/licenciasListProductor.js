@@ -12,6 +12,12 @@ import singleLicenseJWTSigner from '@salesforce/apex/CustomJWTSigner.singleLicen
 import uId from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
+import {
+    trackGa4Event,
+    resolveSemilleroLabel,
+    buildHtCompraConfirmadaParams
+} from 'c/portalGa4Events';
+
 
 export default class LicenciasListProductor extends NavigationMixin(LightningElement) {
     iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
@@ -342,7 +348,29 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     handleRowAction(event) {
         const licenseId = event.currentTarget.dataset.id;
         console.log('Acción en fila, ID:', licenseId);
-        this.isLoading = true;
+        // 1. Buscar la licencia seleccionada dentro del arreglo
+    const licenciaSeleccionada = this.licencias.find(
+        lic => lic.id === licenseId || lic.Id === licenseId
+    );
+
+    // 2. Verificar que exista y enviar el evento GA4
+    if (licenciaSeleccionada) {
+        console.log('Marca:', licenciaSeleccionada.marca);
+        console.log('Origen:', licenciaSeleccionada.origen);
+
+        trackGa4Event(
+            'licencia_vista',
+            buildHtCompraConfirmadaParams({
+                semilleros: licenciaSeleccionada.marca,
+                subsistema: licenciaSeleccionada.origen
+            })
+        );
+    } else {
+        console.warn('No se encontró la licencia con ID:', licenseId);
+    }
+
+    this.isLoading = true;
+        
         
         singleLicenseJWTSigner({
             userId: this.currentUserId,
@@ -366,6 +394,12 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     handleSolicitarLicencia() {
         console.log('Solicitando nueva licencia');
         this.isLoading = true;
+
+        trackGa4Event(
+            'licencia_firma_iniciada',
+            buildHtCompraConfirmadaParams({
+            })
+        );
         
         singleNewLicenseRequestJWTSigner({
             userId: this.currentUserId,

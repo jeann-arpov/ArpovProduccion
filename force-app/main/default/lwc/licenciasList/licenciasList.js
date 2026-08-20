@@ -12,6 +12,12 @@ import singleLicenseJWTSigner from '@salesforce/apex/CustomJWTSigner.singleLicen
 import uId from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
+import {
+    trackGa4Event,
+    resolveSemilleroLabel,
+    buildHtCompraConfirmadaParams
+} from 'c/portalGa4Events';
+
 
 export default class LicenciasList extends NavigationMixin(LightningElement) {
     iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
@@ -215,7 +221,7 @@ export default class LicenciasList extends NavigationMixin(LightningElement) {
         this.totalRegistros = result.totalRecords || 0;
         this.totalPages = result.totalPages || 1;
         
-        console.log('Licencias cargadas:', this.licencias.length);
+        console.log('Licencias cargadas:', this.licencias);
         
     } catch (error) {
         console.error('Error loading licenses:', error);
@@ -324,32 +330,60 @@ export default class LicenciasList extends NavigationMixin(LightningElement) {
     // ========== HANDLERS DE ACCIONES ==========
 
     handleRowAction(event) {
-        const licenseId = event.currentTarget.dataset.id;
-        console.log('Acción en fila, ID:', licenseId);
-        this.isLoading = true;
-        
-        singleLicenseJWTSigner({
-            userId: this.currentUserId,
-            contactId: this.currentContactId,
-            licenseId: licenseId
-        })
-        .then(response => {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: this.url + '?token=' + response + '&url=' + window.location.href
-                }
-            }, true);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            this.isLoading = false;
-        });
+    const licenseId = event.currentTarget.dataset.id;
+    console.log('Acción en fila, ID:', licenseId);
+
+    // 1. Buscar la licencia seleccionada dentro del arreglo
+    const licenciaSeleccionada = this.licencias.find(
+        lic => lic.id === licenseId || lic.Id === licenseId
+    );
+
+    // 2. Verificar que exista y enviar el evento GA4
+    if (licenciaSeleccionada) {
+        console.log('Marca:', licenciaSeleccionada.marca);
+        console.log('Origen:', licenciaSeleccionada.origen);
+
+        trackGa4Event(
+            'licencia_vista',
+            buildHtCompraConfirmadaParams({
+                semilleros: licenciaSeleccionada.marca,
+                subsistema: licenciaSeleccionada.origen
+            })
+        );
+    } else {
+        console.warn('No se encontró la licencia con ID:', licenseId);
     }
+
+    this.isLoading = true;
+
+    singleLicenseJWTSigner({
+        userId: this.currentUserId,
+        contactId: this.currentContactId,
+        licenseId: licenseId
+    })
+    .then(response => {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__webPage',
+            attributes: {
+                url: this.url + '?token=' + response + '&url=' + window.location.href
+            }
+        }, true);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        this.isLoading = false;
+    });
+}
 
     handleSolicitarLicencia() {
         console.log('Solicitando nueva licencia');
         this.isLoading = true;
+
+        trackGa4Event(
+            'licencia_firma_iniciada',
+            buildHtCompraConfirmadaParams({
+            })
+        );
         
         singleNewLicenseRequestJWTSigner({
             userId: this.currentUserId,
