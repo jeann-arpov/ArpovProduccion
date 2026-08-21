@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
         <fullName>Campana</fullName>
@@ -12,7 +12,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Carta DUP Footer H1</shortDescription>
-        <value>Asociación Argentina de Protección de las Obtenciones Vegetales</value>
+        <value
+    >Asociación Argentina de Protección de las Obtenciones Vegetales</value>
     </labels>
     <labels>
         <fullName>Carta_DUP_Footer_H2</fullName>
@@ -26,42 +27,48 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Carta DUP Footer H3</shortDescription>
-        <value>Reconquista 661 piso 1 (C1003ABM) CABA – Tel: (54 11) 5077-9000 Fax: (54 11) 5077-9090 –  www.arpov.org.ar</value>
+        <value
+    >Reconquista 661 piso 1 (C1003ABM) CABA – Tel: (54 11) 5077-9000 Fax: (54 11) 5077-9090 –  www.arpov.org.ar</value>
     </labels>
     <labels>
         <fullName>Carta_DUP_Inportante_Derecha</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Carta DUP Inportante Derecha</shortDescription>
-        <value>Completar los casilleros en blanco usando letra imprenta.&lt;br/&gt; El formulario -firmado por el titular o representante legal- deberá ser remitido al &lt;i&gt;Centro de Gestión de Regalía Extendida&lt;/i&gt; por correo (en sobre adjunto), vía fax al (011) 5077-9090 o e-mail a regaliaextendida@arpov.org.ar.</value>
+        <value
+    >Completar los casilleros en blanco usando letra imprenta.&lt;br/&gt; El formulario -firmado por el titular o representante legal- deberá ser remitido al &lt;i&gt;Centro de Gestión de Regalía Extendida&lt;/i&gt; por correo (en sobre adjunto), vía fax al (011) 5077-9090 o e-mail a regaliaextendida@arpov.org.ar.</value>
     </labels>
     <labels>
         <fullName>Carta_DUP_Inportante_Izquierda</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Carta DUP Inportante Izquierda</shortDescription>
-        <value>Recuerde que el concepto de &lt;i&gt;uso propio&lt;/i&gt; refiere a la siembra de la semilla por usted producida en campañas anteriores.</value>
+        <value
+    >Recuerde que el concepto de &lt;i&gt;uso propio&lt;/i&gt; refiere a la siembra de la semilla por usted producida en campañas anteriores.</value>
     </labels>
     <labels>
         <fullName>Carta_DUP_Leyenda_Datos_Impositivos</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Carta DUP Leyenda Datos Impositivos</shortDescription>
-        <value>Recuerde que debe tener actualizados los datos impositivos.</value>
+        <value
+    >Recuerde que debe tener actualizados los datos impositivos.</value>
     </labels>
     <labels>
         <fullName>Carta_DUP_Leyenda_Kilos_Declarados</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Carta DUP Leyenda Kilos Declarados</shortDescription>
-        <value>Los kilos declarados serán convertidos en la unidad de medida que corresponda según la oferta pública correspondiente.</value>
+        <value
+    >Los kilos declarados serán convertidos en la unidad de medida que corresponda según la oferta pública correspondiente.</value>
     </labels>
     <labels>
         <fullName>Carta_DUP_Leyenda_Localidad</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Carta DUP Leyenda Localidad</shortDescription>
-        <value>En caso de ser más de una localidad, indicar la de mayor extensión de siembra.</value>
+        <value
+    >En caso de ser más de una localidad, indicar la de mayor extensión de siembra.</value>
     </labels>
     <labels>
         <fullName>ComercioCommunityUrl</fullName>
@@ -75,21 +82,24 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Compra Venta HT Disponibles</shortDescription>
-        <value>Se trata de las HT que acreditan inmediatamente toneladas para la entrega de grano. No son precertificables.</value>
+        <value
+    >Se trata de las HT que acreditan inmediatamente toneladas para la entrega de grano. No son precertificables.</value>
     </labels>
     <labels>
         <fullName>Compra_Venta_HT_Futuras</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Compra Venta HT Futuras</shortDescription>
-        <value>Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir del 1 de marzo próximo.</value>
+        <value
+    >Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir del 1 de marzo próximo.</value>
     </labels>
     <labels>
         <fullName>Compra_Venta_HT_Futuras_Trigo</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Compra Venta HT Futuras Trigo</shortDescription>
-        <value>Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir del 1 de Noviembre próximo.</value>
+        <value
+    >Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir del 1 de Noviembre próximo.</value>
     </labels>
     <labels>
         <fullName>Empty_Field_List_For_Query</fullName>
@@ -104,7 +114,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Error Crear Nota de Credito</shortDescription>
-        <value>Ha ocurrido un error al intentar generar la Nota de Crédito. Detalle del Error:</value>
+        <value
+    >Ha ocurrido un error al intentar generar la Nota de Crédito. Detalle del Error:</value>
     </labels>
     <labels>
         <fullName>Error_Factura_Sin_Comprobante</fullName>
@@ -117,22 +128,27 @@
         <fullName>Error_Generar_NC_Aud_Unable_To_Insert_Aud</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Error Generar NC Aud Unable To Insert Aud</shortDescription>
-        <value>Ha ocurrido un error al intentar generar la Nota de Crédito. Detalle del Error: {error_message}.</value>
+        <shortDescription
+    >Error Generar NC Aud Unable To Insert Aud</shortDescription>
+        <value
+    >Ha ocurrido un error al intentar generar la Nota de Crédito. Detalle del Error: {error_message}.</value>
     </labels>
     <labels>
         <fullName>Error_Generar_NC_Aud_Unable_To_Insert_Aud_Item</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Error Generar NC Aud Unable To Insert Aud Item</shortDescription>
-        <value>Ha ocurrido un error al intentar generar la Nota de Crédito. Ocurrió un error al crear el ítem de la misma. Detalle del Error: {error_message}.</value>
+        <shortDescription
+    >Error Generar NC Aud Unable To Insert Aud Item</shortDescription>
+        <value
+    >Ha ocurrido un error al intentar generar la Nota de Crédito. Ocurrió un error al crear el ítem de la misma. Detalle del Error: {error_message}.</value>
     </labels>
     <labels>
         <fullName>Error_Item_DUP_Duplicado</fullName>
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Error Item DUP Duplicado</shortDescription>
-        <value>Ya existe un Item para la combinación de Razón Social - Cultivo - Campaña - Obtentor - Subestado - Producto</value>
+        <value
+    >Ya existe un Item para la combinación de Razón Social - Cultivo - Campaña - Obtentor - Subestado - Producto</value>
     </labels>
     <labels>
         <fullName>Error_Lote_Basico_Duplicado</fullName>
@@ -145,7 +161,8 @@
         <fullName>Error_No_Esta_Cargado_el_Tipo_de_Cambio</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Error No Esta Cargado el Tipo de Cambio</shortDescription>
+        <shortDescription
+    >Error No Esta Cargado el Tipo de Cambio</shortDescription>
         <value>No esta cargado el tipo de cambio para la fecha actual.</value>
     </labels>
     <labels>
@@ -188,14 +205,16 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Flow Error Message</shortDescription>
-        <value>&lt;div class=&quot;slds-text-align_center slds-scoped-notification slds-theme_error slds-text-title_bold&quot; role=&quot;status&quot;&gt;</value>
+        <value
+    >&lt;div class=&quot;slds-text-align_center slds-scoped-notification slds-theme_error slds-text-title_bold&quot; role=&quot;status&quot;&gt;</value>
     </labels>
     <labels>
         <fullName>Flow_Success_Message</fullName>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Flow Success Message</shortDescription>
-        <value>&lt;div class=&quot;slds-text-align_center slds-scoped-notification slds-theme_success slds-text-title_bold&quot; role=&quot;status&quot;&gt;</value>
+        <value
+    >&lt;div class=&quot;slds-text-align_center slds-scoped-notification slds-theme_success slds-text-title_bold&quot; role=&quot;status&quot;&gt;</value>
     </labels>
     <labels>
         <fullName>Forgot_Password_SE_1</fullName>
@@ -216,7 +235,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>H1 Flow</shortDescription>
-        <value>&lt;div class=&quot;slds-text-align_center slds-theme_inverse slds-text-heading_large&quot;&gt;</value>
+        <value
+    >&lt;div class=&quot;slds-text-align_center slds-theme_inverse slds-text-heading_large&quot;&gt;</value>
     </labels>
     <labels>
         <fullName>Invalid_Filter_Type</fullName>
@@ -232,7 +252,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>NC_Alert_Message</shortDescription>
-        <value>Existe {0} nota(s) de crédito pendiente(s) de facturación. Debe procesar la facturación antes de crear nuevas notas de crédito.</value>
+        <value
+    >Existe {0} nota(s) de crédito pendiente(s) de facturación. Debe procesar la facturación antes de crear nuevas notas de crédito.</value>
     </labels>
     <labels>
         <fullName>NC_Alert_Title</fullName>
@@ -248,7 +269,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Error observaciones faltantes</shortDescription>
-        <value>Debe ingresar observaciones para todas las líneas seleccionadas.</value>
+        <value
+    >Debe ingresar observaciones para todas las líneas seleccionadas.</value>
     </labels>
     <labels>
         <fullName>NC_Button_Cancel</fullName>
@@ -320,7 +342,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Error sin líneas seleccionadas</shortDescription>
-        <value>Debe seleccionar al menos una línea para la nota de crédito.</value>
+        <value
+    >Debe seleccionar al menos una línea para la nota de crédito.</value>
     </labels>
     <labels>
         <fullName>NC_Observaciones_Label</fullName>
@@ -344,7 +367,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>NC_Observaciones_Tooltip</shortDescription>
-        <value>Debe ingresar el motivo del ajuste en precio o cantidad para cada línea seleccionada. Este campo es obligatorio.</value>
+        <value
+    >Debe ingresar el motivo del ajuste en precio o cantidad para cada línea seleccionada. Este campo es obligatorio.</value>
     </labels>
     <labels>
         <fullName>NC_Price_Cannot_Higher</fullName>
@@ -368,7 +392,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Advertencia precio igual</shortDescription>
-        <value>El nuevo precio debe ser diferente al actual para generar nota de crédito.</value>
+        <value
+    >El nuevo precio debe ser diferente al actual para generar nota de crédito.</value>
     </labels>
     <labels>
         <fullName>NC_Process_Generic</fullName>
@@ -408,7 +433,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Error cantidad mayor</shortDescription>
-        <value>La nueva cantidad no puede ser mayor a la cantidad actual.</value>
+        <value
+    >La nueva cantidad no puede ser mayor a la cantidad actual.</value>
     </labels>
     <labels>
         <fullName>NC_Quantity_Cannot_Negative</fullName>
@@ -424,7 +450,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Advertencia cantidad igual</shortDescription>
-        <value>La nueva cantidad debe ser diferente a la actual para generar nota de crédito</value>
+        <value
+    >La nueva cantidad debe ser diferente a la actual para generar nota de crédito</value>
     </labels>
     <labels>
         <fullName>NC_Select_Label</fullName>
@@ -446,63 +473,77 @@
         <fullName>PrintSalesElectronicInvoiceController_CUIT</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.CUIT</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.CUIT</shortDescription>
         <value>30-50850310-1</value>
     </labels>
     <labels>
         <fullName>PrintSalesElectronicInvoiceController_CategoriaIVA</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.CategoríaIVA</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.CategoríaIVA</shortDescription>
         <value>IVA Responsable Inscripto</value>
     </labels>
     <labels>
         <fullName>PrintSalesElectronicInvoiceController_CodigoPostal</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.CodigoPostal</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.CodigoPostal</shortDescription>
         <value>6691 - PLA - BUENOS AIRES</value>
     </labels>
     <labels>
         <fullName>PrintSalesElectronicInvoiceController_Direccion</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.Direccion</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.Direccion</shortDescription>
         <value>CAMINO DE PLA A ALBERTI</value>
     </labels>
     <labels>
-        <fullName>PrintSalesElectronicInvoiceController_InformacionFEAlPie</fullName>
+        <fullName
+    >PrintSalesElectronicInvoiceController_InformacionFEAlPie</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.InformacionFEAlPie</shortDescription>
-        <value>&lt;b&gt;Para efectuar el pago rogamos realice una transferencia o depósito interbancario a la cuenta que se informa a continuación:&lt;/b&gt; Cuenta Corriente en $ / Banco de &lt;br/&gt;la Provincia de Buenos Aires No 0733/9 Sucursal Alberti No 6424 / CBU 01403334 01642400073399 Titular de la cuenta: Criadero Klein S.A. / CUIT 30-50850310-1 &lt;br/&gt;o cheque cruzado a nombre de &quot;Criadero Klein S.A. - No a la orden&quot; , y nos lo envíe a Av. Cordoba 1367 2 piso CP 1055 - Capital Federal - Buenos Aires. Al realizarlo &lt;br/&gt;le rogamos nos envíe la constancia respectiva por fax al número (011) 5368-2100 Int 6024 o por mail a &lt;a href=&quot;mailto:cobranzas@arpov.org.ar&quot; target=&quot;_blank&quot;&gt;cobranzas@arpov.org.ar&lt;/a&gt;, indicando su número de CUIT o razón &lt;br/&gt;social para lograr identificar el pago. Luego el criadero le remitirá la factura.</value>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.InformacionFEAlPie</shortDescription>
+        <value
+    >&lt;b&gt;Para efectuar el pago rogamos realice una transferencia o depósito interbancario a la cuenta que se informa a continuación:&lt;/b&gt; Cuenta Corriente en $ / Banco de &lt;br/&gt;la Provincia de Buenos Aires No 0733/9 Sucursal Alberti No 6424 / CBU 01403334 01642400073399 Titular de la cuenta: Criadero Klein S.A. / CUIT 30-50850310-1 &lt;br/&gt;o cheque cruzado a nombre de &quot;Criadero Klein S.A. - No a la orden&quot; , y nos lo envíe a Av. Cordoba 1367 2 piso CP 1055 - Capital Federal - Buenos Aires. Al realizarlo &lt;br/&gt;le rogamos nos envíe la constancia respectiva por fax al número (011) 5368-2100 Int 6024 o por mail a &lt;a href=&quot;mailto:cobranzas@arpov.org.ar&quot; target=&quot;_blank&quot;&gt;cobranzas@arpov.org.ar&lt;/a&gt;, indicando su número de CUIT o razón &lt;br/&gt;social para lograr identificar el pago. Luego el criadero le remitirá la factura.</value>
     </labels>
     <labels>
-        <fullName>PrintSalesElectronicInvoiceController_IngresosBrutos</fullName>
+        <fullName
+    >PrintSalesElectronicInvoiceController_IngresosBrutos</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.IngresosBrutos</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.IngresosBrutos</shortDescription>
         <value>3050850310</value>
     </labels>
     <labels>
-        <fullName>PrintSalesElectronicInvoiceController_InicioDeActividades</fullName>
+        <fullName
+    >PrintSalesElectronicInvoiceController_InicioDeActividades</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.InicioDeActividades</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.InicioDeActividades</shortDescription>
         <value>10/04/1956</value>
     </labels>
     <labels>
         <fullName>PrintSalesElectronicInvoiceController_Telefono</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.Telefono</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.Telefono</shortDescription>
         <value>+54 2346 499701 / 02 / 03 / 04</value>
     </labels>
     <labels>
-        <fullName>PrintSalesElectronicInvoiceController_TipoComprobante</fullName>
+        <fullName
+    >PrintSalesElectronicInvoiceController_TipoComprobante</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoiceController.TipoComprobante</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoiceController.TipoComprobante</shortDescription>
         <value>LIQUIDACIÓN</value>
     </labels>
     <labels>
@@ -510,7 +551,8 @@
         <categories>PrintSalesElectronicInvoice</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoice - Importante</shortDescription>
+        <shortDescription
+    >PrintSalesElectronicInvoice - Importante</shortDescription>
         <value>Importante</value>
     </labels>
     <labels>
@@ -518,8 +560,10 @@
         <categories>PrintSalesElectronicInvoice</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>PrintSalesElectronicInvoice - Importante - Leyenda</shortDescription>
-        <value>Esta Liquidación deberá ser cancelada en PESOS, tomando el tipo de cambio dólar divisa vendedor del Banco de la Nación Argentina del día hábil anterior al que se realice el pago.</value>
+        <shortDescription
+    >PrintSalesElectronicInvoice - Importante - Leyenda</shortDescription>
+        <value
+    >Esta Liquidación deberá ser cancelada en PESOS, tomando el tipo de cambio dólar divisa vendedor del Banco de la Nación Argentina del día hábil anterior al que se realice el pago.</value>
     </labels>
     <labels>
         <fullName>ProductorCommunityUrl</fullName>
@@ -530,7 +574,8 @@
     </labels>
     <labels>
         <fullName>SIMBingMaps_BackTo</fullName>
-        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <categories
+    >Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>Bing Maps - Back To</shortDescription>
@@ -538,7 +583,8 @@
     </labels>
     <labels>
         <fullName>SIMBingMaps_FindInBing</fullName>
-        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <categories
+    >Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>Bing Maps - Find in Bing Maps</shortDescription>
@@ -546,7 +592,8 @@
     </labels>
     <labels>
         <fullName>SIMBingMaps_LanguageCode</fullName>
-        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <categories
+    >Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>Bing Maps - Language Code</shortDescription>
@@ -554,7 +601,8 @@
     </labels>
     <labels>
         <fullName>SIMBingMaps_UsingAddress</fullName>
-        <categories>Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
+        <categories
+    >Salesforce International Mapping, Bing, Bing Maps, Microsoft Virtual Earth, Microsoft, Map</categories>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>Bing Maps - Using Address</shortDescription>
@@ -572,7 +620,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Variedades SRE Productor 1</shortDescription>
-        <value>Gestión de variedades de Regalía Extendida en Sembrá Evolución</value>
+        <value
+    >Gestión de variedades de Regalía Extendida en Sembrá Evolución</value>
     </labels>
     <labels>
         <fullName>Variedades_SRE_Productor_2</fullName>
@@ -657,7 +706,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de rectificación a este plan de siembra no ha comenzado</value>
+        <value
+    >El período de rectificación a este plan de siembra no ha comenzado</value>
     </labels>
     <labels>
         <fullName>PPH_Periodo_Rectificacion_Finalizado</fullName>
@@ -665,7 +715,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de rectificación a este plan de siembra ya ha finalizado</value>
+        <value
+    >El período de rectificación a este plan de siembra ya ha finalizado</value>
     </labels>
     <labels>
         <fullName>PPH_Periodo_Adhesion_No_Comenzado</fullName>
@@ -673,7 +724,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de adhesión a este plan de siembra no ha comenzado</value>
+        <value
+    >El período de adhesión a este plan de siembra no ha comenzado</value>
     </labels>
     <labels>
         <fullName>PPH_Periodo_Adhesion_Finalizado</fullName>
@@ -681,7 +733,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de adhesión a este plan de siembra ya ha finalizado</value>
+        <value
+    >El período de adhesión a este plan de siembra ya ha finalizado</value>
     </labels>
     <labels>
         <fullName>PPH_Periodo_Rectificacion_1_No_Comenzado</fullName>
@@ -689,7 +742,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de rectificación 1 a este plan de siembra no ha comenzado</value>
+        <value
+    >El período de rectificación 1 a este plan de siembra no ha comenzado</value>
     </labels>
     <labels>
         <fullName>PPH_Periodo_Rectificacion_1_Finalizado</fullName>
@@ -697,7 +751,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de rectificación 1 a este plan de siembra ya ha finalizado</value>
+        <value
+    >El período de rectificación 1 a este plan de siembra ya ha finalizado</value>
     </labels>
     <labels>
         <fullName>PPH_Periodo_Rectificacion_2_No_Comenzado</fullName>
@@ -705,7 +760,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de rectificación 2 a este plan de siembra no ha comenzado</value>
+        <value
+    >El período de rectificación 2 a este plan de siembra no ha comenzado</value>
     </labels>
     <labels>
         <fullName>PPH_Periodo_Rectificacion_2_Finalizado</fullName>
@@ -713,7 +769,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El período de rectificación 2 a este plan de siembra ya ha finalizado</value>
+        <value
+    >El período de rectificación 2 a este plan de siembra ya ha finalizado</value>
     </labels>
     <labels>
         <fullName>PPH_Adhesion_Sin_Hectareas_SE</fullName>
@@ -721,7 +778,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>No se puede realizar la adhesión sin tener hectareas SE en al menos un establecimiento</value>
+        <value
+    >No se puede realizar la adhesión sin tener hectareas SE en al menos un establecimiento</value>
     </labels>
     <labels>
         <fullName>PPH_Plan_Estado_Invalido</fullName>
@@ -729,7 +787,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>El plan debe encontrarse en estado en preparación o rectificado</value>
+        <value
+    >El plan debe encontrarse en estado en preparación o rectificado</value>
     </labels>
     <labels>
         <fullName>PPH_Establecimiento_Duplicado</fullName>
@@ -737,7 +796,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion PPH</shortDescription>
-        <value>No puede seleccionar el mismo establecimiento más de una vez en un mismo plan de siembra</value>
+        <value
+    >No puede seleccionar el mismo establecimiento más de una vez en un mismo plan de siembra</value>
     </labels>
     <labels>
         <fullName>CESION_Destinatarios_Duplicados</fullName>
@@ -753,7 +813,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>No se pueden modificar destinatarios que no estén en curso</value>
+        <value
+    >No se pueden modificar destinatarios que no estén en curso</value>
     </labels>
     <labels>
         <fullName>CESION_Estado_En_Curso_O_Parcial</fullName>
@@ -761,7 +822,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>La Cesión debe encontrarse en estado En Curso o Parcialmente Validada</value>
+        <value
+    >La Cesión debe encontrarse en estado En Curso o Parcialmente Validada</value>
     </labels>
     <labels>
         <fullName>CESION_No_Ceder_Consigo_Mismo</fullName>
@@ -777,7 +839,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>No se puede enviar la cesión porque no estamos dentro de las fechas correspondientes para este cultivo</value>
+        <value
+    >No se puede enviar la cesión porque no estamos dentro de las fechas correspondientes para este cultivo</value>
     </labels>
     <labels>
         <fullName>CESION_Sin_Destinatarios</fullName>
@@ -801,7 +864,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>Los debitos Bolsa Tech no pueden superar el stock Enlist restante</value>
+        <value
+    >Los debitos Bolsa Tech no pueden superar el stock Enlist restante</value>
     </labels>
     <labels>
         <fullName>CESION_Linea_Cantidad_Menor_Minimo</fullName>
@@ -817,7 +881,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>La Cesión debe encontrarse en estado Pendiente de Validación o Parcialmente Validada</value>
+        <value
+    >La Cesión debe encontrarse en estado Pendiente de Validación o Parcialmente Validada</value>
     </labels>
     <labels>
         <fullName>CESION_Estado_En_Curso_O_Pendiente</fullName>
@@ -825,7 +890,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>La Cesión debe encontrarse en estado en curso o pendiente de validación</value>
+        <value
+    >La Cesión debe encontrarse en estado en curso o pendiente de validación</value>
     </labels>
     <labels>
         <fullName>CESION_Email_Requerido</fullName>
@@ -849,7 +915,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>La Cesión debe encontrarse en estado pendiente de validación o Parcialmente Validada</value>
+        <value
+    >La Cesión debe encontrarse en estado pendiente de validación o Parcialmente Validada</value>
     </labels>
     <labels>
         <fullName>CESION_Destinatario_Estado_Invalido</fullName>
@@ -857,7 +924,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Cesion</shortDescription>
-        <value>El destinatario debe encontrarse en estado pendiente de validación</value>
+        <value
+    >El destinatario debe encontrarse en estado pendiente de validación</value>
     </labels>
     <labels>
         <fullName>CESION_Motivo_Contacto_Invalido</fullName>
@@ -945,7 +1013,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje de validacion Compra HT</shortDescription>
-        <value>Esta compra está asociada a una Venta HT. Ponete en contacto con tu vendedor de hectáreas para pedirle que anule la venta. Muchas gracias!</value>
+        <value
+    >Esta compra está asociada a una Venta HT. Ponete en contacto con tu vendedor de hectáreas para pedirle que anule la venta. Muchas gracias!</value>
     </labels>
     <labels>
         <fullName>COMPRAHT_CompraId_Requerido</fullName>
@@ -969,7 +1038,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje validacion Licencia</shortDescription>
-        <value>Sólo puede gestionarse una licencia de un tercero desde el portal de comercio</value>
+        <value
+    >Sólo puede gestionarse una licencia de un tercero desde el portal de comercio</value>
     </labels>
     <labels>
         <fullName>LIC_Tipo_Licencia_Invalido</fullName>
@@ -985,7 +1055,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje validacion Licencia</shortDescription>
-        <value>El portal productor sólo puede pedir una licencia de tipo productor</value>
+        <value
+    >El portal productor sólo puede pedir una licencia de tipo productor</value>
     </labels>
     <labels>
         <fullName>LIC_Cuenta_Tercera_No_Mismo</fullName>
@@ -1001,7 +1072,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje validacion Licencia</shortDescription>
-        <value>No posee una licencia de comercio con la marca seleccionada para gestionar a un tercero</value>
+        <value
+    >No posee una licencia de comercio con la marca seleccionada para gestionar a un tercero</value>
     </labels>
     <labels>
         <fullName>LIC_Marca_Debe_Ser_Mismo</fullName>
@@ -1033,7 +1105,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje validacion Licencia</shortDescription>
-        <value>No se puede generar el pdf de licencia Comercio para este obtentor</value>
+        <value
+    >No se puede generar el pdf de licencia Comercio para este obtentor</value>
     </labels>
     <labels>
         <fullName>LIC_Archivo_Ya_Enviado_Firmar</fullName>
@@ -1041,7 +1114,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje validacion Licencia</shortDescription>
-        <value>Este archivo ya se envió para firmar, no se puede generar nuevamente</value>
+        <value
+    >Este archivo ya se envió para firmar, no se puede generar nuevamente</value>
     </labels>
     <labels>
         <fullName>LIC_Licencia_Archivos_Enviar_Intervinientes</fullName>
@@ -1049,7 +1123,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje validacion Licencia</shortDescription>
-        <value>La licencia y sus archivos deben ser enviados por el productor, comercio u obtentor intervinientes</value>
+        <value
+    >La licencia y sus archivos deben ser enviados por el productor, comercio u obtentor intervinientes</value>
     </labels>
     <labels>
         <fullName>LIC_Estado_Licencia_Debe_Ser_Creada</fullName>
@@ -1113,14 +1188,16 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Mensaje validacion Licencia</shortDescription>
-        <value>Los archivos de la licencia deben ser cargados por el productor, comercio u obtentor intervinientes</value>
+        <value
+    >Los archivos de la licencia deben ser cargados por el productor, comercio u obtentor intervinientes</value>
     </labels>
     <labels>
         <fullName>VENTA_INF_Cuenta_Originante_Requerida</fullName>
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Debe seleccionar la cuenta originante.</value>
     </labels>
     <labels>
@@ -1128,7 +1205,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Cuenta originante no encontrada.</value>
     </labels>
     <labels>
@@ -1136,7 +1214,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>La cuenta originante debe ser Distribuidor u Obtentor.</value>
     </labels>
     <labels>
@@ -1144,7 +1223,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>La cuenta originante no tiene CUIT cargado.</value>
     </labels>
     <labels>
@@ -1152,7 +1232,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Falta Kilos Totales.</value>
     </labels>
     <labels>
@@ -1160,7 +1241,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>El usuario no posee una cuenta asociada</value>
     </labels>
     <labels>
@@ -1168,7 +1250,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Sólo usuarios obtentores pueden importar ventas</value>
     </labels>
     <labels>
@@ -1176,7 +1259,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Sólo usuarios distribuidores pueden importar ventas</value>
     </labels>
     <labels>
@@ -1184,7 +1268,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Falta CUIT Originante.</value>
     </labels>
     <labels>
@@ -1192,7 +1277,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>No existe cuenta distribuidora con el CUIT_Originante__c</value>
     </labels>
     <labels>
@@ -1200,7 +1286,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>El cuit originante debe ser igual al propio</value>
     </labels>
     <labels>
@@ -1208,7 +1295,8 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Debe seleccionar la cuenta originante antes de guardar.</value>
     </labels>
     <labels>
@@ -1216,63 +1304,53 @@
         <categories>CrearVentaInformada</categories>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Mensaje de validacion Venta Informada</shortDescription>
+        <shortDescription
+    >Mensaje de validacion Venta Informada</shortDescription>
         <value>Debes seleccionar una Variedad existente en Salesforce.</value>
     </labels>
-    <labels>
-        <fullName>VENTA_INF_Usuario_Sin_Cuenta</fullName>
-        <language>es</language>
-        <protected>false</protected>
-        <shortDescription>Ventas Informadas - Usuario sin cuenta</shortDescription>
-        <value>El usuario debe estar asociado a una cuenta</value>
-    </labels>
-    <labels>
-        <fullName>VENTA_INF_Solo_Obtentor_Importa</fullName>
-        <language>es</language>
-        <protected>false</protected>
-        <shortDescription>Ventas Informadas - Solo obtentor importa</shortDescription>
-        <value>Sólo usuarios obtentores pueden importar ventas</value>
-    </labels>
-    <labels>
-        <fullName>VENTA_INF_Solo_Distribuidor_Importa</fullName>
-        <language>es</language>
-        <protected>false</protected>
-        <shortDescription>Ventas Informadas - Solo distribuidor importa</shortDescription>
-        <value>Sólo usuarios distribuidores pueden importar ventas</value>
-    </labels>
+    
+    
+    
     <labels>
         <fullName>VENTA_INF_Cuenta_Originante_Antes_Importar</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Ventas Informadas - Cuenta originante antes de importar</shortDescription>
+        <shortDescription
+    >Ventas Informadas - Cuenta originante antes de importar</shortDescription>
         <value>Debe seleccionar la cuenta originante antes de importar.</value>
     </labels>
     <labels>
         <fullName>VENTA_INF_Sin_Filas_Importar</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Ventas Informadas - Sin filas para importar</shortDescription>
-        <value>No hay filas de ventas para importar. Eliminá las filas de ayuda al final de la planilla o completá al menos una fila de datos.</value>
+        <shortDescription
+    >Ventas Informadas - Sin filas para importar</shortDescription>
+        <value
+    >No hay filas de ventas para importar. Eliminá las filas de ayuda al final de la planilla o completá al menos una fila de datos.</value>
     </labels>
     <labels>
         <fullName>VENTA_INF_Columna_Invalida</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Ventas Informadas - Columna inválida</shortDescription>
-        <value>Nombre de columna inválida. NO cambiar el nombre de las columnas</value>
+        <shortDescription
+    >Ventas Informadas - Columna inválida</shortDescription>
+        <value
+    >Nombre de columna inválida. NO cambiar el nombre de las columnas</value>
     </labels>
     <labels>
         <fullName>FAC_Debe_Informar_Rango_Fechas</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Facturación - Debe informar rango fechas</shortDescription>
+        <shortDescription
+    >Facturación - Debe informar rango fechas</shortDescription>
         <value>Debe informar el rango de fechas de creación.</value>
     </labels>
     <labels>
         <fullName>FAC_Fecha_Desde_Mayor_Hasta</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Facturación - Fecha desde mayor hasta</shortDescription>
+        <shortDescription
+    >Facturación - Fecha desde mayor hasta</shortDescription>
         <value>La fecha desde no puede ser mayor que la fecha hasta.</value>
     </labels>
     <labels>
@@ -1293,28 +1371,32 @@
         <fullName>INT_Messaging_User_No_Whatsapp</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Integración - Messaging user no WhatsApp</shortDescription>
+        <shortDescription
+    >Integración - Messaging user no WhatsApp</shortDescription>
         <value>El messaging user no es de whatsapp</value>
     </labels>
     <labels>
         <fullName>INT_Consent_Status_Invalido</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Integración - Consent status inválido</shortDescription>
+        <shortDescription
+    >Integración - Consent status inválido</shortDescription>
         <value>El MessagingConsentStatus no es ImplicitlyOptedIn</value>
     </labels>
     <labels>
         <fullName>INT_Messaging_Session_24hs</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Integración - Messaging session 24hs</shortDescription>
+        <shortDescription
+    >Integración - Messaging session 24hs</shortDescription>
         <value>No han pasado 24hs desde el último MessagingSession</value>
     </labels>
     <labels>
         <fullName>BT_Estado_Movimiento_Invalido</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>BolsaTech - Estado movimiento inválido</shortDescription>
+        <shortDescription
+    >BolsaTech - Estado movimiento inválido</shortDescription>
         <value>El estado del movimiento debe ser creado o con error</value>
     </labels>
     <labels>
@@ -1329,7 +1411,8 @@
         <language>es</language>
         <protected>false</protected>
         <shortDescription>Expediente - No encontrado abierto</shortDescription>
-        <value>No se encontró un expediente de negativos abierto para la cuenta seleccionada</value>
+        <value
+    >No se encontró un expediente de negativos abierto para la cuenta seleccionada</value>
     </labels>
     <labels>
         <fullName>DUP_Sin_Toneladas_HT</fullName>
@@ -1349,7 +1432,8 @@
         <fullName>COM_Usuario_Sin_Cuenta_Comercio</fullName>
         <language>es</language>
         <protected>false</protected>
-        <shortDescription>Comunidad - Usuario sin cuenta comercio</shortDescription>
+        <shortDescription
+    >Comunidad - Usuario sin cuenta comercio</shortDescription>
         <value>El usuario no tiene una cuenta de comercio asociada.</value>
     </labels>
     <labels>
@@ -1359,14 +1443,51 @@
         <shortDescription>Comunidad - Usuario sin cuenta</shortDescription>
         <value>El usuario no tiene una cuenta asociada.</value>
     </labels>
-    <labels><fullName>GENERAL_Usuario_Sin_Cuenta</fullName><categories>General</categories><language>es</language><protected>false</protected><shortDescription>Mensaje usuario sin cuenta</shortDescription><value>Usuario no tiene una cuenta asociada</value></labels>
-    <labels><fullName>LIC_Usuario_Sin_Cuenta</fullName><categories>Licencias</categories><language>es</language><protected>false</protected><shortDescription>Mensaje licencia sin cuenta</shortDescription><value>Usuario sin cuenta asociada</value></labels>
-    <labels><fullName>PWD_No_Tiene_Permisos_Consultar_Usuarios</fullName><categories>PasswordReset</categories><language>es</language><protected>false</protected><shortDescription>Mensaje permisos password</shortDescription><value>No tiene permisos para consultar usuarios.</value></labels>
-    <labels><fullName>PWD_Cuit_11_Digitos</fullName><categories>PasswordReset</categories><language>es</language><protected>false</protected><shortDescription>Mensaje CUIT password</shortDescription><value>El CUIT debe contener exactamente 11 digitos numericos.</value></labels>
-    <labels><fullName>GENERAL_IdProduct_Obligatorio</fullName><categories>General</categories><language>es</language><protected>false</protected><shortDescription>Mensaje producto obligatorio</shortDescription><value>El parámetro IdProduct es obligatorio.</value></labels>
-    <labels><fullName>GENERAL_No_Permisos_Operacion</fullName><categories>General</categories><language>es</language><protected>false</protected><shortDescription>Mensaje sin permisos</shortDescription><value>No tiene permisos para realizar esta operación. Contacte a su administrador.</value></labels>
-    <labels><fullName>VENTASINF_Venta_No_Existe</fullName><categories>VentasInformadas</categories><language>es</language><protected>false</protected><shortDescription>Validacion ventas informadas</shortDescription><value>La venta no existe.</value></labels>
-    <labels><fullName>VENTASINF_No_Permiso_Modificar</fullName><categories>VentasInformadas</categories><language>es</language><protected>false</protected><shortDescription>Validacion ventas informadas</shortDescription><value>No tiene permiso para modificar esta venta.</value></labels>
-    <labels><fullName>LIC_No_Permiso_Acceder</fullName><categories>Licencias</categories><language>es</language><protected>false</protected><shortDescription>Mensaje sin permiso licencia</shortDescription><value>No tiene permiso para acceder a Licencia__c</value></labels>
-    <labels><fullName>EXCEL_Tipo_Objeto_No_Soportado</fullName><categories>Excel</categories><language>es</language><protected>false</protected><shortDescription>Mensaje tipo objeto no soportado</shortDescription><value>Tipo de objeto no soportado:</value></labels>
+    
+    <labels><fullName>LIC_Usuario_Sin_Cuenta</fullName><categories
+    >Licencias</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Mensaje licencia sin cuenta</shortDescription><value
+    >Usuario sin cuenta asociada</value></labels>
+    <labels><fullName
+    >PWD_No_Tiene_Permisos_Consultar_Usuarios</fullName><categories
+    >PasswordReset</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Mensaje permisos password</shortDescription><value
+    >No tiene permisos para consultar usuarios.</value></labels>
+    <labels><fullName>PWD_Cuit_11_Digitos</fullName><categories
+    >PasswordReset</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Mensaje CUIT password</shortDescription><value
+    >El CUIT debe contener exactamente 11 digitos numericos.</value></labels>
+    <labels><fullName>GENERAL_IdProduct_Obligatorio</fullName><categories
+    >General</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Mensaje producto obligatorio</shortDescription><value
+    >El parámetro IdProduct es obligatorio.</value></labels>
+    <labels><fullName>GENERAL_No_Permisos_Operacion</fullName><categories
+    >General</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Mensaje sin permisos</shortDescription><value
+    >No tiene permisos para realizar esta operación. Contacte a su administrador.</value></labels>
+    <labels><fullName>VENTASINF_Venta_No_Existe</fullName><categories
+    >VentasInformadas</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Validacion ventas informadas</shortDescription><value
+    >La venta no existe.</value></labels>
+    <labels><fullName>VENTASINF_No_Permiso_Modificar</fullName><categories
+    >VentasInformadas</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Validacion ventas informadas</shortDescription><value
+    >No tiene permiso para modificar esta venta.</value></labels>
+    <labels><fullName>LIC_No_Permiso_Acceder</fullName><categories
+    >Licencias</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Mensaje sin permiso licencia</shortDescription><value
+    >No tiene permiso para acceder a Licencia__c</value></labels>
+    <labels><fullName>EXCEL_Tipo_Objeto_No_Soportado</fullName><categories
+    >Excel</categories><language>es</language><protected
+    >false</protected><shortDescription
+    >Mensaje tipo objeto no soportado</shortDescription><value
+    >Tipo de objeto no soportado:</value></labels>
 </CustomLabels>
