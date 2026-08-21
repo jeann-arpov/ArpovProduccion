@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
     <layoutSections>
         <customLabel>false</customLabel>
@@ -6,21 +6,34 @@
         <editHeading>true</editHeading>
         <label>Informacion del Error</label>
         <layoutColumns>
-            <layoutItems><behavior>Readonly</behavior><field>ErrorCode__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>Severity__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>Origin__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>Component__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>ClassName__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>MethodName__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>LineNumber__c</field></layoutItems>
-            <layoutItems><behavior>Edit</behavior><field>IsResolved__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >ErrorCode__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >Severity__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >Origin__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >Component__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >ClassName__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >MethodName__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >LineNumber__c</field></layoutItems>
+            <layoutItems><behavior>Edit</behavior><field
+        >IsResolved__c</field></layoutItems>
         </layoutColumns>
         <layoutColumns>
-            <layoutItems><behavior>Readonly</behavior><field>Timestamp__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>UserId__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>Environment__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>RelatedRecordId__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>HttpStatusCode__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >Timestamp__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >CreatedById</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >Environment__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >RelatedRecordId__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >HttpStatusCode__c</field></layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
     </layoutSections>
@@ -30,9 +43,12 @@
         <editHeading>true</editHeading>
         <label>Detalle de Mensajes</label>
         <layoutColumns>
-            <layoutItems><behavior>Readonly</behavior><field>OriginalMessage__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>UserMessage__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>Resolution__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >OriginalMessage__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >UserMessage__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >Resolution__c</field></layoutItems>
         </layoutColumns>
         <style>OneColumn</style>
     </layoutSections>
@@ -42,8 +58,10 @@
         <editHeading>true</editHeading>
         <label>Informacion Tecnica</label>
         <layoutColumns>
-            <layoutItems><behavior>Readonly</behavior><field>StackTrace__c</field></layoutItems>
-            <layoutItems><behavior>Readonly</behavior><field>ContextData__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >StackTrace__c</field></layoutItems>
+            <layoutItems><behavior>Readonly</behavior><field
+        >ContextData__c</field></layoutItems>
         </layoutColumns>
         <style>OneColumn</style>
     </layoutSections>
