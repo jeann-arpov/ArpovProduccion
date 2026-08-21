@@ -1,3 +1,4 @@
+/** Smoke WI-000030: comentario para probar Git Promote. */
 public class EmailSplitHelper {
 
     @InvocableMethod(label='Dividir Emails' description='Divide emails separados por coma y retorna lista')
