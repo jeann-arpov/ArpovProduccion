@@ -1,86 +1,82 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">COMPRAS / MIS COMPRAS</div>
-                <div class="title">Mis Compras HT</div>
+    <div class="page">
+        <header class="head">
+            <div class="head-copy">
+                <p class="eyebrow eyebrow-d">MIS COMPRAS</p>
+                <p class="eyebrow eyebrow-m">MÓDULOS · MIS COMPRAS</p>
+                <h1 class="title">Mis Compras HT</h1>
+                <p class="subtitle">Compras HT del productor. Filtrá por estado, cultivo o variedad.</p>
             </div>
+            <label class="search">
+                <span class="search-label">Buscar</span>
+                <input type="search" placeholder="Buscar..." oninput={handleSearchChange} />
+            </label>
+        </header>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                    <!-- Estado -->
-                    <select data-id="estadoSelect" onchange={handleFilterChange}>
-                        <template for:each={estados} for:item="item">
-                            <option key={item} value={item}>{item}</option>
-                        </template>
-                    </select>
-
-                    <!-- Cultivo -->
-                    <select data-id="cultivoSelect" onchange={handleFilterChange}>
-                        <template for:each={cultivos} for:item="item">
-                            <option key={item} value={item}>{item}</option>
-                        </template>
-                    </select>
-
-                    <!-- Variedad -->
-                    <select data-id="variedadSelect" onchange={handleFilterChange}>
-                        <template for:each={variedades} for:item="item">
-                            <option key={item} value={item}>{item}</option>
-                        </template>
-                    </select>
-                </div>
-            </div>
+        <div class="toolbar">
+            <template for:each={statusPills} for:item="pill">
+                <button key={pill.id} class={pill.className} type="button" data-filter={pill.id} onclick={handlePill}>
+                    {pill.label}
+                    <span class="count">{pill.count}</span>
+                </button>
+            </template>
         </div>
 
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emisión • <br>
-                Filtrado por Todas las Compras HT • Se actualizó hace una hora
-            </div>
-
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">🔍</span>
-            </div>
-        </div>
-
-        <!-- Tabla -->
-        <table>
-            <thead>
-                <tr>
-                    <th>FECHA</th>
-                    <th>COMPRA HT</th>
-                    <th>TOTAL HT</th>
-                    <th>VARIEDADES</th>
-                    <th>CULTIVO</th>
-                    <th>ESTADO</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template for:each={pageSlice} for:item="compra">
-                    <tr key={compra.id}>
-                        <td>{compra.fecha}</td>
-                        <td>
-                            <a href="javascript:void(0);" onclick={navigateToCompra} data-id={compra.id} data-name={compra.name}>
-                                {compra.name}
-                            </a>
-                        </td>
-                        <td>{compra.totalHT}</td>
-                        <td>{compra.variedades}</td>
-                        <td>{compra.cultivo}</td>
-                        <td>{compra.estado}</td>
-                    </tr>
+        <div class="filters">
+            <div class="dd">
+                <button class={cultivoTriggerClass} type="button" onclick={toggleCultivo}>
+                    <span class="dd-label">{cultivoTriggerLabel}</span>
+                    <span class="chev" aria-hidden="true"></span>
+                </button>
+                <template if:true={cultivoOpen}>
+                    <div class="dd-menu" role="listbox">
+                        <template for:each={cultivoPills} for:item="item">
+                            <button key={item.id} class={item.itemClass} type="button" data-filter={item.id} onclick={handleCultivo}>
+                                {item.label}
+                            </button>
+                        </template>
+                    </div>
                 </template>
-            </tbody>
-        </table>
-
-        <!-- Navegación -->
-        <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
+            </div>
+            <div class="dd">
+                <button class={variedadTriggerClass} type="button" onclick={toggleVariedad}>
+                    <span class="dd-label">{variedadTriggerLabel}</span>
+                    <span class="chev" aria-hidden="true"></span>
+                </button>
+                <template if:true={variedadOpen}>
+                    <div class="dd-menu" role="listbox">
+                        <template for:each={variedadPills} for:item="item">
+                            <button key={item.id} class={item.itemClass} type="button" data-filter={item.id} onclick={handleVariedad}>
+                                {item.label}
+                            </button>
+                        </template>
+                    </div>
+                </template>
+            </div>
         </div>
+
+        <div class="list-slot">
+            <c-se-data-list
+                records={data}
+                columns={columns}
+                mobile-fields={mobileFields}
+                title-field="name"
+                badge-field="statusLabel"
+                badge-tone-field="statusTone"
+                key-field="id"
+                action-label="Ver"
+                mobile-action-label="Ver compra →"
+                empty-text="No hay compras para mostrar."
+                onrowaction={handleRowAction}>
+            </c-se-data-list>
+        </div>
+
+        <template if:true={showPager}>
+            <nav class="pager" aria-label="Paginación">
+                <button class="pager-btn" type="button" onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+                <span class="pager-page">{pageLabel}</span>
+                <button class="pager-btn" type="button" onclick={handleNext} disabled={disableNext}>Siguiente</button>
+            </nav>
+        </template>
     </div>
 </template>

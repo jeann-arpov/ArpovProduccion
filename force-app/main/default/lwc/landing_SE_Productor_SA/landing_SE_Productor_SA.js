@@ -1,6 +1,7 @@
 import { LightningElement, track } from 'lwc';
 import getLoadData from '@salesforce/apex/HomeMulticultivo.getLoadData';
 import { NavigationMixin } from 'lightning/navigation';
+import { trackGa4Event } from 'c/portalGa4Events';
 
 export default class Landing_SE_Productor_SA extends NavigationMixin(LightningElement) {
     @track tarjetasHT = [];
@@ -8,6 +9,8 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
     recordId;
 
     async connectedCallback() {
+        document.documentElement.classList.add('se-home');
+        document.body.classList.add('se-home');
         const today = new Date();
         this.currentDate = `AL ${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
 
@@ -29,6 +32,11 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
         }
     }
 
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-home');
+        document.body.classList.remove('se-home');
+    }
+
     doAction(event) {
         const cultivoId = event.currentTarget.dataset.id;
         const cultivo = this.tarjetasHT.find(t => t.cultivo.Id === cultivoId);
@@ -41,6 +49,7 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
             //     type: 'standard__webPage',
             //     attributes: { url: '/compraHT?id=' + cultivoId }
             // });
+            trackGa4Event('ht_compra_iniciada', { portal: 'Productor', accion: 'comprar' });
             const portalBase = window.location.pathname.split('/s/')[0];
             window.location.assign(portalBase + '/s/FormularioNuevaVentaHT');
         } else if (cultivo.isAdherir) {

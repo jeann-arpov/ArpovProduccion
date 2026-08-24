@@ -39,6 +39,8 @@ public without sharing class MisFacturasController {
 
     @AuraEnabled
     public static List<Vencimiento> getVencimientos(String type) {
+        if (CrearCompraController.getAccount() == null) return new List<Vencimiento>();
+
         List<ERPvs__Vencimientos__c> vencimientos = queryVencimientos(type);
         List<Vencimiento> results = new List<Vencimiento>();
         List<Id> cvIds = new List<Id>();
@@ -48,12 +50,27 @@ public without sharing class MisFacturasController {
         for (ERPvs__Vencimientos__c vencimiento: vencimientos) {
             results.add(new Vencimiento(vencimiento));
             cvIds.add(vencimiento.ERPVS__Comprobante_Venta__c);
-            monedaToTipoDeCambio.put(vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__Moneda__c, null);
+            Id monedaId = vencimiento.ERPVS__Comprobante_Venta__r != null
+                ? vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__Moneda__c
+                : null;
+            if (monedaId != null) monedaToTipoDeCambio.put(monedaId, null);
             vencimientosIds.add(vencimiento.Id);
         }
 
         for (Id moneda: monedaToTipoDeCambio.keySet()) {
-            ERPvs__Tipo_de_cambio__c cambio = Test.isRunningTest() ? tipoCambioTest : [select Erpvs__Vendedor__c from ERPvs__Tipo_de_cambio__c where ERPvs__Moneda__c =: moneda and Erpvs__Fecha__c <=: System.today() order by Erpvs__Fecha__c desc limit 1];
+            ERPvs__Tipo_de_cambio__c cambio;
+            if (Test.isRunningTest()) {
+                cambio = tipoCambioTest;
+            } else {
+                List<ERPvs__Tipo_de_cambio__c> cambios = [
+                    SELECT Erpvs__Vendedor__c
+                    FROM ERPvs__Tipo_de_cambio__c
+                    WHERE ERPvs__Moneda__c = :moneda AND Erpvs__Fecha__c <= :System.today()
+                    ORDER BY Erpvs__Fecha__c DESC
+                    LIMIT 1
+                ];
+                cambio = cambios.isEmpty() ? null : cambios[0];
+            }
             monedaToTipoDeCambio.put(moneda, cambio);
         }
 
@@ -68,10 +85,18 @@ public without sharing class MisFacturasController {
         //     mapLinksDePago.put(link.Vencimiento__c, link.Url__c);
         // }
 
+        Set<Id> oppIdsYaIncluidas = new Set<Id>();
+        Set<String> numerosYaIncluidos = new Set<String>();
         for (Vencimiento vencimiento: results) {
             vencimiento.file = filesByCv.get(vencimiento.comprobanteId);
-            if (!Test.isRunningTest()) vencimiento.saldoArs *= monedaToTipoDeCambio.get(vencimiento.monedaId).Erpvs__Vendedor__c;
+            ERPvs__Tipo_de_cambio__c cambio = monedaToTipoDeCambio.get(vencimiento.monedaId);
+            if (!Test.isRunningTest() && vencimiento.saldoArs != null && cambio != null && cambio.Erpvs__Vendedor__c != null) {
+                vencimiento.saldoArs *= cambio.Erpvs__Vendedor__c;
+            }
             //vencimiento.linkDePago = mapLinksDePago.get(vencimiento.id);
+            if (vencimiento.opportunityId != null) oppIdsYaIncluidas.add(vencimiento.opportunityId);
+            String numeroKey = normalizeNumeroComprobante(vencimiento.numero);
+            if (String.isNotBlank(numeroKey)) numerosYaIncluidos.add(numeroKey);
         }
 
         List<Opportunity> oportunidades = queryOportunidades(type);
@@ -95,14 +120,35 @@ public without sharing class MisFacturasController {
             
             System.debug('archivos: ' + mapArchivos);
             for(Opportunity opp : oportunidades){
+                if (alreadyListed(oppIdsYaIncluidas, numerosYaIncluidos, opp)) continue;
+
                 Vencimiento v = new Vencimiento(opp);
                 v.facturaPVId = mapArchivos.get(mapFileNames.get(opp.Id));
                 System.debug(v.facturaPVId);
                 results.add(v);
+                if (opp.Id != null) oppIdsYaIncluidas.add(opp.Id);
+                String numeroKey = normalizeNumeroComprobante(v.numero);
+                if (String.isNotBlank(numeroKey)) numerosYaIncluidos.add(numeroKey);
             }
         }
 
         return results;
+    }
+
+    @testVisible
+    static String normalizeNumeroComprobante(String numero) {
+        if (String.isBlank(numero)) return '';
+        String n = numero.toUpperCase().trim();
+        n = n.replaceAll('\\b(FACTURA|FAC)\\b', '');
+        return n.replaceAll('[^A-Z0-9]', '');
+    }
+
+    @testVisible
+    static Boolean alreadyListed(Set<Id> oppIds, Set<String> numeros, Opportunity opp) {
+        if (opp == null) return false;
+        if (opp.Id != null && oppIds != null && oppIds.contains(opp.Id)) return true;
+        String numeroKey = normalizeNumeroComprobante('Factura ' + (opp.N_de_Comprobante__c ?? ''));
+        return String.isNotBlank(numeroKey) && numeros != null && numeros.contains(numeroKey);
     }
     
     public class Vencimiento {
@@ -132,49 +178,71 @@ public without sharing class MisFacturasController {
         @AuraEnabled public String cuentaName;
 
         public Vencimiento(ERPvs__Vencimientos__c vencimiento) {
+            ERPvs__Comprobante_Venta__c cv = vencimiento.ERPVS__Comprobante_Venta__r;
             comprobanteId = vencimiento.ERPVS__Comprobante_Venta__c;
-            numero = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__Comprobante__c;
-            obtentorId = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__A_cuenta_y_orden_de__c;
-            obtentor = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__A_cuenta_y_orden_de__r.Name;
-            fecha = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__Fecha__c;
+            if (cv != null) {
+                numero = cv.ERPvs__Comprobante__c;
+                obtentorId = cv.ERPvs__A_cuenta_y_orden_de__c;
+                if (cv.ERPvs__A_cuenta_y_orden_de__r != null) {
+                    obtentor = cv.ERPvs__A_cuenta_y_orden_de__r.Name;
+                    obtentorMarca = cv.ERPvs__A_cuenta_y_orden_de__r.Nombre_Obtentor__c;
+                }
+                fecha = cv.ERPvs__Fecha__c;
+                if (cv.ERPvs__Moneda__r != null) moneda = cv.ERPvs__Moneda__r.Name;
+                monedaId = cv.ERPvs__Moneda__c;
+                total = cv.ERPvs__Total__c;
+                opportunityId = cv.Oportunidad__c;
+                if (cv.Oportunidad__r != null) {
+                    oppStage = cv.Oportunidad__r.StageName;
+                    if (cv.Oportunidad__r.Compra_HT__r != null) {
+                        cultivo = cv.Oportunidad__r.Compra_HT__r.Nombre_Cultivo__c;
+                        if (cv.Oportunidad__r.Compra_HT__r.Cuenta_Productor__r != null) {
+                            productor = cv.Oportunidad__r.Compra_HT__r.Cuenta_Productor__r.Name;
+                        }
+                        if (cv.Oportunidad__r.Compra_HT__r.Comercio__r != null) {
+                            comercio = cv.Oportunidad__r.Compra_HT__r.Comercio__r.Name;
+                        }
+                    }
+                }
+            }
             fechaVencimiento = vencimiento.ERPvs__Fecha_Vencimiento__c;
-            moneda = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__Moneda__r.Name;
-            monedaId = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__Moneda__c;
-            total = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__Total__c;
             saldo = vencimiento.ERPvs__Importe_MO_x_Signo__c;
             saldoArs = vencimiento.ERPvs__Importe_MO_x_Signo__c;
             id = vencimiento.id;
-            cuit = CrearCompraController.getAccount().N_CUIT__c;
-            opportunityId = vencimiento.ERPVS__Comprobante_Venta__r.Oportunidad__c;
-            pagarDisabled = vencimiento.ERPvs__Importe_MO_x_Signo__c <= 0;
-            productor = vencimiento.ERPVS__Comprobante_Venta__r.Oportunidad__r.Compra_HT__r.Cuenta_Productor__r.Name;
-            comercio = vencimiento.ERPVS__Comprobante_Venta__r.Oportunidad__r.Compra_HT__r.Comercio__r.Name;
-            cultivo = vencimiento.ERPVS__Comprobante_Venta__r.Oportunidad__r.Compra_HT__r.Nombre_Cultivo__c;
-            obtentorMarca = vencimiento.ERPVS__Comprobante_Venta__r.ERPvs__A_cuenta_y_orden_de__r.Nombre_Obtentor__c;
-            oppStage = vencimiento.ERPVS__Comprobante_Venta__r.Oportunidad__r.StageName;
-            cuentaName = CrearCompraController.getAccount().Name;
+            Account acc = CrearCompraController.getAccount();
+            cuit = acc != null ? acc.N_CUIT__c : null;
+            pagarDisabled = vencimiento.ERPvs__Importe_MO_x_Signo__c != null && vencimiento.ERPvs__Importe_MO_x_Signo__c <= 0;
+            cuentaName = acc != null ? acc.Name : null;
         }
 
         public Vencimiento(Opportunity opp){
             numero = 'Factura ' + (opp.N_de_Comprobante__c ?? '');
-            obtentor = opp.Obtentor__r.Name;
             obtentorId = opp.Obtentor__c;
+            if (opp.Obtentor__r != null) {
+                obtentor = opp.Obtentor__r.Name;
+                obtentorMarca = opp.Obtentor__r.Nombre_Obtentor__c;
+            }
             fecha = opp.Fecha_Emision_Comprobante__c;
             fechaVencimiento = opp.Fecha_Vencimiento_Comprobante__c;
-            moneda = opp.Moneda__r.Name;
+            if (opp.Moneda__r != null) moneda = opp.Moneda__r.Name;
             monedaId = opp.Moneda__c;
             total = opp.Total_Comprobante__c;
             saldo = opp.Saldo_a_Cobrar_Comprobante__c;
             saldoArs = opp.Saldo_Actualizado__c;
             pagarDisabled = true;
-            productor = opp.Compra_HT__r.Cuenta_Productor__r.Name;
-            comercio = opp.Compra_HT__r.Comercio__r.Name;
+            if (opp.Compra_HT__r != null) {
+                if (opp.Compra_HT__r.Cuenta_Productor__r != null) {
+                    productor = opp.Compra_HT__r.Cuenta_Productor__r.Name;
+                }
+                if (opp.Compra_HT__r.Comercio__r != null) {
+                    comercio = opp.Compra_HT__r.Comercio__r.Name;
+                }
+            }
             opportunityId = opp.Id;
             oppStage = opp.StageName;
             cultivo = opp.Cultivo__c;
-            obtentorMarca = opp.Obtentor__r.Nombre_Obtentor__c;
             cuit = opp.CUIT__c;
-            cuentaName = opp.Account.Name;
+            cuentaName = opp.Account != null ? opp.Account.Name : null;
         }
     }
 }

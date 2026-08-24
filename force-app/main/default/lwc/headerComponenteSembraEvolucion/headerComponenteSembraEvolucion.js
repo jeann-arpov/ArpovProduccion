@@ -1,153 +1,292 @@
 import { LightningElement, track, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import MY_LOGO from '@salesforce/resourceUrl/SembraEvolucionLogo';
+import { loadStyle } from 'lightning/platformResourceLoader';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import MY_LOGO from '@salesforce/resourceUrl/SembraEvolucionLogo';
+import TOKENS from '@salesforce/resourceUrl/seTokens';
 import USER_ID from '@salesforce/user/Id';
 import NAME_FIELD from '@salesforce/schema/User.Name';
 import CONTACT_ID_FIELD from '@salesforce/schema/User.ContactId';
-import ACCOUNT_NAME_FIELD from '@salesforce/schema/Contact.Account.Name';
 import PROFILE_NAME_FIELD from '@salesforce/schema/User.Profile.Name';
-import networkId from '@salesforce/community/Id';
-import basePath from '@salesforce/community/basePath';
+import ACCOUNT_NAME_FIELD from '@salesforce/schema/Contact.Account.Name';
 import COMERCIO_URL from '@salesforce/label/c.ComercioCommunityUrl';
-export default class HeaderComponenteSembraEvolucion extends NavigationMixin(LightningElement) {
+import { PAGES, goToCommunityPage, isPageActive, communityPageUrl } from 'c/seNav';
 
-    @track isSalesforce = true; // Cambiar a false para el otro header
+export default class HeaderComponenteSembraEvolucion extends NavigationMixin(LightningElement) {
     userId = USER_ID;
     userName;
     accountName;
     contactId;
-    comercioUrl;
     profileName;
+    comercioUrl;
     logoUrl = MY_LOGO;
+    drawerOpen = false;
+    userMenuOpen = false;
+    openSubmenu = null;
+    openDrawerSection = null;
+    tokensLoaded = false;
+    perfilPage = PAGES.perfil;
 
-   navItems = [
+    @track navItems = [
+        { id: 'home', label: 'Home', url: PAGES.home, hasSubmenu: false },
+        { id: 'licencias', label: 'Licencias', url: PAGES.licencias, hasSubmenu: false },
+        { id: 'movimientos', label: 'Movimientos HT', url: PAGES.movimientos, hasSubmenu: false },
         {
-            label: 'licencias',
-            hasSubmenu: false,
-            url: 'licenciaslistcustomproductor'
-        },
-         {
-            label: 'movimientos de ht',
-            hasSubmenu: false,
-            url: 'movimientos-ht'
-        },
-        {
-            label: 'mis compras',
+            id: 'compras',
+            label: 'Mis Compras',
             hasSubmenu: true,
             submenu: [
-                { label: 'comprar', url: 'FormularioNuevaVentaHT' },//crearCompra
-                { label: 'todas mis compras', url: 'comprahtlistproductor' },//CompraHTListProductor
-                { label: 'mis facturas', url: 'facturacion' }
+                { id: 'comprar', label: 'Comprar', url: PAGES.comprar },
+                { id: 'todas', label: 'Todas mis Compras', url: PAGES.misCompras },
+                { id: 'facturas', label: 'Mis Facturas', url: PAGES.facturas }
             ]
         },
         {
-            label: 'precertificacion',
+            id: 'precert',
+            label: 'Precertificación',
             hasSubmenu: true,
             submenu: [
-                { label: 'mis pph', url: `iniciar-pph`},
-                { label: 'mis establecimientos', url: 'misestablecimientos' }
+                { id: 'pph', label: 'Mis PPH', url: PAGES.pph },
+                { id: 'establecimientos', label: 'Mis establecimientos', url: PAGES.establecimientos }
+            ]
+        },
+        { id: 'granaria', label: 'Cuenta Granaria', url: PAGES.granaria, hasSubmenu: false },
+        { id: 'cesiones', label: 'Cesiones', url: PAGES.cesiones, hasSubmenu: false }
+    ];
+
+    drawerNav = [
+        { id: 'home', label: 'Inicio', url: PAGES.home, hasSubmenu: false },
+        { id: 'licencias', label: 'Licencias', url: PAGES.licencias, hasSubmenu: false },
+        { id: 'movimientos', label: 'Movimientos de HT', url: PAGES.movimientos, hasSubmenu: false },
+        {
+            id: 'compras',
+            label: 'Mis Compras',
+            hasSubmenu: true,
+            submenu: [
+                { id: 'comprar', label: 'Comprar', url: PAGES.comprar },
+                { id: 'todas', label: 'Todas mis Compras', url: PAGES.misCompras },
+                { id: 'facturas', label: 'Mis Facturas', url: PAGES.facturas }
             ]
         },
         {
-            label: 'cuenta granaria',
-            hasSubmenu: false,
-            url: 'cuentagranarianew'//cuentaGranariaNew
+            id: 'precert',
+            label: 'Precertificación',
+            hasSubmenu: true,
+            submenu: [
+                { id: 'pph', label: 'Mis PPH', url: PAGES.pph },
+                { id: 'establecimientos', label: 'Mis establecimientos', url: PAGES.establecimientos }
+            ]
         },
-        
-        // {
-        //     label: 'Cuenta corriente',
-        //     hasSubmenu: false,
-        //     url: 'cuenta-corriente'
-        // },
-        {
-            label: 'cesiones',
-            hasSubmenu: false,
-            url: 'miscesiones'
-        }
+        { id: 'granaria', label: 'Cuenta Granaria', url: PAGES.granaria, hasSubmenu: false },
+        { id: 'cesiones', label: 'Cesiones', url: PAGES.cesiones, hasSubmenu: false }
     ];
 
     connectedCallback() {
-      // QA= SembraEvolucionComercio Prod = /Comercios/s';
-      const BaseUrl = window.location.origin + COMERCIO_URL;
-     // const BaseUrl = window.location.origin + basePath;
-        console.log(BaseUrl);
-        this.comercioUrl = BaseUrl
+        document.documentElement.classList.add('se-chrome');
+        document.body.classList.add('se-chrome');
+        this.comercioUrl = window.location.origin + COMERCIO_URL;
+        this._onKeydown = (event) => {
+            if (event.key === 'Escape') {
+                this.closeMenus();
+            }
+        };
+        this._onPointerDown = (event) => {
+            const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+            if (path.includes(this.template.host)) {
+                return;
+            }
+            this.userMenuOpen = false;
+            this.openSubmenu = null;
+        };
+        window.addEventListener('keydown', this._onKeydown);
+        window.addEventListener('pointerdown', this._onPointerDown);
+        if (!this.tokensLoaded) {
+            loadStyle(this, TOKENS)
+                .then(() => {
+                    this.tokensLoaded = true;
+                })
+                .catch((error) => {
+                    // eslint-disable-next-line no-console
+                    console.error('seTokens', error);
+                });
+        }
     }
 
-
-    clic(event){
-        event.preventDefault();
-        var urlActual = event.target.getAttribute('href');
-        const beforeSlash = `${basePath}`.substring(0, `${basePath}`.indexOf('/s') + 1);
-        const communityUrl = `https://${location.host}${beforeSlash}`;
-        console.log(communityUrl);
-        if(urlActual != null){
-            var newUrl = communityUrl+'s/'+urlActual;
-        }
-        else {
-            var newUrl = communityUrl+'s/';
-        }
-        window.open(newUrl,'_self');
-        window.history.pushState({},'', newUrl);
+    disconnectedCallback() {
+        window.removeEventListener('keydown', this._onKeydown);
+        window.removeEventListener('pointerdown', this._onPointerDown);
+        document.body.classList.remove('se-drawer-open');
     }
 
-    handleCommunityLogout() {
-            const communityBaseUrl = window.location.origin;
-            const logoutUrl = `${communityBaseUrl}/secur/logout.jsp`;
-    
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: logoutUrl
-                }
-            },
-            true // Reemplaza la entrada actual en el historial del navegador
-            );
+    get navItemsView() {
+        return this.navItems.map((item) => {
+            const open = this.openSubmenu === item.id;
+            const active = item.hasSubmenu
+                ? item.submenu.some((sub) => isPageActive(sub.url))
+                : isPageActive(item.url);
+            return {
+                ...item,
+                href: communityPageUrl(item.url),
+                open,
+                openAria: open ? 'true' : 'false',
+                itemClass: `item${item.hasSubmenu ? ' has-submenu' : ''}${open ? ' is-open' : ''}${
+                    active ? ' is-active' : ''
+                }`,
+                submenu: item.hasSubmenu
+                    ? item.submenu.map((sub) => ({
+                          ...sub,
+                          href: communityPageUrl(sub.url)
+                      }))
+                    : undefined
+            };
+        });
+    }
+
+    get drawerNavView() {
+        return this.drawerNav.map((item) => {
+            const childActive = item.hasSubmenu && item.submenu.some((sub) => isPageActive(sub.url));
+            const userToggled = this.openDrawerSection !== null;
+            const open = item.hasSubmenu
+                ? userToggled
+                    ? this.openDrawerSection === item.id
+                    : childActive
+                : false;
+            return {
+                ...item,
+                href: communityPageUrl(item.url),
+                open,
+                itemClass: `d-item${item.hasSubmenu && open ? ' open' : ''}${
+                    !item.hasSubmenu && isPageActive(item.url) ? ' active' : ''
+                }`,
+                submenu: item.hasSubmenu
+                    ? item.submenu.map((sub) => ({
+                          ...sub,
+                          href: communityPageUrl(sub.url),
+                          itemClass: isPageActive(sub.url) ? 'd-item active' : 'd-item'
+                      }))
+                    : undefined
+            };
+        });
+    }
+
+    get isDistribuidor() {
+        return this.profileName === 'Distribuidor';
+    }
+
+    get drawerClass() {
+        return this.drawerOpen ? 'drawer is-open' : 'drawer';
+    }
+
+    get userMenuClass() {
+        return this.userMenuOpen ? 'usermenu is-open' : 'usermenu';
+    }
+
+    get userInitial() {
+        const name = (this.userName || this.accountName || '').trim();
+        const parts = name.split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) {
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
         }
- // Paso 1: traemos User con su ContactId
+        return name ? name.slice(0, 2).toUpperCase() : '?';
+    }
+
     @wire(getRecord, { recordId: USER_ID, fields: [NAME_FIELD, CONTACT_ID_FIELD, PROFILE_NAME_FIELD] })
     userDetails({ error, data }) {
         if (data) {
             this.userName = getFieldValue(data, NAME_FIELD);
             this.contactId = getFieldValue(data, CONTACT_ID_FIELD);
-             this.profileName = getFieldValue(data, PROFILE_NAME_FIELD);
+            this.profileName = getFieldValue(data, PROFILE_NAME_FIELD);
         } else if (error) {
-            console.error('Error fetching user details:', error);
+            // eslint-disable-next-line no-console
+            console.error('headerComponenteSembraEvolucion user', error);
         }
     }
 
-    // Paso 2: si existe contactId, traemos Account.Name
     @wire(getRecord, { recordId: '$contactId', fields: [ACCOUNT_NAME_FIELD] })
     contactDetails({ error, data }) {
         if (data) {
             this.accountName = getFieldValue(data, ACCOUNT_NAME_FIELD);
         } else if (error) {
-            console.error('Error fetching contact/account details:', error);
+            // eslint-disable-next-line no-console
+            console.error('headerComponenteSembraEvolucion account', error);
         }
     }
-    handleNavigate(event) {
-        event.preventDefault(); // Evita el comportamiento por defecto del enlace
-        const pageName = event.target.dataset.page; // Obtiene el valor de data-page
 
-        switch (pageName) {
-            case 'editProfile':
-                this[NavigationMixin.Navigate]({
-                    type: 'comm__namedPage',
-                    attributes: {
-                       pageName: 'editarperfil'
-                    }
-            });
-            break;
-            default:
-                // Manejar otros casos o un valor por defecto
-                break;
-        }
+    openDrawer = () => {
+        this.drawerOpen = true;
+        this.userMenuOpen = false;
+        this.openSubmenu = null;
+        document.body.classList.add('se-drawer-open');
+    };
 
+    closeDrawer = () => {
+        this.drawerOpen = false;
+        document.body.classList.remove('se-drawer-open');
+    };
+
+    closeMenus = () => {
+        this.drawerOpen = false;
+        this.userMenuOpen = false;
+        this.openSubmenu = null;
+        this.openDrawerSection = null;
+        document.body.classList.remove('se-drawer-open');
+    };
+
+    toggleDrawerSection = (event) => {
+        event.preventDefault();
+        const id = event.currentTarget.dataset.id;
+        this.openDrawerSection = this.openDrawerSection === id ? '' : id;
+    };
+
+    toggleUserMenu = (event) => {
+        event.stopPropagation();
+        this.userMenuOpen = !this.userMenuOpen;
+        this.openSubmenu = null;
+    };
+
+    toggleSubmenu = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const id = event.currentTarget.dataset.id;
+        this.openSubmenu = this.openSubmenu === id ? null : id;
+        this.userMenuOpen = false;
+    };
+
+    get homeHref() {
+        return communityPageUrl(PAGES.home);
     }
-    // 👇 Getter para validar el perfil
-    get isDistribuidor() {
-        return this.profileName === 'Distribuidor';
+
+    get perfilHref() {
+        return communityPageUrl(PAGES.perfil);
     }
 
+    handleNavigate = (event) => {
+        event.preventDefault();
+        const page = event.currentTarget.dataset.page;
+        this.closeMenus();
+        goToCommunityPage(page || '');
+    };
+
+    handleProfile = (event) => {
+        event.preventDefault();
+        this.closeMenus();
+        this[NavigationMixin.Navigate]({
+            type: 'comm__namedPage',
+            attributes: {
+                pageName: 'editarperfil'
+            }
+        });
+    };
+
+    handleCommunityLogout = () => {
+        this.closeMenus();
+        const logoutUrl = `${window.location.origin}/secur/logout.jsp`;
+        this[NavigationMixin.Navigate](
+            {
+                type: 'standard__webPage',
+                attributes: { url: logoutUrl }
+            },
+            true
+        );
+    };
 }

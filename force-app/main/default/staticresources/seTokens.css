@@ -1,4 +1,4 @@
-/* Tokens Sembrá Evolución. Cargar desde seHeader / seBottomNav.
+/* Tokens Sembrá Evolución. Cargar desde headerComponenteSembraEvolucion / seBottomNav.
    También corrige CSS del theme de Experience Cloud que hoy es desktop-only. */
 :root {
   --se-lima: #bfff00;
@@ -12,8 +12,8 @@
   --se-radius-pill: 25px;
   --se-touch: 44px;
   --se-topbar-m: 56px;
-  --se-topbar-d: 64px;
-  --se-bottom: 64px;
+  --se-topbar-d: 72px;
+  --se-bottom: 72px;
   --se-content-max: 70rem;
   --se-font: "Roboto", Arial, sans-serif;
   --se-font-display: "Montserrat", "Roboto", Arial, sans-serif;
@@ -30,16 +30,144 @@ body.se-chrome {
   body.se-chrome {
     --dxp-c-section-columns-max-width: 1170px;
   }
+
+  /* El header del theme trae padding/min-height y agranda la franja del usuario. */
+  .se-chrome .comm-page-header,
+  .se-chrome .comm-content-header,
+  .se-chrome .forceCommunityThemeHeader,
+  .se-chrome .themeHeader,
+  .se-chrome .lwr-header,
+  .se-chrome [data-region="header"],
+  .se-chrome header.comm-header {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    background: transparent !important;
+  }
+
+  .se-chrome [data-region="header"] .slds-col,
+  .se-chrome .comm-page-header .slds-col,
+  .se-chrome .comm-page-header .cb-section_column,
+  .se-chrome .comm-page-header .dxp-column {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .se-chrome c-header-componente-sembra-evolucion {
+    display: block;
+    line-height: 1;
+  }
+
+  /* Home: header + hero + contacto en una pantalla, sin scroll fantasma del theme. */
+  html.se-chrome.se-home,
+  body.se-chrome.se-home {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Home desktop: contacto fijo al borde inferior; el campo llena el resto. */
+  html.se-chrome.se-home c-footer-contact,
+  html.se-chrome.se-home c-se-footer-contact {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 270;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+  }
+
+  .se-chrome.se-home .comm-page-content,
+  .se-chrome.se-home .lwr-main,
+  .se-chrome.se-home main,
+  .se-chrome.se-home [data-region="content"] {
+    min-height: calc(100dvh - 112px) !important;
+    overflow: hidden;
+  }
+}
+
+/* El theme de Community estira el pie a 100vh: el contacto queda arriba y el resto es hueco negro. */
+.se-chrome c-footer-contact,
+.se-chrome c-se-footer-contact {
+  display: block;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  align-self: stretch;
+  background: transparent;
+}
+
+.se-chrome .comm-page-footer,
+.se-chrome .siteforceThemeFooter,
+.se-chrome .forceCommunityThemeFooter,
+.se-chrome [data-region="footer"],
+.se-chrome .lwr-footer,
+.se-chrome footer {
+  min-height: 0 !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.se-chrome c-se-bottom-nav {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
 }
 
 @media (max-width: 767px) {
   html.se-chrome,
   body.se-chrome {
     padding-bottom: calc(var(--se-bottom) + env(safe-area-inset-bottom, 0px)) !important;
+    --se-footer-pad: 12px 16px 14px;
+    --se-footer-dir: column;
+    --se-footer-align: flex-start;
+    --se-footer-gap: 10px;
+  }
+
+  /* Mobile: el contacto va al final del contenido, no pegado a la pantalla. */
+  .se-chrome c-footer-contact,
+  .se-chrome c-se-footer-contact {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: auto;
+    width: 100% !important;
+    max-width: none !important;
+    display: block !important;
+    height: auto !important;
+  }
+
+  .se-chrome .comm-page-content,
+  .se-chrome .lwr-main,
+  .se-chrome main {
+    padding-bottom: 8px;
   }
 }
 
-/* Chrome nativo de Community: se oculta; el nav lo pinta seHeader. */
+body.se-drawer-open {
+  overflow: hidden;
+}
+
+html.se-chrome.se-inner,
+body.se-chrome.se-inner {
+  background: #f3f4f6 !important;
+}
+
+.se-chrome.se-inner .comm-page-content,
+.se-chrome.se-inner .lwr-main,
+.se-chrome.se-inner main,
+.se-chrome.se-inner [data-region="content"] {
+  background: #f3f4f6 !important;
+}
 .se-chrome .myAccount,
 .se-chrome .slds-icon-utility-down {
   display: none;

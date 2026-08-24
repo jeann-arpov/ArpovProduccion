@@ -2,5 +2,5 @@
 <StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
     <cacheControl>Public</cacheControl>
     <contentType>text/css</contentType>
-    <description>Tokens CSS del rediseño Sembrá Evolución. Cargar desde seHeader / seBottomNav.</description>
+    <description>Tokens CSS del rediseño Sembrá Evolución. Cargar desde el header del sitio y seBottomNav.</description>
 </StaticResource>

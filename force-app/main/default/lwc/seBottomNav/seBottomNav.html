@@ -1,20 +1,38 @@
 <template>
-    <nav class="bottom-nav" aria-label="Navegación principal">
-        <template for:each={leftItems} for:item="item">
-            <a key={item.id} class={item.itemClass} href="#" data-page={item.page} onclick={handleNavigate}>
-                <span class={item.glyphClass} aria-hidden="true"></span>
-                <span class="label">{item.label}</span>
-            </a>
-        </template>
-        <button class={fabClass} type="button" onclick={handleFab} aria-label="Comprar HT">
-            <span class="fab-plus" aria-hidden="true"></span>
-            <span class="fab-label">Comprar HT</span>
-        </button>
-        <template for:each={rightItems} for:item="item">
-            <a key={item.id} class={item.itemClass} href="#" data-page={item.page} onclick={handleNavigate}>
-                <span class={item.glyphClass} aria-hidden="true"></span>
-                <span class="label">{item.label}</span>
-            </a>
-        </template>
+    <nav class="m-bottom" aria-label="Navegación principal">
+        <a class={homeClass} href="#" data-page={homePage} onclick={handleNavigate}>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 12l9-9 9 9M5 10v10h14V10"></path>
+            </svg>
+            <span class="label">Inicio</span>
+        </a>
+        <a class={licenciasClass} href="#" data-page={licenciasPage} onclick={handleNavigate}>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 3h10l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"></path>
+            </svg>
+            <span class="label">Licencias</span>
+        </a>
+        <div class="fab-slot">
+            <button class={fabClass} type="button" onclick={handleFab} aria-label="Comprar HT">
+                <svg class="fab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 7h3l2.5 11h8L20 10H7"></path>
+                    <circle cx="10" cy="20" r="1.5"></circle>
+                    <circle cx="17" cy="20" r="1.5"></circle>
+                </svg>
+                <span class="fab-text">Comprar HT</span>
+            </button>
+        </div>
+        <a class={granariaClass} href="#" data-page={granariaPage} onclick={handleNavigate}>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 6h16v12H4zM4 10h16M8 14h4"></path>
+            </svg>
+            <span class="label">Granaria</span>
+        </a>
+        <a class={precertClass} href="#" data-page={precertPage} onclick={handleNavigate}>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"></path>
+            </svg>
+            <span class="label">Precert.</span>
+        </a>
     </nav>
 </template>

@@ -1,96 +1,117 @@
-<!--
-  @description       : 
-  @author            : jean.nieto.ex@copec.cl
-  @group             : 
-  @last modified on  : 10-02-2025
-  @last modified by  : jean.nieto.ex@copec.cl
--->
 <template>
-  <!-- HEADER SALESFORCE -->
-  <div class="header-container">
-    <header if:true={isSalesforce}>
-      <!-- Bloque superior -->
-      <div class="prenav">
-        <div class="content">
-          <div class="platform" >
-          <a if:true={isDistribuidor} href={comercioUrl}>IR A PLATAFORMA COMERCIOS</a>
-          </div>
-          <!-- Usuario -->
-          <div class="usernav">
-            <span  class="accbtn" if:true={accountName}>{accountName}</span>
-            <div class="usermenu">
-               
-              <button class="userbtn" aria-haspopup="true">
-                {userName} <span class="caret">▲</span>
-              </button>
-              <div class="submenu">
-                <a data-page="editProfile" onclick={handleNavigate}>Editar Perfil</a>
-              </div>
+    <div class="se-header">
+        <div class="topbar">
+            <a class="logo" href={homeHref} data-page="" onclick={handleNavigate}>
+                <img src={logoUrl} alt="Sembrá Evolución" />
+            </a>
+            <button class="menu-btn" type="button" aria-label="Abrir menú" onclick={openDrawer}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M3 6h18M3 12h18M3 18h18"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="desktop">
+            <div class="d-strip">
+                <a if:true={isDistribuidor} class="co-link" href={comercioUrl}>Ir a plataforma comercios</a>
+                <div class="d-strip-end">
+                    <span class="co" if:true={accountName}>{accountName}</span>
+                    <div class={userMenuClass}>
+                        <button class="user" type="button" aria-haspopup="true" onclick={toggleUserMenu}>
+                            {userName}
+                            <span class="caret" aria-hidden="true"></span>
+                        </button>
+                        <div class="submenu" role="menu">
+                            <a href={perfilHref} data-page="editarperfil" onclick={handleProfile}>Editar perfil</a>
+                            <button class="logout-item" type="button" onclick={handleCommunityLogout}>Cerrar sesión</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <lightning-icon 
-              icon-name="utility:logout" 
-              alternative-text="Logout" 
-              size="xx-small" 
-              onclick={handleCommunityLogout} 
-              class="circled">
-            </lightning-icon>
-          </div>
-        </div>
-      </div>
-
-      <!-- Menú principal -->
-      <div class="mainav">
-        <div class="content">
-          <a href="" onclick={clic} class="logow">
-            <img src={logoUrl} alt="Sembrá Evolución - Login" />
-          </a>
-          <nav>
-            <template for:each={navItems} for:item="item">
-              <template if:true={item.submenu}>
-                <div key={item.label} class="item has-submenu">
-                  <button>{item.label}</button>
-                  <div class="submenu">
-                    <template for:each={item.submenu} for:item="sub">
-                      <a key={sub.label} href={sub.url} onclick={clic}>{sub.label}</a>
+            <div class="d-nav">
+                <a class="logo logo-desktop" href={homeHref} data-page="" onclick={handleNavigate}>
+                    <img src={logoUrl} alt="Sembrá Evolución" />
+                </a>
+                <nav aria-label="Principal">
+                    <template for:each={navItemsView} for:item="item">
+                        <div key={item.id} class={item.itemClass}>
+                            <template if:true={item.hasSubmenu}>
+                                <button type="button" data-id={item.id} aria-expanded={item.openAria} onclick={toggleSubmenu}>
+                                    {item.label}
+                                    <span class="caret light" aria-hidden="true"></span>
+                                </button>
+                                <div class="submenu">
+                                    <template for:each={item.submenu} for:item="sub">
+                                        <a key={sub.id} href={sub.href} data-page={sub.url} onclick={handleNavigate}>{sub.label}</a>
+                                    </template>
+                                </div>
+                            </template>
+                            <template if:false={item.hasSubmenu}>
+                                <a href={item.href} data-page={item.url} onclick={handleNavigate}>{item.label}</a>
+                            </template>
+                        </div>
                     </template>
-                  </div>
-                </div>
-              </template>
-              <template if:false={item.submenu}>
-                <div key={item.label} class="item">
-                  <a href={item.url} onclick={clic}>{item.label}</a>
-                </div>
-              </template>
-            </template>
-          </nav>
+                </nav>
+            </div>
         </div>
-      </div>
-    </header>
-  </div>
 
-  <!-- HEADER SGL -->
-  <header if:false={isSalesforce}>
-    <div class="prenav">
-      <div class="content">
-        <div class="platform">
-          <span>Plataforma Comercios</span>
+        <div class={drawerClass}>
+            <div class="scrim" onclick={closeDrawer}></div>
+            <aside class="panel" role="dialog" aria-modal="true" aria-label="Menú">
+                <div class="d-head">
+                    <span class="brand">Menú</span>
+                    <button class="d-close" type="button" aria-label="Cerrar menú" onclick={closeDrawer}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                            <path d="M6 6l12 12M18 6L6 18"></path>
+                        </svg>
+                    </button>
+                </div>
+                <nav class="drawer-nav">
+                    <div class="d-section-label">Navegación</div>
+                    <template for:each={drawerNavView} for:item="item">
+                        <div key={item.id}>
+                            <template if:true={item.hasSubmenu}>
+                                <button class={item.itemClass} type="button" data-id={item.id} onclick={toggleDrawerSection}>
+                                    {item.label}
+                                    <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                        <path d="M6 9l6 6 6-6"></path>
+                                    </svg>
+                                </button>
+                                <div if:true={item.open} class="d-sub">
+                                    <template for:each={item.submenu} for:item="sub">
+                                        <a key={sub.id} class={sub.itemClass} href={sub.href} data-page={sub.url} onclick={handleNavigate}>{sub.label}</a>
+                                    </template>
+                                </div>
+                            </template>
+                            <template if:false={item.hasSubmenu}>
+                                <a class={item.itemClass} href={item.href} data-page={item.url} onclick={handleNavigate}>{item.label}</a>
+                            </template>
+                        </div>
+                    </template>
+                </nav>
+                <div class="d-account">
+                    <div class="d-section-label tight">Cuenta</div>
+                    <div class="d-user">
+                        <div class="d-avatar">{userInitial}</div>
+                        <div class="d-user-meta">
+                            <div class="d-user-name">{userName}</div>
+                            <div class="d-user-role">Productor</div>
+                        </div>
+                    </div>
+                    <div class="d-empresa" if:true={accountName}>
+                        <div class="d-empresa-label">Empresa activa</div>
+                        <div class="d-empresa-box">{accountName}</div>
+                    </div>
+                    <a if:true={isDistribuidor} class="d-item" href={comercioUrl}>Ir a plataforma comercios</a>
+                    <a class="d-item profile" href={perfilHref} data-page={perfilPage} onclick={handleNavigate}>Perfil de usuario</a>
+                    <button class="d-logout" type="button" onclick={handleCommunityLogout}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"></path>
+                        </svg>
+                        Cerrar sesión
+                    </button>
+                </div>
+            </aside>
         </div>
-        <div class="usernav">
-          <a class="circled" onclick={handleLogout}>
-            <lightning-icon icon-name="utility:logout" size="xx-small"></lightning-icon>
-          </a>
-        </div>
-      </div>
     </div>
-    <div class="mainav">
-      <div class="content">
-        <a href="" class="logow">
-          <img src={logorl} alt="Sembrá Evolución - Login" />
-        </a>
-        <nav class="sgl"> 
-          <a href="" class="button altborder">&larr; Volver al Portal</a>
-        </nav>
-      </div>
-    </div>
-  </header>
 </template>

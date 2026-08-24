@@ -1,76 +1,47 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">FACTURACION</div>
-                <div class="title">Todas las Facturas</div>
+    <div class="page">
+        <header class="head">
+            <div class="head-copy">
+                <p class="eyebrow eyebrow-d">MIS COMPRAS</p>
+                <p class="eyebrow eyebrow-m">MÓDULOS · MIS COMPRAS</p>
+                <h1 class="title">Todas las facturas</h1>
+                <p class="subtitle">Facturas de Compra HT, Precertificación y servicios asociados.</p>
             </div>
+            <button class="btn-export" type="button" onclick={handleExport}>Exportar</button>
+        </header>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                
-                    <select data-id="cultivosSelect" onchange={handleCultivoSelect}>
-                        <option value="">Cultivo</option>
-                        <template for:each={cultivos} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                    <select onchange={handleMarcaSelect}>
-                        <option value="">Marca</option>
-                        <template for:each={marcas} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                    <select onchange={handleEstadoSelect}>
-                        <option value="">Estado</option>
-                        <template for:each={estados} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                </div>
-            </div>
+        <div class="toolbar">
+            <button class={pillTodasClass} type="button" data-filter="todas" onclick={handlePill}>
+                Todas
+                <span class="count">{countTodas}</span>
+            </button>
+            <button class={pillFacturadasClass} type="button" data-filter="facturadas" onclick={handlePill}>
+                Facturadas
+                <span class="count">{countFacturadas}</span>
+            </button>
+            <button class={pillPagadasClass} type="button" data-filter="pagadas" onclick={handlePill}>
+                Pagadas
+                <span class="count">{countPagadas}</span>
+            </button>
         </div>
 
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emision • <br>
-                Filtrado por Todas las facturas • Se actualizó hace una hora
-            </div>
-
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">🔍</span>
-            </div>
-        </div>
-
-        <!-- Tabla -->
-         <lightning-datatable
-                key-field="uniqueId"
-                class="dataTable"
-                data={data}
+        <div class="list-slot">
+            <c-se-data-list
+                records={data}
                 columns={columns}
-                onrowaction={handleRowAction}
-                onsort={handleOnSort}
-                sorted-by={sortBy}
-                sorted-direction={sortDirection}
-                column-widths-mode="auto"
-                resize-column-disabled
-                hide-checkbox-column>
-            </lightning-datatable>
-
-            <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
-        </div> 
-        
-         <!-- Modal -->
-    <c-pdf-reader></c-pdf-reader>
-
-    <!-- Informar Pago -->
-    <c-informar-pago></c-informar-pago>
-
+                mobile-fields={mobileFields}
+                title-field="numero"
+                badge-field="statusLabel"
+                badge-tone-field="statusTone"
+                key-field="uniqueId"
+                action-label="Ver"
+                mobile-action-label="Ver factura (PDF) →"
+                empty-text="No hay facturas para mostrar."
+                action-disabled-field="actionDisabled"
+                onrowaction={handleRowAction}>
+            </c-se-data-list>
+        </div>
     </div>
+
+    <c-pdf-reader></c-pdf-reader>
 </template>

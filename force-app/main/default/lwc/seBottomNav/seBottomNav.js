@@ -5,6 +5,10 @@ import { PAGES, goToCommunityPage, isPageActive } from 'c/seNav';
 
 export default class SeBottomNav extends LightningElement {
     tokensLoaded = false;
+    homePage = PAGES.home;
+    licenciasPage = PAGES.licencias;
+    granariaPage = PAGES.granaria;
+    precertPage = PAGES.pph;
 
     connectedCallback() {
         document.documentElement.classList.add('se-chrome');
@@ -21,50 +25,44 @@ export default class SeBottomNav extends LightningElement {
         }
     }
 
-    get leftItems() {
-        return [
-            {
-                id: 'home',
-                label: 'Inicio',
-                page: PAGES.home,
-                glyphClass: 'glyph home',
-                itemClass: this.itemClass(PAGES.home)
-            },
-            {
-                id: 'licencias',
-                label: 'Licencias',
-                page: PAGES.licencias,
-                glyphClass: 'glyph file',
-                itemClass: this.itemClass(PAGES.licencias)
-            }
-        ];
+    get homeActive() {
+        return isPageActive(PAGES.home);
     }
 
-    get rightItems() {
-        return [
-            {
-                id: 'granaria',
-                label: 'Granaria',
-                page: PAGES.granaria,
-                glyphClass: 'glyph grain',
-                itemClass: this.itemClass(PAGES.granaria)
-            },
-            {
-                id: 'precert',
-                label: 'PPH',
-                page: PAGES.pph,
-                glyphClass: 'glyph badge',
-                itemClass: this.itemClass(PAGES.pph)
-            }
-        ];
+    get licenciasActive() {
+        return isPageActive(PAGES.licencias);
+    }
+
+    get granariaActive() {
+        return isPageActive(PAGES.granaria);
+    }
+
+    get precertActive() {
+        return isPageActive(PAGES.pph);
+    }
+
+    get homeClass() {
+        return this.cellClass(this.homeActive);
+    }
+
+    get licenciasClass() {
+        return this.cellClass(this.licenciasActive);
+    }
+
+    get granariaClass() {
+        return this.cellClass(this.granariaActive);
+    }
+
+    get precertClass() {
+        return this.cellClass(this.precertActive);
     }
 
     get fabClass() {
         return isPageActive(PAGES.comprar) ? 'fab is-active' : 'fab';
     }
 
-    itemClass(page) {
-        return isPageActive(page) ? 'nav-item is-active' : 'nav-item';
+    cellClass(active) {
+        return active ? 'nav-item is-active' : 'nav-item';
     }
 
     handleNavigate = (event) => {

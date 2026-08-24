@@ -5,6 +5,21 @@
     padding: 6rem 2rem;
     column-gap: 2rem;
     min-height: 40px;
+    box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+    :host {
+        display: block;
+        min-height: calc(100dvh - 112px);
+        box-sizing: border-box;
+        padding-bottom: 96px;
+    }
+
+    .bienvenida-container {
+        min-height: calc(100dvh - 112px - 96px);
+        padding: 4rem 2rem;
+    }
 }
 
 .bienvenida-texto {
