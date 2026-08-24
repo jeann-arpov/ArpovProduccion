@@ -1,0 +1,99 @@
+button.black-border {
+    border: 1px solid black;
+    padding: 0px 5px;
+}
+
+.circle {
+    border-radius: 50px;
+    --slds-c-button-radius-border: 50px;
+}
+
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    
+}
+
+.modal {
+    background-color: white;
+    border-radius: 16px;
+    padding: 24px 28px;
+    width: 360px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+    position: relative;
+    font-family: inherit;
+    animation: fadeIn 0.2s ease-in-out;
+    margin-bottom: 40px;
+}
+
+.modal h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.modal p {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #000;
+}
+
+.modal-start {
+    margin-top: 80px; /* este espacio es lo que faltaba */
+    background-color: white;
+    border: 2px solid #B3DC00;
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: black;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+.modal-start:hover {
+    background-color: #f1f9e3;
+}
+
+
+
+.btn-comercial {
+    background: white;
+    border: 2px solid #B5EC08;
+    border-radius: 30px;
+    padding: 0.5rem 1.2rem;
+    font-weight: bold;
+    color: #1c1c1c;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 10px;
+}
+
+.btn-comercial:hover {
+    background-color: #B5EC08;
+    color: black;
+}

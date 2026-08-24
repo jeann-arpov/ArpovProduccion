@@ -1,0 +1,135 @@
+/* Tokens Sembrá Evolución. Cargar desde seHeader / seBottomNav.
+   También corrige CSS del theme de Experience Cloud que hoy es desktop-only. */
+:root {
+  --se-lima: #bfff00;
+  --se-black: #1c1c1c;
+  --se-ink: #181819;
+  --se-white: #ffffff;
+  --se-muted: #6b7280;
+  --se-orange: #ffa945;
+  --se-danger: #d64545;
+  --se-radius: 12px;
+  --se-radius-pill: 25px;
+  --se-touch: 44px;
+  --se-topbar-m: 56px;
+  --se-topbar-d: 64px;
+  --se-bottom: 64px;
+  --se-content-max: 70rem;
+  --se-font: "Roboto", Arial, sans-serif;
+  --se-font-display: "Montserrat", "Roboto", Arial, sans-serif;
+}
+
+html.se-chrome,
+body.se-chrome {
+  font-family: var(--se-font);
+  --dxp-c-section-columns-max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  html.se-chrome,
+  body.se-chrome {
+    --dxp-c-section-columns-max-width: 1170px;
+  }
+}
+
+@media (max-width: 767px) {
+  html.se-chrome,
+  body.se-chrome {
+    padding-bottom: calc(var(--se-bottom) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Chrome nativo de Community: se oculta; el nav lo pinta seHeader. */
+.se-chrome .myAccount,
+.se-chrome .slds-icon-utility-down {
+  display: none;
+}
+
+.se-chrome .profileName {
+  color: var(--se-lima) !important;
+}
+
+.se-chrome .forceListViewPicker {
+  pointer-events: none;
+}
+
+/* Theme actual: .slds-card { width: 70rem } — en phone debe fluir. */
+.se-chrome .slds-card {
+  border: none !important;
+  width: 100% !important;
+  max-width: var(--se-content-max);
+  box-sizing: border-box;
+}
+
+.se-chrome .comm-navigation .comm-navigation__list .slds-list__item .slds-is-active,
+.se-chrome .comm-navigation .comm-navigation__list :hover {
+  background-color: #2d2d2d;
+  border-radius: var(--se-radius-pill);
+  color: var(--se-lima);
+}
+
+.se-chrome input,
+.se-chrome .slds-input,
+.se-chrome .fix-slds-input_faux {
+  border-radius: 20px !important;
+  min-height: var(--se-touch);
+  height: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.se-chrome .slds-button_brand {
+  border-radius: var(--se-radius-pill);
+  min-height: var(--se-touch);
+}
+
+.se-chrome .slds-button_icon-border {
+  border: none;
+}
+
+.se-chrome lightning-primitive-icon {
+  color: var(--se-lima);
+}
+
+.se-chrome .icono {
+  background-color: var(--se-black) !important;
+  border-radius: var(--se-radius-pill) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  height: 20px !important;
+  width: 20px !important;
+}
+
+.se-chrome .date-inputs .slds-input-has-icon .slds-input__icon {
+  position: absolute;
+  top: 8px !important;
+}
+
+/* No copiar button { height: 40px } del theme: achica FAB, hamburger y bottom nav. */
+
+/* Tokens de botones nativos (hoy viven en Head Markup). Se dejan iguales. */
+.slds-button--neutral,
+.forceActionLink {
+  --lwc-brandAccessible: rgb(118, 113, 107);
+}
+
+.slds-button_neutral {
+  --lwc-colorTextBrand: rgb(118, 113, 107);
+  --lwc-brandAccessible: rgb(118, 113, 107);
+  --lwc-brandAccessibleActive: rgb(118, 113, 107);
+}
+
+/* Head Markup: .cCenterPanel { float:left; margin-left: 6rem }. En phone se anula. */
+.salesforceIdentityLoginBody2 .cCenterPanel {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .salesforceIdentityLoginBody2 .cCenterPanel {
+    float: none !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+}
