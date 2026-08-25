@@ -36,6 +36,11 @@
                         <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Volver al Inicio" onclick={redirectInicio}></lightning-button>
                     </div>
 
+                    <div if:true={isEnRevision}>
+                        <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">Recibimos tu solicitud. El equipo de Sembrá Evolución estará revisando la información presentada para finalizar el proceso de validación. Te notificaremos una vez que la revisión haya finalizado.</h1>
+                        <lightning-button style="font-weight: 700" class="slds-m-top_medium slds-m-left_small circle black-border" type="submit" label="Volver al Inicio" onclick={redirectInicio}></lightning-button>
+                    </div>
+
                     <div if:true={isAdheridoCesion}>
                         <lightning-icon class="success" icon-name="action:approval" alternative-text="Aprobada" title="Aprobada"></lightning-icon>
                         <h1 class="slds-m-bottom_medium slds-m-vertical_large" style="font-size: 18px;">FELICITACIONES! Has enviado tu solicitud de cesión</h1>

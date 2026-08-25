@@ -4,9 +4,9 @@
             <div class="header">{tarjeta.cultivo.Name}</div>
             <div class={tarjeta.saldoClass} style="text-align:center;">
                 <div style="font-size: xx-large;">{tarjeta.saldoHTs}</div>
-                <div style="font-size: large;">HT <span if:false={tarjeta.isAdherido}>Futuras</span></div>
+                <div style="font-size: large;">HT <span if:false={tarjeta.isFinalizado}>Futuras</span></div>
             </div>
-            <div class="action-button-container" if:false={tarjeta.isAdherido}>
+            <div class="action-button-container" if:false={tarjeta.isFinalizado}>
                 <lightning-button class={tarjeta.buttonClass} label={tarjeta.buttonLabel} onclick={doAction} data-id={tarjeta.cultivo.Id}></lightning-button>
             </div>
             <div class="info-adherido" if:true={tarjeta.isAdherido}>
@@ -14,6 +14,12 @@
                     PPH <lightning-icon class="icono-adherido" size="x-small" icon-name="action:approval" alternative-text="adherido"></lightning-icon>
                 </div>
                 <div style="color:white;">Adherido al programa de Pre certificación De hectáreas</div>
+            </div>
+            <div class="info-adherido" if:true={tarjeta.isRevision}>
+                <div style="font-size:x-large;color:#f1c40f;">
+                    PPH <lightning-icon class="icono-adherido" size="x-small" icon-name="utility:clock" alternative-text="en revisión"></lightning-icon>
+                </div>
+                <div style="color:white;">En revisión - El equipo de Sembrá Evolución está validando la información</div>
             </div>
             <div class="footer">
                 <span onclick={redirectToCC} data-id={tarjeta.cultivo.Id}>Ver Cuenta Corriente &gt;</span>

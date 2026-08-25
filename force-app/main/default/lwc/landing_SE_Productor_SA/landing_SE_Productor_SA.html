@@ -30,7 +30,7 @@
                             <div class="metric-vt">
                                 <div class="metric-value">{t.saldoHTs}</div>
                                 <div class="metric-label green">
-                                    HT <template if:false={t.isAdherido}>Futuras</template>
+                                    HT <template if:false={t.isFinalizado}>Futuras</template>
                                 </div>
                             </div>
                         </div>
@@ -48,8 +48,21 @@
                             </div>
                         </template>
 
+                        <!-- Si está en revisión -->
+                        <template if:true={t.isRevision}>
+                            <div class="info-adherido">
+                                <div style="font-size:x-large;color:#f1c40f;">
+                                    PPH
+                                    <lightning-icon class="icono-adherido" size="x-small" icon-name="utility:clock"></lightning-icon>
+                                </div>
+                                <div style="color: #767171;">
+                                    En revisión - El equipo de Sembrá Evolución está validando la información
+                                </div>
+                            </div>
+                        </template>
+
                         <!-- Si no está adherido -->
-                        <template if:false={t.isAdherido}>
+                        <template if:false={t.isFinalizado}>
                             <div class="action-button-container">
                                 <button class="primary-button" onclick={doAction} data-id={t.cultivo.Id}>
                                     {t.buttonLabel}

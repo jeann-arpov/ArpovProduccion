@@ -21,6 +21,11 @@
                 <label>En Preparación</label>
             </value>
             <value>
+                <fullName>En Revisión</fullName>
+                <default>false</default>
+                <label>En Revisión</label>
+            </value>
+            <value>
                 <fullName>Adherido</fullName>
                 <default>false</default>
                 <label>Adherido</label>

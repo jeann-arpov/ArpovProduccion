@@ -28,8 +28,10 @@ export default class HomeMulticultivo extends LightningElement {
                 t.isComprar = t.version == 'comprar';
                 t.isAdherir = t.version == 'adherir';
                 t.isAdherido = t.version == 'adherido';
+                t.isRevision = t.version == 'revision';
+                t.isFinalizado = t.isAdherido || t.isRevision;
                 t.buttonLabel = t.isComprar ? 'Compra HT' : 'Adherite a PPH';
-                t.saldoClass = t.isAdherido ? 'saldo-adherido' : 'saldo-no-adherido';
+                t.saldoClass = t.isFinalizado ? 'saldo-adherido' : 'saldo-no-adherido';
                 t.buttonClass = `action-button${t.isComprar ? ' button-comprar' : ''}`;
             });
             this.tarjetas = data;

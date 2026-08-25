@@ -99,6 +99,11 @@
     background-color: black;
 }
 
+.revision{
+    background-color: #f1c40f;
+    color: black;
+}
+
 .no-adherido{
     background-color: grey;
 }

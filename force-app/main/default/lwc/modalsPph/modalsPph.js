@@ -37,6 +37,10 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
         return this.currentModal == "adherido";
     }
 
+    get isEnRevision() {
+        return this.currentModal == "en-revision";
+    }
+
     get isDeleteDestinatarioConfirm() {
         return this.currentModal == "confirm-delete-destinatario";
     }

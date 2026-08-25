@@ -20,6 +20,8 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
                 t.isComprar = t.version === 'comprar';
                 t.isAdherir = t.version === 'adherir';
                 t.isAdherido = t.version === 'adherido';
+                t.isRevision = t.version === 'revision';
+                t.isFinalizado = t.isAdherido || t.isRevision;
                 t.buttonLabel = t.isComprar ? 'Compra HT' : 'Adherite a PPH';
             });
 
