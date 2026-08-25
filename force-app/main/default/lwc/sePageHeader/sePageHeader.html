@@ -1,0 +1,30 @@
+<template>
+    <header class="head">
+        <div class="head-copy">
+            <template if:true={eyebrow}>
+                <p class="eyebrow eyebrow-d">{eyebrow}</p>
+            </template>
+            <template if:true={mobileEyebrow}>
+                <p class="eyebrow eyebrow-m">{mobileEyebrow}</p>
+            </template>
+            <h1 class="title">{title}</h1>
+            <template if:true={subtitle}>
+                <p class="subtitle">{subtitle}</p>
+            </template>
+        </div>
+        <template if:true={hasAction}>
+            <button class="btn-action" type="button" onclick={handleAction}>{actionLabel}</button>
+        </template>
+        <template if:true={showSearch}>
+            <label class="search">
+                <span class="search-label">Buscar</span>
+                <input
+                    type="search"
+                    placeholder={searchPlaceholder}
+                    value={searchValue}
+                    oninput={handleSearch}
+                />
+            </label>
+        </template>
+    </header>
+</template>

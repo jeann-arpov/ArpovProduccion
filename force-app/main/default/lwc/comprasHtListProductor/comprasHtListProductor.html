@@ -1,82 +1,47 @@
 <template>
-    <div class="page">
-        <header class="head">
-            <div class="head-copy">
-                <p class="eyebrow eyebrow-d">MIS COMPRAS</p>
-                <p class="eyebrow eyebrow-m">MÓDULOS · MIS COMPRAS</p>
-                <h1 class="title">Mis Compras HT</h1>
-                <p class="subtitle">Compras HT del productor. Filtrá por estado, cultivo o variedad.</p>
-            </div>
-            <label class="search">
-                <span class="search-label">Buscar</span>
-                <input type="search" placeholder="Buscar..." oninput={handleSearchChange} />
-            </label>
-        </header>
+    <c-se-list-page loading={loading}>
+        <c-se-page-header
+            slot="header"
+            eyebrow="MIS COMPRAS"
+            eyebrow-mobile="MÓDULOS · MIS COMPRAS"
+            title="Mis Compras HT"
+            subtitle="Compras HT del productor. Filtrá por estado, cultivo o variedad."
+            show-search
+            search-placeholder="Buscar..."
+            onsearchchange={handleSearchChange}
+        ></c-se-page-header>
 
-        <div class="toolbar">
-            <template for:each={statusPills} for:item="pill">
-                <button key={pill.id} class={pill.className} type="button" data-filter={pill.id} onclick={handlePill}>
-                    {pill.label}
-                    <span class="count">{pill.count}</span>
-                </button>
-            </template>
+        <c-se-filter-pills slot="toolbar" items={statusPills} onselect={handlePill}></c-se-filter-pills>
+
+        <div slot="filters">
+            <c-se-select
+                options={cultivoOptions}
+                value={cultivoSeleccionado}
+                placeholder="Todos los cultivos"
+                onchange={handleCultivo}
+            ></c-se-select>
+            <c-se-select
+                options={variedadOptions}
+                value={variedadSeleccionada}
+                placeholder="Todas las variedades"
+                onchange={handleVariedad}
+            ></c-se-select>
         </div>
 
-        <div class="filters">
-            <div class="dd">
-                <button class={cultivoTriggerClass} type="button" onclick={toggleCultivo}>
-                    <span class="dd-label">{cultivoTriggerLabel}</span>
-                    <span class="chev" aria-hidden="true"></span>
-                </button>
-                <template if:true={cultivoOpen}>
-                    <div class="dd-menu" role="listbox">
-                        <template for:each={cultivoPills} for:item="item">
-                            <button key={item.id} class={item.itemClass} type="button" data-filter={item.id} onclick={handleCultivo}>
-                                {item.label}
-                            </button>
-                        </template>
-                    </div>
-                </template>
-            </div>
-            <div class="dd">
-                <button class={variedadTriggerClass} type="button" onclick={toggleVariedad}>
-                    <span class="dd-label">{variedadTriggerLabel}</span>
-                    <span class="chev" aria-hidden="true"></span>
-                </button>
-                <template if:true={variedadOpen}>
-                    <div class="dd-menu" role="listbox">
-                        <template for:each={variedadPills} for:item="item">
-                            <button key={item.id} class={item.itemClass} type="button" data-filter={item.id} onclick={handleVariedad}>
-                                {item.label}
-                            </button>
-                        </template>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <div class="list-slot">
-            <c-se-data-list
-                records={data}
-                columns={columns}
-                mobile-fields={mobileFields}
-                title-field="name"
-                badge-field="statusLabel"
-                badge-tone-field="statusTone"
-                key-field="id"
-                action-label="Ver"
-                mobile-action-label="Ver compra →"
-                empty-text="No hay compras para mostrar."
-                onrowaction={handleRowAction}>
-            </c-se-data-list>
-        </div>
-
-        <template if:true={showPager}>
-            <nav class="pager" aria-label="Paginación">
-                <button class="pager-btn" type="button" onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-                <span class="pager-page">{pageLabel}</span>
-                <button class="pager-btn" type="button" onclick={handleNext} disabled={disableNext}>Siguiente</button>
-            </nav>
-        </template>
-    </div>
+        <c-se-data-list
+            records={filtered}
+            columns={columns}
+            mobile-fields={mobileFields}
+            title-field="name"
+            badge-field="statusLabel"
+            badge-tone-field="statusTone"
+            key-field="id"
+            action-label="Ver"
+            mobile-action-label="Ver compra →"
+            empty-text="No hay compras para mostrar."
+            page-size={pageSize}
+            loading={loading}
+            onrowaction={handleRowAction}
+        ></c-se-data-list>
+    </c-se-list-page>
 </template>

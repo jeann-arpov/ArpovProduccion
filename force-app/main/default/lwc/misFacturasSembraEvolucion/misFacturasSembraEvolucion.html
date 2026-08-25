@@ -1,47 +1,34 @@
 <template>
-    <div class="page">
-        <header class="head">
-            <div class="head-copy">
-                <p class="eyebrow eyebrow-d">MIS COMPRAS</p>
-                <p class="eyebrow eyebrow-m">MÓDULOS · MIS COMPRAS</p>
-                <h1 class="title">Todas las facturas</h1>
-                <p class="subtitle">Facturas de Compra HT, Precertificación y servicios asociados.</p>
-            </div>
-            <button class="btn-export" type="button" onclick={handleExport}>Exportar</button>
-        </header>
+    <c-se-list-page loading={loading}>
+        <c-se-page-header
+            slot="header"
+            eyebrow="MIS COMPRAS"
+            eyebrow-mobile="MÓDULOS · MIS COMPRAS"
+            title="Todas las facturas"
+            subtitle="Facturas de Compra HT, Precertificación y servicios asociados."
+            action-label="Exportar"
+            onaction={handleExport}
+        ></c-se-page-header>
 
-        <div class="toolbar">
-            <button class={pillTodasClass} type="button" data-filter="todas" onclick={handlePill}>
-                Todas
-                <span class="count">{countTodas}</span>
-            </button>
-            <button class={pillFacturadasClass} type="button" data-filter="facturadas" onclick={handlePill}>
-                Facturadas
-                <span class="count">{countFacturadas}</span>
-            </button>
-            <button class={pillPagadasClass} type="button" data-filter="pagadas" onclick={handlePill}>
-                Pagadas
-                <span class="count">{countPagadas}</span>
-            </button>
-        </div>
+        <c-se-filter-pills slot="toolbar" items={statusPills} onselect={handlePill}></c-se-filter-pills>
 
-        <div class="list-slot">
-            <c-se-data-list
-                records={data}
-                columns={columns}
-                mobile-fields={mobileFields}
-                title-field="numero"
-                badge-field="statusLabel"
-                badge-tone-field="statusTone"
-                key-field="uniqueId"
-                action-label="Ver"
-                mobile-action-label="Ver factura (PDF) →"
-                empty-text="No hay facturas para mostrar."
-                action-disabled-field="actionDisabled"
-                onrowaction={handleRowAction}>
-            </c-se-data-list>
-        </div>
-    </div>
+        <c-se-data-list
+            records={data}
+            columns={columns}
+            mobile-fields={mobileFields}
+            title-field="numero"
+            badge-field="statusLabel"
+            badge-tone-field="statusTone"
+            key-field="uniqueId"
+            action-label="Ver"
+            mobile-action-label="Ver factura (PDF) →"
+            empty-text="No hay facturas para mostrar."
+            action-disabled-field="actionDisabled"
+            page-size={pageSize}
+            loading={loading}
+            onrowaction={handleRowAction}
+        ></c-se-data-list>
+    </c-se-list-page>
 
     <c-pdf-reader></c-pdf-reader>
 </template>

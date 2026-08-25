@@ -1,161 +1,214 @@
 <template>
-    <div class="profile-page">
-        <header class="page-header">
-            <p class="config-text">Configuración</p>
-            <h1 class="perfil-title">Perfil de {userName}</h1>
-            <p class="page-subtitle">Actualizá tus datos de contacto y contraseña de acceso.</p>
-        </header>
+    <div class="page">
+        <!-- VIEW: hub Style Guide 4f -->
+        <template if:true={isView}>
+            <div class="hub">
+                <div class="hero">
+                    <div class="avatar" aria-hidden="true">{initials}</div>
+                    <div class="hero-copy">
+                        <p class="name">{displayName}</p>
+                        <p class="company">{businessName}</p>
+                    </div>
+                    <button class="btn-lime btn-lime-desktop" type="button" onclick={goEdit}>
+                        <svg class="btn-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                        </svg>
+                        Editar perfil
+                    </button>
+                </div>
 
-        <!-- Datos de contacto -->
-        <section class="custom-card" aria-labelledby="contact-section-title">
-            <div class="card-header">
-                <lightning-icon icon-name="utility:user" size="small" class="card-icon"></lightning-icon>
-                <h2 id="contact-section-title" class="card-title">Datos de contacto</h2>
-            </div>
-
-            <div class="profile-grid">
-                <div class="field-group field-group--readonly">
-                    <span class="field-label">Nombre completo</span>
-                    <p class="info-value">{fullName}</p>
-                </div>
-                <div class="field-group field-group--readonly">
-                    <span class="field-label">Razón social</span>
-                    <p class="info-value">{businessName}</p>
-                </div>
-                <div class="field-group field-group--readonly">
-                    <span class="field-label">Nro. de documento</span>
-                    <p class="info-value">{documentId}</p>
-                </div>
-                <div class="field-group field-group--readonly">
-                    <span class="field-label">CUIT</span>
-                    <p class="info-value">{cuit}</p>
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="mobile-input">Celular</label>
-                    <lightning-input
-                        id="mobile-input"
-                        value={mobilePhone}
-                        onchange={handlePhone}
-                        variant="label-hidden"
-                        placeholder="+549XXXXXXXXXX"
-                        class="field-input">
-                    </lightning-input>
-                    <p class="field-hint">Formato: +549 seguido de 10 dígitos</p>
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="email-input">Email</label>
-                    <lightning-input
-                        id="email-input"
-                        type="email"
-                        value={email}
-                        onchange={handleEmail}
-                        variant="label-hidden"
-                        placeholder="correo@ejemplo.com"
-                        class="field-input">
-                    </lightning-input>
-                </div>
-            </div>
-
-            <footer class="card-footer">
-                <button class="btn-custom" type="button" onclick={openModal} disabled={isUpdating}>
-                    Actualizar datos
+                <button class="btn-lime btn-lime-mobile" type="button" onclick={goEdit}>
+                    <svg class="btn-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                    </svg>
+                    Editar perfil
                 </button>
-            </footer>
-        </section>
 
-        <!-- Contraseña -->
-        <section class="custom-card" aria-labelledby="password-section-title">
-            <div class="card-header">
-                <lightning-icon icon-name="utility:lock" size="small" class="card-icon"></lightning-icon>
-                <h2 id="password-section-title" class="card-title">Seguridad</h2>
-            </div>
+                <div class="hub-body">
+                    <dl class="info">
+                        <div class="info-row">
+                            <dt>Email</dt>
+                            <dd>{emailDisplay}</dd>
+                        </div>
+                        <div class="info-row">
+                            <dt>Teléfono</dt>
+                            <dd>{phoneDisplay}</dd>
+                        </div>
+                        <div class="info-row">
+                            <dt>CUIT</dt>
+                            <dd>{cuitDisplay}</dd>
+                        </div>
+                        <div class="info-row">
+                            <dt>Rol</dt>
+                            <dd>{roleDisplay}</dd>
+                        </div>
+                    </dl>
 
-            <div class="password-grid">
-                <div class="field-group password-field">
-                    <label class="field-label" for="old-password">Contraseña actual</label>
-                    <div class="password-input-wrap">
-                        <lightning-input
-                            id="old-password"
-                            data-id="oldPassword"
-                            value={oldPassword}
-                            type={oldPasswordType}
-                            onchange={handleChange}
-                            variant="label-hidden"
-                            class="field-input"
-                            autocomplete="current-password">
-                        </lightning-input>
-                        <lightning-button-icon
-                            icon-name={oldPasswordToggleIcon}
-                            alternative-text="Mostrar u ocultar contraseña actual"
-                            title="Mostrar u ocultar contraseña actual"
-                            data-field="oldPassword"
-                            onclick={togglePasswordVisibility}
-                            class="password-toggle"
-                            variant="bare">
-                        </lightning-button-icon>
-                    </div>
-                </div>
-
-                <div class="field-group password-field">
-                    <label class="field-label" for="new-password">Nueva contraseña</label>
-                    <div class="password-input-wrap">
-                        <lightning-input
-                            id="new-password"
-                            data-id="newPassword"
-                            value={newPassword}
-                            type={newPasswordType}
-                            onchange={handleChange}
-                            variant="label-hidden"
-                            class="field-input"
-                            autocomplete="new-password">
-                        </lightning-input>
-                        <lightning-button-icon
-                            icon-name={newPasswordToggleIcon}
-                            alternative-text="Mostrar u ocultar nueva contraseña"
-                            title="Mostrar u ocultar nueva contraseña"
-                            data-field="newPassword"
-                            onclick={togglePasswordVisibility}
-                            class="password-toggle"
-                            variant="bare">
-                        </lightning-button-icon>
-                    </div>
-                </div>
-
-                <div class="field-group password-field">
-                    <label class="field-label" for="confirm-password">Confirmar nueva contraseña</label>
-                    <div class="password-input-wrap">
-                        <lightning-input
-                            id="confirm-password"
-                            data-id="newPasswordConfirm"
-                            value={newPasswordConfirm}
-                            type={confirmPasswordType}
-                            onchange={handleChange}
-                            variant="label-hidden"
-                            class="field-input"
-                            autocomplete="new-password">
-                        </lightning-input>
-                        <lightning-button-icon
-                            icon-name={confirmPasswordToggleIcon}
-                            alternative-text="Mostrar u ocultar confirmación"
-                            title="Mostrar u ocultar confirmación"
-                            data-field="newPasswordConfirm"
-                            onclick={togglePasswordVisibility}
-                            class="password-toggle"
-                            variant="bare">
-                        </lightning-button-icon>
-                    </div>
+                    <nav class="actions" aria-label="Cuenta">
+                        <button class="action" type="button" onclick={goPassword}>
+                            <span>Cambiar contraseña</span>
+                            <span class="chev" aria-hidden="true"></span>
+                        </button>
+                        <button class="action" type="button" onclick={handleNotifications}>
+                            <span>Notificaciones</span>
+                            <span class="chev" aria-hidden="true"></span>
+                        </button>
+                        <button class="action action-danger" type="button" onclick={handleLogout}>
+                            <span>Cerrar sesión</span>
+                            <svg class="logout-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </button>
+                    </nav>
                 </div>
             </div>
+        </template>
 
-            <footer class="card-footer">
-                <button class="btn-custom" type="button" onclick={openModalPass} disabled={isChangingPassword}>
-                    Modificar contraseña
-                </button>
-            </footer>
-        </section>
+        <!-- EDIT: contacto -->
+        <template if:true={isEdit}>
+            <header class="head">
+                <button class="back" type="button" onclick={goView}>← Volver</button>
+                <p class="eyebrow">CUENTA</p>
+                <h1 class="title">Editar perfil</h1>
+                <p class="subtitle">Actualizá celular y email. El resto de los datos son de solo lectura.</p>
+            </header>
+
+            <section class="panel" aria-labelledby="edit-title">
+                <h2 id="edit-title" class="panel-title">Datos de contacto</h2>
+
+                <div class="grid">
+                    <div class="field readonly">
+                        <span class="label">Nombre completo</span>
+                        <p class="value">{fullName}</p>
+                    </div>
+                    <div class="field readonly">
+                        <span class="label">Razón social</span>
+                        <p class="value">{businessName}</p>
+                    </div>
+                    <div class="field readonly">
+                        <span class="label">Nro. de documento</span>
+                        <p class="value">{documentId}</p>
+                    </div>
+                    <div class="field readonly">
+                        <span class="label">CUIT</span>
+                        <p class="value">{cuitDisplay}</p>
+                    </div>
+
+                    <label class="field float">
+                        <span class="flabel">Celular</span>
+                        <input
+                            type="tel"
+                            value={mobilePhone}
+                            oninput={handlePhone}
+                            placeholder=" "
+                            autocomplete="tel"
+                        />
+                        <span class="hint">Formato: +549 seguido de 10 dígitos</span>
+                    </label>
+
+                    <label class="field float">
+                        <span class="flabel">Email</span>
+                        <input
+                            type="email"
+                            value={email}
+                            oninput={handleEmail}
+                            placeholder=" "
+                            autocomplete="email"
+                        />
+                    </label>
+                </div>
+
+                <footer class="panel-foot">
+                    <button class="btn-ghost" type="button" onclick={goView} disabled={isUpdating}>Cancelar</button>
+                    <button class="btn-dark" type="button" onclick={openModal} disabled={isUpdating}>
+                        Actualizar datos
+                    </button>
+                </footer>
+            </section>
+        </template>
+
+        <!-- PASSWORD -->
+        <template if:true={isPassword}>
+            <header class="head">
+                <button class="back" type="button" onclick={goView}>← Volver</button>
+                <p class="eyebrow">CUENTA</p>
+                <h1 class="title">Cambiar contraseña</h1>
+                <p class="subtitle">Ingresá tu contraseña actual y la nueva.</p>
+            </header>
+
+            <section class="panel" aria-labelledby="pass-title">
+                <h2 id="pass-title" class="panel-title">Seguridad</h2>
+
+                <div class="grid grid-pass">
+                    <label class="field float">
+                        <span class="flabel">Contraseña actual</span>
+                        <div class="pass-wrap">
+                            <input
+                                type={oldPasswordType}
+                                data-id="oldPassword"
+                                value={oldPassword}
+                                oninput={handleChange}
+                                placeholder=" "
+                                autocomplete="current-password"
+                            />
+                            <button class="eye" type="button" data-field="oldPassword" onclick={togglePasswordVisibility} aria-label="Mostrar u ocultar">
+                                <template if:true={showOldPassword}>Ocultar</template>
+                                <template if:false={showOldPassword}>Ver</template>
+                            </button>
+                        </div>
+                    </label>
+
+                    <label class="field float">
+                        <span class="flabel">Nueva contraseña</span>
+                        <div class="pass-wrap">
+                            <input
+                                type={newPasswordType}
+                                data-id="newPassword"
+                                value={newPassword}
+                                oninput={handleChange}
+                                placeholder=" "
+                                autocomplete="new-password"
+                            />
+                            <button class="eye" type="button" data-field="newPassword" onclick={togglePasswordVisibility} aria-label="Mostrar u ocultar">
+                                <template if:true={showNewPassword}>Ocultar</template>
+                                <template if:false={showNewPassword}>Ver</template>
+                            </button>
+                        </div>
+                    </label>
+
+                    <label class="field float">
+                        <span class="flabel">Confirmar nueva contraseña</span>
+                        <div class="pass-wrap">
+                            <input
+                                type={confirmPasswordType}
+                                data-id="newPasswordConfirm"
+                                value={newPasswordConfirm}
+                                oninput={handleChange}
+                                placeholder=" "
+                                autocomplete="new-password"
+                            />
+                            <button class="eye" type="button" data-field="newPasswordConfirm" onclick={togglePasswordVisibility} aria-label="Mostrar u ocultar">
+                                <template if:true={showConfirmPassword}>Ocultar</template>
+                                <template if:false={showConfirmPassword}>Ver</template>
+                            </button>
+                        </div>
+                    </label>
+                </div>
+
+                <footer class="panel-foot">
+                    <button class="btn-ghost" type="button" onclick={goView} disabled={isChangingPassword}>Cancelar</button>
+                    <button class="btn-dark" type="button" onclick={openModalPass} disabled={isChangingPassword}>
+                        Modificar contraseña
+                    </button>
+                </footer>
+            </section>
+        </template>
     </div>
 
-    <!-- Modal actualización -->
     <template if:true={modal}>
         <section class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-update-title" onclick={handleBackdropClick}>
             <div class="modal" onclick={stopPropagation}>
@@ -165,15 +218,11 @@
                 </header>
                 <div class="modal-body">
                     <p>¿Confirmás la actualización de celular y email?</p>
-                    <p class="note">
-                        Si cambiaste el email, recibirás un correo con un enlace para confirmar el cambio.
-                    </p>
+                    <p class="note">Si cambiaste el email, recibirás un correo con un enlace para confirmar el cambio.</p>
                 </div>
                 <footer class="modal-footer">
-                    <button type="button" class="btn-modal btn-modal--secondary" onclick={closeModal} disabled={isUpdating}>
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn-modal btn-modal--primary" onclick={handleUpdate} disabled={isUpdating}>
+                    <button type="button" class="btn-ghost" onclick={closeModal} disabled={isUpdating}>Cancelar</button>
+                    <button type="button" class="btn-dark" onclick={handleUpdate} disabled={isUpdating}>
                         <template if:true={isUpdating}>Guardando…</template>
                         <template if:false={isUpdating}>Confirmar</template>
                     </button>
@@ -182,7 +231,6 @@
         </section>
     </template>
 
-    <!-- Modal contraseña -->
     <template if:true={modalpass}>
         <section class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-pass-title" onclick={handleBackdropClick}>
             <div class="modal" onclick={stopPropagation}>
@@ -194,10 +242,8 @@
                     <p>¿Confirmás el cambio de contraseña? Esta acción no se puede deshacer desde aquí.</p>
                 </div>
                 <footer class="modal-footer">
-                    <button type="button" class="btn-modal btn-modal--secondary" onclick={closeModal} disabled={isChangingPassword}>
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn-modal btn-modal--primary" onclick={handleChangePassword} disabled={isChangingPassword}>
+                    <button type="button" class="btn-ghost" onclick={closeModal} disabled={isChangingPassword}>Cancelar</button>
+                    <button type="button" class="btn-dark" onclick={handleChangePassword} disabled={isChangingPassword}>
                         <template if:true={isChangingPassword}>Procesando…</template>
                         <template if:false={isChangingPassword}>Confirmar</template>
                     </button>

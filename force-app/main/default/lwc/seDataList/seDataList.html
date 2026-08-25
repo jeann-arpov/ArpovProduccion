@@ -1,73 +1,125 @@
 <template>
     <div class="wrap">
-        <div class="table-wrap desktop-only">
-            <table class="dtable">
-                <thead>
-                    <tr>
-                        <template for:each={headerCells} for:item="col">
-                            <th key={col.key}>{col.label}</th>
-                        </template>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template for:each={items} for:item="row">
-                        <tr key={row.key}>
-                            <template for:each={row.cells} for:item="cell">
-                                <td key={cell.key} class={cell.tdClass}>
-                                    <template if:true={cell.isLink}>
-                                        <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
-                                            {cell.value}
-                                        </button>
-                                    </template>
-                                    <template if:true={cell.isBadge}>
-                                        <span class={cell.badgeClass}>
-                                            <span class="dot"></span>
-                                            {cell.value}
-                                        </span>
-                                    </template>
-                                    <template if:true={cell.isAction}>
-                                        <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
-                                            {cell.actionLabel}
-                                        </button>
-                                    </template>
-                                    <template if:true={cell.isText}>
-                                        {cell.value}
-                                    </template>
-                                </td>
+        <!-- Ghost table while loading (gets blurred by se-list-page) -->
+        <template if:true={loading}>
+            <div class="table-wrap desktop-only skeleton" aria-hidden="true">
+                <table class="dtable">
+                    <thead>
+                        <tr>
+                            <template for:each={headerCells} for:item="col">
+                                <th key={col.key}>{col.label}</th>
                             </template>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="cards mobile-only">
-            <template for:each={items} for:item="row">
-                <article class="lic-card" key={row.mobileKey}>
-                    <div class="lic-head">
-                        <span class="lic-code">{row.title}</span>
-                        <span class={row.badgeClass}>
-                            <span class="dot"></span>
-                            {row.badgeLabel}
-                        </span>
-                    </div>
-                    <div class="lic-grid">
-                        <template for:each={row.fields} for:item="field">
-                            <div class="kv" key={field.labelKey}>
-                                <span class="k">{field.label}</span>
-                                <span class="v">{field.value}</span>
-                            </div>
+                    </thead>
+                    <tbody>
+                        <template for:each={skeletonRows} for:item="row">
+                            <tr key={row.key}>
+                                <template for:each={row.cells} for:item="cell">
+                                    <td key={cell.key}><span class="bone"></span></td>
+                                </template>
+                            </tr>
                         </template>
-                    </div>
-                    <button class="lic-more" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
-                        {mobileActionLabel}
-                    </button>
-                </article>
-            </template>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+            <div class="cards mobile-only skeleton" aria-hidden="true">
+                <template for:each={skeletonCards} for:item="card">
+                    <article class="lic-card" key={card.key}>
+                        <div class="lic-head">
+                            <span class="bone bone-title"></span>
+                            <span class="bone bone-badge"></span>
+                        </div>
+                        <div class="lic-grid">
+                            <span class="bone"></span>
+                            <span class="bone"></span>
+                            <span class="bone"></span>
+                            <span class="bone"></span>
+                        </div>
+                    </article>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={showList}>
+            <div class="table-wrap desktop-only">
+                <table class="dtable">
+                    <thead>
+                        <tr>
+                            <template for:each={headerCells} for:item="col">
+                                <th key={col.key}>{col.label}</th>
+                            </template>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={items} for:item="row">
+                            <tr key={row.key}>
+                                <template for:each={row.cells} for:item="cell">
+                                    <td key={cell.key} class={cell.tdClass}>
+                                        <template if:true={cell.isLink}>
+                                            <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                                                {cell.value}
+                                            </button>
+                                        </template>
+                                        <template if:true={cell.isBadge}>
+                                            <span class={cell.badgeClass}>
+                                                <span class="dot"></span>
+                                                {cell.value}
+                                            </span>
+                                        </template>
+                                        <template if:true={cell.isAction}>
+                                            <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                                                {cell.actionLabel}
+                                            </button>
+                                        </template>
+                                        <template if:true={cell.isText}>
+                                            {cell.value}
+                                        </template>
+                                    </td>
+                                </template>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cards mobile-only">
+                <template for:each={items} for:item="row">
+                    <article class="lic-card" key={row.mobileKey}>
+                        <div class="lic-head">
+                            <span class="lic-code">{row.title}</span>
+                            <span class={row.badgeClass}>
+                                <span class="dot"></span>
+                                {row.badgeLabel}
+                            </span>
+                        </div>
+                        <div class="lic-grid">
+                            <template for:each={row.fields} for:item="field">
+                                <div class="kv" key={field.labelKey}>
+                                    <span class="k">{field.label}</span>
+                                    <span class="v">{field.value}</span>
+                                </div>
+                            </template>
+                        </div>
+                        <button class="lic-more" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                            {mobileActionLabel}
+                        </button>
+                    </article>
+                </template>
+            </div>
+        </template>
 
         <template if:true={isEmpty}>
             <p class="empty">{emptyText}</p>
+        </template>
+
+        <template if:true={showPager}>
+            <c-se-pager
+                page={currentPage}
+                disable-prev={disablePrev}
+                disable-next={disableNext}
+                onprevious={handlePrev}
+                onnext={handleNext}
+            ></c-se-pager>
         </template>
     </div>
 </template>

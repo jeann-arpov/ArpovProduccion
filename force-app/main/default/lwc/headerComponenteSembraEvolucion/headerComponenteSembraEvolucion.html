@@ -77,10 +77,12 @@
                                         <path d="M6 9l6 6 6-6"></path>
                                     </svg>
                                 </button>
-                                <div if:true={item.open} class="d-sub">
-                                    <template for:each={item.submenu} for:item="sub">
-                                        <a key={sub.id} class={sub.itemClass} href={sub.href} data-page={sub.url} onclick={handleNavigate}>{sub.label}</a>
-                                    </template>
+                                <div class={item.subClass}>
+                                    <div class="d-sub-inner">
+                                        <template for:each={item.submenu} for:item="sub">
+                                            <a key={sub.id} class={sub.itemClass} href={sub.href} data-page={sub.url} onclick={handleNavigate}>{sub.label}</a>
+                                        </template>
+                                    </div>
                                 </div>
                             </template>
                             <template if:false={item.hasSubmenu}>

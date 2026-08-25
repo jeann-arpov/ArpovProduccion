@@ -41,19 +41,17 @@ const PAGE_SIZE = 200;
 export default class ComprasHtListProductor extends LightningElement {
     @track comprasAll = [];
     @track filtered = [];
-    @track data = [];
     @track statusPills = [];
-    @track cultivoPills = [];
-    @track variedadPills = [];
+    @track cultivoOptions = [];
+    @track variedadOptions = [];
+    @track loading = true;
 
+    pageSize = PAGE_SIZE;
     estadoSeleccionado = 'todas';
     cultivoSeleccionado = 'todas';
     variedadSeleccionada = 'todas';
     searchKey = '';
-    currentPage = 1;
-    openMenu = null;
     _ga4ListadoTracked = false;
-    _onPointerDown;
 
     columns = [
         { label: 'Fecha', fieldName: 'fechaLabel' },
@@ -75,18 +73,11 @@ export default class ComprasHtListProductor extends LightningElement {
     connectedCallback() {
         document.documentElement.classList.add('se-inner');
         document.body.classList.add('se-inner');
-        this._onPointerDown = (event) => {
-            const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
-            if (path.includes(this.template.host)) return;
-            this.openMenu = null;
-        };
-        window.addEventListener('pointerdown', this._onPointerDown);
     }
 
     disconnectedCallback() {
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
-        window.removeEventListener('pointerdown', this._onPointerDown);
     }
 
     @wire(getComprasHT)
@@ -111,68 +102,34 @@ export default class ComprasHtListProductor extends LightningElement {
             });
 
             this.applyFilters();
+            this.loading = false;
             if (!this._ga4ListadoTracked) {
                 this._ga4ListadoTracked = true;
                 trackGa4Event('ht_listado_vista', { portal: 'Productor' });
             }
         } else if (error) {
+            this.loading = false;
             console.error('Error al cargar compras:', error);
         }
     }
 
     handlePill(event) {
-        this.estadoSeleccionado = event.currentTarget.dataset.filter;
+        this.estadoSeleccionado = event.detail.id;
         this.applyFilters();
     }
 
-    get cultivoOpen() {
-        return this.openMenu === 'cultivo';
-    }
-
-    get variedadOpen() {
-        return this.openMenu === 'variedad';
-    }
-
-    get cultivoTriggerLabel() {
-        return this.cultivoSeleccionado === 'todas' ? 'Todos los cultivos' : this.cultivoSeleccionado;
-    }
-
-    get variedadTriggerLabel() {
-        return this.variedadSeleccionada === 'todas' ? 'Todas las variedades' : this.variedadSeleccionada;
-    }
-
-    get cultivoTriggerClass() {
-        return this.openMenu === 'cultivo' ? 'dd-trigger is-open' : 'dd-trigger';
-    }
-
-    get variedadTriggerClass() {
-        return this.openMenu === 'variedad' ? 'dd-trigger is-open' : 'dd-trigger';
-    }
-
-    toggleCultivo(event) {
-        event.stopPropagation();
-        this.openMenu = this.openMenu === 'cultivo' ? null : 'cultivo';
-    }
-
-    toggleVariedad(event) {
-        event.stopPropagation();
-        this.openMenu = this.openMenu === 'variedad' ? null : 'variedad';
-    }
-
     handleCultivo(event) {
-        this.cultivoSeleccionado = event.currentTarget.dataset.filter;
-        this.openMenu = null;
+        this.cultivoSeleccionado = event.detail.value;
         this.applyFilters();
     }
 
     handleVariedad(event) {
-        this.variedadSeleccionada = event.currentTarget.dataset.filter;
-        this.openMenu = null;
+        this.variedadSeleccionada = event.detail.value;
         this.applyFilters();
     }
 
     handleSearchChange(event) {
-        this.searchKey = (event.target.value || '').toLowerCase();
+        this.searchKey = (event.detail.value || '').toLowerCase();
         this.applyFilters();
     }
 
@@ -196,13 +153,13 @@ export default class ComprasHtListProductor extends LightningElement {
                 id: 'todas',
                 label: 'Todas',
                 count: this.comprasAll.length,
-                className: this.estadoSeleccionado === 'todas' ? 'pill is-active' : 'pill'
+                selected: this.estadoSeleccionado === 'todas'
             },
             ...statuses.map((estado) => ({
                 id: estado,
                 label: estado,
                 count: counts[estado],
-                className: this.estadoSeleccionado === estado ? 'pill is-active' : 'pill'
+                selected: this.estadoSeleccionado === estado
             }))
         ];
 
@@ -215,34 +172,18 @@ export default class ComprasHtListProductor extends LightningElement {
             });
         });
 
-        this.cultivoPills = [
-            {
-                id: 'todas',
-                label: 'Todos los cultivos',
-                itemClass: this.cultivoSeleccionado === 'todas' ? 'dd-item is-active' : 'dd-item'
-            },
+        this.cultivoOptions = [
+            { value: 'todas', label: 'Todos los cultivos' },
             ...Object.keys(cultivoCounts)
                 .sort((a, b) => a.localeCompare(b, 'es'))
-                .map((cultivo) => ({
-                    id: cultivo,
-                    label: cultivo,
-                    itemClass: this.cultivoSeleccionado === cultivo ? 'dd-item is-active' : 'dd-item'
-                }))
+                .map((cultivo) => ({ value: cultivo, label: cultivo }))
         ];
 
-        this.variedadPills = [
-            {
-                id: 'todas',
-                label: 'Todas las variedades',
-                itemClass: this.variedadSeleccionada === 'todas' ? 'dd-item is-active' : 'dd-item'
-            },
+        this.variedadOptions = [
+            { value: 'todas', label: 'Todas las variedades' },
             ...Object.keys(variedadCounts)
                 .sort((a, b) => a.localeCompare(b, 'es'))
-                .map((variedad) => ({
-                    id: variedad,
-                    label: variedad,
-                    itemClass: this.variedadSeleccionada === variedad ? 'dd-item is-active' : 'dd-item'
-                }))
+                .map((variedad) => ({ value: variedad, label: variedad }))
         ];
 
         let rows = [...this.comprasAll];
@@ -263,43 +204,6 @@ export default class ComprasHtListProductor extends LightningElement {
             );
         }
         this.filtered = rows;
-        this.currentPage = 1;
-        this.paginar();
-    }
-
-    get showPager() {
-        return this.filtered.length > 0;
-    }
-
-    get pageLabel() {
-        return `Página ${this.currentPage}`;
-    }
-
-    get disablePrev() {
-        return this.currentPage <= 1;
-    }
-
-    get disableNext() {
-        return this.currentPage * PAGE_SIZE >= this.filtered.length;
-    }
-
-    paginar() {
-        const start = (this.currentPage - 1) * PAGE_SIZE;
-        this.data = this.filtered.slice(start, start + PAGE_SIZE);
-    }
-
-    handlePrev() {
-        if (this.currentPage > 1) {
-            this.currentPage -= 1;
-            this.paginar();
-        }
-    }
-
-    handleNext() {
-        if (this.currentPage * PAGE_SIZE < this.filtered.length) {
-            this.currentPage += 1;
-            this.paginar();
-        }
     }
 
     handleRowAction(event) {

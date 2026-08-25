@@ -1,0 +1,89 @@
+:host {
+    display: block;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    color: #1c1c1c;
+    background: #f3f4f6;
+    padding: 28px 32px 0;
+    box-sizing: border-box;
+    min-height: 50vh;
+}
+
+.page {
+    position: relative;
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.content.is-loading {
+    filter: blur(7px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.veil {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(243, 244, 246, 0.28);
+    min-height: 220px;
+}
+
+.pulse-logo {
+    width: 120px;
+    height: auto;
+    max-width: 42vw;
+    animation: se-heartbeat 1.05s ease-in-out infinite;
+    filter: drop-shadow(0 4px 14px rgba(28, 28, 28, 0.12));
+    pointer-events: none;
+}
+
+@keyframes se-heartbeat {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.88;
+    }
+    35% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(0.96);
+        opacity: 0.92;
+    }
+    70% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+:host ::slotted([slot="filters"]) {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 5;
+}
+
+@media (max-width: 767px) {
+    :host {
+        padding: 16px 0 0;
+        background: #f3f4f6;
+    }
+
+    .page {
+        padding: 0;
+    }
+
+    .list-slot {
+        padding: 8px 16px 0;
+    }
+
+    :host ::slotted([slot="filters"]) {
+        padding: 8px 16px 4px;
+        margin-bottom: 8px;
+    }
+}

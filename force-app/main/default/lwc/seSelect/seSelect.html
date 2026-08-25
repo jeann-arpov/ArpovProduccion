@@ -1,0 +1,24 @@
+<template>
+    <div class="dd">
+        <button class={triggerClass} type="button" onclick={toggle} aria-expanded={open}>
+            <span class="dd-label">{triggerLabel}</span>
+            <span class="chev" aria-hidden="true"></span>
+        </button>
+        <template if:true={open}>
+            <div class="dd-menu" role="listbox">
+                <template for:each={menuItems} for:item="item">
+                    <button
+                        key={item.value}
+                        class={item.itemClass}
+                        type="button"
+                        role="option"
+                        data-value={item.value}
+                        onclick={handlePick}
+                    >
+                        {item.label}
+                    </button>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

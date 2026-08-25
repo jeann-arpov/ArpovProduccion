@@ -1,0 +1,94 @@
+:host {
+    display: block;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+.dd {
+    position: relative;
+    width: 100%;
+}
+
+.dd-trigger {
+    appearance: none;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border: 1.5px solid #dde2eb;
+    background: #fff;
+    color: #1c1c1c;
+    border-radius: 999px;
+    padding: 8px 12px 8px 14px;
+    min-height: 40px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.dd-trigger.is-open {
+    border-color: #1c1c1c;
+}
+
+.dd-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.chev {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+}
+
+.dd-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    max-height: min(280px, 50vh);
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dde2eb;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(28, 28, 28, 0.14);
+    padding: 6px;
+    z-index: 20;
+}
+
+.dd-item {
+    appearance: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: #1c1c1c;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: normal;
+    line-height: 1.35;
+}
+
+.dd-item.is-active {
+    background: #1c1c1c;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    .dd-menu {
+        min-width: 220px;
+    }
+}

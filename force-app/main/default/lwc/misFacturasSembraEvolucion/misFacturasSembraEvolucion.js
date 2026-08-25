@@ -44,7 +44,9 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
 
     @track vencimientos = [];
     @track data = [];
+    @track loading = true;
     statusFilter = 'todas';
+    pageSize = 200;
     initialized = false;
 
     columns = [
@@ -79,28 +81,27 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
         if (!this.initialized) this.init();
     }
 
-    get countTodas() {
-        return this.vencimientos.length;
-    }
-
-    get countFacturadas() {
-        return this.vencimientos.filter((row) => row.bucket === 'facturadas').length;
-    }
-
-    get countPagadas() {
-        return this.vencimientos.filter((row) => row.bucket === 'pagadas').length;
-    }
-
-    get pillTodasClass() {
-        return this.statusFilter === 'todas' ? 'pill is-active' : 'pill';
-    }
-
-    get pillFacturadasClass() {
-        return this.statusFilter === 'facturadas' ? 'pill is-active' : 'pill';
-    }
-
-    get pillPagadasClass() {
-        return this.statusFilter === 'pagadas' ? 'pill is-active' : 'pill';
+    get statusPills() {
+        return [
+            {
+                id: 'todas',
+                label: 'Todas',
+                count: this.vencimientos.length,
+                selected: this.statusFilter === 'todas'
+            },
+            {
+                id: 'facturadas',
+                label: 'Facturadas',
+                count: this.vencimientos.filter((row) => row.bucket === 'facturadas').length,
+                selected: this.statusFilter === 'facturadas'
+            },
+            {
+                id: 'pagadas',
+                label: 'Pagadas',
+                count: this.vencimientos.filter((row) => row.bucket === 'pagadas').length,
+                selected: this.statusFilter === 'pagadas'
+            }
+        ];
     }
 
     async init() {
@@ -137,7 +138,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     }
 
     handlePill(event) {
-        this.statusFilter = event.currentTarget.dataset.filter;
+        this.statusFilter = event.detail.id;
         this.applyFilters();
     }
 

@@ -1,7 +1,10 @@
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 
+/**
+ * Desktop table + mobile cards, with optional built-in pagination.
+ * @api pageSize - 0 = no pager (default). Set e.g. 200 on Compras / Facturas.
+ */
 export default class SeDataList extends LightningElement {
-    @api records = [];
     @api columns = [];
     @api mobileFields = [];
     @api titleField = 'title';
@@ -12,6 +15,50 @@ export default class SeDataList extends LightningElement {
     @api mobileActionLabel = 'Ver →';
     @api emptyText = 'No hay registros para mostrar.';
     @api actionDisabledField = 'actionDisabled';
+    /** Rows per page. 0 = show all, no pager (default). */
+    @api pageSize = 0;
+    @api loading = false;
+
+    _records = [];
+    @track currentPage = 1;
+
+    @api
+    get records() {
+        return this._records;
+    }
+    set records(value) {
+        this._records = Array.isArray(value) ? value : [];
+        this.currentPage = 1;
+    }
+
+    get resolvedPageSize() {
+        const size = Number(this.pageSize);
+        if (Number.isNaN(size) || size < 0) return 0;
+        return size;
+    }
+
+    get paginationEnabled() {
+        return this.resolvedPageSize > 0;
+    }
+
+    get pageRecords() {
+        if (!this.paginationEnabled) return this._records;
+        const size = this.resolvedPageSize;
+        const start = (this.currentPage - 1) * size;
+        return this._records.slice(start, start + size);
+    }
+
+    get showPager() {
+        return this.paginationEnabled && this._records.length > 0;
+    }
+
+    get disablePrev() {
+        return this.currentPage <= 1;
+    }
+
+    get disableNext() {
+        return this.currentPage * this.resolvedPageSize >= this._records.length;
+    }
 
     get headerCells() {
         return (this.columns || []).map((col, index) => ({
@@ -21,7 +68,7 @@ export default class SeDataList extends LightningElement {
     }
 
     get items() {
-        const records = this.records || [];
+        const records = this.pageRecords;
         const columns = this.columns || [];
         const mobileFields = this.mobileFields || [];
 
@@ -46,7 +93,10 @@ export default class SeDataList extends LightningElement {
                         isBadge: type === 'badge',
                         isAction: type === 'action',
                         isText: type === 'text',
-                        badgeClass: type === 'badge' ? `badge ${record[col.toneField || this.badgeToneField] || 'info'}` : '',
+                        badgeClass:
+                            type === 'badge'
+                                ? `badge ${record[col.toneField || this.badgeToneField] || 'info'}`
+                                : '',
                         actionLabel: col.actionLabel || this.actionLabel,
                         tdClass: type === 'action' ? 'td-action' : ''
                     };
@@ -62,12 +112,40 @@ export default class SeDataList extends LightningElement {
     }
 
     get isEmpty() {
-        return !this.records || this.records.length === 0;
+        return !this.loading && (!this._records || this._records.length === 0);
+    }
+
+    get showList() {
+        return !this.loading && !this.isEmpty;
+    }
+
+    get skeletonRows() {
+        const cols = (this.columns || []).length || 4;
+        return [0, 1, 2, 3, 4, 5].map((row) => ({
+            key: `sk-r${row}`,
+            cells: Array.from({ length: cols }, (_, i) => ({ key: `sk-r${row}-c${i}` }))
+        }));
+    }
+
+    get skeletonCards() {
+        return [0, 1, 2].map((i) => ({ key: `sk-card-${i}` }));
+    }
+
+    handlePrev() {
+        if (this.currentPage > 1) {
+            this.currentPage -= 1;
+        }
+    }
+
+    handleNext() {
+        if (this.currentPage * this.resolvedPageSize < this._records.length) {
+            this.currentPage += 1;
+        }
     }
 
     handleOpen(event) {
         const key = event.currentTarget.dataset.key;
-        const row = (this.records || []).find((record) => String(record[this.keyField] ?? '') === key);
+        const row = this._records.find((record) => String(record[this.keyField] ?? '') === key);
         this.dispatchEvent(
             new CustomEvent('rowaction', {
                 detail: { action: 'open', row, key }

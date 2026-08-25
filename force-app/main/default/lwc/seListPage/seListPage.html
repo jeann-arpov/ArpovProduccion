@@ -1,0 +1,18 @@
+<template>
+    <div class="page">
+        <div class={contentClass}>
+            <slot name="header"></slot>
+            <slot name="toolbar"></slot>
+            <slot name="filters"></slot>
+            <div class="list-slot">
+                <slot></slot>
+            </div>
+            <slot name="pager"></slot>
+        </div>
+        <template if:true={loading}>
+            <div class="veil" role="status" aria-busy="true" aria-label="Cargando">
+                <img class="pulse-logo" src={logoUrl} alt="" />
+            </div>
+        </template>
+    </div>
+</template>

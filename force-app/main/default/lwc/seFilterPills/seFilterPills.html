@@ -1,0 +1,12 @@
+<template>
+    <div class="toolbar" role="toolbar">
+        <template for:each={pills} for:item="pill">
+            <button key={pill.id} class={pill.className} type="button" data-id={pill.id} onclick={handleClick}>
+                {pill.label}
+                <template if:true={pill.showCount}>
+                    <span class="count">{pill.count}</span>
+                </template>
+            </button>
+        </template>
+    </div>
+</template>

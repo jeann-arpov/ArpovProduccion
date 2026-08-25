@@ -158,6 +158,7 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
                 itemClass: `d-item${item.hasSubmenu && open ? ' open' : ''}${
                     !item.hasSubmenu && isPageActive(item.url) ? ' active' : ''
                 }`,
+                subClass: open ? 'd-sub is-open' : 'd-sub',
                 submenu: item.hasSubmenu
                     ? item.submenu.map((sub) => ({
                           ...sub,

@@ -176,13 +176,20 @@
 
 .usermenu .submenu,
 .item .submenu {
-    display: none;
     position: absolute;
     min-width: 200px;
     z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0s linear 0.2s;
 }
 
-.usermenu.is-open .submenu {
+.usermenu .submenu {
     display: block;
     top: 100%;
     right: 0;
@@ -191,6 +198,17 @@
     border-radius: 12px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
     padding: 8px 0;
+}
+
+.usermenu.is-open .submenu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0s;
 }
 
 .usermenu .submenu a,
@@ -277,7 +295,7 @@
     border-bottom-color: #bfff00;
 }
 
-.item.is-open .submenu {
+.item .submenu {
     display: flex;
     flex-direction: column;
     top: 100%;
@@ -289,6 +307,17 @@
     white-space: nowrap;
 }
 
+.item.is-open .submenu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        visibility 0s;
+}
+
 .item .submenu a {
     min-height: 44px;
     height: auto;
@@ -298,22 +327,34 @@
 }
 
 .drawer {
-    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear 0.28s;
 }
 
 .drawer.is-open {
-    display: block;
+    visibility: visible;
+    pointer-events: auto;
+    transition: visibility 0s;
 }
 
 .scrim {
-    position: fixed;
+    position: absolute;
     inset: 0;
     background: rgba(28, 28, 28, 0.55);
-    z-index: 40;
+    opacity: 0;
+    transition: opacity 0.28s ease;
+}
+
+.drawer.is-open .scrim {
+    opacity: 1;
 }
 
 .panel {
-    position: fixed;
+    position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
@@ -325,6 +366,12 @@
     flex-direction: column;
     box-shadow: -8px 0 24px rgba(0, 0, 0, 0.35);
     overflow: hidden;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.drawer.is-open .panel {
+    transform: translateX(0);
 }
 
 .d-head {
@@ -396,7 +443,7 @@
 .d-item .chev {
     margin-left: auto;
     flex-shrink: 0;
-    transition: transform 0.15s;
+    transition: transform 0.2s ease;
 }
 
 .d-item.open .chev {
@@ -405,9 +452,25 @@
 
 .d-sub {
     width: 100%;
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    background: rgba(255, 255, 255, 0.04);
+    transition:
+        grid-template-rows 0.24s ease,
+        opacity 0.2s ease;
+}
+
+.d-sub.is-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.d-sub-inner {
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.04);
+    min-height: 0;
 }
 
 .d-sub .d-item {
@@ -539,7 +602,39 @@
         display: block;
     }
 
+    .drawer,
     .drawer.is-open {
-        display: none;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .usermenu .submenu,
+    .item .submenu,
+    .scrim,
+    .panel,
+    .drawer,
+    .d-item .chev,
+    .d-sub {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .panel {
+        transform: none;
+    }
+
+    .drawer.is-open .panel {
+        transform: none;
+    }
+
+    .d-sub {
+        grid-template-rows: 0fr;
+    }
+
+    .d-sub.is-open {
+        grid-template-rows: 1fr;
+        opacity: 1;
     }
 }

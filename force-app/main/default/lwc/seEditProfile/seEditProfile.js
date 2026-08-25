@@ -2,6 +2,7 @@ import { LightningElement, track, wire } from 'lwc';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import USER_ID from '@salesforce/user/Id';
 import NAME_FIELD from '@salesforce/schema/User.Name';
+import PROFILE_NAME_FIELD from '@salesforce/schema/User.Profile.Name';
 import doChangePassword from '@salesforce/apex/editProfileController.changeUserPassword';
 import getProfileInfo from '@salesforce/apex/editProfileController.getUserInfo';
 import UpdateUser from '@salesforce/apex/editProfileController.editUser';
@@ -11,74 +12,138 @@ import { NavigationMixin } from 'lightning/navigation';
 const SUCCESS_PASSWORD_MSG = 'Success: Your password has been changed successfully.';
 
 export default class SeEditProfile extends NavigationMixin(LightningElement) {
-
     userId = USER_ID;
     userName;
+    profileName;
     oldPassword = '';
     newPassword = '';
     newPasswordConfirm = '';
 
+    @track mode = 'view';
     @track fullName;
     @track businessName;
     @track documentId;
     @track cuit;
-    @track mobilePhone;
-    @track email;
+    @track mobilePhone = '';
+    @track email = '';
     @track modal = false;
     @track modalpass = false;
     @track isUpdating = false;
     @track isChangingPassword = false;
-
     @track showOldPassword = false;
     @track showNewPassword = false;
     @track showConfirmPassword = false;
 
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+    }
+
     @wire(getProfileInfo)
     wiredInfo({ error, data }) {
-        if (data) {
-            this.fullName = data[0].Nombre_Completo__c;
-            this.businessName = data[0].Razon_Social__c;
-            this.documentId = data[0].Numero_de_Documento__c;
-            this.cuit = data[0].Account.N_CUIT__c;
-            this.email = data[0].Email;
-            this.mobilePhone = data[0].MobilePhone;
+        if (data && data[0]) {
+            const row = data[0];
+            this.fullName = row.Nombre_Completo__c || '';
+            this.businessName = row.Razon_Social__c || '';
+            this.documentId = row.Numero_de_Documento__c || '';
+            this.cuit = row.Account && row.Account.N_CUIT__c ? row.Account.N_CUIT__c : '';
+            this.email = row.Email || '';
+            this.mobilePhone = row.MobilePhone || '';
         } else if (error) {
             console.error('Error loading profile:', error);
         }
     }
 
-    @wire(getRecord, { recordId: USER_ID, fields: [NAME_FIELD] })
+    @wire(getRecord, { recordId: USER_ID, fields: [NAME_FIELD, PROFILE_NAME_FIELD] })
     userDetails({ error, data }) {
         if (data) {
             this.userName = getFieldValue(data, NAME_FIELD);
+            this.profileName = getFieldValue(data, PROFILE_NAME_FIELD);
         } else if (error) {
             console.error('Error fetching user details:', error);
         }
     }
 
+    get isView() {
+        return this.mode === 'view';
+    }
+    get isEdit() {
+        return this.mode === 'edit';
+    }
+    get isPassword() {
+        return this.mode === 'password';
+    }
+
+    get displayName() {
+        return this.fullName || this.userName || 'Usuario';
+    }
+
+    get initials() {
+        const name = (this.displayName || '').trim();
+        if (!name) return '?';
+        const parts = name.split(/\s+/).filter(Boolean);
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    get emailDisplay() {
+        return this.email || '—';
+    }
+
+    get phoneDisplay() {
+        return this.mobilePhone || '—';
+    }
+
+    get cuitDisplay() {
+        return this.cuit || '—';
+    }
+
+    get roleDisplay() {
+        return this.profileName || 'Productor';
+    }
+
     get oldPasswordType() {
         return this.showOldPassword ? 'text' : 'password';
     }
-
     get newPasswordType() {
         return this.showNewPassword ? 'text' : 'password';
     }
-
     get confirmPasswordType() {
         return this.showConfirmPassword ? 'text' : 'password';
     }
 
-    get oldPasswordToggleIcon() {
-        return this.showOldPassword ? 'utility:preview' : 'utility:hide';
-    }
+    goView = () => {
+        this.mode = 'view';
+        this.clearPasswordFields();
+    };
 
-    get newPasswordToggleIcon() {
-        return this.showNewPassword ? 'utility:preview' : 'utility:hide';
-    }
+    goEdit = () => {
+        this.mode = 'edit';
+    };
 
-    get confirmPasswordToggleIcon() {
-        return this.showConfirmPassword ? 'utility:preview' : 'utility:hide';
-    }
+    goPassword = () => {
+        this.mode = 'password';
+    };
+
+    handleNotifications = () => {
+        this.showToast('Notificaciones', 'Próximamente vas a poder gestionar tus notificaciones acá.', 'info');
+    };
+
+    handleLogout = () => {
+        const logoutUrl = `${window.location.origin}/secur/logout.jsp`;
+        this[NavigationMixin.Navigate](
+            {
+                type: 'standard__webPage',
+                attributes: { url: logoutUrl }
+            },
+            true
+        );
+    };
 
     handleEmail(event) {
         this.email = event.target.value;
@@ -93,9 +158,7 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
     }
 
     openModalPass() {
-        if (!this.validatePasswordForm()) {
-            return;
-        }
+        if (!this.validatePasswordForm()) return;
         this.modalpass = true;
     }
 
@@ -115,7 +178,7 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
     }
 
     validatePhoneNumber(phone) {
-        return /^\+549\d{10}$/.test(phone);
+        return /^\+549\d{10}$/.test(phone || '');
     }
 
     validatePasswordForm() {
@@ -133,11 +196,6 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
         }
         if (this.newPassword !== this.newPasswordConfirm) {
             this.showToast('Error', 'Las contraseñas no coinciden.', 'error');
-            const inputCmp = this.template.querySelector('lightning-input[data-id="newPasswordConfirm"]');
-            if (inputCmp) {
-                inputCmp.setCustomValidity('Las contraseñas no coinciden');
-                inputCmp.reportValidity();
-            }
             return false;
         }
         return true;
@@ -163,9 +221,10 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
         UpdateUser({ Email: this.email, MobilePhone: this.mobilePhone })
             .then((result) => {
                 this.showToast('Éxito', 'Datos modificados de manera exitosa.', 'success');
-                this.mobilePhone = result.mobilePhone;
+                this.mobilePhone = result.MobilePhone || result.mobilePhone;
                 this.email = result.Email;
                 this.closeModal();
+                this.mode = 'view';
             })
             .catch(() => {
                 this.showToast('Error', 'Ocurrió un error al actualizar los datos.', 'error');
@@ -179,23 +238,9 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
     handleChange(event) {
         const value = event.target.value;
         const fieldId = event.target.dataset.id;
-
-        if (fieldId === 'oldPassword') {
-            this.oldPassword = value;
-        } else if (fieldId === 'newPassword') {
-            this.newPassword = value;
-        } else if (fieldId === 'newPasswordConfirm') {
-            this.newPasswordConfirm = value;
-            const inputCmp = this.template.querySelector('lightning-input[data-id="newPasswordConfirm"]');
-            if (inputCmp) {
-                if (this.newPasswordConfirm !== this.newPassword) {
-                    inputCmp.setCustomValidity('Las contraseñas no coinciden');
-                } else {
-                    inputCmp.setCustomValidity('');
-                }
-                inputCmp.reportValidity();
-            }
-        }
+        if (fieldId === 'oldPassword') this.oldPassword = value;
+        else if (fieldId === 'newPassword') this.newPassword = value;
+        else if (fieldId === 'newPasswordConfirm') this.newPasswordConfirm = value;
     }
 
     handleChangePassword() {
@@ -215,6 +260,7 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
                     this.showToast('Éxito', 'La contraseña se modificó con éxito.', 'success');
                     this.clearPasswordFields();
                     this.closeModal();
+                    this.mode = 'view';
                 } else {
                     this.showToast('Error', result, 'error');
                     this.closeModal();
@@ -232,18 +278,12 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
 
     togglePasswordVisibility(event) {
         const field = event.currentTarget.dataset.field;
-        if (field === 'oldPassword') {
-            this.showOldPassword = !this.showOldPassword;
-        } else if (field === 'newPassword') {
-            this.showNewPassword = !this.showNewPassword;
-        } else if (field === 'newPasswordConfirm') {
-            this.showConfirmPassword = !this.showConfirmPassword;
-        }
+        if (field === 'oldPassword') this.showOldPassword = !this.showOldPassword;
+        else if (field === 'newPassword') this.showNewPassword = !this.showNewPassword;
+        else if (field === 'newPasswordConfirm') this.showConfirmPassword = !this.showConfirmPassword;
     }
 
     showToast(title, message, variant) {
-        this.dispatchEvent(
-            new ShowToastEvent({ title, message, variant })
-        );
+        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
     }
 }

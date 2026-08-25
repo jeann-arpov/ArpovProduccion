@@ -3,5 +3,5 @@
     <apiVersion>63.0</apiVersion>
     <isExposed>false</isExposed>
     <masterLabel>SE Data List</masterLabel>
-    <description>Tabla desktop + cards mobile del Style Guide (Card List Pattern). Uso interno Productor.</description>
+    <description>Tabla desktop + cards mobile (Card List Pattern). Paginación opcional via pageSize (ej. 200 en Compras/Facturas). Uso interno Productor.</description>
 </LightningComponentBundle>
