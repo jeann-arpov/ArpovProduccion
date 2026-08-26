@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Criterio_Alerta__c</fullName>
+    <label>Criterio de Alerta</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>01 - Area declarada vs entregas</fullName>
+                <default>false</default>
+                <label>01 - Area declarada vs entregas</label>
+            </value>
+            <value>
+                <fullName>02 - Variacion vs adhesiones anteriores</fullName>
+                <default>false</default>
+                <label>02 - Variacion vs adhesiones anteriores</label>
+            </value>
+            <value>
+                <fullName>03 - Deuda o expedientes abiertos</fullName>
+                <default>false</default>
+                <label>03 - Deuda o expedientes abiertos</label>
+            </value>
+            <value>
+                <fullName>04 - Auditoria documental</fullName>
+                <default>false</default>
+                <label>04 - Auditoria documental</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

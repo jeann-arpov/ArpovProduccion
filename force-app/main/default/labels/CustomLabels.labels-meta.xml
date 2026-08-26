@@ -800,6 +800,40 @@
     >No puede seleccionar el mismo establecimiento más de una vez en un mismo plan de siembra</value>
     </labels>
     <labels>
+        <fullName>PPH_Notificacion_Aprobada_Asunto</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Asunto notificacion PPH aprobada</shortDescription>
+        <value>Tu adhesión al PPH fue aprobada</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Notificacion_Aprobada_Cuerpo</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Cuerpo notificacion PPH aprobada</shortDescription>
+        <value
+    >¡Tu adhesión al Programa de Precertificación de Hectáreas fue aprobada! A partir de ahora podés operar con los beneficios del PPH para la campaña 2026/27. Ante cualquier consulta, contactanos por WhatsApp al +54 9 11 3117 2022.</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Notificacion_Rechazada_Asunto</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Asunto notificacion PPH rechazada</shortDescription>
+        <value>Tu adhesión al PPH fue rechazada</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Notificacion_Rechazada_Cuerpo</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Cuerpo notificacion PPH rechazada</shortDescription>
+        <value
+    >Lamentablemente no pudimos aprobar tu adhesión al PPH por existir una situación pendiente de regularizar de campañas anteriores. Para más información y para regularizar tu situación, contactate con nuestro equipo por WhatsApp al +54 9 11 3117 2022.</value>
+    </labels>
+    <labels>
         <fullName>CESION_Destinatarios_Duplicados</fullName>
         <categories>CesionPPH</categories>
         <language>es</language>
