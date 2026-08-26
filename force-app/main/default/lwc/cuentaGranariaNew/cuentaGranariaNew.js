@@ -10,6 +10,7 @@ import IMAGENES from "@salesforce/resourceUrl/CuentaGranariaIcons";
 import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
 import { doRequest, errorEvent, warningEvent } from "c/utils";
 import { trackGa4Event } from "c/portalGa4Events";
+import MESA_AYUDA_EMAIL from "@salesforce/label/c.Mesa_Ayuda_Email";
 
 export default class CuentaGranariaNew extends LightningElement {
   // ====== DATA PRINCIPAL ======
@@ -20,6 +21,8 @@ export default class CuentaGranariaNew extends LightningElement {
   totales;
   adhesion;
   biotecnologia;
+
+  mesaAyudaEmail = MESA_AYUDA_EMAIL;
 
   // ====== CAMPAÑAS ======
   campanas; // lista de campañas disponibles para el cultivo seleccionado

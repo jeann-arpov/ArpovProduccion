@@ -1490,4 +1490,11 @@
     >false</protected><shortDescription
     >Mensaje tipo objeto no soportado</shortDescription><value
     >Tipo de objeto no soportado:</value></labels>
+    <labels>
+        <fullName>Mesa_Ayuda_Email</fullName>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Email Mesa de Ayuda</shortDescription>
+        <value>info@sembraevolucion.com.ar</value>
+    </labels>
 </CustomLabels>
