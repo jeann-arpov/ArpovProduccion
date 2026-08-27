@@ -1,6 +1,7 @@
 import { LightningElement, track } from "lwc";
 import getLoadData from "@salesforce/apex/HomeMulticultivo.getLoadData";
 import { NavigationMixin } from "lightning/navigation";
+import enRevisionDetalle from "@salesforce/label/c.PPH_Estado_En_Revision_Detalle";
 
 export default class Landing_SE_Productor_SA extends NavigationMixin(
   LightningElement

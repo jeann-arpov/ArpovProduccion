@@ -1,6 +1,7 @@
 import { LightningElement, wire } from "lwc";
 import getLoadData from "@salesforce/apex/HomeMulticultivo.getLoadData";
 import { errorEvent } from "c/utils";
+import enRevisionDetalle from "@salesforce/label/c.PPH_Estado_En_Revision_Detalle";
 
 /*
     navigation mixin da error: SecureWindow.open supports http:, https:, mailto: schemes and relative urls.

@@ -2,6 +2,7 @@ import { LightningElement, api } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import registerCuit from "@salesforce/apex/CesionPPH.registerCuit";
 import { errorEvent } from "c/utils";
+import recibidaLabel from "@salesforce/label/c.PPH_Mensaje_Recibida";
 
 export default class ModalsPph extends NavigationMixin(LightningElement) {
   @api currentModal;

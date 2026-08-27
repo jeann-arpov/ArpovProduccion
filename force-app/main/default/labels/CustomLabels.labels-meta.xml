@@ -834,6 +834,25 @@
     >Lamentablemente no pudimos aprobar tu adhesión al PPH por existir una situación pendiente de regularizar de campañas anteriores. Para más información y para regularizar tu situación, contactate con nuestro equipo por WhatsApp al +54 9 11 3117 2022.</value>
     </labels>
     <labels>
+        <fullName>PPH_Mensaje_Recibida</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >Mensaje post TyC PPH (solicitud recibida)</shortDescription>
+        <value
+    >Recibimos tu solicitud. El equipo de Sembrá Evolución estará revisando la información presentada para finalizar el proceso de validación. Te notificaremos una vez que la revisión haya finalizado.</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Estado_En_Revision_Detalle</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Detalle del estado En Revisión PPH</shortDescription>
+        <value
+    >En revisión - El equipo de Sembrá Evolución está validando la información</value>
+    </labels>
+    <labels>
         <fullName>CESION_Destinatarios_Duplicados</fullName>
         <categories>CesionPPH</categories>
         <language>es</language>
