@@ -853,6 +853,25 @@
     >En revisión - El equipo de Sembrá Evolución está validando la información</value>
     </labels>
     <labels>
+        <fullName>PPH_Mail_Criterio_03_Asunto</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >Asunto mail automatico criterio 03 PPH</shortDescription>
+        <value>Actualización sobre tu adhesión al PPH</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Mail_Criterio_03_Cuerpo</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >Cuerpo mail automatico criterio 03 PPH</shortDescription>
+        <value
+    >Detectamos una situación pendiente de regularizar de campañas anteriores. Nuestro equipo se va a comunicar con vos para acompañarte en el proceso.</value>
+    </labels>
+    <labels>
         <fullName>CESION_Destinatarios_Duplicados</fullName>
         <categories>CesionPPH</categories>
         <language>es</language>

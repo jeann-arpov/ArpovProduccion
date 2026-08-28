@@ -3,6 +3,13 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
     marcarCuentaGranariaAdherida((List<Plan_de_Siembra__c>) Trigger.new, null);
   }
 
+  public override void beforeUpdate() {
+    registrarFechaDeteccionAlerta(
+      (List<Plan_de_Siembra__c>) Trigger.new,
+      (Map<Id, Plan_de_Siembra__c>) Trigger.oldMap
+    );
+  }
+
   public override void afterUpdate() {
     marcarCuentaGranariaAdherida(
       (List<Plan_de_Siembra__c>) Trigger.new,
@@ -101,6 +108,22 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
     return anterior == null || anterior.Estado__c != 'Adherido';
   }
 
+  private static void registrarFechaDeteccionAlerta(
+    List<Plan_de_Siembra__c> planes,
+    Map<Id, Plan_de_Siembra__c> oldMap
+  ) {
+    for (Plan_de_Siembra__c plan : planes) {
+      if (String.isBlank(plan.Criterio_Alerta__c)) {
+        continue;
+      }
+
+      if (plan.Fecha_Detectada_Alerta__c == null) {
+        plan.Fecha_Detectada_Alerta__c = Date.today();
+        plan.Fecha_Limite_Resolucion__c = Date.today().addDays(30);
+      }
+    }
+  }
+
   private static void notificarResultadoAlProductor(
     List<Plan_de_Siembra__c> planes,
     Map<Id, Plan_de_Siembra__c> oldMap
@@ -147,16 +170,16 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
       ]
     );
 
-    OrgWideEmailAddress sender = getSenderEmail();
-
     List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
 
     for (Plan_de_Siembra__c plan : planesAprobados) {
-      Messaging.SingleEmailMessage mail = buildMail(
-        productores.get(plan.Productor__c),
+      Account productor = productores.get(plan.Productor__c);
+      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildMail(
+        productor != null
+          ? productor.Direccion_de_Correo_electronico_del_CUIT__c
+          : null,
         Label.PPH_Notificacion_Aprobada_Asunto,
-        Label.PPH_Notificacion_Aprobada_Cuerpo,
-        sender
+        Label.PPH_Notificacion_Aprobada_Cuerpo
       );
       if (mail != null) {
         mails.add(mail);
@@ -164,63 +187,19 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
     }
 
     for (Plan_de_Siembra__c plan : planesRechazados) {
-      Messaging.SingleEmailMessage mail = buildMail(
-        productores.get(plan.Productor__c),
+      Account productor = productores.get(plan.Productor__c);
+      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildMail(
+        productor != null
+          ? productor.Direccion_de_Correo_electronico_del_CUIT__c
+          : null,
         Label.PPH_Notificacion_Rechazada_Asunto,
-        Label.PPH_Notificacion_Rechazada_Cuerpo,
-        sender
+        Label.PPH_Notificacion_Rechazada_Cuerpo
       );
       if (mail != null) {
         mails.add(mail);
       }
     }
 
-    if (mails.isEmpty()) {
-      return;
-    }
-
-    try {
-      Messaging.sendEmail(mails);
-    } catch (Exception e) {
-      System.debug(
-        LoggingLevel.ERROR,
-        'Error notificando resultado PPH: ' + e.getMessage()
-      );
-    }
-  }
-
-  private static Messaging.SingleEmailMessage buildMail(
-    Account productor,
-    String asunto,
-    String cuerpo,
-    OrgWideEmailAddress sender
-  ) {
-    if (
-      productor == null ||
-      String.isBlank(productor.Direccion_de_Correo_electronico_del_CUIT__c)
-    ) {
-      return null;
-    }
-
-    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-    mail.setToAddresses(
-      new List<String>{ productor.Direccion_de_Correo_electronico_del_CUIT__c }
-    );
-    mail.setSubject(asunto);
-    mail.setPlainTextBody(cuerpo);
-    if (sender != null) {
-      mail.setOrgWideEmailAddressId(sender.Id);
-    }
-    return mail;
-  }
-
-  private static OrgWideEmailAddress getSenderEmail() {
-    List<OrgWideEmailAddress> owds = [
-      SELECT Id
-      FROM OrgWideEmailAddress
-      WHERE Address = 'info@sembraevolucion.com.ar'
-      LIMIT 1
-    ];
-    return owds.isEmpty() ? null : owds[0];
+    PPH_NotificacionService.send(mails);
   }
 }

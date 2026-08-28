@@ -92,6 +92,26 @@ private class PlanDeSiembraTriggerHandlerTest {
     System.assertEquals(1, Limits.getEmailInvocations());
   }
 
+  @IsTest
+  static void registraFechaDeteccionAlPoblarCriterio() {
+    Plan_de_Siembra__c plan = crearPlanEnPreparacion();
+
+    plan.Criterio_Alerta__c = '03 - Deuda o expedientes abiertos';
+    update plan;
+
+    plan = [
+      SELECT Fecha_Detectada_Alerta__c, Fecha_Limite_Resolucion__c
+      FROM Plan_de_Siembra__c
+      WHERE Id = :plan.Id
+    ];
+
+    System.assertEquals(Date.today(), plan.Fecha_Detectada_Alerta__c);
+    System.assertEquals(
+      Date.today().addDays(30),
+      plan.Fecha_Limite_Resolucion__c
+    );
+  }
+
   private static Plan_de_Siembra__c crearPlanEnPreparacion() {
     Test_TestUtils.disableFlows();
 
