@@ -10,11 +10,18 @@
         <span>info@sembraevolucion.com.ar</span>
       </div>
     </div>
-    <button class="contact-button" onclick={handleWhatsapp}>
-      <span class="icon">
-        <img src={iconContactenosUrl} alt="Contactenos" class="icon-svg" />
-      </span>
+    <div class="actions">
+      <template if:true={mostrarCta}>
+        <button class="faq-button" onclick={handleResolveDuda}>
+          {textoCta}
+        </button>
+      </template>
+      <button class="contact-button" onclick={handleWhatsapp}>
+        <span class="icon">
+          <img src={iconContactenosUrl} alt="Contactenos" class="icon-svg" />
+        </span>
         Contáctenos
-    </button>
+      </button>
+    </div>
   </div>
 </template>
