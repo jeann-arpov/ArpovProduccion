@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mostrar_CTA_Resolve_Duda__c</fullName>
+    <defaultValue>true</defaultValue>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Mostrar CTA Resolve Duda</label>
+    <required>false</required>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Profile xmlns="http://soap.sforce.com/2006/04/metadata">
     <applicationVisibilities>
         <application>ArPOV_Analitica</application>
@@ -1110,6 +1110,10 @@
     <classAccesses>
         <apexClass>FacturacionSociosController</apexClass>
         <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>FooterContactController</apexClass>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>ForgotPasswordController</apexClass>
@@ -2569,7 +2573,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Aplicacion_Item_DUP__c.Cantidad_Facturacion_En_Bolsas_50__c</field>
+        <field
+    >Aplicacion_Item_DUP__c.Cantidad_Facturacion_En_Bolsas_50__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2749,7 +2754,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Aplicacion_Item_DUP__c.Porcentaje_sobre_el_total_de_pagos__c</field>
+        <field
+    >Aplicacion_Item_DUP__c.Porcentaje_sobre_el_total_de_pagos__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2839,7 +2845,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Aplicacion_Item_de_AUD__c.Cantidad_Facturacion_En_Bolsas_50__c</field>
+        <field
+    >Aplicacion_Item_de_AUD__c.Cantidad_Facturacion_En_Bolsas_50__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3034,7 +3041,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Aplicacion_Item_de_AUD__c.Porcentaje_sobre_el_total_de_pagos__c</field>
+        <field
+    >Aplicacion_Item_de_AUD__c.Porcentaje_sobre_el_total_de_pagos__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3044,12 +3052,14 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Aplicacion_Item_de_AUD__c.Tipo_de_Cambio_de_la_Aplicacion__c</field>
+        <field
+    >Aplicacion_Item_de_AUD__c.Tipo_de_Cambio_de_la_Aplicacion__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Aplicacion_Item_de_AUD__c.Tipo_de_Cambio_del_Comprobante__c</field>
+        <field
+    >Aplicacion_Item_de_AUD__c.Tipo_de_Cambio_del_Comprobante__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3069,7 +3079,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Aplicacion_Item_de_AUD__c.Unidad_de_Medida_de_Facturacion__c</field>
+        <field
+    >Aplicacion_Item_de_AUD__c.Unidad_de_Medida_de_Facturacion__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3499,7 +3510,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Campana_Agricola__c.Declarado_Campana_Anterior_a_la_fecha__c</field>
+        <field
+    >Campana_Agricola__c.Declarado_Campana_Anterior_a_la_fecha__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -4169,7 +4181,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Comprobante_de_Pago__c.Valores_Pendientes_de_Confirmacion__c</field>
+        <field
+    >Comprobante_de_Pago__c.Valores_Pendientes_de_Confirmacion__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -4929,7 +4942,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Expediente_de_Negativos__c.Dias_transcurridos_desde_creacion_Exp__c</field>
+        <field
+    >Expediente_de_Negativos__c.Dias_transcurridos_desde_creacion_Exp__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -5034,7 +5048,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Expediente_de_Negativos__c.Saldo_del_Expediente_al_Cierre__c</field>
+        <field
+    >Expediente_de_Negativos__c.Saldo_del_Expediente_al_Cierre__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -7784,7 +7799,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Mapeo_Documento_Gestionado__mdt.Tipo_Documento_Gestionado__c</field>
+        <field
+    >Mapeo_Documento_Gestionado__mdt.Tipo_Documento_Gestionado__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8069,7 +8085,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Movimiento_BolsaTech__c.Movimiento_BolsaTech_Reconsiderada__c</field>
+        <field
+    >Movimiento_BolsaTech__c.Movimiento_BolsaTech_Reconsiderada__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8124,7 +8141,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Movimiento_BolsaTech__c.Razon_Social_Remitente_Comercial__c</field>
+        <field
+    >Movimiento_BolsaTech__c.Razon_Social_Remitente_Comercial__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8304,7 +8322,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Movimientos_LP__c.Tipo_Comprobante_Liquido_Producto_APL__c</field>
+        <field
+    >Movimientos_LP__c.Tipo_Comprobante_Liquido_Producto_APL__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8319,7 +8338,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Movimientos_LP__c.Tipo_de_Cambio_Liquido_Producto_Aplicado__c</field>
+        <field
+    >Movimientos_LP__c.Tipo_de_Cambio_Liquido_Producto_Aplicado__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8579,12 +8599,14 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Orden_Intragrupo__c.Dias_desde_Ultimo_Contacto_DUP_Invierno__c</field>
+        <field
+    >Orden_Intragrupo__c.Dias_desde_Ultimo_Contacto_DUP_Invierno__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Orden_Intragrupo__c.Dias_desde_Ultimo_Contacto_DUP_Verano__c</field>
+        <field
+    >Orden_Intragrupo__c.Dias_desde_Ultimo_Contacto_DUP_Verano__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8869,7 +8891,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Parametros_ERP_y_CRM__c.Cuenta_Contable_facturacion_SRE__c</field>
+        <field
+    >Parametros_ERP_y_CRM__c.Cuenta_Contable_facturacion_SRE__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -8949,12 +8972,14 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Parametros_ERP_y_CRM__c.Producto_Diferencia_de_Cambio_PIIBB__c</field>
+        <field
+    >Parametros_ERP_y_CRM__c.Producto_Diferencia_de_Cambio_PIIBB__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Parametros_ERP_y_CRM__c.Producto_Diferencia_de_Cambio_SE__c</field>
+        <field
+    >Parametros_ERP_y_CRM__c.Producto_Diferencia_de_Cambio_SE__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -9004,22 +9029,26 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Cobranza_SE__c</field>
+        <field
+    >Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Cobranza_SE__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Cobranza__c</field>
+        <field
+    >Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Cobranza__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Pago_SE__c</field>
+        <field
+    >Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Pago_SE__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Pago__c</field>
+        <field
+    >Parametros_ERP_y_CRM__c.Tipo_Comprobante_Mov_Fondo_Pago__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -10259,7 +10288,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Transaccion__c.Direccion_de_Correo_electronico_del_CUIT__c</field>
+        <field
+    >Transaccion__c.Direccion_de_Correo_electronico_del_CUIT__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -12217,22 +12247,27 @@
         <layout>ActionPlan-Formato Plan de acción</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ActionPlanItemDependency-Formato Dependencia de elemento de plan de acción</layout>
+        <layout
+    >ActionPlanItemDependency-Formato Dependencia de elemento de plan de acción</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>ActionPlanTemplate-Formato Plantilla de plan de acción</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ActionPlanTemplateItem-Formato Elemento de plantilla de plan de acción</layout>
+        <layout
+    >ActionPlanTemplateItem-Formato Elemento de plantilla de plan de acción</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ActionPlanTemplateItemValue-Formato Valor de elemento de plantilla de plan de acción</layout>
+        <layout
+    >ActionPlanTemplateItemValue-Formato Valor de elemento de plantilla de plan de acción</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ActionPlanTemplateVersion-Formato Versión de plantilla de plan de acción</layout>
+        <layout
+    >ActionPlanTemplateVersion-Formato Versión de plantilla de plan de acción</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ActionPlnTmplItmDependency-Formato Dependencia de elemento de plantilla de plan de acción</layout>
+        <layout
+    >ActionPlnTmplItmDependency-Formato Dependencia de elemento de plantilla de plan de acción</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Address-Formato Dirección</layout>
@@ -12241,7 +12276,8 @@
         <layout>Aplicacion_Item_DUP__c-Formato Aplicación Distribuida</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Aplicacion_Item_de_AUD__c-Formato Aplicación Item de AUD</layout>
+        <layout
+    >Aplicacion_Item_de_AUD__c-Formato Aplicación Item de AUD</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Aplicacion__c-Formato Aplicación</layout>
@@ -12253,10 +12289,12 @@
         <layout>AssociatedLocation-Formato Ubicación asociada</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>AuthorizationFormConsent-Authorization Form Consent Layout</layout>
+        <layout
+    >AuthorizationFormConsent-Authorization Form Consent Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>AuthorizationFormDataUse-Authorization Form Data Use Layout</layout>
+        <layout
+    >AuthorizationFormDataUse-Authorization Form Data Use Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>AuthorizationFormText-Authorization Form Text Layout</layout>
@@ -12268,10 +12306,12 @@
         <layout>BusinessBrand-Formato Marca comercial</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>CalcMatrixColumnRange-Formato Decision Matrix Column Range</layout>
+        <layout
+    >CalcMatrixColumnRange-Formato Decision Matrix Column Range</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>CalcProcStepRelationship-Formato Expression Set Step Relationship</layout>
+        <layout
+    >CalcProcStepRelationship-Formato Expression Set Step Relationship</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>CalculationMatrix-Formato Matriz de decisiones</layout>
@@ -12283,19 +12323,23 @@
         <layout>CalculationMatrixRow-Formato Decision Matrix Row</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>CalculationMatrixVersion-Formato Decision Matrix Version</layout>
+        <layout
+    >CalculationMatrixVersion-Formato Decision Matrix Version</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>CalculationProcedure-Formato Calculation Procedure</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>CalculationProcedureStep-Formato Calculation Procedure Step</layout>
+        <layout
+    >CalculationProcedureStep-Formato Calculation Procedure Step</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>CalculationProcedureVariable-Formato Calculation Procedure Variable</layout>
+        <layout
+    >CalculationProcedureVariable-Formato Calculation Procedure Variable</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>CalculationProcedureVersion-Formato Calculation Procedure Version</layout>
+        <layout
+    >CalculationProcedureVersion-Formato Calculation Procedure Version</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Calendario__c-Formato Calendario</layout>
@@ -12325,7 +12369,8 @@
         <layout>Cesion_HT__c-Cesión HT Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ChannelObjectLinkingRule-Formato Regla de vinculación de objeto de canal</layout>
+        <layout
+    >ChannelObjectLinkingRule-Formato Regla de vinculación de objeto de canal</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Clasificador__c-Formato Clasificador</layout>
@@ -12346,31 +12391,38 @@
         <layout>Comprobante_de_Pago__c-Formato Cobranza</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Configuracion_Boton_Gestion_Lista__mdt-Formato Configuración Botón Gestión Lista</layout>
+        <layout
+    >Configuracion_Boton_Gestion_Lista__mdt-Formato Configuración Botón Gestión Lista</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Configuracion_Gestion__mdt-Formato Configuración Gestion</layout>
+        <layout
+    >Configuracion_Gestion__mdt-Formato Configuración Gestion</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Configuracion_Instructivos_de_Pago__mdt-Formato Configuracion Instructivos de Pago</layout>
+        <layout
+    >Configuracion_Instructivos_de_Pago__mdt-Formato Configuracion Instructivos de Pago</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Configuracion_Reversion_de_TN__mdt-Configuracion Reversion de TN Layout</layout>
+        <layout
+    >Configuracion_Reversion_de_TN__mdt-Configuracion Reversion de TN Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Contact-Contact Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ContactPointAddress-Formato Dirección de punto de contacto</layout>
+        <layout
+    >ContactPointAddress-Formato Dirección de punto de contacto</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ContactPointEmail-Formato Correo electrónico de punto de contacto</layout>
+        <layout
+    >ContactPointEmail-Formato Correo electrónico de punto de contacto</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>ContactPointPhone-Formato Teléfono de punto de contacto</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ContactPointTypeConsent-Contact Point Type Consent Layout</layout>
+        <layout
+    >ContactPointTypeConsent-Contact Point Type Consent Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Contacto_Remesa__c-Formato Contacto Remesa</layout>
@@ -12379,7 +12431,8 @@
         <layout>ContentAsset-Formato Archivo de activo</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ContentDocumentListViewMapping-Formato Documento de Quip desde Vista de lista</layout>
+        <layout
+    >ContentDocumentListViewMapping-Formato Documento de Quip desde Vista de lista</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>ContentVersion-General</layout>
@@ -12391,7 +12444,8 @@
         <layout>Contrato_de_Genetica__c-Formato Contrato de Genética</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>CspTrustedSite-Formato Sitio de confianza con política de seguridad de contenidos</layout>
+        <layout
+    >CspTrustedSite-Formato Sitio de confianza con política de seguridad de contenidos</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Cuenta_Destinataria__c-Formato Cuenta Destinataria</layout>
@@ -12415,7 +12469,8 @@
         <layout>Destinatario_Cesion_HT__c-Destinatario Cesión HT Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Destinatario_Reporte_Licencias__mdt-Destinatario Reporte Licencias Layout</layout>
+        <layout
+    >Destinatario_Reporte_Licencias__mdt-Destinatario Reporte Licencias Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>DevopsActivityLog-Activity History Layout</layout>
@@ -12452,10 +12507,12 @@
         <recordType>Documento_Gestionado__c.Ventas</recordType>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>DuplicateRecordItem-Formato Elemento de registro duplicado</layout>
+        <layout
+    >DuplicateRecordItem-Formato Elemento de registro duplicado</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>DuplicateRecordSet-Formato Conjunto de registro duplicado</layout>
+        <layout
+    >DuplicateRecordSet-Formato Conjunto de registro duplicado</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>ERPvs__Comprobante_Venta__c-CV ARPOV</layout>
@@ -12467,16 +12524,19 @@
         <layout>EmailMessage-Formato Mensaje de correo electrónico</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>EmpUserProvisionProcessErr-Formato Error de Proceso de aprovisionamiento de usuario empleado</layout>
+        <layout
+    >EmpUserProvisionProcessErr-Formato Error de Proceso de aprovisionamiento de usuario empleado</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>EmpUserProvisioningProcess-Formato Proceso de aprovisionamiento de usuario empleado</layout>
+        <layout
+    >EmpUserProvisioningProcess-Formato Proceso de aprovisionamiento de usuario empleado</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Employee-Formato Empleado</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>EngagementInteraction-Formato de Interacción de participación</layout>
+        <layout
+    >EngagementInteraction-Formato de Interacción de participación</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>EngagementTopic-Formato de Tema de participación</layout>
@@ -12488,10 +12548,12 @@
         <layout>Entidades_Bancarias__c-Formato Entidad Bancaria</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Entrada_Lista_de_Precios__c-Entrada Lista de Precios Layout</layout>
+        <layout
+    >Entrada_Lista_de_Precios__c-Entrada Lista de Precios Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Entrada_Precio_Obtentor__c-Entrada Precio Obtentor Layout</layout>
+        <layout
+    >Entrada_Precio_Obtentor__c-Entrada Precio Obtentor Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Establecimiento_PPH__c-Establecimiento PPH Layout</layout>
@@ -12506,13 +12568,15 @@
         <layout>Exenciones__c-Formato Exención</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Expediente_de_Negativos__c-Expediente de Negativos Layout</layout>
+        <layout
+    >Expediente_de_Negativos__c-Expediente de Negativos Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>ExpressionSet-Formato Conjunto de expresiones</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>ExpressionSetVersion-Formato Versión de Conjunto de expresiones</layout>
+        <layout
+    >ExpressionSetVersion-Formato Versión de Conjunto de expresiones</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>FeedItem-Formato Elemento de noticias en tiempo real</layout>
@@ -12521,7 +12585,8 @@
         <layout>FlowInterview-Formato Flow Interview</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>FlowOrchestrationWorkItem-Orchestration Work Item Layout</layout>
+        <layout
+    >FlowOrchestrationWorkItem-Orchestration Work Item Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>FlowRecord-Flow Layout</layout>
@@ -12545,7 +12610,8 @@
         <layout>Hectareas_Tecnologicas__c-Hectárea Tecnológica Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Historial_UP_y_Fiscalizada__c-Formato Historial UP y Fiscalizada</layout>
+        <layout
+    >Historial_UP_y_Fiscalizada__c-Formato Historial UP y Fiscalizada</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Idea-Idea Layout</layout>
@@ -12554,7 +12620,8 @@
         <layout>Individual-Formato Persona</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Integrante_Grupo_de_Trabajo__c-Formato Integrante Grupo de Trabajo</layout>
+        <layout
+    >Integrante_Grupo_de_Trabajo__c-Formato Integrante Grupo de Trabajo</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Interaccion_Nueva__c-Formato Gestion Nueva</layout>
@@ -12563,7 +12630,8 @@
         <layout>Interaccion__c-Formato Interaccion</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>InternalOrganizationUnit-Formato Unidad de organización interna</layout>
+        <layout
+    >InternalOrganizationUnit-Formato Unidad de organización interna</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Item_Auditoria__c-Formato Item Auditoria</layout>
@@ -12602,13 +12670,16 @@
         <layout>LiveChatTranscript-Formato de Transcripción de chat</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>LiveChatTranscriptActive-Formato de transcripción de chat %28en curso%29</layout>
+        <layout
+    >LiveChatTranscriptActive-Formato de transcripción de chat %28en curso%29</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>LiveChatTranscriptEvent-Formato de Evento de transcripción de chat</layout>
+        <layout
+    >LiveChatTranscriptEvent-Formato de Evento de transcripción de chat</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>LiveChatTranscriptWaiting-Formato de transcripción de chat %28en espera%29</layout>
+        <layout
+    >LiveChatTranscriptWaiting-Formato de transcripción de chat %28en espera%29</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>LiveChatVisitor-Formato de Visitante de chat</layout>
@@ -12629,7 +12700,8 @@
         <layout>Macro-Formato Macro</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Mapeo_Documento_Gestionado__mdt-Formato Mapeo Documento Gestionado</layout>
+        <layout
+    >Mapeo_Documento_Gestionado__mdt-Formato Mapeo Documento Gestionado</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Mapeo_de_Campanias__mdt-Mapeo de Campañas Layout</layout>
@@ -12647,7 +12719,8 @@
         <layout>MessagingSession-Formato Sesión de Mensajería</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Metricas_Grupo_de_Trabajo__c-Formato Metricas Grupo de Trabajo</layout>
+        <layout
+    >Metricas_Grupo_de_Trabajo__c-Formato Metricas Grupo de Trabajo</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Miembro_del_Grupo__c-Formato Miembro del Grupo</layout>
@@ -12683,7 +12756,8 @@
         <layout>Parametro_PPH__c-Parámetro PPH Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Parametro_Portal_Licencias__mdt-Parametro Portal Licencias Layout</layout>
+        <layout
+    >Parametro_Portal_Licencias__mdt-Parametro Portal Licencias Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Parametros_ERP_y_CRM__c-Formato Parámetros ERP y CRM</layout>
@@ -12769,7 +12843,8 @@
         <layout>Seller-Formato Vendedor</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>SiteIframeWhiteListUrl-Formato Trusted Domains for Inline Frames</layout>
+        <layout
+    >SiteIframeWhiteListUrl-Formato Trusted Domains for Inline Frames</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>SocialPersona-Social Persona Layout</layout>
@@ -12826,13 +12901,15 @@
         <layout>UserProvAccount-Formato Cuenta de provisión de usuario</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>UserProvisioningRequest-Formato Solicitud de aprovisionamiento de usuario</layout>
+        <layout
+    >UserProvisioningRequest-Formato Solicitud de aprovisionamiento de usuario</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Valor__c-Formato Valor</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>Variedad_SRE_por_Productor__c-Variedad SRE por Productor Layout</layout>
+        <layout
+    >Variedad_SRE_por_Productor__c-Variedad SRE por Productor Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>Variedad__c-Variedad Layout</layout>

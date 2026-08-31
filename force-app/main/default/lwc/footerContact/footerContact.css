@@ -45,6 +45,7 @@
 }
 
 .faq-button {
+  position: relative;
   background-color: transparent;
   color: #b7f302;
   border: 2px solid #b7f302;
@@ -56,6 +57,27 @@
     background-color 0.3s ease,
     color 0.3s ease;
   margin-top: 10px;
+}
+
+.faq-button:hover {
+  background-color: #b7f302;
+  color: black;
+}
+
+.badge-new {
+  position: absolute;
+  top: -9px;
+  right: -10px;
+  background-color: #ff7a00;
+  color: black;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .faq-button:hover {
