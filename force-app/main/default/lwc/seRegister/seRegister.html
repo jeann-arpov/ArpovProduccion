@@ -1,0 +1,310 @@
+<template>
+    <div class={rootClass} style={backgroundStyle}>
+        <div class="se-login-overlay se-desk-only" aria-hidden="true"></div>
+
+        <div class="se-login-deco se-desk-only" aria-hidden="true">
+            <div class="se-login-bars">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <img class="se-login-genetica" src={geneticaIconUrl} alt="" />
+        </div>
+
+        <template if:true={showSpinner}>
+            <div class="se-login-veil" role="status" aria-live="polite">
+                <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={identifier}>
+            <div class="se-login-shell se-login-shell--register">
+                <aside class="se-login-hero se-desk-only" aria-hidden="true">
+                    <h1 class="se-login-hero-title">
+                        <span class="se-login-hero-line">Accedé siempre a lo </span><span class="se-login-hero-accent">último en genética y biotecnología.</span>
+                    </h1>
+                </aside>
+
+                <section class="se-login-card se-login-card--register registration-form">
+                    <div class="se-login-card-body">
+                        <template if:true={showLogo}>
+                            <div class="se-login-logo-wrap">
+                                <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
+                            </div>
+                        </template>
+
+                        <template if:true={message}>
+                            <div class={messageBannerClass} role="alert">
+                                <template if:true={isErrorMessage}>
+                                    <lightning-icon
+                                        icon-name="utility:error"
+                                        size="x-small"
+                                        class="se-login-alert-icon"
+                                        alternative-text="Error"
+                                    ></lightning-icon>
+                                </template>
+                                <span>{message}</span>
+                            </div>
+                        </template>
+
+                        <div class={cuitFieldClass}>
+                            <label class="se-fl-label" for="register-cuit">CUIT sin guiones (-)</label>
+                            <input
+                                id="register-cuit"
+                                class="se-fl-input"
+                                type="text"
+                                name="cuit"
+                                inputmode="numeric"
+                                maxlength="13"
+                                value={cuitFormatted}
+                                oninput={handleCuitInput}
+                                onblur={handleCuitBlur}
+                                onkeydown={handleCuitKeydown}
+                                onfocus={handleFieldFocus}
+                            />
+                        </div>
+                        <template if:true={cuitError}>
+                            <p class="se-field-error">{cuitError}</p>
+                        </template>
+                        <template if:true={fieldErrors.cuit}>
+                            <p class="se-field-error">{fieldErrors.cuit}</p>
+                        </template>
+
+                        <div class={dniFieldClass}>
+                            <label class="se-fl-label" for="register-dni">DNI</label>
+                            <input
+                                id="register-dni"
+                                class="se-fl-input"
+                                type="text"
+                                name="dni"
+                                inputmode="numeric"
+                                value={dni}
+                                oninput={handleTextInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                            />
+                        </div>
+                        <template if:true={fieldErrors.dni}>
+                            <p class="se-field-error">{fieldErrors.dni}</p>
+                        </template>
+
+                        <div class={firstNameFieldClass}>
+                            <label class="se-fl-label" for="register-first-name">Nombre</label>
+                            <input
+                                id="register-first-name"
+                                class="se-fl-input"
+                                type="text"
+                                name="firstName"
+                                autocomplete="given-name"
+                                value={firstName}
+                                oninput={handleTextInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                            />
+                        </div>
+                        <template if:true={fieldErrors.firstName}>
+                            <p class="se-field-error">{fieldErrors.firstName}</p>
+                        </template>
+
+                        <div class={lastNameFieldClass}>
+                            <label class="se-fl-label" for="register-last-name">Apellido</label>
+                            <input
+                                id="register-last-name"
+                                class="se-fl-input"
+                                type="text"
+                                name="lastName"
+                                autocomplete="family-name"
+                                value={lastName}
+                                oninput={handleTextInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                            />
+                        </div>
+                        <template if:true={fieldErrors.lastName}>
+                            <p class="se-field-error">{fieldErrors.lastName}</p>
+                        </template>
+
+                        <template if:true={requirePhoneNumber}>
+                            <div class={phoneFieldClass}>
+                                <label class="se-fl-label" for="register-phone">Número de celular</label>
+                                <input
+                                    id="register-phone"
+                                    class="se-fl-input"
+                                    type="tel"
+                                    name="telefono"
+                                    autocomplete="tel"
+                                    value={telefono}
+                                    oninput={handlePhoneInput}
+                                    onfocus={handleFieldFocus}
+                                    onblur={handleFieldBlur}
+                                />
+                            </div>
+                            <template if:true={fieldErrors.telefono}>
+                                <p class="se-field-error">{fieldErrors.telefono}</p>
+                            </template>
+                        </template>
+
+                        <div class={emailFieldClass}>
+                            <label class="se-fl-label" for="register-email">Email</label>
+                            <input
+                                id="register-email"
+                                class="se-fl-input"
+                                type="email"
+                                name="email"
+                                autocomplete="email"
+                                value={email}
+                                oninput={handleTextInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                            />
+                        </div>
+                        <template if:true={fieldErrors.email}>
+                            <p class="se-field-error">{fieldErrors.email}</p>
+                        </template>
+
+                        <template if:true={showPasswordFields}>
+                            <div class={passwordFieldClass}>
+                                <label class="se-fl-label" for="register-password">Contraseña</label>
+                                <input
+                                    id="register-password"
+                                    class="se-fl-input se-fl-input--password"
+                                    type={passwordInputType}
+                                    name="password"
+                                    autocomplete="new-password"
+                                    value={password}
+                                    oninput={handlePasswordInput}
+                                    onfocus={handleFieldFocus}
+                                    onblur={handlePasswordBlur}
+                                />
+                                <button
+                                    type="button"
+                                    class="se-password-help"
+                                    onclick={toggleHelp}
+                                    aria-label="Requisitos de contraseña"
+                                >
+                                    <lightning-icon icon-name="utility:help" size="x-small"></lightning-icon>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="se-password-toggle"
+                                    onclick={togglePasswordVisibility}
+                                    aria-label="Mostrar contraseña"
+                                >
+                                    <lightning-icon icon-name={passwordToggleIcon} size="x-small"></lightning-icon>
+                                </button>
+                                <div class={helpTooltipClass} role="tooltip">
+                                    <p class="se-password-help-title">La contraseña debe tener como mínimo:</p>
+                                    <ul>
+                                        <li>8 caracteres</li>
+                                        <li>Una mayúscula</li>
+                                        <li>Un número</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <template if:true={fieldErrors.password}>
+                                <p class="se-field-error">{fieldErrors.password}</p>
+                            </template>
+
+                            <div class={passwordConfirmFieldClass}>
+                                <label class="se-fl-label" for="register-password-confirm">Confirmar contraseña</label>
+                                <input
+                                    id="register-password-confirm"
+                                    class="se-fl-input se-fl-input--password"
+                                    type={passwordConfirmInputType}
+                                    name="passwordConfirm"
+                                    autocomplete="new-password"
+                                    value={passwordConfirm}
+                                    oninput={handlePasswordConfirmInput}
+                                    onfocus={handleFieldFocus}
+                                    onblur={handleFieldBlur}
+                                />
+                                <button
+                                    type="button"
+                                    class="se-password-toggle"
+                                    onclick={togglePasswordConfirmVisibility}
+                                    aria-label="Mostrar confirmación de contraseña"
+                                >
+                                    <lightning-icon icon-name={passwordConfirmToggleIcon} size="x-small"></lightning-icon>
+                                </button>
+                            </div>
+                            <template if:true={fieldErrors.passwordConfirm}>
+                                <p class="se-field-error">{fieldErrors.passwordConfirm}</p>
+                            </template>
+                        </template>
+
+                        <button
+                            type="button"
+                            class="se-btn se-btn-primary se-login-submit"
+                            onclick={register}
+                            disabled={showSpinner}
+                        >
+                            Registrarse
+                        </button>
+
+                        <p class="se-login-register">
+                            ¿Ya tenés cuenta?
+                            <button type="button" class="se-login-link se-login-link--strong" onclick={goToLogin}>
+                                Logueate
+                            </button>
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </template>
+
+        <template if:true={identifier}>
+            <div class="se-login-shell se-login-shell--confirm">
+                <section class="se-login-card confirmation-form">
+                    <div class="se-login-card-body">
+                        <template if:true={showLogo}>
+                            <div class="se-login-logo-wrap">
+                                <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
+                            </div>
+                        </template>
+                        <h1 class="se-login-title">Verificá tu email</h1>
+                        <p class="se-login-sub">
+                            Ingresá el código de seguridad que enviamos a <strong>{email}</strong>.
+                        </p>
+
+                        <template if:true={message}>
+                            <div class={messageBannerClass} role="alert">{message}</div>
+                        </template>
+
+                        <div class={codeFieldClass}>
+                            <label class="se-fl-label" for="register-code">Código</label>
+                            <input
+                                id="register-code"
+                                class="se-fl-input"
+                                type="text"
+                                name="code"
+                                autocomplete="one-time-code"
+                                inputmode="numeric"
+                                value={code}
+                                oninput={handleCodeInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                            />
+                        </div>
+                        <template if:true={fieldErrors.code}>
+                            <p class="se-field-error">{fieldErrors.code}</p>
+                        </template>
+
+                        <button
+                            type="button"
+                            class="se-btn se-btn-primary se-login-submit"
+                            onclick={confirm}
+                            disabled={showSpinner}
+                        >
+                            Enviar
+                        </button>
+
+                        <button type="button" class="se-login-cancel" onclick={cancel}>Cancelar</button>
+                    </div>
+                </section>
+            </div>
+        </template>
+    </div>
+</template>

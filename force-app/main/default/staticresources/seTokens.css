@@ -499,15 +499,19 @@ body.se-chrome .slds-col--padded.comm-content-footer {
   }
 }
 
-/* Login guest: seLogin reemplaza layout del theme (evita hero duplicado y margen 6rem). */
+/* Login / registro guest: componentes SG reemplazan layout del theme. */
 html.se-login-guest,
-body.se-login-guest {
+body.se-login-guest,
+html.se-register-guest,
+body.se-register-guest {
   overflow: hidden;
   --dxp-c-section-columns-max-width: 100%;
 }
 
 body.se-login-guest .cCenterPanel,
-body.se-login-guest [role="main"].cCenterPanel {
+body.se-login-guest [role="main"].cCenterPanel,
+body.se-register-guest .cCenterPanel,
+body.se-register-guest [role="main"].cCenterPanel {
   float: none !important;
   margin: 0 !important;
   width: 100% !important;
@@ -524,7 +528,17 @@ body.se-login-guest .cb-section,
 body.se-login-guest .cb-section_column,
 body.se-login-guest .dxp-column,
 body.se-login-guest .comm-layout-column,
-body.se-login-guest .slds-col--padded {
+body.se-login-guest .slds-col--padded,
+body.se-register-guest .comm-page-content,
+body.se-register-guest [data-region="content"],
+body.se-register-guest .siteforceContentArea,
+body.se-register-guest .lwr-main,
+body.se-register-guest main,
+body.se-register-guest .cb-section,
+body.se-register-guest .cb-section_column,
+body.se-register-guest .dxp-column,
+body.se-register-guest .comm-layout-column,
+body.se-register-guest .slds-col--padded {
   max-width: none !important;
   width: 100% !important;
   padding: 0 !important;
@@ -538,19 +552,33 @@ body.se-login-guest [data-region="footer"],
 body.se-login-guest c-header-componente-sembra-evolucion,
 body.se-login-guest c-se-bottom-nav,
 body.se-login-guest c-footer-contact,
-body.se-login-guest c-se-footer-contact {
+body.se-login-guest c-se-footer-contact,
+body.se-register-guest .comm-page-header,
+body.se-register-guest [data-region="header"],
+body.se-register-guest .comm-page-footer,
+body.se-register-guest [data-region="footer"],
+body.se-register-guest c-header-componente-sembra-evolucion,
+body.se-register-guest c-se-bottom-nav,
+body.se-register-guest c-footer-contact,
+body.se-register-guest c-se-footer-contact {
   display: none !important;
 }
 
 body.se-login-guest .cb-section_column:not(:has(c-se-login)),
 body.se-login-guest .dxp-block:not(:has(c-se-login)),
+body.se-register-guest .cb-section_column:not(:has(c-se-register)),
+body.se-register-guest .dxp-block:not(:has(c-se-register)),
 body.se-login-guest .comm-content-header,
+body.se-register-guest .comm-content-header,
 body.se-login-guest .rich-text-editor-output,
-body.se-login-guest .dxp-text-body {
+body.se-register-guest .rich-text-editor-output,
+body.se-login-guest .dxp-text-body,
+body.se-register-guest .dxp-text-body {
   display: none !important;
 }
 
-body.se-login-guest c-se-login {
+body.se-login-guest c-se-login,
+body.se-register-guest c-se-register {
   display: block;
   position: fixed;
   inset: 0;
