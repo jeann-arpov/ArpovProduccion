@@ -280,6 +280,26 @@ private class VentasInformadasCuitResolver_TEST {
   }
 
   @IsTest
+  static void resolverCuentasCuitFaltantesNoHaceUnSoqlPorCuit() {
+    List<Account> cuentas = new List<Account>();
+    Set<String> missing = new Set<String>();
+    for (Integer i = 0; i < 40; i++) {
+      missing.add('2799999' + String.valueOf(1000 + i));
+    }
+    Set<String> encontrados = new Set<String>();
+
+    Test.startTest();
+    VentasInformadasCuitResolver.resolverCuentasCuitFaltantes(cuentas, missing, encontrados);
+    Integer queries = Limits.getQueries();
+    Test.stopTest();
+
+    System.assert(
+      queries < 10,
+      'LIKE por CUIT no puede ser 1 SOQL por valor. Queries=' + queries
+    );
+  }
+
+  @IsTest
   static void aplicarVentaInternaUsaAccountsById() {
     Account acc03 = crearObtentor('30616275905', '03');
     Map<Id, Account> byId = new Map<Id, Account>{ acc03.Id => acc03 };
