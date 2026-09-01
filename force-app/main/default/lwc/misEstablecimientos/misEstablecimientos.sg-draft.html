@@ -1,0 +1,59 @@
+﻿<template>
+    <c-se-list-page loading={loading}>
+        <c-se-page-header
+            slot="header"
+            eyebrow="PRECERTIFICACI├ôN"
+            eyebrow-mobile="M├ôDULOS ┬À ESTABLECIMIENTOS"
+            title="Establecimientos"
+            subtitle="Los campos que declar├ís ac├í se usan para PPH, entregas de semilla y reportes de precertificaci├│n."
+            show-search
+            search-placeholder="Buscar por nombre..."
+            onsearchchange={handleSearchChange}
+        ></c-se-page-header>
+
+        <div slot="toolbar" class="est-toolbar">
+            <div class="est-toolbar-actions se-desk-only">
+                <button type="button" class="est-btn est-btn-primary" onclick={handleNewEstablecimiento}>
+                    + Nuevo establecimiento
+                </button>
+                <button type="button" class="est-btn est-btn-ghost" onclick={handleOpenMapa}>
+                    Ver mapa
+                </button>
+            </div>
+            <p class="est-meta se-desk-only">{listMetaLabel}</p>
+        </div>
+
+        <c-se-data-list
+            records={filtered}
+            columns={columns}
+            mobile-fields={mobileFields}
+            title-field="title"
+            badge-field="statusLabel"
+            badge-tone-field="statusTone"
+            key-field="id"
+            action-label="Ver detalle"
+            mobile-action-label="Ver detalle ÔåÆ"
+            empty-text="No hay establecimientos para mostrar."
+            page-size={pageSize}
+            loading={loading}
+            onrowaction={handleRowAction}
+        ></c-se-data-list>
+
+        <div slot="pager" class="est-footer se-desk-only">
+            <template if:true={showFooterSummary}>
+                <p class="est-footer-copy">{footerSummaryLabel}</p>
+            </template>
+        </div>
+    </c-se-list-page>
+
+    <div class="est-mob-actions se-mob-only">
+        <button type="button" class="est-btn est-btn-ghost est-mob-map" onclick={handleOpenMapa}>
+            Ver mapa
+        </button>
+        <button type="button" class="est-btn est-btn-primary est-mob-new" onclick={handleNewEstablecimiento}>
+            Nuevo establecimiento
+        </button>
+    </div>
+
+    <c-establecimientos-map onsaved={handleEstablecimientoSaved}></c-establecimientos-map>
+</template>
