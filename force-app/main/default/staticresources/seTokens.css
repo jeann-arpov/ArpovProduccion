@@ -498,3 +498,63 @@ body.se-chrome .slds-col--padded.comm-content-footer {
     width: 100% !important;
   }
 }
+
+/* Login guest: seLogin reemplaza layout del theme (evita hero duplicado y margen 6rem). */
+html.se-login-guest,
+body.se-login-guest {
+  overflow: hidden;
+  --dxp-c-section-columns-max-width: 100%;
+}
+
+body.se-login-guest .cCenterPanel,
+body.se-login-guest [role="main"].cCenterPanel {
+  float: none !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+body.se-login-guest .comm-page-content,
+body.se-login-guest [data-region="content"],
+body.se-login-guest .siteforceContentArea,
+body.se-login-guest .lwr-main,
+body.se-login-guest main,
+body.se-login-guest .cb-section,
+body.se-login-guest .cb-section_column,
+body.se-login-guest .dxp-column,
+body.se-login-guest .comm-layout-column,
+body.se-login-guest .slds-col--padded {
+  max-width: none !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.se-login-guest .comm-page-header,
+body.se-login-guest [data-region="header"],
+body.se-login-guest .comm-page-footer,
+body.se-login-guest [data-region="footer"],
+body.se-login-guest c-header-componente-sembra-evolucion,
+body.se-login-guest c-se-bottom-nav,
+body.se-login-guest c-footer-contact,
+body.se-login-guest c-se-footer-contact {
+  display: none !important;
+}
+
+body.se-login-guest .cb-section_column:not(:has(c-se-login)),
+body.se-login-guest .dxp-block:not(:has(c-se-login)),
+body.se-login-guest .comm-content-header,
+body.se-login-guest .rich-text-editor-output,
+body.se-login-guest .dxp-text-body {
+  display: none !important;
+}
+
+body.se-login-guest c-se-login {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100vw;
+  height: 100vh;
+}

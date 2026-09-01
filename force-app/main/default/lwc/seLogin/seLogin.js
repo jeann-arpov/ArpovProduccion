@@ -30,8 +30,8 @@ export default class SeLogin extends LightningElement {
     urlLogoSe;
 
     connectedCallback() {
-        document.documentElement.classList.add('se-chrome');
-        document.body.classList.add('se-chrome');
+        document.documentElement.classList.add('se-chrome', 'se-login-guest');
+        document.body.classList.add('se-chrome', 'se-login-guest');
         loadStyle(this, TOKENS).catch((error) => {
             // eslint-disable-next-line no-console
             console.error('seTokens', error);
@@ -39,8 +39,8 @@ export default class SeLogin extends LightningElement {
     }
 
     disconnectedCallback() {
-        document.documentElement.classList.remove('se-chrome');
-        document.body.classList.remove('se-chrome');
+        document.documentElement.classList.remove('se-chrome', 'se-login-guest');
+        document.body.classList.remove('se-chrome', 'se-login-guest');
     }
 
     get backgroundStyle() {
