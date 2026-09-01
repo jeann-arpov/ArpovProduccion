@@ -106,17 +106,8 @@
     bottom: 20px;
     width: 112px;
     height: 112px;
-    border-radius: 999px;
-    background: var(--se-lima, #bfff00);
-    color: var(--se-black, #1c1c1c);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.se-login-genetica svg {
-    width: 52px;
-    height: 52px;
+    display: block;
+    object-fit: contain;
 }
 
 .se-login-veil {
@@ -485,6 +476,8 @@
 
     .se-login-logo {
         height: 44px;
+        width: auto;
+        max-width: 220px;
     }
 
     .se-fl-field {

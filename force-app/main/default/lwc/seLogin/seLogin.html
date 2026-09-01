@@ -11,17 +11,7 @@
                 <span></span>
                 <span></span>
             </div>
-            <div class="se-login-genetica">
-                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-                    <path
-                        d="M14 8c4 0 6 6 6 16s-2 16-6 16M34 8c-4 0-6 6-6 16s2 16 6 16M14 8c2 3 4 8 4 16s-2 13-4 16M34 8c-2 3-4 8-4 16s2 13 4 16M18 14h12M18 24h12M18 34h12"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.2"
-                        stroke-linecap="round"
-                    ></path>
-                </svg>
-            </div>
+            <img class="se-login-genetica" src={geneticaIconUrl} alt="" />
         </div>
 
         <template if:true={showSpinner}>
@@ -42,7 +32,7 @@
                     <div class="se-login-card-body">
                         <template if:true={showLogo}>
                             <div class="se-login-logo-wrap">
-                                <img class="se-login-logo" src={urlLogoSe.data} alt="Sembrá Evolución" />
+                                <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
                             </div>
                         </template>
                         <p class="se-login-tagline se-mob-only">Donde tenés que estar.</p>
@@ -180,7 +170,7 @@
                     <div class="se-login-card-body">
                         <template if:true={showLogo}>
                             <div class="se-login-logo-wrap">
-                                <img class="se-login-logo" src={urlLogoSe.data} alt="Sembrá Evolución" />
+                                <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
                             </div>
                         </template>
                         <h1 class="se-login-title">Verificá tu email</h1>

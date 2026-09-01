@@ -5,6 +5,8 @@ import confirmLogin from '@salesforce/apex/RegisterCommunityController.confirmLo
 import loginWithPassword from '@salesforce/apex/RegisterCommunityController.loginWithPassword';
 import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLogoSE';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
+import seLogoUrl from '@salesforce/resourceUrl/seLogoHorizontal';
+import geneticaIconUrl from '@salesforce/resourceUrl/seIconGenetica';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import sitePath from '@salesforce/community/basePath';
 import { reduceErrors, normalizeCuit, formatCuit } from 'c/utils';
@@ -70,8 +72,14 @@ export default class SeLogin extends LightningElement {
         return !this.usesOtpFlow;
     }
 
+    geneticaIconUrl = geneticaIconUrl;
+
+    get logoUrl() {
+        return seLogoUrl || this.urlLogoSe?.data;
+    }
+
     get showLogo() {
-        return Boolean(this.urlLogoSe?.data);
+        return Boolean(this.logoUrl);
     }
 
     get cuitFormatted() {
