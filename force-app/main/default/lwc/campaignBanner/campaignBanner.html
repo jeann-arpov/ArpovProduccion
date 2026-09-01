@@ -1,0 +1,25 @@
+<template>
+    <template if:true={isVisible}>
+        <div class="banner-container">
+            <div class="banner-grid">
+                <div class="banner-content">
+                    <div class="banner-title">
+                        <lightning-formatted-rich-text value={title}></lightning-formatted-rich-text>
+                    </div>
+                    <div class="banner-highlight">
+                        <lightning-formatted-rich-text value={highlightText}></lightning-formatted-rich-text>
+                    </div>
+                    <div class="banner-description">
+                        <lightning-formatted-rich-text value={description}></lightning-formatted-rich-text>
+                    </div>
+                </div>
+                <div class="banner-action">
+                    <button class="banner-button" onclick={handleButtonClick}>
+                        <span>{buttonText}</span>
+                        <span class="button-arrow">→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>
