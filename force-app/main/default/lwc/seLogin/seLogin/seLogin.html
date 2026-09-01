@@ -17,7 +17,7 @@
                 </aside>
 
                 <section class="se-login-card login-form">
-                    <template if:true={urlLogoSe.data}>
+                    <template if:true={showLogo}>
                         <img class="se-login-logo" src={urlLogoSe.data} alt="Sembrá Evolución" />
                     </template>
                     <p class="se-login-tagline se-mob-only">Donde tenés que estar.</p>
@@ -71,13 +71,38 @@
                             name="email"
                             autocomplete="email"
                             value={email}
-                            aria-invalid={emailInvalid}
                             oninput={handleEmailInput}
                             onfocus={handleFieldFocus}
                             onblur={handleFieldBlur}
                             onkeypress={checkEnterKey}
                         />
                     </div>
+
+                    <template if:true={showPasswordField}>
+                        <div class={passwordFieldClass}>
+                            <label class="se-fl-label" for="login-password">Contraseña</label>
+                            <input
+                                id="login-password"
+                                class="se-fl-input se-fl-input--password"
+                                type={passwordInputType}
+                                name="password"
+                                autocomplete="current-password"
+                                value={password}
+                                oninput={handlePasswordInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                                onkeypress={checkEnterKey}
+                            />
+                            <button
+                                type="button"
+                                class="se-password-toggle"
+                                onclick={togglePasswordVisibility}
+                                aria-label={passwordToggleLabel}
+                            >
+                                <lightning-icon icon-name={passwordToggleIcon} size="x-small"></lightning-icon>
+                            </button>
+                        </div>
+                    </template>
 
                     <div class="se-login-forgot">
                         <button type="button" class="se-login-link" onclick={forgotPassword}>
@@ -102,7 +127,7 @@
         <template if:true={identifier}>
             <div class="se-login-shell se-login-shell--confirm">
                 <section class="se-login-card confirmation-form">
-                    <template if:true={urlLogoSe.data}>
+                    <template if:true={showLogo}>
                         <img class="se-login-logo" src={urlLogoSe.data} alt="Sembrá Evolución" />
                     </template>
                     <h1 class="se-login-title">Verificá tu email</h1>

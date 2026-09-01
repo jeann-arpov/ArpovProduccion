@@ -2,21 +2,26 @@ import { LightningElement, wire } from 'lwc';
 import { loadStyle } from 'lightning/platformResourceLoader';
 import login from '@salesforce/apex/RegisterCommunityController.login';
 import confirmLogin from '@salesforce/apex/RegisterCommunityController.confirmLogin';
+import loginWithPassword from '@salesforce/apex/RegisterCommunityController.loginWithPassword';
 import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLogoSE';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
+import sitePath from '@salesforce/community/basePath';
 import { reduceErrors, normalizeCuit, formatCuit } from 'c/utils';
 
-export default class LoginProductor extends LightningElement {
+export default class SeLogin extends LightningElement {
+    sitePath = sitePath;
     email = '';
     code = '';
     identifier = '';
     cuit = '';
+    password = '';
     message = '';
     messageVariant = '';
     userId = '';
     focusedField = '';
     cuitError = '';
+    showPassword = false;
 
     isLoging = false;
     isConfirming = false;
@@ -46,6 +51,18 @@ export default class LoginProductor extends LightningElement {
         return this.isLoging || this.isConfirming;
     }
 
+    get usesOtpFlow() {
+        return this.sitePath.includes('PortalArPOV') || this.sitePath.includes('Distribuidor');
+    }
+
+    get showPasswordField() {
+        return !this.usesOtpFlow;
+    }
+
+    get showLogo() {
+        return Boolean(this.urlLogoSe?.data);
+    }
+
     get cuitFormatted() {
         return formatCuit(this.cuit);
     }
@@ -62,16 +79,27 @@ export default class LoginProductor extends LightningElement {
         return Boolean(this.cuitError);
     }
 
-    get emailInvalid() {
-        return false;
-    }
-
     get cuitErrorId() {
         return this.cuitError ? 'login-cuit-error' : null;
     }
 
+    get passwordInputType() {
+        return this.showPassword ? 'text' : 'password';
+    }
+
+    get passwordToggleIcon() {
+        return this.showPassword ? 'utility:hide' : 'utility:preview';
+    }
+
+    get passwordToggleLabel() {
+        return this.showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña';
+    }
+
     fieldClass(name, value) {
         let cls = 'se-fl-field';
+        if (name === 'password') {
+            cls += ' se-fl-field--password';
+        }
         if (this.focusedField === name || (value && String(value).length > 0)) {
             cls += ' is-floated';
         }
@@ -90,6 +118,10 @@ export default class LoginProductor extends LightningElement {
 
     get emailFieldClass() {
         return this.fieldClass('email', this.email);
+    }
+
+    get passwordFieldClass() {
+        return this.fieldClass('password', this.password);
     }
 
     get codeFieldClass() {
@@ -131,9 +163,18 @@ export default class LoginProductor extends LightningElement {
         this.clearMessage();
     }
 
+    handlePasswordInput(event) {
+        this.password = event.target.value;
+        this.clearMessage();
+    }
+
     handleCodeInput(event) {
         this.code = event.target.value.trim();
         this.clearMessage();
+    }
+
+    togglePasswordVisibility() {
+        this.showPassword = !this.showPassword;
     }
 
     checkEnterKey(event) {
@@ -164,6 +205,17 @@ export default class LoginProductor extends LightningElement {
             emailInput.setCustomValidity('');
         }
 
+        if (this.showPasswordField) {
+            const passwordInput = this.template.querySelector('#login-password');
+            if (!passwordInput?.value) {
+                passwordInput?.setCustomValidity('Completá este campo.');
+                passwordInput?.reportValidity();
+                valid = false;
+            } else {
+                passwordInput.setCustomValidity('');
+            }
+        }
+
         return valid;
     }
 
@@ -183,14 +235,20 @@ export default class LoginProductor extends LightningElement {
 
         try {
             this.isLoging = true;
-            const result = await login({ email: this.email, cuit: this.cuit });
-            const parsed = JSON.parse(result);
-            this.identifier = parsed.identifier;
-            this.userId = parsed.userId;
-            this.showMessage(
-                'info',
-                'Te enviamos un código de seguridad a tu correo electrónico.'
-            );
+            if (this.usesOtpFlow) {
+                const result = await login({ email: this.email, cuit: this.cuit });
+                const parsed = JSON.parse(result);
+                this.identifier = parsed.identifier;
+                this.userId = parsed.userId;
+                this.showMessage('info', 'Te enviamos un código de seguridad a tu correo electrónico.');
+            } else {
+                const result = await loginWithPassword({
+                    email: this.email,
+                    cuit: this.cuit,
+                    password: this.password
+                });
+                window.location = result;
+            }
         } catch (e) {
             this.showMessage('error', e);
         } finally {

@@ -114,6 +114,27 @@
     margin-bottom: 16px;
 }
 
+.se-fl-field--password .se-fl-input--password {
+    padding-right: 46px;
+}
+
+.se-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    appearance: none;
+    border: none;
+    background: transparent;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--se-black, #1c1c1c);
+}
+
 .se-fl-label {
     position: absolute;
     left: 14px;
