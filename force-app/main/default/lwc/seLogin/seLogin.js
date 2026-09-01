@@ -7,22 +7,21 @@ import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLog
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import sitePath from '@salesforce/community/basePath';
-import { NavigationMixin } from 'lightning/navigation';
-import {reduceErrors, validateInputs, normalizeCuit, formatCuit} from 'c/utils';
+import { reduceErrors, normalizeCuit, formatCuit } from 'c/utils';
 
-//https://github.com/sohalloran/community-passwordless
-//https://resources.docs.salesforce.com/216/latest/en-us/sfdc/pdf/salesforce_external_identity_implementation_guide.pdf
-export default class SeLogin extends NavigationMixin(LightningElement) {
-
+export default class SeLogin extends LightningElement {
     sitePath = sitePath;
     email = '';
     code = '';
     identifier = '';
     cuit = '';
-    variant = '';
-    message = '';
-    userId = '';
     password = '';
+    message = '';
+    messageVariant = '';
+    userId = '';
+    focusedField = '';
+    cuitError = '';
+    showPassword = false;
 
     isLoging = false;
     isConfirming = false;
@@ -39,106 +38,118 @@ export default class SeLogin extends NavigationMixin(LightningElement) {
         });
     }
 
-    cancel(event) {
-        this.identifier = '';
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-chrome');
+        document.body.classList.remove('se-chrome');
     }
 
-     get backgroundStyle() {
-        return `position: fixed;top: 0;background-position: center;background-repeat: no-repeat;z-index: -1;left: 0;width: 100vw;height: 100vh;background-size: cover;background-image:url(${backgroundUrl})`;
-    }
-
-    handleChange(event) {
-        const label = event.target.placeholder;
-        const value = event.target.value.trim();
-
-        if (label === 'Email') {
-            this.email = value;
-        } else if (label === 'Código') {
-            this.code = value;
-        } else if (label == 'CUIT') {
-            this.cuit = normalizeCuit(value);
-        } else if (label == 'Contraseña'){
-            this.password = value;
-        }
-    }
-
-    async login() {
-        if (!validateInputs(this.template.querySelector('.login-form'))) return;
-        try {
-            this.isLoging = true;
-            if(this.isPortalArpov){
-                let result = await login({email: this.email, cuit: this.cuit});
-                result = JSON.parse(result);
-                this.identifier = result.identifier;
-                this.userId = result.userId;
-                this.showToast('info', `Ingresar el código de seguridad enviado a su correo electrónico`);
-            }else{
-                let result = await loginWithPassword({email: this.email, cuit: this.cuit, password: this.password});
-                window.location = result;
-            }
-        } catch (e) {
-            this.showToast('error', e);
-        } finally {
-            this.isLoging = false;
-        }
-    }
-
-    async confirm() {
-        if (!validateInputs(this.template.querySelector('.confirmation-form'))) return;
-        try {
-            this.isConfirming = true;
-            let result = await confirmLogin({ userId: this.userId, identifier: this.identifier, code: this.code });
-            window.location = result;
-        } catch (e) {
-            this.showToast('error', e);
-        } finally {
-            this.isConfirming = false;
-        }
-    }
-
-    showToast(variant, message) {
-        console.log(variant, message)
-        this.variant = variant;
-        this.message = reduceErrors(message);
-    }
-
-    register() {
-        var path = window.location.pathname;
-        var newpath =path.replace('s/login', 's/login2');
-        window.location = window.location.origin + newpath + 'newselfregister';
-        return false;
-    }
-
-    forgotPassword(){
-        var path = window.location.pathname;
-        var newpath =path.replace('s/login', 's/login2');
-        window.location = window.location.origin + newpath + 'forgotpassword';
-        return false;
-    }
-
-    get missingMessage() {
-        return 'Complete este campo';
-    }
-
-    get messageClass() {
-        return this.variant == 'error' ? 'slds-text-color_destructive slds-p-horizontal_small' : 'slds-p-horizontal_small';
-    }
-
-    get title() { 
-        return this.identifier ? 'Confirmación' : "Login";
+    get backgroundStyle() {
+        return `background-image:url(${backgroundUrl})`;
     }
 
     get showSpinner() {
         return this.isLoging || this.isConfirming;
     }
 
-    handleCuitBlur(event) {
-        const normalized = normalizeCuit(event.target.value);
-        this.cuit = normalized;
+    get usesOtpFlow() {
+        return this.sitePath.includes('PortalArPOV') || this.sitePath.includes('Distribuidor');
+    }
+
+    get showPasswordField() {
+        return !this.usesOtpFlow;
+    }
+
+    get showLogo() {
+        return Boolean(this.urlLogoSe?.data);
     }
 
     get cuitFormatted() {
         return formatCuit(this.cuit);
+    }
+
+    get isErrorMessage() {
+        return this.messageVariant === 'error';
+    }
+
+    get messageBannerClass() {
+        return 'se-login-banner' + (this.isErrorMessage ? ' se-login-banner--error' : ' se-login-banner--info');
+    }
+
+    get cuitInvalid() {
+        return Boolean(this.cuitError);
+    }
+
+    get cuitErrorId() {
+        return this.cuitError ? 'login-cuit-error' : null;
+    }
+
+    get passwordInputType() {
+        return this.showPassword ? 'text' : 'password';
+    }
+
+    get passwordToggleIcon() {
+        return this.showPassword ? 'utility:hide' : 'utility:preview';
+    }
+
+    get passwordToggleLabel() {
+        return this.showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña';
+    }
+
+    fieldClass(name, value) {
+        let cls = 'se-fl-field';
+        if (name === 'password') {
+            cls += ' se-fl-field--password';
+        }
+        if (this.focusedField === name || (value && String(value).length > 0)) {
+            cls += ' is-floated';
+        }
+        if (this.focusedField === name) {
+            cls += ' is-focus';
+        }
+        if (name === 'cuit' && this.cuitError) {
+            cls += ' has-error';
+        }
+        return cls;
+    }
+
+    get cuitFieldClass() {
+        return this.fieldClass('cuit', this.cuit);
+    }
+
+    get emailFieldClass() {
+        return this.fieldClass('email', this.email);
+    }
+
+    get passwordFieldClass() {
+        return this.fieldClass('password', this.password);
+    }
+
+    get codeFieldClass() {
+        return this.fieldClass('code', this.code);
+    }
+
+    handleFieldFocus(event) {
+        this.focusedField = event.target.name;
+    }
+
+    handleFieldBlur(event) {
+        if (this.focusedField === event.target.name) {
+            this.focusedField = '';
+        }
+    }
+
+    handleCuitInput(event) {
+        this.cuit = normalizeCuit(event.target.value);
+        this.cuitError = '';
+        this.clearMessage();
+    }
+
+    handleCuitBlur(event) {
+        this.handleFieldBlur(event);
+        this.cuit = normalizeCuit(event.target.value);
+        if (this.cuit && this.cuit.length !== 11) {
+            this.cuitError = 'El CUIT debe tener 11 dígitos.';
+        }
     }
 
     handleCuitKeydown(event) {
@@ -147,12 +158,149 @@ export default class SeLogin extends NavigationMixin(LightningElement) {
         }
     }
 
-    checkEnterKey(event) {
-        if (event.keyCode === 13) this.login();
+    handleEmailInput(event) {
+        this.email = event.target.value.trim();
+        this.clearMessage();
     }
 
-    get isPortalArpov(){
-        console.log(this.sitePath);
-        return this.sitePath.includes('PortalArPOV') || this.sitePath.includes('Distribuidor');
+    handlePasswordInput(event) {
+        this.password = event.target.value;
+        this.clearMessage();
+    }
+
+    handleCodeInput(event) {
+        this.code = event.target.value.trim();
+        this.clearMessage();
+    }
+
+    togglePasswordVisibility() {
+        this.showPassword = !this.showPassword;
+    }
+
+    checkEnterKey(event) {
+        if (event.key === 'Enter') {
+            if (this.identifier) {
+                this.confirm();
+            } else {
+                this.login();
+            }
+        }
+    }
+
+    validateLoginForm() {
+        let valid = true;
+        this.cuitError = '';
+
+        if (!this.cuit || this.cuit.length !== 11) {
+            this.cuitError = 'Completá tu CUIT con 11 dígitos.';
+            valid = false;
+        }
+
+        const emailInput = this.template.querySelector('#login-email');
+        if (!emailInput?.value?.trim()) {
+            emailInput?.setCustomValidity('Completá este campo.');
+            emailInput?.reportValidity();
+            valid = false;
+        } else {
+            emailInput.setCustomValidity('');
+        }
+
+        if (this.showPasswordField) {
+            const passwordInput = this.template.querySelector('#login-password');
+            if (!passwordInput?.value) {
+                passwordInput?.setCustomValidity('Completá este campo.');
+                passwordInput?.reportValidity();
+                valid = false;
+            } else {
+                passwordInput.setCustomValidity('');
+            }
+        }
+
+        return valid;
+    }
+
+    validateConfirmForm() {
+        const codeInput = this.template.querySelector('#login-code');
+        if (!codeInput?.value?.trim()) {
+            codeInput?.setCustomValidity('Completá este campo.');
+            codeInput?.reportValidity();
+            return false;
+        }
+        codeInput.setCustomValidity('');
+        return true;
+    }
+
+    async login() {
+        if (!this.validateLoginForm()) return;
+
+        try {
+            this.isLoging = true;
+            if (this.usesOtpFlow) {
+                const result = await login({ email: this.email, cuit: this.cuit });
+                const parsed = JSON.parse(result);
+                this.identifier = parsed.identifier;
+                this.userId = parsed.userId;
+                this.showMessage('info', 'Te enviamos un código de seguridad a tu correo electrónico.');
+            } else {
+                const result = await loginWithPassword({
+                    email: this.email,
+                    cuit: this.cuit,
+                    password: this.password
+                });
+                window.location = result;
+            }
+        } catch (e) {
+            this.showMessage('error', e);
+        } finally {
+            this.isLoging = false;
+        }
+    }
+
+    async confirm() {
+        if (!this.validateConfirmForm()) return;
+
+        try {
+            this.isConfirming = true;
+            const result = await confirmLogin({
+                userId: this.userId,
+                identifier: this.identifier,
+                code: this.code
+            });
+            window.location = result;
+        } catch (e) {
+            this.showMessage('error', e);
+        } finally {
+            this.isConfirming = false;
+        }
+    }
+
+    cancel() {
+        this.identifier = '';
+        this.code = '';
+        this.clearMessage();
+    }
+
+    showMessage(variant, message) {
+        this.messageVariant = variant;
+        this.message = reduceErrors(message);
+    }
+
+    clearMessage() {
+        this.message = '';
+        this.messageVariant = '';
+    }
+
+    register(event) {
+        event.preventDefault();
+        const path = window.location.pathname.replace('s/login', 's/login2');
+        window.location = `${window.location.origin}${path}newselfregister`;
+        return false;
+    }
+
+    forgotPassword(event) {
+        event.preventDefault();
+        const path = window.location.pathname.replace('s/login', 's/login2');
+        window.location = `${window.location.origin}${path}forgotpassword`;
+        return false;
     }
 }

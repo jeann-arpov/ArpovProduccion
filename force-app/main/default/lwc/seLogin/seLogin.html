@@ -1,47 +1,228 @@
 <template>
-    <div style={backgroundStyle}>
-      <lightning-spinner if:true={showSpinner} alternative-text="Loading" size="medium"></lightning-spinner>
-        <template if:false={identifier}> 
-            <div class="login-form">
-            <div class = "login">
-                <div class="container">
-                <template if:false={isPortalArpov}>
-                    <div if:true={urlLogoSe.data}>
-                        <center><img src={urlLogoSe.data}/></center>
-                    </div>
-                </template>
-                <div if:true={message} class={messageClass}>{message}</div>
-                <div class="slds-p-vertical_small lgc-bg">
-                    <lightning-input variant="label-hidden" placeholder="CUIT sin guiones (-)" message-when-value-missing="Completá este campo" value={cuitFormatted} type="text" required onchange={handleChange} onblur={handleCuitBlur} onkeydown={handleCuitKeydown} onkeypress={checkEnterKey} max-length="13" pattern="[0-9]{2}-?[0-9]{8}-?[0-9]{1}" message-when-pattern-mismatch="Formato esperado: XX-XXXXXXXX-X o XXXXXXXXXXX"></lightning-input>
-                </div>
-                <div class="slds-p-bottom_small lgc-bg">
-                    <lightning-input variant="label-hidden" placeholder="Email" message-when-value-missing="Completá este campo" value={email} type="email" required onchange={handleChange} onkeypress={checkEnterKey}></lightning-input>
-                </div>
-                <div class="slds-p-bottom_small lgc-bg" if:false={isPortalArpov}>
-                    <lightning-input variant="label-hidden" message-when-value-missing="Completá este campo" value={password} type="password" required onchange={handleChange} placeholder="Contraseña" ></lightning-input>
-                </div>
-                <button class="slds-button slds-button_brand slds-button_stretch" onclick={login}>Ingresar</button>
-                 </div>
-                <div class="card-options">
-                    <div class="option"><p style="font-size: 13px;">No tenés cuenta? <a href="#" onclick={register}>Registrate</a></p></div>
-                    <div class="option"><p style="font-size: 13px;">Olvidaste la contraseña? <a href="#" onclick={forgotPassword}>Hace click aquí</a></p></div>
+    <div class="se-login-root" style={backgroundStyle}>
+        <div class="se-login-overlay se-desk-only" aria-hidden="true"></div>
 
-                </div>
-                </div>
+        <div class="se-login-deco se-desk-only" aria-hidden="true">
+            <div class="se-login-bars">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="se-login-genetica">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                    <path
+                        d="M14 8c4 0 6 6 6 16s-2 16-6 16M34 8c-4 0-6 6-6 16s2 16 6 16M14 8c2 3 4 8 4 16s-2 13-4 16M34 8c-2 3-4 8-4 16s2 13 4 16M18 14h12M18 24h12M18 34h12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"
+                    ></path>
+                </svg>
+            </div>
+        </div>
+
+        <template if:true={showSpinner}>
+            <div class="se-login-veil" role="status" aria-live="polite">
+                <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
             </div>
         </template>
-        <template if:true={identifier}>
-            <div class = "confirmation-form">
-                <div class="slds-p-vertical_small lgc-bg">
-                    <lightning-input variant="label-hidden" message-when-value-missing="Completá este campo" type="string" onchange={handleChange} placeholder="Código"></lightning-input>
-                </div>
 
-                <button class="slds-button slds-button_brand slds-button_stretch" onclick={confirm}>Enviar</button>
+        <template if:false={identifier}>
+            <div class="se-login-shell">
+                <aside class="se-login-hero se-desk-only" aria-hidden="true">
+                    <h2 class="se-login-hero-title">
+                        Accedé siempre a lo
+                        <span>último en genética y biotecnología.</span>
+                    </h2>
+                </aside>
 
-                <div class = "slds-align_absolute-center slds-p-top_small">
-                    <a href="#" class= "slds-text-link_reset" onclick={cancel}><span class="slds-text-link">Cancelar</span></a>
-                </div>
+                <section class="se-login-card login-form">
+                    <div class="se-login-card-body">
+                        <template if:true={showLogo}>
+                            <div class="se-login-logo-wrap">
+                                <img class="se-login-logo" src={urlLogoSe.data} alt="Sembrá Evolución" />
+                            </div>
+                        </template>
+                        <p class="se-login-tagline se-mob-only">Donde tenés que estar.</p>
+
+                        <h1 class="se-login-title se-mob-only">Ingresá a tu cuenta</h1>
+
+                        <template if:true={message}>
+                            <div class={messageBannerClass} role="alert">
+                                <template if:true={isErrorMessage}>
+                                    <lightning-icon
+                                        icon-name="utility:error"
+                                        size="x-small"
+                                        class="se-login-alert-icon"
+                                        alternative-text="Error"
+                                    ></lightning-icon>
+                                </template>
+                                <span>{message}</span>
+                            </div>
+                        </template>
+
+                        <div class={cuitFieldClass}>
+                            <label class="se-fl-label se-mob-only" for="login-cuit">CUIT</label>
+                            <label class="se-fl-label se-desk-only" for="login-cuit">CUIT sin guiones (-)</label>
+                            <input
+                                id="login-cuit"
+                                class="se-fl-input"
+                                type="text"
+                                name="cuit"
+                                autocomplete="username"
+                                inputmode="numeric"
+                                maxlength="13"
+                                value={cuitFormatted}
+                                aria-invalid={cuitInvalid}
+                                aria-describedby={cuitErrorId}
+                                oninput={handleCuitInput}
+                                onblur={handleCuitBlur}
+                                onkeydown={handleCuitKeydown}
+                                onfocus={handleFieldFocus}
+                                onkeypress={checkEnterKey}
+                            />
+                        </div>
+                        <template if:true={cuitError}>
+                            <p id="login-cuit-error" class="se-field-error">{cuitError}</p>
+                        </template>
+
+                        <div class={emailFieldClass}>
+                            <label class="se-fl-label se-mob-only" for="login-email">Usuario</label>
+                            <label class="se-fl-label se-desk-only" for="login-email">Email</label>
+                            <input
+                                id="login-email"
+                                class="se-fl-input"
+                                type="email"
+                                name="email"
+                                autocomplete="email"
+                                value={email}
+                                oninput={handleEmailInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                                onkeypress={checkEnterKey}
+                            />
+                        </div>
+
+                        <template if:true={showPasswordField}>
+                            <div class={passwordFieldClass}>
+                                <label class="se-fl-label" for="login-password">Contraseña</label>
+                                <input
+                                    id="login-password"
+                                    class="se-fl-input se-fl-input--password"
+                                    type={passwordInputType}
+                                    name="password"
+                                    autocomplete="current-password"
+                                    value={password}
+                                    oninput={handlePasswordInput}
+                                    onfocus={handleFieldFocus}
+                                    onblur={handleFieldBlur}
+                                    onkeypress={checkEnterKey}
+                                />
+                                <button
+                                    type="button"
+                                    class="se-password-toggle"
+                                    onclick={togglePasswordVisibility}
+                                    aria-label={passwordToggleLabel}
+                                >
+                                    <lightning-icon icon-name={passwordToggleIcon} size="x-small"></lightning-icon>
+                                </button>
+                            </div>
+                        </template>
+
+                        <div class="se-login-forgot se-mob-only">
+                            <button type="button" class="se-login-link" onclick={forgotPassword}>
+                                ¿Olvidaste tu contraseña?
+                            </button>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="se-btn se-btn-primary se-login-submit"
+                            onclick={login}
+                            disabled={showSpinner}
+                        >
+                            Ingresar
+                        </button>
+                    </div>
+
+                    <div class="se-login-card-foot se-desk-only">
+                        <p class="se-login-foot-text">
+                            No tenés cuenta?
+                            <button type="button" class="se-login-link se-login-link--strong" onclick={register}>
+                                Registrate
+                            </button>
+                        </p>
+                    </div>
+                    <div class="se-login-card-foot se-desk-only">
+                        <p class="se-login-foot-text">
+                            Olvidaste la contraseña?
+                            <button type="button" class="se-login-link se-login-link--strong" onclick={forgotPassword}>
+                                Hace click aquí
+                            </button>
+                        </p>
+                    </div>
+
+                    <p class="se-login-register se-mob-only">
+                        ¿No tenés cuenta?
+                        <button type="button" class="se-login-link se-login-link--strong" onclick={register}>
+                            Hacé clic acá
+                        </button>
+                    </p>
+                </section>
             </div>
-        </template>  
-    </div>    
+        </template>
+
+        <template if:true={identifier}>
+            <div class="se-login-shell se-login-shell--confirm">
+                <section class="se-login-card confirmation-form">
+                    <div class="se-login-card-body">
+                        <template if:true={showLogo}>
+                            <div class="se-login-logo-wrap">
+                                <img class="se-login-logo" src={urlLogoSe.data} alt="Sembrá Evolución" />
+                            </div>
+                        </template>
+                        <h1 class="se-login-title">Verificá tu email</h1>
+                        <p class="se-login-sub">
+                            Ingresá el código de seguridad que enviamos a <strong>{email}</strong>.
+                        </p>
+
+                        <template if:true={message}>
+                            <div class={messageBannerClass} role="alert">{message}</div>
+                        </template>
+
+                        <div class={codeFieldClass}>
+                            <label class="se-fl-label" for="login-code">Código</label>
+                            <input
+                                id="login-code"
+                                class="se-fl-input"
+                                type="text"
+                                name="code"
+                                autocomplete="one-time-code"
+                                inputmode="numeric"
+                                value={code}
+                                oninput={handleCodeInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                                onkeypress={checkEnterKey}
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            class="se-btn se-btn-primary se-login-submit"
+                            onclick={confirm}
+                            disabled={showSpinner}
+                        >
+                            Enviar
+                        </button>
+
+                        <button type="button" class="se-login-cancel" onclick={cancel}>Cancelar</button>
+                    </div>
+                </section>
+            </div>
+        </template>
+    </div>
 </template>
