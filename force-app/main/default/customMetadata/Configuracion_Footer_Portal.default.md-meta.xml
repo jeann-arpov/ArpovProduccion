@@ -11,6 +11,10 @@
         <value xsi:type="xsd:boolean">true</value>
     </values>
     <values>
+        <field>Mostrar_Badge_Nuevo__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
         <field>Texto_CTA_Resolve_Duda__c</field>
         <value xsi:type="xsd:string">¡Resolvé tu duda!</value>
     </values>

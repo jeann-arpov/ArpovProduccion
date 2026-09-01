@@ -4210,7 +4210,13 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Configuracion_Footer_Portal__mdt.URL_CTA_Resolve_Duda__c</field>
+        <field>Configuracion_Footer_Portal__mdt.Mostrar_Badge_Nuevo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field
+    >Configuracion_Footer_Portal__mdt.Mostrar_CTA_Resolve_Duda__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

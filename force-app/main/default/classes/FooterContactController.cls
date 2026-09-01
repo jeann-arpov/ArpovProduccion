@@ -18,6 +18,7 @@ public with sharing class FooterContactController {
       String.isNotBlank(config.URL_CTA_Resolve_Duda__c)
       ? config.URL_CTA_Resolve_Duda__c
       : DEFAULT_URL;
+    result.mostrarBadgeNuevo = config != null && config.Mostrar_Badge_Nuevo__c;
 
     return result;
   }
@@ -31,5 +32,8 @@ public with sharing class FooterContactController {
 
     @AuraEnabled
     public String url;
+
+    @AuraEnabled
+    public Boolean mostrarBadgeNuevo;
   }
 }

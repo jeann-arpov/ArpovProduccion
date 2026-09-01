@@ -14,7 +14,9 @@
       <template if:true={mostrarCta}>
         <button class="faq-button" onclick={handleResolveDuda}>
           {textoCta}
-          <span class="badge-new">Nuevo</span>
+          <template if:true={mostrarBadgeNuevo}>
+            <span class="badge-new">Nuevo</span>
+          </template>
         </button>
       </template>
       <button class="contact-button" onclick={handleWhatsapp}>

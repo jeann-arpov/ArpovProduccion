@@ -8,6 +8,7 @@ export default class FooterContact extends LightningElement {
   mostrarCta = false;
   textoCta = "¡Resolvé tu duda!";
   urlCta = "";
+  mostrarBadgeNuevo = false;
 
   @wire(getFooterCtaConfig)
   wiredConfig({ error, data }) {
@@ -15,6 +16,7 @@ export default class FooterContact extends LightningElement {
       this.mostrarCta = data.mostrar;
       this.textoCta = data.texto;
       this.urlCta = data.url;
+      this.mostrarBadgeNuevo = data.mostrarBadgeNuevo;
     } else if (error) {
       console.error(error);
     }
