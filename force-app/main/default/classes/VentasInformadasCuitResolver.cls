@@ -208,20 +208,29 @@ public without sharing class VentasInformadasCuitResolver {
         stillMissing.add(cuit);
       }
     }
-    for (String cuit : stillMissing) {
-      if (stillMissing.size() > 50) {
-        break;
+    if (stillMissing.isEmpty()) {
+      return;
+    }
+    // LIKE agrupado (OR) — 1 SOQL por CUIT volvía a disparar "Too many SOQL queries: 101".
+    for (List<String> chunk : chunkStrings(new List<String>(stillMissing), 20)) {
+      List<String> clauses = new List<String>();
+      for (String cuit : chunk) {
+        if (String.isBlank(cuit)) {
+          continue;
+        }
+        clauses.add('N_CUIT__c LIKE \'%' + String.escapeSingleQuotes(cuit) + '%\'');
       }
-      String pattern = '%' + cuit + '%';
-      for (Account acc : [
-        SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
-        FROM Account
-        WHERE N_CUIT__c LIKE :pattern
-        AND ParentId = NULL
-        LIMIT 15
-      ]) {
+      if (clauses.isEmpty()) {
+        continue;
+      }
+      String soql =
+        'SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName '
+        + 'FROM Account WHERE ParentId = NULL AND ('
+        + String.join(clauses, ' OR ')
+        + ')';
+      for (Account acc : Database.query(soql)) {
         String key = CrearVentaInformadaLWCController.limpiarCuit(acc.N_CUIT__c);
-        if (stillMissing.contains(key)) {
+        if (String.isNotBlank(key) && stillMissing.contains(key) && !encontrados.contains(key)) {
           cuentas.add(acc);
           encontrados.add(key);
         }
@@ -462,15 +471,7 @@ public without sharing class VentasInformadasCuitResolver {
       venta.Destinatario__c = venta.Originante__c;
       if (String.isBlank(venta.Razon_Social_Destinatario__c)) {
         Account orig = accountsById != null ? accountsById.get(venta.Originante__c) : null;
-        if (orig == null) {
-          List<Account> queried = [
-            SELECT Name FROM Account WHERE Id = :venta.Originante__c LIMIT 1
-          ];
-          orig = queried.isEmpty() ? null : queried[0];
-          if (orig != null && accountsById != null) {
-            accountsById.put(orig.Id, orig);
-          }
-        }
+        // Sin cache no se consulta por fila: en import masivo eso suma 1 SOQL por venta interna.
         if (orig != null) {
           venta.Razon_Social_Destinatario__c = orig.Name;
         }

@@ -414,6 +414,29 @@ public class Test_VImportExcel {
         System.assert(!m.containsKey('NO-EXISTE'), 'No debe haber variedades que no existan en SF.');
     }
 
+    /** 120 variedades sin match no pueden disparar 1 SOQL cada una (límite 101). */
+    @isTest static void getVariedadesPorNombreBulkNoExplotaSoql() {
+        Test_TestUtils.disableFlows();
+        insert new Variedad__c(Cultivar_Inase__c = 'DD 32');
+
+        List<Map<String,Object>> rows = new List<Map<String,Object>>();
+        rows.add(new Map<String,Object>{ 'Variedad__c' => 'DD32' });
+        for (Integer i = 0; i < 120; i++) {
+            rows.add(new Map<String,Object>{ 'Variedad__c' => 'NOEXISTE' + i });
+        }
+
+        Test.startTest();
+        Map<String, Variedad__c> m = lwcVentasImportFromExcel.getVariedadesPorNombre(rows);
+        Integer queries = Limits.getQueries();
+        Test.stopTest();
+
+        System.assert(m.containsKey('DD32'), 'Sigue matcheando DD32 vs DD 32.');
+        System.assert(
+            queries < 20,
+            'No debe hacer 1 SOQL por variedad faltante. Queries=' + queries
+        );
+    }
+
     /** variedadKey: normalización para match (mayúsculas, sin espacios). */
     @isTest static void variedadKeyTest() {
         System.assertEquals(null, lwcVentasImportFromExcel.variedadKey(null));

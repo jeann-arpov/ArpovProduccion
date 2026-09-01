@@ -1286,36 +1286,61 @@ public without sharing class lwcVentasImportFromExcel {
             }
         }
 
-        /** Segunda pasada solo para claves no encontradas (evita scan de 50k Variedad__c). */
+        /**
+         * Segunda pasada para claves no encontradas (ej. Excel "DD32" vs catálogo "DD 32").
+         * Un SOQL por prefijo agrupado — no 1 query por variedad, que revienta el límite 101.
+         */
         @TestVisible
         private static void resolverVariedadesFaltantesPorClave(
             Map<String, Variedad__c> out,
             Set<String> missingKeys
         ) {
-            Integer fuzzyQueries = 0;
+            if (missingKeys == null || missingKeys.isEmpty()) {
+                return;
+            }
+            Set<String> prefixes = new Set<String>();
             for (String missingKey : missingKeys) {
-                if (out.containsKey(missingKey) || fuzzyQueries >= 100) {
+                if (out.containsKey(missingKey)) {
                     continue;
                 }
-                String pattern = cultivarLikePattern(missingKey);
-                if (pattern == null) {
-                    continue;
+                String prefix = cultivarPrefixForLike(missingKey);
+                if (prefix != null) {
+                    prefixes.add(prefix);
                 }
-                fuzzyQueries++;
-                for (Variedad__c v : [
-                    SELECT Id, Cultivar_Inase__c, Cultivo__c, Obtentor_Comercializa__c,
-                           Obtentor_Comercializa__r.Id_Obtentor__c, Obtentor_Comercializa__r.Name
-                    FROM Variedad__c
-                    WHERE Cultivar_Inase__c != NULL
-                    AND Cultivar_Inase__c LIKE :pattern
-                    LIMIT 20
-                ]) {
+            }
+            if (prefixes.isEmpty()) {
+                return;
+            }
+            for (List<String> chunk : chunkStringList(new List<String>(prefixes), 20)) {
+                List<String> clauses = new List<String>();
+                for (String prefix : chunk) {
+                    clauses.add(
+                        'Cultivar_Inase__c LIKE \'' + String.escapeSingleQuotes(prefix) + '%\''
+                    );
+                }
+                String soql =
+                    'SELECT Id, Cultivar_Inase__c, Cultivo__c, Obtentor_Comercializa__c, '
+                    + 'Obtentor_Comercializa__r.Id_Obtentor__c, Obtentor_Comercializa__r.Name '
+                    + 'FROM Variedad__c WHERE Cultivar_Inase__c != NULL AND ('
+                    + String.join(clauses, ' OR ')
+                    + ')';
+                for (Variedad__c v : Database.query(soql)) {
                     indexVariedadPorClave(out, v, missingKeys);
                 }
             }
         }
 
-        /** Ej. DD32 → %D%D%3%2% para matchear "DD 32" sin scan masivo. */
+        /** Prefijo compacto para LIKE: "DD32" → "DD" matchea "DD 32". */
+        @TestVisible
+        private static String cultivarPrefixForLike(String normalizedKey) {
+            if (String.isBlank(normalizedKey)) {
+                return null;
+            }
+            Integer n = Math.min(2, normalizedKey.length());
+            return normalizedKey.substring(0, n);
+        }
+
+        /** Ej. DD32 → %D%D%3%2% (tests / compat). */
         @TestVisible
         private static String cultivarLikePattern(String normalizedKey) {
             if (String.isBlank(normalizedKey)) {
