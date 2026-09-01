@@ -26,6 +26,20 @@
     overflow: auto;
 }
 
+.se-login-root--gradient {
+    background-image: none;
+    background-color: #2a2a24;
+}
+
+.se-login-root--gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(180deg, #6e7460 0%, #8c8461 42%, #c2a268 70%, #d8b878 100%);
+    pointer-events: none;
+}
+
 .se-login-overlay {
     position: fixed;
     inset: 0;
@@ -383,6 +397,11 @@
     .se-login-root {
         background-image: none !important;
         background: #fff;
+    }
+
+    .se-login-root--gradient,
+    .se-login-root--gradient::before {
+        background: #fff !important;
     }
 
     .se-login-shell {

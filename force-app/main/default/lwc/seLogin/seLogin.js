@@ -43,7 +43,18 @@ export default class SeLogin extends LightningElement {
         document.body.classList.remove('se-chrome', 'se-login-guest');
     }
 
+    get isProductorPortal() {
+        return this.sitePath.includes('PortalArPOV');
+    }
+
+    get rootClass() {
+        return this.isProductorPortal ? 'se-login-root se-login-root--gradient' : 'se-login-root';
+    }
+
     get backgroundStyle() {
+        if (this.isProductorPortal) {
+            return '';
+        }
         return `background-image:url(${backgroundUrl})`;
     }
 
