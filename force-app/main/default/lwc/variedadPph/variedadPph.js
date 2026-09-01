@@ -4,6 +4,7 @@ import icons from 'c/icons';
 export default class VariedadPph extends LightningElement {
     @api cantidad;
     @api info;
+    @api variant = 'legacy';
     lastCantidadSent;
 
     init() {
@@ -38,6 +39,10 @@ export default class VariedadPph extends LightningElement {
 
     get shouldShow() {
         return this.disponibles > 0 || this.safeCantidad > 0;
+    }
+
+    get isWizardVariant() {
+        return this.variant === 'wizard';
     }
     
     updateCantidad(event) {

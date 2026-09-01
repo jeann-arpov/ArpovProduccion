@@ -1,59 +1,59 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">ESTABLECIMIENTOS</div>
-                <div class="title">Todos los Establecimientos</div>
-            </div>
+    <c-se-list-page loading={loading}>
+        <c-se-page-header
+            slot="header"
+            eyebrow="PRECERTIFICACIÓN"
+            eyebrow-mobile="MÓDULOS · ESTABLECIMIENTOS"
+            title="Establecimientos"
+            subtitle="Los campos que declarás acá se usan para PPH, entregas de semilla y reportes de precertificación."
+            show-search
+            search-placeholder="Buscar por nombre..."
+            onsearchchange={handleSearchChange}
+        ></c-se-page-header>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                
-                    <!-- <select data-id="NameSelect" onchange={handleNameSelect}>
-                        <option value="">Nombre del Establecimiento</option>
-                        <template for:each={Name} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select> -->
-                </div>
+        <div slot="toolbar" class="est-toolbar">
+            <div class="est-toolbar-actions se-desk-only">
+                <button type="button" class="est-btn est-btn-primary" onclick={handleNewEstablecimiento}>
+                    + Nuevo establecimiento
+                </button>
+                <button type="button" class="est-btn est-btn-ghost" onclick={handleOpenMapa}>
+                    Ver mapa
+                </button>
             </div>
+            <p class="est-meta se-desk-only">{listMetaLabel}</p>
         </div>
 
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emision • <br>
-                Filtrado por todos los establecimientos • Se actualizó hace una hora
-            </div>
+        <c-se-data-list
+            records={filtered}
+            columns={columns}
+            mobile-fields={mobileFields}
+            title-field="title"
+            badge-field="statusLabel"
+            badge-tone-field="statusTone"
+            key-field="id"
+            action-label="Ver detalle"
+            mobile-action-label="Ver detalle →"
+            empty-text="No hay establecimientos para mostrar."
+            page-size={pageSize}
+            loading={loading}
+            onrowaction={handleRowAction}
+        ></c-se-data-list>
 
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">🔍</span>
-            </div>
+        <div slot="pager" class="est-footer se-desk-only">
+            <template if:true={showFooterSummary}>
+                <p class="est-footer-copy">{footerSummaryLabel}</p>
+            </template>
         </div>
+    </c-se-list-page>
 
-        <!-- Tabla -->
-         <lightning-datatable
-                key-field="uniqueId"
-                class="dataTable"
-                data={filteredEstablecimientos}
-                columns={columns}
-                onrowaction={handleRowAction}
-                onsort={handleOnSort}
-                sorted-by={sortBy}
-                sorted-direction={sortDirection}
-                column-widths-mode="auto"
-                resize-column-disabled
-                hide-checkbox-column>
-            </lightning-datatable>
-
-      
-            <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
-        </div> 
-    
+    <div class="est-mob-actions se-mob-only">
+        <button type="button" class="est-btn est-btn-ghost est-mob-map" onclick={handleOpenMapa}>
+            Ver mapa
+        </button>
+        <button type="button" class="est-btn est-btn-primary est-mob-new" onclick={handleNewEstablecimiento}>
+            Nuevo establecimiento
+        </button>
     </div>
+
+    <c-establecimientos-map onsaved={handleEstablecimientoSaved}></c-establecimientos-map>
 </template>

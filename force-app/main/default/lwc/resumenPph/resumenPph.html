@@ -1,97 +1,161 @@
 <template>
-    <div class="slds-m-bottom_medium" style="font-size: 16px;"><b>{title}</b></div>
+    <template if:true={isMobileEmbedded}>
+        <div class="se-resumen-root">
+            <section class={mobileSectionClass}>
+                <template if:true={showMobileHead}>
+                    <header class="se-resumen-head">
+                        <h1 class="se-resumen-title">{title}</h1>
+                        <p class="se-resumen-sub">{cultivoLabel} · {campanaLabel}</p>
+                    </header>
+                </template>
 
-    <div class="info">
-        <lightning-layout if:true={info.account} class="account slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
-            <lightning-layout-item size="6">
-                <div>
-                    <b>CUIT: </b>{info.account.N_CUIT__c}
-                </div>
-                <div>
-                    <b>Razón Social: </b>{info.account.Name}
-                </div>
-                <div>
-                    <b>Fecha Solicitud: </b><lightning-formatted-date-time value={fecha}></lightning-formatted-date-time>
-                </div>
-            </lightning-layout-item>
-            <lightning-layout-item size="6">
-                <div>
-                    <b>{totalesSembradasLabel}: </b><lightning-formatted-number value={totalSembrado}></lightning-formatted-number>
-                </div>
-                <div>
-                    <b>HT Sembra Evolución precertificadas: </b><lightning-formatted-number value={totalSembradoSE}></lightning-formatted-number>
-                </div>
-                <div style="color:red">
-                    <b>HT sin precertificar: </b><lightning-formatted-number value={creditoDisponible}></lightning-formatted-number>
-                </div>
-            </lightning-layout-item>
-        </lightning-layout>
-
-        <template for:each={establecimientos} for:item="establecimiento">
-            <div key={establecimiento.id} class="establecimiento slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
-                <div if:false={info.grandesCuentas}>
-                    <b>Establecimiento {establecimiento.index}</b>
-                </div>
-                <lightning-layout vertical-align="end">
-                    <lightning-layout-item size="5">
-                        <lightning-input read-only label="Nombre" value={establecimiento.name}></lightning-input>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="3">
-                        <lightning-input read-only type="number" label={totalesSembradasLabel} value={establecimiento.totalSembrado}></lightning-input>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="3" if:false={info.grandesCuentas}>
-                        <lightning-input read-only label="Georeferencia" value={establecimiento.georeferencia}></lightning-input>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="1">
-                        <lightning-button-icon class="edit-icon" variant="bare" size="large" if:true={canEdit} data-id={establecimiento.id} icon-name="utility:edit" alternative-text="Edit" title="Edit" onclick={edit}></lightning-button-icon>
-                    </lightning-layout-item>
-                </lightning-layout>
-                <div class = {establecimiento.class}>
-                    <div class="slds-m-top_medium">
-                        <b>Variedades</b>
+                <div class="se-resumen-hero">
+                    <div class="se-resumen-hero-top">
+                        <span class="se-resumen-hero-label">Hectáreas SE precertificadas</span>
+                        <span class="se-resumen-hero-value">{totalSembradoSELabel} HT</span>
                     </div>
-                    <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center slds-p-vertical_medium slds-m-top_small">
-                        <lightning-layout-item size="2">
-                            Marca
+                    <dl class="se-resumen-meta">
+                        <div class="se-resumen-meta-row">
+                            <dt>CUIT</dt>
+                            <dd>{info.account.N_CUIT__c}</dd>
+                        </div>
+                        <div class="se-resumen-meta-row">
+                            <dt>Razón social</dt>
+                            <dd>{info.account.Name}</dd>
+                        </div>
+                        <div class="se-resumen-meta-row">
+                            <dt>Fecha solicitud</dt>
+                            <dd><lightning-formatted-date-time value={fecha}></lightning-formatted-date-time></dd>
+                        </div>
+                        <div class="se-resumen-meta-row">
+                            <dt>HT sin precertificar</dt>
+                            <dd class="se-resumen-warn">{creditoDisponibleLabel} HT</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <template for:each={establecimientos} for:item="establecimiento">
+                    <article key={establecimiento.id} class="se-resumen-dest">
+                        <div class="se-resumen-dest-head">
+                            <div class="se-resumen-dest-copy">
+                                <p class="se-resumen-eyebrow" if:false={info.grandesCuentas}>Establecimiento {establecimiento.index}</p>
+                                <h2 class="se-resumen-dest-name">{establecimiento.name}</h2>
+                                <p class="se-resumen-dest-cuit" if:false={info.grandesCuentas}>{establecimiento.georeferencia}</p>
+                            </div>
+                            <button
+                                if:true={canEdit}
+                                type="button"
+                                class="se-resumen-edit"
+                                data-id={establecimiento.id}
+                                onclick={edit}
+                            >Editar</button>
+                        </div>
+
+                        <div class="se-resumen-dest-ton">
+                            <span>{totalesSembradasLabel}</span>
+                            <strong>{establecimiento.totalSembradoLabel} HT</strong>
+                        </div>
+
+                        <template if:false={establecimiento.collapsed}>
+                            <p class="se-resumen-var-title">Variedades SE</p>
+                            <div class="se-resumen-lines">
+                                <template for:each={establecimiento.lineas} for:item="linea">
+                                    <div key={linea.id} class="se-resumen-line">
+                                        <div class="se-resumen-line-main">
+                                            <span class="se-resumen-line-name">{linea.variedad.Name}</span>
+                                            <span class="se-resumen-line-qty">{linea.cantidadLabel} HT</span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                            <p class="se-resumen-no-se">
+                                Hectáreas fuera de SE: <strong>{establecimiento.cantidadNoSELabel} HT</strong>
+                            </p>
+                        </template>
+
+                        <button
+                            type="button"
+                            class="se-resumen-toggle"
+                            data-establecimiento={establecimiento.id}
+                            onclick={changeCollapsed}
+                        >{establecimiento.toggleLabel}</button>
+                    </article>
+                </template>
+            </section>
+        </div>
+    </template>
+
+    <template if:false={isMobileEmbedded}>
+        <div class="slds-m-bottom_medium" style="font-size: 16px;"><b>{title}</b></div>
+
+        <div class="info">
+            <lightning-layout if:true={info.account} class="account slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
+                <lightning-layout-item size="6">
+                    <div><b>CUIT: </b>{info.account.N_CUIT__c}</div>
+                    <div><b>Razón Social: </b>{info.account.Name}</div>
+                    <div><b>Fecha Solicitud: </b><lightning-formatted-date-time value={fecha}></lightning-formatted-date-time></div>
+                </lightning-layout-item>
+                <lightning-layout-item size="6">
+                    <div><b>{totalesSembradasLabel}: </b><lightning-formatted-number value={totalSembrado}></lightning-formatted-number></div>
+                    <div><b>HT Sembra Evolución precertificadas: </b><lightning-formatted-number value={totalSembradoSE}></lightning-formatted-number></div>
+                    <div style="color:red"><b>HT sin precertificar: </b><lightning-formatted-number value={creditoDisponible}></lightning-formatted-number></div>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <template for:each={establecimientos} for:item="establecimiento">
+                <div key={establecimiento.id} class="establecimiento slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
+                    <div if:false={info.grandesCuentas}><b>Establecimiento {establecimiento.index}</b></div>
+                    <lightning-layout vertical-align="end">
+                        <lightning-layout-item size="5">
+                            <lightning-input read-only label="Nombre" value={establecimiento.name}></lightning-input>
                         </lightning-layout-item>
-                        <lightning-layout-item size="2">
-                            Variedad
+                        <lightning-layout-item size="3">
+                            <lightning-input read-only type="number" label={totalesSembradasLabel} value={establecimiento.totalSembrado}></lightning-input>
                         </lightning-layout-item>
-                        <lightning-layout-item size="2">
-                            Hectáreas
+                        <lightning-layout-item size="3" if:false={info.grandesCuentas}>
+                            <lightning-input read-only label="Georeferencia" value={establecimiento.georeferencia}></lightning-input>
+                        </lightning-layout-item>
+                        <lightning-layout-item size="1">
+                            <lightning-button-icon class="edit-icon" variant="bare" size="large" if:true={canEdit} data-id={establecimiento.id} icon-name="utility:edit" alternative-text="Edit" title="Edit" onclick={edit}></lightning-button-icon>
                         </lightning-layout-item>
                     </lightning-layout>
-                    <template for:each={establecimiento.lineas} for:item="linea">
-                        <lightning-layout key={linea.id} vertical-align="center" horizontal-align="space" class="slds-text-align_center">
-                            <lightning-layout-item size="2">
-                                <svg width="200" height="100">;
-                                    <use xlink:href={linea.icono}></use>
-                                </svg>
-                            </lightning-layout-item>
-                            <lightning-layout-item size="2">
-                                {linea.variedad.Name}
-                            </lightning-layout-item>
-                            <lightning-layout-item size="2">
-                                <lightning-formatted-number value={linea.cantidad}></lightning-formatted-number>
-                            </lightning-layout-item>
+                    <div class={establecimiento.class}>
+                        <div class="slds-m-top_medium"><b>Variedades</b></div>
+                        <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center slds-p-vertical_medium slds-m-top_small">
+                            <lightning-layout-item size="2">Marca</lightning-layout-item>
+                            <lightning-layout-item size="2">Variedad</lightning-layout-item>
+                            <lightning-layout-item size="2">Hectáreas</lightning-layout-item>
                         </lightning-layout>
-                    </template>
-                    <div class="slds-m-top_medium">
-                        <b>Hectáreas por fuera de SE: <lightning-formatted-number value={establecimiento.cantidadNoSE}></lightning-formatted-number></b>
+                        <template for:each={establecimiento.lineas} for:item="linea">
+                            <lightning-layout key={linea.id} vertical-align="center" horizontal-align="space" class="slds-text-align_center">
+                                <lightning-layout-item size="2">
+                                    <svg width="200" height="100">;
+                                        <use xlink:href={linea.icono}></use>
+                                    </svg>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="2">{linea.variedad.Name}</lightning-layout-item>
+                                <lightning-layout-item size="2">
+                                    <lightning-formatted-number value={linea.cantidad}></lightning-formatted-number>
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </template>
+                        <div class="slds-m-top_medium">
+                            <b>Hectáreas por fuera de SE: <lightning-formatted-number value={establecimiento.cantidadNoSE}></lightning-formatted-number></b>
+                        </div>
                     </div>
+                    <lightning-layout horizontal-align="center">
+                        <lightning-button-icon size="large" if:false={establecimiento.collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed} data-establecimiento={establecimiento.id}></lightning-button-icon>
+                        <lightning-button-icon size="large" if:true={establecimiento.collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed} data-establecimiento={establecimiento.id}></lightning-button-icon>
+                    </lightning-layout>
                 </div>
-                <lightning-layout horizontal-align="center">
-                    <lightning-button-icon size="large" if:false={establecimiento.collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed} data-establecimiento={establecimiento.id}></lightning-button-icon>
-                    <lightning-button-icon size="large" if:true={establecimiento.collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed}  data-establecimiento={establecimiento.id}></lightning-button-icon>
-                </lightning-layout>
-            </div>
-        </template>
-    </div>
+            </template>
+        </div>
 
-    <lightning-layout class="slds-m-top_medium actions" horizontal-align="center">
-        <lightning-layout-item>
-            <lightning-button class="black" label="ENVIAR" onclick={enviar} if:true={canEdit}></lightning-button>
-            <lightning-button class="black" label="Rectificar" onclick={rectificar} if:true={canRectificar}></lightning-button>
-        </lightning-layout-item>
-    </lightning-layout>
+        <lightning-layout class="slds-m-top_medium actions" horizontal-align="center">
+            <lightning-layout-item>
+                <lightning-button class="black" label="ENVIAR" onclick={enviar} if:true={canEdit}></lightning-button>
+                <lightning-button class="black" label="Rectificar" onclick={rectificar} if:true={canRectificar}></lightning-button>
+            </lightning-layout-item>
+        </lightning-layout>
+    </template>
 </template>

@@ -5,8 +5,8 @@ import deleteEstablecimiento from "@salesforce/apex/AdhesionPPH.deleteEstablecim
 import acceptTerms from "@salesforce/apex/AdhesionPPH.acceptTerms";
 import sendAdhesion from "@salesforce/apex/AdhesionPPH.sendAdhesion";
 import rectificarAdhesion from "@salesforce/apex/AdhesionPPH.rectificarAdhesion";
-import { errorEvent, warningEvent } from "c/utils";
-import { trackGa4Event } from "c/portalGa4Events";
+import { errorEvent, warningEvent, trackEvent } from "c/utils";
+import {trackGa4Event} from 'c/portalGa4Events';
 
 const CSS = `
 .toastMessage{
@@ -31,6 +31,7 @@ export default class AdhesionPph extends LightningElement {
   htsGlobales = {}; // Las HTs globales de PPH están porque se certificaron previo a las HTs por variedad. Son hts sin variedad
   saldoPph;
   reportedSteps = {};
+  wizardStep = 1;
 
   get parametro() {
     const parametro = new URL(window.location.href).searchParams.get(
@@ -63,6 +64,15 @@ export default class AdhesionPph extends LightningElement {
 
     if (data.account) this.account = data.account;
     if (data.plan) this.plan = data.plan;
+    console.log("ejecuta el trackGa4Event");
+    trackGa4Event("pph_declaracion_iniciada");
+   /* if (
+      this.plan &&
+      (this.plan.Estado__c === "Sin adherir" ||
+        this.plan.Estado__c === "En Preparación")
+    ) {
+      trackEvent("pph_declaracion_iniciada");
+    }*/
 
     if (this.plan) {
       const campaña =
@@ -156,8 +166,10 @@ export default class AdhesionPph extends LightningElement {
       this.onWarning(data.validation);
     }
 
-    if (this.grandesCuentas)
-      this.template.querySelector("button").className = "slds-hide";
+    if (this.grandesCuentas) {
+      const addBtn = this.template.querySelector(".pph-add-est");
+      if (addBtn) addBtn.classList.add("slds-hide");
+    }
   }
 
   get isAdhesion() {
@@ -174,6 +186,194 @@ export default class AdhesionPph extends LightningElement {
 
   get isResumen() {
     return this.step == "resumen";
+  }
+
+  get showDeclarationWizard() {
+    return this.isAdhesion || this.isEdit;
+  }
+
+  get wizardStepsTotal() {
+    return 1;
+  }
+
+  get wizardStepLabels() {
+    return ["Plan de siembra"];
+  }
+
+  get cultivoPillLabel() {
+    if (!this.plan?.Parametro_PPH__r?.Cultivo__r?.Name) return "";
+    return this.plan.Parametro_PPH__r.Cultivo__r.Name.toUpperCase();
+  }
+
+  get mobPageTitle() {
+    if (this.isEdit) return "Editar establecimiento";
+    return "Plan de siembra";
+  }
+
+  get deskPageTitle() {
+    return `Adhesión PPH — ${this.paramName}`;
+  }
+
+  get mobPageSubtitle() {
+    return "Declará tus establecimientos y hectáreas precertificadas.";
+  }
+
+  get deskPageSubtitle() {
+    return this.mobPageSubtitle;
+  }
+
+  get saldoPphLabel() {
+    const n = Number(this.saldoPph);
+    if (Number.isNaN(n)) return "—";
+    return new Intl.NumberFormat("es-AR").format(n);
+  }
+
+  get hideAddEstablecimiento() {
+    return this.grandesCuentas === true;
+  }
+
+  get deskEstablecimientosCount() {
+    return String(this.establecimientos?.length || 0);
+  }
+
+  get deskTotalSeLabel() {
+    let total = 0;
+    try {
+      for (const est of this.data.establecimientos) {
+        total += Object.values(est.variedades || {}).reduce(
+          (a, v) => a + (v.cantidad || 0),
+          0
+        );
+      }
+    } catch (e) {
+      total = 0;
+    }
+    return `${new Intl.NumberFormat("es-AR").format(total)} HT`;
+  }
+
+  get showMobWizardFooter() {
+    return this.isAdhesion;
+  }
+
+  get mobFooterContinuarDisabled() {
+    return false;
+  }
+
+  get mobFooterContinuarLabel() {
+    return "Continuar →";
+  }
+
+  get mobCancelLabel() {
+    return "Cancelar";
+  }
+
+  get mobFooterStatus() {
+    return "";
+  }
+
+  get hideTerminosFooter() {
+    return false;
+  }
+
+  get isResumenMobileEmbedded() {
+    return true;
+  }
+
+  get resumenMobTitle() {
+    if (this.canEditResumen) return "Revisá tu adhesión";
+    return "Adhesión enviada";
+  }
+
+  get resumenDeskTitle() {
+    return this.resumenMobTitle;
+  }
+
+  get canEditResumen() {
+    const estado = this.plan?.Estado__c;
+    return estado === "En Preparación" || estado === "Rectificado";
+  }
+
+  get canRectificarResumen() {
+    const params = this.plan?.Parametro_PPH__r;
+    if (!params || this.plan?.Estado__c !== "Adherido") return false;
+    if (!params.Fecha_Inicio_Rectificacion_1__c || !params.Fecha_Fin_Rectificacion_1__c) {
+      return false;
+    }
+    const now = new Date();
+    return (
+      now >= new Date(params.Fecha_Inicio_Rectificacion_1__c) &&
+      now <= new Date(params.Fecha_Fin_Rectificacion_1__c)
+    );
+  }
+
+  get showResumenMobFooter() {
+    return this.canEditResumen || this.canRectificarResumen;
+  }
+
+  get resumenEnviarDisabled() {
+    return !this.canEditResumen;
+  }
+
+  get resumenCancelLabel() {
+    if (this.canRectificarResumen && !this.canEditResumen) return "Volver";
+    return "Editar";
+  }
+
+  get resumenContinueLabel() {
+    if (this.canRectificarResumen && !this.canEditResumen) return "Rectificar";
+    return "Enviar adhesión";
+  }
+
+  get resumenDeskSecondaryLabel() {
+    return this.resumenCancelLabel;
+  }
+
+  get resumenDeskPrimaryLabel() {
+    return this.resumenContinueLabel;
+  }
+
+  handleMobContinuar() {
+    this.continuar();
+  }
+
+  handleMobBack() {
+    this.handleMobClose();
+  }
+
+  handleMobClose() {
+    window.history.back();
+  }
+
+  handleMobCancel() {
+    this.handleMobClose();
+  }
+
+  handleResumenBack() {
+    if (this.canEditResumen) {
+      this.step = "adhesion";
+      return;
+    }
+    this.handleMobClose();
+  }
+
+  handleResumenSecondary() {
+    if (this.canEditResumen) {
+      this.step = "adhesion";
+      return;
+    }
+    this.handleMobClose();
+  }
+
+  handleResumenPrimary() {
+    if (this.canRectificarResumen && !this.canEditResumen) {
+      this.rectificarConfirm();
+      return;
+    }
+    this.enviarConfirm();
+  }
+
+  updateLocation(event) {
+    // delegado por c-map; establecimientoPph maneja el callback
   }
 
   get year() {

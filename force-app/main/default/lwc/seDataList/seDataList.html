@@ -100,8 +100,8 @@
                                 </div>
                             </template>
                         </div>
-                        <button class="lic-more" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
-                            {mobileActionLabel}
+                        <button class={row.mobileActionClass} type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                            {row.mobileActionLabel}
                         </button>
                     </article>
                 </template>

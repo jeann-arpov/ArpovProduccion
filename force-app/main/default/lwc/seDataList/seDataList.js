@@ -15,6 +15,10 @@ export default class SeDataList extends LightningElement {
     @api mobileActionLabel = 'Ver →';
     @api emptyText = 'No hay registros para mostrar.';
     @api actionDisabledField = 'actionDisabled';
+    /** Si está definido, usa el label por fila en mobile (ej. "Continuar adhesión →"). */
+    @api mobileActionLabelField = '';
+    /** Campo por fila: "primary" | "ghost" para el CTA mobile. */
+    @api mobileActionVariantField = '';
     /** Rows per page. 0 = show all, no pager (default). */
     @api pageSize = 0;
     @api loading = false;
@@ -76,6 +80,14 @@ export default class SeDataList extends LightningElement {
             const key = String(record[this.keyField] ?? '');
             const tone = record[this.badgeToneField] || 'info';
             const actionDisabled = Boolean(record[this.actionDisabledField]);
+            const mobileActionLabel = this.mobileActionLabelField
+                ? record[this.mobileActionLabelField] || this.mobileActionLabel
+                : this.mobileActionLabel;
+            const mobileVariant = this.mobileActionVariantField
+                ? record[this.mobileActionVariantField] || 'primary'
+                : 'primary';
+            const mobileActionClass =
+                'lic-more' + (mobileVariant === 'ghost' ? ' lic-more--ghost' : ' lic-more--primary');
 
             return {
                 key,
@@ -84,6 +96,8 @@ export default class SeDataList extends LightningElement {
                 badgeLabel: record[this.badgeField],
                 badgeClass: `badge ${tone}`,
                 actionDisabled,
+                mobileActionLabel,
+                mobileActionClass,
                 cells: columns.map((col, index) => {
                     const type = col.type || 'text';
                     return {

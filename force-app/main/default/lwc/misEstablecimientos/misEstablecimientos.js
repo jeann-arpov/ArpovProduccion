@@ -1,168 +1,130 @@
-import { LightningElement, track, api } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import getEstablecimientos from '@salesforce/apex/misEstablecimientosController.getEstablecimientos';
-import {reduceErrors} from 'c/utils';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { doRequest } from 'c/utils';
-import icons from 'c/icons';
 
-const COLUMNS = [
-    {
-      label: 'NOMBRE DEL ESTABLECIMIENTO',
-      fieldName: 'link',
-      type: 'url',
-      typeAttributes: {
-        label: { fieldName: 'Name' },
-        target: '_self'
-      }
-    },
-    {label: 'COORDENADAS(LATITUD)', fieldName: 'Coordenadas__Latitude__s', fixedWidth: 400, hideDefaultActions: true},
-    {label: 'COORDENADAS(LONGITUD)', fieldName: 'Coordenadas__Longitude__s', fixedWidth: 400, hideDefaultActions: true}
-];
+const PAGE_SIZE = 200;
+
+function formatCoord(lat, lng) {
+    if (lat == null || lng == null) return 'Sin georeferencia';
+    return `${Number(lat).toFixed(2)}°, ${Number(lng).toFixed(2)}°`;
+}
+
+function statusTone(vigente) {
+    return vigente === true ? 'ok' : 'info';
+}
 
 export default class MisEstablecimientos extends LightningElement {
-    @api type;
-    @track vencimientos = [];
-    columns = COLUMNS;
-    Name = 'Todos';
-    
+    @track rowsAll = [];
+    @track filtered = [];
 
-    @track sortBy = 'fecha';
-    @track sortDirection = 'desc';
-    @track searchTerm = '';
-    @track totalRegistros = 0; // <<--- Nuevo
-    @track NameSelect = '';
-    
-
-    pageSize = 10;
-    currentPage = 1;
-    @track filteredEstablecimientos = [];
-    data = [];
-
-
-    icons = {
-        seed: icons.pph.seed
-    };
-    
+    loading = true;
     initialized = false;
-    loading = false;
+    searchKey = '';
+    pageSize = PAGE_SIZE;
+
+    columns = [
+        { label: 'Nombre', fieldName: 'title', type: 'link' },
+        { label: 'Coordenadas', fieldName: 'coordenadas' },
+        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
+        { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver detalle' }
+    ];
+
+    mobileFields = [
+        { label: 'Coordenadas', fieldName: 'coordenadas' },
+        { label: 'Estado', fieldName: 'statusLabel' }
+    ];
+
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+    }
+
+    renderedCallback() {
+        if (!this.initialized) {
+            this.init();
+        }
+    }
 
     async init() {
         this.initialized = true;
+        await this.loadRows();
+    }
 
-        await doRequest.call(this, async _ => {
-            this.data = await getEstablecimientos();
-            this.data = this.data.map(row => ({
-            ...row,
-            link: `/establecimiento/${row.Id}/${row.Name}`
-            }));
-            this.updatePage();
+    async loadRows() {
+        await doRequest.call(this, async () => {
+            const data = await getEstablecimientos();
+            this.rowsAll = (data || []).map((row) => this.decorateRow(row));
+            this.applyFilters();
+            this.loading = false;
         });
     }
 
-
-    renderedCallback() {
-        if (!this.initialized) this.init();
-    }
-
-
-    onError(e) {
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Error',
-            message: reduceErrors(e).join('\n'),
-            variant: 'error',
-            mode: 'sticky'
-        }));
-    }
-
-    //reemplazando vencimientos por data, podemos hacer que los totales sean dinámicos según que facturas se esten visualizando
-    
-
-    handleOnSort(event){
-        this.sortBy = event.detail.fieldName;
-        this.sortDirection = event.detail.sortDirection;
-        this.sortData();
-    }
-
-    sortData() {
-        const parseData = JSON.parse(JSON.stringify(this.data));
-
-        const keyValue = (a) => {
-            return a[this.sortBy];
+    decorateRow(row) {
+        const vigente = row.Vigente__c !== false;
+        return {
+            id: row.Id,
+            title: row.Name,
+            coordenadas: formatCoord(row.Coordenadas__Latitude__s, row.Coordenadas__Longitude__s),
+            statusLabel: vigente ? 'Activo' : 'Inactivo',
+            statusTone: statusTone(vigente),
+            detailUrl: `/establecimiento/${row.Id}/${encodeURIComponent(row.Name || '')}`
         };
-
-        const isReverse = this.sortDirection === 'asc' ? 1: -1;
-
-        parseData.sort((x, y) => {
-            x = keyValue(x) ? keyValue(x) : '';
-            y = keyValue(y) ? keyValue(y) : '';
-            return isReverse * ((x > y) - (y > x));
-        });
-
-        this.data = parseData;
-    } 
-
-
-    handleNameSelect(event){
-        // this.NameSelect = event.target.value;
-        // this.filteredNames = this.Name == 'Todos' ? this.vencimientos : this.vencimientos.filter(v => v.cultivo == this.cultivo);
-        this.updatePage();
     }
 
-    // Aplicar filtros y búsqueda
-    
     applyFilters() {
-        let filtered = [...this.data];
-
-        if (this.searchTerm) {
-            const term = this.searchTerm.toLowerCase();
-            filtered = filtered.filter(l =>
-                (l.Name && l.Name.toLowerCase().includes(term)) 
+        const term = (this.searchKey || '').trim().toLowerCase();
+        if (!term) {
+            this.filtered = [...this.rowsAll];
+            return;
+        }
+        this.filtered = this.rowsAll.filter((row) => {
+            return (
+                (row.title && row.title.toLowerCase().includes(term)) ||
+                (row.coordenadas && row.coordenadas.toLowerCase().includes(term))
             );
-        }
-
-        this.filteredEstablecimientos = filtered;
-        this.totalRegistros = filtered.length; // <<--- Aquí se actualiza el contador
-        this.currentPage = 1;
+        });
     }
 
-    
-        updatePage() {
-        const start = (this.currentPage - 1) * this.pageSize;
-        const end = start + this.pageSize;
-        const establecimientos = this.data.slice(start, end);
-        this.filteredEstablecimientos = establecimientos;
-        this.totalRegistros = this.data.length;
-    } 
-
-   get disablePrev() {
-        return this.currentPage <= 1;
+    get listMetaLabel() {
+        const count = this.filtered.length;
+        return `${count} establecimiento${count === 1 ? '' : 's'} · Ordenado por Nombre`;
     }
 
-    get disableNext() {
-        return this.currentPage >= Math.ceil(this.data.length / this.pageSize);
+    get showFooterSummary() {
+        return this.filtered.length > 0;
     }
 
-    handlePrev() {
-        if (!this.disablePrev) {
-            this.currentPage--;
-            this.updatePage();
-        }
-    }
-
-    handleNext() {
-        if (!this.disableNext) {
-            this.currentPage++;
-            this.updatePage();
-        }
+    get footerSummaryLabel() {
+        const withCoords = this.filtered.filter((r) => r.coordenadas !== 'Sin georeferencia').length;
+        return `${withCoords} de ${this.filtered.length} con georeferencia declarada`;
     }
 
     handleSearchChange(event) {
-        this.searchTerm = event.target.value;
-        if(this.searchTerm.length > 0){
-            this.applyFilters();
-        }
-        else {
-            this.updatePage();
-        }
+        this.searchKey = event.detail?.value ?? event.detail ?? '';
+        this.applyFilters();
+    }
+
+    handleRowAction(event) {
+        const row = event.detail?.row;
+        if (!row?.detailUrl) return;
+        window.open(row.detailUrl, '_self');
+    }
+
+    handleNewEstablecimiento() {
+        this.template.querySelector('c-establecimientos-map')?.openNew?.();
+    }
+
+    handleOpenMapa() {
+        this.template.querySelector('c-establecimientos-map')?.openMap?.();
+    }
+
+    handleEstablecimientoSaved() {
+        this.loading = true;
+        this.loadRows();
     }
 }

@@ -1,35 +1,235 @@
 @import 'c/pphCss';
 
-.plus-sign {
-    border: 1px solid black;
-    padding: 0px 3px;
-    margin-right: 5px;
-    font-size: 14px;
-}
-
 :host {
-    padding: 2.5rem;
-    display:block;
-    box-shadow: 1px 1px 2px 2px var(--pph-gray);
+    display: block;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    color: #1c1c1c;
 }
 
-.add-establecimiento {
-    --lwc-squareIconMediumBoundary: 1.5rem;
-    color:black;
-    --lwc-colorTextIconDefault: black;
-    --slds-c-button-text-color-hover: black;
-    --lwc-buttonColorBorderPrimary: black;
-    position:absolute;
+.se-desk-only {
+    display: block;
 }
 
-.add-establecimiento b {
+.se-adhesion-root {
+    max-width: 1180px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.se-panel {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px 16px 24px;
+    border: 1px solid #e5e7eb;
+    box-sizing: border-box;
+}
+
+.se-panel--pph-step {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.se-panel--pph-tc {
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+.se-link-btn {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1c1c;
+    text-decoration: underline;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+.se-saldo-card {
+    background: #f4ffe0;
+    border: 1.5px solid #1c1c1c;
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.se-saldo-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.se-saldo-value {
+    display: block;
+    margin-top: 4px;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.se-saldo-sub {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.se-add-est {
+    appearance: none;
+    border: 1.5px dashed #9ca3af;
+    border-radius: 12px;
+    background: #fff;
+    padding: 14px 16px;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.se-est-block {
+    display: block;
+}
+
+.se-btn {
+    appearance: none;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.se-btn-ghost {
+    background: #fff;
+    color: #1c1c1c;
+    border: 1.5px solid #1c1c1c;
+}
+
+.se-btn-primary {
+    background: #bfff00;
+    color: #1c1c1c;
+    border: 1.5px solid #1c1c1c;
+}
+
+.se-btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.se-panel-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.se-side-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.se-side-eyebrow {
+    margin: 0 0 4px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.se-side-title {
+    margin: 0 0 16px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.se-side-list {
+    margin: 0 0 16px;
+}
+
+.se-side-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 13px;
+}
+
+.se-side-row dt {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.se-side-row dd {
+    margin: 0;
+    font-weight: 700;
+    text-align: right;
+}
+
+.se-side-total {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.se-side-total-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.se-side-total-value {
     font-size: 18px;
+    font-weight: 800;
 }
 
-c-establecimiento-pph {
-    display: block;
+.se-resumen-desk-actions {
+    margin-top: 20px;
 }
 
-.continue {
-    display: block;
+.exampleHolder {
+    position: relative;
+    min-height: 120px;
+}
+
+@media (max-width: 767px) {
+    .se-desk-only {
+        display: none !important;
+    }
+
+    .se-panel {
+        border: none;
+        border-radius: 0;
+        padding: 0 0 24px;
+    }
+}
+
+@media (min-width: 768px) {
+    .se-adhesion-root {
+        padding: 28px 32px 40px;
+    }
+
+    .se-panel {
+        padding: 24px 28px;
+    }
 }

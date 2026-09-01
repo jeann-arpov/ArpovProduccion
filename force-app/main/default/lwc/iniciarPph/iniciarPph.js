@@ -15,6 +15,16 @@ export default class IniciarPph extends NavigationMixin(LightningElement) {
         'arrow': SVG_ICONS + '/iconos/font-awesome/right-arrow.svg#right-arrow'
     }
 
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+    }
+
     async init() {
         this.initialized = true;
         

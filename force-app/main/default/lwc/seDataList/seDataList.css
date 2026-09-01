@@ -167,15 +167,35 @@
 
 .lic-more {
     margin-top: 12px;
-    background: transparent;
-    border: none;
-    color: #1c1c1c;
     font-weight: 700;
     font-size: 13px;
     cursor: pointer;
-    padding: 6px 0;
-    text-decoration: underline;
     font-family: inherit;
+    box-sizing: border-box;
+}
+
+.lic-more--primary {
+    width: 100%;
+    appearance: none;
+    background: #bfff00;
+    color: #1c1c1c;
+    border: 2px solid #1c1c1c;
+    border-radius: 999px;
+    padding: 12px 16px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.lic-more--ghost {
+    width: 100%;
+    appearance: none;
+    background: #fff;
+    color: #1c1c1c;
+    border: 2px solid #1c1c1c;
+    border-radius: 999px;
+    padding: 12px 16px;
+    text-decoration: none;
+    text-align: center;
 }
 
 .empty {

@@ -1,81 +1,57 @@
 <template>
-    <div style="display:flex;justify-content:flex-end;margin-top:2rem;">
-        <div>
-            <lightning-button class="slds-m-top--medium" variant="brand" label="Nuevo Establecimiento" onclick={openModalNew} ></lightning-button>
-        </div>
-        <div style="margin-left: 1rem;">
-            <lightning-button class="slds-m-top--medium" variant="brand" label="Abrir Mapa" onclick={openModal} ></lightning-button>
-        </div>
-    </div>
+    <c-map onlocationselected={updateLocation}></c-map>
+
     <c-modal>
-        <div slot="header">
-            Uibicaciones de Establecimientos
-        </div>
+        <div slot="header">Ubicaciones de establecimientos</div>
         <lightning-map map-markers={markers}></lightning-map>
     </c-modal>
 
-    <template if:true={modal}>
-        <div class="modal-backdrop">
-            <div class="modal">
-                <div class="close">
-                    <button class="close-button" onclick={closeModal}>×</button>
+    <template if:true={showNewSheet}>
+        <div class="se-sheet-backdrop" onclick={handleBackdropClick}></div>
+        <section class="se-sheet" role="dialog" aria-modal="true" aria-labelledby="se-sheet-title">
+            <header class="se-sheet-head">
+                <button type="button" class="se-sheet-back" onclick={closeNew} aria-label="Cerrar">
+                    <lightning-icon icon-name="utility:chevronleft" size="x-small"></lightning-icon>
+                </button>
+                <h2 id="se-sheet-title" class="se-sheet-title">Nuevo establecimiento</h2>
+                <span class="se-sheet-spacer"></span>
+            </header>
+
+            <div class="se-sheet-body">
+                <div class="se-map-chip-wrap">
+                    <button type="button" class="se-map-chip" onclick={showMap}>
+                        {mapCoodinates}
+                    </button>
+                    <p class="se-map-hint">Tocá para elegir el punto en el mapa.</p>
                 </div>
 
-                <div class="modal-body">
-                    <lightning-card>
-                        <h2 slot="title" class="slds-text-align_center">
-                            Nuevo Establecimiento
-                        </h2>
-                        <div class="slds-p-around_medium">
-                            <!-- Grid de 2 columnas -->
-                            <div class="slds-grid slds-wrap slds-gutters">
-
-                                <!-- Nombre del Establecimiento -->
-                            <div class="slds-col slds-size_1-of-2">
-                            <lightning-input label="Nombre del Establecimiento"
-                                            name="nombre"
-                                            onchange={handleNameChange}
-                                            required>
-                            </lightning-input>
-                            </div>
-
-                            <!-- Coordenadas -->
-                             <div class="slds-col slds-size_1-of-2">
-                                <lightning-input type="search" value={mapCoodinates} class={coordinatesClass} label="Georeferencia" onclick={showMap} required message-when-value-missing="Este campo es obligatorio"></lightning-input>
-                             </div>
-
-
-                            <c-map onlocationselected={updateLocation}></c-map>
-
-                        </div> 
-                        </div>
-                    </lightning-card>
-                     <!-- Botones -->
-                            <div class="slds-m-top_medium slds-align_absolute-center">
-                                <lightning-button label="Cancelar" onclick={closeModal} class="slds-m-right_small"></lightning-button>
-                                <lightning-button label="Guardar" variant="brand" onclick={handleSave}></lightning-button>
-                            </div>
-                </div>
+                <lightning-input
+                    label="Nombre del establecimiento"
+                    name="nombre"
+                    value={selectedName}
+                    onchange={handleNameChange}
+                    required
+                    placeholder="Ej: La Emilia"
+                ></lightning-input>
             </div>
-        </div>
-</template>
 
- <template if:true={modalmsj}>
-        <div class="modal-backdrop">
-            <div class="modal">
-            <div class="close">
-                <button class="close-button" onclick={closeModal}>×</button>
-            </div><br>
-            <p style="font-size: x-large;">Nuevo Establecimiento</p><br>
-            <p>
-                {mensaje} <br />
-            </p>
-            <br>
-            <button class="action-button" onclick={closeModal}>
-                Aceptar ➡
+            <footer class="se-sheet-foot">
+                <button type="button" class="se-btn se-btn-ghost" onclick={closeNew}>Cancelar</button>
+                <button type="button" class="se-btn se-btn-primary" onclick={handleSave} disabled={saveDisabled}>
+                    Guardar
+                </button>
+            </footer>
+        </section>
+    </template>
+
+    <template if:true={showSuccess}>
+        <div class="se-sheet-backdrop" onclick={closeSuccess}></div>
+        <section class="se-dialog" role="alertdialog">
+            <h3 class="se-dialog-title">Nuevo establecimiento</h3>
+            <p class="se-dialog-copy">{mensaje}</p>
+            <button type="button" class="se-btn se-btn-primary se-dialog-cta" onclick={closeSuccess}>
+                Aceptar →
             </button>
-            </div>
-        </div>
-</template>
-
+        </section>
+    </template>
 </template>

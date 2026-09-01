@@ -1,101 +1,187 @@
 <template>
-  <div onclick={loadingClick}>
-    <template if:true={loading}>
-      <div class="exampleHolder">
-        <lightning-spinner
-          alternative-text="Loading"
-          size="medium"
-        ></lightning-spinner>
-      </div>
-    </template>
+    <div class="se-adhesion-root" onclick={loadingClick}>
+        <template if:true={loading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
 
-    <h1 class="slds-m-bottom_large">
-      Adhesión al Programa de Precertificación de Hectáreas (PPH) - {paramName}
-    </h1>
-    <div class={adhesionClass}>
-      <div class="slds-m-bottom_small">
-        <lightning-button
-          label="No veo mis HTs"
-          onclick={handleOnInformarPagoClick}
-        ></lightning-button>
-      </div>
-      <template for:each={establecimientos} for:item="establecimiento">
-        <c-establecimiento-pph
-          cultivo={plan.Parametro_PPH__r.Cultivo__r}
-          class="slds-m-bottom_large"
-          key={establecimiento.id}
-          info={establecimiento}
-          hiding={hiding}
-          grandes-cuentas={grandesCuentas}
-          onupdatecantidad={updateCantidad}
-          onshowmap={showMap}
-          onremove={remove}
-          onautosave={autosave}
-          onestablecimientochange={changeEstablecimiento}
-          onpasoestablecimiento={handlePasoEstablecimiento}
-          onpasohectareasnose={handlePasoHectareasNoSE}
-        ></c-establecimiento-pph>
-      </template>
-      <button
-        type="button"
-        onclick={addRow}
-        class="slds-button slds-m-left_large add-establecimiento"
-      >
-        <lightning-button-icon
-          class="slds-m-right_small"
-          icon-name="utility:add"
-          alternative-text="Agregar Establecimiento"
-          title="Agregar Establecimiento"
-        ></lightning-button-icon>
-        <b>Agregar Establecimiento</b>
-      </button>
-      <lightning-layout
-        class="slds-m-vertical_medium"
-        horizontal-align="center"
-      >
-        <lightning-layout-item class="actions">
-          <lightning-button
-            if:true={isAdhesion}
-            class="slds-m-left_small continue black"
-            label="Continuar"
-            onclick={continuar}
-          ></lightning-button>
-          <lightning-button
-            class="slds-m-left_small"
-            if:true={isEdit}
-            label="Volver al resumen"
-            onclick={backToResumen}
-          ></lightning-button>
-        </lightning-layout-item>
-      </lightning-layout>
+        <template if:true={showDeclarationWizard}>
+            <c-se-mob-wizard
+                title={mobPageTitle}
+                subtitle={mobPageSubtitle}
+                desk-title={deskPageTitle}
+                desk-subtitle={deskPageSubtitle}
+                title-badge={cultivoPillLabel}
+                current-step={wizardStep}
+                total-steps={wizardStepsTotal}
+                step-labels={wizardStepLabels}
+                footer-variant="dual"
+                cancel-label={mobCancelLabel}
+                footer-status={mobFooterStatus}
+                continue-label={mobFooterContinuarLabel}
+                continue-disabled={mobFooterContinuarDisabled}
+                show-footer={showMobWizardFooter}
+                onback={handleMobBack}
+                onclose={handleMobClose}
+                oncancel={handleMobCancel}
+                oncontinue={handleMobContinuar}
+            >
+                <section class="se-panel se-panel--pph-step">
+                    <button type="button" class="se-link-btn" onclick={handleOnInformarPagoClick}>
+                        No veo mis HTs
+                    </button>
+
+                    <div class="se-saldo-card">
+                        <span class="se-saldo-label">Saldo PPH disponible</span>
+                        <span class="se-saldo-value">{saldoPphLabel} HT</span>
+                        <span class="se-saldo-sub">{cultivoPillLabel} · {paramName}</span>
+                    </div>
+
+                    <template for:each={establecimientos} for:item="establecimiento">
+                        <c-establecimiento-pph
+                            cultivo={plan.Parametro_PPH__r.Cultivo__r}
+                            class="se-est-block"
+                            key={establecimiento.id}
+                            info={establecimiento}
+                            hiding={hiding}
+                            grandes-cuentas={grandesCuentas}
+                            variant="wizard"
+                            onupdatecantidad={updateCantidad}
+                            onshowmap={showMap}
+                            onremove={remove}
+                            onautosave={autosave}
+                            onestablecimientochange={changeEstablecimiento}
+                            onpasoestablecimiento={handlePasoEstablecimiento}
+                            onpasohectareasnose={handlePasoHectareasNoSE}
+                        ></c-establecimiento-pph>
+                    </template>
+
+                    <button
+                        type="button"
+                        class="se-add-est pph-add-est"
+                        onclick={addRow}
+                        if:false={hideAddEstablecimiento}
+                    >
+                        <lightning-icon icon-name="utility:add" size="x-small" alternative-text="Agregar"></lightning-icon>
+                        Agregar establecimiento
+                    </button>
+
+                    <div class="se-panel-actions se-desk-only">
+                        <button type="button" class="se-btn se-btn-ghost" onclick={handleMobClose}>Cancelar</button>
+                        <template if:true={isAdhesion}>
+                            <button
+                                type="button"
+                                class="se-btn se-btn-primary continue"
+                                disabled={mobFooterContinuarDisabled}
+                                onclick={handleMobContinuar}
+                            >Continuar →</button>
+                        </template>
+                        <template if:true={isEdit}>
+                            <button type="button" class="se-btn se-btn-primary" onclick={backToResumen}>
+                                Volver al resumen
+                            </button>
+                        </template>
+                    </div>
+                </section>
+
+                <aside slot="aside" class="se-side-card">
+                    <p class="se-side-eyebrow">Resumen</p>
+                    <h2 class="se-side-title">Adhesión PPH</h2>
+                    <dl class="se-side-list">
+                        <div class="se-side-row">
+                            <dt>Campaña</dt>
+                            <dd>{paramName}</dd>
+                        </div>
+                        <div class="se-side-row">
+                            <dt>Cultivo</dt>
+                            <dd>{cultivoPillLabel}</dd>
+                        </div>
+                        <div class="se-side-row">
+                            <dt>Establecimientos</dt>
+                            <dd>{deskEstablecimientosCount}</dd>
+                        </div>
+                    </dl>
+                    <div class="se-side-total">
+                        <span class="se-side-total-label">HT SE declaradas</span>
+                        <span class="se-side-total-value">{deskTotalSeLabel}</span>
+                    </div>
+                </aside>
+            </c-se-mob-wizard>
+        </template>
+
+        <template if:true={isTerminosYCondiciones}>
+            <c-se-mob-wizard
+                title="Términos y condiciones"
+                desk-title="Términos y condiciones"
+                subtitle={mobPageSubtitle}
+                desk-subtitle={deskPageSubtitle}
+                title-badge={cultivoPillLabel}
+                current-step={wizardStepsTotal}
+                total-steps={wizardStepsTotal}
+                step-labels={wizardStepLabels}
+                show-footer={hideTerminosFooter}
+                onclose={cancelTerms}
+            >
+                <section class="se-panel se-panel--pph-tc">
+                    <c-terminos-y-condiciones
+                        cultivo={cultivo}
+                        grandes-cuentas={grandesCuentas}
+                        campaña={campaña}
+                        oncancel={cancelTerms}
+                        onaccept={acceptTerms}
+                    ></c-terminos-y-condiciones>
+                </section>
+            </c-se-mob-wizard>
+        </template>
+
+        <template if:true={isResumen}>
+            <c-se-mob-wizard
+                title={resumenMobTitle}
+                desk-title={resumenDeskTitle}
+                subtitle={mobPageSubtitle}
+                title-badge={cultivoPillLabel}
+                current-step={wizardStepsTotal}
+                total-steps={wizardStepsTotal}
+                step-labels={wizardStepLabels}
+                footer-variant="dual"
+                cancel-label={resumenCancelLabel}
+                continue-label={resumenContinueLabel}
+                continue-disabled={resumenEnviarDisabled}
+                show-footer={showResumenMobFooter}
+                onback={handleResumenBack}
+                onclose={handleMobClose}
+                oncancel={handleResumenSecondary}
+                oncontinue={handleResumenPrimary}
+            >
+                <c-resumen-pph
+                    mobile-embedded={isResumenMobileEmbedded}
+                    info={data}
+                    onedit={edit}
+                    onenviar={enviarConfirm}
+                    onrectificar={rectificarConfirm}
+                ></c-resumen-pph>
+
+                <div class="se-panel-actions se-desk-only se-resumen-desk-actions">
+                    <button type="button" class="se-btn se-btn-ghost" onclick={handleResumenSecondary}>
+                        {resumenDeskSecondaryLabel}
+                    </button>
+                    <button
+                        type="button"
+                        class="se-btn se-btn-primary"
+                        disabled={resumenEnviarDisabled}
+                        onclick={handleResumenPrimary}
+                    >{resumenDeskPrimaryLabel}</button>
+                </div>
+            </c-se-mob-wizard>
+        </template>
+
+        <c-map onlocationselected={updateLocation}></c-map>
+        <c-modals-pph
+            callback={modalCallback}
+            current-modal={currentModal}
+            onclose={closeModal}
+        ></c-modals-pph>
+        <c-informar-pago></c-informar-pago>
     </div>
-
-    <div if:true={isTerminosYCondiciones}>
-      <c-terminos-y-condiciones
-        cultivo={cultivo}
-        grandes-cuentas={grandesCuentas}
-        campaña={campaña}
-        oncancel={cancelTerms}
-        onaccept={acceptTerms}
-      ></c-terminos-y-condiciones>
-    </div>
-
-    <div if:true={isResumen}>
-      <c-resumen-pph
-        info={data}
-        onedit={edit}
-        onenviar={enviarConfirm}
-        onrectificar={rectificarConfirm}
-      ></c-resumen-pph>
-    </div>
-
-    <c-map onlocationselected={updateLocation}></c-map>
-    <c-modals-pph
-      callback={modalCallback}
-      current-modal={currentModal}
-      onclose={closeModal}
-    ></c-modals-pph>
-
-    <c-informar-pago></c-informar-pago>
-  </div>
 </template>
