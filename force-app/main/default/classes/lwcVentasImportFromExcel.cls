@@ -106,9 +106,83 @@ public without sharing class lwcVentasImportFromExcel {
         @AuraEnabled
         public static String getContentDocument(id id ){
             return [ SELECT VersionData FROM ContentVersion WHERE ContentDocumentId = :id AND IsLatest = true].VersionData.toString();
-        } 
+        }
+
+        /** Filas por transacción síncrona: 900 de una vez vuelven a chocar SOQL/CPU. */
+        public static final Integer SYNC_CHUNK_SIZE = 50;
+
+        public class ImportChunkResult {
+            @AuraEnabled public Id loteId { get; set; }
+            @AuraEnabled public Boolean hayError { get; set; }
+            @AuraEnabled public List<Map<String, Object>> fileRows { get; set; }
+        }
+
         @AuraEnabled
         public static List<Map<String,Object>> inserRecodrsFromExcel(List<Map<String,Object>> fileRows ,  String base64Data, string fileTitle, Id originanteAccountId){
+            ImportChunkResult result = processImportRows(
+                fileRows,
+                originanteAccountId,
+                null,
+                true,
+                true,
+                true,
+                base64Data,
+                fileTitle
+            );
+            return result.fileRows;
+        }
+
+        @AuraEnabled
+        public static ImportChunkResult importExcelChunk(
+            List<Map<String, Object>> fileRows,
+            Id originanteAccountId,
+            Id loteId,
+            Boolean persist
+        ) {
+            return processImportRows(
+                fileRows,
+                originanteAccountId,
+                loteId,
+                persist != false,
+                false,
+                false,
+                null,
+                null
+            );
+        }
+
+        @AuraEnabled
+        public static void finalizeImportLote(Id loteId, String base64Data, String fileTitle) {
+            if (loteId == null) {
+                throw new AuraHandledException('No hay lote para adjuntar el archivo.');
+            }
+            adjuntarArchivoAlLote(loteId, base64Data, fileTitle);
+        }
+
+        @AuraEnabled
+        public static void rollbackImportLote(Id loteId) {
+            if (loteId == null) {
+                return;
+            }
+            List<Ventas_Informadas__c> ventas = [
+                SELECT Id FROM Ventas_Informadas__c WHERE Lote__c = :loteId
+            ];
+            if (!ventas.isEmpty()) {
+                Utils.deleteList(ventas, false);
+            }
+            delete new Lote__c(Id = loteId);
+        }
+
+        private static ImportChunkResult processImportRows(
+            List<Map<String,Object>> fileRows,
+            Id originanteAccountId,
+            Id existingLoteId,
+            Boolean persist,
+            Boolean attachFile,
+            Boolean rollbackOnError,
+            String base64Data,
+            String fileTitle
+        ) {
             String networkId = Network.getNetworkId();
             Boolean isCoreImport = networkId == null && originanteAccountId != null;
             Account userAccont;
@@ -155,9 +229,14 @@ public without sharing class lwcVentasImportFromExcel {
             List<Ventas_Informadas__c> ventasInformadasAInsertar = new List<Ventas_Informadas__c>();
             List<Ventas_Informadas__c> todasVentas = new List<Ventas_Informadas__c>();
             Boolean hayError = false;
-            
-            Lote__c lote = crearLote();
-            insert lote;
+
+            Lote__c lote;
+            if (existingLoteId != null) {
+                lote = new Lote__c(Id = existingLoteId);
+            } else {
+                lote = crearLote();
+                insert lote;
+            }
 
             List<Account> cuentas = isPortalObtentor ? [Select Id, N_CUIT__c, RecordType.DeveloperName, Type, Name FROM Account WHERE RecordType.DeveloperName in ('Distribuidor', 'Obtentor') and ((N_CUIT__c in ('30569723023', '30715468294') and Type = 'Obtentor') or parentId = null)] : new List<Account>();
             Map<String, List<Account>> cuentasPorCuit =
@@ -324,8 +403,10 @@ public without sharing class lwcVentasImportFromExcel {
                 ventasInformadasAInsertar,
                 cuitCache.accountsById
             );
-             
-             List<Database.SaveResult> svrs = Utils.insertList(ventasInformadasAInsertar,false);
+
+             List<Database.SaveResult> svrs = persist == true
+                 ? Utils.insertList(ventasInformadasAInsertar, false)
+                 : new List<Database.SaveResult>();
              integer offset = 0;
              for(Integer i=0;i<todasVentas.size();i++){
                  if(fileRows[i].containsKey('Error')){
@@ -356,7 +437,7 @@ public without sharing class lwcVentasImportFromExcel {
 
 
             system.debug(hayError);
-             if(hayError){
+             if(hayError && rollbackOnError == true){
                  delete lote;
                  List<Ventas_Informadas__c> ventasToDelete = new List<Ventas_Informadas__c>();
                  for(Ventas_Informadas__c venta : ventasInformadasAInsertar){
@@ -365,32 +446,39 @@ public without sharing class lwcVentasImportFromExcel {
                     }
                 }
                 Utils.deleteList(ventasToDelete, false);
-             }else {
-                 
-                base64Data = EncodingUtil.urlDecode(base64Data, 'UTF-8');
-                ContentVersion conVer = new ContentVersion();
-                conVer.ContentLocation = 'S'; // to use S specify this document is in Salesforce, to use E for external files
-                conVer.PathOnClient = '/' + fileTitle; // The files name, extension is very important here which will help the file in preview.
-                conVer.Title = fileTitle; // Display name of the files
-                conVer.VersionData =EncodingUtil.base64Decode(base64Data); // converting your binary string to Blog
-                conVer.IsMajorVersion = true;
-                insert conVer;    //Insert ContentVersion
-                // First get the Content Document Id from ContentVersion Object
-                Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:conVer.Id].ContentDocumentId;
-                //create ContentDocumentLink  record 
-                ContentDocumentLink conDocLink = New ContentDocumentLink();
-                conDocLink.LinkedEntityId = lote.id; // Specify RECORD ID here i.e Any Object ID (Standard Object/Custom Object)
-                conDocLink.ContentDocumentId = conDoc;  //ContentDocumentId Id from ContentVersion
-                conDocLink.shareType = 'I';
-                insert conDocLink;
-
+             }else if (!hayError && attachFile == true) {
+                adjuntarArchivoAlLote(lote.Id, base64Data, fileTitle);
              }
 
              if(fileRows.size() > 0){
                  fileRows[0].put('isSucces' , !hayError);
              }
 
-             return fileRows;
+             ImportChunkResult result = new ImportChunkResult();
+             result.loteId = lote.Id;
+             result.hayError = hayError;
+             result.fileRows = fileRows;
+             return result;
+        }
+
+        private static void adjuntarArchivoAlLote(Id loteId, String base64Data, String fileTitle) {
+            if (loteId == null || String.isBlank(base64Data) || String.isBlank(fileTitle)) {
+                return;
+            }
+            base64Data = EncodingUtil.urlDecode(base64Data, 'UTF-8');
+            ContentVersion conVer = new ContentVersion();
+            conVer.ContentLocation = 'S';
+            conVer.PathOnClient = '/' + fileTitle;
+            conVer.Title = fileTitle;
+            conVer.VersionData = EncodingUtil.base64Decode(base64Data);
+            conVer.IsMajorVersion = true;
+            insert conVer;
+            Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :conVer.Id].ContentDocumentId;
+            ContentDocumentLink conDocLink = new ContentDocumentLink();
+            conDocLink.LinkedEntityId = loteId;
+            conDocLink.ContentDocumentId = conDoc;
+            conDocLink.shareType = 'I';
+            insert conDocLink;
         }
 
         public static String key(Ventas_Informadas__c venta) {

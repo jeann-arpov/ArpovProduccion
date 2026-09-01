@@ -102,6 +102,91 @@ public class Test_VImportExcel {
         System.assertEquals(true, result[0].get('isSucces'), 'La fila debe importarse sin errores.');
     }
 
+    @isTest static void importExcelChunkReusaLoteYRollback() {
+        Test_TestUtils.disableFlows();
+
+        Account acc = [SELECT N_CUIT__c FROM Account LIMIT 1];
+        Cultivo__c cultivo = new Cultivo__c(Name = 'VI CHUNK SOJA', Densidad_de_Siembra__c = 1);
+        insert cultivo;
+        insert new Campana_Agricola__c(
+            Name = 'VI CHUNK CAMP 2025',
+            Ano__c = '2025',
+            Id_Externo__c = 'VI_CHUNK_CAMP_001',
+            Z9_Clave_Unica__c = 'VI_Z9_CHUNK_001',
+            SKEY_CAMPANIA__c = 8800993,
+            Cultivo__c = cultivo.Id
+        );
+        Variedad__c variedad = new Variedad__c(
+            Cultivar_Inase__c = 'VI CHUNK VAR',
+            Cultivo__c = cultivo.Id
+        );
+        insert variedad;
+        insert new Product2(
+            Name = 'VI Chunk Prod',
+            Cultivar_Inase__c = 'VI CHUNK VAR',
+            Categoria__c = 'Primera Multiplicación',
+            Family = 'Semilla Fiscalizada',
+            IsActive = true,
+            Cultivo__c = cultivo.Id,
+            Variedad__c = variedad.Id,
+            Variedad2__c = variedad.Id
+        );
+
+        Map<String, Object> row1 = new Map<String, Object>{
+            'Fecha_de_Facturacion__c' => '15/07/2025',
+            'Cantidad_de_Bolsas__c' => '40',
+            'Categoria__c' => 'Primera Multiplicación',
+            'CUIT_Destinatario__c' => acc.N_CUIT__c,
+            'CUIT_Originante__c' => acc.N_CUIT__c,
+            'Linea_Facturacion__c' => '1',
+            'Tipo_Comprobante_Externo__c' => 'FC',
+            'Variedad__c' => 'VI CHUNK VAR',
+            'Campana_de_Ventas__c' => '2025',
+            'N_de_Comprobante__c' => 'VI-CH-001'
+        };
+        Map<String, Object> row2 = new Map<String, Object>{
+            'Fecha_de_Facturacion__c' => '16/07/2025',
+            'Cantidad_de_Bolsas__c' => '20',
+            'Categoria__c' => 'Primera Multiplicación',
+            'CUIT_Destinatario__c' => acc.N_CUIT__c,
+            'CUIT_Originante__c' => acc.N_CUIT__c,
+            'Linea_Facturacion__c' => '2',
+            'Tipo_Comprobante_Externo__c' => 'FC',
+            'Variedad__c' => 'VI CHUNK VAR',
+            'Campana_de_Ventas__c' => '2025',
+            'N_de_Comprobante__c' => 'VI-CH-002'
+        };
+
+        Test.startTest();
+        lwcVentasImportFromExcel.ImportChunkResult c1 = lwcVentasImportFromExcel.importExcelChunk(
+            new List<Map<String, Object>>{ row1 },
+            acc.Id,
+            null,
+            true
+        );
+        System.assertEquals(false, c1.hayError, 'Chunk 1: ' + c1.fileRows[0].get('Error'));
+        System.assertNotEquals(null, c1.loteId);
+
+        lwcVentasImportFromExcel.ImportChunkResult c2 = lwcVentasImportFromExcel.importExcelChunk(
+            new List<Map<String, Object>>{ row2 },
+            acc.Id,
+            c1.loteId,
+            true
+        );
+        System.assertEquals(c1.loteId, c2.loteId);
+        System.assertEquals(false, c2.hayError, 'Chunk 2: ' + c2.fileRows[0].get('Error'));
+        System.assertEquals(
+            2,
+            [SELECT COUNT() FROM Ventas_Informadas__c WHERE Lote__c = :c1.loteId]
+        );
+
+        lwcVentasImportFromExcel.rollbackImportLote(c1.loteId);
+        Test.stopTest();
+
+        System.assertEquals(0, [SELECT COUNT() FROM Ventas_Informadas__c WHERE Lote__c = :c1.loteId]);
+        System.assertEquals(0, [SELECT COUNT() FROM Lote__c WHERE Id = :c1.loteId]);
+    }
+
     @isTest static void batchVentasInformeFromExcelSmokeTest() {
         Test_TestUtils.disableFlows();
 
