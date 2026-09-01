@@ -452,6 +452,9 @@ public without sharing class VentasInformadasCuitResolver {
   }
 
   @TestVisible
+  private static Map<Id, Account> ventaInternaAccountCache = new Map<Id, Account>();
+
+  @TestVisible
   public static void aplicarVentaInterna(Ventas_Informadas__c venta) {
     aplicarVentaInterna(venta, null);
   }
@@ -471,8 +474,20 @@ public without sharing class VentasInformadasCuitResolver {
       venta.Destinatario__c = venta.Originante__c;
       if (String.isBlank(venta.Razon_Social_Destinatario__c)) {
         Account orig = accountsById != null ? accountsById.get(venta.Originante__c) : null;
-        // Sin cache no se consulta por fila: en import masivo eso suma 1 SOQL por venta interna.
+        if (orig == null) {
+          orig = ventaInternaAccountCache.get(venta.Originante__c);
+        }
+        if (orig == null) {
+          List<Account> queried = [
+            SELECT Name FROM Account WHERE Id = :venta.Originante__c LIMIT 1
+          ];
+          orig = queried.isEmpty() ? null : queried[0];
+        }
         if (orig != null) {
+          ventaInternaAccountCache.put(orig.Id, orig);
+          if (accountsById != null) {
+            accountsById.put(orig.Id, orig);
+          }
           venta.Razon_Social_Destinatario__c = orig.Name;
         }
       }
