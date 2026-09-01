@@ -14,6 +14,7 @@ function statusTone(vigente) {
 }
 
 export default class MisEstablecimientos extends LightningElement {
+    @api type;
     @track rowsAll = [];
     @track filtered = [];
 
