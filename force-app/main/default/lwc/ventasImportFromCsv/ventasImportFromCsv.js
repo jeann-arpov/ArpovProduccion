@@ -3,7 +3,9 @@ import { publish, MessageContext } from 'lightning/messageService';
 import VENTAS_INFORMADAS_REFRESH from '@salesforce/messageChannel/VentasInformadasRefresh__c';
 
 import saveFile from '@salesforce/apex/lwcVentasImportFromCsvController.saveFile';
-import saveFileExcel from '@salesforce/apex/lwcVentasImportFromExcel.inserRecodrsFromExcel';
+import importExcelChunk from '@salesforce/apex/lwcVentasImportFromExcel.importExcelChunk';
+import finalizeImportLote from '@salesforce/apex/lwcVentasImportFromExcel.finalizeImportLote';
+import rollbackImportLote from '@salesforce/apex/lwcVentasImportFromExcel.rollbackImportLote';
 
 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -81,6 +83,9 @@ export default class LwcCSVUploader extends LightningElement {
     content;
 
     MAX_FILE_SIZE = 1500000;
+
+    /** Cada llamada Apex es una transacción nueva (900 filas de una vez revienta SOQL/CPU). */
+    IMPORT_CHUNK_SIZE = 50;
 
     XlsxPromise;
 
@@ -576,35 +581,82 @@ export default class LwcCSVUploader extends LightningElement {
         return out;
     }
 
-    uploadFile(rows) {
-       
-       const payload = this.normalizeRowsBeforeUpload(rows);
-       console.log(payload);
-        //console.log(JSON.stringify(this.fileReaderText));
+    async uploadFile(rows) {
+        const payload = this.normalizeRowsBeforeUpload(rows);
         this.importSucceeded = false;
+        this.showLoadingSpinner = true;
+        this.saveFileExcelPromise = true;
 
-        this.saveFileExcelPromise = saveFileExcel({
-            fileRows: payload,
-            base64Data: encodeURIComponent(this.fileContents),
-            fileTitle: this.fileName,
-            originanteAccountId: this.originanteAccountId || null
-        }).then(result => {
-            
-            this.generateFileResults(result);
-            this.showLoadingSpinner = false;
-            
-        }).then(_ => this.saveFileExcelPromise = null ).catch(error => {
-            console.log(error);
-            this.showLoadingSpinner = false;
+        let loteId = null;
+        let persist = true;
+        let hayError = false;
+        const allRows = [];
+
+        try {
+            const chunkSize = this.IMPORT_CHUNK_SIZE;
+            for (let i = 0; i < payload.length; i += chunkSize) {
+                const chunk = payload.slice(i, i + chunkSize);
+                const result = await importExcelChunk({
+                    fileRows: chunk,
+                    originanteAccountId: this.originanteAccountId || null,
+                    loteId,
+                    persist
+                });
+                loteId = result.loteId || loteId;
+                if (result.hayError) {
+                    hayError = true;
+                    persist = false;
+                }
+                if (result.fileRows && result.fileRows.length) {
+                    allRows.push(...result.fileRows);
+                }
+            }
+
+            if (hayError) {
+                if (loteId) {
+                    await rollbackImportLote({ loteId });
+                }
+                if (allRows.length) {
+                    allRows[0].isSucces = false;
+                }
+                this.generateFileResults(
+                    allRows.length ? allRows : [{ isSucces: false, Error: 'Error al importar' }]
+                );
+            } else {
+                if (loteId) {
+                    await finalizeImportLote({
+                        loteId,
+                        base64Data: encodeURIComponent(this.fileContents),
+                        fileTitle: this.fileName
+                    });
+                }
+                if (allRows.length) {
+                    allRows[0].isSucces = true;
+                }
+                this.generateFileResults(allRows);
+            }
+        } catch (error) {
+            if (loteId) {
+                try {
+                    await rollbackImportLote({ loteId });
+                } catch (e) {
+                    // el toast de abajo ya informa el fallo original
+                }
+            }
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error Importing',
-                    message: error.body.message ? error.body.message : JSON.stringify(error),
-                    variant: 'error',
-                }),
+                    message:
+                        error && error.body && error.body.message
+                            ? error.body.message
+                            : JSON.stringify(error),
+                    variant: 'error'
+                })
             );
-        });
-        //this.generateFileResults(rows);
+        } finally {
+            this.showLoadingSpinner = false;
+            this.saveFileExcelPromise = null;
+        }
     }
 
    
