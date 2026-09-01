@@ -13,10 +13,11 @@ public class CesionPPHTest {
         Variedad__c var2 = new Variedad__c(Name = 'test 2', Biotecnologia__c = 'Enlist E3');
         insert new List<Variedad__c>{var, var2};
 
-        CesionPPH.getLoadData(null);
+        CesionPPH.getLoadData(null, 'Explotacion Conjunta');
         CesionPPH.getNewCesionData(cultivo.Id, 'Explotacion Conjunta');
 
-        Cesion_HT__c cesion = [select id from Cesion_HT__c];
+        Cesion_HT__c cesion = [select id, Estado__c from Cesion_HT__c];
+        System.assertEquals('Borrador', cesion.Estado__c, 'Al confirmar cultivo la cesión debe quedar en Borrador');
 
         System.assertEquals(null, CesionPPH.getStockDisponible(cultivo.id, cesion.id, 'Explotacion Conjunta').get(var.id));
 
@@ -55,6 +56,7 @@ public class CesionPPHTest {
 
         System.assertEquals(2, [select id from Destinatario_Cesion_HT__c].size());
         System.assertEquals(2, [select id from Linea_Cesion_HT__c].size());
+        System.assertEquals('En Curso', [select Estado__c from Cesion_HT__c where id =: cesion.id].Estado__c, 'Tras guardar destinatarios debe pasar a En Curso');
         System.assertEquals('test; test 2', [select Variedades__c from Cesion_HT__c where id =: cesion.id].Variedades__c);
 
         stock = CesionPPH.getStockDisponible(cultivo.id, cesion.id, 'Explotacion Conjunta');
@@ -85,6 +87,15 @@ public class CesionPPHTest {
         CesionPPH.desvalidar(cesion.id);
         CesionPPH.anular(cesion.id);
         CesionPPH.deleteFile(contentlink.contentdocumentid, cesion.id);
+
+        CesionPPH.UploadResult uploaded = CesionPPH.uploadContratoFile(
+            cesion.id,
+            'contrato-test.pdf',
+            EncodingUtil.base64Encode(Blob.valueOf('pdf test body'))
+        );
+        System.assertNotEquals(null, uploaded.documentId);
+        System.assertEquals('contrato-test', uploaded.title);
+        System.assertEquals('PDF', uploaded.extension);
 
         delete [select id from Linea_Cesion_HT__c];
         System.assertEquals(null, [select Variedades__c from Cesion_HT__c where id =: cesion.id].Variedades__c);

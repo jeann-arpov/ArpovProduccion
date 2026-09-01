@@ -1,85 +1,260 @@
 <template>
-    <div onclick={loadingClick}>
-        <div if:true={loading} class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-        </div>
+    <div class="se-cesion-root" onclick={loadingClick}>
+        <template if:true={loading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
 
-        <h1 class="slds-var-m-bottom_large heading">Solicitud de cesión de Toneladas - {tipoCesion}</h1>
-
-        <div class="banner-container slds-var-m-bottom_small">
-            <div class="warning-banner slds-box slds-var-p-vertical_small slds-var-m-right_x-small" lwc:if={showWarning}>
-                <div style="display:flex">
-                    <div class="slds-var-m-right_x-small" style="flex-basis:8%;">
-                        <lightning-icon size="large" icon-name="utility:warning"></lightning-icon>
-                    </div>
-                    <div class="slds-text-heading_small" style="flex-basis:70%;">
+        <template if:false={isResumen}>
+            <c-se-mob-wizard
+                title={mobPageTitle}
+                subtitle={mobPageSubtitle}
+                desk-title={deskPageTitle}
+                desk-subtitle={deskPageSubtitle}
+                title-badge={mobTitleBadge}
+                current-step={wizardStep}
+                total-steps={wizardStepsTotal}
+                step-labels={wizardStepLabels}
+                footer-variant={mobFooterVariant}
+                cancel-label={mobCancelLabel}
+                footer-status={mobFooterStatus}
+                continue-label={mobFooterContinuarLabel}
+                continue-disabled={mobFooterContinuarDisabled}
+                show-footer={showMobWizardFooter}
+                onback={handleMobBack}
+                onclose={handleMobClose}
+                oncancel={handleMobCancel}
+                oncontinue={handleMobContinuar}
+                onstepclick={handleWizardStepClick}
+            >
+                <template if:true={showWarning}>
+                    <div class="se-warn-banner" role="alert">
                         <span lwc:if={showWarningHT}>{htsWarningText}</span>
                         <span lwc:elseif={showWarningFechaCultivo}>{fechasCesionWarningText}</span>
-                    </div>
-                    <div class="comprar-button">
-                        <lightning-button class="black-button" lwc:if={showWarningHT} label="Comprar HT" onclick={redirectToCompraHT}></lightning-button>  
-                    </div>
-                </div>
-            </div>
-            <div class="banner slds-box slds-var-p-vertical_small">
-                <lightning-layout horizontal-align="spread">
-                    <lightning-layout-item size="4" style="display:flex;">
-                        <div class="slds-var-m-horizontal_small" style="display:flex;align-items:center;">
-                            <div class="slds-text-heading_small" style="font-weight:700;">{title}</div>
-                        </div>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="4" lwc:if={isCultivo}>
-                        <lightning-layout>
-                            <lightning-layout-item style="width: 30px" padding="horizontal-small">
-                                <svg style="margin-top:10px" width="35" height="35">;
-                                    <use xlink:href={seedIcon}></use>
-                                </svg>
-                            </lightning-layout-item>
-                            <lightning-layout-item size="5" padding="horizontal-small">
-                                <lightning-combobox options={cultivos} variant="label-hidden" onchange={cultivoSelected}></lightning-combobox>
-                            </lightning-layout-item>
-                            <lightning-layout-item size="1" padding="horizontal-small">
-                                <lightning-button class="black-button" label="Confirmar" onclick={startCesion}></lightning-button>
-                            </lightning-layout-item>
-                        </lightning-layout>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="6" lwc:if={showFileUpload}>
-                        <lightning-file-upload class="file-upload" if:true={cesion} name="fileUploader" accept=".pdf,.png,.jpg,.jpeg" record-id={cesion.Id} onuploadfinished={handleUploadFinished} multiple></lightning-file-upload>
-                    </lightning-layout-item>
-                </lightning-layout>
-            </div>
-        </div>
-
-        <div class={cesionClass}>
-            <div class="slds-m-bottom_medium">
-                <h1>Contratos subidos</h1>
-                <template for:each={files} for:item="file">
-                    <div aria-colspan="slds-m-bottom_small" key={file.ContentDocument.Id} class="heading heading-gray">
-                        <span class="slds-m-right_small">{file.ContentDocument.Title}</span>
-                        <lightning-button-icon class="slds-m-right_small" variant="bare" icon-name="utility:preview" data-id={file.ContentDocument.Id} onclick={handleFilePreview}></lightning-button-icon>
-                        <lightning-button-icon variant="bare" icon-name="utility:delete" data-id={file.ContentDocument.Id} onclick={handleFileDelete}></lightning-button-icon>
+                        <template if:true={showWarningHT}>
+                            <button type="button" class="se-btn se-btn-ghost se-warn-cta" onclick={redirectToCompraHT}>Comprar HT</button>
+                        </template>
                     </div>
                 </template>
-            </div>
 
-            <template for:each={destinatarios} for:item="destinatario">
-                <c-destinatario-pph class="slds-m-bottom_large" hiding={hiding} key={destinatario.id} info={destinatario} onupdatecantidad={updateCantidad} onremove={remove} onautosave={autosave} edit-id={editId} onregistercuit={registerCuit}></c-destinatario-pph>
-            </template>
+                <template if:true={isWizardStep1}>
+                    <section class="se-panel se-panel--cesion-step">
+                        <c-se-cultivo-grid
+                            variant="cesion"
+                            title="Elegí el cultivo a ceder"
+                            subtitle="Solo cultivos con toneladas cedibles para este tipo de cesión."
+                            options={cultivos}
+                            selected={cultivo}
+                            empty-text="No hay cultivos disponibles para esta cesión."
+                            onselect={handleCultivoGridSelect}
+                        ></c-se-cultivo-grid>
+                        <div class="se-panel-actions se-desk-only">
+                            <button type="button" class="se-btn se-btn-ghost" onclick={handleMobClose}>Cancelar</button>
+                            <button
+                                type="button"
+                                class="se-btn se-btn-primary"
+                                disabled={mobFooterContinuarDisabled}
+                                onclick={handleMobContinuar}
+                            >Continuar →</button>
+                        </div>
+                    </section>
+                </template>
 
-            <button type="button" onclick={addRow} class="slds-button slds-m-left_large add-destinatario">
-                <lightning-button-icon class="slds-m-right_small" icon-name="utility:add" title="Agregar Destinatario"></lightning-button-icon>
-                <b>Agregar Destinatario</b>
-            </button>
+                <template if:true={isWizardStep2}>
+                    <section class="se-panel se-panel--cesion-step">
+                        <h2 class="se-panel-title">Destinatario y contrato</h2>
+                        <p class="se-panel-sub">Elegí a quién le cedés y contra qué contrato se aplica.</p>
 
-            <lightning-layout class="slds-m-vertical_medium" horizontal-align="center" >
-                <lightning-layout-item class="actions">
-                    <lightning-button if:true={isCesion} class="slds-m-left_small continue black" label="Continuar" onclick={continuar}></lightning-button>
-                    <lightning-button if:true={isEdit} class="slds-m-left_small" label="Volver al resumen" onclick={backToResumen}></lightning-button>
-                </lightning-layout-item>
-            </lightning-layout>
-        </div>
+                        <template for:each={destinatarios} for:item="destinatario">
+                            <c-destinatario-pph
+                                class="se-dest-block"
+                                hiding={hiding}
+                                key={destinatario.id}
+                                info={destinatario}
+                                phase="destinatario"
+                                variant="wizard"
+                                allow-remove={allowRemoveDestinatario}
+                                onselectionchange={handleDestSelectionChange}
+                                onupdatecantidad={updateCantidad}
+                                onremove={remove}
+                                onautosave={autosave}
+                                onregistercuit={registerCuit}
+                            ></c-destinatario-pph>
+                        </template>
+
+                        <p class="se-field-label">Contrato</p>
+                        <div class="se-contrato-block">
+                            <input
+                                type="file"
+                                class="se-file-input"
+                                accept=".pdf,.png,.jpg,.jpeg"
+                                onchange={handleContratoFileChange}
+                            />
+                            <template if:true={contratoUploading}>
+                                <div class="se-upload-progress" role="status" aria-live="polite">
+                                    <div class="se-upload-progress__header">
+                                        <span class="se-upload-progress__badge" aria-hidden="true">
+                                            <lightning-icon icon-name="doctype:pdf" size="small"></lightning-icon>
+                                        </span>
+                                        <div class="se-upload-progress__meta">
+                                            <span class="se-upload-progress__name">{contratoUploadName}</span>
+                                            <span class="se-upload-progress__status">Subiendo contrato…</span>
+                                        </div>
+                                    </div>
+                                    <div class="se-upload-progress__track" aria-hidden="true">
+                                        <div class="se-upload-progress__fill" style={contratoUploadBarStyle}></div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:false={contratoUploading}>
+                                <template if:false={hasContrato}>
+                                    <button type="button" class="se-choice-card se-choice-card--row se-contrato-pick" onclick={handleContratoPick}>
+                                        <span class="se-choice-body">
+                                            <span class="se-choice-title">Seleccioná el contrato</span>
+                                            <span class="se-choice-sub">Subí el PDF del convenio de cesión</span>
+                                        </span>
+                                        <span class="se-upload-icon" aria-hidden="true">
+                                            <lightning-icon icon-name="utility:upload" size="x-small"></lightning-icon>
+                                        </span>
+                                    </button>
+                                </template>
+                                <template if:true={hasContrato}>
+                                    <div class="se-choice-card se-choice-card--row is-selected">
+                                        <span class="se-choice-body">
+                                            <span class="se-choice-title">{contratoTitle}</span>
+                                            <span class="se-choice-sub">{contratoSubtitle}</span>
+                                        </span>
+                                        <span class="se-choice-chevron" aria-hidden="true">›</span>
+                                    </div>
+                                    <button type="button" class="se-contrato-replace-btn" onclick={handleContratoPick}>Reemplazar contrato</button>
+                                </template>
+                            </template>
+                        </div>
+
+                        <div class="se-panel-actions se-desk-only">
+                            <button type="button" class="se-btn se-btn-ghost" onclick={handleMobCancel}>Atrás</button>
+                            <button
+                                type="button"
+                                class="se-btn se-btn-primary"
+                                disabled={mobFooterContinuarDisabled}
+                                onclick={handleMobContinuar}
+                            >Continuar →</button>
+                        </div>
+                    </section>
+                </template>
+
+                <template if:true={isWizardStep3}>
+                    <section class="se-panel se-panel--cesion-step">
+                        <h2 class="se-panel-title">¿Cuántas toneladas?</h2>
+
+                        <template for:each={destinatarios} for:item="destinatario">
+                            <c-destinatario-pph
+                                class="se-dest-block"
+                                hiding={hiding}
+                                key={destinatario.id}
+                                info={destinatario}
+                                phase="toneladas"
+                                variant="wizard"
+                                cultivo-label={cultivoPillLabel}
+                                contrato-title={contratoTitle}
+                                allow-remove={allowRemoveDestinatario}
+                                onupdatecantidad={updateCantidad}
+                                ontoneladaschange={handleToneladasChange}
+                                onremove={remove}
+                                onautosave={autosave}
+                                onregistercuit={registerCuit}
+                            ></c-destinatario-pph>
+                        </template>
+
+                        <div class="se-panel-actions se-desk-only">
+                            <button type="button" class="se-btn se-btn-ghost" onclick={handleMobCancel}>Atrás</button>
+                            <button
+                                type="button"
+                                class="se-btn se-btn-primary"
+                                disabled={mobFooterContinuarDisabled}
+                                onclick={handleMobContinuar}
+                            >Ceder toneladas</button>
+                        </div>
+                    </section>
+                </template>
+
+                <aside slot="aside" class="se-side-card">
+                    <p class="se-side-eyebrow">Resumen</p>
+                    <h2 class="se-side-title">Cesión de toneladas</h2>
+                    <dl class="se-side-list">
+                        <div class="se-side-row">
+                            <dt>Tipo</dt>
+                            <dd>{deskResumenTipo}</dd>
+                        </div>
+                        <div class="se-side-row">
+                            <dt>Cultivo</dt>
+                            <dd>{deskResumenCultivo}</dd>
+                        </div>
+                        <template if:true={showDeskResumenDestinatario}>
+                            <div class="se-side-row">
+                                <dt>Destinatario</dt>
+                                <dd>{deskResumenDestinatario}</dd>
+                            </div>
+                        </template>
+                        <template if:true={showDeskResumenContrato}>
+                            <div class="se-side-row">
+                                <dt>Contrato</dt>
+                                <dd>{contratoTitle}</dd>
+                            </div>
+                        </template>
+                    </dl>
+                    <template if:true={showDeskResumenToneladas}>
+                        <div class="se-side-total">
+                            <span class="se-side-total-label">A ceder</span>
+                            <span class="se-side-total-value">{deskResumenToneladas}</span>
+                        </div>
+                    </template>
+                </aside>
+            </c-se-mob-wizard>
+            <!-- Desktop legacy (formulario único + variedades por línea): ver cesionPph.legacy-desktop.html -->
+        </template>
+
+        <template if:true={isResumen}>
+            <c-se-mob-wizard
+                title={mobPageTitle}
+                desk-title={deskPageTitle}
+                title-badge={cultivoPillLabel}
+                current-step={wizardStepsTotal}
+                total-steps={wizardStepsTotal}
+                step-labels={wizardStepLabels}
+                footer-variant="dual"
+                cancel-label="Guardar"
+                continue-label="Enviar cesión"
+                continue-disabled={resumenEnviarDisabled}
+                footer-status={resumenFooterStatus}
+                show-footer={showResumenMobFooter}
+                onback={handleResumenBack}
+                onclose={handleMobClose}
+                oncancel={handleResumenGuardar}
+                oncontinue={handleResumenEnviar}
+            >
+                <c-resumen-cesion-pph
+                    mobile-embedded={isResumenMobileEmbedded}
+                    info={data}
+                    onedit={editConfirm}
+                    onenviar={enviarConfirm}
+                    onanular={anularConfirm}
+                ></c-resumen-cesion-pph>
+
+                <div class="se-panel-actions se-desk-only se-resumen-desk-actions">
+                    <button type="button" class="se-btn se-btn-ghost" onclick={handleResumenGuardar}>Guardar</button>
+                    <button
+                        type="button"
+                        class="se-btn se-btn-primary"
+                        disabled={resumenEnviarDisabled}
+                        onclick={handleResumenEnviar}
+                    >Enviar cesión</button>
+                </div>
+            </c-se-mob-wizard>
+            <!-- Desktop legacy resumen: ver cesionPph.legacy-desktop.html -->
+        </template>
     </div>
 
-    <c-resumen-cesion-pph if:true={isResumen} info={data} onedit={editConfirm} onenviar={enviarConfirm} onanular={anularConfirm}></c-resumen-cesion-pph>
     <c-modals-pph callback={modalCallback} current-modal={currentModal} onclose={closeModal}></c-modals-pph>
 </template>

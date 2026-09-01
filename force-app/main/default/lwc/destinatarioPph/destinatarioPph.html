@@ -1,71 +1,222 @@
 <template>
     <div class={destinatarioClass}>
-        <div class = "title slds-p-left_large slds-p-right_small slds-p-vertical_small slds-m-bottom_medium">
-            <b>Ingresá el CUIT del productor que recibirá las toneladas</b>
-            <lightning-button-icon size="large" class="slds-float_right" icon-name="utility:delete" variant="bare" alternative-text="Eliminar Establecimiento" title="Eliminar Establecimiento" onclick={remove}></lightning-button-icon>    
-        </div>
-        
-        <div>
-            <c-lookup variant="label-hidden" onselectionchange={destinatarioSelected} onsearch={search} label="Productor" placeholder="Ingrese CUIT del productor" selection={destinatario}>
-                <div slot="no-results" >
-                    <span style="color:#FF0000;font-size:18px;">CUIT NO REGISTRADO</span>
-                    <div style="color:#1C1C1C;font-size: 14px">Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.</div>
-                    <li role="presentation" class="slds-listbox__item">
-                        <div
-                            class="slds-media slds-media_center slds-listbox__option slds-listbox__option_entity"
-                            onclick={registerCuit}
-                            role="option"
-                        >
-                            <span class="slds-media__figure slds-listbox__option-icon">
-                                <lightning-icon
-                                    icon-name="utility:add"
-                                    size="x-small"
-                                    alternative-text="Registrar CUIT"
-                                ></lightning-icon>
-                            </span>
-                            <span class="slds-media__body">
-                                <span style="color:#FF0000;font-size:18px;" class="slds-listbox__option-text">Registrar CUIT</span>
-                            </span>
-                        </div>
-                    </li>
-                </div>
-            </c-lookup>
-        </div>
+        <template if:true={showDestinatarioBlock}>
+            <template if:true={isWizardVariant}>
+                <p class="se-field-label">Destinatario</p>
 
-        <div class={infoClass}>
-            <div class="heading gray slds-p-vertical_small slds-m-vertical_medium">
-                <span class="slds-m-horizontal_large">Detallá las toneladas a ceder de SEMBRÁ EVOLUCIÓN</span>
-            </div>
-
-            <div class="slds-m-horizontal_large variedades">
-                <svg class="slds-m-horizontal_small" xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531" >
-                    <use xlink:href={icons.seed}></use>
-                </svg>
-                Variedades
-                <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center variedades-titles slds-p-vertical_medium slds-m-top_small">
-                    <lightning-layout-item size="2">
-                        Marca
-                    </lightning-layout-item>
-                    <lightning-layout-item size="2">
-                        Variedad
-                    </lightning-layout-item>
-                    <lightning-layout-item size="2">
-                        Toneladas
-                    </lightning-layout-item>
-                    <lightning-layout-item size="1" title="Saldo de Toneladas disponibles">
-                        Toneladas Disponibles
-                    </lightning-layout-item>
-                </lightning-layout>
-
-                <template for:each={info.lineas} for:item="linea">
-                    <c-linea-destinatario-pph key={linea.id} info={linea} onupdatecantidad={updateCantidad} onautosave={autosave}></c-linea-destinatario-pph>
+                <template if:true={hasDestinatario}>
+                    <div
+                        role="button"
+                        tabindex="0"
+                        class="se-choice-card is-selected"
+                        onclick={openDestinatarioSearch}
+                        onkeydown={handleDestCardKeydown}
+                    >
+                        <span class="se-choice-body">
+                            <span class="se-choice-title">{destinatarioDisplayName}</span>
+                            <span class="se-choice-sub">{destinatarioDisplayCuit}</span>
+                        </span>
+                    </div>
                 </template>
-            </div>
-        </div>
 
-        <lightning-layout horizontal-align="center">
-            <lightning-button-icon size="large" if:false={collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed}></lightning-button-icon>
-            <lightning-button-icon size="large" if:true={collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed}></lightning-button-icon>
-        </lightning-layout>
+                <template if:false={hasDestinatario}>
+                    <div class="se-choice-card se-choice-card--search">
+                        <c-lookup
+                            variant="label-hidden"
+                            onselectionchange={destinatarioSelected}
+                            onsearch={search}
+                            label="Productor"
+                            placeholder="CUIT o razón social"
+                            selection={destinatario}
+                        >
+                            <div slot="no-results">
+                                <span class="dest-cuit-miss">CUIT NO REGISTRADO</span>
+                                <div class="dest-cuit-help">
+                                    Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.
+                                </div>
+                                <li role="presentation" class="slds-listbox__item">
+                                    <div
+                                        class="slds-media slds-media_center slds-listbox__option slds-listbox__option_entity"
+                                        onclick={registerCuit}
+                                        role="option"
+                                    >
+                                        <span class="slds-media__figure slds-listbox__option-icon">
+                                            <lightning-icon
+                                                icon-name="utility:add"
+                                                size="x-small"
+                                                alternative-text="Registrar CUIT"
+                                            ></lightning-icon>
+                                        </span>
+                                        <span class="slds-media__body">
+                                            <span class="dest-cuit-miss slds-listbox__option-text">Registrar CUIT</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            </div>
+                        </c-lookup>
+                    </div>
+                </template>
+            </template>
+
+            <template if:false={isWizardVariant}>
+                <div class="dest-head">
+                    <b>Ingresá el CUIT del productor que recibirá las toneladas</b>
+                    <template if:true={allowRemove}>
+                        <lightning-button-icon
+                            size="large"
+                            class="dest-remove"
+                            icon-name="utility:delete"
+                            variant="bare"
+                            alternative-text="Eliminar destinatario"
+                            title="Eliminar destinatario"
+                            onclick={remove}
+                        ></lightning-button-icon>
+                    </template>
+                </div>
+
+                <div class="dest-lookup">
+                    <c-lookup
+                        variant="label-hidden"
+                        onselectionchange={destinatarioSelected}
+                        onsearch={search}
+                        label="Productor"
+                        placeholder="Ingrese CUIT del productor"
+                        selection={destinatario}
+                    >
+                        <div slot="no-results">
+                            <span class="dest-cuit-miss">CUIT NO REGISTRADO</span>
+                            <div class="dest-cuit-help">
+                                Los CUITs habilitados para operar en la plataforma son los que se encuentran dados de alta en el sistema de información simplificado agrícola (SISA) de AFIP.
+                            </div>
+                            <li role="presentation" class="slds-listbox__item">
+                                <div
+                                    class="slds-media slds-media_center slds-listbox__option slds-listbox__option_entity"
+                                    onclick={registerCuit}
+                                    role="option"
+                                >
+                                    <span class="slds-media__figure slds-listbox__option-icon">
+                                        <lightning-icon
+                                            icon-name="utility:add"
+                                            size="x-small"
+                                            alternative-text="Registrar CUIT"
+                                        ></lightning-icon>
+                                    </span>
+                                    <span class="slds-media__body">
+                                        <span class="dest-cuit-miss slds-listbox__option-text">Registrar CUIT</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </div>
+                    </c-lookup>
+                </div>
+            </template>
+        </template>
+
+        <template if:true={showToneladasBlock}>
+            <template if:true={showWizardToneladas}>
+                <div class="se-saldo-card">
+                    <div class="se-saldo-copy">
+                        <span class="se-saldo-label">Saldo {cultivoLabel}</span>
+                        <span class="se-saldo-sub">disponible para ceder</span>
+                    </div>
+                    <span class="se-saldo-value">{saldoDisponibleLabel}</span>
+                </div>
+
+                <p class="se-field-label">Toneladas a ceder</p>
+                <div class={tonInputWrapClass}>
+                    <input
+                        class="se-ton-input"
+                        type="text"
+                        inputmode="decimal"
+                        value={wizardInput}
+                        aria-invalid={hasToneladasError}
+                        oninput={handleWizardToneladasInput}
+                        onblur={handleWizardToneladasBlur}
+                    />
+                    <span class="se-ton-suffix">t</span>
+                </div>
+
+                <template if:true={hasToneladasError}>
+                    <div class="se-ton-error" role="alert">
+                        <span class="se-ton-error-icon" aria-hidden="true">!</span>
+                        <div class="se-ton-error-copy">
+                            <strong>Superás tu saldo disponible.</strong>
+                            <span>{toneladasErrorDetail}</span>
+                        </div>
+                    </div>
+                </template>
+
+                <div class="se-resumen-card">
+                    <p class="se-resumen-eyebrow">Resumen</p>
+                    <div class="se-resumen-row">
+                        <span class="se-resumen-label">Destinatario</span>
+                        <strong class="se-resumen-value">{destinatarioDisplayName}</strong>
+                    </div>
+                    <div class="se-resumen-row">
+                        <span class="se-resumen-label">Contrato</span>
+                        <strong class="se-resumen-value">{contratoTitle}</strong>
+                    </div>
+                </div>
+            </template>
+
+            <template if:false={showWizardToneladas}>
+            <div class={infoClass}>
+                <div class="heading gray ton-head">
+                    <span>Detallá las toneladas a ceder de SEMBRÁ EVOLUCIÓN</span>
+                </div>
+
+                <div class="variedades">
+                    <div class="var-head">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531">
+                            <use xlink:href={icons.seed}></use>
+                        </svg>
+                        Variedades
+                    </div>
+                    <lightning-layout
+                        vertical-align="center"
+                        horizontal-align="space"
+                        class="slds-text-align_center variedades-titles se-desk-only"
+                    >
+                        <lightning-layout-item size="2">Marca</lightning-layout-item>
+                        <lightning-layout-item size="2">Variedad</lightning-layout-item>
+                        <lightning-layout-item size="2">Toneladas</lightning-layout-item>
+                        <lightning-layout-item size="1" title="Saldo de Toneladas disponibles">
+                            Toneladas Disponibles
+                        </lightning-layout-item>
+                    </lightning-layout>
+
+                    <template for:each={info.lineas} for:item="linea">
+                        <c-linea-destinatario-pph
+                            key={linea.id}
+                            info={linea}
+                            onupdatecantidad={updateCantidad}
+                            onautosave={autosave}
+                        ></c-linea-destinatario-pph>
+                    </template>
+                </div>
+            </div>
+
+            <lightning-layout horizontal-align="center" class="se-desk-only">
+                <lightning-button-icon
+                    size="large"
+                    if:false={collapsed}
+                    icon-name="utility:chevronup"
+                    variant="bare"
+                    alternative-text="Colapsar"
+                    title="Colapsar"
+                    onclick={changeCollapsed}
+                ></lightning-button-icon>
+                <lightning-button-icon
+                    size="large"
+                    if:true={collapsed}
+                    icon-name="utility:chevrondown"
+                    variant="bare"
+                    alternative-text="Expandir"
+                    title="Expandir"
+                    onclick={changeCollapsed}
+                ></lightning-button-icon>
+            </lightning-layout>
+            </template>
+        </template>
     </div>
 </template>

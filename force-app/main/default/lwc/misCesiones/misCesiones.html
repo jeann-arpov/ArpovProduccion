@@ -1,70 +1,89 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">CESIONES</div>
-                <div class="title">Todas las Cesiones</div>
-            </div>
+    <c-se-list-page loading={loading}>
+        <c-se-page-header
+            slot="header"
+            eyebrow="CESIONES"
+            eyebrow-mobile="MÓDULOS · CESIONES"
+            title="Mis Cesiones"
+            subtitle="Cesiones de toneladas del productor. Filtrá por estado, cultivo o tipo."
+            show-search
+            search-placeholder="Buscar cesión..."
+            onsearchchange={handleSearchChange}
+        ></c-se-page-header>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                
-                    <select data-id="CultivoSelect" onchange={handleCultivoSelect}>
-                        <option value="">Cultivo</option>
-                        <template for:each={cultivos} for:item="item">
-                            <option key={item.value} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                    <select data-id="TipoCesionSelect" onchange={handleTipoCesion}>
-                        <option value="">Tipo de Cesion</option>
-                        <template for:each={TipoCesiones} for:item="item">
-                            <option key={item.value} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                    <select data-id="EstadoSelect" onchange={handleEstadoSelect}>
-                        <option value="">Estado</option>
-                        <template for:each={Estados} for:item="item">
-                            <option key={item.value} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                </div>
+        <div slot="toolbar" class="ces-toolbar">
+            <div class="ces-new-actions se-desk-only">
+                <button
+                    type="button"
+                    class="ces-new-btn"
+                    data-type="Explotacion Conjunta"
+                    onclick={handleNewCesion}
+                >Nueva cesión · Explotación Conjunta</button>
+                <button
+                    type="button"
+                    class="ces-new-btn ces-new-btn--alt"
+                    data-type="Semilla Original"
+                    onclick={handleNewCesion}
+                >Nueva cesión · Semilla Original</button>
             </div>
+            <c-se-filter-pills items={statusPills} onselect={handlePill}></c-se-filter-pills>
         </div>
 
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emision • <br>
-                Filtrado por todos las cesiones • Se actualizó hace una hora
-            </div>
-
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">🔍</span>
-            </div>
+        <div slot="filters">
+            <c-se-select
+                options={cultivoOptions}
+                value={cultivoSeleccionado}
+                placeholder="Todos los cultivos"
+                onchange={handleCultivo}
+            ></c-se-select>
+            <c-se-select
+                options={tipoOptions}
+                value={tipoSeleccionado}
+                placeholder="Todos los tipos"
+                onchange={handleTipo}
+            ></c-se-select>
         </div>
 
-        <!-- Tabla -->
-         <lightning-datatable
-            key-field="Id"
-            class="dataTable"
-            data={filteredCesiones}
+        <c-se-data-list
+            records={filtered}
             columns={columns}
-            onsort={handleOnSort}
-            sorted-by={sortBy}
-            sorted-direction={sortDirection}
-            column-widths-mode="auto"
-            resize-column-disabled  
-            hide-checkbox-column>
-        </lightning-datatable>
+            mobile-fields={mobileFields}
+            title-field="name"
+            badge-field="statusLabel"
+            badge-tone-field="statusTone"
+            key-field="id"
+            action-label="Ver"
+            mobile-action-label="Ver cesión →"
+            empty-text="No hay cesiones para mostrar."
+            page-size={pageSize}
+            loading={loading}
+            onrowaction={handleRowAction}
+        ></c-se-data-list>
+    </c-se-list-page>
 
-      
-            <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
-        </div> 
-    
+    <button type="button" class="ces-fab se-mob-only" onclick={openNewSheet} aria-label="Nueva cesión">
+        <span aria-hidden="true">+</span>
+    </button>
+
+    <div class={newSheetClass} role="presentation">
+        <button type="button" class="se-new-sheet-scrim" onclick={closeNewSheet} aria-label="Cerrar"></button>
+        <div class="se-new-sheet" role="dialog" aria-modal="true" aria-labelledby="ces-new-title">
+            <div class="se-new-sheet-handle" aria-hidden="true"></div>
+            <h2 id="ces-new-title" class="se-new-sheet-title">Nueva cesión</h2>
+            <p class="se-new-sheet-sub">Elegí el tipo de cesión de toneladas.</p>
+            <button
+                type="button"
+                class="ces-new-btn ces-new-btn--sheet"
+                data-type="Explotacion Conjunta"
+                onclick={handleNewCesion}
+            >Explotación Conjunta</button>
+            <button
+                type="button"
+                class="ces-new-btn ces-new-btn--sheet"
+                data-type="Semilla Original"
+                onclick={handleNewCesion}
+            >Semilla Original</button>
+            <button type="button" class="ces-new-cancel" onclick={closeNewSheet}>Cancelar</button>
+        </div>
     </div>
 </template>

@@ -1,0 +1,277 @@
+:host {
+    display: block;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    color: #1c1c1c;
+}
+
+.se-eyebrow {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.se-eyebrow-tight {
+    margin-bottom: 4px;
+}
+
+.se-panel {
+    background: transparent;
+    border-radius: 0;
+    padding: 18px 16px 20px;
+    border: none;
+    box-sizing: border-box;
+}
+
+.se-panel--cesion {
+    padding: 16px;
+}
+
+.se-panel-title {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.se-panel-sub {
+    margin: 0 0 16px;
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.se-cultivo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.se-cultivo-tile {
+    appearance: none;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+    min-height: 76px;
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: 16px;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.se-cultivo-tile.is-selected {
+    border: 2px solid #1c1c1c;
+    box-shadow: inset 0 0 0 1px #1c1c1c;
+}
+
+/* SG 3f · Cesiones */
+.se-cultivo-tile--cesion {
+    justify-content: space-between;
+    align-items: center;
+    min-height: 72px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    gap: 12px;
+}
+
+.se-cultivo-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.se-cultivo-tile--cesion.is-selected {
+    border: 2px solid #bfff00;
+    box-shadow: none;
+}
+
+.se-cultivo-tile--cesion.is-disabled {
+    background: #f3f4f6;
+    opacity: 0.6;
+    cursor: default;
+}
+
+.se-cultivo-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #eef2e6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.se-cultivo-tile--cesion .se-cultivo-icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: #1c1c1c;
+}
+
+.se-cultivo-tile--cesion.is-disabled .se-cultivo-icon-wrap {
+    background: #c3cad6;
+}
+
+.se-cultivo-tile.is-selected .se-cultivo-icon-wrap {
+    background: #1c1c1c;
+}
+
+.se-cultivo-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    display: block;
+}
+
+.se-cultivo-tile--cesion .se-cultivo-icon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) saturate(100%) invert(88%) sepia(45%) saturate(749%) hue-rotate(27deg) brightness(103%) contrast(104%);
+}
+
+.se-cultivo-tile--cesion.is-disabled .se-cultivo-icon {
+    filter: brightness(0) invert(1);
+}
+
+.se-cultivo-tile.is-selected .se-cultivo-icon {
+    filter: brightness(0) saturate(100%) invert(88%) sepia(45%) saturate(749%) hue-rotate(27deg) brightness(103%) contrast(104%);
+}
+
+.se-cultivo-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.se-cultivo-body--cesion {
+    flex: 1;
+    gap: 2px;
+}
+
+.se-cultivo-name {
+    font-size: 15px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.se-cultivo-tile--cesion .se-cultivo-name {
+    font-size: 16px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.se-cultivo-status {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.se-cultivo-ton {
+    flex-shrink: 0;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    margin-left: 8px;
+}
+
+.se-cultivo-tile--cesion.is-disabled .se-cultivo-ton {
+    font-size: 12px;
+    font-weight: 400;
+    color: #6b7280;
+}
+
+.se-cultivo-saldo {
+    font-size: 10px;
+    color: #6b7280;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+}
+
+.se-cultivo-radio {
+    width: 22px;
+    height: 22px;
+    margin-left: auto;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 2px solid #d1d5db;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.se-cultivo-tile.is-selected .se-cultivo-radio {
+    border-color: #1c1c1c;
+    background: radial-gradient(circle at center, #1c1c1c 0 38%, #fff 40% 100%);
+}
+
+.se-empty-note {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    .se-panel {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px 28px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .se-panel-title {
+        font-size: 24px;
+    }
+
+    .se-cultivo-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .se-cultivo-tile:not(.se-cultivo-tile--cesion) {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-height: 168px;
+        padding: 28px 16px 20px;
+    }
+
+    .se-cultivo-tile--cesion {
+        grid-column: 1 / -1;
+    }
+
+    .se-cultivo-icon-wrap {
+        margin-bottom: 10px;
+    }
+
+    .se-cultivo-tile--cesion .se-cultivo-icon-wrap {
+        margin-bottom: 0;
+    }
+
+    .se-cultivo-body {
+        align-items: center;
+    }
+
+    .se-cultivo-body--cesion {
+        align-items: flex-start;
+    }
+
+    .se-cultivo-radio {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        margin-left: 0;
+    }
+}

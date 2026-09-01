@@ -1,91 +1,194 @@
 <template>
-    <div class="info">
-        <lightning-layout class="cesion slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
-            <lightning-layout-item size="3">
-                <b>Fecha Solicitud: </b><lightning-formatted-date-time value={fecha}></lightning-formatted-date-time>
-            </lightning-layout-item>
-            <lightning-layout-item size="3">
-                <b>Toneladas Totales Cedidas: </b><lightning-formatted-number value={toneladasTotalesCedidas}></lightning-formatted-number>
-            </lightning-layout-item>
-            <lightning-layout-item size="3" lwc:if={showTnsBolsatech}>
-                <b>Toneladas Bolsa Tech: <lightning-formatted-number value={info.tnsBolsatech}></lightning-formatted-number></b>
-            </lightning-layout-item>
-            <lightning-layout-item size="3">
-                <b>Estado: </b>{info.cesion.Estado__c}
-            </lightning-layout-item>
-        </lightning-layout>
+    <div class="se-resumen-root">
+        <section class={mobileSectionClass}>
+            <template if:true={showMobileHead}>
+            <header class="se-resumen-head">
+                <h1 class="se-resumen-title">{pageTitle}</h1>
+                <p class="se-resumen-sub">{tipoCesionLabel} · {cultivoLabel}</p>
+            </header>
+            </template>
 
-        <template for:each={destinatarios} for:item="destinatario">
-            <div key={destinatario.id} class="destinatario slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
-                <lightning-layout vertical-align="end">
-                    <lightning-layout-item size="2">
-                        <lightning-input read-only label="Cuit" value={destinatario.cuit}></lightning-input>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="2">
-                        <lightning-input read-only type="number" label="Toneladas Totales Cedidas" value={destinatario.toneladas}></lightning-input>
+            <div class="se-resumen-hero">
+                <div class="se-resumen-hero-top">
+                    <span class="se-resumen-hero-label">Toneladas cedidas</span>
+                    <span class="se-resumen-hero-value">{toneladasTotalesLabel} t</span>
+                </div>
+                <dl class="se-resumen-meta">
+                    <div class="se-resumen-meta-row">
+                        <dt>Fecha solicitud</dt>
+                        <dd>{fechaLabel}</dd>
+                    </div>
+                    <div class="se-resumen-meta-row">
+                        <dt>Estado</dt>
+                        <dd>{estadoLabel}</dd>
+                    </div>
+                    <template if:true={showTnsBolsatech}>
+                        <div class="se-resumen-meta-row">
+                            <dt>Bolsa Tech</dt>
+                            <dd>{tnsBolsatechLabel} t</dd>
+                        </div>
+                    </template>
+                </dl>
+            </div>
+
+            <template for:each={destinatarios} for:item="destinatario">
+                <article key={destinatario.id} class="se-resumen-dest">
+                    <div class="se-resumen-dest-head">
+                        <div class="se-resumen-dest-copy">
+                            <p class="se-resumen-eyebrow">Destinatario</p>
+                            <h2 class="se-resumen-dest-name">{destinatario.razonSocial}</h2>
+                            <p class="se-resumen-dest-cuit">CUIT {destinatario.cuit}</p>
+                        </div>
+                        <button
+                            if:true={destinatario.canEdit}
+                            type="button"
+                            class="se-resumen-edit"
+                            data-id={destinatario.id}
+                            onclick={edit}
+                        >
+                            Editar
+                        </button>
+                    </div>
+
+                    <div class="se-resumen-dest-ton">
+                        <span>Total cedido</span>
+                        <strong>{destinatario.toneladasLabel} t</strong>
+                    </div>
+
+                    <template if:false={destinatario.collapsed}>
+                        <p class="se-resumen-var-title">Variedades</p>
+                        <div class="se-resumen-lines">
+                            <template for:each={destinatario.lineas} for:item="linea">
+                                <div key={linea.id} class="se-resumen-line">
+                                    <div class="se-resumen-line-main">
+                                        <span class="se-resumen-line-name">{linea.name}</span>
+                                        <span class="se-resumen-line-qty">{linea.cantidadLabel} t</span>
+                                    </div>
+                                    <span class={linea.licenseClass} title={linea.licenseTitle}>
+                                        {linea.licenseLabel}
+                                    </span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <button
+                        type="button"
+                        class="se-resumen-toggle"
+                        data-destinatario={destinatario.id}
+                        onclick={changeCollapsed}
+                    >
+                        <template if:true={destinatario.collapsed}>Ver variedades</template>
+                        <template if:false={destinatario.collapsed}>Ocultar variedades</template>
+                    </button>
+                </article>
+            </template>
+
+            <template if:true={showMobileFooter}>
+            <footer class="se-resumen-footer">
+                <button type="button" class="se-resumen-btn se-resumen-btn-ghost" onclick={redirectInicio}>
+                    Guardar
+                </button>
+                <button
+                    if:true={canSend}
+                    type="button"
+                    class="se-resumen-btn se-resumen-btn-primary"
+                    onclick={enviar}
+                >
+                    Enviar cesión
+                </button>
+                <button
+                    if:true={canAnular}
+                    type="button"
+                    class="se-resumen-btn se-resumen-btn-danger"
+                    onclick={anular}
+                >
+                    Anular
+                </button>
+            </footer>
+            </template>
+        </section>
+
+        <section class="se-resumen-desk se-desk-only">
+            <div class="info">
+                <lightning-layout class="cesion slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
+                    <lightning-layout-item size="3">
+                        <b>Fecha Solicitud: </b><lightning-formatted-date-time value={fecha}></lightning-formatted-date-time>
                     </lightning-layout-item>
                     <lightning-layout-item size="3">
-                        <lightning-input read-only label="Razón Social" value={destinatario.razonSocial}></lightning-input>
+                        <b>Toneladas Totales Cedidas: </b><lightning-formatted-number value={toneladasTotalesCedidas}></lightning-formatted-number>
                     </lightning-layout-item>
-                    <lightning-layout-item size="2">
-                        <lightning-button-icon class="edit-icon" variant="bare" size="large" if:true={destinatario.canEdit} data-id={destinatario.id} icon-name="utility:edit" alternative-text="Edit" title="Edit" onclick={edit}></lightning-button-icon>
+                    <lightning-layout-item size="3" lwc:if={showTnsBolsatech}>
+                        <b>Toneladas Bolsa Tech: <lightning-formatted-number value={info.tnsBolsatech}></lightning-formatted-number></b>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="3">
+                        <b>Estado: </b>{info.cesion.Estado__c}
                     </lightning-layout-item>
                 </lightning-layout>
-                <div class = {destinatario.class}>
-                    <div class="slds-m-top_medium">
-                        <b>Variedades</b>
-                    </div>
-                    <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center slds-p-vertical_medium slds-m-top_small">
-                        <lightning-layout-item size="2">
-                            Marca
-                        </lightning-layout-item>
-                        <lightning-layout-item size="2">
-                            Variedad
-                        </lightning-layout-item>
-                        <lightning-layout-item size="2">
-                            Toneladas
-                        </lightning-layout-item>
-                        <lightning-layout-item size="2">
-                            Licencia
-                        </lightning-layout-item>
-                    </lightning-layout>
-                    <template for:each={destinatario.lineas} for:item="linea">
-                        <lightning-layout key={linea.id} vertical-align="center" horizontal-align="space" class="slds-text-align_center">
+
+                <template for:each={destinatarios} for:item="destinatario">
+                    <div key={destinatario.id} class="destinatario slds-p-vertical_large slds-p-right_large slds-p-left_xx-large">
+                        <lightning-layout vertical-align="end">
                             <lightning-layout-item size="2">
-                                <svg width="200" height="100">;
-                                    <use xlink:href={linea.icono}></use>
-                                </svg>
+                                <lightning-input read-only label="Cuit" value={destinatario.cuit}></lightning-input>
                             </lightning-layout-item>
                             <lightning-layout-item size="2">
-                                {linea.name}
+                                <lightning-input read-only type="number" label="Toneladas Totales Cedidas" value={destinatario.toneladas}></lightning-input>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="3">
+                                <lightning-input read-only label="Razón Social" value={destinatario.razonSocial}></lightning-input>
                             </lightning-layout-item>
                             <lightning-layout-item size="2">
-                                <lightning-formatted-number value={linea.cantidad}></lightning-formatted-number>
-                            </lightning-layout-item>
-                            <lightning-layout-item size="2">
-                                <svg if:true={linea.license} width="19.908" height="19.908">;
-                                    <use xlink:href={icons.valid}></use>
-                                </svg>
-                                <svg if:false={linea.license} width="22.757" height="22.757">;
-                                    <use xlink:href={icons.invalid}></use>
-                                </svg>
+                                <lightning-button-icon class="edit-icon" variant="bare" size="large" if:true={destinatario.canEdit} data-id={destinatario.id} icon-name="utility:edit" alternative-text="Edit" title="Edit" onclick={edit}></lightning-button-icon>
                             </lightning-layout-item>
                         </lightning-layout>
-                    </template>
-                </div>
-                <lightning-layout horizontal-align="center">
-                    <lightning-button-icon size="large" if:false={destinatario.collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed} data-destinatario={destinatario.id}></lightning-button-icon>
-                    <lightning-button-icon size="large" if:true={destinatario.collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed}  data-destinatario={destinatario.id}></lightning-button-icon>
-                </lightning-layout>
+                        <div class={destinatario.class}>
+                            <div class="slds-m-top_medium">
+                                <b>Variedades</b>
+                            </div>
+                            <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center slds-p-vertical_medium slds-m-top_small">
+                                <lightning-layout-item size="2">Marca</lightning-layout-item>
+                                <lightning-layout-item size="2">Variedad</lightning-layout-item>
+                                <lightning-layout-item size="2">Toneladas</lightning-layout-item>
+                                <lightning-layout-item size="2">Licencia</lightning-layout-item>
+                            </lightning-layout>
+                            <template for:each={destinatario.lineas} for:item="linea">
+                                <lightning-layout key={linea.id} vertical-align="center" horizontal-align="space" class="slds-text-align_center">
+                                    <lightning-layout-item size="2">
+                                        <svg width="200" height="100">
+                                            <use xlink:href={linea.icono}></use>
+                                        </svg>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="2">{linea.name}</lightning-layout-item>
+                                    <lightning-layout-item size="2">
+                                        <lightning-formatted-number value={linea.cantidad}></lightning-formatted-number>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="2">
+                                        <svg if:true={linea.license} width="19.908" height="19.908">
+                                            <use xlink:href={icons.valid}></use>
+                                        </svg>
+                                        <svg if:false={linea.license} width="22.757" height="22.757">
+                                            <use xlink:href={icons.invalid}></use>
+                                        </svg>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </template>
+                        </div>
+                        <lightning-layout horizontal-align="center">
+                            <lightning-button-icon size="large" if:false={destinatario.collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed} data-destinatario={destinatario.id}></lightning-button-icon>
+                            <lightning-button-icon size="large" if:true={destinatario.collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed} data-destinatario={destinatario.id}></lightning-button-icon>
+                        </lightning-layout>
+                    </div>
+                </template>
             </div>
-        </template>
-    </div>
 
-    <lightning-layout class="slds-m-top_medium actions" horizontal-align="center">
-        <lightning-layout-item>
-            <lightning-button class="slds-m-right_medium" label="Guardar" onclick={redirectInicio}></lightning-button>
-            <lightning-button class="slds-m-right_medium" label="Enviar" onclick={enviar} if:true={canSend}></lightning-button>
-            <lightning-button class="slds-m-right_medium" label="Anular" onclick={anular} if:true={canAnular}></lightning-button>
-        </lightning-layout-item>
-    </lightning-layout>
+            <lightning-layout class="slds-m-top_medium actions" horizontal-align="center">
+                <lightning-layout-item>
+                    <lightning-button class="slds-m-right_medium" label="Guardar" onclick={redirectInicio}></lightning-button>
+                    <lightning-button class="slds-m-right_medium" label="Enviar" onclick={enviar} if:true={canSend}></lightning-button>
+                    <lightning-button class="slds-m-right_medium" label="Anular" onclick={anular} if:true={canAnular}></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </section>
+    </div>
 </template>

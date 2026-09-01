@@ -1,318 +1,245 @@
-import { LightningElement, track, api } from "lwc";
-import getCesiones from "@salesforce/apex/misCesionesController.getCesiones";
-import { reduceErrors } from "c/utils";
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import { doRequest } from "c/utils";
-import { trackGa4Event } from "c/portalGa4Events";
-import icons from "c/icons";
-import { NavigationMixin } from "lightning/navigation";
+import { LightningElement, track, api } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
+import getCesiones from '@salesforce/apex/misCesionesController.getCesiones';
+import { doRequest } from 'c/utils';
+import { trackGa4Event } from 'c/portalGa4Events';
 
-const COLUMNS = [
-  {
-    label: "FECHA",
-    fieldName: "fechaFormateada",
-    fixedWidth: 150,
-    hideDefaultActions: true
-  },
-  {
-    label: "CULTIVO",
-    fieldName: "Cultivo",
-    fixedWidth: 190,
-    hideDefaultActions: true
-  },
-  {
-    label: "Cesión",
-    fixedWidth: 250,
-    fieldName: "link",
-    type: "url",
-    typeAttributes: {
-      label: { fieldName: "Name" },
-      target: "_self"
-    }
-  },
-  {
-    label: "CEDENTE",
-    fieldName: "Cedente",
-    fixedWidth: 200,
-    hideDefaultActions: true
-  },
-  {
-    label: "TIPO DE CESIÓN",
-    fieldName: "Tipo_de_Cesion__c",
-    fixedWidth: 200,
-    hideDefaultActions: true
-  },
-  {
-    label: "ESTADO",
-    fieldName: "Estado__c",
-    fixedWidth: 200,
-    hideDefaultActions: true
-  },
-  {
-    label: "VARIEDADES",
-    fieldName: "Variedades__c",
-    fixedWidth: 250,
-    hideDefaultActions: true
-  }
+function pad(n) {
+    return String(n).padStart(2, '0');
+}
+
+function formatDate(value) {
+    if (!value) return '';
+    const dt = new Date(value);
+    if (Number.isNaN(dt.getTime())) return '';
+    return `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${dt.getFullYear()}`;
+}
+
+function statusTone(estado) {
+    const s = (estado || '').toLowerCase();
+    if (/valid|finaliz|confirm/.test(s)) return 'ok';
+    if (/anul|cancel|rechaz/.test(s)) return 'danger';
+    if (/pendiente|curso|borrador/.test(s)) return 'warn';
+    return 'info';
+}
+
+const STATUS_ORDER = [
+    'En Curso',
+    'Pendiente de Validación',
+    'Validada',
+    'Finalizada',
+    'Anulada',
+    'Borrador'
 ];
+const PAGE_SIZE = 200;
 
 export default class MisCesiones extends NavigationMixin(LightningElement) {
-  @api type;
-  @track vencimientos = [];
-  columns = COLUMNS;
-  cultivos;
-  Estados;
-  TipoCesiones;
-  cultivo = "Todos";
-  Estado = "Todos";
-  TipoCesion = "Todos";
+    /** Legacy Experience Builder property (Productor/Comercio); unused in Productor redesign. */
+    @api type;
+    @track rowsAll = [];
+    @track filtered = [];
+    @track statusPills = [];
+    @track cultivoOptions = [];
+    @track tipoOptions = [];
+    @track loading = true;
+    @track showNewSheet = false;
 
-  @track sortBy = "fecha";
-  @track sortDirection = "desc";
-  @track searchTerm = "";
-  @track totalRegistros = 0; // <<--- Nuevo
-  @track CultivoSelect = "";
-  @track selectedCultivo = "";
+    pageSize = PAGE_SIZE;
+    estadoSeleccionado = 'todas';
+    cultivoSeleccionado = 'todas';
+    tipoSeleccionado = 'todas';
+    searchKey = '';
+    _ga4Tracked = false;
 
-  pageSize = 10;
-  currentPage = 1;
-  @track filteredCesiones = [];
-  data = [];
+    columns = [
+        { label: 'Fecha', fieldName: 'fechaLabel' },
+        { label: 'Cesión', fieldName: 'name', type: 'link' },
+        { label: 'Cedente', fieldName: 'cedente' },
+        { label: 'Cultivo', fieldName: 'cultivo' },
+        { label: 'Tipo', fieldName: 'tipo' },
+        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
+        { label: 'Variedades', fieldName: 'variedades' },
+        { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver' }
+    ];
 
-  icons = {
-    seed: icons.pph.seed
-  };
+    mobileFields = [
+        { label: 'Fecha', fieldName: 'fechaLabel' },
+        { label: 'Cultivo', fieldName: 'cultivo' },
+        { label: 'Cedente', fieldName: 'cedente' },
+        { label: 'Tipo', fieldName: 'tipo' },
+        { label: 'Variedades', fieldName: 'variedades' }
+    ];
 
-  initialized = false;
-  loading = false;
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+        this.load();
+    }
 
-  async init() {
-    this.initialized = true;
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+    }
 
-    await doRequest.call(this, async (_) => {
-      this.data = await getCesiones();
-      console.log(this.data);
-      trackGa4Event("cesion_vista");
+    async load() {
+        await doRequest.call(this, async () => {
+            const data = await getCesiones();
+            this.rowsAll = await Promise.all(
+                data.map(async (row) => {
+                    const safeName = row.Name
+                        ? row.Name.toLowerCase().trim().replace(/\s+/g, '').replace(/[^a-z0-9\-]/g, '')
+                        : '';
+                    const pageRef = {
+                        type: 'comm__namedPage',
+                        attributes: { name: 'Cesion_HT_Detail__c' },
+                        state: { recordId: row.Id, recordName: safeName }
+                    };
+                    const url = await this[NavigationMixin.GenerateUrl](pageRef);
+                    const estado = row.Estado__c || 'Sin estado';
+                    return {
+                        id: row.Id,
+                        name: row.Name,
+                        url,
+                        fechaLabel: formatDate(row.CreatedDate),
+                        cedente: row.Cuenta_Cedente__r?.Name || '',
+                        cultivo: row.Cultivo__r?.Name || '',
+                        tipo: row.Tipo_de_Cesion__c || '',
+                        variedades: row.Variedades__c || '',
+                        estado,
+                        statusLabel: estado,
+                        statusTone: statusTone(estado)
+                    };
+                })
+            );
+            this.applyFilters();
+            this.loading = false;
+            if (!this._ga4Tracked) {
+                this._ga4Tracked = true;
+                trackGa4Event('cesion_vista', { portal: 'Productor' });
+            }
+        });
+    }
 
-      // Inicializamos los rows con link vacío
-      this.data = this.data.map((row) => {
-        const safeName = row.Name
-          ? row.Name.toLowerCase()
-              .trim()
-              .replace(/\s+/g, "")
-              .replace(/[^a-z0-9\-]/g, "")
-          : "";
+    handlePill(event) {
+        this.estadoSeleccionado = event.detail.id;
+        this.applyFilters();
+    }
 
-        // 🔹 Formatear fecha a dd/MM/yyyy
-        let fechaFormateada = "";
-        if (row.CreatedDate) {
-          const fecha = new Date(row.CreatedDate);
-          const dia = String(fecha.getDate()).padStart(2, "0");
-          const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-          const anio = fecha.getFullYear();
-          fechaFormateada = `${dia}/${mes}/${anio}`;
-        }
+    handleCultivo(event) {
+        this.cultivoSeleccionado = event.detail.value;
+        this.applyFilters();
+    }
 
-        const baseRow = {
-          ...row,
-          link: "",
-          Cedente: row.Cuenta_Cedente__r?.Name || "",
-          Cultivo: row.Cultivo__r?.Name || "",
-          fechaFormateada: fechaFormateada
-        };
+    handleTipo(event) {
+        this.tipoSeleccionado = event.detail.value;
+        this.applyFilters();
+    }
 
-        const pageRef = {
-          type: "comm__namedPage",
-          attributes: { name: "Cesion_HT_Detail__c" },
-          state: { recordId: row.Id, recordName: safeName }
-        };
+    handleSearchChange(event) {
+        this.searchKey = (event.detail.value || '').toLowerCase();
+        this.applyFilters();
+    }
 
-        this[NavigationMixin.GenerateUrl](pageRef).then((url) => {
-          baseRow.link = url;
-          this.data = [...this.data];
-          this.updatePage();
+    applyFilters() {
+        const counts = {};
+        this.rowsAll.forEach((row) => {
+            counts[row.estado] = (counts[row.estado] || 0) + 1;
         });
 
-        return baseRow;
-      });
+        const statuses = Object.keys(counts).sort((a, b) => {
+            const ia = STATUS_ORDER.indexOf(a);
+            const ib = STATUS_ORDER.indexOf(b);
+            if (ia === -1 && ib === -1) return a.localeCompare(b, 'es');
+            if (ia === -1) return 1;
+            if (ib === -1) return -1;
+            return ia - ib;
+        });
 
-      // Armar filtros
-      const cultivos = [{ label: "Cultivo: Todos", value: "Todos" }];
-      const Estados = [{ label: "Estado: Todos", value: "Todos" }];
-      const TipoCesiones = [{ label: "Tipo de Cesion: Todos", value: "Todos" }];
+        this.statusPills = [
+            {
+                id: 'todas',
+                label: 'Todas',
+                count: this.rowsAll.length,
+                selected: this.estadoSeleccionado === 'todas'
+            },
+            ...statuses.map((estado) => ({
+                id: estado,
+                label: estado,
+                count: counts[estado],
+                selected: this.estadoSeleccionado === estado
+            }))
+        ];
 
-      this.data.forEach((element) => {
-        if (
-          element.Cultivo &&
-          !cultivos.some((o) => o.value == element.Cultivo)
-        )
-          cultivos.push({
-            label: `Cultivo: ${element.Cultivo}`,
-            value: element.Cultivo
-          });
-        if (
-          element.Estado__c &&
-          !Estados.some((o) => o.value == element.Estado__c)
-        )
-          Estados.push({
-            label: `Estado: ${element.Estado__c}`,
-            value: element.Estado__c
-          });
-        if (
-          element.Tipo_de_Cesion__c &&
-          !TipoCesiones.some((o) => o.value == element.Tipo_de_Cesion__c)
-        )
-          TipoCesiones.push({
-            label: `Tipo de Cesion: ${element.Tipo_de_Cesion__c}`,
-            value: element.Tipo_de_Cesion__c
-          });
-      });
+        const cultivoCounts = {};
+        const tipoCounts = {};
+        this.rowsAll.forEach((row) => {
+            if (row.cultivo) cultivoCounts[row.cultivo] = (cultivoCounts[row.cultivo] || 0) + 1;
+            if (row.tipo) tipoCounts[row.tipo] = (tipoCounts[row.tipo] || 0) + 1;
+        });
 
-      this.cultivos = cultivos;
-      this.Estados = Estados;
-      this.TipoCesiones = TipoCesiones;
-      this.updatePage();
-    });
-  }
+        this.cultivoOptions = [
+            { value: 'todas', label: 'Todos los cultivos' },
+            ...Object.keys(cultivoCounts)
+                .sort((a, b) => a.localeCompare(b, 'es'))
+                .map((c) => ({ value: c, label: c }))
+        ];
 
-  handleCultivoSelect(event) {
-    this.cultivo = event.target.value;
-    this.filteredCesiones =
-      this.cultivo == "Todos"
-        ? this.data
-        : this.data.filter((v) => v.Cultivo__r.Name == this.cultivo);
-    this.totalRegistros = this.filteredCesiones.length;
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    const Cesiones = this.filteredCesiones.slice(start, end);
-    this.filteredCesiones = Cesiones;
-  }
+        this.tipoOptions = [
+            { value: 'todas', label: 'Todos los tipos' },
+            ...Object.keys(tipoCounts)
+                .sort((a, b) => a.localeCompare(b, 'es'))
+                .map((t) => ({ value: t, label: t }))
+        ];
 
-  handleTipoCesion(event) {
-    this.TipoCesion = event.target.value;
-    this.filteredCesiones =
-      this.TipoCesion == "Todos"
-        ? this.data
-        : this.data.filter((v) => v.Tipo_de_Cesion__c == this.TipoCesion);
-    this.totalRegistros = this.filteredCesiones.length;
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    const Cesiones = this.filteredCesiones.slice(start, end);
-    this.filteredCesiones = Cesiones;
-  }
-
-  handleEstadoSelect(event) {
-    this.Estado = event.target.value;
-    this.filteredCesiones =
-      this.Estado == "Todos"
-        ? this.data
-        : this.data.filter((v) => v.Estado__c == this.Estado);
-    this.totalRegistros = this.filteredCesiones.length;
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    const Cesiones = this.filteredCesiones.slice(start, end);
-    this.filteredCesiones = Cesiones;
-  }
-
-  renderedCallback() {
-    if (!this.initialized) this.init();
-  }
-
-  onError(e) {
-    this.dispatchEvent(
-      new ShowToastEvent({
-        title: "Error",
-        message: reduceErrors(e).join("\n"),
-        variant: "error",
-        mode: "sticky"
-      })
-    );
-  }
-
-  //reemplazando vencimientos por data, podemos hacer que los totales sean dinámicos según que facturas se esten visualizando
-
-  handleOnSort(event) {
-    this.sortBy = event.detail.fieldName;
-    this.sortDirection = event.detail.sortDirection;
-    this.sortData();
-  }
-
-  sortData() {
-    const parseData = JSON.parse(JSON.stringify(this.data));
-
-    const keyValue = (a) => {
-      return a[this.sortBy];
-    };
-
-    const isReverse = this.sortDirection === "asc" ? 1 : -1;
-
-    parseData.sort((x, y) => {
-      x = keyValue(x) ? keyValue(x) : "";
-      y = keyValue(y) ? keyValue(y) : "";
-      return isReverse * ((x > y) - (y > x));
-    });
-
-    this.data = parseData;
-  }
-
-  handleNameSelect(event) {
-    // this.NameSelect = event.target.value;
-    // this.filteredNames = this.Name == 'Todos' ? this.vencimientos : this.vencimientos.filter(v => v.cultivo == this.cultivo);
-    this.updatePage();
-  }
-
-  // Aplicar filtros y búsqueda
-
-  applyFilters() {
-    let filtered = [...this.data];
-
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (l) => l.Name && l.Name.toLowerCase().includes(term)
-      );
+        let rows = [...this.rowsAll];
+        if (this.estadoSeleccionado !== 'todas') {
+            rows = rows.filter((r) => r.estado === this.estadoSeleccionado);
+        }
+        if (this.cultivoSeleccionado !== 'todas') {
+            rows = rows.filter((r) => r.cultivo === this.cultivoSeleccionado);
+        }
+        if (this.tipoSeleccionado !== 'todas') {
+            rows = rows.filter((r) => r.tipo === this.tipoSeleccionado);
+        }
+        if (this.searchKey) {
+            rows = rows.filter(
+                (r) =>
+                    (r.name && r.name.toLowerCase().includes(this.searchKey)) ||
+                    (r.cedente && r.cedente.toLowerCase().includes(this.searchKey)) ||
+                    (r.variedades && r.variedades.toLowerCase().includes(this.searchKey))
+            );
+        }
+        this.filtered = rows;
     }
-    this.filteredCesiones = filtered;
-    this.totalRegistros = filtered.length; // <<--- Aquí se actualiza el contador
-    this.currentPage = 1;
-  }
 
-  updatePage() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    const Cesiones = this.data.slice(start, end);
-    this.filteredCesiones = Cesiones;
-    this.totalRegistros = this.data.length;
-  }
-
-  get disablePrev() {
-    return this.currentPage <= 1;
-  }
-
-  get disableNext() {
-    return this.currentPage >= Math.ceil(this.data.length / this.pageSize);
-  }
-
-  handlePrev() {
-    if (!this.disablePrev) {
-      this.currentPage--;
-      this.updatePage();
+    handleRowAction(event) {
+        const row = event.detail.row;
+        if (row?.url) {
+            window.open(row.url, '_self');
+        }
     }
-  }
 
-  handleNext() {
-    if (!this.disableNext) {
-      this.currentPage++;
-      this.updatePage();
+    openNewSheet() {
+        this.showNewSheet = true;
     }
-  }
 
-  handleSearchChange(event) {
-    this.searchTerm = event.target.value;
-    if (this.searchTerm.length > 0) {
-      this.applyFilters();
-    } else {
-      this.updatePage();
+    closeNewSheet() {
+        this.showNewSheet = false;
     }
-  }
+
+    handleNewCesion(event) {
+        const tipo = event.currentTarget.dataset.type;
+        if (!tipo) return;
+        this.showNewSheet = false;
+        trackGa4Event('cesion_iniciada', { tipo });
+        this[NavigationMixin.Navigate]({
+            type: 'comm__namedPage',
+            attributes: { pageName: 'cesion-pph' },
+            state: { recordId: 'new', type: tipo }
+        });
+    }
+
+    get newSheetClass() {
+        return 'se-new-sheet-wrap' + (this.showNewSheet ? ' is-open' : '');
+    }
 }

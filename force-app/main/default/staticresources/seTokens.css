@@ -255,6 +255,21 @@ body.se-chrome.se-inner c-se-footer-contact {
   min-height: 0 !important;
 }
 
+/* Modal método de pago (crearCompra2): bloquear scroll del portal */
+html.se-pay-modal-open,
+body.se-pay-modal-open {
+  overflow: hidden !important;
+  height: 100% !important;
+}
+
+body.se-pay-modal-open #ServiceCommunityTemplate,
+body.se-pay-modal-open .siteforceServiceBody,
+body.se-pay-modal-open .cViewPanel.siteforceServiceBody,
+body.se-pay-modal-open .cCenterPanel,
+body.se-pay-modal-open [role="main"].cCenterPanel {
+  overflow: hidden !important;
+}
+
 /* Columnas vacías del one-col layout */
 body.se-chrome .comm-content-header.comm-layout-column,
 body.se-chrome .comm-content-footer.comm-layout-column,
@@ -270,8 +285,74 @@ body.se-chrome .slds-col--padded.comm-content-footer {
 }
 
 @media (max-width: 767px) {
-  body.se-chrome.se-inner {
+  /* Inner list/detail pages: full-bleed content pero BottomNav visible (como Home). */
+  body.se-chrome.se-inner:not(.se-inner-wizard) {
     padding-bottom: calc(var(--se-bottom) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Wizards (compra HT, cesión): footer propio → ocultar BottomNav del theme. */
+  body.se-chrome.se-inner.se-inner-wizard {
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  body.se-chrome.se-inner.se-inner-wizard c-se-bottom-nav,
+  body.se-chrome.se-inner.se-inner-wizard .cFooterPanel c-se-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.se-chrome.se-inner.se-inner-wizard .cCurtainContainer {
+    flex: 0 0 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.se-chrome.se-inner.se-inner-wizard .cFooterPanel,
+  body.se-chrome.se-inner.se-inner-wizard #footer.cFooterPanel {
+    background: transparent !important;
+    padding: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.se-chrome.se-inner .cCenterPanel .comm-page-content,
+  body.se-chrome.se-inner .cCenterPanel [data-region="content"],
+  body.se-chrome.se-inner .cCenterPanel .siteforceContentArea,
+  body.se-chrome.se-inner .cCenterPanel .lwr-main,
+  body.se-chrome.se-inner .cCenterPanel main,
+  body.se-chrome.se-inner .cb-section,
+  body.se-chrome.se-inner .cb-section_column,
+  body.se-chrome.se-inner .dxp-column,
+  body.se-chrome.se-inner .comm-layout-column,
+  body.se-chrome.se-inner .slds-col--padded {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+  }
+
+  body.se-chrome.se-inner .slds-card,
+  body.se-chrome.se-inner c-crear-compra2 {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  body.se-chrome.se-inner {
+    overflow-x: clip;
   }
 }
 
