@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle
+  xmlns="http://soap.sforce.com/2006/04/metadata"
+><apiVersion>61</apiVersion><isExposed>true</isExposed><masterLabel
+  >Campaign Banner</masterLabel><targets><target
+    >lightningCommunity__Page</target><target
+    >lightningCommunity__Default</target></targets><targetConfigs><targetConfig
+      targets="lightningCommunity__Default"
+    ><property
+        name="title"
+        type="String"
+        default="PRECAMPAÑA SOJA 26/27"
+        label="Título del Banner"
+      /><property
+        name="highlightText"
+        type="String"
+        default="¡Comprá antes, pagá menos!"
+        label="Texto Destacado"
+      /><property
+        name="description"
+        type="String"
+        default="Adquirí tus HTs Futuras con anticipación y accedé a un valor preferencial."
+        label="Descripción"
+      /><property
+        name="buttonText"
+        type="String"
+        default="Comprá tus HTs Futuras"
+        label="Texto del Botón"
+      /><property
+        name="buttonUrl"
+        type="String"
+        label="URL del Botón"
+        description="Ejemplo: /s/mi-pagina"
+      /><property
+        name="startDate"
+        type="String"
+        label="Fecha Inicio (YYYY-MM-DDTHH:mm:ssZ)"
+        description="Formato ISO: 2026-08-01T00:00:00Z"
+      /><property
+        name="endDate"
+        type="String"
+        label="Fecha Fin (YYYY-MM-DDTHH:mm:ssZ)"
+        description="Formato ISO: 2026-12-31T23:59:59Z"
+      /></targetConfig></targetConfigs></LightningComponentBundle>
