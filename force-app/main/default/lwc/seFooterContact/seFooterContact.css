@@ -1,93 +1,137 @@
 :host {
-    display: block !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    flex: 0 0 auto !important;
-    align-self: stretch;
-    background: transparent !important;
-    position: static !important;
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  flex: 0 0 auto !important;
+  align-self: stretch;
+  background: transparent !important;
+  position: static !important;
 }
 
 .footer {
-    background-color: #000000;
-    color: white;
-    padding: var(--se-footer-pad, 16px 40px);
-    display: flex;
-    justify-content: space-between;
-    align-items: var(--se-footer-align, center);
-    flex-direction: var(--se-footer-dir, row);
-    flex-wrap: wrap;
-    gap: var(--se-footer-gap, 0);
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    box-sizing: border-box;
+  background-color: #000000;
+  color: white;
+  padding: var(--se-footer-pad, 16px 40px);
+  display: flex;
+  justify-content: space-between;
+  align-items: var(--se-footer-align, center);
+  flex-direction: var(--se-footer-dir, row);
+  flex-wrap: wrap;
+  gap: var(--se-footer-gap, 0);
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  box-sizing: border-box;
 }
 
 .info {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .line {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .contact-button {
-    background-color: #bfff00;
-    color: black;
-    border: none;
-    padding: 2px 24px;
-    border-radius: 30px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+  background-color: #bfff00;
+  color: black;
+  border: none;
+  padding: 2px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
 .contact-button:hover {
-    background-color: #bfff00;
+  background-color: #bfff00;
+}
+
+.faq-button {
+  position: relative;
+  background-color: transparent;
+  color: #bfff00;
+  border: 2px solid #bfff00;
+  padding: 2px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  margin-top: 10px;
+}
+
+.faq-button:hover {
+  background-color: #bfff00;
+  color: black;
+}
+
+.badge-new {
+  position: absolute;
+  top: -9px;
+  right: -10px;
+  background-color: #ff7a00;
+  color: black;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .icon-svg {
-    width: 1.4rem;
-    height: 1.4rem;
-    vertical-align: middle;
+  width: 1.4rem;
+  height: 1.4rem;
+  vertical-align: middle;
 }
 
 @media (max-width: 767px) {
-    :host(.se-footer-pin),
-    :host(.se-footer-inner) {
-        position: static !important;
-        width: 100%;
-        display: block;
-    }
+  :host(.se-footer-pin),
+  :host(.se-footer-inner) {
+    position: static !important;
+    width: 100%;
+    display: block;
+  }
 
-    .contact-button {
-        margin-top: 0;
-    }
+  .contact-button,
+  .faq-button {
+    margin-top: 0;
+  }
 }
 
 @media (min-width: 768px) {
-    /* Solo Home queda fijo al borde; el resto va al final del scroll. */
-    :host(.se-footer-home) {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        z-index: 270 !important;
-        width: 100% !important;
-        display: block !important;
-    }
+  /* Solo Home queda fijo al borde; el resto va al final del scroll. */
+  :host(.se-footer-home) {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 270 !important;
+    width: 100% !important;
+    display: block !important;
+  }
 
-    :host(.se-footer-inner) {
-        position: static !important;
-        width: 100%;
-        display: block;
-    }
+  :host(.se-footer-inner) {
+    position: static !important;
+    width: 100%;
+    display: block;
+  }
 }

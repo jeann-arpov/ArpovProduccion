@@ -1,8 +1,8 @@
 import { LightningElement, wire } from 'lwc';
 import { loadStyle } from 'lightning/platformResourceLoader';
-import login from '@salesforce/apex/RegisterCommunityController.login';
-import confirmLogin from '@salesforce/apex/RegisterCommunityController.confirmLogin';
-import loginWithPassword from '@salesforce/apex/RegisterCommunityController.loginWithPassword';
+import apexInitLogin from '@salesforce/apex/RegisterCommunityController.login';
+import apexConfirmLogin from '@salesforce/apex/RegisterCommunityController.confirmLogin';
+import apexLoginWithPassword from '@salesforce/apex/RegisterCommunityController.loginWithPassword';
 import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLogoSE';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import seLogoUrl from '@salesforce/resourceUrl/seLogoHorizontal';
@@ -46,7 +46,7 @@ export default class SeLogin extends LightningElement {
     }
 
     get isProductorPortal() {
-        return this.sitePath.includes('PortalArPOV');
+        return true;
     }
 
     get rootClass() {
@@ -196,43 +196,82 @@ export default class SeLogin extends LightningElement {
         this.showPassword = !this.showPassword;
     }
 
+    getDebugState() {
+        return {
+            sitePath: this.sitePath,
+            usesOtpFlow: this.usesOtpFlow,
+            showPasswordField: this.showPasswordField,
+            cuit: this.cuit,
+            email: this.email,
+            hasPassword: Boolean(this.password),
+            identifier: this.identifier,
+            isLoging: this.isLoging
+        };
+    }
+
+    logLoginClick() {
+        this.syncFormState();
+        // eslint-disable-next-line no-console
+        console.log('[seLogin] click Ingresar', this.getDebugState());
+    }
+
     checkEnterKey(event) {
         if (event.key === 'Enter') {
-            if (this.identifier) {
-                this.confirm();
-            } else {
-                this.login();
-            }
+            event.preventDefault();
+            this.handleSubmit(event);
         }
     }
 
+    syncFormState() {
+        const cuitInput = this.template.querySelector('#login-cuit');
+        const emailInput = this.template.querySelector('#login-email');
+        const passwordInput = this.template.querySelector('#login-password');
+
+        if (cuitInput) {
+            this.cuit = normalizeCuit(cuitInput.value);
+        }
+        if (emailInput) {
+            this.email = emailInput.value.trim();
+        }
+        if (passwordInput) {
+            this.password = passwordInput.value || this.password;
+        }
+    }
+
+    isValidEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
+    }
+
     validateLoginForm() {
-        let valid = true;
+        this.syncFormState();
+
+        const errors = [];
         this.cuitError = '';
 
         if (!this.cuit || this.cuit.length !== 11) {
             this.cuitError = 'Completá tu CUIT con 11 dígitos.';
-            valid = false;
+            errors.push('cuit');
         }
 
-        const emailInput = this.template.querySelector('#login-email');
-        if (!emailInput?.value?.trim()) {
-            emailInput?.setCustomValidity('Completá este campo.');
-            emailInput?.reportValidity();
-            valid = false;
-        } else {
-            emailInput.setCustomValidity('');
+        if (!this.email) {
+            errors.push('email-empty');
+        } else if (!this.isValidEmail(this.email)) {
+            errors.push('email-format');
         }
 
-        if (this.showPasswordField) {
-            const passwordInput = this.template.querySelector('#login-password');
-            if (!passwordInput?.value) {
-                passwordInput?.setCustomValidity('Completá este campo.');
-                passwordInput?.reportValidity();
-                valid = false;
-            } else {
-                passwordInput.setCustomValidity('');
-            }
+        if (this.showPasswordField && !this.password) {
+            errors.push('password');
+        }
+
+        const valid = errors.length === 0;
+
+        // eslint-disable-next-line no-console
+        console.log('[seLogin] validateLoginForm', { valid, errors, state: this.getDebugState() });
+
+        if (!valid && (errors.includes('email-empty') || errors.includes('email-format'))) {
+            this.showMessage('error', 'Ingresá un email válido.');
+        } else if (!valid && errors.includes('password')) {
+            this.showMessage('error', 'Completá tu contraseña.');
         }
 
         return valid;
@@ -240,35 +279,67 @@ export default class SeLogin extends LightningElement {
 
     validateConfirmForm() {
         const codeInput = this.template.querySelector('#login-code');
-        if (!codeInput?.value?.trim()) {
-            codeInput?.setCustomValidity('Completá este campo.');
-            codeInput?.reportValidity();
+        if (codeInput) {
+            this.code = codeInput.value.trim();
+        }
+        if (!this.code) {
             return false;
         }
-        codeInput.setCustomValidity('');
         return true;
     }
 
-    async login() {
-        if (!this.validateLoginForm()) return;
+    handleSubmit(event) {
+        event?.preventDefault();
+        // eslint-disable-next-line no-console
+        console.log('[seLogin] handleSubmit', this.getDebugState());
+        if (this.identifier) {
+            this.confirm();
+        } else {
+            this.handleLogin();
+        }
+    }
+
+    async handleLogin() {
+        // eslint-disable-next-line no-console
+        console.log('[seLogin] handleLogin start', this.getDebugState());
+
+        if (!this.validateLoginForm()) {
+            // eslint-disable-next-line no-console
+            console.warn('[seLogin] handleLogin abortado: validación falló');
+            return;
+        }
 
         try {
             this.isLoging = true;
             if (this.usesOtpFlow) {
-                const result = await login({ email: this.email, cuit: this.cuit });
+                // eslint-disable-next-line no-console
+                console.log('[seLogin] llamando apexInitLogin (OTP)');
+                const result = await apexInitLogin({ email: this.email, cuit: this.cuit });
+                // eslint-disable-next-line no-console
+                console.log('[seLogin] apexInitLogin ok', result);
                 const parsed = JSON.parse(result);
                 this.identifier = parsed.identifier;
                 this.userId = parsed.userId;
                 this.showMessage('info', 'Te enviamos un código de seguridad a tu correo electrónico.');
             } else {
-                const result = await loginWithPassword({
+                // eslint-disable-next-line no-console
+                console.log('[seLogin] llamando apexLoginWithPassword');
+                const result = await apexLoginWithPassword({
                     email: this.email,
                     cuit: this.cuit,
                     password: this.password
                 });
-                window.location = result;
+                // eslint-disable-next-line no-console
+                console.log('[seLogin] apexLoginWithPassword ok', result);
+                if (result) {
+                    window.location.assign(result);
+                } else {
+                    this.showMessage('error', 'No se pudo iniciar sesión. Intentá de nuevo.');
+                }
             }
         } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('[seLogin] handleLogin error', e);
             this.showMessage('error', e);
         } finally {
             this.isLoging = false;
@@ -276,16 +347,21 @@ export default class SeLogin extends LightningElement {
     }
 
     async confirm() {
+        this.syncFormState();
         if (!this.validateConfirmForm()) return;
 
         try {
             this.isConfirming = true;
-            const result = await confirmLogin({
+            const result = await apexConfirmLogin({
                 userId: this.userId,
                 identifier: this.identifier,
                 code: this.code
             });
-            window.location = result;
+            if (result) {
+                window.location.assign(result);
+            } else {
+                this.showMessage('error', 'No se pudo confirmar el código. Intentá de nuevo.');
+            }
         } catch (e) {
             this.showMessage('error', e);
         } finally {

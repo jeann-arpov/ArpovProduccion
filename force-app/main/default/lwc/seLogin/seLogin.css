@@ -2,11 +2,12 @@
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 50;
+    z-index: 9999;
     width: 100vw;
     height: 100vh;
     font-family: var(--se-font, "Roboto", Arial, sans-serif);
     color: var(--se-black, #1c1c1c);
+    pointer-events: auto;
 }
 
 .se-desk-only {
@@ -143,6 +144,8 @@
     box-sizing: border-box;
     box-shadow: none;
     overflow: hidden;
+    position: relative;
+    z-index: 4;
 }
 
 .se-login-card-body {
@@ -349,6 +352,8 @@
 
 .se-login-submit {
     width: 100%;
+    position: relative;
+    z-index: 2;
 }
 
 .se-login-card-foot {

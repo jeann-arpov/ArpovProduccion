@@ -1,4 +1,4 @@
-public without sharing class CrearCompraController extends ApexErrorHandler {
+public without sharing class CrearCompraController {
     public static Id getListViewId(String sobjectName, String developerName) {
         return [select id from listview where developername =: developerName and SobjectType =: sobjectName].id;
     }
@@ -10,7 +10,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
 
     public static List<PricebookEntry> getProducts(String cultivoId) {
         Set<Id> variedadesSreIds = UtilsCompraVentaHT.getVariedadesSreProductor(getAccount().Id);
-        return [SELECT id, Unit_Price__c,Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND (Product2.Variedad2__r.Sembra_Evolucion__c = true OR Product2.Variedad2__c IN :variedadesSreIds) ORDER BY Product2.Nombre_Comercial__c ASC];
+        return [SELECT id, Product2Id, Unit_Price__c, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__c, Product2.Variedad2__r.Biotecnologia__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND (Product2.Variedad2__r.Sembra_Evolucion__c = true OR Product2.Variedad2__c IN :variedadesSreIds) ORDER BY Product2.Nombre_Comercial__c ASC];
         //return [SELECT id, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND (Product2.Variedad2__r.Sembra_Evolucion__c = true ) ORDER BY Product2.Nombre_Comercial__c ASC];
     }
     
@@ -97,7 +97,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> getSemilleroData(String obtentorId) {
-       Account obtentor = [select Id_Obtentor__c, Nombre_Obtentor__c, ParentId from Account where Id_Obtentor__c =: obtentorId];
+       Account obtentor = [select Id, Id_Obtentor__c, Nombre_Obtentor__c, ParentId from Account where Id_Obtentor__c =: obtentorId];
         return getSemilleroData(obtentor, getLicence(obtentor));
     }
 
@@ -107,6 +107,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         };
 
         if (licence != null) response.put('licencia', licence);
+        response.put('licenciasKeys', new List<String>(getLicences(getAccount().Id).keySet()));
 
         return response;
     }
@@ -148,7 +149,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
             data.put('pendientesFacturacionId', CrearCompraController.getListViewId('Compra_HT__c', 'Mis_Compras_Pendientes_de_Facturacion'));
             data.put('todasListView', CrearCompraController.getListViewId('Compra_HT__c', 'Todas_Mis_Compras'));
             data.put('condicionesComerciales', CrearCompraController.getCondicionesComerciales());
-            data.put('cultivos', UtilsCompraVentaHT.getCultivos());
+            data.put('cultivos', UtilsCompraVentaHT.getCultivosConSaldo(getAccount().Id));
 
             if (String.isNotBlank(compraId)) {
                 Compra_HT__c record = ((Compra_HT__c) data.get('record'));
@@ -164,7 +165,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     }
 
     private static void validateProductor(Compra_HT__c compra) {
-        if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException(Label.COMPRAHT_No_Existe_No_Pertenece);
+        if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException('La compra no existe o no le pertenece');
     }
 
     private static Boolean hasDuplicate(Compra_HT__c compra1) {
@@ -197,11 +198,16 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates,Boolean origen) {
-        return finalizarCompra(compraId, checkDuplicates, origen, false);
+        return finalizarCompra(compraId, checkDuplicates, origen, false, false);
     }
 
     @AuraEnabled
     public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates,Boolean origen, Boolean marcarRevisarCompra) {
+        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, false);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates, Boolean origen, Boolean marcarRevisarCompra, Boolean blanqueo) {
         Boolean tieneLicencia;
         List<Sobject> toUpdate = new List<SObject>();
         Compra_HT__c compra = getCompraData(compraId);
@@ -247,10 +253,11 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         if(tieneLicencia == true){
             opp.hasLicence__c = true;
         }
-        if(origen == false){
+        // Blanqueo ≠ falta de origen legal: solo marcar cuando canFinish indica blanqueo real
+        if(blanqueo == true){
             opp.Blanqueo__c = true;
         }
-        else if(origen == true){
+        if(origen == true){
             opp.hasLegalOrigin__c = true;
         }
 
@@ -276,7 +283,9 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     @AuraEnabled
     public static Map<String, Object> saveItem(Id compraId, String itemJson, String cultivo) {
         Linea_de_Compra_HT__c item = (Linea_de_Compra_HT__c) JSON.deserialize(itemJson, Linea_de_Compra_HT__c.class);
-        Account obtentor = String.isBlank(compraId) ? [select Product2.Variedad2__r.Obtentor_Comercializa__r.Obtentor_Prefix__c from PricebookEntry where id =: item.Id_Producto_de_Lista_de_Precio__c].Product2.Variedad2__r.Obtentor_Comercializa__r : new Account(Obtentor_Prefix__c = '');
+        Account obtentor = String.isBlank(compraId)
+            ? [select Product2.Variedad2__r.Obtentor_Comercializa__r.Obtentor_Prefix__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Parent.Obtentor_Prefix__c from PricebookEntry where id =: item.Id_Producto_de_Lista_de_Precio__c].Product2.Variedad2__r.Obtentor_Comercializa__r
+            : new Account(Obtentor_Prefix__c = '');
         
         Compra_HT__c compra = getCompra(compraId, obtentor, cultivo);
         validateProductor(compra);
@@ -294,8 +303,8 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     public static Map<String, Object> anular(Id compraId) {
         validateProductor(compraId);
         Compra_HT__c compra = [select Estado__c, Venta_HT__c from Compra_HT__c where id =: compraId];
-        if (!Test.isRunningTest() && compra.Estado__c != 'Pendiente de Facturación') throw new AuraHandledException(Label.COMPRAHT_Anular_Solo_Pendiente_Facturacion);
-        if (!Test.isRunningTest() && compra.Venta_HT__c != null) throw new AuraHandledException(Label.COMPRAHT_Vinculada_Venta_HT);
+        if (!Test.isRunningTest() && compra.Estado__c != 'Pendiente de Facturación') throw new AuraHandledException('Sólo puede anularse una compra pendiente de facturación');
+        if (!Test.isRunningTest() && compra.Venta_HT__c != null) throw new AuraHandledException('Esta compra está asociada a una Venta HT. Ponete en contacto con tu vendedor de hectáreas para pedirle que anule la venta. Muchas gracias!');
         update new Compra_HT__c(Id = compraId, Estado__c = 'Cancelada');
         List<Linea_de_Compra_HT__c> lineasCompra = new List<Linea_de_Compra_HT__c>();
         for(Linea_de_Compra_HT__c linea: [SELECT Id FROM Linea_de_Compra_HT__c WHERE Compra_HT__c = :compraId]){
@@ -352,6 +361,14 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         return acc;
     }
 
+    private static String getObtentorPrefix(Account obtentor) {
+        String prefix = obtentor != null ? obtentor.Obtentor_Prefix__c : null;
+        if (String.isBlank(prefix) && obtentor != null && obtentor.Parent != null) {
+            prefix = obtentor.Parent.Obtentor_Prefix__c;
+        }
+        return String.isBlank(prefix) ? '' : prefix.trim();
+    }
+
     private static Account sembraEvolucionAccount;
     public static Account getSembraEvolucionAccount() {
         if (sembraEvolucionAccount != null) return sembraEvolucionAccount;
@@ -363,9 +380,10 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         Compra_HT__c compra = new Compra_HT__c();
 
         Account acc = getAccount();
-        Integer len = 80 - (obtentor.Obtentor_Prefix__c + '-' + acc.N_CUIT__c + '-' + '-').length();
+        String obtentorPrefix = getObtentorPrefix(obtentor);
+        Integer len = 80 - (obtentorPrefix + '-' + acc.N_CUIT__c + '-' + '-').length();
         compra.Cuenta_Productor__c = acc.id;
-        compra.Name = obtentor.Obtentor_Prefix__c + '-' + acc.N_CUIT__c + '-';
+        compra.Name = obtentorPrefix + '-' + acc.N_CUIT__c + '-';
         compra.Estado__c = 'Creada';    
         compra.Lista_de_Precios__c = Test.isRunningTest() ? Test.getStandardPricebookId() : [select id from PriceBook2 where name = 'Lista de Precios Sembrá Evolución'].id;
         compra.Comercio__c = getSembraEvolucionAccount().id;
@@ -400,11 +418,10 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
                 // CUIT puede estar en PersonDocumentNumber o N_CUIT__c
                 result.put('cuit', acc.N_CUIT__c);
             } else {
-                result.put('error', Label.COMPRAHT_Usuario_Sin_Cuenta);
+                result.put('error', 'El usuario no tiene una Cuenta asociada a su Contacto.');
             }
         } catch (Exception e) {
-            ApexErrorHandler.logWarning(e, 'ERR-COM-001', 'CrearCompra', new Map<String,Object>{'method' => 'getUserData'});
-            result.put('error', ErrorLogService.getUserFriendlyMessage('ERR-COM-001'));
+            result.put('error', e.getMessage());
         }
 
         return result;
@@ -412,12 +429,12 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> updateTipoPago(Id compraId, String tipoPago) {
-        if (compraId == null) throw new AuraHandledException(Label.COMPRAHT_CompraId_Requerido);
-        if (String.isBlank(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Requerido);
+        if (compraId == null) throw new AuraHandledException('compraId es requerido');
+        if (String.isBlank(tipoPago)) throw new AuraHandledException('Debe seleccionar un tipo de pago');
 
         tipoPago = tipoPago.trim();
         Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
-        if (!allowed.contains(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Invalido);
+        if (!allowed.contains(tipoPago)) throw new AuraHandledException('Tipo de pago inválido');
 
         List<Linea_de_Compra_HT__c> lineas = [
             SELECT Id

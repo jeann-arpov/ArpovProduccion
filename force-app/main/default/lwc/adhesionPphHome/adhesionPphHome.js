@@ -4,27 +4,20 @@ import getLoadData from '@salesforce/apex/AdhesionPPHHome.getLoadData';
 import { errorEvent } from 'c/utils';
 
 const PAGE_SIZE = 200;
-const STATUS_ORDER = ['En curso', 'Sin adherir', 'Certificada', 'En rectificación', 'Rechazada', 'Vencida'];
 
 function statusTone(estado) {
     const s = (estado || '').toLowerCase();
     if (/certific|adherid/.test(s)) return 'ok';
-    if (/rechaz|vencid/.test(s)) return 'danger';
+    if (/rechaz|cerrad|vencid/.test(s)) return 'danger';
     if (/curso|rectif|prepar/.test(s)) return 'warn';
     return 'info';
 }
 
 export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     @track rowsAll = [];
-    @track filtered = [];
-    @track statusPills = [];
-    @track cultivoOptions = [];
 
     loading = true;
     initialized = false;
-    estadoSeleccionado = 'todas';
-    cultivoSeleccionado = 'todas';
-    searchKey = '';
     pageSize = PAGE_SIZE;
 
     rectificacionTooltip =
@@ -65,8 +58,6 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         try {
             const data = await getLoadData();
             this.rowsAll = this.flattenRows(data);
-            this.buildFilters();
-            this.applyFilters();
             this.loading = false;
         } catch (error) {
             this.loading = false;
@@ -94,7 +85,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         const disableAction = this.getDisableAction(wParam, actionName);
         const periodo = `Del ${this.getLocaleDateString(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c)} al ${this.getLocaleDateString(wParam.parametro.Fecha_Fin_Adhesion_PPH__c)}`;
 
-        let mobileActionLabel = 'Ver adhesión →';
+        let mobileActionLabel = 'Ver historial';
         let mobileActionVariant = 'ghost';
 
         if (actionName === 'Adherir') {
@@ -134,77 +125,18 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         if (label === 'Sin adherir') return 'Sin adherir';
         if (label === 'En rectificación') return 'En curso';
         if (label === 'En Preparación') return 'En curso';
+        if (label === 'Cerrada') return 'Vencida';
         if (/rechaz/i.test(label)) return 'Rechazada';
         if (/vencid/i.test(label)) return 'Vencida';
         return label;
     }
 
-    buildFilters() {
-        const cultivos = [...new Set(this.rowsAll.map((r) => r.cultivo).filter(Boolean))].sort();
-        this.cultivoOptions = [
-            { label: 'Todos los cultivos', value: 'todas' },
-            ...cultivos.map((c) => ({ label: c, value: c }))
-        ];
-
-        const counts = {};
-        this.rowsAll.forEach((r) => {
-            counts[r.statusBucket] = (counts[r.statusBucket] || 0) + 1;
-        });
-
-        this.statusPills = [
-            { label: 'Todas', value: 'todas', count: this.rowsAll.length, active: true },
-            ...STATUS_ORDER.filter((s) => counts[s])
-                .map((s) => ({
-                    label: s,
-                    value: s,
-                    count: counts[s],
-                    active: false
-                }))
-        ];
-    }
-
-    applyFilters() {
-        let rows = [...this.rowsAll];
-
-        if (this.estadoSeleccionado !== 'todas') {
-            rows = rows.filter((r) => r.statusBucket === this.estadoSeleccionado);
-        }
-
-        if (this.cultivoSeleccionado !== 'todas') {
-            rows = rows.filter((r) => r.cultivo === this.cultivoSeleccionado);
-        }
-
-        const q = (this.searchKey || '').trim().toLowerCase();
-        if (q) {
-            rows = rows.filter(
-                (r) =>
-                    (r.title || '').toLowerCase().includes(q) ||
-                    (r.cultivo || '').toLowerCase().includes(q) ||
-                    (r.statusLabel || '').toLowerCase().includes(q)
-            );
-        }
-
-        this.filtered = rows;
-    }
-
-    handleSearchChange(event) {
-        this.searchKey = event.detail?.value ?? event.detail ?? '';
-        this.applyFilters();
-    }
-
-    handlePill(event) {
-        const value = event.detail?.value ?? 'todas';
-        this.estadoSeleccionado = value;
-        this.statusPills = this.statusPills.map((p) => ({
-            ...p,
-            active: p.value === value
-        }));
-        this.applyFilters();
-    }
-
-    handleCultivo(event) {
-        this.cultivoSeleccionado = event.detail?.value ?? 'todas';
-        this.applyFilters();
+    getActionName(wParam) {
+        const estado = wParam.planSiembra?.Estado__c;
+        if (estado == null || estado === 'Sin adherir') return 'Adherir';
+        if (estado === 'Adherido' || estado === 'Rechazado' || estado === 'Vencido') return 'Ver';
+        if (estado === 'En Preparación' || estado === 'Rectificado') return 'Continuar';
+        return 'Ver';
     }
 
     handleRowAction(event) {
@@ -242,19 +174,12 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         return false;
     }
 
-    getActionName(wParam) {
-        const estado = wParam.planSiembra?.Estado__c;
-        if (estado == null || estado === 'Sin adherir') return 'Adherir';
-        if (estado === 'Adherido' || estado === 'Rechazado' || estado === 'Vencido') return 'Ver';
-        if (estado === 'En Preparación' || estado === 'Rectificado') return 'Continuar';
-        return 'Ver';
-    }
-
     getEstadoLabel(estado) {
         if (estado == null || estado === 'Sin adherir') return 'Sin adherir';
         if (estado === 'Rectificado') return 'En rectificación';
         if (estado === 'Adherido') return 'Certificada';
         if (estado === 'En Preparación') return 'En curso';
+        if (estado === 'Vencido') return 'Cerrada';
         return estado;
     }
 

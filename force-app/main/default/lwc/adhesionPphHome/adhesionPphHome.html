@@ -5,27 +5,10 @@
             eyebrow="PRECERTIFICACIÓN"
             eyebrow-mobile="MÓDULOS · PPH"
             title="Tus adhesiones"
-            subtitle="Campañas de adhesión al Programa de Precertificación de Hectáreas."
-            show-search
-            search-placeholder="Buscar campaña o cultivo..."
-            onsearchchange={handleSearchChange}
         ></c-se-page-header>
 
-        <div slot="toolbar">
-            <c-se-filter-pills items={statusPills} onselect={handlePill}></c-se-filter-pills>
-        </div>
-
-        <div slot="filters">
-            <c-se-select
-                options={cultivoOptions}
-                value={cultivoSeleccionado}
-                placeholder="Todos los cultivos"
-                onchange={handleCultivo}
-            ></c-se-select>
-        </div>
-
         <c-se-data-list
-            records={filtered}
+            records={rowsAll}
             columns={columns}
             mobile-fields={mobileFields}
             title-field="title"

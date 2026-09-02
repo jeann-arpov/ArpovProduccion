@@ -29,7 +29,7 @@
                 </aside>
 
                 <section class="se-login-card login-form">
-                    <div class="se-login-card-body">
+                    <form class="se-login-card-body" onsubmit={handleSubmit} novalidate>
                         <template if:true={showLogo}>
                             <div class="se-login-logo-wrap">
                                 <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
@@ -55,7 +55,7 @@
 
                         <div class={cuitFieldClass}>
                             <label class="se-fl-label se-mob-only" for="login-cuit">CUIT</label>
-                            <label class="se-fl-label se-desk-only" for="login-cuit">CUIT sin guiones (-)</label>
+                            <label class="se-fl-label se-desk-only" for="login-cuit">CUIT</label>
                             <input
                                 id="login-cuit"
                                 class="se-fl-input"
@@ -68,6 +68,7 @@
                                 aria-invalid={cuitInvalid}
                                 aria-describedby={cuitErrorId}
                                 oninput={handleCuitInput}
+                                onchange={handleCuitInput}
                                 onblur={handleCuitBlur}
                                 onkeydown={handleCuitKeydown}
                                 onfocus={handleFieldFocus}
@@ -84,11 +85,13 @@
                             <input
                                 id="login-email"
                                 class="se-fl-input"
-                                type="email"
+                                type="text"
                                 name="email"
                                 autocomplete="email"
+                                inputmode="email"
                                 value={email}
                                 oninput={handleEmailInput}
+                                onchange={handleEmailInput}
                                 onfocus={handleFieldFocus}
                                 onblur={handleFieldBlur}
                                 onkeypress={checkEnterKey}
@@ -106,6 +109,7 @@
                                     autocomplete="current-password"
                                     value={password}
                                     oninput={handlePasswordInput}
+                                    onchange={handlePasswordInput}
                                     onfocus={handleFieldFocus}
                                     onblur={handleFieldBlur}
                                     onkeypress={checkEnterKey}
@@ -128,14 +132,14 @@
                         </div>
 
                         <button
-                            type="button"
+                            type="submit"
                             class="se-btn se-btn-primary se-login-submit"
-                            onclick={login}
                             disabled={showSpinner}
+                            onclick={logLoginClick}
                         >
                             Ingresar
                         </button>
-                    </div>
+                    </form>
 
                     <div class="se-login-card-foot se-desk-only">
                         <p class="se-login-foot-text">
@@ -167,7 +171,7 @@
         <template if:true={identifier}>
             <div class="se-login-shell se-login-shell--confirm">
                 <section class="se-login-card confirmation-form">
-                    <div class="se-login-card-body">
+                    <form class="se-login-card-body" onsubmit={handleSubmit} novalidate>
                         <template if:true={showLogo}>
                             <div class="se-login-logo-wrap">
                                 <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
@@ -200,16 +204,15 @@
                         </div>
 
                         <button
-                            type="button"
+                            type="submit"
                             class="se-btn se-btn-primary se-login-submit"
-                            onclick={confirm}
                             disabled={showSpinner}
                         >
                             Enviar
                         </button>
 
                         <button type="button" class="se-login-cancel" onclick={cancel}>Cancelar</button>
-                    </div>
+                    </form>
                 </section>
             </div>
         </template>

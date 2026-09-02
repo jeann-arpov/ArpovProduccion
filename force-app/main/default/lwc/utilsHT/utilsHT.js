@@ -2,6 +2,7 @@ import fontAwesome from '@salesforce/resourceUrl/fontawesome';
 import { loadStyle } from 'lightning/platformResourceLoader';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {reduceErrors, validateInputs} from 'c/utils';
+import { trackErrorFuncional, trackGa4Event } from 'c/portalGa4Events';
 import {api, track} from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import icons from 'c/icons';
@@ -545,6 +546,11 @@ updatePriceBasedOnTipoCompra() {
     }
 
     onError(e) {
+        try {
+            trackErrorFuncional(e, { messages: reduceErrors(e), modulo: 'HT' });
+        } catch (ignore) {
+            // ignore
+        }
         this.dispatchEvent(new ShowToastEvent({
             title: 'Error',
             message: reduceErrors(e).join('\n'),
@@ -987,6 +993,11 @@ const CompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
     }
 
     onError(e) {
+        try {
+            trackErrorFuncional(e, { messages: reduceErrors(e), modulo: 'HT' });
+        } catch (ignore) {
+            // ignore
+        }
         this.dispatchEvent(new ShowToastEvent({
             title: 'Error',
             message: reduceErrors(e).join('\n'),
@@ -1076,6 +1087,10 @@ const CompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
 
     openFactura(event) {
         console.log(event)
+        trackGa4Event('factura_vista', {
+            portal: 'Comercio',
+            origen: 'detalle_ht'
+        });
         this.template.querySelector('c-pdf-reader').show({
             documentId: event.detail.Id,
             title: event.detail.Name
