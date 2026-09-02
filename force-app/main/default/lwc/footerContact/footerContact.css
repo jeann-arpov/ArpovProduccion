@@ -1,40 +1,88 @@
 .footer {
-    background-color: #000000;
-    color: white;
-    padding: 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+  background-color: #000000;
+  color: white;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .info {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .line {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .contact-button {
-    background-color: #b7f302;
-    color: black;
-    border: none;
-    padding: 2px 24px;
-    border-radius: 30px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+  background-color: #b7f302;
+  color: black;
+  border: none;
+  padding: 2px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
 }
 
 .contact-button:hover {
-    background-color: #b7f302;
+  background-color: #b7f302;
+}
+
+.faq-button {
+  position: relative;
+  background-color: transparent;
+  color: #b7f302;
+  border: 2px solid #b7f302;
+  padding: 2px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  margin-top: 10px;
+}
+
+.faq-button:hover {
+  background-color: #b7f302;
+  color: black;
+}
+
+.badge-new {
+  position: absolute;
+  top: -9px;
+  right: -10px;
+  background-color: #ff7a00;
+  color: black;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.faq-button:hover {
+  background-color: #b7f302;
+  color: black;
 }
 
 .icon-svg {

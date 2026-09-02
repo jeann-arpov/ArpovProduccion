@@ -1,60 +1,67 @@
 <template>
-   
-    <div class="bienvenida-container">
-        <!-- Texto izquierda -->
-        <div class="bienvenida-texto">
-                <h1>Sembrá Evolución, donde tenés que estar.</h1>
-        </div>
+  <div class="bienvenida-container">
+    <!-- Texto izquierda -->
+    <div class="bienvenida-texto">
+      <h1>Sembrá Evolución, donde tenés que estar.</h1>
+    </div>
 
-        <!-- Dashboard derecha -->
-        <div class="dashboard-container">
-            <template if:true={tarjetasHT}>
-                <template for:each={tarjetasHT} for:item="t">
-                    <div key={t.cultivo.Id} class="card ventas-card short-card">
-                        <!-- Título cultivo -->
-                        <h2 class="card-title">{t.cultivo.Name}</h2>
+    <!-- Dashboard derecha -->
+    <div class="dashboard-container">
+      <template if:true={tarjetasHT}>
+        <template for:each={tarjetasHT} for:item="t">
+          <div key={t.cultivo.Id} class="card ventas-card short-card">
+            <!-- Título cultivo -->
+            <h2 class="card-title">{t.cultivo.Name}</h2>
 
-                        <!-- Métrica saldo -->
-                        <div class="licencias-metrics">
-                            <div class="metric-vt">
-                                <div class="metric-value">{t.saldoHTs}</div>
-                                <div class="metric-label green">
-                                    HT <template if:false={t.isAdherido}>Futuras</template>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Métrica saldo -->
+            <div class="licencias-metrics">
+              <div class="metric-vt">
+                <div class="metric-value">{t.saldoHTs}</div>
+                <div class="metric-label green">
+                  HT <template if:false={t.isAdherido}>Futuras</template>
+                </div>
+              </div>
+            </div>
 
-                        <!-- Si está adherido -->
-                        <template if:true={t.isAdherido}>
-                            <div class="info-adherido">
-                                <div style="font-size:x-large;color:#bfff00;">
-                                    PPH
-                                    <lightning-icon class="icono-adherido" size="x-small" icon-name="action:approval"></lightning-icon>
-                                </div>
-                                <div style="color: #767171;">
-                                    Adherido al programa de Precertificación
-                                </div>
-                            </div>
-                        </template>
+            <!-- Si está adherido -->
+            <template if:true={t.isAdherido}>
+              <div class="info-adherido">
+                <div style="font-size: x-large; color: #bfff00">
+                  PPH
+                  <lightning-icon
+                    class="icono-adherido"
+                    size="x-small"
+                    icon-name="action:approval"
+                  ></lightning-icon>
+                </div>
+                <div style="color: #767171">
+                  Adherido al programa de Precertificación
+                </div>
+              </div>
+            </template>
 
-                        <!-- Si no está adherido -->
-                        <template if:false={t.isAdherido}>
-                            <div class="action-button-container">
-                                <button class="primary-button" onclick={doAction} data-id={t.cultivo.Id}>
-                                    {t.buttonLabel}
-                                </button>
-                            </div>
-                        </template>
+            <!-- Si no está adherido -->
+            <template if:false={t.isAdherido}>
+              <div class="action-button-container">
+                <button
+                  class="primary-button"
+                  onclick={doAction}
+                  data-id={t.cultivo.Id}
+                >
+                  {t.buttonLabel}
+                </button>
+              </div>
+            </template>
 
-                        <!-- Footer 
+            <!-- Footer 
                         <div class="footer">
                             <span onclick={redirectToCC} data-id={t.cultivo.Id}>
                                 Ver Cuenta Corriente &gt;
                             </span>
                         </div>link -->
-                    </div>
-                </template>
-            </template>
-        </div>
+          </div>
+        </template>
+      </template>
     </div>
+  </div>
 </template>
