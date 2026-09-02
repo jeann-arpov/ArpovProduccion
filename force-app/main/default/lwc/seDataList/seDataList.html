@@ -7,7 +7,7 @@
                     <thead>
                         <tr>
                             <template for:each={headerCells} for:item="col">
-                                <th key={col.key}>{col.label}</th>
+                                <th key={col.key} class={col.thClass}>{col.label}</th>
                             </template>
                         </tr>
                     </thead>
@@ -46,7 +46,7 @@
                     <thead>
                         <tr>
                             <template for:each={headerCells} for:item="col">
-                                <th key={col.key}>{col.label}</th>
+                                <th key={col.key} class={col.thClass}>{col.label}</th>
                             </template>
                         </tr>
                     </thead>
@@ -60,6 +60,9 @@
                                                 {cell.value}
                                             </button>
                                         </template>
+                                        <template if:true={cell.isMailto}>
+                                            <a class="link" href={cell.mailtoHref}>{cell.value}</a>
+                                        </template>
                                         <template if:true={cell.isBadge}>
                                             <span class={cell.badgeClass}>
                                                 <span class="dot"></span>
@@ -70,6 +73,15 @@
                                             <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
                                                 {cell.actionLabel}
                                             </button>
+                                        </template>
+                                        <template if:true={cell.isAmount}>
+                                            <span class={cell.amountClass}>{cell.value}</span>
+                                        </template>
+                                        <template if:true={cell.isStrong}>
+                                            <span class={cell.strongClass}>{cell.value}</span>
+                                        </template>
+                                        <template if:true={cell.isAccent}>
+                                            <span class={cell.accentClass}>{cell.value}</span>
                                         </template>
                                         <template if:true={cell.isText}>
                                             {cell.value}
@@ -96,13 +108,15 @@
                             <template for:each={row.fields} for:item="field">
                                 <div class="kv" key={field.labelKey}>
                                     <span class="k">{field.label}</span>
-                                    <span class="v">{field.value}</span>
+                                    <span class={field.valueClass}>{field.value}</span>
                                 </div>
                             </template>
                         </div>
-                        <button class={row.mobileActionClass} type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
-                            {row.mobileActionLabel}
-                        </button>
+                        <template if:false={hideMobileAction}>
+                            <button class={row.mobileActionClass} type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                                {row.mobileActionLabel}
+                            </button>
+                        </template>
                     </article>
                 </template>
             </div>

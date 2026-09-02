@@ -5,6 +5,7 @@ import getEstadosLicencia from '@salesforce/apex/LicenciasController.getEstadosL
 import getOrigenesLicencia from '@salesforce/apex/LicenciasController.getOrigenesLicenciaProductor';
 import getTiposLicencia from '@salesforce/apex/LicenciasController.getTiposLicencia';
 import getLicensesReport from '@salesforce/apex/LicenseReportService.getLicensesReport';
+import { fetchCultivoOptions, fetchCultivoSummary } from 'c/cultivoResumenService';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import getUrl from '@salesforce/apex/SolicitarLicencia.getUrl';
 import singleNewLicenseRequestJWTSigner from '@salesforce/apex/CustomJWTSigner.singleNewLicenseRequestJWTSigner';
@@ -12,12 +13,16 @@ import singleLicenseJWTSigner from '@salesforce/apex/CustomJWTSigner.singleLicen
 import uId from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
-import {
-    trackGa4Event,
-    resolveSemilleroLabel,
-    buildHtCompraConfirmadaParams
-} from 'c/portalGa4Events';
+import { redirectToSglWithToken } from 'c/utils';
+import { trackGa4Event } from 'c/portalGa4Events';
 
+function licenseStatusTone(estadoVisual) {
+    const s = (estadoVisual || '').toLowerCase();
+    if (/aprob/.test(s)) return 'ok';
+    if (/rechaz/.test(s)) return 'danger';
+    if (/curso/.test(s)) return 'warn';
+    return 'info';
+}
 
 export default class LicenciasListProductor extends NavigationMixin(LightningElement) {
     iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
@@ -45,11 +50,44 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     };
     @track isLoading = true;
     @track renderFilters = false;
+    @track cultivoOptions = [];
+    @track cultivoSummaryRows = [];
+    @track selectedCultivoId;
+    @track cultivoSummaryTotal = 0;
+    @track cultivoSummaryLoading = false;
+    @track showCultivoResumen = false;
+    initialized = false;
 
     // Configuración de paginación
     pageSize = 50;
+    listPageSize = 0;
     currentPage = 1;
     totalPages = 1;
+
+    columns = [
+        { label: 'Fecha', fieldName: 'fecha' },
+        { label: 'Código', fieldName: 'name', type: 'link' },
+        { label: 'CUIT', fieldName: 'cuit' },
+        { label: 'Razón social', fieldName: 'productor' },
+        { label: 'Marca', fieldName: 'marca' },
+        { label: 'Tecnología', fieldName: 'origen' },
+        { label: 'Origen', fieldName: 'tipo' },
+        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
+        { label: 'Comercio', fieldName: 'comercio' },
+        { label: 'Email', fieldName: 'emailDisplay', type: 'mailto' },
+        { label: 'Teléfono', fieldName: 'telefonoDisplay' }
+    ];
+
+    mobileFields = [
+        { label: 'Fecha', fieldName: 'fecha' },
+        { label: 'CUIT', fieldName: 'cuit' },
+        { label: 'Razón social', fieldName: 'productor' },
+        { label: 'Marca', fieldName: 'marca' },
+        { label: 'Tecnología', fieldName: 'origen' },
+        { label: 'Origen', fieldName: 'tipo' },
+        { label: 'Comercio', fieldName: 'comercio' },
+        { label: 'Email', fieldName: 'emailDisplay', valueClassField: 'emailValueClass' }
+    ];
     
     // URLs y IDs
     url;
@@ -87,6 +125,19 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
         'Rechazada': ['Rechazada']
     };
 
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+    }
+
     @wire(getUrl, {})
     wiredGetUrl({error, data}) {
         if (data) {
@@ -114,26 +165,26 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     }
 
     async loadInitialData() {
+        if (this.initialized) {
+            return;
+        }
+        this.initialized = true;
         this.isLoading = true;
-        console.log('Cargando datos iniciales...');
-        
+
         try {
-            // Cargar filtros
             await this.loadFilters();
-            
-            // Cargar filtros guardados en sesión
             this.loadSessionFilters();
-            
-            // Cargar licencias con los filtros aplicados
-            await this.loadLicencias();
-            
-            // Habilitar renderizado de filtros
+
+            await Promise.all([
+                this.loadLicencias({ manageLoading: false }),
+                this.loadCultivoResumenOptions()
+            ]);
+
+            this.showCultivoResumen = this.cultivoOptions.length > 0;
             this.renderFilters = true;
-            this.isLoading = false;
-            console.log('Datos cargados exitosamente');
-            
         } catch (error) {
             console.error('Error cargando datos iniciales:', error);
+        } finally {
             this.isLoading = false;
         }
     }
@@ -168,6 +219,47 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
         }
     }
 
+    async loadCultivoResumenOptions() {
+        try {
+            const { options, defaultId } = await fetchCultivoOptions();
+            this.cultivoOptions = options;
+
+            if (options.length && !this.selectedCultivoId) {
+                this.selectedCultivoId = defaultId;
+                await this.loadCultivoSummary();
+            }
+        } catch (error) {
+            console.error('Error cargando cultivos para resumen:', error);
+            this.cultivoOptions = [];
+        }
+    }
+
+    async loadCultivoSummary() {
+        if (!this.selectedCultivoId) {
+            this.cultivoSummaryRows = [];
+            this.cultivoSummaryTotal = 0;
+            return;
+        }
+
+        this.cultivoSummaryLoading = true;
+        try {
+            const summary = await fetchCultivoSummary(this.selectedCultivoId);
+            this.cultivoSummaryRows = summary.rows;
+            this.cultivoSummaryTotal = summary.total;
+        } catch (error) {
+            console.error('Error cargando resumen por cultivo:', error);
+            this.cultivoSummaryRows = [];
+            this.cultivoSummaryTotal = 0;
+        } finally {
+            this.cultivoSummaryLoading = false;
+        }
+    }
+
+    handleCultivoResumenSelect(event) {
+        this.selectedCultivoId = event.detail?.value;
+        this.loadCultivoSummary();
+    }
+
     loadSessionFilters() {
         console.log('Cargando filtros de sesión...');
         
@@ -194,86 +286,112 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
         }
     }
 
-    async loadLicencias() {
-        this.isLoading = true;
-        console.log('Cargando licencias, página:', this.currentPage);
-        
-        // Construir objeto de filtros
-        const filters = {};
-        if (this.selectedEstado) filters.estado = this.selectedEstado;
-        if (this.selectedOrigen) filters.origen = this.selectedOrigen;
-        if (this.selectedTipo) filters.tipo = this.selectedTipo;
-        if (this.selectedCarta) filters.carta = this.selectedCarta;
-        if (this.searchTerm) filters.searchTerm = this.searchTerm;
-        
-        // Guardar filtros actuales
-        this.currentFilters = filters;
-        
-        console.log('Filtros aplicados:', filters);
-        
+    async loadLicencias(options = {}) {
+        const { manageLoading = true } = options;
+        if (manageLoading) {
+            this.isLoading = true;
+        }
+
         try {
-            // Llamar al método Apex con paginación y filtros
+            const filters = {};
+            if (this.selectedEstado) filters.estado = this.selectedEstado;
+            if (this.selectedOrigen) filters.origen = this.selectedOrigen;
+            if (this.selectedTipo) filters.tipo = this.selectedTipo;
+            if (this.selectedCarta) filters.carta = this.selectedCarta;
+            if (this.searchTerm) filters.searchTerm = this.searchTerm;
+
+            this.currentFilters = filters;
+
             const result = await getLicencias({
                 pageNumber: this.currentPage,
                 pageSize: this.pageSize,
                 filtersJSON: JSON.stringify(filters)
             });
-            
-            console.log('Resultado recibido:', {
-                licenciasCount: result.licencias ? result.licencias.length : 0,
-                totalRecords: result.totalRecords,
-                totalPages: result.totalPages
-            });
-            
-            // Actualizar datos del componente
+
             this.licencias = result.licencias || [];
             this.totalRegistros = result.totalRecords || 0;
             this.totalPages = result.totalPages || 1;
-            
-            console.log('Licencias cargadas:', this.licencias.length);
-            
         } catch (error) {
             console.error('Error loading licenses:', error);
             this.licencias = [];
             this.totalRegistros = 0;
             this.totalPages = 1;
         } finally {
-            this.isLoading = false;
+            if (manageLoading) {
+                this.isLoading = false;
+            }
         }
     }
 
     // ========== HANDLERS DE FILTROS ==========
 
+    get metaMaxElementos() {
+        return 200;
+    }
+
+    get renderList() {
+        return this.renderFilters;
+    }
+
+    get filtroResumen() {
+        const partes = [];
+        if (this.selectedEstado) partes.push(this.selectedEstado);
+        if (this.selectedTipo) partes.push(this.selectedTipo);
+        if (this.selectedOrigen) partes.push(this.selectedOrigen);
+        if (this.searchTerm) partes.push(`"${this.searchTerm}"`);
+        return partes.length ? partes.join(' - ') : 'Todas las licencias';
+    }
+
+    get estadoOptions() {
+        return [
+            { value: '', label: 'Estado' },
+            { value: 'En curso', label: 'En curso' },
+            { value: 'Aprobada', label: 'Aprobada' },
+            { value: 'Rechazada', label: 'Rechazada' }
+        ];
+    }
+
+    get tipoOptions() {
+        return [
+            { value: '', label: 'Tipo' },
+            ...(this.tipos || []).map((item) => ({ value: item, label: item }))
+        ];
+    }
+
+    get origenOptions() {
+        return [
+            { value: '', label: 'Tecnología' },
+            ...(this.origenes || []).map((item) => ({ value: item, label: item }))
+        ];
+    }
+
     handleEstadoChange(event) {
-        this.selectedEstado = event.target.value;
-        console.log('Estado cambiado a:', this.selectedEstado);
+        this.selectedEstado = event.detail.value || '';
         sessionStorage.setItem('selectedBucketProductor', this.selectedEstado);
         this.applyFiltersWithDebounce();
     }
 
     handleOrigenChange(event) {
-        this.selectedOrigen = event.target.value;
-        console.log('Origen cambiado a:', this.selectedOrigen);
+        this.selectedOrigen = event.detail.value || '';
         sessionStorage.setItem('selectedOrigenProductor', this.selectedOrigen);
         this.applyFiltersWithDebounce();
     }
 
     handleTipoChange(event) {
-        this.selectedTipo = event.target.value;
-        console.log('Tipo cambiado a:', this.selectedTipo);
+        this.selectedTipo = event.detail.value || '';
         sessionStorage.setItem('selectedTipoProductor', this.selectedTipo);
         this.applyFiltersWithDebounce();
     }
 
     handleCartaChange(event) {
-        this.selectedCarta = event.target.value;
+        this.selectedCarta = event.detail?.value || event.target.value;
         console.log('Carta cambiada a:', this.selectedCarta);
         sessionStorage.setItem('cartaOptionProductor', this.selectedCarta);
         this.applyFiltersWithDebounce();
     }
 
     handleSearchChange(event) {
-        this.searchTerm = event.target.value;
+        this.searchTerm = event.detail?.value ?? event.target?.value ?? '';
         console.log('Término de búsqueda:', this.searchTerm);
         this.applyFiltersWithDebounce();
     }
@@ -319,18 +437,20 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     // ========== GETTERS PARA DATOS ==========
 
     get decoratedLicencias() {
-        return (this.licencias || []).map(l => ({
-            ...l,
-            estadoVisual: this.ESTADO_MAP[l.estado] || l.estado
-        }));
-    }
-
-    get hayLicencias() {
-        return this.decoratedLicencias && this.decoratedLicencias.length > 0;
-    }
-
-    get noHayLicencias() {
-        return !this.hayLicencias && !this.isLoading;
+        return (this.licencias || []).map((l) => {
+            const estadoVisual = this.ESTADO_MAP[l.estado] || l.estado;
+            const email = (l.email || '').trim();
+            const telefono = (l.telefono || '').trim();
+            return {
+                ...l,
+                estadoVisual,
+                statusLabel: estadoVisual,
+                statusTone: licenseStatusTone(estadoVisual),
+                emailDisplay: email || '—',
+                telefonoDisplay: telefono || '—',
+                emailValueClass: email ? 'email-link' : ''
+            };
+        });
     }
 
     // ========== MÉTODOS DE MODAL ==========
@@ -346,44 +466,20 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     // ========== HANDLERS DE ACCIONES ==========
 
     handleRowAction(event) {
-        const licenseId = event.currentTarget.dataset.id;
+        const row = event.detail?.row;
+        const licenseId = row?.id || event.currentTarget?.dataset?.id;
+        if (!licenseId) return;
+
         console.log('Acción en fila, ID:', licenseId);
-        // 1. Buscar la licencia seleccionada dentro del arreglo
-    const licenciaSeleccionada = this.licencias.find(
-        lic => lic.id === licenseId || lic.Id === licenseId
-    );
-
-    // 2. Verificar que exista y enviar el evento GA4
-    if (licenciaSeleccionada) {
-        console.log('Marca:', licenciaSeleccionada.marca);
-        console.log('Origen:', licenciaSeleccionada.origen);
-
-        trackGa4Event(
-            'licencia_vista',
-            buildHtCompraConfirmadaParams({
-                semilleros: licenciaSeleccionada.marca,
-                subsistema: licenciaSeleccionada.origen
-            })
-        );
-    } else {
-        console.warn('No se encontró la licencia con ID:', licenseId);
-    }
-
-    this.isLoading = true;
-        
+        this.isLoading = true;
         
         singleLicenseJWTSigner({
             userId: this.currentUserId,
             contactId: this.currentContactId,
-            licenseId: licenseId
+            licenseId
         })
         .then(response => {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: this.url + '?token=' + response + '&url=' + window.location.href
-                }
-            }, true);
+            redirectToSglWithToken(this.url, response, window.location.href);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -394,24 +490,13 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     handleSolicitarLicencia() {
         console.log('Solicitando nueva licencia');
         this.isLoading = true;
-
-        trackGa4Event(
-            'licencia_firma_iniciada',
-            buildHtCompraConfirmadaParams({
-            })
-        );
         
         singleNewLicenseRequestJWTSigner({
             userId: this.currentUserId,
             contactId: this.currentContactId
         })
         .then(response => {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: this.url + '/NewLicenseRequest' + '?token=' + response + '&url=' + window.location.href
-                }
-            }, true);
+            redirectToSglWithToken(this.url + '/NewLicenseRequest', response, window.location.href);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -420,31 +505,6 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     }
 
     // ========== LIFECYCLE HOOKS ==========
-
-    renderedCallback() {
-        if (this.renderFilters && (this.selectedEstado || this.selectedOrigen || this.selectedTipo || this.selectedCarta)) {
-            this.updateFilterSelects();
-        }
-    }
-
-    updateFilterSelects() {
-        setTimeout(() => {
-            const selects = {
-                'estadoSelect': this.selectedEstado,
-                'origenSelect': this.selectedOrigen,
-                'tipoSelect': this.selectedTipo,
-                'cartaSelect': this.selectedCarta
-            };
-            
-            Object.keys(selects).forEach(selector => {
-                const element = this.template.querySelector(`[data-id="${selector}"]`);
-                if (element && selects[selector]) {
-                    element.value = selects[selector];
-                    console.log(`Select ${selector} actualizado a:`, selects[selector]);
-                }
-            });
-        }, 100);
-    }
 
     @wire(CurrentPageReference)
     getStateParameters(currentPageReference) {
@@ -591,6 +651,10 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
                 console.log('[LicenciasListProductor - Reporte] OK', {
                     message: this.reportResponse.message,
                     statusCode: this.reportResponse.statusCode
+                });
+                trackGa4Event('reporte_generado', {
+                    modulo: 'Licencias',
+                    tipo_reporte: 'licencias_productor'
                 });
             } else {
                 this.logReportError('Error en respuesta del servicio', this.reportResponse);

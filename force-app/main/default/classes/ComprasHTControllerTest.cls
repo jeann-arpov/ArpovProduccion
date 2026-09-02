@@ -48,7 +48,6 @@ public class ComprasHTControllerTest {
 
     @IsTest
     static void testGetHectareasTecnologicas_empty() {
-        // En test no se devuelve dummy aquí, así que será lista vacía
         Test.startTest();
         List<ComprasHTController.HectareaTecnologica> hts =
             ComprasHTController.getHectareasTecnologicas('fakeCultivoId');
@@ -56,5 +55,18 @@ public class ComprasHTControllerTest {
 
         System.assertNotEquals(null, hts, 'Debe devolver lista (aunque vacía en test)');
         System.assertEquals(0, hts.size(), 'En test sin datos debe devolver vacío');
+    }
+
+    @IsTest
+    static void testGetResumenBiotecnologiaPorCultivo_empty() {
+        Test.startTest();
+        ComprasHTController.ResumenBiotecnologia resumen =
+            ComprasHTController.getResumenBiotecnologiaPorCultivo('fakeCultivoId');
+        Test.stopTest();
+
+        System.assertNotEquals(null, resumen, 'Debe devolver wrapper');
+        System.assertNotEquals(null, resumen.rows, 'Debe devolver filas');
+        System.assertEquals(0, resumen.rows.size(), 'En test sin datos debe devolver vacío');
+        System.assertEquals(0, resumen.total, 'Total debe ser 0 en test');
     }
 }

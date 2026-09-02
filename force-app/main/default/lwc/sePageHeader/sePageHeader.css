@@ -72,12 +72,12 @@
 .search input {
     appearance: none;
     width: 100%;
-    border: 1.5px solid #1c1c1c;
+    border: 1.5px solid #bfff00;
     border-radius: 999px;
-    padding: 8px 14px;
-    min-height: 36px;
+    padding: 9px 16px;
+    min-height: 40px;
     font: inherit;
-    font-size: 14px;
+    font-size: 13px;
     background: #fff;
     color: #1c1c1c;
     box-sizing: border-box;

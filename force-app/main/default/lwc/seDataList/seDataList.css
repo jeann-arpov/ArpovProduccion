@@ -165,6 +165,24 @@
     text-align: right;
 }
 
+.v.email-link {
+    color: #4d6b00;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+.amount {
+    color: #8a5500;
+    font-weight: 800;
+}
+
+.cell-strong {
+    font-weight: 700;
+}
+
+.cell-accent {
+    color: #8a5500;
+}
+
 .lic-more {
     margin-top: 12px;
     font-weight: 700;
@@ -179,11 +197,16 @@
     appearance: none;
     background: #bfff00;
     color: #1c1c1c;
-    border: 2px solid #1c1c1c;
+    border: none;
     border-radius: 999px;
     padding: 12px 16px;
     text-decoration: none;
     text-align: center;
+}
+
+.lic-more--primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .lic-more--ghost {
@@ -191,11 +214,29 @@
     appearance: none;
     background: #fff;
     color: #1c1c1c;
-    border: 2px solid #1c1c1c;
+    border: 1px solid #dde2eb;
     border-radius: 999px;
     padding: 12px 16px;
     text-decoration: none;
     text-align: center;
+}
+
+.lic-more--link {
+    width: 100%;
+    appearance: none;
+    background: transparent;
+    color: #1c1c1c;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    text-decoration: underline;
+    text-align: left;
+}
+
+.lic-more--link:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    text-decoration: none;
 }
 
 .empty {

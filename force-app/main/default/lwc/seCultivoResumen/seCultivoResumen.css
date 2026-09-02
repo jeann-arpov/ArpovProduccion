@@ -1,0 +1,213 @@
+:host {
+    display: block;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    color: #1c1c1c;
+}
+
+.resumen {
+    margin-bottom: 16px;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid #dde2eb;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tab {
+    flex: none;
+    appearance: none;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 16px;
+    min-height: 44px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6b7280;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.tab-active {
+    color: #1c1c1c;
+    border-bottom-color: #bfff00;
+}
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.saldo {
+    background: #1c1c1c;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.saldo-title {
+    margin: 0;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.saldo-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.saldo-k {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.6);
+    overflow-wrap: anywhere;
+}
+
+.saldo-v {
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1;
+    color: #bfff00;
+    flex-shrink: 0;
+}
+
+.saldo-div {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.saldo-row-total .saldo-k {
+    color: #fff;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.saldo-row-total .saldo-v {
+    font-size: 28px;
+}
+
+.saldo-empty {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.45;
+}
+
+.content {
+    min-width: 0;
+}
+
+.after-saldo {
+    min-width: 0;
+}
+
+.after-saldo:empty {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .after-saldo {
+        display: none;
+    }
+}
+
+.saldo-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bone {
+    display: block;
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.14) 50%, rgba(255, 255, 255, 0.08) 100%);
+    background-size: 200% 100%;
+    animation: resumen-shimmer 1.1s ease-in-out infinite;
+}
+
+.bone-short {
+    width: 65%;
+}
+
+.bone-total {
+    height: 28px;
+    width: 45%;
+}
+
+@keyframes resumen-shimmer {
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+@media (max-width: 767px) {
+    .resumen-compact-mobile .tabs,
+    .resumen-compact-mobile .saldo {
+        display: none;
+    }
+
+    .resumen-compact-mobile .layout {
+        gap: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .tabs {
+        margin-bottom: 16px;
+    }
+
+    .saldo {
+        border-radius: 16px;
+        padding: 22px 20px;
+        gap: 14px;
+    }
+
+    .saldo-row-total .saldo-v {
+        font-size: 32px;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 290px) minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .saldo {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .content {
+        grid-column: 2;
+        grid-row: 1;
+    }
+}

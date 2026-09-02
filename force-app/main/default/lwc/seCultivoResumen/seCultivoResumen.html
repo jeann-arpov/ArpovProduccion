@@ -1,0 +1,66 @@
+<template>
+    <section class={resumenClass}>
+        <template if:true={hasTabs}>
+            <div class="tabs" role="tablist" aria-label="Cultivo">
+                <template for:each={tabItems} for:item="tab">
+                    <button
+                        key={tab.value}
+                        class={tab.tabClass}
+                        type="button"
+                        role="tab"
+                        aria-selected={tab.ariaSelected}
+                        data-value={tab.value}
+                        onclick={handleTabSelect}
+                    >
+                        {tab.label}
+                    </button>
+                </template>
+            </div>
+        </template>
+
+        <div class="layout">
+            <div class={saldoClass}>
+                <h3 class="saldo-title">{summaryTitle}</h3>
+
+                <template if:true={loading}>
+                    <div class="saldo-skeleton">
+                        <span class="bone"></span>
+                        <span class="bone bone-short"></span>
+                        <span class="bone bone-total"></span>
+                    </div>
+                </template>
+
+                <template if:false={loading}>
+                    <template if:true={hasSummaryContent}>
+                        <template for:each={summaryRows} for:item="row">
+                            <div key={row.key} class="saldo-row">
+                                <span class="saldo-k">{row.label}</span>
+                                <span class="saldo-v">{row.value}</span>
+                            </div>
+                        </template>
+
+                        <template if:true={hasTotal}>
+                            <div class="saldo-div"></div>
+                            <div class="saldo-row saldo-row-total">
+                                <span class="saldo-k">{totalLabel}</span>
+                                <span class="saldo-v">{formattedTotal}</span>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template if:false={hasSummaryContent}>
+                        <p class="saldo-empty">{emptyText}</p>
+                    </template>
+                </template>
+            </div>
+
+            <div class="after-saldo">
+                <slot name="afterSaldo"></slot>
+            </div>
+
+            <div class="content">
+                <slot></slot>
+            </div>
+        </div>
+    </section>
+</template>

@@ -1,5 +1,6 @@
 import { LightningElement, track, wire } from 'lwc';
 import getComprasHT from '@salesforce/apex/ComprasHTController.getComprasHT';
+import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import { trackGa4Event } from 'c/portalGa4Events';
 
 function pad(n) {
@@ -37,20 +38,29 @@ function splitVariedades(value) {
 
 const STATUS_ORDER = ['Pagada', 'Facturada', 'Vencida', 'Cancelada', 'Pendiente de Facturación', 'Pendiente'];
 const PAGE_SIZE = 200;
+const SESSION_KEYS = {
+    estado: 'selectedEstadoComprasProductor',
+    cultivo: 'selectedCultivoComprasProductor',
+    variedad: 'selectedVariedadComprasProductor'
+};
 
 export default class ComprasHtListProductor extends LightningElement {
+    iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
+
     @track comprasAll = [];
     @track filtered = [];
-    @track statusPills = [];
-    @track cultivoOptions = [];
-    @track variedadOptions = [];
+    @track estadoSelectOptions = [];
+    @track cultivoSelectOptions = [];
+    @track variedadSelectOptions = [];
     @track loading = true;
 
     pageSize = PAGE_SIZE;
     estadoSeleccionado = 'todas';
     cultivoSeleccionado = 'todas';
     variedadSeleccionada = 'todas';
-    searchKey = '';
+    searchTerm = '';
+    searchTimeout;
+    showFilters = false;
     _ga4ListadoTracked = false;
 
     columns = [
@@ -73,11 +83,21 @@ export default class ComprasHtListProductor extends LightningElement {
     connectedCallback() {
         document.documentElement.classList.add('se-inner');
         document.body.classList.add('se-inner');
+        this.loadSessionFilters();
     }
 
     disconnectedCallback() {
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+    }
+
+    loadSessionFilters() {
+        this.estadoSeleccionado = sessionStorage.getItem(SESSION_KEYS.estado) || 'todas';
+        this.cultivoSeleccionado = sessionStorage.getItem(SESSION_KEYS.cultivo) || 'todas';
+        this.variedadSeleccionada = sessionStorage.getItem(SESSION_KEYS.variedad) || 'todas';
     }
 
     @wire(getComprasHT)
@@ -102,7 +122,9 @@ export default class ComprasHtListProductor extends LightningElement {
             });
 
             this.applyFilters();
+            this.showFilters = true;
             this.loading = false;
+
             if (!this._ga4ListadoTracked) {
                 this._ga4ListadoTracked = true;
                 trackGa4Event('ht_listado_vista', { portal: 'Productor' });
@@ -113,24 +135,53 @@ export default class ComprasHtListProductor extends LightningElement {
         }
     }
 
-    handlePill(event) {
-        this.estadoSeleccionado = event.detail.id;
-        this.applyFilters();
+    get totalRegistros() {
+        return this.filtered.length;
     }
 
-    handleCultivo(event) {
-        this.cultivoSeleccionado = event.detail.value;
-        this.applyFilters();
+    get metaMaxElementos() {
+        return PAGE_SIZE;
     }
 
-    handleVariedad(event) {
-        this.variedadSeleccionada = event.detail.value;
-        this.applyFilters();
+    get filtroResumen() {
+        const partes = [];
+        if (this.estadoSeleccionado !== 'todas') partes.push(this.estadoSeleccionado);
+        if (this.cultivoSeleccionado !== 'todas') partes.push(this.cultivoSeleccionado);
+        if (this.variedadSeleccionada !== 'todas') partes.push(this.variedadSeleccionada);
+        if (this.searchTerm) partes.push(`"${this.searchTerm}"`);
+        return partes.length ? partes.join(' - ') : 'Todas las compras HT';
+    }
+
+    handleEstadoChange(event) {
+        this.estadoSeleccionado = event.detail.value || 'todas';
+        sessionStorage.setItem(SESSION_KEYS.estado, this.estadoSeleccionado);
+        this.applyFiltersWithDebounce();
+    }
+
+    handleCultivoChange(event) {
+        this.cultivoSeleccionado = event.detail.value || 'todas';
+        sessionStorage.setItem(SESSION_KEYS.cultivo, this.cultivoSeleccionado);
+        this.applyFiltersWithDebounce();
+    }
+
+    handleVariedadChange(event) {
+        this.variedadSeleccionada = event.detail.value || 'todas';
+        sessionStorage.setItem(SESSION_KEYS.variedad, this.variedadSeleccionada);
+        this.applyFiltersWithDebounce();
     }
 
     handleSearchChange(event) {
-        this.searchKey = (event.detail.value || '').toLowerCase();
-        this.applyFilters();
+        this.searchTerm = event.target.value;
+        this.applyFiltersWithDebounce();
+    }
+
+    applyFiltersWithDebounce() {
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+        this.searchTimeout = setTimeout(() => {
+            this.applyFilters();
+        }, 300);
     }
 
     applyFilters() {
@@ -142,25 +193,15 @@ export default class ComprasHtListProductor extends LightningElement {
         const statuses = Object.keys(counts).sort((a, b) => {
             const ia = STATUS_ORDER.indexOf(a);
             const ib = STATUS_ORDER.indexOf(b);
-            if (ia === -1 && ib === -1) return a.localeCompare(b);
+            if (ia === -1 && ib === -1) return a.localeCompare(b, 'es');
             if (ia === -1) return 1;
             if (ib === -1) return -1;
             return ia - ib;
         });
 
-        this.statusPills = [
-            {
-                id: 'todas',
-                label: 'Todas',
-                count: this.comprasAll.length,
-                selected: this.estadoSeleccionado === 'todas'
-            },
-            ...statuses.map((estado) => ({
-                id: estado,
-                label: estado,
-                count: counts[estado],
-                selected: this.estadoSeleccionado === estado
-            }))
+        this.estadoSelectOptions = [
+            { value: 'todas', label: 'Estado' },
+            ...statuses.map((estado) => ({ value: estado, label: estado }))
         ];
 
         const cultivoCounts = {};
@@ -172,21 +213,23 @@ export default class ComprasHtListProductor extends LightningElement {
             });
         });
 
-        this.cultivoOptions = [
-            { value: 'todas', label: 'Todos los cultivos' },
+        this.cultivoSelectOptions = [
+            { value: 'todas', label: 'Cultivo' },
             ...Object.keys(cultivoCounts)
                 .sort((a, b) => a.localeCompare(b, 'es'))
                 .map((cultivo) => ({ value: cultivo, label: cultivo }))
         ];
 
-        this.variedadOptions = [
-            { value: 'todas', label: 'Todas las variedades' },
+        this.variedadSelectOptions = [
+            { value: 'todas', label: 'Variedad' },
             ...Object.keys(variedadCounts)
                 .sort((a, b) => a.localeCompare(b, 'es'))
                 .map((variedad) => ({ value: variedad, label: variedad }))
         ];
 
+        const searchKey = (this.searchTerm || '').trim().toLowerCase();
         let rows = [...this.comprasAll];
+
         if (this.estadoSeleccionado !== 'todas') {
             rows = rows.filter((row) => row.estado === this.estadoSeleccionado);
         }
@@ -196,13 +239,22 @@ export default class ComprasHtListProductor extends LightningElement {
         if (this.variedadSeleccionada !== 'todas') {
             rows = rows.filter((row) => row.varietyList.includes(this.variedadSeleccionada));
         }
-        if (this.searchKey) {
-            rows = rows.filter(
-                (row) =>
-                    (row.name && row.name.toLowerCase().includes(this.searchKey)) ||
-                    (row.productor && row.productor.toLowerCase().includes(this.searchKey))
-            );
+        if (searchKey) {
+            rows = rows.filter((row) => {
+                const haystack = [
+                    row.name,
+                    row.productor,
+                    row.comercio,
+                    row.cultivo,
+                    row.variedades,
+                    row.estado
+                ]
+                    .join(' ')
+                    .toLowerCase();
+                return haystack.includes(searchKey);
+            });
         }
+
         this.filtered = rows;
     }
 

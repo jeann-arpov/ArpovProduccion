@@ -17,8 +17,12 @@ export default class SeDataList extends LightningElement {
     @api actionDisabledField = 'actionDisabled';
     /** Si está definido, usa el label por fila en mobile (ej. "Continuar adhesión →"). */
     @api mobileActionLabelField = '';
-    /** Campo por fila: "primary" | "ghost" para el CTA mobile. */
+    /** Campo por fila: "primary" | "ghost" | "link" para el CTA mobile. */
     @api mobileActionVariantField = '';
+    /** CTA mobile por defecto: "primary" | "ghost" | "link" (subrayado, mock LSG). */
+    @api mobileActionVariant = 'primary';
+    /** Oculta el CTA inferior en cards mobile (ej. Movimientos HT). */
+    @api hideMobileAction = false;
     /** Rows per page. 0 = show all, no pager (default). */
     @api pageSize = 0;
     @api loading = false;
@@ -67,7 +71,8 @@ export default class SeDataList extends LightningElement {
     get headerCells() {
         return (this.columns || []).map((col, index) => ({
             key: `h-${index}`,
-            label: col.label || ''
+            label: col.label || '',
+            thClass: col.type === 'action' ? 'th-action' : ''
         }));
     }
 
@@ -84,10 +89,14 @@ export default class SeDataList extends LightningElement {
                 ? record[this.mobileActionLabelField] || this.mobileActionLabel
                 : this.mobileActionLabel;
             const mobileVariant = this.mobileActionVariantField
-                ? record[this.mobileActionVariantField] || 'primary'
-                : 'primary';
-            const mobileActionClass =
-                'lic-more' + (mobileVariant === 'ghost' ? ' lic-more--ghost' : ' lic-more--primary');
+                ? record[this.mobileActionVariantField] || this.mobileActionVariant
+                : this.mobileActionVariant;
+            let mobileActionClass = 'lic-more lic-more--primary';
+            if (mobileVariant === 'ghost') {
+                mobileActionClass = 'lic-more lic-more--ghost';
+            } else if (mobileVariant === 'link') {
+                mobileActionClass = 'lic-more lic-more--link';
+            }
 
             return {
                 key,
@@ -100,13 +109,27 @@ export default class SeDataList extends LightningElement {
                 mobileActionClass,
                 cells: columns.map((col, index) => {
                     const type = col.type || 'text';
+                    const isAmount = type === 'amount';
+                    const isStrong = type === 'strong';
+                    const isAccent = type === 'accent';
+                    const rawValue = record[col.fieldName];
+                    const mailtoHref =
+                        type === 'mailto' && rawValue ? `mailto:${String(rawValue).trim()}` : '';
                     return {
                         key: `${key}-c${index}`,
-                        value: record[col.fieldName],
+                        value: rawValue,
                         isLink: type === 'link',
+                        isMailto: type === 'mailto' && Boolean(mailtoHref),
+                        mailtoHref,
                         isBadge: type === 'badge',
                         isAction: type === 'action',
-                        isText: type === 'text',
+                        isText: type === 'text' && !isAmount && !isStrong && !isAccent,
+                        isAmount,
+                        isStrong,
+                        isAccent,
+                        amountClass: isAmount ? 'amount' : '',
+                        strongClass: isStrong ? 'cell-strong' : '',
+                        accentClass: isAccent ? 'cell-accent' : '',
                         badgeClass:
                             type === 'badge'
                                 ? `badge ${record[col.toneField || this.badgeToneField] || 'info'}`
@@ -115,12 +138,18 @@ export default class SeDataList extends LightningElement {
                         tdClass: type === 'action' ? 'td-action' : ''
                     };
                 }),
-                fields: mobileFields.map((field, index) => ({
-                    labelKey: `${key}-k${index}`,
-                    valueKey: `${key}-v${index}`,
-                    label: field.label,
-                    value: record[field.fieldName]
-                }))
+                fields: mobileFields.map((field, index) => {
+                    const extraClass = field.valueClassField
+                        ? record[field.valueClassField] || ''
+                        : '';
+                    return {
+                        labelKey: `${key}-k${index}`,
+                        valueKey: `${key}-v${index}`,
+                        label: field.label,
+                        value: record[field.fieldName],
+                        valueClass: ('v' + (extraClass ? ` ${extraClass}` : '')).trim()
+                    };
+                })
             };
         });
     }

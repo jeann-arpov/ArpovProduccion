@@ -1,32 +1,105 @@
 <template>
     <c-se-list-page loading={loading}>
-        <c-se-page-header
-            slot="header"
-            eyebrow="MIS COMPRAS"
-            eyebrow-mobile="MÓDULOS · MIS COMPRAS"
-            title="Mis Compras HT"
-            subtitle="Compras HT del productor. Filtrá por estado, cultivo o variedad."
-            show-search
-            search-placeholder="Buscar..."
-            onsearchchange={handleSearchChange}
-        ></c-se-page-header>
+        <header slot="header" class="compras-header">
+            <div class="se-desk-only compras-header-desk">
+                <p class="eyebrow">Mis Compras / Compras HT</p>
 
-        <c-se-filter-pills slot="toolbar" items={statusPills} onselect={handlePill}></c-se-filter-pills>
+                <template lwc:if={showFilters}>
+                    <div class="compras-title-row">
+                        <h1 class="title">Mis Compras HT</h1>
+                        <div class="compras-actions">
+                            <c-se-select
+                                options={estadoSelectOptions}
+                                value={estadoSeleccionado}
+                                placeholder="Estado"
+                                onchange={handleEstadoChange}
+                            ></c-se-select>
+                            <c-se-select
+                                options={cultivoSelectOptions}
+                                value={cultivoSeleccionado}
+                                placeholder="Cultivo"
+                                onchange={handleCultivoChange}
+                            ></c-se-select>
+                            <c-se-select
+                                options={variedadSelectOptions}
+                                value={variedadSeleccionada}
+                                placeholder="Variedad"
+                                onchange={handleVariedadChange}
+                            ></c-se-select>
+                        </div>
+                    </div>
 
-        <div slot="filters">
-            <c-se-select
-                options={cultivoOptions}
-                value={cultivoSeleccionado}
-                placeholder="Todos los cultivos"
-                onchange={handleCultivo}
-            ></c-se-select>
-            <c-se-select
-                options={variedadOptions}
-                value={variedadSeleccionada}
-                placeholder="Todas las variedades"
-                onchange={handleVariedad}
-            ></c-se-select>
-        </div>
+                    <div class="compras-meta-row">
+                        <div class="compras-meta">
+                            <p class="compras-meta-line">
+                                <strong>{totalRegistros} elementos</strong>
+                                <span> (máximo {metaMaxElementos} elementos) · Ordenado por </span>
+                                <strong>Fecha de creación</strong>
+                            </p>
+                            <p class="compras-meta-line">
+                                <span>Filtrado por </span>
+                                <strong>{filtroResumen}</strong>
+                                <span> · Se actualizó hace una hora</span>
+                            </p>
+                        </div>
+                        <label class="compras-search">
+                            <span class="sr-only">Buscar</span>
+                            <input
+                                type="search"
+                                placeholder="Buscar..."
+                                value={searchTerm}
+                                oninput={handleSearchChange}
+                            />
+                            <span class="search-icon">
+                                <img src={iconSearchUrl} alt="" class="icon-svg" />
+                            </span>
+                        </label>
+                    </div>
+                </template>
+
+                <template lwc:else>
+                    <h1 class="title">Mis Compras HT</h1>
+                </template>
+            </div>
+
+            <div class="se-mob-only compras-header-mob">
+                <p class="eyebrow">Módulos · Mis Compras</p>
+                <h1 class="title">Todas mis Compras</h1>
+
+                <template lwc:if={showFilters}>
+                    <div class="compras-filters-scroll">
+                        <c-se-select
+                            inline
+                            options={estadoSelectOptions}
+                            value={estadoSeleccionado}
+                            placeholder="Estado"
+                            onchange={handleEstadoChange}
+                        ></c-se-select>
+                        <c-se-select
+                            inline
+                            options={cultivoSelectOptions}
+                            value={cultivoSeleccionado}
+                            placeholder="Cultivo"
+                            onchange={handleCultivoChange}
+                        ></c-se-select>
+                        <c-se-select
+                            inline
+                            options={variedadSelectOptions}
+                            value={variedadSeleccionada}
+                            placeholder="Variedad"
+                            onchange={handleVariedadChange}
+                        ></c-se-select>
+                    </div>
+                    <p class="compras-meta-mobile">
+                        <strong>{totalRegistros} elementos</strong>
+                        <span> · Ordenado por </span>
+                        <strong>Fecha de creación</strong>
+                        <br />
+                        <span>Se actualizó hace una hora</span>
+                    </p>
+                </template>
+            </div>
+        </header>
 
         <c-se-data-list
             records={filtered}
@@ -38,6 +111,7 @@
             key-field="id"
             action-label="Ver"
             mobile-action-label="Ver compra →"
+            mobile-action-variant="link"
             empty-text="No hay compras para mostrar."
             page-size={pageSize}
             loading={loading}

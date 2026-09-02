@@ -12,22 +12,55 @@
 
         <c-se-filter-pills slot="toolbar" items={statusPills} onselect={handlePill}></c-se-filter-pills>
 
-        <c-se-data-list
-            records={data}
-            columns={columns}
-            mobile-fields={mobileFields}
-            title-field="numero"
-            badge-field="statusLabel"
-            badge-tone-field="statusTone"
-            key-field="uniqueId"
-            action-label="Ver"
-            mobile-action-label="Ver factura (PDF) →"
-            empty-text="No hay facturas para mostrar."
-            action-disabled-field="actionDisabled"
-            page-size={pageSize}
-            loading={loading}
-            onrowaction={handleRowAction}
-        ></c-se-data-list>
+        <template if:true={showCultivoResumen}>
+            <c-se-cultivo-resumen
+                cultivos={cultivoOptions}
+                selected={selectedCultivoId}
+                rows={cultivoSummaryRows}
+                total-value={cultivoSummaryTotal}
+                loading={cultivoSummaryLoading}
+                hide-summary-on-mobile
+                onselect={handleCultivoResumenSelect}
+            >
+                <c-se-data-list
+                    records={data}
+                    columns={columns}
+                    mobile-fields={mobileFields}
+                    title-field="numero"
+                    badge-field="statusLabel"
+                    badge-tone-field="statusTone"
+                    key-field="uniqueId"
+                    action-label="Ver"
+                    mobile-action-label="Ver factura (PDF) →"
+                    mobile-action-variant="link"
+                    empty-text="No hay facturas para mostrar."
+                    action-disabled-field="actionDisabled"
+                    page-size={pageSize}
+                    loading={loading}
+                    onrowaction={handleRowAction}
+                ></c-se-data-list>
+            </c-se-cultivo-resumen>
+        </template>
+
+        <template if:false={showCultivoResumen}>
+            <c-se-data-list
+                records={data}
+                columns={columns}
+                mobile-fields={mobileFields}
+                title-field="numero"
+                badge-field="statusLabel"
+                badge-tone-field="statusTone"
+                key-field="uniqueId"
+                action-label="Ver"
+                mobile-action-label="Ver factura (PDF) →"
+                mobile-action-variant="link"
+                empty-text="No hay facturas para mostrar."
+                action-disabled-field="actionDisabled"
+                page-size={pageSize}
+                loading={loading}
+                onrowaction={handleRowAction}
+            ></c-se-data-list>
+        </template>
     </c-se-list-page>
 
     <c-pdf-reader></c-pdf-reader>

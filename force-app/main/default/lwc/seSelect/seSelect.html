@@ -5,10 +5,10 @@
             <span class="chev" aria-hidden="true"></span>
         </button>
         <template if:true={open}>
-            <div class="dd-menu" role="listbox">
+            <div class={menuClass} style={menuStyle} role="listbox">
                 <template for:each={menuItems} for:item="item">
                     <button
-                        key={item.value}
+                        key={item.key}
                         class={item.itemClass}
                         type="button"
                         role="option"

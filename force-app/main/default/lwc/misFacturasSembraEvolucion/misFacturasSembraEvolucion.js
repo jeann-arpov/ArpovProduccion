@@ -1,5 +1,6 @@
 import { LightningElement, track, api } from 'lwc';
 import getVencimientos from '@salesforce/apex/MisFacturasController.getVencimientos';
+import { fetchCultivoOptions, fetchCultivoSummary } from 'c/cultivoResumenService';
 import { reduceErrors } from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { doRequest } from 'c/utils';
@@ -45,6 +46,12 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     @track vencimientos = [];
     @track data = [];
     @track loading = true;
+    @track cultivoOptions = [];
+    @track cultivoSummaryRows = [];
+    @track selectedCultivoId;
+    @track cultivoSummaryTotal = 0;
+    @track cultivoSummaryLoading = false;
+    @track showCultivoResumen = false;
     statusFilter = 'todas';
     pageSize = 200;
     initialized = false;
@@ -134,7 +141,49 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
             });
 
             this.applyFilters();
+            await this.loadCultivoResumenOptions();
         });
+    }
+
+    async loadCultivoResumenOptions() {
+        try {
+            const { options, defaultId } = await fetchCultivoOptions();
+            this.cultivoOptions = options;
+            this.showCultivoResumen = options.length > 0;
+
+            if (options.length && !this.selectedCultivoId) {
+                this.selectedCultivoId = defaultId;
+                await this.loadCultivoSummary();
+            }
+        } catch (error) {
+            this.cultivoOptions = [];
+            this.showCultivoResumen = false;
+        }
+    }
+
+    async loadCultivoSummary() {
+        if (!this.selectedCultivoId) {
+            this.cultivoSummaryRows = [];
+            this.cultivoSummaryTotal = 0;
+            return;
+        }
+
+        this.cultivoSummaryLoading = true;
+        try {
+            const summary = await fetchCultivoSummary(this.selectedCultivoId);
+            this.cultivoSummaryRows = summary.rows;
+            this.cultivoSummaryTotal = summary.total;
+        } catch (error) {
+            this.cultivoSummaryRows = [];
+            this.cultivoSummaryTotal = 0;
+        } finally {
+            this.cultivoSummaryLoading = false;
+        }
+    }
+
+    handleCultivoResumenSelect(event) {
+        this.selectedCultivoId = event.detail?.value;
+        this.loadCultivoSummary();
     }
 
     handlePill(event) {
