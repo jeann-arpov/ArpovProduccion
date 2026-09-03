@@ -478,6 +478,7 @@ async crearNotaCreditoTotal() {
                     ventaId: activeId,
                     checkDuplicates: activeId != this.lastDuplicateCheckId,
                     origen: this.haveOrigenLegal,
+                    blanqueo: this.Blanqueo === true,
                     marcarRevisarCompra
                 });
 
@@ -517,6 +518,7 @@ async crearNotaCreditoTotal() {
                 ventaId: activeId,
                 checkDuplicates: activeId != this.lastDuplicateCheckId,
                 origen: this.haveOrigenLegal,
+                blanqueo: this.Blanqueo === true,
                 marcarRevisarCompra
             });
 
@@ -956,7 +958,7 @@ async crearNotaCreditoTotal() {
 
             this.haveLicence = res.TieneLicencia;
             this.haveOrigenLegal = res.origenLegal;
-            this.Blanqueo = res.Blanqueo;
+            this.Blanqueo = res.Blanqueo === true;
 
             if (res.origenLegal === true && res.TieneLicencia === true) {
                 return true;

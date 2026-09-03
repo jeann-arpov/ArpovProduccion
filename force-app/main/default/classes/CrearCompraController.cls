@@ -197,11 +197,22 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates,Boolean origen) {
-        return finalizarCompra(compraId, checkDuplicates, origen, false);
+        return finalizarCompra(compraId, checkDuplicates, origen, false, false);
     }
 
     @AuraEnabled
     public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates,Boolean origen, Boolean marcarRevisarCompra) {
+        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, false);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> finalizarCompra(
+        Id compraId,
+        Boolean checkDuplicates,
+        Boolean origen,
+        Boolean marcarRevisarCompra,
+        Boolean blanqueo
+    ) {
         Boolean tieneLicencia;
         List<Sobject> toUpdate = new List<SObject>();
         Compra_HT__c compra = getCompraData(compraId);
@@ -247,10 +258,12 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         if(tieneLicencia == true){
             opp.hasLicence__c = true;
         }
-        if(origen == false){
+
+        // Blanqueo ≠ falta de origen legal: solo marcar cuando canFinish indique blanqueo real
+        if(blanqueo == true){
             opp.Blanqueo__c = true;
         }
-        else if(origen == true){
+        if(origen == true){
             opp.hasLegalOrigin__c = true;
         }
 
