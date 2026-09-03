@@ -161,11 +161,22 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> finalizarVenta(Id ventaId, Boolean checkDuplicates, Boolean origen) {
-        return finalizarVenta(ventaId, checkDuplicates, origen, false);
+        return finalizarVenta(ventaId, checkDuplicates, origen, false, false);
     }
 
     @AuraEnabled
     public static Map<String, Object> finalizarVenta(Id ventaId, Boolean checkDuplicates, Boolean origen, Boolean marcarRevisarCompra) {
+        return finalizarVenta(ventaId, checkDuplicates, origen, marcarRevisarCompra, false);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> finalizarVenta(
+        Id ventaId,
+        Boolean checkDuplicates,
+        Boolean origen,
+        Boolean marcarRevisarCompra,
+        Boolean blanqueo
+    ) {
         try {
             List<Sobject> toUpdate = new List<SObject>();
             Boolean tieneLicencia;
@@ -216,10 +227,12 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
             if(tieneLicencia == true){
                 opp.hasLicence__c = true;
             }
-            if(origen == false){
+
+            // Blanqueo ≠ falta de origen legal: solo marcar cuando canFinish indique blanqueo real
+            if(blanqueo == true){
                 opp.Blanqueo__c = true;
             }
-            else if(origen == true){
+            if(origen == true){
                 opp.hasLegalOrigin__c = true;
             }
 

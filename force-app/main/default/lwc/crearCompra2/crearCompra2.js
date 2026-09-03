@@ -45,6 +45,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     isOpen2 = false;
     haveLicence;
     haveOrigenLegal;
+    @track Blanqueo;
     esFutura = false;
     Futura;
     tipoCompraSeleccionado = null;
@@ -389,6 +390,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                                     compraId: this.recordId,
                                     checkDuplicates: this.recordId != this.lastDuplicateCheckId,
                                     origen: this.haveOrigenLegal,
+                                    blanqueo: this.Blanqueo === true,
                                     marcarRevisarCompra
                                 });
                 
@@ -417,6 +419,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                                     compraId: this.recordId,
                                     checkDuplicates: this.recordId != this.lastDuplicateCheckId,
                                     origen: this.haveOrigenLegal,
+                                    blanqueo: this.Blanqueo === true,
                                     marcarRevisarCompra
                                 });
                 
@@ -443,6 +446,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                                     compraId: this.recordId,
                                     checkDuplicates: this.recordId != this.lastDuplicateCheckId,
                                     origen: this.haveOrigenLegal,
+                                    blanqueo: this.Blanqueo === true,
                                     marcarRevisarCompra
                                 });
                 
@@ -472,6 +476,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                             compraId: this.recordId,
                             checkDuplicates: this.recordId != this.lastDuplicateCheckId,
                             origen: this.haveOrigenLegal,
+                            blanqueo: this.Blanqueo === true,
                             marcarRevisarCompra
                         });
         
@@ -848,6 +853,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
             this.haveLicence = res.TieneLicencia;
             this.haveOrigenLegal = res.origenLegal;
+            this.Blanqueo = res.Blanqueo === true;
 
             if (res.origenLegal === true && res.TieneLicencia === true) {
                 return true;
