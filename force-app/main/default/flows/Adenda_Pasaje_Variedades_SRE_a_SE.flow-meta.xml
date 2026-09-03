@@ -103,10 +103,10 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Estado_Adenda__c</field>
+            <field>Regalia_extendida__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>Adenda aprobada</stringValue>
+                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <object>Licencia__c</object>
