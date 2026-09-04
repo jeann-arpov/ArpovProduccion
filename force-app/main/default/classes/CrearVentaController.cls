@@ -1,4 +1,4 @@
-﻿public without sharing class CrearVentaController extends ApexErrorHandler {
+public without sharing class CrearVentaController extends ApexErrorHandler {
   /*
         ProducciÃ³n es un desastre puede haber licencia vinculada a cuenta hija pero la variedad estar con la parent o viceversa
         AdemÃ¡s por ejemplo GDM puede tener una licencia para la hija y eso habilita variedades de las demas hijas del parent

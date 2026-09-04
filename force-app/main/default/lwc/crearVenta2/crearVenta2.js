@@ -737,7 +737,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
             ventaId: activeId,
             checkDuplicates: activeId != this.lastDuplicateCheckId,
             origen: this.haveOrigenLegal,
-            marcarRevisarCompra
+            marcarRevisarCompra,
+            blanqueo: this.Blanqueo === true
           });
 
           if (data.duplicate) {
@@ -778,7 +779,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         ventaId: activeId,
         checkDuplicates: activeId != this.lastDuplicateCheckId,
         origen: this.haveOrigenLegal,
-        marcarRevisarCompra
+        marcarRevisarCompra,
+        blanqueo: this.Blanqueo === true
       });
 
       if (data.duplicate) {
