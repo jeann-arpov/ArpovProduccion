@@ -1,7 +1,7 @@
-public without sharing class CrearVentaController extends ApexErrorHandler {
+﻿public without sharing class CrearVentaController extends ApexErrorHandler {
   /*
-        Producción es un desastre puede haber licencia vinculada a cuenta hija pero la variedad estar con la parent o viceversa
-        Además por ejemplo GDM puede tener una licencia para la hija y eso habilita variedades de las demas hijas del parent
+        ProducciÃ³n es un desastre puede haber licencia vinculada a cuenta hija pero la variedad estar con la parent o viceversa
+        AdemÃ¡s por ejemplo GDM puede tener una licencia para la hija y eso habilita variedades de las demas hijas del parent
         Tengo que permitir esos matches excepto para corteva (parent CUIT 30636021578)
     */
 
@@ -18,7 +18,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     String productorId
   ) {
     Boolean isPortalObtentores =
-      SolicitarLicencia.networkName == 'Sembrá Evolución Obtentor';
+      SolicitarLicencia.networkName == 'SembrÃ¡ EvoluciÃ³n Obtentor';
     List<Licencia__c> licences = !isPortalObtentores
       ? [
           SELECT Cuenta_Obtentor__c, Cuenta_Obtentor__r.ParentId
@@ -105,7 +105,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         AND Product2.Variedad2__r.Cultivo__c = :cultivoId
         AND IsActive = TRUE
         AND Pricebook2.IsActive = TRUE
-        AND PriceBook2.Name = 'Lista de Precios Sembrá Evolución'
+        AND PriceBook2.Name = 'Lista de Precios SembrÃ¡ EvoluciÃ³n'
         AND (Product2.Variedad2__r.Obtentor_Comercializa__c IN :obtentores
         OR (Product2.Variedad2__r.Obtentor_Comercializa__r.ParentId IN :obtentores
         AND Product2.Variedad2__r.Obtentor_Comercializa__r.Parent.N_CUIT__C != :cuitCorteva))
@@ -140,7 +140,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         AND Product2.Variedad2__r.Cultivo__c = :cultivoId
         AND IsActive = TRUE
         AND Pricebook2.IsActive = TRUE
-        AND priceBook2.Name = 'Lista de Precios Sembrá Evolución'
+        AND priceBook2.Name = 'Lista de Precios SembrÃ¡ EvoluciÃ³n'
         AND (Product2.Variedad2__r.Obtentor_Comercializa__c IN :obtentores
         OR Product2.Variedad2__r.Obtentor_Comercializa__r.ParentId IN :obtentores)
         AND (Product2.Variedad2__r.Sembra_Evolucion__c = TRUE
@@ -179,10 +179,10 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         AND Tipo_de_Licencia__c = 'Productor'
         AND (Cuenta_Obtentor__c IN :accounts
         OR Cuenta_Obtentor__r.ParentId IN :accounts)
-    ]; //se sacó la exclusión de CORTEVA 18/09/23
+    ]; //se sacÃ³ la exclusiÃ³n de CORTEVA 18/09/23
 
     Boolean isPortalObtentores =
-      SolicitarLicencia.networkName == 'Sembrá Evolución Obtentor';
+      SolicitarLicencia.networkName == 'SembrÃ¡ EvoluciÃ³n Obtentor';
 
     return licenciasProductor.isEmpty() ||
       (!isPortalObtentores && licenciasComercio.isEmpty())
@@ -365,7 +365,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     Boolean checkDuplicates,
     Boolean origen
   ) {
-    return finalizarVenta(ventaId, checkDuplicates, origen, false);
+    return finalizarVenta(ventaId, checkDuplicates, origen, false, false);
   }
 
   @AuraEnabled
@@ -374,6 +374,23 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     Boolean checkDuplicates,
     Boolean origen,
     Boolean marcarRevisarCompra
+  ) {
+    return finalizarVenta(
+      ventaId,
+      checkDuplicates,
+      origen,
+      marcarRevisarCompra,
+      false
+    );
+  }
+
+  @AuraEnabled
+  public static Map<String, Object> finalizarVenta(
+    Id ventaId,
+    Boolean checkDuplicates,
+    Boolean origen,
+    Boolean marcarRevisarCompra,
+    Boolean blanqueo
   ) {
     try {
       List<Sobject> toUpdate = new List<SObject>();
@@ -385,7 +402,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         return new Map<String, Object>{ 'duplicate' => true };
       }
 
-      venta.Estado__c = 'Pendiente de Facturación';
+      venta.Estado__c = 'Pendiente de FacturaciÃ³n';
       toUpdate.add(venta);
       if (Boolean.valueOf(marcarRevisarCompra) && venta.Compra_HT__c != null) {
         toUpdate.add(
@@ -455,9 +472,11 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         if (tieneLicencia == true) {
           opp.hasLicence__c = true;
         }
-        if (origen == false) {
+        // Blanqueo ≠ falta de origen legal: solo marcar cuando canFinish indique blanqueo real
+        if (blanqueo == true) {
           opp.Blanqueo__c = true;
-        } else if (origen == true) {
+        }
+        if (origen == true) {
           opp.hasLegalOrigin__c = true;
         }
 
@@ -469,7 +488,6 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       throw handleException(e, 'ERR-VTA-001', 'CrearVenta', ventaId);
     }
   }
-
   @AuraEnabled
   public static Map<String, Object> deleteItem(Id ventaId, Id itemId) {
     //validateComercio(ventaId);
@@ -524,7 +542,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     if (
       !Test.isRunningTest() &&
       [SELECT Estado__c FROM Venta_HT__c WHERE id = :ventaId].Estado__c !=
-      'Pendiente de Facturación'
+      'Pendiente de FacturaciÃ³n'
     )
       throw new AuraHandledException(
         Label.VENTAHT_Anular_Solo_Pendiente_Facturacion
@@ -628,7 +646,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       : [
           SELECT id
           FROM PriceBook2
-          WHERE name = 'Lista de Precios Sembrá Evolución'
+          WHERE name = 'Lista de Precios SembrÃ¡ EvoluciÃ³n'
         ]
         .id;
     venta.Comercio__c = Test.isRunningTest() ? acc.id : getAccount(null).id;
@@ -718,7 +736,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         )
       FROM Venta_HT__c
       WHERE
-        Estado__c IN ('Pendiente de Facturación', 'Facturada')
+        Estado__c IN ('Pendiente de FacturaciÃ³n', 'Facturada')
         AND Comercio__c = :getAccount(null).id
         AND id != :venta1.Id
         AND CreatedDate >= :marzo
@@ -757,7 +775,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     return true;
   }
   /***********************************************************************************************************************
-   * Método para guardar observaciones realizadas desde el portal. Relacionado a Facturacción Mixta.
+   * MÃ©todo para guardar observaciones realizadas desde el portal. Relacionado a FacturacciÃ³n Mixta.
    * Autor: Rodrigo Lopez
    * Fecha: 29/09/2025
    *********************************************************************************************************************/
@@ -780,7 +798,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
   }
 
   /***********************************************************************************************************************
-   * Método para obtener observaciones realizadas desde el portal. Relacionado a Facturacción Mixta.
+   * MÃ©todo para obtener observaciones realizadas desde el portal. Relacionado a FacturacciÃ³n Mixta.
    * Autor: Nerio Alvarado
    * Fecha: 20/10/2025
    *********************************************************************************************************************/
@@ -800,7 +818,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     }
   }
   /***********************************************************************************************************************
-   * Método para Actualizar las oportunidades. Relacionado a Facturacción Mixta.
+   * MÃ©todo para Actualizar las oportunidades. Relacionado a FacturacciÃ³n Mixta.
    * Autor: Nerio Alvarado
    * Fecha: 20/10/2025
    *********************************************************************************************************************/
@@ -899,13 +917,13 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       'DPO' => 1,
       'Venta' => 1
     },
-    'Pre Básica' => new Map<String, Integer>{
+    'Pre BÃ¡sica' => new Map<String, Integer>{
       'C' => 1,
       'DPD' => -1,
       'TDS' => -1,
       'Venta' => -1
     },
-    'Primera Multiplicación' => new Map<String, Integer>{
+    'Primera MultiplicaciÃ³n' => new Map<String, Integer>{
       'C' => 1,
       'DPD' => -1,
       'DPO' => 1,
@@ -918,9 +936,9 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     if (VentasCRM.size() > 0) {
       // Recorremos los registros
       for (Venta__c v : VentasCRM) {
-        // Cuando el Tipo de Producto es Regalía Comercial
-        if (v.Tipo_de_Producto__c == 'Regalía Comercial') {
-          // Evaluamos la categoría
+        // Cuando el Tipo de Producto es RegalÃ­a Comercial
+        if (v.Tipo_de_Producto__c == 'RegalÃ­a Comercial') {
+          // Evaluamos la categorÃ­a
           if (v.Categoria__c == 'Original o Fundadora') {
             // Evaluamos el tipo de venta
             if (v.Tipo_de_Venta__c == 'C') {
@@ -1021,7 +1039,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     );
   }
 
-  // Origen legal y blanqueo: solo ventas CRM (Semba Evolución). Sin cesiones ni compras HT.
+  // Origen legal y blanqueo: solo ventas CRM (Semba EvoluciÃ³n). Sin cesiones ni compras HT.
   @AuraEnabled
   public static Map<String, Object> canFinish(
     Map<String, Object> semillero,
@@ -1124,7 +1142,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
   }
 
   /***********************************************************************************************************************
-   * Métodos para Nota de Crédito Parcial (por Precio y por Cantidad)
+   * MÃ©todos para Nota de CrÃ©dito Parcial (por Precio y por Cantidad)
    *********************************************************************************************************************/
 
   @AuraEnabled
@@ -1136,7 +1154,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
     try {
       System.debug(
-        'Creando Nota de Crédito Parcial por Precio - Venta: ' + ventaId
+        'Creando Nota de CrÃ©dito Parcial por Precio - Venta: ' + ventaId
       );
       System.debug('JSON recibido: ' + lineasConAjustes);
 
@@ -1168,9 +1186,11 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       return crearRespuestaExito(notaCredito, resultado);
     } catch (Exception e) {
       Database.rollback(sp);
-      System.debug('Error al crear Nota de Crédito Parcial: ' + e.getMessage());
+      System.debug(
+        'Error al crear Nota de CrÃ©dito Parcial: ' + e.getMessage()
+      );
       throw new AuraHandledException(
-        'Error al crear Nota de Crédito: ' + e.getMessage()
+        'Error al crear Nota de CrÃ©dito: ' + e.getMessage()
       );
     }
   }
@@ -1184,7 +1204,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
     try {
       System.debug(
-        'Creando Nota de Crédito Parcial por Cantidad - Venta: ' + ventaId
+        'Creando Nota de CrÃ©dito Parcial por Cantidad - Venta: ' + ventaId
       );
       System.debug('JSON recibido: ' + lineasConAjustes);
 
@@ -1219,10 +1239,11 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     } catch (Exception e) {
       Database.rollback(sp);
       System.debug(
-        'Error al crear Nota de Crédito Parcial por Cantidad: ' + e.getMessage()
+        'Error al crear Nota de CrÃ©dito Parcial por Cantidad: ' +
+        e.getMessage()
       );
       throw new AuraHandledException(
-        'Error al crear Nota de Crédito por Cantidad: ' + e.getMessage()
+        'Error al crear Nota de CrÃ©dito por Cantidad: ' + e.getMessage()
       );
     }
   }
@@ -1247,7 +1268,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
     if (venta.Estado__c != 'Facturada') {
       throw new AuraHandledException(
-        'Solo se pueden crear Notas de Crédito para ventas en estado Facturada'
+        'Solo se pueden crear Notas de CrÃ©dito para ventas en estado Facturada'
       );
     }
 
@@ -1279,11 +1300,11 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         ajustes.add(ajuste);
       }
 
-      System.debug('Número de ajustes convertidos: ' + ajustes.size());
+      System.debug('NÃºmero de ajustes convertidos: ' + ajustes.size());
 
       if (ajustes.isEmpty()) {
         throw new AuraHandledException(
-          'No se encontraron ajustes válidos para procesar'
+          'No se encontraron ajustes vÃ¡lidos para procesar'
         );
       }
 
@@ -1391,7 +1412,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     Decimal valorNuevo = (Decimal) ajuste.get('valorNuevo');
     String observaciones = (String) ajuste.get('observaciones');
     System.debug(
-      'Procesando línea individual - ID: ' +
+      'Procesando lÃ­nea individual - ID: ' +
         lineaId +
         ' Observaciones: ' +
         observaciones
@@ -1399,7 +1420,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
     Linea_de_Venta_HT__c lineaOriginal = lineasOriginalesMap.get(lineaId);
     if (lineaOriginal == null) {
-      System.debug('Línea original no encontrada: ' + lineaId);
+      System.debug('LÃ­nea original no encontrada: ' + lineaId);
       return new ProcesarLineaResultado(null, null);
     }
 
@@ -1432,20 +1453,20 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
   ) {
     if (cantidadNueva > cantidadActual) {
       throw new AuraHandledException(
-        'La nueva cantidad no puede ser mayor a la cantidad actual para la línea: ' +
+        'La nueva cantidad no puede ser mayor a la cantidad actual para la lÃ­nea: ' +
         nombreLinea
       );
     }
 
     if (cantidadNueva < 0) {
       throw new AuraHandledException(
-        'La cantidad no puede ser negativa para la línea: ' + nombreLinea
+        'La cantidad no puede ser negativa para la lÃ­nea: ' + nombreLinea
       );
     }
 
     if (cantidadNueva == cantidadActual) {
       throw new AuraHandledException(
-        'La nueva cantidad debe ser diferente a la cantidad actual para generar una nota de crédito: ' +
+        'La nueva cantidad debe ser diferente a la cantidad actual para generar una nota de crÃ©dito: ' +
         nombreLinea
       );
     }
@@ -1458,20 +1479,20 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
   ) {
     if (valorNuevo > valorAnterior) {
       throw new AuraHandledException(
-        'El nuevo precio no puede ser mayor al precio actual para la línea: ' +
+        'El nuevo precio no puede ser mayor al precio actual para la lÃ­nea: ' +
         nombreLinea
       );
     }
 
     if (valorNuevo < 0) {
       throw new AuraHandledException(
-        'El precio no puede ser negativo para la línea: ' + nombreLinea
+        'El precio no puede ser negativo para la lÃ­nea: ' + nombreLinea
       );
     }
 
     if (valorNuevo == valorAnterior) {
       throw new AuraHandledException(
-        'El nuevo precio debe ser diferente al precio actual para generar una nota de crédito: ' +
+        'El nuevo precio debe ser diferente al precio actual para generar una nota de crÃ©dito: ' +
         nombreLinea
       );
     }
@@ -1494,7 +1515,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     tracking.Valor_Nuevo__c = valorNuevo;
     tracking.Diferencia__c = valorAnterior - valorNuevo;
     tracking.Fecha_de_Procesamiento__c = System.now();
-    tracking.Estado__c = 'Pendiente de Facturación';
+    tracking.Estado__c = 'Pendiente de FacturaciÃ³n';
     tracking.Observaciones__c = observaciones;
 
     return tracking;
@@ -1540,7 +1561,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     notaCredito.Cuenta_Productor__c = ventaOriginal.Cuenta_Productor__c;
     notaCredito.Cultivo__c = ventaOriginal.Cultivo__c;
     notaCredito.Es_NC__c = true;
-    notaCredito.Estado__c = 'Pendiente de Facturación';
+    notaCredito.Estado__c = 'Pendiente de FacturaciÃ³n';
     notaCredito.Lista_de_Precios__c = ventaOriginal.Lista_de_Precios__c;
     notaCredito.Name = ventaOriginal.Name + '-NCP';
     notaCredito.Obtentor__c = ventaOriginal.Obtentor__c;
@@ -1602,7 +1623,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       );
 
       if (String.isBlank(observaciones) || observaciones.trim().length() < 20) {
-        lineasSinObservaciones.add('Línea ' + (i + 1));
+        lineasSinObservaciones.add('LÃ­nea ' + (i + 1));
       }
     }
 
@@ -1610,11 +1631,11 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       String mensajeError =
         'Debe ingresar al menos 20 caracteres de observaciones para las siguientes lineas: ' +
         String.join(lineasSinObservaciones, ', ');
-      System.debug('Error de validación: ' + mensajeError);
+      System.debug('Error de validaciÃ³n: ' + mensajeError);
       throw new AuraHandledException(mensajeError);
     }
 
-    System.debug('Todas las líneas tienen observaciones válidas');
+    System.debug('Todas las lÃ­neas tienen observaciones vÃ¡lidas');
   }
 
   private static ProcesamientoResultado procesarLineasConAjustesCantidad(
@@ -1704,7 +1725,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     String observaciones = (String) ajuste.get('observaciones');
 
     System.debug(
-      'Procesando línea individual por Cantidad - ID: ' +
+      'Procesando lÃ­nea individual por Cantidad - ID: ' +
         lineaId +
         ', Observaciones: ' +
         observaciones
@@ -1712,7 +1733,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
     Linea_de_Venta_HT__c lineaOriginal = lineasOriginalesMap.get(lineaId);
     if (lineaOriginal == null) {
-      System.debug('Línea original no encontrada: ' + lineaId);
+      System.debug('LÃ­nea original no encontrada: ' + lineaId);
       return new ProcesarLineaResultado(null, null);
     }
 
@@ -1748,7 +1769,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     notaCredito.Cuenta_Productor__c = ventaOriginal.Cuenta_Productor__c;
     notaCredito.Cultivo__c = ventaOriginal.Cultivo__c;
     notaCredito.Es_NC__c = true;
-    notaCredito.Estado__c = 'Pendiente de Facturación';
+    notaCredito.Estado__c = 'Pendiente de FacturaciÃ³n';
     notaCredito.Lista_de_Precios__c = ventaOriginal.Lista_de_Precios__c;
     notaCredito.Name = ventaOriginal.Name + '-NCC';
     notaCredito.Obtentor__c = ventaOriginal.Obtentor__c;
@@ -1804,7 +1825,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     tracking.Valor_Nuevo__c = valorNuevo;
     tracking.Diferencia__c = valorAnterior - valorNuevo;
     tracking.Fecha_de_Procesamiento__c = System.now();
-    tracking.Estado__c = 'Pendiente de Facturación';
+    tracking.Estado__c = 'Pendiente de FacturaciÃ³n';
     tracking.Observaciones__c = observaciones;
 
     return tracking;
@@ -1910,10 +1931,10 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       return resultado;
     } catch (Exception e) {
       System.debug(
-        'Error al verificar notas de crédito pendientes: ' + e.getMessage()
+        'Error al verificar notas de crÃ©dito pendientes: ' + e.getMessage()
       );
       throw new AuraHandledException(
-        'Error al verificar notas de crédito: ' + e.getMessage()
+        'Error al verificar notas de crÃ©dito: ' + e.getMessage()
       );
     }
   }
@@ -1997,7 +2018,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
           Venta_Original__c = :ventaId
           AND Es_NC__c = TRUE
           AND Tipo_Ajuste__c = 'NCC'
-          AND Estado__c = 'Pendiente de Facturación'
+          AND Estado__c = 'Pendiente de FacturaciÃ³n'
       ];
       Decimal ncPendiente = (Decimal) ncPendienteResult.get('total');
       htAjustadaPendiente = ncPendiente != null ? ncPendiente : 0;
@@ -2101,7 +2122,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       resultado.put('etapaOriginal', etapaOriginal);
       resultado.put('etapaDebito', etapaDebito);
     } catch (Exception e) {
-      System.debug('Error al obtener saldo HT por línea: ' + e.getMessage());
+      System.debug('Error al obtener saldo HT por lÃ­nea: ' + e.getMessage());
     }
 
     return resultado;
@@ -2141,7 +2162,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       ];
       return (countHtNegativos > 0);
     } catch (Exception e) {
-      System.debug('Error al verificar HT/NC por línea: ' + e.getMessage());
+      System.debug('Error al verificar HT/NC por lÃ­nea: ' + e.getMessage());
     }
 
     return false;
