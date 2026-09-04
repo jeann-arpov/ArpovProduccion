@@ -1,9 +1,78 @@
 @import 'c/pphCss';
 
 :host {
-    display: block;
+    display: block !important;
+    visibility: visible !important;
+    width: 100%;
+    min-height: 50vh;
     font-family: "Montserrat", "Roboto", Arial, sans-serif;
     color: #1c1c1c;
+    background: #f3f4f6;
+    padding: 28px 32px 40px;
+    box-sizing: border-box;
+}
+
+.pph-debug {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border: 2px dashed #f59e0b;
+    border-radius: 10px;
+    background: #fffbeb;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #78350f;
+}
+
+.pph-debug-title {
+    margin: 0 0 6px;
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.pph-debug-snapshot {
+    margin: 0 0 8px;
+    word-break: break-word;
+}
+
+.pph-debug-error {
+    margin: 0 0 8px;
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.pph-debug-log {
+    margin: 0;
+    padding-left: 18px;
+    max-height: 160px;
+    overflow: auto;
+}
+
+.pph-load-error {
+    margin: 16px;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #7f1d1d;
+}
+
+.pph-load-error h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.pph-load-error p {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.pph-load-error-hint {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #6b7280;
 }
 
 .se-desk-only {
@@ -14,6 +83,139 @@
     max-width: 1180px;
     margin: 0 auto;
     box-sizing: border-box;
+    width: 100%;
+}
+
+.pph-trace-block {
+    margin-bottom: 16px;
+}
+
+.pph-trace-label {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.pph-trace-warn {
+    margin: 0;
+    padding: 10px;
+    background: #fef2f2;
+    color: #991b1b;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.pph-mock-banner {
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #bfff00;
+    color: #1c1c1c;
+    font-size: 14px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.pph-mock-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pph-mock-eyebrow {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.pph-mock-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.pph-mock-sub {
+    margin: 0;
+    font-size: 13px;
+    color: #4b5563;
+}
+
+.pph-mock-badge {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f1f7dc;
+    color: #4d6b00;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pph-mock-kv {
+    margin: 8px 0 0;
+    padding: 0;
+}
+
+.pph-mock-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 8px 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.pph-mock-row dt {
+    margin: 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.pph-mock-row dd {
+    margin: 0;
+    font-size: 14px;
+}
+
+.pph-mock-strong {
+    font-weight: 800;
+}
+
+.pph-mock-warn {
+    color: #8a2222;
+    font-weight: 700;
+}
+
+.pph-mock-note {
+    margin: 8px 0 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: #fffbeb;
+    border: 1px dashed #f59e0b;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #78350f;
+}
+
+.pph-status-bar {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.se-panel--pph-readonly {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .se-panel {
@@ -30,10 +232,121 @@
     gap: 16px;
 }
 
+.pph-wiz {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pph-wiz-prog {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.pph-wiz-prog-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1c1c;
+    margin-bottom: 8px;
+}
+
+.pph-wiz-prog-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+}
+
+.pph-wiz-prog-fill {
+    display: block;
+    height: 100%;
+    background: #bfff00;
+    border-radius: 999px;
+}
+
+.pph-wiz-steps {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.pph-wiz-step {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+}
+
+.pph-wiz-step.is-active {
+    color: #1c1c1c;
+    font-weight: 800;
+}
+
+.pph-wiz-step.is-done {
+    color: #4b5563;
+}
+
+.pph-wiz-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+@media (min-width: 960px) {
+    .pph-wiz-layout {
+        grid-template-columns: minmax(0, 1.6fr) minmax(240px, 0.7fr);
+    }
+}
+
+.se-panel--pph-resumen {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.pph-step-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.pph-step-eyebrow {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.pph-step-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.pph-step-sub {
+    margin: 0;
+    font-size: 14px;
+    color: #4b5563;
+}
+
 .se-panel--pph-tc {
     padding: 0;
     border: none;
     background: transparent;
+    max-width: none;
 }
 
 .se-link-btn {
@@ -135,6 +448,13 @@
     gap: 12px;
     justify-content: flex-end;
     margin-top: 8px;
+}
+
+.se-panel-actions--detalle {
+    max-width: 1180px;
+    margin: 16px auto 0;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
 .se-side-card {

@@ -99,14 +99,17 @@ export default class ResumenPph extends LightningElement {
     }
 
     get canRectificar() {
-        const params = this.info.plan.Parametro_PPH__r;
-        return (
-            this.info.plan.Estado__c === 'Adherido' &&
-            params.Fecha_Inicio_Rectificacion_1__c != null &&
-            params.Fecha_Fin_Rectificacion_1__c != null &&
-            new Date() >= new Date(params.Fecha_Inicio_Rectificacion_1__c) &&
-            new Date() <= new Date(params.Fecha_Fin_Rectificacion_1__c)
-        );
+        const params = this.info?.plan?.Parametro_PPH__r;
+        if (!params || this.info?.plan?.Estado__c !== 'Adherido') return false;
+        return this.isWithinWindow(params, 1) || this.isWithinWindow(params, 2);
+    }
+
+    isWithinWindow(params, n) {
+        const start = params[`Fecha_Inicio_Rectificacion_${n}__c`];
+        const end = params[`Fecha_Fin_Rectificacion_${n}__c`];
+        if (!start || !end) return false;
+        const now = new Date();
+        return now >= new Date(start) && now <= new Date(end);
     }
 
     changeCollapsed(event) {

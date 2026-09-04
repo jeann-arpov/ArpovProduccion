@@ -1,7 +1,6 @@
 <template>
     <div if:true={shouldShow}>
-        <template if:true={isWizardVariant}>
-            <div class="se-var-row">
+        <div if:true={isWizardVariant} class="se-var-row">
                 <div class="se-var-brand" aria-hidden="true">
                     <svg class="se-var-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100">
                         <use xlink:href={icono}></use>
@@ -27,11 +26,9 @@
                     message-when-range-overflow="HT disponibles insuficientes"
                     message-when-value-missing="Requerido"
                 ></lightning-input>
-            </div>
-        </template>
+        </div>
 
-        <template if:false={isWizardVariant}>
-            <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center">
+        <lightning-layout if:false={isWizardVariant} vertical-align="center" horizontal-align="space" class="slds-text-align_center">
                 <lightning-layout-item size="2">
                     <svg width="200" height="100">;
                         <use xlink:href={icono}></use>
@@ -46,7 +43,6 @@
                 <lightning-layout-item size="1">
                     <lightning-formatted-number class="slds-m-horizontal_large disponibles" value={safeDisponibles}></lightning-formatted-number>
                 </lightning-layout-item>
-            </lightning-layout>
-        </template>
+        </lightning-layout>
     </div>
 </template>

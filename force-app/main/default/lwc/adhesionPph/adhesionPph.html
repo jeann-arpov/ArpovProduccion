@@ -1,5 +1,13 @@
 <template>
-    <div class="se-adhesion-root" onclick={loadingClick}>
+    <div class="se-adhesion-root">
+        <template if:true={showLoadError}>
+            <section class="pph-load-error">
+                <h2>No se pudo cargar la adhesión PPH</h2>
+                <p>{loadError}</p>
+                <p class="pph-load-error-hint">Revisá que la URL tenga <code>?recordId=</code> con el Id del Parámetro PPH.</p>
+            </section>
+        </template>
+
         <template if:true={loading}>
             <div class="exampleHolder">
                 <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
@@ -7,173 +15,168 @@
         </template>
 
         <template if:true={showDeclarationWizard}>
-            <c-se-mob-wizard
-                title={mobPageTitle}
-                subtitle={mobPageSubtitle}
-                desk-title={deskPageTitle}
-                desk-subtitle={deskPageSubtitle}
-                title-badge={cultivoPillLabel}
-                current-step={wizardStep}
-                total-steps={wizardStepsTotal}
-                step-labels={wizardStepLabels}
-                footer-variant="dual"
-                cancel-label={mobCancelLabel}
-                footer-status={mobFooterStatus}
-                continue-label={mobFooterContinuarLabel}
-                continue-disabled={mobFooterContinuarDisabled}
-                show-footer={showMobWizardFooter}
-                onback={handleMobBack}
-                onclose={handleMobClose}
-                oncancel={handleMobCancel}
-                oncontinue={handleMobContinuar}
-            >
-                <section class="se-panel se-panel--pph-step">
-                    <button type="button" class="se-link-btn" onclick={handleOnInformarPagoClick}>
-                        No veo mis HTs
-                    </button>
-
-                    <div class="se-saldo-card">
-                        <span class="se-saldo-label">Saldo PPH disponible</span>
-                        <span class="se-saldo-value">{saldoPphLabel} HT</span>
-                        <span class="se-saldo-sub">{cultivoPillLabel} · {paramName}</span>
+            <div class="pph-wiz">
+                <div class="pph-wiz-prog" aria-label="Progreso">
+                    <div class="pph-wiz-prog-row">
+                        <span>{wizardProgressLabel}</span>
+                        <span>{wizardProgressPctLabel}</span>
                     </div>
+                    <div class="pph-wiz-prog-bar" aria-hidden="true">
+                        <span class="pph-wiz-prog-fill" style={wizardProgressBarStyle}></span>
+                    </div>
+                    <div class="pph-wiz-steps">
+                        <template for:each={wizardStepsUi} for:item="s">
+                            <span key={s.key} class={s.className}>{s.label}</span>
+                        </template>
+                    </div>
+                </div>
 
-                    <template for:each={establecimientos} for:item="establecimiento">
-                        <c-establecimiento-pph
-                            cultivo={plan.Parametro_PPH__r.Cultivo__r}
-                            class="se-est-block"
-                            key={establecimiento.id}
-                            info={establecimiento}
-                            hiding={hiding}
-                            grandes-cuentas={grandesCuentas}
-                            variant="wizard"
-                            onupdatecantidad={updateCantidad}
-                            onshowmap={showMap}
-                            onremove={remove}
-                            onautosave={autosave}
-                            onestablecimientochange={changeEstablecimiento}
-                            onpasoestablecimiento={handlePasoEstablecimiento}
-                            onpasohectareasnose={handlePasoHectareasNoSE}
-                        ></c-establecimiento-pph>
-                    </template>
+                <div class="pph-wiz-layout">
+                    <section class="se-panel se-panel--pph-step">
+                        <header class="pph-step-head">
+                            <p class="pph-step-eyebrow" if:true={cultivoPillLabel}>{cultivoPillLabel}</p>
+                            <h1 class="pph-step-title">{mobPageTitle}</h1>
+                            <p class="pph-step-sub">{mobPageSubtitle}</p>
+                        </header>
 
-                    <button
-                        type="button"
-                        class="se-add-est pph-add-est"
-                        onclick={addRow}
-                        if:false={hideAddEstablecimiento}
-                    >
-                        <lightning-icon icon-name="utility:add" size="x-small" alternative-text="Agregar"></lightning-icon>
-                        Agregar establecimiento
-                    </button>
+                        <button type="button" class="se-link-btn" onclick={handleOnInformarPagoClick}>
+                            No veo mis HTs
+                        </button>
 
-                    <div class="se-panel-actions se-desk-only">
-                        <button type="button" class="se-btn se-btn-ghost" onclick={handleMobClose}>Cancelar</button>
-                        <template if:true={isAdhesion}>
+                        <div class="se-saldo-card">
+                            <span class="se-saldo-label">Saldo PPH disponible</span>
+                            <span class="se-saldo-value">{saldoPphLabel} HT</span>
+                            <span class="se-saldo-sub">{cultivoPillLabel} · {paramName}</span>
+                        </div>
+
+                        <template for:each={establecimientos} for:item="establecimiento">
+                            <c-establecimiento-pph
+                                cultivo={plan.Parametro_PPH__r.Cultivo__r}
+                                class="se-est-block"
+                                key={establecimiento.id}
+                                info={establecimiento}
+                                hiding={hiding}
+                                grandes-cuentas={grandesCuentas}
+                                variant="wizard"
+                                onupdatecantidad={updateCantidad}
+                                onshowmap={showMap}
+                                onremove={remove}
+                                onautosave={autosave}
+                                onestablecimientochange={changeEstablecimiento}
+                                onpasoestablecimiento={handlePasoEstablecimiento}
+                                onpasohectareasnose={handlePasoHectareasNoSE}
+                            ></c-establecimiento-pph>
+                        </template>
+
+                        <button
+                            type="button"
+                            class="se-add-est"
+                            onclick={addRow}
+                            if:false={hideAddEstablecimiento}
+                        >
+                            + Agregar establecimiento
+                        </button>
+
+                        <div class="se-panel-actions">
+                            <button type="button" class="se-btn se-btn-ghost" onclick={handleMobClose}>Cancelar</button>
                             <button
                                 type="button"
                                 class="se-btn se-btn-primary continue"
                                 disabled={mobFooterContinuarDisabled}
                                 onclick={handleMobContinuar}
                             >Continuar →</button>
-                        </template>
-                        <template if:true={isEdit}>
-                            <button type="button" class="se-btn se-btn-primary" onclick={backToResumen}>
-                                Volver al resumen
-                            </button>
-                        </template>
-                    </div>
-                </section>
+                        </div>
+                    </section>
 
-                <aside slot="aside" class="se-side-card">
-                    <p class="se-side-eyebrow">Resumen</p>
-                    <h2 class="se-side-title">Adhesión PPH</h2>
-                    <dl class="se-side-list">
-                        <div class="se-side-row">
-                            <dt>Campaña</dt>
-                            <dd>{paramName}</dd>
+                    <aside class="se-side-card se-desk-only">
+                        <p class="se-side-eyebrow">Resumen</p>
+                        <h2 class="se-side-title">Adhesión PPH</h2>
+                        <dl class="se-side-list">
+                            <div class="se-side-row">
+                                <dt>Campaña</dt>
+                                <dd>{paramName}</dd>
+                            </div>
+                            <div class="se-side-row">
+                                <dt>Cultivo</dt>
+                                <dd>{cultivoPillLabel}</dd>
+                            </div>
+                            <div class="se-side-row">
+                                <dt>Establecimientos</dt>
+                                <dd>{deskEstablecimientosCount}</dd>
+                            </div>
+                        </dl>
+                        <div class="se-side-total">
+                            <span class="se-side-total-label">HT SE declaradas</span>
+                            <span class="se-side-total-value">{deskTotalSeLabel}</span>
                         </div>
-                        <div class="se-side-row">
-                            <dt>Cultivo</dt>
-                            <dd>{cultivoPillLabel}</dd>
-                        </div>
-                        <div class="se-side-row">
-                            <dt>Establecimientos</dt>
-                            <dd>{deskEstablecimientosCount}</dd>
-                        </div>
-                    </dl>
-                    <div class="se-side-total">
-                        <span class="se-side-total-label">HT SE declaradas</span>
-                        <span class="se-side-total-value">{deskTotalSeLabel}</span>
-                    </div>
-                </aside>
-            </c-se-mob-wizard>
+                    </aside>
+                </div>
+            </div>
         </template>
 
-        <template if:true={isTerminosYCondiciones}>
-            <c-se-mob-wizard
-                title="Términos y condiciones"
-                desk-title="Términos y condiciones"
-                subtitle={mobPageSubtitle}
-                desk-subtitle={deskPageSubtitle}
-                title-badge={cultivoPillLabel}
-                current-step={wizardStepsTotal}
-                total-steps={wizardStepsTotal}
-                step-labels={wizardStepLabels}
-                show-footer={hideTerminosFooter}
-                onclose={cancelTerms}
-            >
-                <section class="se-panel se-panel--pph-tc">
-                    <c-terminos-y-condiciones
-                        cultivo={cultivo}
-                        grandes-cuentas={grandesCuentas}
-                        campaña={campaña}
-                        oncancel={cancelTerms}
-                        onaccept={acceptTerms}
-                    ></c-terminos-y-condiciones>
-                </section>
-            </c-se-mob-wizard>
+        <template if:true={showTerminos}>
+            <section class="se-panel se-panel--pph-tc">
+                <c-terminos-y-condiciones
+                    cultivo={cultivo}
+                    grandes-cuentas={grandesCuentas}
+                    campaña={campaña}
+                    oncancel={cancelTerms}
+                    onaccept={acceptTerms}
+                ></c-terminos-y-condiciones>
+            </section>
         </template>
 
-        <template if:true={isResumen}>
-            <c-se-mob-wizard
-                title={resumenMobTitle}
-                desk-title={resumenDeskTitle}
-                subtitle={mobPageSubtitle}
-                title-badge={cultivoPillLabel}
-                current-step={wizardStepsTotal}
-                total-steps={wizardStepsTotal}
-                step-labels={wizardStepLabels}
-                footer-variant="dual"
-                cancel-label={resumenCancelLabel}
-                continue-label={resumenContinueLabel}
-                continue-disabled={resumenEnviarDisabled}
-                show-footer={showResumenMobFooter}
-                onback={handleResumenBack}
-                onclose={handleMobClose}
-                oncancel={handleResumenSecondary}
-                oncontinue={handleResumenPrimary}
-            >
+        <template if:true={showPphDetalle}>
+            <c-pph-detalle
+                info={resumenData}
+                certificado-document-id={certificadoDocumentId}
+                onback={handleDetalleBack}
+                ondownloadpdf={handleDetalleDownloadPdf}
+                onnotify={handleDetalleNotify}
+            ></c-pph-detalle>
+        </template>
+        <div class="se-panel-actions se-panel-actions--detalle" if:true={showDetalleRectificar}>
+            <button
+                type="button"
+                class="se-btn se-btn-primary"
+                onclick={rectificarConfirm}
+            >Rectificar</button>
+        </div>
+
+        <template if:true={showResumenContent}>
+            <section class="se-panel se-panel--pph-resumen">
                 <c-resumen-pph
                     mobile-embedded={isResumenMobileEmbedded}
-                    info={data}
+                    info={resumenData}
                     onedit={edit}
                     onenviar={enviarConfirm}
                     onrectificar={rectificarConfirm}
                 ></c-resumen-pph>
-
-                <div class="se-panel-actions se-desk-only se-resumen-desk-actions">
-                    <button type="button" class="se-btn se-btn-ghost" onclick={handleResumenSecondary}>
-                        {resumenDeskSecondaryLabel}
+                <div class="se-panel-actions">
+                    <button type="button" class="se-btn se-btn-ghost" onclick={handleDetalleBack}>
+                        Volver a adhesiones
                     </button>
                     <button
                         type="button"
                         class="se-btn se-btn-primary"
-                        disabled={resumenEnviarDisabled}
-                        onclick={handleResumenPrimary}
-                    >{resumenDeskPrimaryLabel}</button>
+                        if:true={canEditResumen}
+                        onclick={enviarConfirm}
+                    >Enviar adhesión</button>
+                    <button
+                        type="button"
+                        class="se-btn se-btn-primary"
+                        if:true={canRectificarResumen}
+                        onclick={rectificarConfirm}
+                    >Rectificar</button>
                 </div>
-            </c-se-mob-wizard>
+            </section>
+        </template>
+
+        <template if:true={showEmptyState}>
+            <section class="pph-load-error">
+                <h2>No hay contenido para mostrar</h2>
+                <p>El plan cargó pero ninguna vista quedó activa.</p>
+            </section>
         </template>
 
         <c-map onlocationselected={updateLocation}></c-map>
@@ -183,5 +186,6 @@
             onclose={closeModal}
         ></c-modals-pph>
         <c-informar-pago></c-informar-pago>
+        <c-pdf-reader></c-pdf-reader>
     </div>
 </template>

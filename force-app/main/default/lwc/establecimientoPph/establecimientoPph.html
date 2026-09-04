@@ -1,7 +1,6 @@
 <template>
     <div class={establecimientoClass}>
-        <template if:true={isWizardVariant}>
-            <article class="se-est-card">
+        <article if:true={isWizardVariant} class="se-est-card">
                 <header class="se-est-head" if:false={grandesCuentas}>
                     <div>
                         <p class="se-est-eyebrow">Establecimiento</p>
@@ -40,7 +39,7 @@
                         Para editar nombre o coordenadas, andá a Pre Certificación &gt; Mis Establecimientos.
                     </p>
 
-                    <template if:false={establecimiento}>
+                    <div if:false={establecimiento}>
                         <p class="se-field-label se-field-label--spaced">O creá uno nuevo</p>
                         <lightning-input
                             label="Nombre"
@@ -55,7 +54,7 @@
                             <span class="se-geo-label">Georeferencia</span>
                             <span class="se-geo-value">{mapCoodinates}</span>
                         </button>
-                    </template>
+                    </div>
                 </div>
 
                 <div class={infoClass}>
@@ -115,10 +114,9 @@
                 >
                     {collapsedLabel}
                 </button>
-            </article>
-        </template>
+        </article>
 
-        <template if:false={isWizardVariant}>
+        <div if:false={isWizardVariant}>
             <div class="title slds-p-left_large slds-p-right_small slds-p-vertical_small slds-m-bottom_medium" if:false={grandesCuentas}>
                 <b>{titulo}</b>
                 <lightning-button-icon size="large" class="slds-float_right" icon-name="utility:delete" variant="bare" alternative-text="Eliminar Establecimiento" title="Eliminar Establecimiento" onclick={remove}></lightning-button-icon>
@@ -194,6 +192,6 @@
                 <lightning-button-icon size="large" if:false={collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed}></lightning-button-icon>
                 <lightning-button-icon size="large" if:true={collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed}></lightning-button-icon>
             </lightning-layout>
-        </template>
+        </div>
     </div>
 </template>

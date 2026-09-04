@@ -5,7 +5,25 @@ export default class TerminosYCondiciones extends LightningElement {
     @api grandesCuentas;
     @api campaña;
     saveDisabled = true;
-    
+    scrolledToEnd = false;
+    accepted = false;
+
+    get eyebrowLabel() {
+        const cultivo = this.cultivo || '';
+        const campania = this.campaña || '';
+        const plan = campania ? `Plan de Siembra ${campania}` : 'Plan de Siembra';
+        const crop = cultivo ? ` · ${cultivo}` : '';
+        return `Adhesión al Programa de Precertificación de Hectáreas (PPH) – ${plan}${crop}`;
+    }
+
+    get checkboxDisabled() {
+        return !this.scrolledToEnd;
+    }
+
+    get acceptDisabled() {
+        return !this.scrolledToEnd || !this.accepted;
+    }
+
     get terminosYCondiciones() {
         if(this.cultivo == 'SOJA'){
             if(this.grandesCuentas == false){
@@ -593,24 +611,25 @@ export default class TerminosYCondiciones extends LightningElement {
     }
 
     scrollTerminos(e) {
-        console.log(e.target.scrollHeight, e.target.scrollTop, e.target.clientHeight)
-        if (e.target.scrollHeight <= e.target.scrollTop + e.target.clientHeight + 5) {
+        const el = e.target;
+        if (el.scrollHeight <= el.scrollTop + el.clientHeight + 5) {
+            this.scrolledToEnd = true;
             this.saveDisabled = false;
         }
     }
 
-    cancel(e) {
+    handleCheckChange(e) {
+        this.accepted = e.target.checked;
+    }
+
+    cancel() {
         this.dispatchEvent(new CustomEvent("cancel"));
     }
 
-    accept(e) {
-        const terms = this.template.querySelector('.terms');
-
-        if (terms.checked) {
-            this.dispatchEvent(new CustomEvent("accept"));
-        } else {
-            terms.setCustomValidity('Debe aceptar los términos y condiciones');
-            terms.reportValidity();
+    accept() {
+        if (!this.accepted) {
+            return;
         }
+        this.dispatchEvent(new CustomEvent("accept"));
     }
 }

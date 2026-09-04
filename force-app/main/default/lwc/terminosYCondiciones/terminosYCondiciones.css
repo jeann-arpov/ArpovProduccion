@@ -1,17 +1,239 @@
-.terminos {
-    white-space: pre-wrap;
-    max-height: 500px;
+:host {
     display: block;
-    overflow-y: scroll;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    color: #1c1c1c;
 }
 
-.actions lightning-button {
-    --slds-c-button-text-color: black;
-    --slds-c-button-radius-border: 50px;
-    --slds-c-button-neutral-color-border: black;
+.tc-root {
+    max-width: 920px;
+    margin: 0 auto;
 }
 
-lightning-button.green {
-    --slds-c-button-neutral-color-background: var(--pph-green);
-    --slds-c-button-neutral-color-background-hover: var(--pph-green);
+.tc-eyebrow {
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #2e4cb0;
+}
+
+.tc-title {
+    margin: 0 0 20px;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.tc-steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 22px;
+    padding: 14px 18px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.tc-step {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    font-size: 12px;
+    color: #6b7280;
+    min-width: 0;
+}
+
+.tc-step:not(:last-child) {
+    border-right: 1px solid #e5e7eb;
+    padding-right: 12px;
+}
+
+.tc-step:first-child {
+    padding-left: 0;
+}
+
+.tc-step:last-child {
+    padding-right: 0;
+}
+
+.tc-step--current {
+    font-size: 13px;
+    font-weight: 800;
+    color: #1c1c1c;
+}
+
+.tc-step-marker {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    background: #e5e7eb;
+    color: #1c1c1c;
+}
+
+.tc-step--done .tc-step-marker {
+    background: #bfff00;
+    color: #1c1c1c;
+}
+
+.tc-step--current .tc-step-marker {
+    background: #1c1c1c;
+    color: #fff;
+}
+
+.tc-step-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tc-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-sizing: border-box;
+}
+
+.tc-scroll {
+    height: 280px;
+    overflow: auto;
+    padding: 16px 18px;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #1c1c1c;
+    box-sizing: border-box;
+}
+
+.tc-rich {
+    display: block;
+    white-space: pre-wrap;
+}
+
+.tc-check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tc-check {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    accent-color: #bfff00;
+    cursor: pointer;
+}
+
+.tc-check:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.tc-check-label {
+    line-height: 1.3;
+}
+
+.tc-hint {
+    margin: 6px 0 0 28px;
+    font-size: 12px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.tc-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.tc-btn {
+    appearance: none;
+    border-radius: 999px;
+    padding: 12px 22px;
+    min-height: 44px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.tc-btn-ghost {
+    background: #fff;
+    border: 1.5px solid #1c1c1c;
+    color: #1c1c1c;
+}
+
+.tc-btn-primary {
+    background: #bfff00;
+    border: 1.5px solid #1c1c1c;
+    color: #1c1c1c;
+}
+
+.tc-btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+    .tc-title {
+        font-size: 22px;
+    }
+
+    .tc-steps {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 14px;
+    }
+
+    .tc-step,
+    .tc-step:not(:last-child),
+    .tc-step:first-child,
+    .tc-step:last-child {
+        padding: 0;
+        border-right: none;
+    }
+
+    .tc-step:not(:last-child) {
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tc-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .tc-scroll {
+        height: 240px;
+        padding: 12px 14px;
+    }
+
+    .tc-actions {
+        flex-direction: column-reverse;
+    }
+
+    .tc-btn {
+        width: 100%;
+    }
 }

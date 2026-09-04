@@ -1,3 +1,69 @@
 :host {
     display: block;
 }
+
+.pph-list-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 0 16px 24px;
+}
+
+.pph-add-est {
+    appearance: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 18px;
+    border-radius: 999px;
+    border: 1.5px dashed #1c1c1c;
+    background: transparent;
+    color: #1c1c1c;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pph-add-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: #bfff00;
+    color: #1c1c1c;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.pph-help-link {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 4px 0;
+    margin: 0 auto;
+    font-size: 12px;
+    color: #6b7280;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .pph-list-footer {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0 0;
+    }
+
+    .pph-add-est {
+        width: auto;
+        min-width: 280px;
+    }
+}

@@ -130,7 +130,7 @@
 .pph-btn-primary {
     appearance: none;
     width: 100%;
-    border: 2px solid #1c1c1c;
+    border: none;
     border-radius: 999px;
     background: #bfff00;
     color: #1c1c1c;

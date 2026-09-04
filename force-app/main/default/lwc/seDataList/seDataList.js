@@ -138,18 +138,24 @@ export default class SeDataList extends LightningElement {
                         tdClass: type === 'action' ? 'td-action' : ''
                     };
                 }),
-                fields: mobileFields.map((field, index) => {
+                fields: mobileFields
+                    .map((field, index) => {
                     const extraClass = field.valueClassField
                         ? record[field.valueClassField] || ''
                         : '';
+                    const label = field.labelFieldName
+                        ? record[field.labelFieldName] || field.label || ''
+                        : field.label;
+                    const value = record[field.fieldName];
                     return {
                         labelKey: `${key}-k${index}`,
                         valueKey: `${key}-v${index}`,
-                        label: field.label,
-                        value: record[field.fieldName],
+                        label,
+                        value,
                         valueClass: ('v' + (extraClass ? ` ${extraClass}` : '')).trim()
                     };
                 })
+                    .filter((field) => field.label || field.value)
             };
         });
     }

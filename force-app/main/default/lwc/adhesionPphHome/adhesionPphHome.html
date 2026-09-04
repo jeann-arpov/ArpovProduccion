@@ -24,7 +24,19 @@
             loading={loading}
             onrowaction={handleRowAction}
         ></c-se-data-list>
+
+        <div slot="pager" class="pph-list-footer">
+            <button type="button" class="pph-add-est" onclick={handleAddEstablecimiento}>
+                <span class="pph-add-icon" aria-hidden="true">+</span>
+                Agregar Establecimiento
+            </button>
+            <button type="button" class="pph-help-link" onclick={handleNoVeoHts}>
+                No veo mis HTs
+            </button>
+        </div>
     </c-se-list-page>
 
+    <c-establecimientos-map hide-chrome></c-establecimientos-map>
+    <c-informar-pago></c-informar-pago>
     <c-pdf-reader></c-pdf-reader>
 </template>

@@ -15,6 +15,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
 
     showModal = false;
     title;
+    variant = 'legacy';
 
     fieldSetMembers = null;
     _extraFields = {}
@@ -28,7 +29,6 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
 
     @wire(getFieldSetFieldsByFieldSetName,{objectApiName: 'Case', fieldSetName: 'Informar_Pago'})
     wiredGetFieldSetFieldsByFieldSetName({error,data}){
-        console.log(data,error);
         if(data){
             this.fieldSetMembers = data;
         }else if(error){
@@ -36,14 +36,38 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
         }
     }
 
+    get isSgVariant() {
+        return this.variant === 'sg';
+    }
+
+    get isLegacyVariant() {
+        return !this.isSgVariant;
+    }
+
+    get showSgModal() {
+        return this.showModal && this.isSgVariant;
+    }
+
+    get showLegacyModal() {
+        return this.showModal && this.isLegacyVariant;
+    }
+
+    get hasDocs() {
+        return (this.docs || []).length > 0;
+    }
+
+    get fields() {
+        return this.fieldSetMembers || [];
+    }
+
     @api
     show(data) {
         this._extraFields = {};
         this.subject = data.subject || ('CUIT: ' + data.cuit + ' - ' + data.comprobante + ' - Informar Pago');
-        console.log(this.subject);
         this._extraFields['Subject'] = this.subject;
         this._processing = true;
-        this.title = data.title
+        this.title = data.title;
+        this.variant = data.variant || 'legacy';
         this.showModal = true;
         this.recordId = data.recordId;
         this.accountId = data.accountId;
@@ -53,7 +77,15 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
 
     @api
     hide() {
-        this.showModal = true;
+        this.showModal = false;
+    }
+
+    handleScrimClick() {
+        this.handleOnCloseModal();
+    }
+
+    stopPropagation(event) {
+        event.stopPropagation();
     }
 
     handleOnCloseModal() {
@@ -162,9 +194,12 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     }
 
     showSuccess(){
+        const message = this.isSgVariant
+            ? 'Tu reclamo se registró correctamente.'
+            : 'Información de pago registrada éxitosamente.';
         this.dispatchEvent(
             new ShowToastEvent({
-                message: 'Información de pago registrada éxitosamente.',
+                message,
                 variant: 'success'
             })
         );

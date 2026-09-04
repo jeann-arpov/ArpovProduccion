@@ -1,0 +1,217 @@
+:host {
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+}
+
+.ip-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(28, 28, 28, 0.55);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 16px 24px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.ip-dialog {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    max-width: 820px;
+    width: 100%;
+    padding: 26px 30px 22px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    color: #1c1c1c;
+}
+
+.ip-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    color: #1c1c1c;
+}
+
+.ip-title {
+    margin: 0 0 4px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.ip-rule {
+    height: 2px;
+    background: #bfff00;
+    border-radius: 2px;
+    margin: 12px 0 20px;
+}
+
+.ip-field {
+    margin-bottom: 14px;
+}
+
+.ip-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.ip-req {
+    color: #8a2222;
+    margin-right: 2px;
+}
+
+.ip-asunto {
+    padding: 10px 14px;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #1c1c1c;
+    word-break: break-word;
+}
+
+.ip-input-field {
+    display: block;
+    width: 100%;
+}
+
+.ip-dialog lightning-input-field {
+    --slds-c-input-radius-border: 10px;
+    --slds-c-textarea-radius-border: 10px;
+    --slds-c-input-color-border: #bfff00;
+    --slds-c-textarea-color-border: #bfff00;
+    --slds-c-input-shadow-focus: none;
+}
+
+.ip-upload-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.ip-file-upload {
+    flex: 0 0 auto;
+}
+
+.ip-dropzone {
+    flex: 1 1 180px;
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 1.5px dashed #d1d5db;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.ip-docs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.ip-doc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.ip-doc-name {
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ip-doc-del {
+    appearance: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #6b7280;
+    padding: 4px 6px;
+}
+
+.ip-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 6px;
+}
+
+.ip-btn {
+    appearance: none;
+    border-radius: 999px;
+    min-height: 40px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.ip-btn-ghost {
+    background: #fff;
+    border: 1.5px solid #1c1c1c;
+    color: #1c1c1c;
+}
+
+.ip-btn-primary {
+    background: #bfff00;
+    border: 1.5px solid #1c1c1c;
+    color: #1c1c1c;
+}
+
+@media (max-width: 767px) {
+    .ip-scrim {
+        padding: 24px 12px;
+        align-items: center;
+    }
+
+    .ip-dialog {
+        padding: 20px 16px 16px;
+    }
+
+    .ip-close {
+        top: 8px;
+        right: 8px;
+    }
+
+    .ip-actions {
+        flex-direction: column-reverse;
+    }
+
+    .ip-btn {
+        width: 100%;
+    }
+}

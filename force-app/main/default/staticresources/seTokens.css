@@ -517,6 +517,25 @@ body.se-register-guest [role="main"].cCenterPanel {
   width: 100% !important;
   max-width: none !important;
   padding: 0 !important;
+  position: static !important;
+  background: transparent !important;
+}
+
+/* Theme login: .cCenterPanel::before crea una banda que intercepta clicks. */
+body.se-login-guest .salesforceIdentityLoginBody2 .cCenterPanel::before,
+body.se-login-guest .cCenterPanel::before,
+body.se-register-guest .salesforceIdentityLoginBody2 .cCenterPanel::before,
+body.se-register-guest .cCenterPanel::before {
+  display: none !important;
+  content: none !important;
+  pointer-events: none !important;
+}
+
+body.se-login-guest .cCenterPanel > *,
+body.se-register-guest .cCenterPanel > * {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
 }
 
 body.se-login-guest .comm-page-content,
@@ -582,7 +601,8 @@ body.se-register-guest c-se-register {
   display: block;
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 9999;
   width: 100vw;
   height: 100vh;
+  pointer-events: auto;
 }

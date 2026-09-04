@@ -1,6 +1,7 @@
 import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import getLoadData from '@salesforce/apex/AdhesionPPHHome.getLoadData';
+import getContext from '@salesforce/apex/AdhesionPPHHome.getContext';
 import { errorEvent } from 'c/utils';
 
 const PAGE_SIZE = 200;
@@ -19,6 +20,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     loading = true;
     initialized = false;
     pageSize = PAGE_SIZE;
+    accountContext = null;
 
     rectificacionTooltip =
         'Tenés una rectificación de PPH sin finalizar. Ingresá, completá tu plan de siembra y aceptá los términos y condiciones.';
@@ -26,6 +28,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     columns = [
         { label: 'Campaña', fieldName: 'title', type: 'link' },
         { label: 'Cultivo', fieldName: 'cultivo' },
+        { label: 'Establecimiento', fieldName: 'establecimientoLabel' },
         { label: 'Período', fieldName: 'periodo' },
         { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
         { label: '', fieldName: 'action', type: 'action', actionLabel: 'Abrir' }
@@ -33,7 +36,8 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
 
     mobileFields = [
         { label: 'Cultivo', fieldName: 'cultivo' },
-        { label: 'Período', fieldName: 'periodo' }
+        { label: 'Establecimiento', fieldName: 'establecimientoLabel' },
+        { labelFieldName: 'mobileExtraLabel', fieldName: 'mobileExtraValue' }
     ];
 
     connectedCallback() {
@@ -56,7 +60,8 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         this.initialized = true;
 
         try {
-            const data = await getLoadData();
+            const [data, context] = await Promise.all([getLoadData(), getContext()]);
+            this.accountContext = context;
             this.rowsAll = this.flattenRows(data);
             this.loading = false;
         } catch (error) {
@@ -106,6 +111,9 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             contentDocumentId: wParam.contentDocumentId,
             title: wParam.parametro.Name,
             cultivo: cultivo.Name,
+            establecimientoLabel: wParam.establecimientoLabel || '—',
+            mobileExtraLabel: wParam.mobileExtraLabel || '',
+            mobileExtraValue: wParam.mobileExtraValue || '',
             periodo,
             statusLabel,
             statusTone: statusTone(statusLabel),
@@ -146,6 +154,20 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         if (row.actionName === 'Adherir' || row.actionName === 'Continuar' || row.actionName === 'Ver') {
             this.redirectToParam(row.paramId);
         }
+    }
+
+    handleAddEstablecimiento() {
+        this.template.querySelector('c-establecimientos-map')?.openNew?.();
+    }
+
+    handleNoVeoHts() {
+        const cuit = this.accountContext?.cuit || '';
+        this.template.querySelector('c-informar-pago')?.show({
+            title: 'No veo mis HTs',
+            subject: `CUIT: ${cuit} · PPH`,
+            accountId: this.accountContext?.accountId,
+            variant: 'sg'
+        });
     }
 
     getDisableAction(wParam, actionName) {

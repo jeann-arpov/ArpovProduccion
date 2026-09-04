@@ -5,8 +5,12 @@ import deleteEstablecimiento from "@salesforce/apex/AdhesionPPH.deleteEstablecim
 import acceptTerms from "@salesforce/apex/AdhesionPPH.acceptTerms";
 import sendAdhesion from "@salesforce/apex/AdhesionPPH.sendAdhesion";
 import rectificarAdhesion from "@salesforce/apex/AdhesionPPH.rectificarAdhesion";
-import { errorEvent, warningEvent, trackEvent } from "c/utils";
+import rectificarAdhesion2 from "@salesforce/apex/AdhesionPPH.rectificarAdhesion2";
+import { errorEvent, warningEvent, reduceErrors } from "c/utils";
+import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import {trackGa4Event} from 'c/portalGa4Events';
+
+const DEBUG_PPH = false;
 
 const CSS = `
 .toastMessage{
@@ -30,8 +34,22 @@ export default class AdhesionPph extends LightningElement {
   hiding = {};
   htsGlobales = {}; // Las HTs globales de PPH están porque se certificaron previo a las HTs por variedad. Son hts sin variedad
   saldoPph;
+  certificadoDocumentId;
   reportedSteps = {};
   wizardStep = 1;
+  @track debugLines = [];
+  @track loadError = "";
+  @track debugSnapshot = "";
+  @track resumenData;
+  detalleRenderFailed = false;
+
+  get planEstadoLabel() {
+    return this.plan?.Estado__c || "cargando";
+  }
+
+  get statusBarLabel() {
+    return `PPH · ${this.cultivoPillLabel || "—"} · ${this.planEstadoLabel} · paso ${this.step}`;
+  }
 
   get parametro() {
     const parametro = new URL(window.location.href).searchParams.get(
@@ -40,58 +58,101 @@ export default class AdhesionPph extends LightningElement {
     return parametro;
   }
 
+  debugLog(message, detail) {
+    if (!DEBUG_PPH) return;
+    const line =
+      detail !== undefined ? `${message} ${JSON.stringify(detail)}` : message;
+    this.debugLines = [
+      ...this.debugLines.slice(-24),
+      `${new Date().toISOString().slice(11, 19)} ${line}`
+    ];
+    this.updateDebugSnapshot();
+  }
+
+  updateDebugSnapshot() {
+    this.debugSnapshot = [
+      `parametro=${this.parametro || "(vacío)"}`,
+      `loading=${this.loading}`,
+      `step=${this.step}`,
+      `plan=${this.plan?.Estado__c || "(sin plan)"}`,
+      `wizard=${this.showDeclarationWizard}`,
+      `terminos=${this.isTerminosYCondiciones}`,
+      `resumen=${this.isResumen}`,
+      `detalle=${this.isDetalleView}`,
+      `showDetalle=${this.showPphDetalle}`,
+      `rectificar=${this.canRectificarResumen}`,
+      `establecimientos=${this.establecimientos?.length || 0}`,
+      `variedades=${this.variedades?.length || 0}`
+    ].join(" | ");
+  }
+
+  errorCallback(error, stack) {
+    const message = error?.message || String(error);
+    this.loadError = message;
+    console.error("[adhesionPph] errorCallback", message, stack, error);
+    this.detalleRenderFailed = true;
+    if (!this.isResumen && this.plan) {
+      try {
+        this.goToResumenStep();
+      } catch (e) {
+        console.error("[adhesionPph] errorCallback fallback", e);
+      }
+    }
+    this.debugLog("errorCallback", { message, stack });
+    this.dispatchEvent(
+      new ShowToastEvent({
+        title: "Error PPH (render)",
+        message,
+        variant: "error",
+        mode: "sticky"
+      })
+    );
+  }
+
   async init() {
     this.initialized = true;
 
     try {
+      if (!this.parametro) {
+        throw new Error(
+          "Falta recordId en la URL (?recordId=Id del Parametro PPH)."
+        );
+      }
       const data = await getLoadData({ parametroId: this.parametro });
       this.loadData(data);
-      console.log(data);
     } catch (e) {
+      this.loadError = reduceErrors(e).join("; ");
+      console.error("[adhesionPph] init stack", e);
       this.onError(e);
     }
 
     this.loading = false;
+    if (DEBUG_PPH) {
+      this.updateDebugSnapshot();
+    }
   }
 
   loadData(data) {
     this.variedades = data.variedades ? data.variedades : this.variedades;
 
     if (data.stockPorVariedad) {
-      this.variedades.forEach((v) => (v.totals = data.stockPorVariedad[v.Id]));
-      this.htsGlobales = data.stockGlobal;
+      this.variedades.forEach((v) => {
+        v.totals = data.stockPorVariedad[v.Id] || v.totals || { total: 0, current: 0 };
+      });
+      this.htsGlobales = data.stockGlobal || {};
     }
 
     if (data.account) this.account = data.account;
     if (data.plan) this.plan = data.plan;
-    console.log("ejecuta el trackGa4Event");
     trackGa4Event("pph_declaracion_iniciada");
-   /* if (
-      this.plan &&
-      (this.plan.Estado__c === "Sin adherir" ||
-        this.plan.Estado__c === "En Preparación")
-    ) {
-      trackEvent("pph_declaracion_iniciada");
-    }*/
-
-    if (this.plan) {
-      const campaña =
-        this.plan.Parametro_PPH__r?.Name?.match(/\d{4}\/\d{4}/)?.[0];
-      console.log(
-        "campaña",
-        this.plan.Parametro_PPH__r?.Name?.match(/\d{4}\/\d{4}/)
-      );
-      console.log("Campañas", {
-        campaña,
-        parametroName: this.plan.Parametro_PPH__r?.Name,
-        planName: this.plan.Name,
-        cultivo: this.plan.Parametro_PPH__r?.Cultivo__r?.Name
-      });
-    }
 
     this.saldoPph = data.saldoPph;
+    this.certificadoDocumentId = data.certificadoDocumentId;
 
-    this.variedades.forEach((v) => (v.totals.current = 0));
+    this.variedades.forEach((v) => {
+      if (!v.totals) v.totals = { total: 0, current: 0 };
+      v.totals.current = 0;
+    });
 
     const variedades = Object.fromEntries(
       this.variedades.map((v) => [v.Id, v])
@@ -116,6 +177,9 @@ export default class AdhesionPph extends LightningElement {
           record,
           variedad: variedades[variedadId]
         });
+        if (!variedades[variedadId].totals) {
+          variedades[variedadId].totals = { total: 0, current: 0 };
+        }
         variedades[variedadId].totals.current +=
           record.Cantidad_Declarada__c || 0;
       }
@@ -140,17 +204,19 @@ export default class AdhesionPph extends LightningElement {
       establecimientos.push(est);
     }
 
-    console.log(JSON.parse(JSON.stringify(establecimientos)));
-
     this.establecimientos = establecimientos;
 
-    if (this.establecimientos.length == 0) this.addRow();
+    const isDraft =
+      this.plan.Estado__c === "En Preparación" ||
+      this.plan.Estado__c === "Rectificado";
 
-    if (
-      this.plan.Estado__c != "En Preparación" &&
-      this.plan.Estado__c != "Rectificado"
-    )
-      setTimeout((_) => (this.step = "resumen"), 0);
+    if (this.establecimientos.length === 0 && isDraft) this.addRow();
+
+    // Adherido/certificado: ir al detalle YA, sin pintar el wizard.
+    // El setTimeout(0) dejaba un frame con c-establecimiento-pph y la página se iba a blanco.
+    if (!isDraft) {
+      this.goToResumenStep();
+    }
 
     if (
       this.plan.Estado__c == "En Preparación" &&
@@ -189,15 +255,114 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get showDeclarationWizard() {
-    return this.isAdhesion || this.isEdit;
+    return !this.loading && (this.isAdhesion || this.isEdit);
+  }
+
+  get showTerminos() {
+    return !this.loading && this.isTerminosYCondiciones;
   }
 
   get wizardStepsTotal() {
-    return 1;
+    return 3;
   }
 
   get wizardStepLabels() {
-    return ["Plan de siembra"];
+    return ["Plan de siembra", "Términos", "Resumen"];
+  }
+
+  get wizardProgressLabel() {
+    return `Paso ${this.activeWizardStep} de ${this.wizardStepsTotal}`;
+  }
+
+  get wizardProgressPct() {
+    const total = Number(this.wizardStepsTotal) || 1;
+    const step = Number(this.activeWizardStep) || 1;
+    return Math.round((step / total) * 100);
+  }
+
+  get wizardProgressPctLabel() {
+    return `${this.wizardProgressPct}%`;
+  }
+
+  get wizardProgressBarStyle() {
+    return `width: ${this.wizardProgressPct}%`;
+  }
+
+  get wizardStepsUi() {
+    const current = Number(this.activeWizardStep) || 1;
+    return (this.wizardStepLabels || []).map((label, index) => {
+      const num = index + 1;
+      let className = "pph-wiz-step";
+      if (num === current) className += " is-active";
+      else if (num < current) className += " is-done";
+      return { key: `wstep-${num}`, label, className };
+    });
+  }
+
+  get activeWizardStep() {
+    if (this.isTerminosYCondiciones) return 2;
+    if (this.isResumen && !this.isDetalleView) return 3;
+    return 1;
+  }
+
+  get isDetalleView() {
+    return this.isResumen && !this.canEditResumen && !this.canRectificarResumen;
+  }
+
+  get showPphDetalle() {
+    return (
+      !this.loading &&
+      this.isResumen &&
+      !this.canEditResumen &&
+      !!this.resumenData &&
+      !this.detalleRenderFailed
+    );
+  }
+
+  get showDetalleRectificar() {
+    return this.showPphDetalle && this.canRectificarResumen;
+  }
+
+  get showResumenWizard() {
+    return this.isResumen && !this.isDetalleView && !!this.resumenData;
+  }
+
+  /** Resumen editable (En Preparación / Rectificado) o fallback si falló 4a-ver. */
+  get showResumenContent() {
+    if (this.loading) return false;
+    if (this.detalleRenderFailed && this.isResumen && !!this.resumenData) {
+      return true;
+    }
+    return this.isResumen && this.canEditResumen && !!this.resumenData;
+  }
+
+  goToResumenStep() {
+    this.refreshResumenData();
+    this.step = "resumen";
+    if (DEBUG_PPH) {
+      this.updateDebugSnapshot();
+    }
+  }
+
+  refreshResumenData() {
+    try {
+      const fromDom = this.buildResumenInfoFromDom();
+      this.resumenData =
+        fromDom.establecimientos.length > 0
+          ? fromDom
+          : this.buildResumenInfoFromRecords();
+    } catch (e) {
+      const message = reduceErrors(e).join("; ");
+      console.error("[adhesionPph] refreshResumenData", e);
+      this.resumenData = {
+        establecimientos: [],
+        account: this.account,
+        plan: this.plan,
+        total: 0,
+        grandesCuentas: this.grandesCuentas,
+        saldoPph: this.saldoPph
+      };
+    }
   }
 
   get cultivoPillLabel() {
@@ -239,11 +404,18 @@ export default class AdhesionPph extends LightningElement {
   get deskTotalSeLabel() {
     let total = 0;
     try {
-      for (const est of this.data.establecimientos) {
-        total += Object.values(est.variedades || {}).reduce(
-          (a, v) => a + (v.cantidad || 0),
-          0
-        );
+      total = (this.variedades || []).reduce(
+        (sum, v) => sum + (Number(v.totals?.current) || Number(v.totals?.total) || 0),
+        0
+      );
+      if (!total) {
+        const establecimientos = this.resumenData?.establecimientos || [];
+        for (const est of establecimientos) {
+          total += Object.values(est.variedades || {}).reduce(
+            (a, v) => a + (Number(v.cantidad) || 0),
+            0
+          );
+        }
       }
     } catch (e) {
       total = 0;
@@ -296,18 +468,35 @@ export default class AdhesionPph extends LightningElement {
   get canRectificarResumen() {
     const params = this.plan?.Parametro_PPH__r;
     if (!params || this.plan?.Estado__c !== "Adherido") return false;
-    if (!params.Fecha_Inicio_Rectificacion_1__c || !params.Fecha_Fin_Rectificacion_1__c) {
-      return false;
-    }
+    return this.isWithinRectificacionWindow(params, 1) || this.isWithinRectificacionWindow(params, 2);
+  }
+
+  isWithinRectificacionWindow(params, n) {
+    const start = params[`Fecha_Inicio_Rectificacion_${n}__c`];
+    const end = params[`Fecha_Fin_Rectificacion_${n}__c`];
+    if (!start || !end) return false;
     const now = new Date();
-    return (
-      now >= new Date(params.Fecha_Inicio_Rectificacion_1__c) &&
-      now <= new Date(params.Fecha_Fin_Rectificacion_1__c)
-    );
+    return now >= new Date(start) && now <= new Date(end);
+  }
+
+  get rectificacionWindow() {
+    const params = this.plan?.Parametro_PPH__r;
+    if (!params) return 0;
+    if (this.isWithinRectificacionWindow(params, 1)) return 1;
+    if (this.isWithinRectificacionWindow(params, 2)) return 2;
+    return 0;
   }
 
   get showResumenMobFooter() {
     return this.canEditResumen || this.canRectificarResumen;
+  }
+
+  get showResumenPrimary() {
+    return this.showResumenMobFooter;
+  }
+
+  get showResumenSecondary() {
+    return this.canEditResumen;
   }
 
   get resumenEnviarDisabled() {
@@ -416,14 +605,70 @@ export default class AdhesionPph extends LightningElement {
   }
 
   connectedCallback() {
-    console.log("connectedCallback");
+    console.log("[adhesionPph] connectedCallback");
+    document.documentElement.classList.add("se-inner", "se-inner-wizard");
+    document.body.classList.add("se-inner", "se-inner-wizard");
     if (!this.initialized) {
       this.init();
     }
   }
 
+  renderedCallback() {
+    if (!this.loading && !this._loggedReady) {
+      this._loggedReady = true;
+      console.log("[adhesionPph] ready", {
+        step: this.step,
+        estado: this.plan?.Estado__c,
+        detalle: this.showPphDetalle,
+        resumen: this.showResumenContent,
+        wizard: this.showDeclarationWizard
+      });
+    }
+    if (DEBUG_PPH) {
+      this.updateDebugSnapshot();
+    }
+  }
+
+  get showDebugPanel() {
+    return DEBUG_PPH;
+  }
+
+  get showLoadError() {
+    return !this.loading && !!this.loadError;
+  }
+
+  get hasVisibleContent() {
+    return (
+      this.showDeclarationWizard ||
+      this.isTerminosYCondiciones ||
+      this.showResumenContent ||
+      this.showPphDetalle ||
+      this.showResumenWizard
+    );
+  }
+
+  get showEmptyState() {
+    return !this.loading && !this.hasVisibleContent && !this.loadError;
+  }
+
+  disconnectedCallback() {
+    document.documentElement.classList.remove("se-inner", "se-inner-wizard");
+    document.body.classList.remove("se-inner", "se-inner-wizard");
+  }
+
   onError(e) {
+    const message = reduceErrors(e).join("\n");
+    this.loadError = message;
+    this.debugLog("onError", message);
     this.dispatchEvent(errorEvent(e));
+    this.dispatchEvent(
+      new ShowToastEvent({
+        title: "Error PPH",
+        message,
+        variant: "error",
+        mode: "sticky"
+      })
+    );
   }
 
   onWarning(e) {
@@ -522,6 +767,22 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get data() {
+    try {
+      if (this.resumenData) {
+        return this.resumenData;
+      }
+      const fromDom = this.buildResumenInfoFromDom();
+      if (fromDom.establecimientos.length) {
+        return fromDom;
+      }
+      return this.buildResumenInfoFromRecords();
+    } catch (e) {
+      console.error("[adhesionPph] getter data", e);
+      throw e;
+    }
+  }
+
+  buildResumenInfoFromDom() {
     const data = {
       establecimientos: [],
       account: this.account,
@@ -546,15 +807,59 @@ export default class AdhesionPph extends LightningElement {
     }
 
     data.total =
-      this.variedades.map((v) => v.totals.total).reduce((a, b) => a + b, 0) +
-      (this.htsGlobales.total || 0);
+      this.variedades.map((v) => v.totals?.total || 0).reduce((a, b) => a + b, 0) +
+      (this.htsGlobales?.total || 0);
     data.grandesCuentas = this.grandesCuentas;
     data.saldoPph = this.saldoPph;
     return data;
   }
 
+  buildResumenInfoFromRecords() {
+    const establecimientos = [];
+
+    for (const est of this.establecimientos || []) {
+      const record = est.record || {};
+      const variedades = {};
+
+      for (const linea of est.lineas || []) {
+        const cantidad = linea.record?.Cantidad_Declarada__c || 0;
+        if (cantidad > 0 || linea.record?.Id) {
+          variedades[linea.id] = {
+            cantidad,
+            variedad: linea.variedad || linea.record?.Variedad__r
+          };
+        }
+      }
+
+      establecimientos.push({
+        id: record.Establecimiento__r?.Id,
+        name: record.Establecimiento__r?.Name || record.Name,
+        latitude: record.Establecimiento__r?.Coordenadas__Latitude__s,
+        longitude: record.Establecimiento__r?.Coordenadas__Longitude__s,
+        cantidadNoSE: record.Cantidad_Variedad_No_SE__c || 0,
+        variedades
+      });
+    }
+
+    return {
+      establecimientos,
+      account: this.account,
+      plan: this.plan,
+      total:
+        this.variedades.map((v) => v.totals?.total || 0).reduce((a, b) => a + b, 0) +
+        (this.htsGlobales?.total || 0),
+      grandesCuentas: this.grandesCuentas,
+      saldoPph: this.saldoPph
+    };
+  }
+
   get cultivo() {
-    return this.plan.Parametro_PPH__r.Cultivo__r.Name;
+    try {
+      return this.plan?.Parametro_PPH__r?.Cultivo__r?.Name || "";
+    } catch (e) {
+      console.error("[adhesionPph] getter cultivo", e);
+      return "";
+    }
   }
 
   get campaña() {
@@ -624,7 +929,7 @@ export default class AdhesionPph extends LightningElement {
     if (this.plan.Terminos_y_Condiciones__c != true) {
       this.step = "terminos";
     } else {
-      this.step = "resumen";
+      this.goToResumenStep();
     }
   }
 
@@ -637,14 +942,13 @@ export default class AdhesionPph extends LightningElement {
       await acceptTerms({ planId: this.plan.Id });
       this.plan.Terminos_y_Condiciones__c = true;
       this.reportStep(4, "aceptacion");
-      this.enviarConfirm();
-      //this.step = "resumen";
+      this.goToResumenStep();
     });
   }
 
   backToResumen() {
     if (this.isValid(true)) {
-      this.step = "resumen";
+      this.goToResumenStep();
     }
   }
 
@@ -717,7 +1021,11 @@ export default class AdhesionPph extends LightningElement {
 
   async rectificar() {
     await this.doRequest(async (_) => {
-      await rectificarAdhesion({ planId: this.plan.Id });
+      if (this.rectificacionWindow === 2) {
+        await rectificarAdhesion2({ planId: this.plan.Id });
+      } else {
+        await rectificarAdhesion({ planId: this.plan.Id });
+      }
       window.location.reload();
     });
   }
@@ -753,11 +1061,29 @@ export default class AdhesionPph extends LightningElement {
     }
   }
 
+  handleDetalleBack() {
+    this.handleMobClose();
+  }
+
+  handleDetalleDownloadPdf(event) {
+    const documentId = event.detail?.documentId;
+    if (!documentId) return;
+    this.template.querySelector("c-pdf-reader")?.show({
+      documentId,
+      title: "Certificado PPH"
+    });
+  }
+
+  handleDetalleNotify(event) {
+    this.dispatchEvent(warningEvent(event.detail?.message));
+  }
+
   handleOnInformarPagoClick(event) {
     this.template.querySelector("c-informar-pago").show({
       title: "No veo mis HTs",
       subject: `CUIT: ${this.account.N_CUIT__c} - ${this.plan.Name} - PPH`,
-      accountId: this.account.Id
+      accountId: this.account.Id,
+      variant: "sg"
     });
   }
 }

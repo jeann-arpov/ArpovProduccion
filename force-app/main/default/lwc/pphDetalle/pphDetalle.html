@@ -1,0 +1,81 @@
+<template>
+    <div class="pph-detalle-root">
+        <header class="pph-det-mob-head se-mob-only">
+            <button type="button" class="pph-det-back" onclick={handleBack} aria-label="Volver">
+                ←
+            </button>
+            <span class="pph-det-mob-title">Precertificación</span>
+            <span class="pph-det-spacer"></span>
+        </header>
+
+        <div class="pph-det-body">
+            <p class="pph-det-eyebrow se-desk-only">{breadcrumb}</p>
+
+            <div class="pph-det-hero">
+                <div class="pph-det-hero-copy">
+                    <span class={statusBadgeClass}>{statusBadgeLabel}</span>
+                    <h1 class="pph-det-title">{certificadoId}</h1>
+                    <p class="pph-det-sub">{subtitle}</p>
+                </div>
+                <div class="pph-det-hero-actions se-desk-only">
+                    <button type="button" class="pph-btn pph-btn-ghost" onclick={handleBack}>
+                        Volver a adhesiones
+                    </button>
+                    <button
+                        type="button"
+                        class="pph-btn pph-btn-primary"
+                        if:true={showDownloadPdf}
+                        onclick={handleDownloadPdf}
+                    >
+                        Descargar PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="pph-det-grid">
+                <section class="pph-det-card">
+                    <div class="pph-det-card-head">
+                        <span class="pph-det-card-label">Resumen</span>
+                    </div>
+                    <dl class="pph-det-kv">
+                        <template for:each={summaryRows} for:item="row">
+                            <div key={row.key} class="pph-det-kv-row">
+                                <dt>{row.label}</dt>
+                                <dd class={row.valueClass}>{row.value}</dd>
+                            </div>
+                        </template>
+                    </dl>
+                </section>
+
+                <section class="pph-det-timeline-wrap">
+                    <h2 class="pph-det-section-title">Estado del trámite</h2>
+                    <ol class="pph-det-timeline">
+                        <template for:each={timelineSteps} for:item="step">
+                            <li key={step.key} class="pph-det-timeline-item">
+                                <span class={step.markerClass}>{step.marker}</span>
+                                <div class="pph-det-timeline-copy">
+                                    <p class="pph-det-timeline-label">{step.label}</p>
+                                    <p class="pph-det-timeline-detail">{step.detail}</p>
+                                </div>
+                            </li>
+                        </template>
+                    </ol>
+                </section>
+            </div>
+
+            <div class="pph-det-mob-actions se-mob-only">
+                <button
+                    type="button"
+                    class="pph-btn pph-btn-primary pph-btn-full"
+                    if:true={showDownloadPdf}
+                    onclick={handleDownloadPdf}
+                >
+                    Descargar certificado PDF
+                </button>
+                <button type="button" class="pph-btn pph-btn-ghost pph-btn-full" onclick={handleBack}>
+                    Volver a adhesiones
+                </button>
+            </div>
+        </div>
+    </div>
+</template>

@@ -479,7 +479,7 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
             licenseId
         })
         .then(response => {
-            redirectToSglWithToken(this.url, response, window.location.href);
+            redirectToSglWithToken(this, this.url, response, window.location.href);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -496,7 +496,7 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
             contactId: this.currentContactId
         })
         .then(response => {
-            redirectToSglWithToken(this.url + '/NewLicenseRequest', response, window.location.href);
+            redirectToSglWithToken(this, this.url + '/NewLicenseRequest', response, window.location.href);
         })
         .catch(error => {
             console.error('Error:', error);
