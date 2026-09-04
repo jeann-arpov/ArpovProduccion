@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Venta_HT_Original__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Venta HT Original</label>
+    <referenceTo>Venta_HT__c</referenceTo>
+    <relationshipLabel>Nota de Credito</relationshipLabel>
+    <relationshipName>Nota_Credito_Original</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

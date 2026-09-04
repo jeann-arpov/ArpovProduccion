@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>54.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -11,7 +11,8 @@
             <assignToReference>varContactIds</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>Loop_extraer_IDs_contactos.Id</elementReference>
+                <elementReference
+        >Loop_extraer_IDs_contactos.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -31,7 +32,8 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Crea_Compra_HT_asociada_a_la_Venta_HT</targetReference>
+            <targetReference
+      >Crea_Compra_HT_asociada_a_la_Venta_HT</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -47,7 +49,8 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Buscar_contacto_del_usuario_ejecutor</targetReference>
+            <targetReference
+      >Buscar_contacto_del_usuario_ejecutor</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -144,21 +147,25 @@
             <name>Si_es_de_Productor</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_contacto_del_usuario_ejecutor.Id</leftValueReference>
+                <leftValueReference
+        >Buscar_contacto_del_usuario_ejecutor.Id</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_contacto_del_usuario_ejecutor.AccountId</leftValueReference>
+                <leftValueReference
+        >Buscar_contacto_del_usuario_ejecutor.AccountId</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.Cuenta_Productor__r.Id</elementReference>
+                    <elementReference
+          >$Record.Cuenta_Productor__r.Id</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_contacto_del_usuario_ejecutor.Es_Usuario_de_Portal__c</leftValueReference>
+                <leftValueReference
+        >Buscar_contacto_del_usuario_ejecutor.Es_Usuario_de_Portal__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -201,7 +208,8 @@
         <locationX>182</locationX>
         <locationY>2129</locationY>
         <defaultConnector>
-            <targetReference>Crea_Compra_HT_asociada_a_la_Venta_HT</targetReference>
+            <targetReference
+      >Crea_Compra_HT_asociada_a_la_Venta_HT</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No es NC</defaultConnectorLabel>
         <rules>
@@ -237,7 +245,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Facturada</stringValue>
@@ -249,8 +258,8 @@
             <label>Facturada</label>
         </rules>
         <rules>
-            <name>Cancelada_por_NC</name>
-            <conditionLogic>and</conditionLogic>
+            <name>Cancelada_por_NC_o_Ajustada_por_NC</name>
+            <conditionLogic>(1 AND 2) OR (3 AND 4)</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Estado__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -259,16 +268,32 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelada por NC</stringValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>Buscar_HT_Facturada</targetReference>
             </connector>
-            <label>Cancelada por NC</label>
+            <label>Cancelada por NC o Ajustada por NC</label>
         </rules>
     </decisions>
     <decisions>
@@ -288,7 +313,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelada</stringValue>
@@ -316,7 +342,8 @@
                 <leftValueReference>$Record.Estado__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.Compra_HT__r.Estado__c</elementReference>
+                    <elementReference
+          >$Record.Compra_HT__r.Estado__c</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -338,7 +365,8 @@
             <name>Si_existe_contacto</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_contactos_de_productor</leftValueReference>
+                <leftValueReference
+        >Buscar_contactos_de_productor</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -363,7 +391,8 @@
             <name>Si_existe_activo</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_usuario_de_portal.Id</leftValueReference>
+                <leftValueReference
+        >Buscar_usuario_de_portal.Id</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -381,14 +410,17 @@
         <locationX>1337</locationX>
         <locationY>431</locationY>
         <defaultConnector>
-            <targetReference>Estado_Venta_HT_es_igual_a_Estado_Compra_Ht</targetReference>
+            <targetReference
+      >Estado_Venta_HT_es_igual_a_Estado_Compra_Ht</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Si se modifica</defaultConnectorLabel>
         <rules>
             <name>No_se_modifica</name>
-            <conditionLogic>(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8)</conditionLogic>
+            <conditionLogic
+      >(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8) OR (9 AND 10)</conditionLogic>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Facturada</stringValue>
@@ -402,7 +434,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Pagada</stringValue>
@@ -416,7 +449,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelada por NC</stringValue>
@@ -430,7 +464,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Aplicada</stringValue>
@@ -441,6 +476,20 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Aplicada</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -449,7 +498,8 @@
             <label>No se modifica</label>
         </rules>
     </decisions>
-    <description>Cada vez que se crea o modifica una venta HT, se crea o modifica la compra HT asociada.
+    <description
+  >JN notas credito parciales Cada vez que se crea o modifica una venta HT, se crea o modifica la compra HT asociada.
 Se agrega el cultivo a la compra HT.
 Se pasa la marca de Punto de Venta cuando se crea la compra HT.
 Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
@@ -459,7 +509,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <dataType>Boolean</dataType>
         <expression>ISNEW()</expression>
     </formulas>
-    <interviewLabel>VentaHT - Crea / Modifica Compra HT {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >VentaHT - Crea / Modifica Compra HT {!$Flow.CurrentDateTime}</interviewLabel>
     <label>VentaHT - Crea / Modifica Compra HT</label>
     <loops>
         <name>Loop_extraer_IDs_contactos</name>
@@ -511,13 +562,15 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <inputAssignments>
             <field>Compra_Original__c</field>
             <value>
-                <elementReference>$Record.Venta_Original__r.Compra_HT__r.Id</elementReference>
+                <elementReference
+        >$Record.Venta_Original__r.Compra_HT__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Cuenta_Productor__c</field>
             <value>
-                <elementReference>$Record.Cuenta_Productor__r.Id</elementReference>
+                <elementReference
+        >$Record.Cuenta_Productor__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -541,7 +594,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <inputAssignments>
             <field>Lista_de_Precios__c</field>
             <value>
-                <elementReference>$Record.Lista_de_Precios__r.Id</elementReference>
+                <elementReference
+        >$Record.Lista_de_Precios__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -569,6 +623,12 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Tipo_Ajuste__c</field>
+            <value>
+                <elementReference>$Record.Tipo_Ajuste__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Venta_HT__c</field>
             <value>
                 <elementReference>$Record.Id</elementReference>
@@ -578,12 +638,14 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordLookups>
-        <description>Busca el contacto del usuario que ejecuta el flow.</description>
+        <description
+    >Busca el contacto del usuario que ejecuta el flow.</description>
         <name>Buscar_contacto_del_usuario_ejecutor</name>
         <label>Buscar contacto del usuario ejecutor</label>
         <locationX>182</locationX>
         <locationY>539</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Contacto_ejecutor_es_de_Productor</targetReference>
         </connector>
@@ -599,7 +661,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
             <field>AccountId</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Cuenta_Productor__r.Id</elementReference>
+                <elementReference
+        >$Record.Cuenta_Productor__r.Id</elementReference>
             </value>
         </filters>
         <filters>
@@ -614,12 +677,14 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Busca hasta 10 contactos de la cuenta productor que sean usuarios de portal.</description>
+        <description
+    >Busca hasta 10 contactos de la cuenta productor que sean usuarios de portal.</description>
         <name>Buscar_contactos_de_productor</name>
         <label>Buscar contactos de productor</label>
         <locationX>413</locationX>
         <locationY>755</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Existe_contacto_portal</targetReference>
         </connector>
@@ -628,7 +693,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
             <field>AccountId</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Cuenta_Productor__r.Id</elementReference>
+                <elementReference
+        >$Record.Cuenta_Productor__r.Id</elementReference>
             </value>
         </filters>
         <filters>
@@ -651,7 +717,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <label>Buscar HT Facturadas</label>
         <locationX>1007</locationX>
         <locationY>755</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Restar_a_HT_Facturadas</targetReference>
         </connector>
@@ -674,7 +741,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <label>Buscar HT Facturadas</label>
         <locationX>743</locationX>
         <locationY>755</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Sumar_a_HT_Facturadas</targetReference>
         </connector>
@@ -697,7 +765,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <label>Buscar HT Vendidas</label>
         <locationX>1535</locationX>
         <locationY>947</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Restar_a_HT_Vendidas</targetReference>
         </connector>
@@ -716,12 +785,14 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         </outputAssignments>
     </recordLookups>
     <recordLookups>
-        <description>Busca un usuario activo cuyo ContactId esté en la lista de IDs.</description>
+        <description
+    >Busca un usuario activo cuyo ContactId esté en la lista de IDs.</description>
         <name>Buscar_usuario_de_portal</name>
         <label>Buscar usuario de portal</label>
         <locationX>259</locationX>
         <locationY>1271</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Existe_usuario_portal_activo</targetReference>
         </connector>
@@ -750,7 +821,8 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <label>Buscar usuario Interface</label>
         <locationX>413</locationX>
         <locationY>1829</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Asignar_Usuario_Interface</targetReference>
         </connector>
@@ -774,13 +846,15 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <inputAssignments>
             <field>Comercio_CUIT__c</field>
             <value>
-                <elementReference>$Record.Comercio__r.N_CUIT__c</elementReference>
+                <elementReference
+        >$Record.Comercio__r.N_CUIT__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Compra_HT__c</field>
             <value>
-                <elementReference>Crea_Compra_HT_asociada_a_la_Venta_HT</elementReference>
+                <elementReference
+        >Crea_Compra_HT_asociada_a_la_Venta_HT</elementReference>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
@@ -960,7 +1034,7 @@ Se calcula HT Vendidas / HT Facturadas en el comercio.</description>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
 </Flow>

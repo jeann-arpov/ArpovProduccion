@@ -1308,9 +1308,6 @@
     >Mensaje de validacion Venta Informada</shortDescription>
         <value>Debes seleccionar una Variedad existente en Salesforce.</value>
     </labels>
-    
-    
-    
     <labels>
         <fullName>VENTA_INF_Cuenta_Originante_Antes_Importar</fullName>
         <language>es</language>
@@ -1443,51 +1440,167 @@
         <shortDescription>Comunidad - Usuario sin cuenta</shortDescription>
         <value>El usuario no tiene una cuenta asociada.</value>
     </labels>
-    
-    <labels><fullName>LIC_Usuario_Sin_Cuenta</fullName><categories
-    >Licencias</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Mensaje licencia sin cuenta</shortDescription><value
-    >Usuario sin cuenta asociada</value></labels>
-    <labels><fullName
-    >PWD_No_Tiene_Permisos_Consultar_Usuarios</fullName><categories
-    >PasswordReset</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Mensaje permisos password</shortDescription><value
-    >No tiene permisos para consultar usuarios.</value></labels>
-    <labels><fullName>PWD_Cuit_11_Digitos</fullName><categories
-    >PasswordReset</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Mensaje CUIT password</shortDescription><value
-    >El CUIT debe contener exactamente 11 digitos numericos.</value></labels>
-    <labels><fullName>GENERAL_IdProduct_Obligatorio</fullName><categories
-    >General</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Mensaje producto obligatorio</shortDescription><value
-    >El parámetro IdProduct es obligatorio.</value></labels>
-    <labels><fullName>GENERAL_No_Permisos_Operacion</fullName><categories
-    >General</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Mensaje sin permisos</shortDescription><value
-    >No tiene permisos para realizar esta operación. Contacte a su administrador.</value></labels>
-    <labels><fullName>VENTASINF_Venta_No_Existe</fullName><categories
-    >VentasInformadas</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Validacion ventas informadas</shortDescription><value
-    >La venta no existe.</value></labels>
-    <labels><fullName>VENTASINF_No_Permiso_Modificar</fullName><categories
-    >VentasInformadas</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Validacion ventas informadas</shortDescription><value
-    >No tiene permiso para modificar esta venta.</value></labels>
-    <labels><fullName>LIC_No_Permiso_Acceder</fullName><categories
-    >Licencias</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Mensaje sin permiso licencia</shortDescription><value
-    >No tiene permiso para acceder a Licencia__c</value></labels>
-    <labels><fullName>EXCEL_Tipo_Objeto_No_Soportado</fullName><categories
-    >Excel</categories><language>es</language><protected
-    >false</protected><shortDescription
-    >Mensaje tipo objeto no soportado</shortDescription><value
-    >Tipo de objeto no soportado:</value></labels>
+    <labels>
+        <fullName>LIC_Usuario_Sin_Cuenta</fullName>
+        <categories>Licencias</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje licencia sin cuenta</shortDescription>
+        <value>Usuario sin cuenta asociada</value>
+    </labels>
+    <labels>
+        <fullName>PWD_No_Tiene_Permisos_Consultar_Usuarios</fullName>
+        <categories>PasswordReset</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje permisos password</shortDescription>
+        <value>No tiene permisos para consultar usuarios.</value>
+    </labels>
+    <labels>
+        <fullName>PWD_Cuit_11_Digitos</fullName>
+        <categories>PasswordReset</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje CUIT password</shortDescription>
+        <value>El CUIT debe contener exactamente 11 digitos numericos.</value>
+    </labels>
+    <labels>
+        <fullName>GENERAL_IdProduct_Obligatorio</fullName>
+        <categories>General</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje producto obligatorio</shortDescription>
+        <value>El parámetro IdProduct es obligatorio.</value>
+    </labels>
+    <labels>
+        <fullName>GENERAL_No_Permisos_Operacion</fullName>
+        <categories>General</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje sin permisos</shortDescription>
+        <value
+    >No tiene permisos para realizar esta operación. Contacte a su administrador.</value>
+    </labels>
+    <labels>
+        <fullName>VENTASINF_Venta_No_Existe</fullName>
+        <categories>VentasInformadas</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Validacion ventas informadas</shortDescription>
+        <value>La venta no existe.</value>
+    </labels>
+    <labels>
+        <fullName>VENTASINF_No_Permiso_Modificar</fullName>
+        <categories>VentasInformadas</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Validacion ventas informadas</shortDescription>
+        <value>No tiene permiso para modificar esta venta.</value>
+    </labels>
+    <labels>
+        <fullName>LIC_No_Permiso_Acceder</fullName>
+        <categories>Licencias</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje sin permiso licencia</shortDescription>
+        <value>No tiene permiso para acceder a Licencia__c</value>
+    </labels>
+    <labels>
+        <fullName>EXCEL_Tipo_Objeto_No_Soportado</fullName>
+        <categories>Excel</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje tipo objeto no soportado</shortDescription>
+        <value>Tipo de objeto no soportado:</value>
+    </labels>
+    <labels>
+        <fullName>NC_Confirm_Modal_Title</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Título modal confirmación NC Total</shortDescription>
+        <value>Confirmar Nota de Crédito Total</value>
+    </labels>
+    <labels>
+        <fullName>NC_Confirm_Modal_Message</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje modal confirmación NC Total</shortDescription>
+        <value
+    >¿Está seguro que desea crear una Nota de Crédito Total? Esta acción no se puede deshacer.</value>
+    </labels>
+    <labels>
+        <fullName>NC_Confirm_Modal_Confirm</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >Texto botón confirmar modal NC Total</shortDescription>
+        <value>Confirmar</value>
+    </labels>
+    <labels>
+        <fullName>NC_Total_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón NC Total</shortDescription>
+        <value>NC Total</value>
+    </labels>
+    <labels>
+        <fullName>NC_Add_Variety</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón agregar variedad</shortDescription>
+        <value>Agregar Variedad</value>
+    </labels>
+    <labels>
+        <fullName>NC_Anular_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón anular</shortDescription>
+        <value>Anular</value>
+    </labels>
+    <labels>
+        <fullName>NC_Facturar_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón facturar</shortDescription>
+        <value>Facturar</value>
+    </labels>
+    <labels>
+        <fullName>NC_Finalize_Sale</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón finalizar venta</shortDescription>
+        <value>Finalizar Venta</value>
+    </labels>
+    <labels>
+        <fullName>NC_New_Sale</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón nueva venta</shortDescription>
+        <value>Nueva Venta</value>
+    </labels>
+    <labels>
+        <fullName>NC_Observaciones_Button</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón observaciones</shortDescription>
+        <value>Observaciones</value>
+    </labels>
+    <labels>
+        <fullName>NC_Upload_Invoice</fullName>
+        <categories>NotaCredito</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Texto botón subir factura</shortDescription>
+        <value>Subir Factura</value>
+    </labels>
 </CustomLabels>

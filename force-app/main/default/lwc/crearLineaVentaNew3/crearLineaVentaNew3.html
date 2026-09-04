@@ -1,0 +1,294 @@
+<template>
+  <lightning-record-edit-form
+    object-api-name="Linea_de_Venta_HT__c"
+    record-id={record.id}
+  >
+    <template if:true={loading}>
+      <div class="exampleHolder">
+        <lightning-spinner
+          alternative-text="Loading"
+          size="medium"
+        ></lightning-spinner>
+      </div>
+    </template>
+    <lightning-layout
+      vertical-align="center"
+      class="slds-m-bottom_medium slds-text-align_center"
+    >
+      <lightning-layout-item size="1" padding="horizontal-small">
+        <div lwc:if={hasId} class="variedad-readonly">{variedad}</div>
+        <c-lookup
+          lwc:else
+          variant="label-hidden"
+          required
+          onselectionchange={variedadChange}
+          onsearch={searchVariedades}
+          label="Variedad"
+          placeholder="Buscar Variedad"
+        >
+          <div slot="no-results">
+            <span style="color: #ff0000; font-size: 18px"
+              >No se encontraron variedades</span
+            >
+          </div>
+        </c-lookup>
+      </lightning-layout-item>
+      <lightning-layout-item size="2" padding="horizontal-small">
+        <div lwc:if={hasId} class="variedad-readonly">{preCampaign}</div>
+        <lightning-combobox
+          lwc:else
+          disabled={disableTipoHt}
+          class="preCampaign"
+          variant="label-hidden"
+          label="Momento de entrega del grano"
+          value={preCampaign}
+          placeholder="Seleccionar Momento de Entrega"
+          options={tiposDeCompra}
+          required
+          onchange={preCampaignChange}
+          message-when-value-missing="Seleccione Momento de Entrega"
+        ></lightning-combobox>
+      </lightning-layout-item>
+      <lightning-layout-item size="1" padding="horizontal-small">
+        <lightning-formatted-date-time
+          time-zone="UTC"
+          value={record.Fecha_de_Activacion__c}
+        ></lightning-formatted-date-time>
+      </lightning-layout-item>
+      <lightning-layout-item
+        size="1"
+        padding="horizontal-small"
+        class="col-cantidad"
+      >
+        <lightning-input
+          type="number"
+          step="1"
+          variant="label-hidden"
+          value={record.Cantidad__c}
+          onchange={syncCantidad}
+          onblur={checkAutoSave}
+          disabled={camposFinanciamientoIncompletos}
+          readonly={cantEdit}
+          required
+        ></lightning-input>
+        <a
+          if:true={tieneAjusteHT}
+          href="javascript:void(0)"
+          class="link-ver-ht"
+          onclick={verHT}
+          title="Ver detalle de Hectáreas Tecnológicas"
+          >Ver HT</a
+        >
+      </lightning-layout-item>
+      <lightning-layout-item size="1" padding="horizontal-small">
+        <lightning-input
+          variant="label-hidden"
+          label="Precio Unitario"
+          value={precioUnitarioLinea}
+          read-only="true"
+        ></lightning-input>
+      </lightning-layout-item>
+      <lightning-layout-item size="1" padding="horizontal-small">
+        <lightning-input
+          variant="label-hidden"
+          label="Total USD"
+          value={totalUSDLinea}
+          read-only="true"
+        ></lightning-input>
+      </lightning-layout-item>
+      <lightning-layout-item size="1" padding="horizontal-small">
+        <span class={estadoClass}>{estado}</span>
+        <button
+          if:true={factura}
+          type="button"
+          onclick={openFactura}
+          class="slds-button slds-m-left_small"
+        >
+          <svg width="13.464" height="17.954">
+            <use xlink:href={icons.facturas}></use>
+          </svg>
+        </button>
+      </lightning-layout-item>
+      <lightning-layout-item size="1" padding="horizontal-small">
+        <span if:true={record.Licencia__c}>{record.Licencia__r.Name}</span>
+        <div if:true={showEstadoLicencia}>
+          <svg if:true={record.Licencia__c} width="19.908" height="19.908">
+            <use xlink:href={iconsCompraVenta.valid}></use>
+          </svg>
+          <svg if:false={record.Licencia__c} width="22.757" height="22.757">
+            <use xlink:href={iconsCompraVenta.invalid}></use>
+          </svg>
+        </div>
+      </lightning-layout-item>
+      <lightning-layout-item
+        if:true={modoNotaCreditoPrecio}
+        size="1"
+        padding="horizontal-small"
+      >
+        <lightning-input
+          if:true={seleccionadoParaNC}
+          type="number"
+          data-id={record.Id}
+          value={nuevoPrecio}
+          min="0"
+          max={record.Precio_de_Lista__c}
+          onchange={handlePrecioChange}
+          variant="label-hidden"
+          placeholder="Nuevo precio"
+          message-when-range-overflow={labels.ncPriceCannotHigher}
+          message-when-range-underflow={labels.ncPriceCannotNegative}
+        >
+        </lightning-input>
+        <div if:false={seleccionadoParaNC} class="campo-deshabilitado">-</div>
+      </lightning-layout-item>
+
+      <lightning-layout-item
+        if:true={modoNotaCreditoCantidad}
+        size="1"
+        padding="horizontal-small"
+      >
+        <lightning-input
+          if:true={seleccionadoParaNC}
+          type="number"
+          data-id={record.Id}
+          value={nuevaCantidad}
+          min="0"
+          max={record.Cantidad__c}
+          onchange={handleCantidadChange}
+          variant="label-hidden"
+          placeholder="Nueva cantidad"
+          message-when-range-overflow={labels.ncQuantityCannotHigher}
+          message-when-range-underflow={labels.ncQuantityCannotNegative}
+        >
+        </lightning-input>
+        <div if:false={seleccionadoParaNC} class="campo-deshabilitado">-</div>
+      </lightning-layout-item>
+      <lightning-layout-item
+        if:true={mostrarCamposNotaCredito}
+        size="1"
+        padding="horizontal-small"
+      >
+        <textarea
+          if:true={seleccionadoParaNC}
+          class="observaciones-textarea"
+          value={observacionesLocales}
+          placeholder="Ingrese el motivo"
+          maxlength="200"
+          minlength="20"
+          oninput={handleObservacionesChange}
+        >
+        </textarea>
+        <div if:false={seleccionadoParaNC} class="campo-deshabilitado">-</div>
+      </lightning-layout-item>
+      <lightning-layout-item
+        if:true={mostrarCamposNotaCredito}
+        size="1"
+        padding="horizontal-small"
+      >
+        <lightning-input
+          type="checkbox"
+          data-id={record.Id}
+          checked={seleccionadoParaNC}
+          onchange={handleCheckboxChange}
+        >
+        </lightning-input>
+      </lightning-layout-item>
+      <lightning-layout-item size="1" padding="horizontal-small">
+        <button
+          type="button"
+          title="Eliminar Variedad"
+          if:true={canEdit}
+          onclick={removeRow}
+          class="slds-button"
+        >
+          <svg width="15.25" height="19.607">
+            <use xlink:href={icons.delete}></use>
+          </svg>
+        </button>
+      </lightning-layout-item>
+    </lightning-layout>
+  </lightning-record-edit-form>
+
+  <template if:true={isModalOpen}>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <h2 class="slds-text-heading_medium">¡Atención!</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium">
+          Este precio es válido solo para pago contado dentro del plazo
+          definido. Si no se cancela en término, la condición se pierde y la
+          operación se revierte.
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            variant="neutral"
+            label="Cerrar"
+            onclick={closeModal}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+
+  <!-- ===== MODAL DE DETALLE HT ===== -->
+  <template if:true={mostrarModalHT}>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+      <div class="slds-modal__container">
+        <header class="slds-modal__header">
+          <h2 class="slds-text-heading_medium">Detalle de HT de la Venta</h2>
+          <lightning-button-icon
+            class="slds-modal__close"
+            icon-name="utility:close"
+            variant="bare"
+            onclick={cerrarModalHT}
+          >
+          </lightning-button-icon>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium">
+          <table class="saldo-ht-table">
+            <tr>
+              <th class="saldo-ht-label">Concepto</th>
+              <th class="saldo-ht-valor">Cantidad</th>
+              <th class="saldo-ht-estado">Estado</th>
+            </tr>
+            <tr>
+              <td class="saldo-ht-label">HT Original (Venta HT):</td>
+              <td class="saldo-ht-valor">{htOriginalLinea} HT</td>
+              <td class="saldo-ht-estado">
+                <span class="badge-estado-ht {etapaOriginalLinea}"
+                  >{etapaOriginalLinea}</span
+                >
+              </td>
+            </tr>
+            <tr if:true={htAjustadaLinea}>
+              <td class="saldo-ht-label">HT de NC:</td>
+              <td class="saldo-ht-valor ht-ajustada">-{htAjustadaLinea} HT</td>
+              <td class="saldo-ht-estado">
+                <span class="badge-estado-ht {etapaDebitoLinea}"
+                  >{etapaDebitoLinea}</span
+                >
+              </td>
+            </tr>
+            <tr>
+              <td class="saldo-ht-label">HT Restantes de la venta HT:</td>
+              <td class="saldo-ht-valor ht-restante">
+                <b>{htRestanteLinea} HT</b>
+              </td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+        <footer class="slds-modal__footer">
+          <lightning-button
+            variant="brand"
+            label="Cerrar"
+            onclick={cerrarModalHT}
+          ></lightning-button>
+        </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>

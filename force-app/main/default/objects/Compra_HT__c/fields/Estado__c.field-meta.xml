@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Estado__c</fullName>
     <label>Estado</label>
@@ -50,6 +50,11 @@
                 <label>Aplicada</label>
             </value>
             <value>
+                <fullName>Ajustada por NC</fullName>
+                <default>false</default>
+                <label>Ajustada por NC</label>
+            </value>
+            <value>
                 <fullName>Cancelada</fullName>
                 <default>false</default>
                 <label>Cancelada</label>
@@ -58,6 +63,11 @@
                 <fullName>Pedido de Facturacion</fullName>
                 <default>false</default>
                 <label>Pedido de Facturacion</label>
+            </value>
+            <value>
+                <fullName>Pagada Parcialmente</fullName>
+                <default>false</default>
+                <label>Pagada Parcialmente</label>
             </value>
         </valueSetDefinition>
     </valueSet>

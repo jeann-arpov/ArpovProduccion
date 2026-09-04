@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>54.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -11,7 +11,8 @@
             <assignToReference>varLineasOppSE</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>Recorrer_las_lineas_de_opp_SE</elementReference>
+                <elementReference
+        >Recorrer_las_lineas_de_opp_SE</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -24,14 +25,16 @@
         <locationX>314</locationX>
         <locationY>755</locationY>
         <assignmentItems>
-            <assignToReference>Recorrer_las_lineas_de_opp_SE.Estado__c</assignToReference>
+            <assignToReference
+      >Recorrer_las_lineas_de_opp_SE.Estado__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>$Record.StageName</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Asignar_la_l_nea_de_opp_SE_a_la_variable_de_colecci_n</targetReference>
+            <targetReference
+      >Asignar_la_l_nea_de_opp_SE_a_la_variable_de_colecci_n</targetReference>
         </connector>
     </assignments>
     <decisions>
@@ -40,28 +43,32 @@
         <locationX>182</locationX>
         <locationY>323</locationY>
         <defaultConnector>
-            <targetReference>Actualizar_estado_de_Compra_HT_asociada</targetReference>
+            <targetReference
+      >Actualizar_estado_de_Compra_HT_asociada</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Cuenta y Orden</defaultConnectorLabel>
         <rules>
             <name>Punto_de_Venta</name>
             <conditionLogic>or</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Obtentor__r.Factura_por_Cuenta_y_Orden_SE__c</leftValueReference>
+                <leftValueReference
+        >$Record.Obtentor__r.Factura_por_Cuenta_y_Orden_SE__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.Punto_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >$Record.Punto_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Buscar_Lineas_de_Opp_SE_asociadas</targetReference>
+                <targetReference
+        >Buscar_Lineas_de_Opp_SE_asociadas</targetReference>
             </connector>
             <label>Punto de Venta</label>
         </rules>
@@ -76,14 +83,16 @@
             <name>Si</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Compra_HT__r.Venta_HT__c</leftValueReference>
+                <leftValueReference
+        >$Record.Compra_HT__r.Venta_HT__c</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Actualizar_estado_de_Venta_HT_asociada</targetReference>
+                <targetReference
+        >Actualizar_estado_de_Venta_HT_asociada</targetReference>
             </connector>
             <label>Si</label>
         </rules>
@@ -94,17 +103,27 @@
         <locationX>226</locationX>
         <locationY>647</locationY>
         <defaultConnector>
-            <targetReference>Cambiar_Estado_a_la_linea_de_opp_SE</targetReference>
+            <targetReference
+      >Cambiar_Estado_a_la_linea_de_opp_SE</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Otro estado</defaultConnectorLabel>
         <rules>
             <name>Cancelada_por_NC</name>
-            <conditionLogic>and</conditionLogic>
+            <conditionLogic>1 OR 2</conditionLogic>
             <conditions>
-                <leftValueReference>Recorrer_las_lineas_de_opp_SE.Estado__c</leftValueReference>
+                <leftValueReference
+        >Recorrer_las_lineas_de_opp_SE.Estado__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelada por NC</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference
+        >Recorrer_las_lineas_de_opp_SE.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Ajustada por NC</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -113,7 +132,8 @@
             <label>Cancelada por NC</label>
         </rules>
     </decisions>
-    <description>Cada vez que la oportunidad cambia el estado a Facturada, Pagada o Cancelada por NC, se cambia el estado de la compra HT asociada y si existe de la Venta HT. También se cambia el estado de las líneas de la opp SE si es distinto a Cancelada por NC.
+    <description
+  >Cada vez que la oportunidad cambia el estado a Facturada, Pagada o Cancelada por NC, se cambia el estado de la compra HT asociada y si existe de la Venta HT. También se cambia el estado de las líneas de la opp SE si es distinto a Cancelada por NC.
 Se agrega la condición si la opp es punto de venta = true</description>
     <environments>Default</environments>
     <interviewLabel>Oportunidad - {!$Flow.CurrentDateTime}</interviewLabel>
@@ -123,13 +143,15 @@ Se agrega la condición si la opp es punto de venta = true</description>
         <label>Recorrer las líneas de opp SE</label>
         <locationX>50</locationX>
         <locationY>539</locationY>
-        <collectionReference>Buscar_Lineas_de_Opp_SE_asociadas</collectionReference>
+        <collectionReference
+    >Buscar_Lineas_de_Opp_SE_asociadas</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>La_linea_es_Cancelada_por_NC</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>Actualizar_estado_de_las_lineas_de_Opp_SE_asociadas</targetReference>
+            <targetReference
+      >Actualizar_estado_de_las_lineas_de_Opp_SE_asociadas</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -156,7 +178,8 @@ Se agrega la condición si la opp es punto de venta = true</description>
         <label>Buscar Líneas de Opp SE asociadas</label>
         <locationX>50</locationX>
         <locationY>431</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Recorrer_las_lineas_de_opp_SE</targetReference>
         </connector>
@@ -202,7 +225,8 @@ Se agrega la condición si la opp es punto de venta = true</description>
         <locationX>50</locationX>
         <locationY>1139</locationY>
         <connector>
-            <targetReference>Actualizar_estado_de_Compra_HT_asociada</targetReference>
+            <targetReference
+      >Actualizar_estado_de_Compra_HT_asociada</targetReference>
         </connector>
         <inputReference>varLineasOppSE</inputReference>
     </recordUpdates>
@@ -216,7 +240,8 @@ Se agrega la condición si la opp es punto de venta = true</description>
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Compra_HT__r.Venta_HT__r.Id</elementReference>
+                <elementReference
+        >$Record.Compra_HT__r.Venta_HT__r.Id</elementReference>
             </value>
         </filters>
         <inputAssignments>
@@ -233,7 +258,7 @@ Se agrega la condición si la opp es punto de venta = true</description>
         <connector>
             <targetReference>Es_Punto_de_Venta</targetReference>
         </connector>
-        <filterLogic>(1 OR 2 OR 3 OR 5) AND 4</filterLogic>
+        <filterLogic>(1 OR 2 OR 3 OR 5 OR 6  OR 7) AND 4</filterLogic>
         <filters>
             <field>StageName</field>
             <operator>EqualTo</operator>
@@ -267,6 +292,20 @@ Se agrega la condición si la opp es punto de venta = true</description>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Aplicada</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Ajustada por NC</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Pagada Parcialmente</stringValue>
             </value>
         </filters>
         <object>Opportunity</object>

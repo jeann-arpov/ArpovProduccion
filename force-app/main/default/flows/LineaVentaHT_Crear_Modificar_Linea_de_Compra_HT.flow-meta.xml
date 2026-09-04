@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>54.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -11,7 +11,8 @@
             <assignToReference>varVariedades</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Venta_HT__r.Variedades__c</elementReference>
+                <elementReference
+        >$Record.Venta_HT__r.Variedades__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -29,7 +30,8 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Actualizar_Variedades_en_la_Venta_HT</targetReference>
+            <targetReference
+      >Actualizar_Variedades_en_la_Venta_HT</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -45,7 +47,8 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Actualizar_Variedades_en_la_Venta_HT</targetReference>
+            <targetReference
+      >Actualizar_Variedades_en_la_Venta_HT</targetReference>
         </connector>
     </assignments>
     <decisions>
@@ -68,7 +71,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Crea_Linea_de_Compra_HT_asociada_a_la_linea_de_Venta_HT</targetReference>
+                <targetReference>es_nc</targetReference>
             </connector>
             <label>Crea</label>
         </rules>
@@ -86,7 +89,8 @@
             <name>M_s_de_1</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Venta_HT__r.Cantidad_de_lineas_de_venta_HT__c</leftValueReference>
+                <leftValueReference
+        >$Record.Venta_HT__r.Cantidad_de_lineas_de_venta_HT__c</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
@@ -99,19 +103,49 @@
         </rules>
     </decisions>
     <decisions>
+        <name>es_nc</name>
+        <label>es nc</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference
+      >Crea_Linea_de_Compra_HT_asociada_a_la_linea_de_Venta_HT</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>si_es</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Es_NC__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference
+        >Crea_L_nea_de_Compra_HT_asociada_a_la_l_nea_de_Venta_HT_NC</targetReference>
+            </connector>
+            <label>si es</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Se_modifica_la_linea_de_compra_HT</name>
         <label>Se modifica la línea de compra HT?</label>
         <locationX>710</locationX>
         <locationY>431</locationY>
         <defaultConnector>
-            <targetReference>Actualiza_Linea_de_Compra_HT_asociada</targetReference>
+            <targetReference
+      >Actualiza_Linea_de_Compra_HT_asociada</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Si se modifica</defaultConnectorLabel>
         <rules>
             <name>No_se_modifica</name>
-            <conditionLogic>(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8)</conditionLogic>
+            <conditionLogic
+      >(1 AND 2) OR (3 AND 4) OR (5 AND 6) OR (7 AND 8)</conditionLogic>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Facturada</stringValue>
@@ -125,7 +159,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Pagada</stringValue>
@@ -139,7 +174,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Cancelada por NC</stringValue>
@@ -153,7 +189,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record__Prior.Estado__c</leftValueReference>
+                <leftValueReference
+        >$Record__Prior.Estado__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue>Aplicada</stringValue>
@@ -169,7 +206,8 @@
             <label>No se modifica</label>
         </rules>
     </decisions>
-    <description>Cada vez que se crea o modifica una línea de Venta HT, se crea o modifica una línea de la Compra HT asociada. Cuando la línea se modifica, se modifican estos campos en la Línea de Compra HT: Estado, Cantidad, Licencia.
+    <description
+  >Cada vez que se crea o modifica una línea de Venta HT, se crea o modifica una línea de la Compra HT asociada. Cuando la línea se modifica, se modifican estos campos en la Línea de Compra HT: Estado, Cantidad, Licencia.
 Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra HT asociada.</description>
     <environments>Default</environments>
     <formulas>
@@ -177,7 +215,8 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <dataType>Boolean</dataType>
         <expression>ISNEW()</expression>
     </formulas>
-    <interviewLabel>LineaVentaHT - Crear / Modificar Línea de Compra HT {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >LineaVentaHT - Crear / Modificar Línea de Compra HT {!$Flow.CurrentDateTime}</interviewLabel>
     <label>LineaVentaHT - Crear / Modificar Línea de Compra HT</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -199,12 +238,14 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <name>Crea_Linea_de_Compra_HT_asociada_a_la_linea_de_Venta_HT</name>
-        <label>Crea Línea de Compra HT asociada a la línea de Venta HT</label>
-        <locationX>182</locationX>
-        <locationY>431</locationY>
+        <name>Crea_L_nea_de_Compra_HT_asociada_a_la_l_nea_de_Venta_HT_NC</name>
+        <label
+    >Crea Línea de Compra HT asociada a la línea de Venta HT NC</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
         <connector>
-            <targetReference>Actualiza_Linea_de_Compra_HT_en_Linea_de_Venta_HT</targetReference>
+            <targetReference
+      >Actualiza_L_nea_de_Compra_HT_en_L_nea_de_Venta_HT_NC</targetReference>
         </connector>
         <inputAssignments>
             <field>Cantidad__c</field>
@@ -215,7 +256,14 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <inputAssignments>
             <field>Compra_HT__c</field>
             <value>
-                <elementReference>$Record.Venta_HT__r.Compra_HT__r.Id</elementReference>
+                <elementReference
+        >$Record.Venta_HT__r.Compra_HT__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Es_NC__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -227,13 +275,121 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <inputAssignments>
             <field>Fecha_de_Activacion__c</field>
             <value>
-                <elementReference>$Record.Fecha_de_Activacion__c</elementReference>
+                <elementReference
+        >$Record.Fecha_de_Activacion__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Id_Producto_de_Lista_de_Precio__c</field>
             <value>
-                <elementReference>$Record.Id_Producto_de_Lista_de_Precio__c</elementReference>
+                <elementReference
+        >$Record.Id_Producto_de_Lista_de_Precio__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Licencia__c</field>
+            <value>
+                <elementReference>$Record.Licencia__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Linea_de_Compra_HT__c</field>
+            <value>
+                <elementReference
+        >$Record.Linea_de_Venta_HT__r.Linea_de_Compra_HT__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Linea_de_Venta_HT__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>$Record.Name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Precio_de_Lista__c</field>
+            <value>
+                <elementReference>$Record.Precio_de_Lista__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Producto__c</field>
+            <value>
+                <elementReference>$Record.Producto__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_Ajuste__c</field>
+            <value>
+                <elementReference>$Record.Tipo_Ajuste__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_de_Compra__c</field>
+            <value>
+                <elementReference>$Record.Tipo_de_Compra__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_de_Pago__c</field>
+            <value>
+                <elementReference>$Record.Tipo_de_Pago__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Tipo_de_cambio__c</field>
+            <value>
+                <elementReference>$Record.Tipo_de_cambio__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Linea_de_Compra_HT__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>Crea_Linea_de_Compra_HT_asociada_a_la_linea_de_Venta_HT</name>
+        <label>Crea Línea de Compra HT asociada a la línea de Venta HT</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <connector>
+            <targetReference
+      >Actualiza_Linea_de_Compra_HT_en_Linea_de_Venta_HT</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Cantidad__c</field>
+            <value>
+                <elementReference>$Record.Cantidad__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Compra_HT__c</field>
+            <value>
+                <elementReference
+        >$Record.Venta_HT__r.Compra_HT__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Estado__c</field>
+            <value>
+                <elementReference>$Record.Estado__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Fecha_de_Activacion__c</field>
+            <value>
+                <elementReference
+        >$Record.Fecha_de_Activacion__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Id_Producto_de_Lista_de_Precio__c</field>
+            <value>
+                <elementReference
+        >$Record.Id_Producto_de_Lista_de_Precio__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -288,7 +444,25 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordUpdates>
-        <description>Se actualiza la cantidad o el estado de la venta HT.</description>
+        <name>Actualiza_L_nea_de_Compra_HT_en_L_nea_de_Venta_HT_NC</name>
+        <label>Actualiza Línea de Compra HT en Línea de Venta HT NC</label>
+        <locationX>50</locationX>
+        <locationY>647</locationY>
+        <connector>
+            <targetReference>Cuantas_lineas_tiene_la_venta_HT</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Linea_de_Compra_HT__c</field>
+            <value>
+                <elementReference
+        >Crea_L_nea_de_Compra_HT_asociada_a_la_l_nea_de_Venta_HT_NC</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description
+    >Se actualiza la cantidad o el estado de la venta HT.</description>
         <name>Actualiza_Linea_de_Compra_HT_asociada</name>
         <label>Actualiza Línea de Compra HT asociada</label>
         <locationX>842</locationX>
@@ -298,7 +472,8 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Linea_de_Compra_HT__r.Id</elementReference>
+                <elementReference
+        >$Record.Linea_de_Compra_HT__r.Id</elementReference>
             </value>
         </filters>
         <inputAssignments>
@@ -316,7 +491,8 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <inputAssignments>
             <field>Fecha_de_Activacion__c</field>
             <value>
-                <elementReference>$Record.Fecha_de_Activacion__c</elementReference>
+                <elementReference
+        >$Record.Fecha_de_Activacion__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -338,7 +514,8 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <inputAssignments>
             <field>Linea_de_Compra_HT__c</field>
             <value>
-                <elementReference>Crea_Linea_de_Compra_HT_asociada_a_la_linea_de_Venta_HT</elementReference>
+                <elementReference
+        >Crea_Linea_de_Compra_HT_asociada_a_la_linea_de_Venta_HT</elementReference>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
@@ -368,7 +545,8 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <locationX>320</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Crea_o_Modifica_la_Linea_de_Venta_HT</targetReference>
+            <targetReference
+      >Crea_o_Modifica_la_Linea_de_Venta_HT</targetReference>
         </connector>
         <object>Linea_de_Venta_HT__c</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
@@ -404,7 +582,7 @@ Si se modifica a Cancelada --&gt; se modifica el estado de la línea de compra H
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
 </Flow>

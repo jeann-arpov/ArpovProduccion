@@ -1,13 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <description>Migrated from the: Factura. Estado Facturada workflow rule
 Workflow rule description: Cambia el estado de la Factura cuando se constata la efectiva facturación por parte del Obtentor (Pto. de Venta) o eBS (Cta. y Orden)&quot; a after</description>
     <environments>Default</environments>
-    <interviewLabel>Factura. Estado Facturada {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Factura. Estado Facturada {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Factura. Estado Facturada</label>
-    <migratedFromWorkflowRuleName>Factura. Estado Facturada</migratedFromWorkflowRuleName>
+    <migratedFromWorkflowRuleName
+  >Factura. Estado Facturada</migratedFromWorkflowRuleName>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -22,7 +24,8 @@ Workflow rule description: Cambia el estado de la Factura cuando se constata la 
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordUpdates>
-        <description>Establece el valor del cambio Etapa de la factura a Facturada</description>
+        <description
+    >Establece el valor del cambio Etapa de la factura a Facturada</description>
         <name>mainUpdate</name>
         <label>mainUpdate</label>
         <locationX>0</locationX>
@@ -41,7 +44,8 @@ Workflow rule description: Cambia el estado de la Factura cuando se constata la 
         <connector>
             <targetReference>mainUpdate</targetReference>
         </connector>
-        <filterLogic>1 AND NOT 2 AND 3 AND 4 AND 5 AND 6 AND 7 AND 8 AND 9 AND 10 AND 11 AND 12 AND 13 AND 14 AND 15 AND 16 AND 17 AND 18 AND 19 AND 20  AND 21</filterLogic>
+        <filterLogic
+    >1 AND NOT 2 AND 3 AND 4 AND 5 AND 6 AND 7 AND 8 AND 9 AND 10 AND 11 AND 12 AND 13 AND 14 AND 15 AND 16 AND 17 AND 18 AND 19 AND 20  AND 21 AND 22</filterLogic>
         <filters>
             <field>N_de_Comprobante__c</field>
             <operator>IsNull</operator>
@@ -189,9 +193,16 @@ Workflow rule description: Cambia el estado de la Factura cuando se constata la 
                 <stringValue>Aplicada</stringValue>
             </value>
         </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Ajustada por NC</stringValue>
+            </value>
+        </filters>
         <object>Opportunity</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
 </Flow>

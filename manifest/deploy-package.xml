@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <version>63.0</version>
+
+    <!-- Apex -->
+    <types>
+        <members>CrearVentaController</members>
+        <members>CrearVentaControllerTest</members>
+        <name>ApexClass</name>
+    </types>
+
+    <!-- LWC -->
+    <types>
+        <members>crearVenta2</members>
+        <members>crearLineaVentaNew3</members>
+        <members>ncCreditoTotal</members>
+        <members>utilsHT</members>
+        <name>LightningComponentBundle</name>
+    </types>
+
+    <!-- Objetos (custom + standard) con sus campos NC -->
+    <types>
+        <members>Nota_de_Credito__c</members>
+        <members>Venta_HT__c</members>
+        <members>Compra_HT__c</members>
+        <members>Linea_de_Venta_HT__c</members>
+        <members>Linea_de_Compra_HT__c</members>
+        <members>Hectareas_Tecnologicas__c</members>
+        <members>Opportunity</members>
+        <members>OpportunityLineItem</members>
+        <name>CustomObject</name>
+    </types>
+
+    <!-- Custom Labels NC -->
+    <types>
+        <members>NC_Alert_Title</members>
+        <members>NC_Alert_Message</members>
+        <members>NC_Close_Alert</members>
+        <members>NC_View_Label</members>
+        <members>NC_Total_Button</members>
+        <members>NC_Button_Price</members>
+        <members>NC_Button_Quantity</members>
+        <members>NC_Button_Cancel</members>
+        <members>NC_Mode_Canceled</members>
+        <members>NC_New_Price_Label</members>
+        <members>NC_New_Quantity_Label</members>
+        <members>NC_Observaciones_Label</members>
+        <members>NC_Observaciones_Tooltip</members>
+        <members>NC_Select_Label</members>
+        <members>NC_Process_Generic</members>
+        <members>NC_Process_Price</members>
+        <members>NC_Process_Quantity</members>
+        <members>NC_Process_Success</members>
+        <members>NC_Add_Variety</members>
+        <members>NC_Finalize_Sale</members>
+        <members>NC_Upload_Invoice</members>
+        <members>NC_Observaciones_Button</members>
+        <members>NC_New_Sale</members>
+        <members>NC_Anular_Button</members>
+        <members>NC_Facturar_Button</members>
+        <members>NC_No_Lines_Selected</members>
+        <members>NC_All_Observaciones_Required</members>
+        <members>NC_Observaciones_Required</members>
+        <members>NC_No_Change_Warning</members>
+        <members>NC_Price_Cannot_Higher</members>
+        <members>NC_Price_Cannot_Negative</members>
+        <members>NC_Price_Difference_Warning</members>
+        <members>NC_Quantity_Cannot_Higher</members>
+        <members>NC_Quantity_Cannot_Negative</members>
+        <members>NC_Quantity_Difference_Warning</members>
+        <members>NC_Confirm_Modal_Title</members>
+        <members>NC_Confirm_Modal_Message</members>
+        <members>NC_Confirm_Modal_Confirm</members>
+        <name>CustomLabel</name>
+    </types>
+
+    <!-- Flows -->
+    <types>
+        <members>VentaHT_Crea_Modifica_Compra_HT</members>
+        <members>CompraHT_Crea_Modifica_Oportunidad_Asociada</members>
+        <members>LineaVentaHT_Crear_Modificar_Linea_de_Compra_HT</members>
+        <members>LineaOportunidad_Crear_Hect_rea_Tecnol_gica_negativa</members>
+        <members>CompraHT_Cambia_a_Pedido_de_Facturacion</members>
+        <members>Oportunidad_Cambio_estado_a_Compra_HT_y_Venta_HT</members>
+        <members>Venta_HT_Crear_NC</members>
+        <members>Factura_Estado_Facturada</members>
+        <name>Flow</name>
+    </types>
+
+    <!-- Permission Set -->
+    <types>
+        <members>Notas_de_Creditos</members>
+        <name>PermissionSet</name>
+    </types>
+
+    <!-- Record Type -->
+    <types>
+        <members>Opportunity.Sembra_Evolucion</members>
+        <name>RecordType</name>
+    </types>
+</Package>
