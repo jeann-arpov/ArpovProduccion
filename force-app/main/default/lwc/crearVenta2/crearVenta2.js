@@ -1,4 +1,4 @@
-﻿import { LightningElement, api, track } from "lwc";
+import { LightningElement, api, track } from "lwc";
 import { CompraVentaMixin } from "c/utilsHT";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import {
@@ -55,7 +55,7 @@ import NC_CONFIRM_MODAL_CONFIRM from "@salesforce/label/c.NC_Confirm_Modal_Confi
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
 
-/** Promo HT Futura Trigo GDM (USD 9 con â‰¥200 HT). ValidaciÃ³n en TEST; prod pendiente. */
+/** Promo HT Futura Trigo GDM (USD 9 con ≥200 HT). Validación en TEST; prod pendiente. */
 const PROMO_HT_FUTURA_HABILITADA = true;
 
 export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
@@ -167,7 +167,6 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
           ventaId: activeVentaId,
           isFirstLoad: true
         });
-
         this.DataCompra = compraData;
         this.setData(compraData);
         this.step = 4;
@@ -201,6 +200,421 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         this.isLoading = false;
       }
     }
+  }
+
+  // ===== Validaciones de inputs de factura =====
+  ValidateData() {
+    this.uploadFactura = !(
+      this.formattedDate &&
+      this.customCode &&
+      this.formattedDate !== "" &&
+      this.customCode !== ""
+    );
+  }
+
+  handleDateChange(event) {
+    const rawDate = event.target.value; // yyyy-mm-dd
+    const [y, m, d] = rawDate.split("-");
+    this.formattedDate = `${y}-${m}-${d}`;
+    this.ValidateData();
+  }
+
+  handleCodeChange(event) {
+    const value = event.target.value;
+    const regex = /^[ABC]-\d{4,5}-\d{8}$/;
+    this.customCode = regex.test(value) ? value : null;
+    this.ValidateData();
+  }
+  // =============================================
+
+  handleLoadingChange(event) {
+    this.isLoading = event.detail.isLoading;
+  }
+
+  async closeModal() {
+    const debeContinuarFinalizar =
+      this.currentModal === "expediente-disponible-alert" &&
+      this.pendingFinalizarPorExpediente;
+
+    this.isOpen = false;
+    this.isOpen2 = false;
+    this.currentModal = null;
+
+    if (debeContinuarFinalizar) {
+      this.shouldMarkRevisarCompra = true;
+      this.pendingFinalizarPorExpediente = false;
+      await this.finalizar({ mostrarModalExpediente: false });
+    }
+  }
+  handleKeyDown() {} // stub para el modal de obs
+
+  handleSemilleroIconReady(event) {
+    this.semilleroIcono = event.detail;
+  }
+
+  getData(isFirstLoad) {
+    return getData({ ventaId: this.currentVentaId, isFirstLoad });
+  }
+
+  setData(data) {
+    const lineas = data.record ? data.record.Lineas_de_Venta_HT__r : null;
+    this.setDataAndItems(data, lineas);
+    this.productor = data.record ? data.record.Cuenta_Productor__r : null;
+
+    if (data.infoNotasCredito) {
+      this.infoNotasCredito = data.infoNotasCredito;
+      this.mostrarAlertaNotaCredito =
+        data.infoNotasCredito.tieneNotasCreditoPendientes;
+      this.notasCreditoPendientes = data.infoNotasCredito.detalleNotas || [];
+      this.todasLasNC = data.infoNotasCredito.todasLasNC || [];
+    }
+
+    if (
+      !this.tipoCompraSeleccionado &&
+      lineas &&
+      lineas.length > 0 &&
+      data.products
+    ) {
+      const primerProductoId = lineas[0].Producto__c;
+      const prod = data.products.find((p) => p.Product2Id === primerProductoId);
+      if (prod?.Product2?.Tipo_de_Compra__c) {
+        this.tipoCompraSeleccionado = prod.Product2.Tipo_de_Compra__c;
+        this.Futura = this.tipoCompraSeleccionado === "Futura";
+      }
+    }
+  }
+
+  get pageRecordId() {
+    return this.currentVentaId;
+  }
+
+  get community() {
+    return "Venta";
+  }
+
+  get isPortalObtentor() {
+    return basePath.includes("Obtentor");
+  }
+
+  get cultivoNombre() {
+    const sel = (this.cultivos || []).find((c) => c.value === this.cultivo);
+    return sel ? sel.label : "";
+  }
+
+  get productorNombre() {
+    return this.productor?.Name || "";
+  }
+  get logoUrl() {
+    return icons.semilleros[this.idobtentor];
+  }
+  get cuit() {
+    return (
+      this.productor?.PersonDocumentNumber || this.productor?.N_CUIT__c || ""
+    );
+  }
+  get productorMissing() {
+    return this.productor == null;
+  }
+
+  // NUEVA PROPIEDAD: Determina si se puede crear Nota de Crédito Total
+  get puedeCrearNotaCredito() {
+    return (
+      this.data &&
+      this.data.record &&
+      this.data.record.Estado__c === "Facturada" &&
+      (this.data.record.Obtentor__r.Id_Obtentor__c == "03" ||
+        this.data.record.Obtentor__r.Id_Obtentor__c == "14" ||
+        this.data.record.Obtentor__r.Id_Obtentor__c == "85") &&
+      !this.infoNotasCredito?.existeNCTotal &&
+      !this.infoNotasCredito?.existeNCPPendiente &&
+      !this.infoNotasCredito?.existeNCCPendiente
+    );
+  }
+
+  get puedeCrearNotaCreditoParcial() {
+    return (
+      this.data &&
+      this.data.record &&
+      this.data.record.Estado__c == "Facturada" &&
+      (this.data.record.Obtentor__r.Id_Obtentor__c == "03" ||
+        this.data.record.Obtentor__r.Id_Obtentor__c == "14" ||
+        this.data.record.Obtentor__r.Id_Obtentor__c == "85") &&
+      !this.infoNotasCredito?.existeNCTotal
+    );
+  }
+
+  get puedeCrearNotaCreditoPrecio() {
+    return (
+      this.puedeCrearNotaCreditoParcial &&
+      !this.infoNotasCredito?.existeNCPPendiente &&
+      !this.infoNotasCredito?.existeNCCPendiente
+    );
+  }
+
+  get puedeCrearNotaCreditoCantidad() {
+    return (
+      this.puedeCrearNotaCreditoParcial &&
+      !this.infoNotasCredito?.existeNCCPendiente &&
+      !this.infoNotasCredito?.existeNCPPendiente
+    );
+  }
+
+  get mostrarMenuNC() {
+    return (
+      this.puedeCrearNotaCredito ||
+      this.puedeCrearNotaCreditoPrecio ||
+      this.puedeCrearNotaCreditoCantidad
+    );
+  }
+
+  get tieneNCTotal() {
+    return this.puedeCrearNotaCredito;
+  }
+  get tieneNCPrecio() {
+    return this.puedeCrearNotaCreditoPrecio;
+  }
+  get tieneNCCantidad() {
+    return this.puedeCrearNotaCreditoCantidad;
+  }
+
+  get mostrarCamposNotaCredito() {
+    return this.modoNotaCreditoPrecio || this.modoNotaCreditoCantidad;
+  }
+
+  get textoBotonProcesarNC() {
+    if (this.modoNotaCreditoPrecio) return this.labels.ncProcessPrice;
+    if (this.modoNotaCreditoCantidad) return this.labels.ncProcessQuantity;
+    return this.labels.ncProcessGeneric;
+  }
+
+  get esNotaCredito() {
+    return this.data?.record?.Es_NC__c === true;
+  }
+  get tipoNotaCredito() {
+    if (!this.data?.record) return "";
+    const venta = this.data.record;
+    if (venta.Es_NC__c && venta.Tipo_Ajuste__c) {
+      switch (venta.Tipo_Ajuste__c) {
+        case "NC":
+          return "NC Total";
+        case "NCP":
+          return "NCP Precio";
+        case "NCC":
+          return "NCC Cantidad";
+        default:
+          return venta.Tipo_Ajuste__c;
+      }
+    }
+    return "";
+  }
+  get tipoNotaCreditoClass() {
+    switch (this.tipoNotaCredito) {
+      case "NC Total":
+        return "badge-nc-total";
+      case "NCP Precio":
+        return "badge-ncp-precio";
+      case "NCC Cantidad":
+        return "badge-ncc-cantidad";
+      default:
+        return "badge-nc-default";
+    }
+  }
+  get mostrarColumnaTipoNC() {
+    return this.tipoNotaCredito !== "";
+  }
+  get nombreVenta() {
+    return this.data?.record?.Name || "";
+  }
+  get ventaOriginalId() {
+    return this.data?.record?.Venta_Original__c;
+  }
+  get ventaOriginalName() {
+    return this.data?.record?.Venta_Original__r?.Name;
+  }
+  get mostrarVentaOriginal() {
+    return this.esNotaCredito && this.ventaOriginalId;
+  }
+  get comercioNombre() {
+    return this.data?.record?.Nombre_del_comercio__c || "";
+  }
+  get estadoVenta() {
+    return this.data?.record?.Estado__c || "";
+  }
+  get estadoVentaClass() {
+    return "badge-estado-" + (this.estadoVenta || "").replace(/ /g, "_");
+  }
+
+  get puedeAnular() {
+    if (this.esNotaCredito) return false;
+    return this.data?.record?.Estado__c == "Pendiente de Facturación";
+  }
+  get puedeRealizarNueva() {
+    if (this.esNotaCredito) return false;
+    return this.recordId && !this.puedeEditar && !this.puedeFacturar;
+  }
+  get puedeAgregarVariedad() {
+    if (this.esNotaCredito) return false;
+    return true;
+  }
+  get ncRelacionadas() {
+    if (!this.todasLasNC || this.todasLasNC.length === 0) return [];
+    return this.todasLasNC.map((nc) => ({
+      ...nc,
+      tipoLabel: this.obtenerTipoNCLabel(nc.tipo),
+      estadoClass: (nc.estado || "").replace(/ /g, "_")
+    }));
+  }
+  get mostrarNCRelacionadas() {
+    return this.todasLasNC && this.todasLasNC.length > 0 && !this.esNotaCredito;
+  }
+
+  obtenerTipoNCLabel(tipo) {
+    if (tipo === "NC") return "Total";
+    if (tipo === "NCC") return "Cantidad";
+    if (tipo === "NCP") return "Precio";
+    return tipo || "";
+  }
+
+  get mensajeAlertaNotaCredito() {
+    if (!this.infoNotasCredito || !this.labels.ncAlertMessage) {
+      return (
+        "Existe " +
+        (this.infoNotasCredito?.cantidadPendientes || 0) +
+        " nota(s) de crédito pendiente(s) de facturación."
+      );
+    }
+    return this.labels.ncAlertMessage.replace(
+      "{0}",
+      this.infoNotasCredito.cantidadPendientes || 0
+    );
+  }
+
+  // ALTERNATIVA: Usar lightning/navigation
+  async crearNotaCreditoTotal() {
+    if (!this.recordId) {
+      this.onError("No se encontró el ID de la venta");
+      return;
+    }
+    try {
+      if (!this.data.record || this.data.record.Estado__c !== "Facturada") {
+        this.dispatchEvent(
+          new ShowToastEvent({
+            title: "Error",
+            message:
+              "Solo se puede crear Nota de Crédito para ventas en estado Facturada",
+            variant: "error"
+          })
+        );
+        return;
+      }
+      const pageUrl = `${basePath}/-nota-credito-total?c__recordId=${this.recordId}`;
+      this[NavigationMixin.Navigate]({
+        type: "standard__webPage",
+        attributes: { url: pageUrl }
+      });
+    } catch (error) {
+      console.error("Error al abrir el Flow:", error);
+      this.dispatchEvent(
+        new ShowToastEvent({
+          title: "Error",
+          message: "No se pudo abrir el Flow: " + error.message,
+          variant: "error"
+        })
+      );
+    }
+  }
+
+  addRow() {
+    const rows = Array.from(
+      this.template.querySelectorAll("c-crear-linea-venta")
+    );
+    if (rows.length && this.productor == null && !this.data.record)
+      return this.onError("Debe seleccionar un productor");
+    this.addRowInternal(rows);
+  }
+
+  async saveRow(event) {
+    console.log("saveRow event");
+    if (this.productor == null && !this.data.record)
+      return this.onError("Debe seleccionar un productor");
+    this.isLoading = true;
+    try {
+      await event.target.save(this.recordId, this.cultivo, this.productor.Id);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  get decoratedItems() {
+    const len = this.items.length;
+    return this.items.map((item, i) => ({
+      ...item,
+      zStyle: `position:relative;z-index:${len - i}`
+    }));
+  }
+
+  get mostrarContinuar() {
+    if (!this.puedeEditar || this.guardandoLineas) {
+      return false;
+    }
+    // eslint-disable-next-line no-unused-expressions
+    this._lineasListasFlag;
+    return this.tieneLineasPendientesDeGuardar;
+  }
+
+  get mostrarFinalizar() {
+    if (this.guardandoLineas) {
+      return false;
+    }
+    if (this.tieneLineasPendientesDeGuardar) {
+      return false;
+    }
+    return this.puedeFinalizar;
+  }
+
+  get finalizarDeshabilitado() {
+    return this.isLoading || this.finalizandoOperacion;
+  }
+
+  get tieneLineasPendientesDeGuardar() {
+    if (this.guardandoLineas) {
+      return true;
+    }
+    const children = this.template.querySelectorAll("c-crear-linea-venta-new");
+    for (const child of children) {
+      const rec = child.record;
+      if (!rec?.Producto__c || !rec?.Cantidad__c) continue;
+      if (!rec.Id) return true;
+      if (child.hasUnsavedChanges?.()) return true;
+    }
+    return false;
+  }
+
+  async continuar() {
+    this.guardandoLineas = true;
+    try {
+      this.refreshAllLinePromoPrices();
+      await this.saveAllPendingLines();
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      this.refreshAllLinePromoPrices();
+      this.notifyLineSaveStateChanged();
+    } catch (e) {
+      this.onError("Error al guardar las líneas: " + (e.message || e));
+    } finally {
+      this.guardandoLineas = false;
+    }
+  }
+
+  notifyLineSaveStateChanged() {
+    this._lineasListasFlag = !this._lineasListasFlag;
+  }
+
+  handleCantidadChangeLine() {
+    this._lineasListasFlag = !this._lineasListasFlag;
+    Promise.resolve().then(() => {
+      this.refreshAllLinePromoPrices();
+      this.notifyLineSaveStateChanged();
+    });
   }
 
   computeHtFuturaPromoCantidadTotal() {
@@ -279,9 +693,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         await this.saveAllPendingLines();
       } catch (e) {
         this.isLoading = false;
-        return this.onError(
-          "Error al guardar las lÃ­neas: " + (e.message || e)
-        );
+        return this.onError("Error al guardar las líneas: " + (e.message || e));
       }
 
       if (this.requiresTipoPago() && !this.tipoPago) {
@@ -291,7 +703,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         return;
       }
       if (this.isChildrenLoading) {
-        return this.onError("Espere a que se termine de guardar la lÃ­nea");
+        return this.onError("Espere a que se termine de guardar la línea");
       }
 
       this.isLoading = true;
@@ -325,8 +737,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
             ventaId: activeId,
             checkDuplicates: activeId != this.lastDuplicateCheckId,
             origen: this.haveOrigenLegal,
-            marcarRevisarCompra,
-            blanqueo: this.Blanqueo
+            marcarRevisarCompra
           });
 
           if (data.duplicate) {
@@ -341,7 +752,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
           }
 
           this.currentModal = data.pendiente
-            ? "Pendiente de FacturaciÃ³n"
+            ? "Pendiente de Facturación"
             : "finalizada";
           await this.getAccount();
           this[NavigationMixin.Navigate]({
@@ -367,8 +778,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         ventaId: activeId,
         checkDuplicates: activeId != this.lastDuplicateCheckId,
         origen: this.haveOrigenLegal,
-        marcarRevisarCompra,
-        blanqueo: this.Blanqueo
+        marcarRevisarCompra
       });
 
       if (data.duplicate) {
@@ -378,7 +788,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       this.setData(data);
       this.DataCompra = data;
       this.currentModal = data.pendiente
-        ? "Pendiente de FacturaciÃ³n"
+        ? "Pendiente de Facturación"
         : "finalizada";
       await this.getAccount();
 
@@ -443,7 +853,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       .then(() => {
         this.dispatchEvent(
           new ShowToastEvent({
-            title: "Ã‰xito",
+            title: "Éxito",
             message: `Factura ${this.customCode} guardada correctamente`,
             variant: "success"
           })
@@ -478,7 +888,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         new ShowToastEvent({
           title: "Error",
           message:
-            "Debe completar correctamente los campos NÂ° de Comprobante y Fecha de emisiÃ³n",
+            "Debe completar correctamente los campos N° de Comprobante y Fecha de emisión",
           variant: "error"
         })
       );
@@ -507,7 +917,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Error",
-          message: `El archivo "${file.name}" no es un PDF vÃ¡lido. Solo se permiten archivos PDF.`,
+          message: `El archivo "${file.name}" no es un PDF válido. Solo se permiten archivos PDF.`,
           variant: "error"
         })
       );
@@ -516,14 +926,14 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
     this.dispatchEvent(
       new ShowToastEvent({
-        title: "Ã‰xito",
+        title: "Éxito",
         message: `Archivo PDF "${file.name}" subido correctamente`,
         variant: "success"
       })
     );
   }
 
-  // ===== NavegaciÃ³n de pasos =====
+  // ===== Navegación de pasos =====
   step = 1;
   get step1Class() {
     return (
@@ -605,13 +1015,13 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         value: "Futura",
         label: "HT Futura",
         description:
-          "Se trata de las HT que son precertificables dentro de los plazos del programa y la conversiÃ³n a toneladas se produce a partir de la entrega de grano."
+          "Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir de la entrega de grano."
       },
       {
         value: "Disponible",
         label: "HT Disponible",
         description:
-          "Se trata de las HT que acreditan inmediatamente toneladas. SÃ³lo se pueden adquirir antes de la entrega de grano. No son precertificables."
+          "Se trata de las HT que acreditan inmediatamente toneladas. Sólo se pueden adquirir antes de la entrega de grano. No son precertificables."
       }
     ];
     return opciones
@@ -858,7 +1268,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       .then(() => {
         this.dispatchEvent(
           new ShowToastEvent({
-            title: "Ã‰xito",
+            title: "Éxito",
             message: "Observaciones guardadas correctamente",
             variant: "success"
           })
@@ -936,7 +1346,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       return false;
     } catch (error) {
       console.error(
-        "Error crÃ­tico al ejecutar validaciones (canFinish):",
+        "Error crítico al ejecutar validaciones (canFinish):",
         error
       );
       return false;
@@ -979,7 +1389,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     // cierra modal tipo-pago
     this.currentModal = null;
 
-    // si venÃ­a de apretar finalizar, continÃºa
+    // si venía de apretar finalizar, continúa
     if (this.pendingFinalizar) {
       this.pendingFinalizar = false;
       await this.finalizar(); // ahora ya pasa el gate porque this.tipoPago existe
@@ -1019,7 +1429,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     }
   }
 
-  // ===== MÃ‰TODOS PARA NOTAS DE CRÃ‰DITO PARCIAL (precio y cantidad) =====
+  // ===== MÉTODOS PARA NOTAS DE CRÉDITO PARCIAL (precio y cantidad) =====
 
   async verificarNotasCreditoPendientes() {
     try {
@@ -1034,7 +1444,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         }
       }
     } catch (error) {
-      console.error("Error al verificar notas de crÃ©dito:", error);
+      console.error("Error al verificar notas de crédito:", error);
     }
   }
 
@@ -1215,7 +1625,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         this.dispatchEvent(
           new ShowToastEvent({
             title: "Error",
-            message: "No se encontraron datos vÃ¡lidos para procesar",
+            message: "No se encontraron datos válidos para procesar",
             variant: "error"
           })
         );
@@ -1241,7 +1651,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
           .replace("{1}", resultado.lineasCreadas);
         this.dispatchEvent(
           new ShowToastEvent({
-            title: "Ã‰xito",
+            title: "Éxito",
             message: mensajeExito,
             variant: "success"
           })
@@ -1250,11 +1660,11 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         await this.recargarDatos();
       }
     } catch (error) {
-      console.error("Error al procesar nota de crÃ©dito:", error);
+      console.error("Error al procesar nota de crédito:", error);
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Error",
-          message: error.body?.message || "Error al procesar nota de crÃ©dito",
+          message: error.body?.message || "Error al procesar nota de crédito",
           variant: "error"
         })
       );
