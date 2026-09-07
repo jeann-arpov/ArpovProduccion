@@ -159,15 +159,14 @@ export default class ExpedienteLicenciasRelatedList extends NavigationMixin(Ligh
             licenseId
         })
             .then((token) => {
-                this[NavigationMixin.Navigate](
-                    {
-                        type: 'standard__webPage',
-                        attributes: {
-                            url: this.url + '?token=' + encodeURIComponent(token) + '&url=' + encodeURIComponent(window.location.href)
-                        }
-                    },
-                    true
-                );
+                const redirectUrl =
+                    this.url +
+                    '?token=' +
+                    encodeURIComponent(token) +
+                    '&url=' +
+                    encodeURIComponent(window.location.href);
+                // Misma pestaña: NavigationMixin abre otra con URLs externas en Experience Cloud.
+                window.open(redirectUrl, '_self');
             })
             .catch((err) => {
                 // eslint-disable-next-line no-console
