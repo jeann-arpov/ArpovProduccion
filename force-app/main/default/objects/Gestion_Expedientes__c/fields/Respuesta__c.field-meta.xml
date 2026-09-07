@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Respuesta__c</fullName>
     <label>Respuesta</label>
-    <required>true</required>
+    <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
@@ -207,139 +207,173 @@
                 <label>Rechazo</label>
             </value>
         </valueSetDefinition>
+        <!-- SE -->
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Acopio</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Cesión conjunta</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Cesión por descarte</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Compra/Venta HT</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Descarte multiplicación</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Desconoce entrega</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Ensayo</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Firma licencia</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Informa SF</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>No sembró</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Paga factura HT</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Reconsideración BT</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Sin intención de regularizar</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Sin respuesta</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Reclama transferencia de toneladas</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Sin contacto</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Solicita detalle/MBT</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Licencia E3 en gestión</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Reclama CTG otra campaña</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Promesa Compra HT</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Solicitamos Documentación</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Promesa de respuesta</valueName>
         </valueSettings>
+        <!-- CTV only (+ Caso) -->
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Entrega cosecha PPH</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Intención de pago</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>NC por Cesión</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>NC por compra HT</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>NC por Ensayo</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>NC por Fiscalizada</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>NC por reconsideración</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Paga factura</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Sin intención de pagar</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>CTV</controllingFieldValue>
+            <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Solicita NC</valueName>
         </valueSettings>
     </valueSet>
