@@ -149,7 +149,7 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
                 {
                     type: 'standard__webPage',
                     attributes: {
-                        url: `${this.url}/NewLicenseRequest?token=${token}&url=${window.location.href}`
+                        url: `${this.url}/NewLicenseRequest?token=${encodeURIComponent(token)}&url=${encodeURIComponent(window.location.href)}`
                     }
                 },
                 true // reemplaza la pestaña actual en el historial

@@ -1,4 +1,4 @@
-public without sharing class CustomJWTSigner extends ApexErrorHandler {
+public without sharing class CustomJWTSigner {
     @AuraEnabled(cacheable=true)
     public static String CustomJWTSigner(String userId, String url, String contactId) {
     
@@ -39,7 +39,7 @@ public without sharing class CustomJWTSigner extends ApexErrorHandler {
         String signedJWT = unsignedJWT + '.' + signature;
         
         Map<String, String> updatedSglUrls = new Map<String, String>();   
-        return signedJWT;
+        return tokenForSgl(signedJWT);
     }
     
     private static String createHMACSignature(String data, String secretKey) {
@@ -61,12 +61,98 @@ public without sharing class CustomJWTSigner extends ApexErrorHandler {
         return output;
     }
 
+    private static final String SGL_AES_ALGORITHM = 'AES256-GCM';
+    private static final String SGL_AES_KEY_B64 = 'vC96Z7XgY7oglv9Mb0CKIZgvUFv3FQ5jbzD/ZvdNPUg=';
+
+    private static Boolean isSandboxOrg {
+        get {
+            if (isSandboxOrg == null) {
+                // Community users cannot query Organization; detect sandbox from My Domain.
+                System.Domain domain = System.DomainParser.parse(System.Url.getOrgDomainUrl().getHost());
+                isSandboxOrg = String.isNotBlank(domain.getSandboxName());
+            }
+            return isSandboxOrg;
+        }
+        set;
+    }
+
+    /**
+     * JWT cifrado (AES-256-GCM) para envío a SGL en todos los entornos.
+     */
+    @TestVisible
+    static String tokenForSgl(String jwt) {
+        return encryptJwtForSgl(jwt);
+    }
+
+    /**
+     * Cifra el JWT con AES-256-GCM para enviarlo a SGL.
+     * Formato wire: nonce(12) || ciphertext || tag(16)
+     * Encoding en URL: Base64URL (sin +, / ni =) para que no se rompa en query string.
+     * Key: EncodingUtil.base64Decode(SGL_AES_KEY_B64) → exactamente 32 bytes.
+     * AAD: ninguno (null / no se pasa additionalAuthenticatedData).
+     * Apex antepone 1 byte con la longitud del IV (0x0C); se quita del wire hacia SGL.
+     */
+    @TestVisible
+    static String encryptJwtForSgl(String jwt) {
+        if (String.isBlank(jwt)) {
+            return jwt;
+        }
+        Blob encrypted = Crypto.encryptWithManagedIV(
+            SGL_AES_ALGORITHM,
+            EncodingUtil.base64Decode(SGL_AES_KEY_B64),
+            Blob.valueOf(jwt)
+        );
+        String hex = EncodingUtil.convertToHex(encrypted);
+        String wireHex = stripGcmLengthPrefix(hex);
+        return base64URLencode(EncodingUtil.convertFromHex(wireHex));
+    }
+
+    @TestVisible
+    static String decryptJwtFromSgl(String encoded) {
+        if (String.isBlank(encoded)) {
+            return encoded;
+        }
+        Blob wire = base64URLdecode(encoded);
+        Blob sfFormat = EncodingUtil.convertFromHex('0c' + EncodingUtil.convertToHex(wire));
+        return Crypto.decryptWithManagedIV(
+            SGL_AES_ALGORITHM,
+            EncodingUtil.base64Decode(SGL_AES_KEY_B64),
+            sfFormat
+        ).toString();
+    }
+
+    @TestVisible
+    static Blob base64URLdecode(String input) {
+        String output = input.replace('-', '+').replace('_', '/');
+        while (Math.mod(output.length(), 4) != 0) {
+            output += '=';
+        }
+        return EncodingUtil.base64Decode(output);
+    }
+
+    private static String stripGcmLengthPrefix(String hex) {
+        if (String.isBlank(hex) || hex.length() < 26) {
+            throw new SglCryptoException('Blob AES-GCM vacío o demasiado corto');
+        }
+        String prefix = hex.substring(0, 2).toLowerCase();
+        if (prefix == '0c') {
+            return hex.substring(2);
+        }
+        String prefix4 = hex.substring(0, 8).toLowerCase();
+        if (prefix4 == '0c000000' || prefix4 == '0000000c') {
+            return hex.substring(8);
+        }
+        throw new SglCryptoException('Formato AES-GCM inesperado. Prefijo=' + hex.substring(0, 8));
+    }
+
+    private class SglCryptoException extends Exception {}
+
     @AuraEnabled
     public static String CustomJWTSignerLicencias(String userId, String url, String contactId) {
         try {
             return runCustomJWTSignerLicencias(userId, url, contactId);            
         } catch (Exception ex) {
-            throw handleException(ex, 'ERR-INT-002', 'JWT_Signer');            
+            throw new AuraHandledException('userId: '+ System.UserInfo.getUserId() + ' ex_message +'+ex.getMessage() + ' stack_trace: ' +ex.getStackTraceString());            
         }
     }
 
@@ -110,7 +196,7 @@ public without sharing class CustomJWTSigner extends ApexErrorHandler {
         
         String signedJWT = unsignedJWT + '.' + signature;
 
-        return signedJWT;
+        return tokenForSgl(signedJWT);
 
     }
 
@@ -152,7 +238,7 @@ public without sharing class CustomJWTSigner extends ApexErrorHandler {
         
         String signedJWT = unsignedJWT + '.' + signature;
 
-        return signedJWT;
+        return tokenForSgl(signedJWT);
 
     }
     
@@ -198,13 +284,7 @@ public without sharing class CustomJWTSigner extends ApexErrorHandler {
         Map<String, String> updatedSglUrls = new Map<String, String>();
         
         for (Licencia__c currentLic : licencesMap.values()) {
-            Organization org = [SELECT IsSandbox FROM Organization];
-            String entorno;
-            if (org.IsSandbox) {
-                entorno = 'Sandbox';
-            } else {
-                entorno = 'Prod';
-            }
+            String entorno = isSandboxOrg ? 'Sandbox' : 'Prod';
 
             Parametro_Portal_Licencias__mdt licParam = Parametro_Portal_Licencias__mdt.getInstance(entorno);
 
@@ -251,6 +331,6 @@ public without sharing class CustomJWTSigner extends ApexErrorHandler {
             }
         }    
         
-        return signedJWT;
+        return tokenForSgl(signedJWT);
     }
 }
