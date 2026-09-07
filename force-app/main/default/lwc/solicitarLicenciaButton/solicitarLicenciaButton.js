@@ -74,14 +74,15 @@ export default class SolicitarLicenciaButton extends NavigationMixin(LightningEl
         console.log(JSON.stringify(licenseId));
         singleNewLicenseRequestJWTSigner({userId: this.currentUserId, contactId: this.currentContactId})
         .then(response => {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: this.url + '/NewLicenseRequest' + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
-                }
-            },
-                true // Replaces the current page in your browser history with the URL
-            );
+            const redirectUrl =
+                this.url +
+                '/NewLicenseRequest' +
+                '?token=' +
+                encodeURIComponent(response) +
+                '&url=' +
+                encodeURIComponent(window.location.href);
+            // Misma pestaña: NavigationMixin abre otra con URLs externas en Experience Cloud.
+            window.open(redirectUrl, '_self');
         })
         .catch(error => console.log(error))
     }
@@ -108,14 +109,14 @@ export default class SolicitarLicenciaButton extends NavigationMixin(LightningEl
         console.log(JSON.stringify(licenseId));
         singleNewLicenseRequestJWTSigner({userId: this.currentUserId, contactId: this.currentContactId})
         .then(response => {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: this.url + '/NewLicenseRequest' + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
-                }
-            },
-                true // Replaces the current page in your browser history with the URL
-            );
+            const redirectUrl =
+                this.url +
+                '/NewLicenseRequest' +
+                '?token=' +
+                encodeURIComponent(response) +
+                '&url=' +
+                encodeURIComponent(window.location.href);
+            window.open(redirectUrl, '_self');
         })
         .catch(error => console.log(error))
     }
@@ -155,14 +156,13 @@ export default class SolicitarLicenciaButton extends NavigationMixin(LightningEl
         sessionStorage.setItem('TOKEN::: ',this.JWToken)
         sessionStorage.setItem('USER ID::: ',this.currentUserId)
 
-        this[NavigationMixin.Navigate]({
-            type: 'standard__webPage',
-            attributes: {
-                url: this.url + '?token=' + encodeURIComponent(this.JWToken) + '&url=' + encodeURIComponent(window.location.href)
-            }
-        },
-            true // Replaces the current page in your browser history with the URL
-        );
+        const redirectUrl =
+            this.url +
+            '?token=' +
+            encodeURIComponent(this.JWToken) +
+            '&url=' +
+            encodeURIComponent(window.location.href);
+        window.open(redirectUrl, '_self');
 
     }
 

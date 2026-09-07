@@ -617,12 +617,14 @@ get mostrarFiltroTecnologia() {
             licenseId: licenseId
         })
         .then(response => {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: this.url + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
-                }
-            }, true);
+            const redirectUrl =
+                this.url +
+                '?token=' +
+                encodeURIComponent(response) +
+                '&url=' +
+                encodeURIComponent(window.location.href);
+            // Misma pestaña: NavigationMixin abre otra con URLs externas en Experience Cloud.
+            window.open(redirectUrl, '_self');
         })
         .catch(error => {
             console.error('Error:', error);
@@ -642,12 +644,14 @@ get mostrarFiltroTecnologia() {
             contactId: this.currentContactId
         })
         .then(response => {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: this.url + '/NewLicenseRequest' + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
-                }
-            }, true);
+            const redirectUrl =
+                this.url +
+                '/NewLicenseRequest' +
+                '?token=' +
+                encodeURIComponent(response) +
+                '&url=' +
+                encodeURIComponent(window.location.href);
+            window.open(redirectUrl, '_self');
         })
         .catch(error => {
             console.error('Error:', error);

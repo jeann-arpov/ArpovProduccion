@@ -145,15 +145,9 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
                 contactId: this.currentContactId
             });
 
-            this[NavigationMixin.Navigate](
-                {
-                    type: 'standard__webPage',
-                    attributes: {
-                        url: `${this.url}/NewLicenseRequest?token=${encodeURIComponent(token)}&url=${encodeURIComponent(window.location.href)}`
-                    }
-                },
-                true // reemplaza la pestaña actual en el historial
-            );
+            const redirectUrl = `${this.url}/NewLicenseRequest?token=${encodeURIComponent(token)}&url=${encodeURIComponent(window.location.href)}`;
+            // Misma pestaña: NavigationMixin abre otra con URLs externas en Experience Cloud.
+            window.open(redirectUrl, '_self');
         } catch (error) {
             console.error('Error en handleSolicitarLicencia:', error);
         } finally {
