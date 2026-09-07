@@ -1,0 +1,16 @@
+<apex:page controller="SGL_RedirectController" action="{!init}">
+    <apex:form >
+        <apex:outputPanel id="loadingPanel">
+            <apex:outputText value="Generando token y redirigiendo..." />
+        </apex:outputPanel>
+    </apex:form>
+
+   <script>
+    var token = '{!JSENCODE(jwtToken)}';
+    var targetUrl = '{!JSENCODE(targetUrl)}';
+    if (token && targetUrl) {
+        var redirectUrl = targetUrl + '?token=' + encodeURIComponent(token) + '&url=' + encodeURIComponent(window.location.href);
+        window.location.replace(redirectUrl);
+    }
+</script>
+</apex:page>

@@ -47,7 +47,10 @@ private class SGL_RedirectControllerTest {
         String jwt = SGL_RedirectController.singleLicenseJWTSigner(usr.Id, ctc.Id, lic.Id);
         Test.stopTest();
 
-        System.assert(jwt.contains('.'), 'El JWT debe tener formato válido');
+        System.assert(jwt != null, 'El token no debe ser nulo');
+        System.assert(!jwt.startsWith('eyJ'), 'El token enviado a SGL debe ir cifrado, no como JWT en claro');
+        String decrypted = CustomJWTSigner.decryptJwtFromSgl(jwt);
+        System.assert(decrypted.contains('.'), 'El JWT descifrado debe tener formato válido');
     }
 
     @isTest
