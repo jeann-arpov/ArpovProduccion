@@ -77,7 +77,7 @@ export default class SolicitarLicenciaButton extends NavigationMixin(LightningEl
             this[NavigationMixin.Navigate]({
                 type: 'standard__webPage',
                 attributes: {
-                    url: this.url + '/NewLicenseRequest' + '?token=' + response + '&url=' + window.location.href
+                    url: this.url + '/NewLicenseRequest' + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
                 }
             },
                 true // Replaces the current page in your browser history with the URL
@@ -111,7 +111,7 @@ export default class SolicitarLicenciaButton extends NavigationMixin(LightningEl
             this[NavigationMixin.Navigate]({
                 type: 'standard__webPage',
                 attributes: {
-                    url: this.url + '/NewLicenseRequest' + '?token=' + response + '&url=' + window.location.href
+                    url: this.url + '/NewLicenseRequest' + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
                 }
             },
                 true // Replaces the current page in your browser history with the URL
@@ -158,7 +158,7 @@ export default class SolicitarLicenciaButton extends NavigationMixin(LightningEl
         this[NavigationMixin.Navigate]({
             type: 'standard__webPage',
             attributes: {
-                url: this.url + '?token=' + this.JWToken + '&url=' + window.location.href
+                url: this.url + '?token=' + encodeURIComponent(this.JWToken) + '&url=' + encodeURIComponent(window.location.href)
             }
         },
             true // Replaces the current page in your browser history with the URL

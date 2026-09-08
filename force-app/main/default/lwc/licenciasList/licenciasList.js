@@ -365,7 +365,7 @@ export default class LicenciasList extends NavigationMixin(LightningElement) {
         this[NavigationMixin.Navigate]({
             type: 'standard__webPage',
             attributes: {
-                url: this.url + '?token=' + response + '&url=' + window.location.href
+                url: this.url + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
             }
         }, true);
     })
@@ -393,7 +393,7 @@ export default class LicenciasList extends NavigationMixin(LightningElement) {
             this[NavigationMixin.Navigate]({
                 type: 'standard__webPage',
                 attributes: {
-                    url: this.url + '/NewLicenseRequest' + '?token=' + response + '&url=' + window.location.href
+                    url: this.url + '/NewLicenseRequest' + '?token=' + encodeURIComponent(response) + '&url=' + encodeURIComponent(window.location.href)
                 }
             }, true);
         })

@@ -163,7 +163,7 @@ export default class ExpedienteLicenciasRelatedList extends NavigationMixin(Ligh
                     {
                         type: 'standard__webPage',
                         attributes: {
-                            url: this.url + '?token=' + token + '&url=' + window.location.href
+                            url: this.url + '?token=' + encodeURIComponent(token) + '&url=' + encodeURIComponent(window.location.href)
                         }
                     },
                     true
