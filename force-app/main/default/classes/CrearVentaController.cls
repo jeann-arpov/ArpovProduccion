@@ -1174,6 +1174,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       validarObservacionesObligatorias(ajustes);
 
       Venta_HT__c ventaOriginal = obtenerVentaOriginal(ventaId);
+      validarNoExisteNotaCredito(ventaId, 'NCP');
 
       Venta_HT__c notaCredito = crearEncabezadoNotaCredito(ventaOriginal);
       insert notaCredito;
@@ -1222,6 +1223,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       validarObservacionesObligatorias(ajustes);
 
       Venta_HT__c ventaOriginal = obtenerVentaOriginal(ventaId);
+      validarNoExisteNotaCredito(ventaId, 'NCC');
 
       Venta_HT__c notaCredito = crearEncabezadoNotaCreditoCantidad(
         ventaOriginal
@@ -1271,6 +1273,28 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     }
 
     return venta;
+  }
+
+  private static void validarNoExisteNotaCredito(
+    Id ventaId,
+    String tipoAjuste
+  ) {
+    Integer existentes = [
+      SELECT COUNT()
+      FROM Venta_HT__c
+      WHERE
+        Venta_Original__c = :ventaId
+        AND Es_NC__c = TRUE
+        AND Tipo_Ajuste__c = :tipoAjuste
+        AND Estado__c != 'Cancelada'
+    ];
+    if (existentes > 0) {
+      throw new AuraHandledException(
+        'Ya existe una Nota de Crédito de tipo ' +
+          tipoAjuste +
+          ' para esta venta. No se puede crear una duplicada.'
+      );
+    }
   }
 
   private static List<Map<String, Object>> deserializarAjustes(

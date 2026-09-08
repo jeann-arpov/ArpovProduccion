@@ -205,6 +205,36 @@
             </conditions>
             <label>No se modifica</label>
         </rules>
+        <rules>
+            <name>solo_lookup_inverso</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference
+        >$Record.Linea_de_Compra_HT__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference
+          >$Record__Prior.Linea_de_Compra_HT__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Cantidad__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference
+          >$Record__Prior.Cantidad__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Estado__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference
+          >$Record__Prior.Estado__c</elementReference>
+                </rightValue>
+            </conditions>
+            <label>Solo lookup inverso</label>
+        </rules>
     </decisions>
     <description
   >Cada vez que se crea o modifica una línea de Venta HT, se crea o modifica una línea de la Compra HT asociada. Cuando la línea se modifica, se modifican estos campos en la Línea de Compra HT: Estado, Cantidad, Licencia.
