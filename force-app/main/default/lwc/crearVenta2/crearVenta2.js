@@ -456,7 +456,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
   }
   get puedeAgregarVariedad() {
     if (this.esNotaCredito) return false;
-    return true;
+    return this.puedeEditar;
   }
   get ncRelacionadas() {
     if (!this.todasLasNC || this.todasLasNC.length === 0) return [];
