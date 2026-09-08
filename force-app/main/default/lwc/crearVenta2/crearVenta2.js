@@ -321,7 +321,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     return (
       this.data &&
       this.data.record &&
-      this.data.record.Estado__c === "Facturada" &&
+      (this.data.record.Estado__c === "Facturada" ||
+        this.data.record.Estado__c === "Ajustada por NC") &&
       (this.data.record.Obtentor__r.Id_Obtentor__c == "03" ||
         this.data.record.Obtentor__r.Id_Obtentor__c == "14" ||
         this.data.record.Obtentor__r.Id_Obtentor__c == "85") &&
@@ -335,7 +336,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     return (
       this.data &&
       this.data.record &&
-      this.data.record.Estado__c == "Facturada" &&
+      (this.data.record.Estado__c == "Facturada" ||
+        this.data.record.Estado__c == "Ajustada por NC") &&
       (this.data.record.Obtentor__r.Id_Obtentor__c == "03" ||
         this.data.record.Obtentor__r.Id_Obtentor__c == "14" ||
         this.data.record.Obtentor__r.Id_Obtentor__c == "85") &&
