@@ -1279,20 +1279,20 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     Id ventaId,
     String tipoAjuste
   ) {
-    Integer existentes = [
-      SELECT COUNT()
-      FROM Venta_HT__c
-      WHERE
-        Venta_Original__c = :ventaId
-        AND Es_NC__c = TRUE
-        AND Tipo_Ajuste__c = :tipoAjuste
-        AND Estado__c != 'Cancelada'
-    ];
-    if (existentes > 0) {
+    Map<String, Object> info = verificarNotasCreditoPendientes(ventaId);
+
+    if ((Boolean) info.get('existeNCTotal') == true) {
       throw new AuraHandledException(
-        'Ya existe una Nota de Crédito de tipo ' +
-          tipoAjuste +
-          ' para esta venta. No se puede crear una duplicada.'
+        'Ya existe una Nota de Crédito Total para esta venta. No se pueden crear más Notas de Crédito.'
+      );
+    }
+
+    if (
+      (Boolean) info.get('existeNCPPendiente') == true ||
+      (Boolean) info.get('existeNCCPendiente') == true
+    ) {
+      throw new AuraHandledException(
+        'Ya existe una Nota de Crédito parcial pendiente de aplicación. Debe aplicarse antes de crear otra.'
       );
     }
   }
@@ -1869,7 +1869,10 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
           CreatedDate,
           Compra_HT__r.Oportunidad__r.StageName
         FROM Venta_HT__c
-        WHERE Venta_Original__c = :ventaId AND Es_NC__c = TRUE
+        WHERE
+          Venta_Original__c = :ventaId
+          AND Es_NC__c = TRUE
+          AND Estado__c != 'Cancelada'
         ORDER BY CreatedDate DESC
       ];
 
@@ -1888,10 +1891,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
           existeNCTotal = true;
         }
         String stageOpp = nc.Compra_HT__r?.Oportunidad__r?.StageName;
-        Boolean noAplicada =
-          stageOpp == null ||
-          (stageOpp != 'Aplicada' &&
-          stageOpp != 'Facturada');
+        Boolean noAplicada = stageOpp == null || stageOpp != 'Aplicada';
         if (noAplicada) {
           notasCreditoPendientes.add(nc);
           String tipo = nc.Tipo_Ajuste__c;
