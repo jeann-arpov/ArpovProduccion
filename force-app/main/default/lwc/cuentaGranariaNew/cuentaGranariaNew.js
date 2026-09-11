@@ -78,20 +78,22 @@ export default class CuentaGranariaNew extends LightningElement {
         return ['Cultivo', 'Plataforma', 'Campaña'];
     }
 
+    get wizardStepLabelList() {
+        return [
+            this.cultivoName ? `Cultivo · ${this.cultivoName}` : 'Cultivo',
+            this.step >= 2 && this.biotecnologiaLabel
+                ? `Plataforma · ${this.biotecnologiaLabel}`
+                : 'Plataforma',
+            'Campaña'
+        ];
+    }
+
     get wizardProgressLabel() {
         return `Paso ${this.step} de ${this.wizardStepsTotal}`;
     }
 
     get progressEyebrow() {
         return `Cuenta Granaria · Paso ${this.step} de ${this.wizardStepsTotal}`;
-    }
-
-    get wizardProgressPct() {
-        return Math.round((this.step / this.wizardStepsTotal) * 100);
-    }
-
-    get wizardProgressPctLabel() {
-        return `${this.wizardProgressPct}%`;
     }
 
     get pphRibbonUrl() {
@@ -103,48 +105,6 @@ export default class CuentaGranariaNew extends LightningElement {
         const plats = this.biotecnologias || [];
         const match = plats.find((p) => p.value === this.biotecnologia);
         return match?.label || this.biotecnologia;
-    }
-
-    get wizardStepsUi() {
-        const current = this.step;
-        const total = this.wizardStepsTotal;
-        const labels = [
-            this.cultivoName ? `Cultivo · ${this.cultivoName}` : 'Cultivo',
-            this.step >= 2 && this.biotecnologiaLabel
-                ? `Plataforma · ${this.biotecnologiaLabel}`
-                : 'Plataforma',
-            'Campaña'
-        ];
-        return labels.map((label, index) => {
-            const num = index + 1;
-            const isActive = num === current;
-            const isDone = num < current;
-            return {
-                key: `cg-step-${num}`,
-                num,
-                label,
-                disabled: num > current,
-                showLine: num < total,
-                circleText: isDone ? '✓' : String(num),
-                ariaCurrent: isActive ? 'step' : 'false',
-                wrapClass:
-                    'cg-prog-item' +
-                    (num === total ? ' cg-prog-item-last' : '') +
-                    (isDone ? ' is-done' : ''),
-                btnClass:
-                    'cg-prog-btn' +
-                    (isActive ? ' is-active' : '') +
-                    (isDone ? ' is-done' : ''),
-                circleClass:
-                    'cg-prog-circle' +
-                    (isActive ? ' is-active' : '') +
-                    (isDone ? ' is-done' : ''),
-                labelClass:
-                    'cg-prog-label' +
-                    (isActive ? ' is-active' : '') +
-                    (isDone ? ' is-done' : '')
-            };
-        });
     }
 
     get continuarPaso1Disabled() {
@@ -161,18 +121,26 @@ export default class CuentaGranariaNew extends LightningElement {
         return raw.charAt(0).toUpperCase() + raw.slice(1);
     }
 
+    handleProgStepClick(event) {
+        const clickedStep = Number(event.detail?.step);
+        this.goToStep(clickedStep);
+    }
+
     handleStepClick(event) {
         const clickedStep = Number(event.currentTarget.dataset.step);
-        if (clickedStep <= this.step) {
-            this.step = clickedStep;
-            if (clickedStep < 3) {
-                this.totales = null;
-                this.campanaSeleccionada = null;
-            }
-            if (clickedStep < 2) {
-                this.biotecnologia = null;
-                this.campanas = null;
-            }
+        this.goToStep(clickedStep);
+    }
+
+    goToStep(clickedStep) {
+        if (!clickedStep || clickedStep > this.step) return;
+        this.step = clickedStep;
+        if (clickedStep < 3) {
+            this.totales = null;
+            this.campanaSeleccionada = null;
+        }
+        if (clickedStep < 2) {
+            this.biotecnologia = null;
+            this.campanas = null;
         }
     }
 

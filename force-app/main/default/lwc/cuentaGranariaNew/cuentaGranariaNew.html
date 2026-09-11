@@ -7,33 +7,16 @@
             </div>
         </template>
 
-        <!-- Stepper horizontal (mismo patrón que Compra HT / .prog-h) -->
-        <div class="cg-prog" aria-label="Progreso">
-            <div class="cg-prog-row">
-                <span class="cg-prog-eyebrow">{progressEyebrow}</span>
-                <span>{wizardProgressPctLabel}</span>
-            </div>
-            <div class="cg-prog-steps">
-                <template for:each={wizardStepsUi} for:item="s">
-                    <div key={s.key} class={s.wrapClass}>
-                        <button
-                            type="button"
-                            class={s.btnClass}
-                            data-step={s.num}
-                            disabled={s.disabled}
-                            onclick={handleStepClick}
-                            aria-current={s.ariaCurrent}
-                        >
-                            <span class={s.circleClass}>{s.circleText}</span>
-                            <span class={s.labelClass}>{s.label}</span>
-                        </button>
-                        <template if:true={s.showLine}>
-                            <span class="cg-prog-line" aria-hidden="true"></span>
-                        </template>
-                    </div>
-                </template>
-            </div>
-        </div>
+        <!-- Stepper compartido (seProgSteps): barra lima mobile + círculos/línea desktop -->
+        <c-se-prog-steps
+            label-short={wizardProgressLabel}
+            label-long={progressEyebrow}
+            current-step={step}
+            step-labels={wizardStepLabelList}
+            mob-step-labels={wizardStepLabels}
+            appearance="panel"
+            onstepclick={handleProgStepClick}
+        ></c-se-prog-steps>
 
         <!-- Paso 1: Cultivo -->
         <section class="cg-panel" if:true={isStep1Active}>

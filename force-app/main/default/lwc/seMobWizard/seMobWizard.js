@@ -133,7 +133,7 @@ export default class SeMobWizard extends LightningElement {
     }
 
     handleDeskStepClick(event) {
-        const step = Number(event.currentTarget.dataset.step);
+        const step = Number(event.detail?.step);
         if (!step || step >= Number(this.currentStep)) return;
         this.dispatchEvent(new CustomEvent('stepclick', { detail: { step } }));
     }

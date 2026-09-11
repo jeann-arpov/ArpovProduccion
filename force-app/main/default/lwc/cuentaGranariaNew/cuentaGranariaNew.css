@@ -1094,32 +1094,9 @@
         font-size: 15px;
     }
 
-    .cg-cultivo-tile.is-selected {
-        background: #fff;
-        color: #1c1c1c;
-        border: 2px solid #1c1c1c;
-    }
-
-    .cg-cultivo-tile.is-selected .cg-cultivo-icon-wrap {
-        background: #bfff00;
-    }
-
-    .cg-cultivo-tile.is-selected .cg-cultivo-radio {
-        border-color: #1c1c1c;
-        background: radial-gradient(circle at center, #bfff00 0 40%, #fff 45% 100%);
-    }
-
-    .cg-prog-label {
-        display: none;
-    }
-
-    .cg-prog-item {
-        flex: 0 0 auto;
-    }
-
-    .cg-prog-line {
-        min-width: 16px;
-        width: 28px;
-        flex: 0 0 auto;
+    .cg-cultivo-radio {
+        position: static;
+        margin-left: auto;
+        flex-shrink: 0;
     }
 }

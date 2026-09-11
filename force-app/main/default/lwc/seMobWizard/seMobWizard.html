@@ -22,40 +22,15 @@
                 </button>
             </header>
 
-            <div class="se-prog" aria-label="Progreso">
-                <div class="se-prog-row">
-                    <span class="se-prog-label-short">{wizardProgressLabel}</span>
-                    <span class="se-prog-label-long">{wizardProgressLabel}</span>
-                    <span>{progressPctLabel}</span>
-                </div>
-                <div class="se-prog-bar" aria-hidden="true">
-                    <span class="se-prog-bar-fill" style={progressBarStyle}></span>
-                </div>
-                <div class="se-mob-steps" aria-hidden="true">
-                    <template for:each={mobSteps} for:item="s">
-                        <span key={s.key} class={s.className}>{s.label}</span>
-                    </template>
-                </div>
-                <div class="se-prog-steps se-desk-only">
-                    <template for:each={deskSteps} for:item="s">
-                        <div key={s.key} class={s.wrapClass}>
-                            <button
-                                class={s.btnClass}
-                                type="button"
-                                data-step={s.num}
-                                disabled={s.disabled}
-                                onclick={handleDeskStepClick}
-                                aria-current={s.ariaCurrent}
-                            >
-                                <span class={s.circleClass}>{s.circleText}</span>
-                                <span class={s.labelClass}>{s.label}</span>
-                            </button>
-                            <template if:true={s.showLine}>
-                                <span class="se-prog-line" aria-hidden="true"></span>
-                            </template>
-                        </div>
-                    </template>
-                </div>
+            <div class="se-prog-host">
+                <c-se-prog-steps
+                    label-short={wizardProgressLabel}
+                    label-long={wizardProgressLabel}
+                    current-step={currentStep}
+                    step-labels={stepLabels}
+                    appearance="inline"
+                    onstepclick={handleDeskStepClick}
+                ></c-se-prog-steps>
             </div>
         </div>
 
