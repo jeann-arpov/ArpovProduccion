@@ -31,8 +31,27 @@ public without sharing class AdhesionPPHHome {
         }
 
         Map<Id, Plan_de_Siembra__c> mapParamPlanSiembra = new Map<Id, Plan_de_Siembra__c>();
-        for(Plan_de_Siembra__c plan : [SELECT Id, Name, Parametro_PPH__c, Estado__c, Version__c FROM Plan_de_Siembra__c WHERE Parametro_PPH__c IN :parametrosIds AND Estado__c NOT IN ('Cancelado') AND Productor__c = :CrearCompraController.getAccount().Id]){
+        for(Plan_de_Siembra__c plan : [SELECT Id, Name, Parametro_PPH__c, Estado__c, Version__c, Terminos_y_Condiciones__c FROM Plan_de_Siembra__c WHERE Parametro_PPH__c IN :parametrosIds AND Estado__c NOT IN ('Cancelado') AND Productor__c = :CrearCompraController.getAccount().Id]){
             mapParamPlanSiembra.put(plan.Parametro_PPH__c, plan);
+        }
+
+        Map<Id, List<String>> planEstablecimientoNames = new Map<Id, List<String>>();
+        Set<Id> planIds = new Set<Id>();
+        for (Plan_de_Siembra__c plan : mapParamPlanSiembra.values()) {
+            planIds.add(plan.Id);
+        }
+        for (Establecimiento_PPH__c estPph : [
+            SELECT Plan_de_Siembra__c, Establecimiento__r.Name
+            FROM Establecimiento_PPH__c
+            WHERE Plan_de_Siembra__c IN :planIds
+            ORDER BY CreatedDate ASC
+        ]) {
+            if (!planEstablecimientoNames.containsKey(estPph.Plan_de_Siembra__c)) {
+                planEstablecimientoNames.put(estPph.Plan_de_Siembra__c, new List<String>());
+            }
+            if (estPph.Establecimiento__r?.Name != null) {
+                planEstablecimientoNames.get(estPph.Plan_de_Siembra__c).add(estPph.Establecimiento__r.Name);
+            }
         }
 
         Map<String, Id> mapTitleToContentDocumentId = new Map<String, Id>();
@@ -60,7 +79,13 @@ public without sharing class AdhesionPPHHome {
                 List<Parametro> parametros = new List<Parametro>();
                 for(Parametro_PPH__c param : parametrosSf){
                     String documentName = 'TyC' + (isGrandesCuentas ? ' - GC - ' : ' - ') + param.Name.remove('/');
-                    parametros.add(new Parametro(param, mapParamPlanSiembra.get(param.Id), mapFileTitleToPublicUrl.get(documentName), mapTitleToContentDocumentId.get(documentName)));
+                    parametros.add(new Parametro(
+                        param,
+                        mapParamPlanSiembra.get(param.Id),
+                        mapFileTitleToPublicUrl.get(documentName),
+                        mapTitleToContentDocumentId.get(documentName),
+                        planEstablecimientoNames
+                    ));
                 }
 
                 cultivosParams.add(new CultivoParametro(cultivosSE.get(cultivoId), parametros));
@@ -68,6 +93,24 @@ public without sharing class AdhesionPPHHome {
         }
 
         return cultivosParams;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static AccountContext getContext() {
+        Account acc = CrearCompraController.getAccount();
+        return new AccountContext(acc.Id, acc.N_CUIT__c, acc.Name);
+    }
+
+    public class AccountContext {
+        @AuraEnabled public Id accountId;
+        @AuraEnabled public String cuit;
+        @AuraEnabled public String name;
+
+        public AccountContext(Id accountId, String cuit, String name) {
+            this.accountId = accountId;
+            this.cuit = cuit;
+            this.name = name;
+        }
     }
 
     public class CultivoParametro {
@@ -85,12 +128,49 @@ public without sharing class AdhesionPPHHome {
         @AuraEnabled public Plan_de_Siembra__c planSiembra;
         @AuraEnabled public String tycUrl;
         @AuraEnabled public String contentDocumentId;
+        @AuraEnabled public String establecimientoLabel;
+        @AuraEnabled public String mobileExtraLabel;
+        @AuraEnabled public String mobileExtraValue;
 
-        public Parametro(Parametro_PPH__c param, Plan_de_Siembra__c plan, String tycUrl, String contentDocumentId){
+        public Parametro(
+            Parametro_PPH__c param,
+            Plan_de_Siembra__c plan,
+            String tycUrl,
+            String contentDocumentId,
+            Map<Id, List<String>> planEstablecimientoNames
+        ){
             parametro = param;
             planSiembra = plan;
             this.tycUrl = tycUrl;
             this.contentDocumentId = contentDocumentId;
+            establecimientoLabel = '—';
+            mobileExtraLabel = '';
+            mobileExtraValue = '';
+
+            if (plan == null) {
+                return;
+            }
+
+            List<String> names = planEstablecimientoNames.get(plan.Id);
+            if (names != null && !names.isEmpty()) {
+                establecimientoLabel = names.size() == 1
+                    ? names[0]
+                    : names[0] + ' +' + String.valueOf(names.size() - 1);
+            }
+
+            if (plan.Estado__c == 'En Preparación' || plan.Estado__c == 'Rectificado') {
+                mobileExtraLabel = 'Paso';
+                if (plan.Estado__c == 'Rectificado') {
+                    mobileExtraValue = 'En rectificación';
+                } else if (plan.Terminos_y_Condiciones__c == true) {
+                    mobileExtraValue = '3 de 3';
+                } else {
+                    mobileExtraValue = '1 de 3';
+                }
+            } else if (plan.Estado__c == 'Adherido' || plan.Estado__c == 'Vencido') {
+                mobileExtraLabel = 'Certificado';
+                mobileExtraValue = plan.Name;
+            }
         }
     }
 }

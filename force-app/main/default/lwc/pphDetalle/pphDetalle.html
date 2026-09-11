@@ -18,8 +18,8 @@
                     <p class="pph-det-sub">{subtitle}</p>
                 </div>
                 <div class="pph-det-hero-actions se-desk-only">
-                    <button type="button" class="pph-btn pph-btn-ghost" onclick={handleBack}>
-                        Volver a adhesiones
+                    <button type="button" class="pph-btn pph-btn-ghost" onclick={handleVerExpediente}>
+                        Ver expediente
                     </button>
                     <button
                         type="button"
@@ -33,19 +33,40 @@
             </div>
 
             <div class="pph-det-grid">
-                <section class="pph-det-card">
-                    <div class="pph-det-card-head">
-                        <span class="pph-det-card-label">Resumen</span>
-                    </div>
-                    <dl class="pph-det-kv">
-                        <template for:each={summaryRows} for:item="row">
-                            <div key={row.key} class="pph-det-kv-row">
-                                <dt>{row.label}</dt>
-                                <dd class={row.valueClass}>{row.value}</dd>
-                            </div>
-                        </template>
-                    </dl>
-                </section>
+                <div class="pph-det-left">
+                    <section class="pph-det-resumen">
+                        <h2 class="pph-det-section-title">Resumen</h2>
+                        <dl class="pph-det-kv">
+                            <template for:each={summaryRows} for:item="row">
+                                <div key={row.key} class="pph-det-kv-row">
+                                    <dt>{row.label}</dt>
+                                    <dd class={row.valueClass}>{row.value}</dd>
+                                </div>
+                            </template>
+                        </dl>
+                    </section>
+
+                    <section class="pph-det-ests" if:true={hasEstablecimientos}>
+                        <h2 class="pph-det-section-title">Establecimientos</h2>
+                        <div class="pph-det-ests-card">
+                            <template for:each={establecimientoRows} for:item="est">
+                                <article key={est.key} class="pph-det-est">
+                                    <h3 class="pph-det-est-name">{est.name}</h3>
+                                    <dl class="pph-det-est-kv">
+                                        <div class="pph-det-est-row">
+                                            <dt>Superficie SE</dt>
+                                            <dd>{est.seLabel}</dd>
+                                        </div>
+                                        <div class="pph-det-est-row">
+                                            <dt>Ha no SE</dt>
+                                            <dd>{est.noSeLabel}</dd>
+                                        </div>
+                                    </dl>
+                                </article>
+                            </template>
+                        </div>
+                    </section>
+                </div>
 
                 <section class="pph-det-timeline-wrap">
                     <h2 class="pph-det-section-title">Estado del trámite</h2>
@@ -72,8 +93,8 @@
                 >
                     Descargar certificado PDF
                 </button>
-                <button type="button" class="pph-btn pph-btn-ghost pph-btn-full" onclick={handleBack}>
-                    Volver a adhesiones
+                <button type="button" class="pph-btn pph-btn-ghost pph-btn-full" onclick={handleVerExpediente}>
+                    Ver expediente
                 </button>
             </div>
         </div>

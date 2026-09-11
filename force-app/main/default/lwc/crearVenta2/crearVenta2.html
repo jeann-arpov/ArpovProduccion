@@ -100,6 +100,7 @@
 
     <!-- RESUMEN / FORMULARIO PRINCIPAL -->
     <template if:true={showResumen}>
+        <div class="se-legacy-detail">
         <!-- Componente oculto (para levantar ícono/semillero) -->
         <div class="step-content vertical" style="display:none;">
             <c-semillero-data-new data-id="semilleroComponent" placeholder="Seleccionar marca"
@@ -248,10 +249,11 @@
                 </div>
             </template>
         </div>
+        </div>
     </template>
 
     <!-- FOOTER BOTONES -->
-    <lightning-layout class="slds-m-top_large footer" horizontal-align="center">
+    <lightning-layout class="slds-m-top_large footer se-legacy-footer" horizontal-align="center">
         <lightning-layout-item>
             <template if:false={created}>
                 <lightning-button onclick={close}
@@ -464,8 +466,7 @@
 
             <!-- Enlace email -->
             <p class="slds-m-top_small">
-              o escribinos a
-              <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
+              o escribinos a&nbsp;<a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
             </p>
           </center>
         </div>
@@ -534,8 +535,7 @@
 
           <!-- Enlace email -->
           <p class="slds-m-top_small">
-            o escribinos a
-            <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
+            o escribinos a&nbsp;<a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
           </p>
 
           <!-- Botón consulta de licencias -->

@@ -2,6 +2,25 @@ import { LightningElement, api } from 'lwc';
 
 const fmt = (n) => new Intl.NumberFormat('es-AR').format(Number(n) || 0);
 
+const OBTENTOR_SHORT = {
+    '03': 'GDM',
+    '14': 'GDM',
+    '85': 'GDM',
+    '04': 'Syngenta',
+    '23': 'Syngenta',
+    '13': 'Pioneer',
+    '87': 'Brevant',
+    '24': 'Stine',
+    '16': 'MacroSeed',
+    '77': 'BASF',
+    '06': 'Klein',
+    '05': 'Buck',
+    '12': 'LG',
+    '19': 'Bioceres',
+    '90': 'Nord',
+    '51': 'Quilmes'
+};
+
 function fmtDate(value) {
     if (!value) return '';
     const d = new Date(value);
@@ -22,12 +41,33 @@ function fmtDateTime(value) {
     });
 }
 
+function shortSemillero(idObtentor, name) {
+    const key = String(idObtentor || '').padStart(2, '0');
+    if (OBTENTOR_SHORT[key]) return OBTENTOR_SHORT[key];
+    if (OBTENTOR_SHORT[idObtentor]) return OBTENTOR_SHORT[idObtentor];
+    if (!name) return '';
+    const match = name.match(/^([^(]+)/);
+    return (match ? match[1] : name).trim();
+}
+
+function estSe(est) {
+    if (est?.cantidadSE != null) return Number(est.cantidadSE) || 0;
+    return Object.values(est?.variedades || {}).reduce(
+        (a, v) => a + (Number(v?.cantidad) || 0),
+        0
+    );
+}
+
 export default class PphDetalle extends LightningElement {
     @api info;
     @api certificadoDocumentId;
 
     handleBack() {
         this.dispatchEvent(new CustomEvent('back'));
+    }
+
+    handleVerExpediente() {
+        this.dispatchEvent(new CustomEvent('verexpediente'));
     }
 
     handleDownloadPdf() {
@@ -58,6 +98,19 @@ export default class PphDetalle extends LightningElement {
     }
 
     get campanaLabel() {
+        const campanaName = this.plan?.Parametro_PPH__r?.Campana__r?.Name;
+        if (campanaName) return campanaName;
+        const raw = this.plan?.Parametro_PPH__r?.Campana__c;
+        if (raw && typeof raw === 'string' && raw.length === 18 && raw.startsWith('a')) {
+            return this.plan?.Parametro_PPH__r?.Name || '';
+        }
+        if (raw && typeof raw === 'string' && !raw.startsWith('a')) {
+            return `Campaña ${raw}`;
+        }
+        return this.plan?.Parametro_PPH__r?.Name || '';
+    }
+
+    get parametroLabel() {
         return this.plan?.Parametro_PPH__r?.Name || '';
     }
 
@@ -70,74 +123,164 @@ export default class PphDetalle extends LightningElement {
     }
 
     get statusBadgeLabel() {
-        if (this.estadoRaw === 'Adherido') {
-            return `Certificada · ${fmtDate(this.plan?.Fecha_de_Adhesion__c)}`;
-        }
         if (this.estadoRaw === 'Vencido') {
             return `Cerrada · ${fmtDate(this.plan?.Fecha_de_Adhesion__c)}`;
         }
         if (this.estadoRaw === 'Rechazado') {
-            return 'Rechazada';
+            const fecha = fmtDate(this.plan?.Fecha_de_Rechazo__c || this.plan?.Fecha_de_Adhesion__c);
+            return fecha ? `Rechazada · ${fecha}` : 'Rechazada';
         }
         return `Enviada · ${fmtDate(this.plan?.Fecha_de_Adhesion__c)}`;
     }
 
     get statusBadgeClass() {
-        if (this.estadoRaw === 'Adherido') return 'pph-badge pph-badge--ok';
         if (this.estadoRaw === 'Vencido') return 'pph-badge pph-badge--info';
         if (this.estadoRaw === 'Rechazado') return 'pph-badge pph-badge--danger';
         return 'pph-badge pph-badge--ok';
     }
 
+    get establecimientosCount() {
+        return (this.info?.establecimientos || []).length;
+    }
+
     get subtitle() {
-        const parts = [this.cultivoLabel, this.campanaLabel, this.primaryEstablecimiento].filter(Boolean);
+        const parts = [
+            this.cultivoLabel,
+            this.campanaLabel,
+            this.establecimientosCount
+                ? `${this.establecimientosCount} establecimiento${this.establecimientosCount === 1 ? '' : 's'}`
+                : ''
+        ].filter(Boolean);
         return parts.join(' · ');
     }
 
-    get primaryEstablecimiento() {
-        const est = (this.info?.establecimientos || [])[0];
-        return est?.name || '';
+    get totalSeHa() {
+        return (this.info?.establecimientos || []).reduce((sum, est) => sum + estSe(est), 0);
     }
 
-    get totalSeLabel() {
-        const total = (this.info?.establecimientos || []).reduce((sum, est) => {
+    get totalNoSeHa() {
+        return (this.info?.establecimientos || []).reduce(
+            (sum, est) => sum + (Number(est?.cantidadNoSE) || 0),
+            0
+        );
+    }
+
+    get superficieDeclaradaLabel() {
+        return `${fmt(this.totalSeHa)} ha`;
+    }
+
+    get toneladasEstimadasLabel() {
+        const ht2kilos = Number(this.plan?.Parametro_PPH__r?.Cultivo__r?.HT2Kilos__c) || 0;
+        if (!ht2kilos || !this.totalSeHa) return '—';
+        const toneladas = (this.totalSeHa * ht2kilos) / 1000;
+        return `${fmt(Math.round(toneladas * 10) / 10)} t`;
+    }
+
+    get semilleroLabel() {
+        const counts = new Map();
+        (this.info?.establecimientos || []).forEach((est) => {
             const variedades = est?.variedades;
-            const values = variedades && typeof variedades === 'object'
-                ? Object.values(variedades)
-                : [];
-            const se = values
-                .map((v) => Number(v?.cantidad) || 0)
-                .reduce((a, b) => a + b, 0);
-            return sum + se;
-        }, 0);
-        return `${fmt(total)} HT`;
+            if (!variedades || typeof variedades !== 'object') return;
+            Object.values(variedades).forEach((linea) => {
+                if (!(Number(linea?.cantidad) > 0)) return;
+                const obt = linea?.variedad?.Obtentor_Comercializa__r;
+                const label = shortSemillero(obt?.Id_Obtentor__c, obt?.Name);
+                if (!label) return;
+                counts.set(label, (counts.get(label) || 0) + 1);
+            });
+        });
+        if (!counts.size) return '—';
+        return Array.from(counts.keys()).join(' · ');
     }
 
-    get saldoSinPrecertificarLabel() {
-        return `${fmt(this.info?.saldoPph)} HT`;
+    get establecimientosSummary() {
+        const list = this.info?.establecimientos || [];
+        if (!list.length) return '—';
+        return list
+            .map((e) => {
+                const se = estSe(e);
+                const loc = e.locationLabel ? ` (${e.locationLabel})` : '';
+                return se > 0 ? `${e.name}${loc} · ${fmt(se)} ha` : `${e.name}${loc}`;
+            })
+            .join(' · ');
+    }
+
+    get establecimientoRows() {
+        return (this.info?.establecimientos || []).map((e, idx) => {
+            const se = estSe(e);
+            const noSe = Number(e.cantidadNoSE) || 0;
+            const loc = e.locationLabel ? ` · ${e.locationLabel}` : '';
+            return {
+                key: e.pphId || e.id || `det-est-${idx}`,
+                name: `${e.name || `Establecimiento ${idx + 1}`}${loc}`,
+                seLabel: `${fmt(se)} ha`,
+                noSeLabel: `${fmt(noSe)} ha`
+            };
+        });
+    }
+
+    get hasEstablecimientos() {
+        return this.establecimientoRows.length > 0;
     }
 
     get summaryRows() {
         try {
             const rows = [
-                { key: 'cultivo', label: 'Cultivo', value: this.cultivoLabel || '—', valueClass: 'v' },
-                { key: 'campana', label: 'Campaña', value: this.campanaLabel || '—', valueClass: 'v' },
-                { key: 'est', label: 'Establecimiento', value: this.establecimientosSummary, valueClass: 'v' },
-                { key: 'ht', label: 'HT SE precertificadas', value: this.totalSeLabel, valueClass: 'v v-strong' },
                 {
-                    key: 'pend',
-                    label: 'HT sin precertificar',
-                    value: this.saldoSinPrecertificarLabel,
-                    valueClass: 'v v-warn'
+                    key: 'cultivo',
+                    label: 'Cultivo',
+                    value: this.cultivoLabel || '—',
+                    valueClass: 'v v-strong'
+                },
+                {
+                    key: 'campana',
+                    label: 'Campaña',
+                    value: this.campanaLabel || '—',
+                    valueClass: 'v'
+                },
+                {
+                    key: 'param',
+                    label: 'Parámetro PPH',
+                    value: this.parametroLabel || '—',
+                    valueClass: 'v'
+                },
+                {
+                    key: 'sem',
+                    label: 'Semillero',
+                    value: this.semilleroLabel,
+                    valueClass: 'v'
+                },
+                {
+                    key: 'ests',
+                    label: 'Establecimientos',
+                    value: String(this.establecimientosCount || 0),
+                    valueClass: 'v'
+                },
+                {
+                    key: 'sup',
+                    label: 'Superficie declarada',
+                    value: this.superficieDeclaradaLabel,
+                    valueClass: 'v v-strong'
+                },
+                {
+                    key: 'tn',
+                    label: 'Toneladas estimadas',
+                    value: this.toneladasEstimadasLabel,
+                    valueClass: 'v v-strong'
+                },
+                {
+                    key: 'fecha',
+                    label: 'Fecha de adhesión',
+                    value: fmtDate(this.plan?.Fecha_de_Adhesion__c) || '—',
+                    valueClass: 'v'
                 }
             ];
 
-            const variedades = this.variedadesSummary;
-            if (variedades) {
-                rows.splice(3, 0, {
-                    key: 'var',
-                    label: 'Variedades',
-                    value: variedades,
+            if (this.totalNoSeHa > 0) {
+                rows.splice(6, 0, {
+                    key: 'nose',
+                    label: 'Ha no SE',
+                    value: `${fmt(this.totalNoSeHa)} ha`,
                     valueClass: 'v'
                 });
             }
@@ -147,28 +290,6 @@ export default class PphDetalle extends LightningElement {
             console.error('[pphDetalle] summaryRows', e);
             return [{ key: 'err', label: 'Resumen', value: 'No se pudo armar el resumen', valueClass: 'v' }];
         }
-    }
-
-    get establecimientosSummary() {
-        const names = (this.info?.establecimientos || []).map((e) => e.name).filter(Boolean);
-        if (!names.length) return '—';
-        if (names.length === 1) return names[0];
-        return `${names[0]} +${names.length - 1}`;
-    }
-
-    get variedadesSummary() {
-        const names = new Set();
-        (this.info?.establecimientos || []).forEach((est) => {
-            const variedades = est?.variedades;
-            if (!variedades || typeof variedades !== 'object') return;
-            Object.values(variedades).forEach((linea) => {
-                if (Number(linea?.cantidad) > 0 && linea?.variedad?.Name) {
-                    names.add(linea.variedad.Name);
-                }
-            });
-        });
-        if (!names.size) return '';
-        return Array.from(names).join(' · ');
     }
 
     get timelineSteps() {
@@ -187,30 +308,26 @@ export default class PphDetalle extends LightningElement {
             steps.push({
                 key: 'rechazada',
                 label: 'Adhesión rechazada',
-                detail: 'Contactá a Sembrá Evolución para más información.',
+                detail: fmtDate(this.plan?.Fecha_de_Rechazo__c) || 'Contactá a Sembrá Evolución.',
                 state: 'current',
                 marker: '!'
             });
             return steps.map((s) => this.decorateTimelineStep(s));
         }
 
-        if (this.estadoRaw === 'Adherido' || this.estadoRaw === 'Vencido') {
-            steps.push({
-                key: 'cert',
-                label: 'Certificada por Sembrá Evolución',
-                detail: fmtDate(fecha) || '',
-                state: 'done',
-                marker: '✓'
-            });
-        } else {
-            steps.push({
-                key: 'cert',
-                label: 'Validación por Sembrá Evolución',
-                detail: 'En proceso de revisión.',
-                state: 'current',
-                marker: '2'
-            });
-        }
+        const validated = this.estadoRaw === 'Adherido' || this.estadoRaw === 'Vencido';
+
+        steps.push({
+            key: 'validada',
+            label: validated
+                ? 'Validada por Sembrá Evolución'
+                : 'Validación por Sembrá Evolución',
+            detail: validated
+                ? fmtDateTime(fecha) || fmtDate(fecha)
+                : 'En curso de revisión.',
+            state: validated ? 'done' : 'current',
+            marker: validated ? '✓' : '2'
+        });
 
         if (this.estadoRaw === 'Vencido') {
             steps.push({
@@ -220,11 +337,11 @@ export default class PphDetalle extends LightningElement {
                 state: 'done',
                 marker: '✓'
             });
-        } else if (this.estadoRaw === 'Adherido') {
+        } else if (validated) {
             steps.push({
-                key: 'vigente',
-                label: 'Adhesión vigente',
-                detail: 'Podés usar semilla propia en los establecimientos declarados.',
+                key: 'entrega',
+                label: 'En espera de entrega',
+                detail: 'Se convierte a toneladas al ingresar el grano.',
                 state: 'current',
                 marker: '3'
             });

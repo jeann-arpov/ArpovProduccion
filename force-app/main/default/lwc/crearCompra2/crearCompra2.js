@@ -141,17 +141,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                         this.refreshAllLinePromoPrices();
                         this.notifyLineSaveStateChanged();
                     }, 250);
+                    // No reabrir pending-licencia/origen en detalle: ya se mostró al confirmar la compra.
                     if (typeof window !== 'undefined') {
-                        const popupKey = 'htPopup_' + this.pageRecordId;
-                        const popup = window.sessionStorage.getItem(popupKey);
-                        if (popup === 'licencia') {
-                            this.resultModal = 'pending-licencia';
-                        } else if (popup === 'origen') {
-                            this.resultModal = 'pending-origen';
-                        }
-                        if (popup) {
-                            window.sessionStorage.removeItem(popupKey);
-                        }
+                        window.sessionStorage.removeItem('htPopup_' + this.pageRecordId);
                     }
                 } catch (e) {
                     // eslint-disable-next-line no-console
@@ -447,7 +439,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                                 this.DataCompra = data;
                                 this.trackHtCompraConfirmada(data);
                                 this.resultModal = 'pending-licencia';
-                                window.sessionStorage.setItem('htPopup_' + this.recordId, 'licencia');
                             });
                 
                             return;
@@ -476,7 +467,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                                 this.DataCompra = data;
                                 this.trackHtCompraConfirmada(data);
                                 this.resultModal = 'pending-origen';
-                                window.sessionStorage.setItem('htPopup_' + this.recordId, 'origen');
                             });
                 
                             return;
@@ -503,7 +493,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                                 this.DataCompra = data;
                                 this.trackHtCompraConfirmada(data);
                                 this.resultModal = 'pending-licencia';
-                                window.sessionStorage.setItem('htPopup_' + this.recordId, 'licencia');
                             });
                 
                             return;
@@ -1908,12 +1897,57 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.resultModal = null;
     }
 
+    handleResultClose() {
+        // × del modal: mismo destino que Entendido en pendientes; no mandar al home.
+        if (this.isResultPendingLicencia || this.isResultPendingOrigen) {
+            this.handleResultPendingEntendido();
+            return;
+        }
+        if (this.isResultSuccess || this.isResultPendingPayment) {
+            this.handleResultVerMisCompras();
+            return;
+        }
+        this.resultModal = null;
+    }
+
     handleResultVerMisCompras() {
         this.resultModal = null;
         this[NavigationMixin.Navigate]({
             type: 'standard__webPage',
             attributes: { url: `${basePath}/comprahtlistproductor` }
         });
+    }
+
+    /** Detalle de la compra recién confirmada (misma URL que “Ver” en la lista). */
+    goToCompraDetalle() {
+        // No usar this.pageRecordId acá: ese getter pisa this.recordId con null si la URL no es detalle.
+        let compraId = this.recordId;
+        if (!compraId && typeof window !== 'undefined') {
+            try {
+                const href = window.location.href;
+                if (href.includes('compra-ht/') && !href.includes('compra-ht/Compra_HT__c/')) {
+                    compraId = href.split('compra-ht/')[1]?.split('/')[0] || null;
+                }
+            } catch (e) {
+                compraId = null;
+            }
+        }
+
+        const compraName =
+            this.DataCompra?.record?.Name ||
+            this.data?.record?.Name ||
+            '';
+
+        this.resultModal = null;
+
+        if (!compraId) {
+            this.handleResultVerMisCompras();
+            return;
+        }
+
+        const path = (basePath || '').replace(/\/$/, '');
+        const slug = compraName || compraId;
+        window.open(`${path}/compra-ht/${compraId}/${slug}`, '_self');
     }
 
     handleResultVolverInicio() {
@@ -1925,7 +1959,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleResultPendingEntendido() {
-        this.handleResultVerMisCompras();
+        this.goToCompraDetalle();
     }
 
     handleResultDuplicateVerCompras() {

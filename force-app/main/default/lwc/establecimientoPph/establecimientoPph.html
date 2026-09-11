@@ -1,7 +1,7 @@
 <template>
     <div class={establecimientoClass}>
-        <article if:true={isWizardVariant} class="se-est-card">
-                <header class="se-est-head" if:false={grandesCuentas}>
+        <article if:true={isWizardVariant} class="se-est-card se-est-card--superficie">
+                <header class="se-est-head" if:true={showWizardLegacyHead}>
                     <div>
                         <p class="se-est-eyebrow">Establecimiento</p>
                         <h3 class="se-est-title">{titulo}</h3>
@@ -11,12 +11,15 @@
                         class="se-est-remove"
                         title="Eliminar establecimiento"
                         onclick={remove}
+                        if:false={grandesCuentas}
                     >
                         <lightning-icon icon-name="utility:delete" size="x-small" alternative-text="Eliminar"></lightning-icon>
                     </button>
                 </header>
 
-                <div class="se-est-body" if:false={grandesCuentas}>
+                <p class="se-est-name-chip" if:true={showWizardNameChip}>{superficieTitle}</p>
+
+                <div class="se-est-body" if:true={showWizardEstablecimientoBody}>
                     <p class="se-field-label">Establecimiento</p>
                     <div class="se-choice-card se-choice-card--search">
                         <c-lookup
@@ -57,52 +60,62 @@
                     </div>
                 </div>
 
-                <div class={infoClass}>
-                    <div class="se-ht-banner">
-                        <div class="se-ht-banner-copy">
-                            <span class="se-ht-banner-title">Hectáreas SEMBRA EVOLUCIÓN</span>
-                            <span class="se-ht-banner-sub">{totalesSembradasLabel}: {totalSembrado}</span>
+                <div class={infoClass} if:true={showWizardSuperficieBlock}>
+                    <div class="se-sup-grid">
+                        <div class="se-sup-col">
+                            <p class="se-field-label se-field-label--section">Superficie a precertificar</p>
+                            <template if:true={hasSaldoHt}>
+                                <div class="se-ha-input se-ha-input--lg">
+                                    <lightning-input
+                                        class="se-se-input"
+                                        variant="label-hidden"
+                                        label="Superficie a precertificar"
+                                        placeholder="0"
+                                        type="number"
+                                        step="1"
+                                        min="0"
+                                        onchange={updateCantidadSe}
+                                        onfocus={focus}
+                                        onblur={blur}
+                                        value={cantidadSE}
+                                    ></lightning-input>
+                                    <span class="se-ha-unit" aria-hidden="true">ha</span>
+                                </div>
+                                <p class="se-panel-sub se-est-var-hint">{superficieSeHint}</p>
+                            </template>
+                            <template if:false={hasSaldoHt}>
+                                <div class="se-ha-input se-ha-input--lg se-ha-input--disabled" aria-disabled="true">
+                                    <span class="se-ha-placeholder">—</span>
+                                    <span class="se-ha-unit" aria-hidden="true">ha</span>
+                                </div>
+                                <p class="se-panel-sub">
+                                    Sin HT disponibles para este cultivo. Usá Comprar HT arriba.
+                                </p>
+                            </template>
                         </div>
-                        <button type="button" class="se-btn se-btn-dark" onclick={redirectCompraHT}>
-                            Comprar HT
-                        </button>
-                    </div>
 
-                    <p class="se-panel-sub se-est-var-intro">
-                        Detallá variedades y hectáreas sembradas con SEMBRA EVOLUCIÓN.
-                    </p>
-
-                    <div class="se-var-list">
-                        <template for:each={info.lineas} for:item="linea">
-                            <c-variedad-pph
-                                key={linea.id}
-                                info={linea}
-                                variant="wizard"
-                                onupdatecantidad={updateCantidad}
-                                onautosave={autosave}
-                            ></c-variedad-pph>
-                        </template>
-                    </div>
-
-                    <div class="se-no-se-block">
-                        <p class="se-field-label">Hectáreas fuera de SE</p>
-                        <p class="se-panel-sub">
-                            Cantidad de hectáreas de {cultivo.Name} con variedades por fuera de SE.
-                        </p>
-                        <lightning-input
-                            required
-                            class="se-no-se-input"
-                            variant="label-hidden"
-                            label=""
-                            placeholder="Hectáreas"
-                            type="number"
-                            step="1"
-                            onchange={updateCantidadFuera}
-                            onfocus={focus}
-                            onblur={blur}
-                            value={cantidadNoSE}
-                            message-when-value-missing="Este campo es obligatorio"
-                        ></lightning-input>
+                        <div class="se-sup-col">
+                            <p class="se-field-label se-field-label--section">Hectáreas que no utilizan Sembrá Evolución</p>
+                            <div class="se-ha-input se-ha-input--lg">
+                                <lightning-input
+                                    class="se-no-se-input"
+                                    variant="label-hidden"
+                                    label="Hectáreas que no utilizan Sembrá Evolución"
+                                    placeholder="0"
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    onchange={updateCantidadFuera}
+                                    onfocus={focus}
+                                    onblur={blur}
+                                    value={cantidadNoSE}
+                                ></lightning-input>
+                                <span class="se-ha-unit" aria-hidden="true">ha</span>
+                            </div>
+                            <p class="se-panel-sub">
+                                Sembradas con variedades de terceros. No generan toneladas a precertificar.
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -110,7 +123,7 @@
                     type="button"
                     class="se-est-toggle"
                     onclick={changeCollapsed}
-                    if:false={grandesCuentas}
+                    if:true={showWizardToggle}
                 >
                     {collapsedLabel}
                 </button>

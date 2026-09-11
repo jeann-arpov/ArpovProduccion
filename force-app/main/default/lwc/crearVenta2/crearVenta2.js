@@ -31,6 +31,11 @@ import { NavigationMixin } from 'lightning/navigation';
 import basePath from '@salesforce/community/basePath';
 import icons from 'c/icons';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import {
+    trackGa4Event,
+    resolveSemilleroLabel,
+    buildHtCompraConfirmadaParams
+} from 'c/portalGa4Events';
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
@@ -132,16 +137,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
                         this.notifyLineSaveStateChanged();
                     }, 250);
                 }
-                const popupKey = 'htPopup_' + activeVentaId;
-                const popup = window.sessionStorage.getItem(popupKey);
-                if (popup === 'licencia') {
-                    this.isOpen2 = true;
-                } else if (popup === 'origen') {
-                    this.isOpen = true;
-                }
-                if (popup) {
-                    window.sessionStorage.removeItem(popupKey);
-                }
+                // No reabrir pending licencia/origen en detalle: ya se mostró al confirmar.
+                window.sessionStorage.removeItem('htPopup_' + activeVentaId);
             } catch (e) {
                 // eslint-disable-next-line no-console
                 console.error('Error cargando compra desde Apex', e);
@@ -478,6 +475,7 @@ async crearNotaCreditoTotal() {
                     ventaId: activeId,
                     checkDuplicates: activeId != this.lastDuplicateCheckId,
                     origen: this.haveOrigenLegal,
+                    blanqueo: this.Blanqueo === true,
                     marcarRevisarCompra
                 });
 
@@ -487,6 +485,19 @@ async crearNotaCreditoTotal() {
 
                 this.setData(data);
                 this.DataCompra = data;
+
+                trackGa4Event(
+                    'ht_compra_confirmada',
+                    buildHtCompraConfirmadaParams({
+                        semilleros: this.semilleros,
+                        semilleroId: this.semillero,
+                        semilleroData: this.semilleroData,
+                        cultivoNombre: this.cultivoNombre,
+                        tipoCompraSeleccionado: this.tipoCompraSeleccionado,
+                        data,
+                        tipoPago: this.tipoPago
+                    })
+                );
 
                 if (this.puedeFacturar) {
                     await this.facturar();
@@ -517,6 +528,7 @@ async crearNotaCreditoTotal() {
                 ventaId: activeId,
                 checkDuplicates: activeId != this.lastDuplicateCheckId,
                 origen: this.haveOrigenLegal,
+                blanqueo: this.Blanqueo === true,
                 marcarRevisarCompra
             });
 
@@ -526,14 +538,24 @@ async crearNotaCreditoTotal() {
 
             this.setData(data);
             this.DataCompra = data;
+            trackGa4Event(
+                'ht_compra_confirmada',
+                buildHtCompraConfirmadaParams({
+                    semilleros: this.semilleros,
+                    semilleroId: this.semillero,
+                    semilleroData: this.semilleroData,
+                    cultivoNombre: this.cultivoNombre,
+                    tipoCompraSeleccionado: this.tipoCompraSeleccionado,
+                    data,
+                    tipoPago: this.tipoPago
+                })
+            );
             this.currentModal = data.pendiente ? 'Pendiente de Facturación' : 'finalizada';
             await this.getAccount();
 
             if (this.haveLicence === false) {
-                window.sessionStorage.setItem('htPopup_' + activeId, 'licencia');
                 this.isOpen2 = true;
             } else if (this.haveOrigenLegal === false && this.haveLicence === true) {
-                window.sessionStorage.setItem('htPopup_' + activeId, 'origen');
                 this.isOpen = true;
             }
         });
@@ -727,6 +749,9 @@ async crearNotaCreditoTotal() {
         this.getProductos();
         this.step = 4;
         this.showResumen = true;
+        trackGa4Event('ht_seleccion_semillero', {
+            semillero: resolveSemilleroLabel(this.semilleros, this.semillero, this.semilleroData)
+        });
         if (PROMO_HT_FUTURA_HABILITADA) {
             setTimeout(() => {
                 this.syncPromoQualificationState();
@@ -989,6 +1014,7 @@ async crearNotaCreditoTotal() {
         if (!value) return;
 
         this.tipoPago = value;
+        trackGa4Event('ht_seleccion_financiamiento', { forma_pago: value });
 
         await this.requestWrap(async () => {
             const data = await updateTipoPago({

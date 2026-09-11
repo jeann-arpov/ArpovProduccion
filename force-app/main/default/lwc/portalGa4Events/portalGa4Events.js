@@ -51,7 +51,6 @@ export function resolveCantidadHt(data) {
 export function buildHtCompraConfirmadaParams({
     semilleros,
     semilleroId,
-    subsistema,
     semilleroData,
     cultivoNombre,
     tipoCompraSeleccionado,
@@ -59,12 +58,11 @@ export function buildHtCompraConfirmadaParams({
     tipoPago
 }) {
     return {
-        semillero: semilleroData!= null ? resolveSemilleroLabel(semilleros, semilleroId, semilleroData) : semilleros,
+        semillero: resolveSemilleroLabel(semilleros, semilleroId, semilleroData),
         cultivo: cultivoNombre || '',
         tipo_ht: tipoCompraSeleccionado || '',
         cantidad_ht: resolveCantidadHt(data),
-        forma_pago: tipoPago || '',
-        subsistema: subsistema || ''
+        forma_pago: tipoPago || ''
     };
 }
 

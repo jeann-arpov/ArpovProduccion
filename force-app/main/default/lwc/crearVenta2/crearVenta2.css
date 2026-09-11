@@ -1049,3 +1049,110 @@ a.c-tooltip {
     padding: 1rem 1.5rem;
     margin-top: 1rem;
 }
+
+/* Detalle legacy (Mis Ventas) — responsive mobile */
+@media (max-width: 767px) {
+    .se-legacy-detail {
+        padding: 0 12px 24px;
+        box-sizing: border-box;
+    }
+
+    .se-legacy-detail .venta-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        border-radius: 20px;
+        padding: 16px;
+    }
+
+    .se-legacy-detail .logo-container {
+        width: 100% !important;
+        display: flex;
+        justify-content: center;
+    }
+
+    .se-legacy-detail .logo-container svg {
+        width: 140px;
+        height: auto;
+    }
+
+    .se-legacy-detail .info-box {
+        flex-direction: column;
+        gap: 12px;
+        margin-left: 0;
+    }
+
+    .se-legacy-detail .boton-comercial {
+        justify-content: center;
+    }
+
+    .se-legacy-detail .btn-comercial {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .se-legacy-detail .variedades-card {
+        padding: 0;
+        overflow: visible;
+    }
+
+    .se-legacy-detail .tabla-grid-header {
+        display: none;
+    }
+
+    .se-legacy-detail .linea-variedad {
+        margin-bottom: 12px;
+        border: 1px solid #eef0f3;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .se-legacy-detail .linea-variedad:hover {
+        transform: none;
+    }
+
+    .se-legacy-detail .totales-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .se-legacy-detail .totales-resumen {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .se-legacy-detail .totales-valores {
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .se-legacy-detail .action-btn,
+    .se-legacy-detail .add-variedad {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .se-legacy-detail .acciones-variedad {
+        padding: 0 4px 8px;
+    }
+
+    .se-legacy-footer {
+        padding: 0 12px 24px;
+        display: block;
+    }
+
+    .se-legacy-footer lightning-layout-item {
+        display: block;
+        width: 100%;
+    }
+
+    .se-legacy-footer lightning-button {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+    }
+}

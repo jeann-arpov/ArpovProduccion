@@ -1,4 +1,5 @@
 import { LightningElement, track } from "lwc";
+import { NavigationMixin } from "lightning/navigation";
 import getLoadData from "@salesforce/apex/AdhesionPPH.getLoadData";
 import save from "@salesforce/apex/AdhesionPPH.save";
 import deleteEstablecimiento from "@salesforce/apex/AdhesionPPH.deleteEstablecimiento";
@@ -6,6 +7,7 @@ import acceptTerms from "@salesforce/apex/AdhesionPPH.acceptTerms";
 import sendAdhesion from "@salesforce/apex/AdhesionPPH.sendAdhesion";
 import rectificarAdhesion from "@salesforce/apex/AdhesionPPH.rectificarAdhesion";
 import rectificarAdhesion2 from "@salesforce/apex/AdhesionPPH.rectificarAdhesion2";
+import listEstablecimientosDisponibles from "@salesforce/apex/AdhesionPPH.listEstablecimientosDisponibles";
 import { errorEvent, warningEvent, reduceErrors } from "c/utils";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import {trackGa4Event} from 'c/portalGa4Events';
@@ -19,13 +21,14 @@ const CSS = `
     }
 `;
 
-export default class AdhesionPph extends LightningElement {
+export default class AdhesionPph extends NavigationMixin(LightningElement) {
   @track establecimientos = [];
   @track variedades = [];
 
   counter = 1;
   loading = true;
   step = "adhesion";
+  declarationPhase = "establecimiento";
   account;
   currentModal;
   plan;
@@ -37,6 +40,11 @@ export default class AdhesionPph extends LightningElement {
   certificadoDocumentId;
   reportedSteps = {};
   wizardStep = 1;
+  @track availableEstablecimientos = [];
+  showCreatePanel = false;
+  createName = "";
+  createLat;
+  createLng;
   @track debugLines = [];
   @track loadError = "";
   @track debugSnapshot = "";
@@ -120,6 +128,7 @@ export default class AdhesionPph extends LightningElement {
       }
       const data = await getLoadData({ parametroId: this.parametro });
       this.loadData(data);
+      await this.loadAvailableEstablecimientos();
     } catch (e) {
       this.loadError = reduceErrors(e).join("; ");
       console.error("[adhesionPph] init stack", e);
@@ -184,6 +193,11 @@ export default class AdhesionPph extends LightningElement {
           record.Cantidad_Declarada__c || 0;
       }
 
+      est.cantidadSE = est.lineas.reduce(
+        (sum, l) => sum + (Number(l.record?.Cantidad_Declarada__c) || 0),
+        0
+      );
+
       if (
         this.plan.Estado__c != "En Preparación" &&
         this.plan.Estado__c != "Rectificado"
@@ -210,7 +224,15 @@ export default class AdhesionPph extends LightningElement {
       this.plan.Estado__c === "En Preparación" ||
       this.plan.Estado__c === "Rectificado";
 
-    if (this.establecimientos.length === 0 && isDraft) this.addRow();
+    // Descartar filas vacías sin establecimiento real (el checklist es la fuente).
+    this.establecimientos = this.establecimientos.filter((e) => {
+      const r = e.record?.Establecimiento__r;
+      return !!(r?.Id || r?.Name);
+    });
+
+    if (this.establecimientos.length === 0 && isDraft) {
+      this.showCreatePanel = false;
+    }
 
     // Adherido/certificado: ir al detalle YA, sin pintar el wizard.
     // El setTimeout(0) dejaba un frame con c-establecimiento-pph y la página se iba a blanco.
@@ -263,11 +285,11 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get wizardStepsTotal() {
-    return 3;
+    return 2;
   }
 
   get wizardStepLabels() {
-    return ["Plan de siembra", "Términos", "Resumen"];
+    return ["Establecimientos y superficie", "Términos y Condiciones"];
   }
 
   get wizardProgressLabel() {
@@ -295,14 +317,327 @@ export default class AdhesionPph extends LightningElement {
       let className = "pph-wiz-step";
       if (num === current) className += " is-active";
       else if (num < current) className += " is-done";
-      return { key: `wstep-${num}`, label, className };
+      return { key: `wstep-${num}`, label: `${num} · ${label}`, className };
     });
   }
 
+  /** Stepper desktop clásico (círculos + check), mismo patrón que Compra HT. */
+  get deskWizardSteps() {
+    const current = Number(this.activeWizardStep) || 1;
+    const labels = this.wizardStepLabels || [];
+    const total = labels.length;
+    return labels.map((label, index) => {
+      const num = index + 1;
+      const isActive = num === current;
+      const isDone = num < current;
+      return {
+        key: `desk-wstep-${num}`,
+        num,
+        label,
+        disabled: num > current,
+        showLine: num < total,
+        circleText: isDone ? "✓" : String(num),
+        ariaCurrent: isActive ? "step" : "false",
+        wrapClass:
+          "se-prog-item" + (num === total ? " se-prog-item-last" : ""),
+        btnClass:
+          "se-prog-btn" +
+          (isActive ? " is-active" : "") +
+          (isDone ? " is-done" : ""),
+        circleClass:
+          "se-prog-circle" +
+          (isActive ? " is-active" : "") +
+          (isDone ? " is-done" : ""),
+        labelClass:
+          "se-prog-label" +
+          (isActive ? " is-active" : "") +
+          (isDone ? " is-done" : "")
+      };
+    });
+  }
+
+  handleDeskWizardStepClick(event) {
+    const clicked = Number(event.currentTarget.dataset.step);
+    if (!clicked || clicked >= this.activeWizardStep) return;
+    if (clicked === 1 && (this.isTerminosYCondiciones || this.isResumen)) {
+      this.handleConfirmBack();
+    }
+  }
+
   get activeWizardStep() {
-    if (this.isTerminosYCondiciones) return 2;
-    if (this.isResumen && !this.isDetalleView) return 3;
+    if (this.isTerminosYCondiciones || (this.isResumen && !this.isDetalleView))
+      return 2;
     return 1;
+  }
+
+  get isDeclarationEstablecimiento() {
+    return this.showDeclarationWizard && this.declarationPhase === "establecimiento";
+  }
+
+  get isDeclarationSuperficie() {
+    return this.showDeclarationWizard && this.declarationPhase === "superficie";
+  }
+
+  get establecimientoWizardPhase() {
+    // Checklist arriba + superficie abajo (nunca el header legacy "ESTABLECIMIENTO").
+    return "superficie";
+  }
+
+  get showAddEstablecimiento() {
+    return !this.hideAddEstablecimiento && this.showDeclarationWizard;
+  }
+
+  get showAddEstablecimientoLegacy() {
+    return false;
+  }
+
+  get showDeclarationBack() {
+    return false;
+  }
+
+  get showEstablecimientoChecklist() {
+    return this.showDeclarationWizard;
+  }
+
+  get showEstablecimientoCards() {
+    if (!this.showDeclarationWizard) return false;
+    return (this.establecimientos || []).some(
+      (e) =>
+        e.clientKey ||
+        e.record?.Establecimiento__r?.Id ||
+        e.record?.Establecimiento__r?.Name ||
+        this.grandesCuentas
+    );
+  }
+
+  get checklistItems() {
+    const selectedIds = new Set(
+      (this.establecimientos || [])
+        .map((e) => e.record?.Establecimiento__r?.Id || e.clientKey)
+        .filter(Boolean)
+    );
+
+    const items = (this.availableEstablecimientos || []).map((e) => {
+      const key = e.clientKey || e.id;
+      const selected = selectedIds.has(key) || selectedIds.has(e.id);
+      return {
+        key,
+        id: e.id,
+        clientKey: e.clientKey,
+        name: e.name,
+        locationLabel: e.locationLabel || "Sin ubicación registrada",
+        selected,
+        rowClass: selected ? "se-est-check is-selected" : "se-est-check",
+        checkClass: selected ? "se-est-check-box is-on" : "se-est-check-box"
+      };
+    });
+
+    return items;
+  }
+
+  get hasChecklistItems() {
+    return this.checklistItems.length > 0;
+  }
+
+  get checklistSummary() {
+    const n = (this.establecimientos || []).length;
+    const total = this.checklistItems.length;
+    if (!total) return "No hay establecimientos vigentes. Creá uno para continuar.";
+    return `${n} de ${total} seleccionados`;
+  }
+
+  get createMapLabel() {
+    if (this.createLat != null && this.createLng != null) {
+      return `${Number(this.createLat).toFixed(2)}, ${Number(this.createLng).toFixed(2)}`;
+    }
+    return "Seleccionar punto de lote";
+  }
+
+  get sideTotalLabel() {
+    return "Superficie SE";
+  }
+
+  get showSideNoSe() {
+    return this.showDeclarationWizard;
+  }
+
+  async loadAvailableEstablecimientos() {
+    try {
+      const rows = await listEstablecimientosDisponibles();
+      const fromServer = (rows || []).map((r) => ({
+        id: r.id,
+        name: r.name,
+        locationLabel: r.locationLabel,
+        lat: r.lat,
+        lng: r.lng
+      }));
+
+      // Conservar borradores locales (altas nuevas aún no guardadas).
+      const drafts = (this.availableEstablecimientos || []).filter((e) => e.clientKey);
+      const serverIds = new Set(fromServer.map((e) => e.id));
+      const extras = drafts.filter((d) => !serverIds.has(d.id));
+      this.availableEstablecimientos = [...fromServer, ...extras];
+
+      // Incluir los ya adheridos al plan aunque no figuren en la lista filtrada.
+      const known = new Set(
+        this.availableEstablecimientos.map((e) => e.id).filter(Boolean)
+      );
+      for (const est of this.establecimientos || []) {
+        const r = est.record?.Establecimiento__r;
+        if (r?.Id && !known.has(r.Id)) {
+          this.availableEstablecimientos = [
+            ...this.availableEstablecimientos,
+            {
+              id: r.Id,
+              name: r.Name || est.record?.Name || "Establecimiento",
+              locationLabel: "En esta adhesión",
+              lat: r.Coordenadas__Latitude__s,
+              lng: r.Coordenadas__Longitude__s
+            }
+          ];
+          known.add(r.Id);
+        }
+        if (r?.Id) {
+          est.clientKey = r.Id;
+        }
+      }
+
+      if (!this.availableEstablecimientos.length && !(this.establecimientos || []).length) {
+        this.showCreatePanel = true;
+      }
+    } catch (e) {
+      this.onError(e);
+    }
+  }
+
+  emptyLineas() {
+    return this.variedades.map((variedad) => ({
+      id: variedad.Id,
+      record: {},
+      variedad
+    }));
+  }
+
+  handleToggleEstablecimiento(event) {
+    const key = event.currentTarget.dataset.key;
+    const item = (this.availableEstablecimientos || []).find(
+      (e) => (e.clientKey || e.id) === key
+    );
+    if (!item) return;
+
+    const matchKey = item.clientKey || item.id;
+    const existingIdx = this.establecimientos.findIndex(
+      (e) =>
+        e.clientKey === matchKey ||
+        e.record?.Establecimiento__r?.Id === item.id
+    );
+
+    if (existingIdx >= 0) {
+      this.deselectEstablecimientoAt(existingIdx);
+      return;
+    }
+
+    this.selectAvailableItem(item);
+  }
+
+  selectAvailableItem(item) {
+    const estRecord = {
+      Name: item.name,
+      Establecimiento__r: {
+        Id: item.id || undefined,
+        Name: item.name,
+        Coordenadas__Latitude__s: item.lat,
+        Coordenadas__Longitude__s: item.lng
+      },
+      Cantidad_Variedad_No_SE__c: 0
+    };
+    // No enviar Id temporal a Salesforce
+    if (!item.id) {
+      delete estRecord.Establecimiento__r.Id;
+    }
+
+    this.establecimientos = [
+      ...this.establecimientos,
+      {
+        id: ++this.counter,
+        clientKey: item.clientKey || item.id,
+        record: estRecord,
+        lineas: this.emptyLineas(),
+        cantidadSE: 0
+      }
+    ];
+    this.handlePasoEstablecimiento();
+  }
+
+  deselectEstablecimientoAt(idx) {
+    const row = this.establecimientos[idx];
+    const pphId = row?.record?.Id;
+    const sfEstId = row?.record?.Establecimiento__r?.Id;
+
+    const removeLocal = () => {
+      this.establecimientos = this.establecimientos.filter((_, i) => i !== idx);
+    };
+
+    if (pphId && sfEstId) {
+      this.doRequest(async () => {
+        await deleteEstablecimiento({ id: sfEstId });
+        removeLocal();
+      });
+      return;
+    }
+    removeLocal();
+  }
+
+  openCreatePanel() {
+    this.showCreatePanel = true;
+    this.createName = "";
+    this.createLat = undefined;
+    this.createLng = undefined;
+  }
+
+  cancelCreatePanel() {
+    this.showCreatePanel = false;
+    this.createName = "";
+    this.createLat = undefined;
+    this.createLng = undefined;
+  }
+
+  handleCreateNameChange(event) {
+    this.createName = event.target.value;
+  }
+
+  openCreateMap() {
+    this._createMapCallback = (data, map) => {
+      map?.hide?.();
+      this.createLat = data.latitude;
+      this.createLng = data.longitude;
+    };
+    this.template.querySelector("c-map")?.show(this._createMapCallback);
+  }
+
+  confirmCreateEstablecimiento() {
+    const name = (this.createName || "").trim();
+    if (!name) {
+      this.onError("Ingresá el nombre del establecimiento");
+      return;
+    }
+    if (this.createLat == null || this.createLng == null) {
+      this.onError("Seleccioná la georeferencia del establecimiento");
+      return;
+    }
+
+    const clientKey = `new-${++this.counter}`;
+    const item = {
+      clientKey,
+      id: null,
+      name,
+      locationLabel: "Nuevo establecimiento",
+      lat: this.createLat,
+      lng: this.createLng
+    };
+    this.availableEstablecimientos = [...this.availableEstablecimientos, item];
+    this.selectAvailableItem(item);
+    this.cancelCreatePanel();
   }
 
   get isDetalleView() {
@@ -324,16 +659,203 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get showResumenWizard() {
-    return this.isResumen && !this.isDetalleView && !!this.resumenData;
+    return (
+      !this.loading &&
+      this.isResumen &&
+      this.canEditResumen &&
+      !!this.resumenData
+    );
   }
 
-  /** Resumen editable (En Preparación / Rectificado) o fallback si falló 4a-ver. */
+  /** Solo fallback legacy si falló el detalle de plan Adherido. */
   get showResumenContent() {
     if (this.loading) return false;
-    if (this.detalleRenderFailed && this.isResumen && !!this.resumenData) {
-      return true;
+    return (
+      this.detalleRenderFailed &&
+      this.isResumen &&
+      !!this.resumenData &&
+      !this.canEditResumen
+    );
+  }
+
+  get confirmPageTitle() {
+    return "Revisá tu adhesión";
+  }
+
+  get confirmPageSubtitle() {
+    const cultivo = this.cultivoPillLabel || "cultivo";
+    const campana = this.confirmCampanaLabel;
+    const parts = [cultivo, campana].filter(Boolean);
+    return `Confirmá la declaración de ${parts.join(" · ")} antes de enviarla.`;
+  }
+
+  get confirmBreadcrumb() {
+    const name = this.plan?.Name || "Adhesión";
+    return `Precertificación / Adhesiones / ${name}`;
+  }
+
+  get confirmCampanaLabel() {
+    const campanaName = this.plan?.Parametro_PPH__r?.Campana__r?.Name;
+    if (campanaName) return campanaName;
+    // Campana__c es lookup; no mostrar el Id crudo
+    const raw = this.plan?.Parametro_PPH__r?.Campana__c;
+    if (raw && typeof raw === "string" && raw.length === 18 && raw.startsWith("a")) {
+      return this.paramName || "";
     }
-    return this.isResumen && this.canEditResumen && !!this.resumenData;
+    if (raw && typeof raw === "string" && !raw.startsWith("a")) {
+      return `Campaña ${raw}`;
+    }
+    return this.paramName || "";
+  }
+
+  get confirmTotalSe() {
+    return (this.resumenData?.establecimientos || []).reduce((sum, est) => {
+      if (est?.cantidadSE != null) return sum + (Number(est.cantidadSE) || 0);
+      return (
+        sum +
+        Object.values(est?.variedades || {}).reduce(
+          (a, v) => a + (Number(v?.cantidad) || 0),
+          0
+        )
+      );
+    }, 0);
+  }
+
+  get confirmTotalNoSe() {
+    return (this.resumenData?.establecimientos || []).reduce(
+      (sum, est) => sum + (Number(est?.cantidadNoSE) || 0),
+      0
+    );
+  }
+
+  get confirmSemilleroLabel() {
+    const shortMap = {
+      "03": "GDM",
+      "14": "GDM",
+      "85": "GDM",
+      "04": "Syngenta",
+      "23": "Syngenta",
+      "13": "Pioneer",
+      "87": "Brevant",
+      "24": "Stine",
+      "16": "MacroSeed",
+      "77": "BASF",
+      "06": "Klein",
+      "05": "Buck",
+      "12": "LG",
+      "19": "Bioceres"
+    };
+    const names = new Set();
+    (this.resumenData?.establecimientos || []).forEach((est) => {
+      Object.values(est?.variedades || {}).forEach((linea) => {
+        if (!(Number(linea?.cantidad) > 0)) return;
+        const obt = linea?.variedad?.Obtentor_Comercializa__r;
+        const id = String(obt?.Id_Obtentor__c || "");
+        const key = id.padStart(2, "0");
+        const short = shortMap[key] || shortMap[id];
+        if (short) {
+          names.add(short);
+          return;
+        }
+        const raw = obt?.Name;
+        if (raw) names.add(raw.replace(/\s*\([^)]*\)\s*$/, "").trim());
+      });
+    });
+    if (!names.size) return "—";
+    return Array.from(names).join(" · ");
+  }
+
+  get confirmToneladasLabel() {
+    const fmt = (n) => new Intl.NumberFormat("es-AR").format(Number(n) || 0);
+    const ht2kilos =
+      Number(this.plan?.Parametro_PPH__r?.Cultivo__r?.HT2Kilos__c) || 0;
+    if (!ht2kilos || !this.confirmTotalSe) return "—";
+    const toneladas = (this.confirmTotalSe * ht2kilos) / 1000;
+    return `${fmt(Math.round(toneladas * 10) / 10)} t`;
+  }
+
+  get confirmSummaryRows() {
+    const fmt = (n) => new Intl.NumberFormat("es-AR").format(Number(n) || 0);
+    const rows = [
+      {
+        key: "cultivo",
+        label: "Cultivo",
+        value: this.cultivoPillLabel || "—",
+        valueClass: "v v-strong"
+      },
+      {
+        key: "campana",
+        label: "Campaña",
+        value: this.confirmCampanaLabel || "—",
+        valueClass: "v"
+      },
+      {
+        key: "sem",
+        label: "Semillero",
+        value: this.confirmSemilleroLabel,
+        valueClass: "v"
+      },
+      {
+        key: "ests",
+        label: "Establecimientos",
+        value: this.deskEstablecimientosCount,
+        valueClass: "v"
+      },
+      {
+        key: "se",
+        label: "Superficie declarada",
+        value: `${fmt(this.confirmTotalSe)} ha`,
+        valueClass: "v v-strong"
+      },
+      {
+        key: "tn",
+        label: "Toneladas estimadas",
+        value: this.confirmToneladasLabel,
+        valueClass: "v v-strong"
+      }
+    ];
+    if (this.confirmTotalNoSe > 0) {
+      rows.splice(5, 0, {
+        key: "nose",
+        label: "Ha no SE",
+        value: `${fmt(this.confirmTotalNoSe)} ha`,
+        valueClass: "v"
+      });
+    }
+    return rows;
+  }
+
+  get confirmEstablecimientos() {
+    const fmt = (n) => new Intl.NumberFormat("es-AR").format(Number(n) || 0);
+    return (this.resumenData?.establecimientos || []).map((e, idx) => {
+      const se =
+        e.cantidadSE != null
+          ? Number(e.cantidadSE) || 0
+          : Object.values(e.variedades || {}).reduce(
+              (a, v) => a + (Number(v.cantidad) || 0),
+              0
+            );
+      const noSe = Number(e.cantidadNoSE) || 0;
+      return {
+        key: e.pphId || e.id || `confirm-est-${idx}`,
+        editId: e.id,
+        name: e.name || `Establecimiento ${idx + 1}`,
+        seLabel: `${fmt(se)} ha`,
+        noSeLabel: `${fmt(noSe)} ha`
+      };
+    });
+  }
+
+  handleConfirmEdit(event) {
+    const id = event.currentTarget.dataset.id;
+    if (!id) return;
+    this.edit({ detail: { id } });
+  }
+
+  handleConfirmBack() {
+    this.hiding = {};
+    this.declarationPhase = "establecimiento";
+    this.step = "adhesion";
   }
 
   goToResumenStep() {
@@ -371,56 +893,130 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get mobPageTitle() {
-    if (this.isEdit) return "Editar establecimiento";
-    return "Plan de siembra";
+    if (this.isEdit) return "Editar adhesión";
+    return "Continuá la adhesión";
   }
 
   get deskPageTitle() {
-    return `Adhesión PPH — ${this.paramName}`;
+    return `Continuá la adhesión — ${this.paramName}`;
   }
 
   get mobPageSubtitle() {
-    return "Declará tus establecimientos y hectáreas precertificadas.";
+    return `Seleccioná los establecimientos y completá la superficie para ${this.cultivoPillLabel || "el cultivo"} · ${this.paramName || ""}`;
   }
 
   get deskPageSubtitle() {
     return this.mobPageSubtitle;
   }
 
+  /** HT disponibles para precertificar (stock vigente), no el residual post-adhesión. */
+  get saldoDisponibleHt() {
+    const fromVariedades = (this.variedades || []).reduce(
+      (sum, v) => sum + (Number(v.totals?.total) || 0),
+      0
+    );
+    return fromVariedades + (Number(this.htsGlobales?.total) || 0);
+  }
+
   get saldoPphLabel() {
-    const n = Number(this.saldoPph);
+    const n = this.saldoDisponibleHt;
     if (Number.isNaN(n)) return "—";
     return new Intl.NumberFormat("es-AR").format(n);
   }
 
+  get showSaldoCompraHint() {
+    const n = this.saldoDisponibleHt;
+    return Number.isNaN(n) || n <= 0;
+  }
+
+  get saldoCompraHint() {
+    return "Sin HT disponibles — comprá para precertificar.";
+  }
+
+  redirectCompraHT() {
+    this[NavigationMixin.GenerateUrl]({
+      type: "comm__namedPage",
+      attributes: {
+        pageName: "FormularioNuevaVentaHT"
+      }
+    }).then((url) => window.open(url, "_blank"));
+  }
+
   get hideAddEstablecimiento() {
-    return this.grandesCuentas === true;
+    return false;
   }
 
   get deskEstablecimientosCount() {
+    if (this.isResumen && this.resumenData?.establecimientos) {
+      return String(this.resumenData.establecimientos.length || 0);
+    }
     return String(this.establecimientos?.length || 0);
   }
 
   get deskTotalSeLabel() {
     let total = 0;
     try {
-      total = (this.variedades || []).reduce(
-        (sum, v) => sum + (Number(v.totals?.current) || Number(v.totals?.total) || 0),
-        0
-      );
-      if (!total) {
-        const establecimientos = this.resumenData?.establecimientos || [];
-        for (const est of establecimientos) {
-          total += Object.values(est.variedades || {}).reduce(
-            (a, v) => a + (Number(v.cantidad) || 0),
-            0
-          );
+      if (this.isResumen && this.resumenData?.establecimientos?.length) {
+        for (const est of this.resumenData.establecimientos) {
+          if (est.cantidadSE != null) {
+            total += Number(est.cantidadSE) || 0;
+          } else {
+            total += Object.values(est.variedades || {}).reduce(
+              (a, v) => a + (Number(v.cantidad) || 0),
+              0
+            );
+          }
+        }
+      } else {
+        const nodes =
+          this.template?.querySelectorAll?.("c-establecimiento-pph") || [];
+        for (const node of nodes) {
+          const data = typeof node.getData === "function" ? node.getData() : null;
+          if (data?.cantidadSE != null) {
+            total += Number(data.cantidadSE) || 0;
+          } else {
+            total += Object.values(data?.variedades || {}).reduce(
+              (a, v) => a + (Number(v.cantidad) || 0),
+              0
+            );
+          }
+        }
+        if (!total) {
+          for (const est of this.establecimientos || []) {
+            if (est.cantidadSE != null) {
+              total += Number(est.cantidadSE) || 0;
+            } else {
+              total += (est.lineas || []).reduce(
+                (a, l) => a + (Number(l.record?.Cantidad_Declarada__c) || 0),
+                0
+              );
+            }
+          }
         }
       }
     } catch (e) {
       total = 0;
     }
-    return `${new Intl.NumberFormat("es-AR").format(total)} HT`;
+    return `${new Intl.NumberFormat("es-AR").format(total)} ha`;
+  }
+
+  get deskTotalNoSeLabel() {
+    let total = 0;
+    try {
+      const nodes = this.template?.querySelectorAll?.("c-establecimiento-pph") || [];
+      for (const node of nodes) {
+        const data = typeof node.getData === "function" ? node.getData() : null;
+        total += Number(data?.cantidadNoSE) || 0;
+      }
+      if (!total && this.resumenData?.establecimientos) {
+        for (const est of this.resumenData.establecimientos) {
+          total += Number(est.cantidadNoSE) || 0;
+        }
+      }
+    } catch (e) {
+      total = 0;
+    }
+    return `${new Intl.NumberFormat("es-AR").format(total)} ha`;
   }
 
   get showMobWizardFooter() {
@@ -522,7 +1118,53 @@ export default class AdhesionPph extends LightningElement {
   }
 
   handleMobContinuar() {
+    if (this.showDeclarationWizard) {
+      if (!this.isValidEstablecimientos(true)) return;
+      this.reportStep(2, "establecimientos_y_superficie");
+      this.continuar();
+      return;
+    }
     this.continuar();
+  }
+
+  handleDeclarationBack() {
+    // Paso único: no hay sub-paso interno.
+  }
+
+  isValidEstablecimientos(showError = false) {
+    try {
+      if (this.showEstablecimientoChecklist) {
+        if (!(this.establecimientos || []).length) {
+          throw new Error("Seleccioná o creá al menos un establecimiento");
+        }
+        for (const est of this.establecimientos) {
+          const hasExisting = !!est.record?.Establecimiento__r?.Id;
+          const hasDraft =
+            !!est.record?.Establecimiento__r?.Name &&
+            (est.record?.Establecimiento__r?.Coordenadas__Latitude__s != null ||
+              est.record?.Establecimiento__r?.Coordenadas__longitude__s != null ||
+              est.record?.Establecimiento__r?.Coordenadas__Longitude__s != null);
+          if (!hasExisting && !hasDraft) {
+            throw new Error("Seleccioná o creá un establecimiento para continuar");
+          }
+        }
+        return true;
+      }
+
+      const nodes = this.template.querySelectorAll("c-establecimiento-pph");
+      if (!nodes.length) {
+        throw new Error("Agregá al menos un establecimiento");
+      }
+      for (const node of nodes) {
+        if (typeof node.validateSelection === "function" && !node.validateSelection()) {
+          throw new Error("Seleccioná o creá un establecimiento para continuar");
+        }
+      }
+      return true;
+    } catch (e) {
+      if (showError) this.onError(e);
+      return false;
+    }
   }
 
   handleMobBack() {
@@ -539,6 +1181,7 @@ export default class AdhesionPph extends LightningElement {
 
   handleResumenBack() {
     if (this.canEditResumen) {
+      this.declarationPhase = "establecimiento";
       this.step = "adhesion";
       return;
     }
@@ -547,6 +1190,7 @@ export default class AdhesionPph extends LightningElement {
 
   handleResumenSecondary() {
     if (this.canEditResumen) {
+      this.declarationPhase = "establecimiento";
       this.step = "adhesion";
       return;
     }
@@ -562,7 +1206,10 @@ export default class AdhesionPph extends LightningElement {
   }
 
   updateLocation(event) {
-    // delegado por c-map; establecimientoPph maneja el callback
+    if (typeof this._createMapCallback === "function") {
+      this._createMapCallback(event.detail);
+      this._createMapCallback = null;
+    }
   }
 
   get year() {
@@ -601,7 +1248,12 @@ export default class AdhesionPph extends LightningElement {
       record: {},
       variedad
     }));
-    this.establecimientos.push({ id: ++this.counter, record: {}, lineas });
+    this.establecimientos.push({
+      id: ++this.counter,
+      record: {},
+      lineas,
+      cantidadSE: 0
+    });
   }
 
   connectedCallback() {
@@ -660,6 +1312,13 @@ export default class AdhesionPph extends LightningElement {
     const message = reduceErrors(e).join("\n");
     this.loadError = message;
     this.debugLog("onError", message);
+    this.notifyValidationError(e);
+  }
+
+  /** Toast / evento de error sin tumbar el wizard (no setea loadError). */
+  notifyValidationError(e) {
+    const message = reduceErrors(e).join("\n");
+    this.debugLog("notifyValidationError", message);
     this.dispatchEvent(errorEvent(e));
     this.dispatchEvent(
       new ShowToastEvent({
@@ -669,6 +1328,22 @@ export default class AdhesionPph extends LightningElement {
         mode: "sticky"
       })
     );
+  }
+
+  clearSuperficieSeErrors() {
+    for (const el of this.template.querySelectorAll("c-establecimiento-pph")) {
+      if (typeof el.setSuperficieSeError === "function") {
+        el.setSuperficieSeError("");
+      }
+    }
+  }
+
+  markSuperficieSeOverSaldo(message) {
+    for (const el of this.template.querySelectorAll("c-establecimiento-pph")) {
+      if (typeof el.setSuperficieSeError === "function") {
+        el.setSuperficieSeError(message);
+      }
+    }
   }
 
   onWarning(e) {
@@ -691,8 +1366,225 @@ export default class AdhesionPph extends LightningElement {
 
   updateCantidad(event) {
     const variedad = this.variedades.find((v) => v.Id == event.detail.variedad);
+    if (!variedad) return;
+    if (!variedad.totals) variedad.totals = { total: 0, current: 0 };
     variedad.totals.current += event.detail.cantidad;
     if (event.detail.cantidad > 0) this.reportStep(2, "variedades");
+  }
+
+  updateCantidadSe(event) {
+    const estId = event.target?.info?.id;
+    const cantidad = event.detail?.cantidad;
+    // Persistir en el padre: autosave pone loading=true y desmonta el wizard;
+    // sin esto, al remount el hijo vuelve a init() con cantidadSE=0.
+    if (estId != null && cantidad != null) {
+      this.establecimientos = this.establecimientos.map((e) =>
+        e.id === estId ? { ...e, cantidadSE: cantidad } : e
+      );
+    }
+    if ((cantidad || 0) > 0) {
+      this.reportStep(2, "superficie");
+    }
+    // Si el total entre establecimientos supera el saldo, marcar todos los inputs SE
+    this.revalidateTotalSeInline();
+    this.recalcVariedadCurrentsFromDom();
+  }
+
+  revalidateTotalSeInline() {
+    let total = 0;
+    const nodes = [
+      ...this.template.querySelectorAll("c-establecimiento-pph")
+    ];
+    for (const el of nodes) {
+      total += Number(el.getData()?.cantidadSE) || 0;
+    }
+    const saldo = Number(this.saldoDisponibleHt) || 0;
+    if (total > saldo) {
+      const fmt = (n) => new Intl.NumberFormat("es-AR").format(n);
+      const message = `La superficie total (${fmt(total)} ha) supera las ${fmt(saldo)} HT disponibles del cultivo`;
+      this.markSuperficieSeOverSaldo(message);
+      return;
+    }
+    for (const el of nodes) {
+      if (typeof el.applySeFieldValidity === "function") {
+        el.applySeFieldValidity();
+        el.reportSeValidity?.();
+      }
+    }
+  }
+
+  updateCantidadNoSe(event) {
+    const estId = event.target?.info?.id;
+    const cantidad = event.detail?.cantidad;
+    if (estId == null || cantidad == null) return;
+    this.establecimientos = this.establecimientos.map((e) => {
+      if (e.id !== estId) return e;
+      return {
+        ...e,
+        record: {
+          ...(e.record || {}),
+          Cantidad_Variedad_No_SE__c: cantidad
+        }
+      };
+    });
+  }
+
+  /**
+   * Reparte superficie SE (total por establecimiento) entre variedades con stock,
+   * priorizando las de mayor saldo. Mutates data.establecimientos[].variedades.
+   */
+  applySeAllocation(data) {
+    const remainingStock = {};
+    for (const v of this.variedades || []) {
+      remainingStock[v.Id] = Number(v.totals?.total) || 0;
+    }
+
+    const sortedIds = [...(this.variedades || [])]
+      .sort(
+        (a, b) => (Number(b.totals?.total) || 0) - (Number(a.totals?.total) || 0)
+      )
+      .map((v) => v.Id);
+
+    for (const est of data.establecimientos || []) {
+      if (est.variedades && Object.keys(est.variedades).length > 0) {
+        continue;
+      }
+
+      let need = Number(est.cantidadSE) || 0;
+      const metaById = Object.fromEntries(
+        (est.lineasMeta || []).map((m) => [m.variedadId, m])
+      );
+      const variedades = {};
+
+      for (const vid of sortedIds) {
+        const meta = metaById[vid] || {};
+        const available = Math.max(remainingStock[vid] || 0, 0);
+        const take = Math.min(need, available);
+        remainingStock[vid] = available - take;
+        need -= take;
+
+        if (take > 0 || meta.lineaId) {
+          variedades[vid] = {
+            id: meta.lineaId || null,
+            cantidad: take,
+            variedad: meta.variedad
+          };
+        }
+      }
+
+      if (need > 0) {
+        throw new Error(
+          "La superficie a precertificar supera el saldo de HT disponible del cultivo"
+        );
+      }
+
+      est.variedades = variedades;
+    }
+
+    return data;
+  }
+
+  recalcVariedadCurrentsFromDom() {
+    try {
+      (this.variedades || []).forEach((v) => {
+        if (!v.totals) v.totals = { total: 0, current: 0 };
+        v.totals.current = 0;
+      });
+      const data = this.buildResumenInfoFromDomRaw();
+      this.applySeAllocation(data);
+      for (const est of data.establecimientos || []) {
+        for (const [vid, vdata] of Object.entries(est.variedades || {})) {
+          const v = this.variedades.find((x) => x.Id == vid);
+          if (v) {
+            if (!v.totals) v.totals = { total: 0, current: 0 };
+            v.totals.current += Number(vdata.cantidad) || 0;
+          }
+        }
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn("[adhesionPph] recalcVariedadCurrentsFromDom", e);
+    }
+  }
+
+  buildResumenInfoFromDomRaw() {
+    const data = {
+      establecimientos: [],
+      account: this.account,
+      plan: this.plan
+    };
+
+    for (const establecimiento of this.template.querySelectorAll(
+      "c-establecimiento-pph"
+    )) {
+      const est = establecimiento.getData();
+
+      if (establecimiento.info.record.Establecimiento__r) {
+        est.id = establecimiento.info.record.Establecimiento__r.Id;
+        // info.id puede ser un contador local (1, 2, …) del checklist; no es un Id SF.
+        // Solo mandar pphId si es el Id real de Establecimiento_PPH__c.
+        const recordPphId = establecimiento.info.record?.Id;
+        est.pphId = this.isSalesforceId(recordPphId)
+          ? recordPphId
+          : this.isSalesforceId(establecimiento.info.id)
+            ? establecimiento.info.id
+            : null;
+      }
+
+      // Grandes Cuentas: el patrón CUIT-plan solo aplica a establecimientos NUEVOS.
+      // Si reutilizamos uno Propio existente, no pisar Name/Origen (rompe el checklist).
+      const hasExistingEstId = this.isSalesforceId(est.id);
+      if (this.grandesCuentas === true && !hasExistingEstId) {
+        est.name = this.gcEstablecimientoName;
+        est.origen = "Grandes Cuentas";
+      } else {
+        est.origen = "Propio";
+      }
+
+      data.establecimientos.push(est);
+    }
+
+    data.total =
+      this.variedades.map((v) => v.totals?.total || 0).reduce((a, b) => a + b, 0) +
+      (this.htsGlobales?.total || 0);
+    data.grandesCuentas = this.grandesCuentas;
+    data.saldoPph = this.saldoPph;
+    return data;
+  }
+
+  isSalesforceId(value) {
+    return (
+      typeof value === "string" &&
+      (value.length === 15 || value.length === 18) &&
+      /^[a-zA-Z0-9]+$/.test(value)
+    );
+  }
+
+  /** Payload limpio para Apex Data/Establecimiento/Variedad (sin campos UI). */
+  serializeSavePayload(data) {
+    return {
+      establecimientos: (data.establecimientos || []).map((est) => {
+        const variedades = {};
+        for (const [vid, v] of Object.entries(est.variedades || {})) {
+          if (!this.isSalesforceId(vid)) continue;
+          const lineaId = v?.id;
+          variedades[vid] = {
+            id: this.isSalesforceId(lineaId) ? lineaId : null,
+            cantidad: Number(v?.cantidad) || 0
+          };
+        }
+        return {
+          id: this.isSalesforceId(est.id) ? est.id : null,
+          pphId: this.isSalesforceId(est.pphId) ? est.pphId : null,
+          latitude: est.latitude,
+          longitude: est.longitude,
+          cantidadNoSE: Number(est.cantidadNoSE) || 0,
+          name: est.name,
+          origen: est.origen,
+          variedades
+        };
+      })
+    };
   }
 
   showMap(event) {
@@ -743,19 +1635,26 @@ export default class AdhesionPph extends LightningElement {
 
   removeEstablecimiento(establecimiento) {
     const id = establecimiento.info.id;
-    const variedades = establecimiento.getData().variedades;
-    //tengo que descartar las cantidades de hectareas que pusieron
-    for (const variedad of Object.keys(variedades)) {
-      this.updateCantidad({
-        detail: { variedad, cantidad: -variedades[variedad].cantidad }
-      });
+    const data = establecimiento.getData();
+    if (data.cantidadSE != null) {
+      // currents se recalculan al quitar el nodo
+    } else {
+      const variedades = data.variedades || {};
+      for (const variedad of Object.keys(variedades)) {
+        this.updateCantidad({
+          detail: { variedad, cantidad: -variedades[variedad].cantidad }
+        });
+      }
     }
 
     this.establecimientos = this.establecimientos.filter((e) => e.id !== id);
+    // Dejar que el DOM se actualice y recalcular
+    Promise.resolve().then(() => this.recalcVariedadCurrentsFromDom());
   }
 
-  async doRequest(callback) {
-    this.loading = true;
+  async doRequest(callback, quiet = false) {
+    // quiet: no togglear loading (evita desmontar c-establecimiento-pph / perder inputs)
+    if (!quiet) this.loading = true;
 
     try {
       await callback();
@@ -763,7 +1662,7 @@ export default class AdhesionPph extends LightningElement {
       this.onError(e);
     }
 
-    this.loading = false;
+    if (!quiet) this.loading = false;
   }
 
   get data() {
@@ -783,35 +1682,7 @@ export default class AdhesionPph extends LightningElement {
   }
 
   buildResumenInfoFromDom() {
-    const data = {
-      establecimientos: [],
-      account: this.account,
-      plan: this.plan
-    };
-
-    for (const establecimiento of this.template.querySelectorAll(
-      "c-establecimiento-pph"
-    )) {
-      const est = establecimiento.getData();
-
-      if (this.grandesCuentas == true) est.name = this.gcEstablecimientoName;
-
-      est.origen = this.grandesCuentas == true ? "Grandes Cuentas" : "Propio";
-
-      if (establecimiento.info.record.Establecimiento__r) {
-        est.id = establecimiento.info.record.Establecimiento__r.Id;
-        est.pphId = establecimiento.info.id;
-      }
-
-      data.establecimientos.push(est);
-    }
-
-    data.total =
-      this.variedades.map((v) => v.totals?.total || 0).reduce((a, b) => a + b, 0) +
-      (this.htsGlobales?.total || 0);
-    data.grandesCuentas = this.grandesCuentas;
-    data.saldoPph = this.saldoPph;
-    return data;
+    return this.applySeAllocation(this.buildResumenInfoFromDomRaw());
   }
 
   buildResumenInfoFromRecords() {
@@ -831,17 +1702,38 @@ export default class AdhesionPph extends LightningElement {
         }
       }
 
+      const loc = record.Establecimiento__r?.Localidad__r?.Name;
+      const prov = record.Establecimiento__r?.Provincia__c;
+      let locationLabel = '';
+      if (loc && prov) locationLabel = `${loc}, ${prov}`;
+      else if (loc) locationLabel = loc;
+      else if (prov) locationLabel = prov;
+
       establecimientos.push({
         id: record.Establecimiento__r?.Id,
         name: record.Establecimiento__r?.Name || record.Name,
+        locationLabel,
         latitude: record.Establecimiento__r?.Coordenadas__Latitude__s,
         longitude: record.Establecimiento__r?.Coordenadas__Longitude__s,
         cantidadNoSE: record.Cantidad_Variedad_No_SE__c || 0,
+        cantidadSE:
+          est.cantidadSE != null
+            ? est.cantidadSE
+            : Object.values(variedades).reduce(
+                (a, v) => a + (Number(v.cantidad) || 0),
+                0
+              ),
+        lineasMeta: (est.lineas || []).map((l) => ({
+          variedadId: l.id,
+          lineaId: l.record?.Id || null,
+          stock: Number(l.variedad?.totals?.total) || 0,
+          variedad: l.variedad
+        })),
         variedades
       });
     }
 
-    return {
+    return this.applySeAllocation({
       establecimientos,
       account: this.account,
       plan: this.plan,
@@ -850,16 +1742,7 @@ export default class AdhesionPph extends LightningElement {
         (this.htsGlobales?.total || 0),
       grandesCuentas: this.grandesCuentas,
       saldoPph: this.saldoPph
-    };
-  }
-
-  get cultivo() {
-    try {
-      return this.plan?.Parametro_PPH__r?.Cultivo__r?.Name || "";
-    } catch (e) {
-      console.error("[adhesionPph] getter cultivo", e);
-      return "";
-    }
+    });
   }
 
   get campaña() {
@@ -870,46 +1753,100 @@ export default class AdhesionPph extends LightningElement {
     let valid = true;
 
     try {
+      this.clearSuperficieSeErrors();
+
       let cantidadSE = 0;
       for (const establecimiento of this.template.querySelectorAll(
         "c-establecimiento-pph"
       )) {
         if (!establecimiento.validate()) valid = false;
-        for (const variedadData of Object.values(
-          establecimiento.getData().variedades
-        )) {
-          cantidadSE += variedadData.cantidad;
+        const estData = establecimiento.getData();
+        if (estData.cantidadSE != null) {
+          cantidadSE += Number(estData.cantidadSE) || 0;
+        } else {
+          for (const variedadData of Object.values(estData.variedades || {})) {
+            cantidadSE += variedadData.cantidad;
+          }
         }
       }
+
+      if (!valid) {
+        if (showError) {
+          this.notifyValidationError(
+            new Error(
+              "Revisá las hectáreas ingresadas: hay valores inválidos o incompletos"
+            )
+          );
+        }
+        return false;
+      }
+
       if (cantidadSE == 0)
         throw new Error(
           "No se puede realizar la adhesión sin tener hectareas SE en al menos un establecimiento"
         );
+
+      const saldo = Number(this.saldoDisponibleHt) || 0;
+      if (cantidadSE > saldo) {
+        const fmt = (n) => new Intl.NumberFormat("es-AR").format(n);
+        const message = `La superficie total (${fmt(cantidadSE)} ha) supera las ${fmt(saldo)} HT disponibles del cultivo`;
+        this.markSuperficieSeOverSaldo(message);
+        throw new Error(message);
+      }
+
+      // Valida que el reparto sea posible
+      this.applySeAllocation(this.buildResumenInfoFromDomRaw());
     } catch (e) {
       valid = false;
-      if (showError) this.onError(e);
+      if (showError) this.notifyValidationError(e);
     }
 
     return valid;
   }
 
-  async save() {
+  async save(options = {}) {
+    const quiet = options.quiet === true;
     await this.doRequest(async (_) => {
-      if (this.isValid()) {
-        const data = this.data;
-        console.log(JSON.parse(JSON.stringify(data)));
-        const newData = await save({
-          js: JSON.stringify(data),
-          planId: this.plan.Id
-        });
-        this.loadData(newData);
+      // En autosave no exigir que TODOS los establecimientos tengan ha
+      // (el usuario puede ir llenando de a uno); solo Continuar usa isValid estricto.
+      const ok = quiet ? this.canQuietSave() : this.isValid();
+      if (!ok) return;
 
-        if (this.doContinue) {
-          this.doContinue = false;
-          this.continuar();
-        }
+      const data = this.buildResumenInfoFromDom();
+      const payload = this.serializeSavePayload(data);
+      console.log(JSON.parse(JSON.stringify(payload)));
+      const newData = await save({
+        js: JSON.stringify(payload),
+        planId: this.plan.Id
+      });
+      this.loadData(newData);
+
+      if (this.doContinue) {
+        this.doContinue = false;
+        this.continuar();
       }
-    });
+    }, quiet);
+  }
+
+  /** Guardado parcial desde blur: al menos un SE > 0 y reparto posible. */
+  canQuietSave() {
+    try {
+      let cantidadSE = 0;
+      for (const establecimiento of this.template.querySelectorAll(
+        "c-establecimiento-pph"
+      )) {
+        const estData = establecimiento.getData();
+        cantidadSE += Number(estData.cantidadSE) || 0;
+      }
+      if (cantidadSE <= 0) return false;
+      if (cantidadSE > this.saldoDisponibleHt) return false;
+      this.applySeAllocation(this.buildResumenInfoFromDomRaw());
+      return true;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn("[adhesionPph] canQuietSave", e);
+      return false;
+    }
   }
 
   get adhesionClass() {
@@ -934,6 +1871,7 @@ export default class AdhesionPph extends LightningElement {
   }
 
   cancelTerms(e) {
+    this.declarationPhase = "establecimiento";
     this.step = "adhesion";
   }
 
@@ -954,6 +1892,7 @@ export default class AdhesionPph extends LightningElement {
 
   edit(e) {
     this.hiding = {};
+    this.declarationPhase = "establecimiento";
 
     for (const establecimiento of this.establecimientos) {
       if (establecimiento.record.Establecimiento__r.Id !== e.detail.id) {
@@ -965,7 +1904,7 @@ export default class AdhesionPph extends LightningElement {
   }
 
   autosave(e) {
-    this.save();
+    this.save({ quiet: true });
   }
 
   enviarConfirm(e) {
@@ -1062,6 +2001,12 @@ export default class AdhesionPph extends LightningElement {
   }
 
   handleDetalleBack() {
+    this.handleMobClose();
+  }
+
+  handleDetalleVerExpediente() {
+    // Placeholder hasta que exista un expediente vinculado al plan:
+    // vuelve al listado de adhesiones (Mis PPH).
     this.handleMobClose();
   }
 

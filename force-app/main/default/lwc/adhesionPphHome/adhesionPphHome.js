@@ -11,7 +11,17 @@ function statusTone(estado) {
     if (/certific|adherid/.test(s)) return 'ok';
     if (/rechaz|cerrad|vencid/.test(s)) return 'danger';
     if (/curso|rectif|prepar/.test(s)) return 'warn';
+    if (/sin adher/.test(s)) return 'info';
     return 'info';
+}
+
+function campaignTitle(paramName) {
+    const raw = (paramName || '').trim();
+    if (!raw) return 'Campaña';
+    if (/^campa[nñ]a\b/i.test(raw)) return raw;
+    const yearMatch = raw.match(/(\d{2}\s*\/\s*\d{2}|\d{4})/);
+    if (yearMatch) return `Campaña ${yearMatch[1].replace(/\s+/g, '')}`;
+    return raw;
 }
 
 export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
@@ -109,7 +119,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             paramId: wParam.parametro.Id,
             cultivoId: cultivo.Id,
             contentDocumentId: wParam.contentDocumentId,
-            title: wParam.parametro.Name,
+            title: campaignTitle(wParam.parametro.Name),
             cultivo: cultivo.Name,
             establecimientoLabel: wParam.establecimientoLabel || '—',
             mobileExtraLabel: wParam.mobileExtraLabel || '',
@@ -130,8 +140,9 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
 
     getStatusBucket(label) {
         if (label === 'Certificada') return 'Certificada';
-        if (label === 'Sin adherir') return 'Sin adherir';
+        if (label === 'Sin Adherir' || label === 'Sin adherir') return 'Sin adherir';
         if (label === 'En rectificación') return 'En curso';
+        if (label === 'En curso') return 'En curso';
         if (label === 'En Preparación') return 'En curso';
         if (label === 'Cerrada') return 'Vencida';
         if (/rechaz/i.test(label)) return 'Rechazada';
@@ -197,7 +208,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     }
 
     getEstadoLabel(estado) {
-        if (estado == null || estado === 'Sin adherir') return 'Sin adherir';
+        if (estado == null || estado === 'Sin adherir') return 'Sin Adherir';
         if (estado === 'Rectificado') return 'En rectificación';
         if (estado === 'Adherido') return 'Certificada';
         if (estado === 'En Preparación') return 'En curso';
