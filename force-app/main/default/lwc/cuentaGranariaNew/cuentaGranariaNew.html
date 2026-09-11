@@ -70,21 +70,20 @@
 
         <!-- Paso 2: Plataforma -->
         <section class="cg-panel" if:true={showStep2Panel}>
-            <p class="cg-panel-sub">Elegí la plataforma tecnológica para {cultivoNameDisplay}.</p>
-            <div class="cg-card-list">
+            <p class="cg-panel-sub">Las plataformas disponibles dependen del cultivo elegido.</p>
+            <div class="cg-plat-grid" role="radiogroup" aria-label="Plataforma">
                 <template for:each={decoratedPlataformas} for:item="p">
                     <button
                         key={p.value}
                         type="button"
                         class={p.cssClass}
+                        role="radio"
+                        aria-checked={p.ariaChecked}
                         data-value={p.value}
                         onclick={handlePickPlataforma}
                     >
-                        <span class="cg-rc-main">
-                            <span class="cg-rc-title">{p.label}</span>
-                            <span class="cg-rc-meta">{p.meta}</span>
-                        </span>
-                        <span class="cg-rc-radio" aria-hidden="true"></span>
+                        <span class="cg-plat-lbl">{p.label}</span>
+                        <span class="cg-plat-radio" aria-hidden="true"></span>
                     </button>
                 </template>
             </div>

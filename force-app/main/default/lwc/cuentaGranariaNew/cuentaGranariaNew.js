@@ -571,16 +571,14 @@ export default class CuentaGranariaNew extends LightningElement {
     }
 
     get decoratedPlataformas() {
-        const metas = {
-            'Enlist / Conkesta': 'Tolerancia a herbicidas · validación por detección tecnológica',
-            'Aporte Genético': 'Validación por marcadores ópticos',
-            Convencional: 'Sin biotecnología asociada'
-        };
-        return (this.biotecnologias || []).map((p) => ({
-            ...p,
-            meta: metas[p.label] || 'Plataforma tecnológica',
-            cssClass: 'cg-rc' + (this.biotecnologia === p.value ? ' is-selected' : '')
-        }));
+        return (this.biotecnologias || []).map((p) => {
+            const selected = this.biotecnologia === p.value;
+            return {
+                ...p,
+                ariaChecked: selected ? 'true' : 'false',
+                cssClass: 'cg-plat-opt' + (selected ? ' is-selected' : '')
+            };
+        });
     }
 
     get needsRegularizar() {

@@ -245,7 +245,87 @@
     color: inherit;
 }
 
-/* ===== Radio list (plataforma / campaña) ===== */
+/* ===== Plataforma (LSG .plat-grid / .plat-opt) ===== */
+.cg-plat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+}
+
+.cg-plat-opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1.5px solid #dde2eb;
+    border-radius: 14px;
+    padding: 16px 20px;
+    min-height: 56px;
+    cursor: pointer;
+    font: inherit;
+    color: #1c1c1c;
+    box-sizing: border-box;
+}
+
+.cg-plat-opt:hover {
+    border-color: #bfff00;
+}
+
+.cg-plat-lbl {
+    font-size: 15px;
+    font-weight: 600;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.cg-plat-radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #c5cad3;
+    flex: none;
+    margin-left: auto;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.cg-plat-opt.is-selected {
+    background: #1c1c1c;
+    border: 2px solid #bfff00;
+    color: #fff;
+}
+
+.cg-plat-opt.is-selected .cg-plat-lbl {
+    color: #fff;
+}
+
+.cg-plat-opt.is-selected .cg-plat-radio {
+    border-color: #bfff00;
+    background: #1c1c1c;
+}
+
+.cg-plat-opt.is-selected .cg-plat-radio::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: #bfff00;
+}
+
+@media (max-width: 900px) {
+    .cg-plat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cg-plat-opt {
+        padding: 14px 16px;
+    }
+}
+
+/* ===== Radio list legacy helpers (si quedan referencias) ===== */
 .cg-card-list {
     display: flex;
     flex-direction: column;
@@ -268,23 +348,6 @@
     box-sizing: border-box;
 }
 
-.cg-rc:hover:not(:disabled) {
-    border-color: #bfff00;
-}
-
-.cg-rc.is-selected {
-    border-color: #bfff00;
-    background: #f7ffe5;
-    box-shadow: inset 0 0 0 1px #bfff00;
-}
-
-.cg-rc.is-disabled,
-.cg-rc:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    background: #f7f8fa;
-}
-
 .cg-rc-main {
     flex: 1;
     min-width: 0;
@@ -304,27 +367,6 @@
     color: #6b7280;
 }
 
-.cg-rc-trailing {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-    flex-shrink: 0;
-}
-
-.cg-tn {
-    font-family: "Montserrat", "Roboto", Arial, sans-serif;
-    font-size: 18px;
-    font-weight: 800;
-}
-
-.cg-tn-lbl {
-    font-size: 11px;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
 .cg-rc-radio {
     width: 18px;
     height: 18px;
@@ -332,18 +374,6 @@
     border: 2px solid #c5cad3;
     flex-shrink: 0;
     position: relative;
-}
-
-.cg-rc.is-selected .cg-rc-radio {
-    border-color: #1c1c1c;
-}
-
-.cg-rc.is-selected .cg-rc-radio::after {
-    content: "";
-    position: absolute;
-    inset: 3px;
-    border-radius: 50%;
-    background: #bfff00;
 }
 
 .cg-chip {
