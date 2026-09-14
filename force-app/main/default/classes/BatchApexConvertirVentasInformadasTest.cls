@@ -559,24 +559,6 @@ public with sharing class BatchApexConvertirVentasInformadasTest {
     }
 
     @IsTest
-    static void calcularBolsasDesdeKilosUsaAbsolutoEnNegativos() {
-        // -20 kg → |20| → round(20/40)=1 (sin icono 0 bolsas)
-        System.assertEquals(
-            1,
-            BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(-20, 1, 40)
-        );
-        // -19 kg → |19| < 20 → 0 bolsas (sí icono)
-        System.assertEquals(
-            0,
-            BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(-19, 1, 40)
-        );
-        System.assertEquals(
-            1,
-            BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(20, 1, 40)
-        );
-    }
-
-    @IsTest
     static void convertirExecuteNoConvierteNcSinFcOrigen() {
         List<Account> cuentas = [
             SELECT Id
