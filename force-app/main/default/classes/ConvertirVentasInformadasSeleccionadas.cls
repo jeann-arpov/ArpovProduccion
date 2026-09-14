@@ -26,7 +26,7 @@ public with sharing class ConvertirVentasInformadasSeleccionadas {
 
         Id batchId = Database.executeBatch(
             new BatchApexConvertirVentasInformadas(lote, idsSeleccionados),
-            1000
+            BatchApexConvertirVentasInformadas.BATCH_SIZE
         );
 
         return new PageReference(

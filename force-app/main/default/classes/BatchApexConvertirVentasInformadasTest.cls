@@ -480,7 +480,10 @@ public with sharing class BatchApexConvertirVentasInformadasTest {
         insert vInformadas;
 
         Test.startTest();
-        Database.executeBatch(new BatchApexConvertirVentasInformadas(lote, new Set<Id>{ vInformadas.Id }), 1000);
+        Database.executeBatch(
+            new BatchApexConvertirVentasInformadas(lote, new Set<Id>{ vInformadas.Id }),
+            BatchApexConvertirVentasInformadas.BATCH_SIZE
+        );
         Test.stopTest();
 
         vInformadas = [
@@ -553,6 +556,94 @@ public with sharing class BatchApexConvertirVentasInformadasTest {
         Ventas_Informadas__c positiva = new Ventas_Informadas__c(Cantidad_de_Bolsas__c = 400);
         BatchApexProcesaVentasInformadas.normalizarCantidadesPositivasAlReprocesar(positiva);
         System.assertEquals(400, positiva.Cantidad_de_Bolsas__c);
+    }
+
+    @IsTest
+    static void calcularBolsasDesdeKilosUsaAbsolutoEnNegativos() {
+        // -20 kg → |20| → round(20/40)=1 (sin icono 0 bolsas)
+        System.assertEquals(
+            1,
+            BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(-20, 1, 40)
+        );
+        // -19 kg → |19| < 20 → 0 bolsas (sí icono)
+        System.assertEquals(
+            0,
+            BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(-19, 1, 40)
+        );
+        System.assertEquals(
+            1,
+            BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(20, 1, 40)
+        );
+    }
+
+    @IsTest
+    static void convertirExecuteNoConvierteNcSinFcOrigen() {
+        List<Account> cuentas = [
+            SELECT Id
+            FROM Account
+            WHERE N_CUIT__c IN ('30641405554', '33693450239')
+            LIMIT 2
+        ];
+        Product2 producto = [SELECT Id FROM Product2 LIMIT 1];
+        Ventas_Informadas__c vInformadas = [
+            SELECT Campana_Agricola__c, Campana_de_Ventas__c, Cantidad_de_Bolsas__c, Cantidad_Bolsas_40__c,
+                Categoria__c, Categoria_Portal__c, CreatedById, CreatedDate, CUIT_Destinatario__c, CUIT_Originante__c,
+                Cultivo__c, Destinatario__c, Estado__c, Fecha_de_Facturacion__c, FC_Origen__c, Id, Kilos_por_Bolsa__c,
+                Linea_Facturacion__c, Localidad_Destino__c, N_de_Comprobante__c, Originante__c, Producto__c,
+                Provincia_Destino__c, Resultado__c, Rol_Destinatario__c, Rol_Originante__c, Tipo_de_Comprobante__c,
+                Variedad__c, Venta__c, Venta_Interna__c
+            FROM Ventas_Informadas__c
+            LIMIT 1
+        ];
+        vInformadas.Resultado__c = 'OK';
+        vInformadas.Estado__c = 'Preprocesado';
+        vInformadas.Cantidad_de_Bolsas__c = 8000;
+        vInformadas.Cantidad_Bolsas_40__c = 200;
+        vInformadas.Tipo_de_Comprobante__c = 'NC';
+        vInformadas.FC_Origen__c = null;
+        vInformadas.Variedad__c = 'VAR-NO-MATCH-NC-SKIP';
+        vInformadas.N_de_Comprobante__c = 'VI-NC-SIN-ORIGEN';
+        vInformadas.Producto__c = producto.Id;
+        vInformadas.Destinatario__c = cuentas[0].Id;
+        vInformadas.Originante__c = cuentas[1].Id;
+        vInformadas.Rol_Destinatario__c = 'Distribuidor';
+        vInformadas.Rol_Originante__c = 'Distribuidor';
+        vInformadas.Venta_Interna__c = false;
+        vInformadas.Venta__c = null;
+        update vInformadas;
+
+        vInformadas = [
+            SELECT Campana_Agricola__c, Campana_de_Ventas__c, Cantidad_de_Bolsas__c, Cantidad_Bolsas_40__c,
+                Categoria__c, Categoria_Portal__c, CreatedById, CreatedDate, CUIT_Destinatario__c, CUIT_Originante__c,
+                Cultivo__c, Destinatario__c, Estado__c, Fecha_de_Facturacion__c, FC_Origen__c, Id, Kilos_por_Bolsa__c,
+                Linea_Facturacion__c, Localidad_Destino__c, N_de_Comprobante__c, Originante__c, Producto__c,
+                Provincia_Destino__c, Resultado__c, Rol_Destinatario__c, Rol_Originante__c, Tipo_de_Comprobante__c,
+                Variedad__c, Venta__c, Venta_Interna__c
+            FROM Ventas_Informadas__c
+            WHERE Id = :vInformadas.Id
+        ];
+
+        Lote__c lote = [SELECT Id FROM Lote__c LIMIT 1];
+        BatchApexConvertirVentasInformadas batch = new BatchApexConvertirVentasInformadas(
+            lote,
+            new Set<Id>{ vInformadas.Id }
+        );
+
+        Test.startTest();
+        batch.execute(null, new List<Ventas_Informadas__c>{ vInformadas });
+        Test.stopTest();
+
+        System.assertEquals(1, batch.skippedNcSinOrigenCount, 'Debe saltear NC sin FC Origen');
+        System.assertEquals(0, batch.convertedCount, 'No debe crear Venta CRM');
+
+        vInformadas = [
+            SELECT Estado__c, Resultado__c, Venta__c, FC_Origen__c
+            FROM Ventas_Informadas__c
+            WHERE Id = :vInformadas.Id
+        ];
+        System.assertEquals(null, vInformadas.Venta__c);
+        System.assertEquals('Preprocesado', vInformadas.Estado__c);
+        System.assertEquals(VentasInformadasNcOrigenUtil.MSG_NC_SIN_ORIGEN, vInformadas.Resultado__c);
     }
 
 }

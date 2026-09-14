@@ -24,7 +24,8 @@
             <label>Si</label>
         </rules>
     </decisions>
-    <description>Cada vez que se crea una venta CRM con tipo de venta = Venta / C y Variedad Sembrá Evolución, se creará un registro de Hectárea Tecnológica positiva. Si el tipo de Venta = DPD / DPO / TDS, la HT será negativa.</description>
+    <description>Cada vez que se crea una venta CRM con tipo de venta = Venta / C y Variedad Sembrá Evolución, se creará un registro de Hectárea Tecnológica positiva. Si el tipo de Venta = DPD / DPO / TDS, la HT será negativa.
+Entry: solo Sembrá Evolución y sin HT. Evita QueryException tmpVar1 al convertir ventas informadas no-SE en el mismo DML masivo.</description>
     <environments>Default</environments>
     <formulas>
         <description>Año de la campaña agrícola de la venta.</description>
@@ -122,10 +123,10 @@
             </value>
         </filters>
         <filters>
-            <field>Id</field>
+            <field>Semba_Evolucion__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>a0IQk00000GKvUEMA1</stringValue>
+                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <filters>
@@ -136,10 +137,10 @@
             </value>
         </filters>
         <object>Venta__c</object>
-        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <subflows>
         <name>Crear_la_HT_asociada_a_la_venta_CRM</name>
         <label>Crear la HT asociada a la venta CRM</label>

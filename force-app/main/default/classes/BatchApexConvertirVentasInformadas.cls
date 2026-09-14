@@ -5,9 +5,15 @@ public with sharing class BatchApexConvertirVentasInformadas implements Database
     private static final String MSG_CANTIDAD_BOLSAS_CERO =
         ConvertirVentasInformadasResumenUtil.MSG_CANTIDAD_BOLSAS_CERO;
 
+    // Incidente 3473: el Flow "Venta CRM - Crear Hectárea Tecnológica" falla con
+    // QueryException tmpVar1 cuando el insert masivo bulkifica Get Records.
+    public static final Integer BATCH_SIZE = 1;
+
     public List<String> errors = new List<String>();
     public Integer convertedCount = 0;
     public Integer skippedBolsasCeroCount = 0;
+    @TestVisible
+    public Integer skippedNcSinOrigenCount = 0;
     public Integer insertErrorCount = 0;
     private Lote__c lote;
     private Set<Id> recordIds;
@@ -23,7 +29,7 @@ public with sharing class BatchApexConvertirVentasInformadas implements Database
     }
 
     public Database.QueryLocator start(Database.BatchableContext BC) {
-        String qry = 'SELECT Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,Categoria_Portal__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Localidad_Destino__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Provincia_Destino__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Variedad__c,Venta__c,Venta_Interna__c,Rol_Destinatario__c,Rol_Originante__c FROM Ventas_Informadas__c WHERE Venta__c = null and (Estado__c = null OR Estado__c =\'Preprocesado\') AND Resultado__c = \'OK\' AND Estado__c != \'Pendiente de Validar\' ';
+        String qry = 'SELECT Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,Categoria_Portal__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,FC_Origen__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Localidad_Destino__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Provincia_Destino__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Variedad__c,Venta__c,Venta_Interna__c,Rol_Destinatario__c,Rol_Originante__c FROM Ventas_Informadas__c WHERE Venta__c = null and (Estado__c = null OR Estado__c =\'Preprocesado\') AND Resultado__c = \'OK\' AND Estado__c != \'Pendiente de Validar\' ';
 
         if (recordIds != null) qry += ' AND id in: recordIds';
 
@@ -51,6 +57,22 @@ public with sharing class BatchApexConvertirVentasInformadas implements Database
                         Id = vInformadas.Id,
                         Estado__c = 'Preprocesado',
                         Resultado__c = MSG_CANTIDAD_BOLSAS_CERO
+                    )
+                );
+                continue;
+            }
+            // NC / Remito de Devolución: no convertir si no hay FC de origen (kilos NC ≤ FC).
+            if (
+                VentasInformadasNcOrigenUtil.requiereFcOrigenParaConvertir(vInformadas)
+                && !VentasInformadasNcOrigenUtil.tieneFcOrigen(vInformadas)
+            ) {
+                skippedNcSinOrigenCount++;
+                ventasInformadasToUpdate.add(
+                    new Ventas_Informadas__c(
+                        Id = vInformadas.Id,
+                        Estado__c = 'Preprocesado',
+                        Resultado__c = VentasInformadasNcOrigenUtil.MSG_NC_SIN_ORIGEN,
+                        FC_Origen__c = null
                     )
                 );
                 continue;
