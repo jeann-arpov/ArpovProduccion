@@ -117,6 +117,13 @@ private class PlanDeSiembraTriggerHandlerTest {
 
     Account productor = Test_TestUtils.crearProductor();
 
+    Contact contacto = new Contact(
+      LastName = 'Test',
+      AccountId = productor.Id,
+      Email = 'productor@test.com'
+    );
+    insert contacto;
+
     Cultivo__c cultivo = Test_TestUtils.crearCultivo('SOJA', 75, false);
     cultivo.Sembra_Evolucion__c = true;
     insert cultivo;

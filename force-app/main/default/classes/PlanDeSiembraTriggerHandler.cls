@@ -170,16 +170,29 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
       ]
     );
 
+    Map<Id, Id> contactoPorProductor = new Map<Id, Id>();
+    for (Contact contacto : [
+      SELECT Id, AccountId
+      FROM Contact
+      WHERE AccountId IN :productorIds
+      ORDER BY CreatedDate ASC
+    ]) {
+      if (!contactoPorProductor.containsKey(contacto.AccountId)) {
+        contactoPorProductor.put(contacto.AccountId, contacto.Id);
+      }
+    }
+
     List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
 
     for (Plan_de_Siembra__c plan : planesAprobados) {
       Account productor = productores.get(plan.Productor__c);
-      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildMail(
+      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildTemplateMail(
+        'PPH_Aprobado',
+        plan.Id,
+        contactoPorProductor.get(plan.Productor__c),
         productor != null
           ? productor.Direccion_de_Correo_electronico_del_CUIT__c
-          : null,
-        Label.PPH_Notificacion_Aprobada_Asunto,
-        Label.PPH_Notificacion_Aprobada_Cuerpo
+          : null
       );
       if (mail != null) {
         mails.add(mail);
@@ -188,12 +201,13 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
 
     for (Plan_de_Siembra__c plan : planesRechazados) {
       Account productor = productores.get(plan.Productor__c);
-      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildMail(
+      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildTemplateMail(
+        'PPH_Rechazado',
+        plan.Id,
+        contactoPorProductor.get(plan.Productor__c),
         productor != null
           ? productor.Direccion_de_Correo_electronico_del_CUIT__c
-          : null,
-        Label.PPH_Notificacion_Rechazada_Asunto,
-        Label.PPH_Notificacion_Rechazada_Cuerpo
+          : null
       );
       if (mail != null) {
         mails.add(mail);
