@@ -152,6 +152,13 @@ export default class CuentaGranariaNew extends LightningElement {
         this.campanaSeleccionada = null;
     }
 
+    handleBackToPaso2() {
+        this.step = 2;
+        this.totales = null;
+        this.campanaSeleccionada = null;
+        this.campanas = null;
+    }
+
     handleContinuarPaso1() {
         if (!this.cultivoSeleccionadoId) return;
         this.cultivo = this.cultivoSeleccionadoId;
