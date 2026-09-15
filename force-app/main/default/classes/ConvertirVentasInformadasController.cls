@@ -20,7 +20,10 @@ public with sharing class ConvertirVentasInformadasController {
         Lote__c lote = getLote();
         insert lote;
 
-        Id batchId = Database.executeBatch(new BatchApexConvertirVentasInformadas(lote),1000);
+        Id batchId = Database.executeBatch(
+            new BatchApexConvertirVentasInformadas(lote),
+            BatchApexConvertirVentasInformadas.BATCH_SIZE
+        );
 
         return new PageReference('/lightning/cmp/c__batchApexMonitorContainer?c__navigateToSobject='+lote.Id+'&c__batchId='+batchId+'&c__title=Convertir Ventas Informadas en Ventas');
 

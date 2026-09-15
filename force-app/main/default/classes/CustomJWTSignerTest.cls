@@ -38,8 +38,9 @@ private class CustomJWTSignerTest {
         String jwt = CustomJWTSigner.CustomJWTSigner(testUser.Id, 'https://test.com', testContact.Id);
         Test.stopTest();
         
-        // Verificar que el JWT no sea nulo
         System.assert(jwt != null);
+        System.assert(!jwt.startsWith('eyJ'), 'El token enviado a SGL debe ir cifrado, no como JWT en claro');
+        jwt = CustomJWTSigner.decryptJwtFromSgl(jwt);
         
         // Dividir el JWT en sus partes
         List<String> jwtParts = jwt.split('\\.');
@@ -112,17 +113,11 @@ private class CustomJWTSignerTest {
         String jwt = CustomJWTSigner.CustomJWTSignerLicencias(testUser.Id, 'https://test.com', testContact.Id);
         Test.stopTest();
         
-        // Verificar que el JWT no sea nulo
+        // Verificar token cifrado (no validar campos auxiliares de Licencia: en prod no son queryables)
         System.assert(jwt != null);
-        
-        // Obtener la licencia actualizada
-        Licencia__c updatedLicencia = [SELECT sglUrl__c, tokenHeaderFromApex__c, tokenPayloadFromApex__c, tokenPayloadFromApex2__c, tokenSignatureFromApex__c, urlFromApex__c FROM Licencia__c WHERE Id = :testLicencia.Id];
-        
-        // Verificar que los campos de la licencia se hayan actualizado correctamente
-        System.assert(updatedLicencia.tokenHeaderFromApex__c != null);
-        System.assert(updatedLicencia.tokenPayloadFromApex__c != null);
-        System.assert(updatedLicencia.tokenPayloadFromApex2__c != null);
-        System.assert(updatedLicencia.tokenSignatureFromApex__c != null);
+        System.assert(!jwt.startsWith('eyJ'), 'El token enviado a SGL debe ir cifrado');
+        String decrypted = CustomJWTSigner.decryptJwtFromSgl(jwt);
+        System.assertEquals(3, decrypted.split('\\.').size(), 'JWT descifrado inválido');
     }
 
     @isTest
@@ -170,8 +165,8 @@ private class CustomJWTSignerTest {
         String jwt = CustomJWTSigner.singleLicenseJWTSigner(testUser.Id, testContact.Id, testLicencia.Id);
         Test.stopTest();
         
-        // Verificar que el JWT no sea nulo
         System.assert(jwt != null);
+        jwt = CustomJWTSigner.decryptJwtFromSgl(jwt);
         
         // Dividir el JWT en sus partes
         List<String> jwtParts = jwt.split('\\.');
@@ -245,5 +240,28 @@ private class CustomJWTSignerTest {
         
         // Verificar que el JWT no sea nulo
         System.assert(jwt != null);
+        System.assert(!jwt.startsWith('eyJ'), 'El token enviado a SGL debe ir cifrado');
+        String decrypted = CustomJWTSigner.decryptJwtFromSgl(jwt);
+        List<String> jwtParts = decrypted.split('\\.');
+        System.assertEquals(3, jwtParts.size());
+    }
+
+    @isTest
+    static void testEncryptDecryptRoundtrip() {
+        String jwt = 'header.payload.signature';
+        String encrypted = CustomJWTSigner.encryptJwtForSgl(jwt);
+        System.assertNotEquals(jwt, encrypted);
+        System.assert(!encrypted.contains('.'), 'El ciphertext no debe verse como JWT');
+        System.assert(!encrypted.contains('+') && !encrypted.contains('/') && !encrypted.contains('='),
+            'El token debe ir en Base64URL');
+        System.assertEquals(jwt, CustomJWTSigner.decryptJwtFromSgl(encrypted));
+    }
+
+    @isTest
+    static void testTokenForSglAlwaysEncrypts() {
+        String jwt = 'header.payload.signature';
+        String token = CustomJWTSigner.tokenForSgl(jwt);
+        System.assertNotEquals(jwt, token, 'El token enviado a SGL debe ir cifrado');
+        System.assertEquals(jwt, CustomJWTSigner.decryptJwtFromSgl(token));
     }
 }
