@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Mail de aprobación de adhesión PPH al productor</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>PPH Aprobado</name>
+    <subject>¡Tu adhesión al PPH fue confirmada!</subject>
+    <type>custom</type>
+    <uiType>Aloha</uiType>
+    <content>
+        <textContent><![CDATA[<div style="background-color:#FAFAFA;font-family:Helvetica,Arial,sans-serif;margin:0;padding:20px 0;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;background-color:#FFFFFF;">
+    <tr>
+      <td style="padding:0;">
+        <img src="https://mcusercontent.com/e5aa41c44e1b1ab5d65d4661b/images/7de9f5b7-78e6-3bd4-37a7-95e31454c0a5.png" alt="Sembrá Evolución" width="600" style="display:block;width:100%;max-width:600px;border:0;" />
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:24px 28px;color:#202020;font-size:15px;line-height:150%;text-align:justify;">
+        <p>Hola 👋 <strong>{!Plan_de_Siembra__c.Productor_Name__c}</strong></p>
+        <p><strong>¡Felicitaciones!</strong></p>
+        <p>Te confirmamos que tu <strong>{!Plan_de_Siembra__c.Name}</strong> fue adherido correctamente al <strong>Programa de Precertificación de Hectáreas (PPH)</strong>.</p>
+        <p>A partir de ahora podés operar con los <strong>beneficios del PPH para la campaña 2026/27</strong>.</p>
+        <p>Gracias a tu adhesión, vas a poder entregar el grano obtenido sin segregar tecnologías, de acuerdo a:</p>
+        <p>• El rendimiento promedio de tu zona<br/>• El plan de siembra informado</p>
+        <p>📌 Importante: Tenés la posibilidad de rectificar tu adhesión si realizás cambios en tu plan de siembra.</p>
+        <p>Podés consultar el período de rectificación correspondiente a cada cultivo en el <a href="https://sembraevolucion.com.ar/index.php/calendario-sembra-evolucion/" target="_blank" style="color:#007C89;">Calendario Digital</a> de nuestro sitio web.</p>
+        <p>🤝 <strong>¿Necesitás ayuda?</strong></p>
+        <p>Ante cualquier duda o consulta, podés <strong>responder a este mail o hacer clic en el botón a continuación.</strong></p>
+        <p style="text-align:center;padding:8px 0 16px;">
+          <a href="https://wa.link/cmtp1b" target="_blank" style="background-color:#B6FF00;color:#002222;padding:14px 26px;border-radius:19px;text-decoration:none;font-weight:bold;font-size:14px;display:inline-block;">Contactar Mesa de Ayuda</a>
+        </p>
+        <p>Muchas gracias,<br/><strong>Equipo de Sembrá Evolución</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:16px 28px 24px;border-top:2px solid #222222;text-align:center;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+          <tr>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_Web_URL}" target="_blank"><img src="{!$Label.PPH_Social_Web_Icon}" alt="Website" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_Instagram_URL}" target="_blank"><img src="{!$Label.PPH_Social_Instagram_Icon}" alt="Instagram" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_WhatsApp_URL}" target="_blank"><img src="{!$Label.PPH_Social_WhatsApp_Icon}" alt="WhatsApp" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_YouTube_URL}" target="_blank"><img src="{!$Label.PPH_Social_YouTube_Icon}" alt="YouTube" width="24" height="24" style="display:block;border:0;" /></a></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>]]></textContent>
+    </content>
+</EmailTemplate>

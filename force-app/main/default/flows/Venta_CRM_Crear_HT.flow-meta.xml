@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>60.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -31,7 +31,8 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Buscar_Cuenta_Principal_del_Obtentor_Comercializa</targetReference>
+            <targetReference
+      >Buscar_Cuenta_Principal_del_Obtentor_Comercializa</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -79,11 +80,13 @@
             <assignToReference>varNombrePrincipal</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>varNombreObtentorComercializa</elementReference>
+                <elementReference
+        >varNombreObtentorComercializa</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Categoria_del_Producto_es_Original_o_Pre_Basica</targetReference>
+            <targetReference
+      >Categoria_del_Producto_es_Original_o_Pre_Basica</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -123,42 +126,48 @@
             <assignToReference>varCanalDeVenta</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varNCuit</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.N_CUIT__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.N_CUIT__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varProductor</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varEstadoLicencia</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_productor_Originante.varEstadoLicencia</elementReference>
+                <elementReference
+        >Validar_licencia_de_productor_Originante.varEstadoLicencia</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varFechaVto</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_productor_Originante.varFechaVto</elementReference>
+                <elementReference
+        >Validar_licencia_de_productor_Originante.varFechaVto</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varLicenciaId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_productor_Originante.varLicenciaId</elementReference>
+                <elementReference
+        >Validar_licencia_de_productor_Originante.varLicenciaId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -172,7 +181,8 @@
             <assignToReference>varValorConversion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Cultivo__r.HT2Kilos__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Cultivo__r.HT2Kilos__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -195,7 +205,8 @@
             <assignToReference>varFechaFacturacion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Fecha_Facturacion__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Fecha_Facturacion__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -216,42 +227,48 @@
             <assignToReference>varCanalDeVenta</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varNCuit</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.N_CUIT__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.N_CUIT__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varProductor</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varLicenciaId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_productor_Destinatario.varLicenciaId</elementReference>
+                <elementReference
+        >Validar_licencia_de_productor_Destinatario.varLicenciaId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varEstadoLicencia</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_productor_Destinatario.varEstadoLicencia</elementReference>
+                <elementReference
+        >Validar_licencia_de_productor_Destinatario.varEstadoLicencia</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varFechaVto</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_productor_Destinatario.varFechaVto</elementReference>
+                <elementReference
+        >Validar_licencia_de_productor_Destinatario.varFechaVto</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -265,7 +282,8 @@
             <assignToReference>varValorConversion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Cultivo__r.HT2Kilos__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Cultivo__r.HT2Kilos__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -309,42 +327,48 @@
             <assignToReference>varCanalDeVenta</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varNCuit</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.N_CUIT__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.N_CUIT__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varProductor</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varEstadoLicencia</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Originante.varEstadoLicencia</elementReference>
+                <elementReference
+        >Validar_licencia_de_Originante.varEstadoLicencia</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varFechaVto</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Originante.varFechaVto</elementReference>
+                <elementReference
+        >Validar_licencia_de_Originante.varFechaVto</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varLicenciaId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Originante.varLicenciaId</elementReference>
+                <elementReference
+        >Validar_licencia_de_Originante.varLicenciaId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -358,7 +382,8 @@
             <assignToReference>varValorConversion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Original__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Original__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -402,42 +427,48 @@
             <assignToReference>varCanalDeVenta</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varNCuit</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.N_CUIT__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.N_CUIT__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varProductor</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varEstadoLicencia</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Originante.varEstadoLicencia</elementReference>
+                <elementReference
+        >Validar_licencia_de_Originante.varEstadoLicencia</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varFechaVto</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Originante.varFechaVto</elementReference>
+                <elementReference
+        >Validar_licencia_de_Originante.varFechaVto</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varLicenciaId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Originante.varLicenciaId</elementReference>
+                <elementReference
+        >Validar_licencia_de_Originante.varLicenciaId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -451,7 +482,8 @@
             <assignToReference>varValorConversion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Pre_Basica__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Pre_Basica__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -474,7 +506,8 @@
             <assignToReference>varFechaFacturacion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Fecha_Facturacion__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Fecha_Facturacion__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -495,42 +528,48 @@
             <assignToReference>varCanalDeVenta</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varNCuit</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.N_CUIT__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.N_CUIT__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varProductor</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varLicenciaId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Destinatario.varLicenciaId</elementReference>
+                <elementReference
+        >Validar_licencia_de_Destinatario.varLicenciaId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varEstadoLicencia</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Destinatario.varEstadoLicencia</elementReference>
+                <elementReference
+        >Validar_licencia_de_Destinatario.varEstadoLicencia</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varFechaVto</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Destinatario.varFechaVto</elementReference>
+                <elementReference
+        >Validar_licencia_de_Destinatario.varFechaVto</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -544,7 +583,8 @@
             <assignToReference>varValorConversion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Original__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Original__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -567,7 +607,8 @@
             <assignToReference>varFechaFacturacion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Fecha_Facturacion__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Fecha_Facturacion__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -588,42 +629,48 @@
             <assignToReference>varCanalDeVenta</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varNCuit</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.N_CUIT__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.N_CUIT__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varProductor</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varLicenciaId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Destinatario.varLicenciaId</elementReference>
+                <elementReference
+        >Validar_licencia_de_Destinatario.varLicenciaId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varEstadoLicencia</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Destinatario.varEstadoLicencia</elementReference>
+                <elementReference
+        >Validar_licencia_de_Destinatario.varEstadoLicencia</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varFechaVto</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Validar_licencia_de_Destinatario.varFechaVto</elementReference>
+                <elementReference
+        >Validar_licencia_de_Destinatario.varFechaVto</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -637,7 +684,8 @@
             <assignToReference>varValorConversion</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Pre_Basica__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Cultivo__r.HT2Kilos_Pre_Basica__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -650,14 +698,16 @@
         <locationX>924</locationX>
         <locationY>974</locationY>
         <defaultConnector>
-            <targetReference>Hectarea_Por_Venta_o_por_Devolucion</targetReference>
+            <targetReference
+      >Hectarea_Por_Venta_o_por_Devolucion</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Otra Categoría</defaultConnectorLabel>
         <rules>
             <name>Original_o_Pre_Basica_y_2022</name>
             <conditionLogic>(1 OR 3 OR 4) AND 2</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Original o Fundadora</stringValue>
@@ -671,14 +721,16 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Pre Básica</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Original</stringValue>
@@ -703,14 +755,16 @@
             <name>Original</name>
             <conditionLogic>or</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Original o Fundadora</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Original</stringValue>
@@ -735,14 +789,16 @@
             <name>Original_o_Fund</name>
             <conditionLogic>or</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Original o Fundadora</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Original</stringValue>
@@ -760,7 +816,8 @@
         <locationX>924</locationX>
         <locationY>674</locationY>
         <defaultConnector>
-            <targetReference>Categoria_del_Producto_es_Original_o_Pre_Basica</targetReference>
+            <targetReference
+      >Categoria_del_Producto_es_Original_o_Pre_Basica</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Cuenta Principal No Null</defaultConnectorLabel>
         <rules>
@@ -784,7 +841,8 @@
         <label>Está aprobada y no vencida?</label>
         <locationX>726</locationX>
         <locationY>2066</locationY>
-        <defaultConnectorLabel>Licencia No Aprobada o Vencida</defaultConnectorLabel>
+        <defaultConnectorLabel
+    >Licencia No Aprobada o Vencida</defaultConnectorLabel>
         <rules>
             <name>Licencia_Aprobada_y_no_Vencida</name>
             <conditionLogic>and</conditionLogic>
@@ -840,14 +898,16 @@
             <name>Por_Venta</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Venta</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Validar_licencia_de_productor_Destinatario</targetReference>
+                <targetReference
+        >Validar_licencia_de_productor_Destinatario</targetReference>
             </connector>
             <label>Por Venta</label>
         </rules>
@@ -855,21 +915,24 @@
             <name>Por_DPD_o_DPO</name>
             <conditionLogic>or</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>DPD</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>DPO</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Validar_licencia_de_productor_Originante</targetReference>
+                <targetReference
+        >Validar_licencia_de_productor_Originante</targetReference>
             </connector>
             <label>Por DPD o DPO</label>
         </rules>
@@ -884,28 +947,32 @@
             <name>C_o_Venta</name>
             <conditionLogic>(1 OR 2) AND 3</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>C</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Venta</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Rol_Originante__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Rol_Originante__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Obtentor</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Validar_licencia_de_Destinatario</targetReference>
+                <targetReference
+        >Validar_licencia_de_Destinatario</targetReference>
             </connector>
             <label>C o Venta</label>
         </rules>
@@ -913,28 +980,32 @@
             <name>TDS_o_DPO</name>
             <conditionLogic>(1 OR 2) AND 3</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>TDS</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Tipo_de_Venta__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>DPO</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Rol_Destinatario__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Rol_Destinatario__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Obtentor</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Validar_licencia_de_Originante</targetReference>
+                <targetReference
+        >Validar_licencia_de_Originante</targetReference>
             </connector>
             <label>TDS o DPO</label>
         </rules>
@@ -952,14 +1023,16 @@
             <name>Procesar_como_PRIMU</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Producto__r.Categoria__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Original o Fundadora</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Buscar_Venta_CRM.Procesar_como_PRIMU__c</leftValueReference>
+                <leftValueReference
+        >Buscar_Venta_CRM.Procesar_como_PRIMU__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -967,7 +1040,8 @@
             </conditions>
             <connector>
                 <isGoTo>true</isGoTo>
-                <targetReference>Hectarea_Por_Venta_o_por_Devolucion</targetReference>
+                <targetReference
+        >Hectarea_Por_Venta_o_por_Devolucion</targetReference>
             </connector>
             <label>Procesar como PRIMU</label>
         </rules>
@@ -994,7 +1068,8 @@
             <label>Variedad SE</label>
         </rules>
     </decisions>
-    <description>Cada vez que se crea una venta CRM con tipo de venta = Venta / C y Variedad Sembrá Evolución, se creará un registro de Hectárea Tecnológica positiva. Si el tipo de Venta = DPD / DPO / TDS, la HT será negativa. 
+    <description
+  >Cada vez que se crea una venta CRM con tipo de venta = Venta / C y Variedad Sembrá Evolución, se creará un registro de Hectárea Tecnológica positiva. Si el tipo de Venta = DPD / DPO / TDS, la HT será negativa. 
 Se chequea la licencia: que el productor tenga la licencia aprobada para crear las HTs.
 Para productos de categoría Original o Fundadora:
 Si la venta CRM es:
@@ -1007,21 +1082,26 @@ Si la venta CRM es:
 Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año de la campaña.</description>
     <environments>Default</environments>
     <formulas>
-        <description>Fecha Vencimiento de Tonelada con año de la campaña agrícola de la venta + 1. Ej. 01/03/2023 para soja.</description>
+        <description
+    >Fecha Vencimiento de Tonelada con año de la campaña agrícola de la venta + 1. Ej. 01/03/2023 para soja.</description>
         <name>forFechaFin</name>
         <dataType>Date</dataType>
-        <expression>Date({!forYear} + 1, MONTH({!forFechaVtoTN}), DAY({!forFechaVtoTN}))</expression>
+        <expression
+    >Date({!forYear} + 1, MONTH({!forFechaVtoTN}), DAY({!forFechaVtoTN}))</expression>
     </formulas>
     <formulas>
-        <description>Fecha Vencimiento de Tonelada con año de la campaña agrícola de la venta. Ej. 01/03/2022 para soja.</description>
+        <description
+    >Fecha Vencimiento de Tonelada con año de la campaña agrícola de la venta. Ej. 01/03/2022 para soja.</description>
         <name>forFechaInicio</name>
         <dataType>Date</dataType>
-        <expression>Date({!forYear}, MONTH({!forFechaVtoTN}), DAY({!forFechaVtoTN}))</expression>
+        <expression
+    >Date({!forYear}, MONTH({!forFechaVtoTN}), DAY({!forFechaVtoTN}))</expression>
     </formulas>
     <formulas>
         <name>forFechaVtoTN</name>
         <dataType>Date</dataType>
-        <expression>{!Buscar_Venta_CRM.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c}</expression>
+        <expression
+    >{!Buscar_Venta_CRM.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c}</expression>
     </formulas>
     <formulas>
         <description>Año de la campaña agrícola de la venta.</description>
@@ -1038,30 +1118,39 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <scale>0</scale>
     </formulas>
     <formulas>
-        <description>Id de campaña para Get Records. Dummy si es nulo: evita QueryException tmpVar1 en DML masivo.</description>
+        <description
+    >Id de campaña para Get Records. Dummy si es nulo: evita QueryException tmpVar1 en DML masivo.</description>
         <name>forCampaniaId</name>
         <dataType>String</dataType>
-        <expression>BLANKVALUE({!Buscar_Venta_CRM.Campana_Agricola__c}, &apos;000000000000000AAA&apos;)</expression>
+        <expression
+    >BLANKVALUE({!Buscar_Venta_CRM.Campana_Agricola__c}, &apos;000000000000000AAA&apos;)</expression>
     </formulas>
     <formulas>
-        <description>Id de cuenta principal para Get Records. Dummy si es nulo: evita QueryException tmpVar1 en DML masivo.</description>
+        <description
+    >Id de cuenta principal para Get Records. Dummy si es nulo: evita QueryException tmpVar1 en DML masivo.</description>
         <name>forCuentaPrincipalId</name>
         <dataType>String</dataType>
-        <expression>BLANKVALUE({!varCuentaPrincipal}, &apos;000000000000000AAA&apos;)</expression>
+        <expression
+    >BLANKVALUE({!varCuentaPrincipal}, &apos;000000000000000AAA&apos;)</expression>
     </formulas>
     <formulas>
-        <description>Id de obtentor para Get Records. Dummy si es nulo: evita QueryException tmpVar1 en DML masivo.</description>
+        <description
+    >Id de obtentor para Get Records. Dummy si es nulo: evita QueryException tmpVar1 en DML masivo.</description>
         <name>forObtentorId</name>
         <dataType>String</dataType>
-        <expression>BLANKVALUE({!varObtentorComercializa}, &apos;000000000000000AAA&apos;)</expression>
+        <expression
+    >BLANKVALUE({!varObtentorComercializa}, &apos;000000000000000AAA&apos;)</expression>
     </formulas>
     <formulas>
-        <description>Id de variedad para Get Records. Dummy si Producto.Variedad2 es nulo: evita QueryException tmpVar1 en DML masivo.</description>
+        <description
+    >Id de variedad para Get Records. Dummy si Producto.Variedad2 es nulo: evita QueryException tmpVar1 en DML masivo.</description>
         <name>forVariedadId</name>
         <dataType>String</dataType>
-        <expression>BLANKVALUE({!Buscar_Venta_CRM.Producto__r.Variedad2__c}, &apos;000000000000000AAA&apos;)</expression>
+        <expression
+    >BLANKVALUE({!Buscar_Venta_CRM.Producto__r.Variedad2__c}, &apos;000000000000000AAA&apos;)</expression>
     </formulas>
-    <interviewLabel>Venta CRM - Crear HT {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Venta CRM - Crear HT {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Venta CRM - Crear HT</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -1111,7 +1200,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <field>Cantidad__c</field>
             <value>
-                <elementReference>Buscar_Venta_CRM.Hectareas_Tecnologicas__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Hectareas_Tecnologicas__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1165,7 +1255,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <field>Numero_de_Comprobante__c</field>
             <value>
-                <elementReference>Buscar_Venta_CRM.Nro_de_Comprobante__c</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Nro_de_Comprobante__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1218,7 +1309,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <label>Buscar Campaña agricola</label>
         <locationX>1543</locationX>
         <locationY>350</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Variedad_es_Sembra_Evolucion</targetReference>
         </connector>
@@ -1239,7 +1331,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <label>Buscar Cuenta Principal</label>
         <locationX>1056</locationX>
         <locationY>782</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Cuenta_Principal_es_Null</targetReference>
         </connector>
@@ -1262,7 +1355,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <label>Buscar Cuenta Principal del Obtentor Comercializa</label>
         <locationX>924</locationX>
         <locationY>566</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Asignar_id_cuenta_principal</targetReference>
         </connector>
@@ -1293,7 +1387,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <label>Buscar Variedad</label>
         <locationX>1543</locationX>
         <locationY>242</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Buscar_Campania_agricola</targetReference>
         </connector>
@@ -1332,7 +1427,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <label>Buscar Venta CRM</label>
         <locationX>1543</locationX>
         <locationY>134</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Asignar_ids_lookup_venta</targetReference>
         </connector>
@@ -1375,7 +1471,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varMarcaObtentorComercializa</name>
             <value>
-                <elementReference>varMarcaObtentorComercializa</elementReference>
+                <elementReference
+        >varMarcaObtentorComercializa</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1393,7 +1490,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varProductor</name>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1429,7 +1527,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varMarcaObtentorComercializa</name>
             <value>
-                <elementReference>varMarcaObtentorComercializa</elementReference>
+                <elementReference
+        >varMarcaObtentorComercializa</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1447,7 +1546,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varProductor</name>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1488,7 +1588,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varMarcaObtentorComercializa</name>
             <value>
-                <elementReference>varMarcaObtentorComercializa</elementReference>
+                <elementReference
+        >varMarcaObtentorComercializa</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1506,7 +1607,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varProductor</name>
             <value>
-                <elementReference>Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Destinatario__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1541,7 +1643,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varMarcaObtentorComercializa</name>
             <value>
-                <elementReference>varMarcaObtentorComercializa</elementReference>
+                <elementReference
+        >varMarcaObtentorComercializa</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1559,7 +1662,8 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <inputAssignments>
             <name>varProductor</name>
             <value>
-                <elementReference>Buscar_Venta_CRM.Originante__r.Id</elementReference>
+                <elementReference
+        >Buscar_Venta_CRM.Originante__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -1583,7 +1687,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1593,7 +1697,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1610,7 +1714,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1620,7 +1724,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>true</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1630,7 +1734,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1661,7 +1765,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>true</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1671,7 +1775,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1681,7 +1785,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1691,7 +1795,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1701,7 +1805,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1711,7 +1815,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1721,7 +1825,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>
@@ -1731,7 +1835,7 @@ Si el cultivo es TRIGO: se toma el año de la campaña -1, sino se toma el año 
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue></stringValue>
+            <stringValue />
         </value>
     </variables>
     <variables>

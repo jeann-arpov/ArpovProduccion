@@ -800,6 +800,154 @@
     >No puede seleccionar el mismo establecimiento más de una vez en un mismo plan de siembra</value>
     </labels>
     <labels>
+        <fullName>PPH_Notificacion_Aprobada_Asunto</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Asunto notificacion PPH aprobada</shortDescription>
+        <value>Tu adhesión al PPH fue aprobada</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Notificacion_Aprobada_Cuerpo</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Cuerpo notificacion PPH aprobada</shortDescription>
+        <value
+    >¡Tu adhesión al Programa de Precertificación de Hectáreas fue aprobada! A partir de ahora podés operar con los beneficios del PPH para la campaña 2026/27. Ante cualquier consulta, contactanos por WhatsApp al +54 9 11 3117 2022.</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Notificacion_Rechazada_Asunto</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Asunto notificacion PPH rechazada</shortDescription>
+        <value>Tu adhesión al PPH fue rechazada</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Notificacion_Rechazada_Cuerpo</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Cuerpo notificacion PPH rechazada</shortDescription>
+        <value
+    >Lamentablemente no pudimos aprobar tu adhesión al PPH por existir una situación pendiente de regularizar de campañas anteriores. Para más información y para regularizar tu situación, contactate con nuestro equipo por WhatsApp al +54 9 11 3117 2022.</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Mensaje_Recibida</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >Mensaje post TyC PPH (solicitud recibida)</shortDescription>
+        <value
+    >Recibimos tu solicitud. El equipo de Sembrá Evolución estará revisando la información presentada para finalizar el proceso de validación. Te notificaremos una vez que la revisión haya finalizado.</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Estado_En_Revision_Detalle</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Detalle del estado En Revisión PPH</shortDescription>
+        <value
+    >En revisión - El equipo de Sembrá Evolución está validando la información</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Mail_Criterio_03_Asunto</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >Asunto mail automatico criterio 03 PPH</shortDescription>
+        <value>Actualización sobre tu adhesión al PPH</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Mail_Criterio_03_Cuerpo</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >Cuerpo mail automatico criterio 03 PPH</shortDescription>
+        <value
+    >Detectamos una situación pendiente de regularizar de campañas anteriores. Nuestro equipo se va a comunicar con vos para acompañarte en el proceso.</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_Web_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL web Sembrá Evolución footer mail PPH</shortDescription>
+        <value>http://sembraevolucion.com.ar</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_Instagram_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL Instagram Sembrá Evolución footer mail PPH</shortDescription>
+        <value>http://instagram.com/sembraevolucion/</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_WhatsApp_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL WhatsApp Sembrá Evolución footer mail PPH</shortDescription>
+        <value>https://whatsapp.com/channel/0029VbAXBsT7dmeZIdxa5s16</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_YouTube_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL YouTube Sembrá Evolución footer mail PPH</shortDescription>
+        <value>https://www.youtube.com/@sembraevolucion2030</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_Web_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen Web Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-link-48.png</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_Instagram_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen Instagram Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-instagram-48.png</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_WhatsApp_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen WhatsApp Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-whatsapp-48.png</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_YouTube_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen YouTube Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-youtube-48.png</value>
+    </labels>
+    <labels>
         <fullName>CESION_Destinatarios_Duplicados</fullName>
         <categories>CesionPPH</categories>
         <language>es</language>
