@@ -908,6 +908,46 @@
         <value>https://www.youtube.com/@sembraevolucion2030</value>
     </labels>
     <labels>
+        <fullName>PPH_Social_Web_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen Web Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-link-48.png</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_Instagram_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen Instagram Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-instagram-48.png</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_WhatsApp_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen WhatsApp Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-whatsapp-48.png</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_YouTube_Icon</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL imagen YouTube Sembrá Evolución footer mail PPH</shortDescription>
+        <value
+    >https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-youtube-48.png</value>
+    </labels>
+    <labels>
         <fullName>CESION_Destinatarios_Duplicados</fullName>
         <categories>CesionPPH</categories>
         <language>es</language>
