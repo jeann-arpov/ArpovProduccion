@@ -96,13 +96,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Efectividad__c</fieldItem>
                 <identifier>RecordEfectividad_cField</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.Es_Gestion_de_Caso__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>true</rightValue>
-                    </criteria>
-                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>

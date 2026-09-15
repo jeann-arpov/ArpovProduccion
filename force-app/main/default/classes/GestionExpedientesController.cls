@@ -55,7 +55,7 @@ public with sharing class GestionExpedientesController {
     /**
      * Crea una nueva gestión asociada a Expediente o Caso.
      * En Caso: Operador interno "Caso" (no visible en UI) + respuesta + efectividad.
-     * En Expediente: operador SE/CTV + respuesta filtrada.
+     * En Expediente: operador SE/CTV + respuesta filtrada + efectividad.
      */
     @AuraEnabled
     public static Gestion_Expedientes__c crearGestion(
@@ -77,13 +77,10 @@ public with sharing class GestionExpedientesController {
             Tipo_Gestion__c = tipoGestion,
             Operador__c = esCaso ? OPERADOR_CASO : operador,
             Respuesta__c = respuesta,
-            Comentario__c = comentario
+            Comentario__c = comentario,
+            Efectividad__c = efectividad
         );
         gestion.put(parentField, parentId);
-
-        if (esCaso) {
-            gestion.Efectividad__c = efectividad;
-        }
 
         insert gestion;
 

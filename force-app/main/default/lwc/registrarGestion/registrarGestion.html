@@ -247,17 +247,15 @@
                         class="slds-m-bottom_small">
                     </lightning-combobox>
 
-                    <!-- Efectividad (solo Casos) -->
-                    <template if:true={esCaso}>
-                        <lightning-combobox
-                            label="Efectividad"
-                            value={efectividad}
-                            options={opcionesEfectividad}
-                            onchange={handleEfectividadChange}
-                            required
-                            class="slds-m-bottom_small">
-                        </lightning-combobox>
-                    </template>
+                    <!-- Efectividad (Casos y Expedientes) -->
+                    <lightning-combobox
+                        label="Efectividad"
+                        value={efectividad}
+                        options={opcionesEfectividad}
+                        onchange={handleEfectividadChange}
+                        required
+                        class="slds-m-bottom_small">
+                    </lightning-combobox>
 
                     <!-- Comentario -->
                     <lightning-textarea

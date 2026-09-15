@@ -366,7 +366,7 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
                 operador: this.esCaso ? null : this.operador,
                 respuesta: this.respuesta,
                 comentario: this.comentario,
-                efectividad: this.esCaso ? this.efectividad : null
+                efectividad: this.efectividad
             });
             
             // Refrescar datos desde servidor
@@ -431,7 +431,7 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
             // Agregar propiedades de visualización
             const tipoTimeline = this.obtenerTipoTimeline(gestion.Medio__c);
             const resultadoLabel = (gestion.Respuesta__c || '').replace('_', ' ');
-            const colorResultado = this.esCaso
+            const colorResultado = gestion.Efectividad__c
                 ? this.obtenerColorPorEfectividad(gestion.Efectividad__c)
                 : this.obtenerColorPorRespuesta(gestion.Respuesta__c);
 
@@ -453,7 +453,7 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
                 respuestaFormateada: resultadoLabel,
                 etiquetaResultado: 'Resultado',
                 mostrarOperador: this.esExpediente && !!gestion.Operador__c,
-                mostrarEfectividad: this.esCaso && !!gestion.Efectividad__c,
+                mostrarEfectividad: !!gestion.Efectividad__c,
                 subtitulo: this.obtenerSubtitulo(gestion),
                 expanded: false,
                 expandIcon: 'utility:chevronright',
@@ -656,12 +656,13 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
             return false;
         }
 
+        if (!this.efectividad) {
+            this.mostrarError = true;
+            this.mensajeError = 'Debe seleccionar la efectividad';
+            return false;
+        }
+
         if (this.esCaso) {
-            if (!this.efectividad) {
-                this.mostrarError = true;
-                this.mensajeError = 'Debe seleccionar la efectividad';
-                return false;
-            }
             if (!this.respuesta) {
                 this.mostrarError = true;
                 this.mensajeError = 'Debe seleccionar el tipo de respuesta';

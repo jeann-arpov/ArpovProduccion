@@ -29,7 +29,7 @@ public class GestionExpedientesControllerTest {
 
         Test.startTest();
         Gestion_Expedientes__c gestion = GestionExpedientesController.crearGestion(
-            exp.Id, '1234567890', 'WhatsApp', 'Saliente', 'SE', 'Acopio', 'Test comentario', null
+            exp.Id, '1234567890', 'WhatsApp', 'Saliente', 'SE', 'Acopio', 'Test comentario', 'Efectiva'
         );
         Test.stopTest();
 
@@ -39,7 +39,7 @@ public class GestionExpedientesControllerTest {
         System.assertEquals('Saliente', gestion.Tipo_Gestion__c);
         System.assertEquals('SE', gestion.Operador__c);
         System.assertEquals('Acopio', gestion.Respuesta__c);
-        System.assertEquals(null, gestion.Efectividad__c);
+        System.assertEquals('Efectiva', gestion.Efectividad__c);
 
         Gestion_Expedientes__c guardada = [
             SELECT Expediente_de_Negativos__c, Caso__c
