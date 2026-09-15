@@ -16,7 +16,7 @@
       </td>
     </tr>
     <tr>
-      <td style="padding:24px 28px;color:#202020;font-size:15px;line-height:150%;text-align:left;">
+      <td style="padding:24px 28px;color:#202020;font-size:15px;line-height:150%;text-align:justify;">
         <p>Hola 👋 <strong>{!Plan_de_Siembra__c.Productor_Name__c}</strong></p>
         <p><strong>⚠️ No pudimos completar tu adhesión al PPH</strong></p>
         <p>En esta oportunidad, <strong>no pudimos completar la adhesión de tu {!Plan_de_Siembra__c.Name} al Programa de Precertificación de Hectáreas (PPH)</strong> porque existe una situación pendiente de regularizar correspondiente a campañas anteriores.</p>
