@@ -872,6 +872,42 @@
     >Detectamos una situación pendiente de regularizar de campañas anteriores. Nuestro equipo se va a comunicar con vos para acompañarte en el proceso.</value>
     </labels>
     <labels>
+        <fullName>PPH_Social_Web_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL web Sembrá Evolución footer mail PPH</shortDescription>
+        <value>http://sembraevolucion.com.ar</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_Instagram_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL Instagram Sembrá Evolución footer mail PPH</shortDescription>
+        <value>http://instagram.com/sembraevolucion/</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_WhatsApp_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL WhatsApp Sembrá Evolución footer mail PPH</shortDescription>
+        <value>https://whatsapp.com/channel/0029VbAXBsT7dmeZIdxa5s16</value>
+    </labels>
+    <labels>
+        <fullName>PPH_Social_YouTube_URL</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription
+    >URL YouTube Sembrá Evolución footer mail PPH</shortDescription>
+        <value>https://www.youtube.com/@sembraevolucion2030</value>
+    </labels>
+    <labels>
         <fullName>CESION_Destinatarios_Duplicados</fullName>
         <categories>CesionPPH</categories>
         <language>es</language>

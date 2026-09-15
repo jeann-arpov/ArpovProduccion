@@ -37,10 +37,10 @@
       <td style="padding:16px 28px 24px;border-top:2px solid #222222;text-align:center;">
         <table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
           <tr>
-            <td style="padding:0 8px;"><a href="http://sembraevolucion.com.ar" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-link-48.png" alt="Website" width="24" height="24" style="display:block;border:0;" /></a></td>
-            <td style="padding:0 8px;"><a href="http://instagram.com/sembraevolucion/" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-instagram-48.png" alt="Instagram" width="24" height="24" style="display:block;border:0;" /></a></td>
-            <td style="padding:0 8px;"><a href="https://whatsapp.com/channel/0029VbAXBsT7dmeZIdxa5s16" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-whatsapp-48.png" alt="WhatsApp" width="24" height="24" style="display:block;border:0;" /></a></td>
-            <td style="padding:0 8px;"><a href="https://www.youtube.com/@sembraevolucion2030" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-youtube-48.png" alt="YouTube" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_Web_URL}" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-link-48.png" alt="Website" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_Instagram_URL}" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-instagram-48.png" alt="Instagram" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_WhatsApp_URL}" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-whatsapp-48.png" alt="WhatsApp" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_YouTube_URL}" target="_blank"><img src="https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/gray-youtube-48.png" alt="YouTube" width="24" height="24" style="display:block;border:0;" /></a></td>
           </tr>
         </table>
       </td>
