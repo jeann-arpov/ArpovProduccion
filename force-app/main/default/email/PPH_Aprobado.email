@@ -20,7 +20,7 @@
         <p>Hola 👋 <strong>{!Plan_de_Siembra__c.Productor_Name__c}</strong></p>
         <p><strong>¡Felicitaciones!</strong></p>
         <p>Te confirmamos que tu <strong>{!Plan_de_Siembra__c.Name}</strong> fue adherido correctamente al <strong>Programa de Precertificación de Hectáreas (PPH)</strong>.</p>
-        <p>A partir de ahora podés operar con los <strong>beneficios del PPH para la campaña 2026/27</strong>.</p>
+        <p>A partir de ahora podés operar con los <strong>beneficios del PPH para la campaña {!Plan_de_Siembra__c.Parametro_PPH_Descripcion__c}</strong>.</p>
         <p>Gracias a tu adhesión, vas a poder entregar el grano obtenido sin segregar tecnologías, de acuerdo a:</p>
         <p>• El rendimiento promedio de tu zona<br/>• El plan de siembra informado</p>
         <p>📌 Importante: Tenés la posibilidad de rectificar tu adhesión si realizás cambios en tu plan de siembra.</p>
