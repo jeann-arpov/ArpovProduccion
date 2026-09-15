@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>GestionExpedientesController</members>
+        <members>GestionExpedientesControllerTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>Gestion_Expedientes__c.Caso__c</members>
+        <members>Gestion_Expedientes__c.Efectividad__c</members>
+        <members>Gestion_Expedientes__c.Es_Gestion_de_Caso__c</members>
+        <members>Gestion_Expedientes__c.Es_Gestion_de_Expediente__c</members>
+        <members>Gestion_Expedientes__c.Expediente_de_Negativos__c</members>
+        <members>Gestion_Expedientes__c.Operador__c</members>
+        <members>Gestion_Expedientes__c.Respuesta__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>Gestion_Expedientes__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Case_Record_Page1</members>
+        <members>Caso_P_gina_de_registro</members>
+        <members>Caso_P_gina_de_registro1</members>
+        <members>Caso_P_gina_de_registro2</members>
+        <members>Caso_Regalia_Extendida</members>
+        <members>Caso_Sembra_Evolucion</members>
+        <members>Gestion_Expedientes</members>
+        <name>FlexiPage</name>
+    </types>
+    <types>
+        <members>Gestion_Expedientes__c-Gestión Expedientes Layout</members>
+        <name>Layout</name>
+    </types>
+    <types>
+        <members>registrarGestion</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>Gestion_Expedientes_Acceso</members>
+        <name>PermissionSet</name>
+    </types>
+    <version>65.0</version>
+</Package>

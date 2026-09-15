@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Operador__c</fullName>
-    <label>Operador</label>
+    <fullName>Efectividad__c</fullName>
+    <label>Efectividad</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
@@ -10,19 +10,14 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>SE</fullName>
+                <fullName>Efectiva</fullName>
                 <default>false</default>
-                <label>SE</label>
+                <label>Efectiva</label>
             </value>
             <value>
-                <fullName>CTV</fullName>
+                <fullName>No Efectiva</fullName>
                 <default>false</default>
-                <label>CTV</label>
-            </value>
-            <value>
-                <fullName>Caso</fullName>
-                <default>false</default>
-                <label>Caso</label>
+                <label>No Efectiva</label>
             </value>
         </valueSetDefinition>
     </valueSet>
