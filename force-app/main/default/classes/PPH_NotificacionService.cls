@@ -1,27 +1,6 @@
 public with sharing class PPH_NotificacionService {
   public static final String SENDER_ADDRESS = 'info@sembraevolucion.com.ar';
 
-  public static Messaging.SingleEmailMessage buildMail(
-    String toAddress,
-    String asunto,
-    String cuerpo
-  ) {
-    if (String.isBlank(toAddress)) {
-      return null;
-    }
-
-    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-    mail.setToAddresses(new List<String>{ toAddress });
-    mail.setSubject(asunto);
-    mail.setPlainTextBody(cuerpo);
-
-    OrgWideEmailAddress sender = getSenderEmail();
-    if (sender != null) {
-      mail.setOrgWideEmailAddressId(sender.Id);
-    }
-    return mail;
-  }
-
   public static Messaging.SingleEmailMessage buildTemplateMail(
     String templateDeveloperName,
     Id planId,
