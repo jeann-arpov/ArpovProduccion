@@ -69,6 +69,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     tipoCompraSeleccionado = null;
     cultivoSeleccionadoId = null;
     marcaSearch = '';
+    variedadSearch = '';
     @track variedadCantidades = {};
     @track _lineasListasFlag = false;
     @track guardandoLineas = false;
@@ -1031,6 +1032,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             this.semilleroData = await this.getSemilleroData();
         });
         this.variedadCantidades = {};
+        this.variedadSearch = '';
         this.step = 4;
         trackGa4Event('ht_seleccion_semillero', {
             semillero: resolveSemilleroLabel(this.semilleros, this.semillero, this.semilleroData)
@@ -1074,32 +1076,50 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         return keys.includes(key) || (keyParent != null && keys.includes(keyParent));
     }
 
+    get showVariedadSearch() {
+        return (this.variedades || []).length > 8;
+    }
+
     get decoratedVariedadesPaso4() {
-        return (this.variedades || []).map((entry) => {
-            const rec = entry.record || {};
-            const id = entry.value || rec.Id;
-            const unitPrice = Number(rec.Unit_Price__c ?? rec.UnitPrice ?? 0) || 0;
-            const qty = Number(this.variedadCantidades?.[id] || 0) || 0;
-            const biotech = rec.Product2?.Variedad2__r?.Biotecnologia__c || '';
-            const hasLicencia = this.varietyHasLicencia(biotech);
-            const subtotal = qty * unitPrice;
-            return {
-                id,
-                product2Id: rec.Product2Id || rec.Product2?.Id,
-                name: entry.label || rec.Product2?.Nombre_Comercial__c || 'Variedad',
-                category: biotech || '',
-                unitPrice,
-                qty: hasLicencia ? qty : 0,
-                hasLicencia,
-                showSubtotal: hasLicencia && qty > 0,
-                minusDisabled: qty <= 0,
-                priceLabel: `${this.formatUsd(unitPrice)} / HT`,
-                subtotalLabel: this.formatUsd(subtotal),
-                badgeLabel: hasLicencia ? 'Con Licencia' : 'Sin Licencia',
-                badgeClass: 'se-var-badge ' + (hasLicencia ? 'is-ok' : 'is-warn'),
-                cssClass: 'se-var-card' + (hasLicencia ? '' : ' is-locked')
-            };
-        });
+        const q = (this.variedadSearch || '').trim().toLowerCase();
+        return (this.variedades || [])
+            .map((entry) => {
+                const rec = entry.record || {};
+                const id = entry.value || rec.Id;
+                const unitPrice = Number(rec.Unit_Price__c ?? rec.UnitPrice ?? 0) || 0;
+                const qty = Number(this.variedadCantidades?.[id] || 0) || 0;
+                const biotech = rec.Product2?.Variedad2__r?.Biotecnologia__c || '';
+                const hasLicencia = this.varietyHasLicencia(biotech);
+                const subtotal = qty * unitPrice;
+                const name = entry.label || rec.Product2?.Nombre_Comercial__c || 'Variedad';
+                return {
+                    id,
+                    product2Id: rec.Product2Id || rec.Product2?.Id,
+                    name,
+                    category: biotech || '',
+                    unitPrice,
+                    qty: hasLicencia ? qty : 0,
+                    hasLicencia,
+                    showSubtotal: hasLicencia && qty > 0,
+                    minusDisabled: qty <= 0,
+                    priceLabel: `${this.formatUsd(unitPrice)} / HT`,
+                    subtotalLabel: this.formatUsd(subtotal),
+                    badgeLabel: hasLicencia ? 'Con Licencia' : 'Sin Licencia',
+                    badgeClass: 'se-var-badge ' + (hasLicencia ? 'is-ok' : 'is-warn'),
+                    cssClass: 'se-var-card' + (hasLicencia ? '' : ' is-locked')
+                };
+            })
+            .filter((v) => {
+                if (!q) return true;
+                return (
+                    (v.name && v.name.toLowerCase().includes(q)) ||
+                    (v.category && v.category.toLowerCase().includes(q))
+                );
+            });
+    }
+
+    handleVariedadSearch(event) {
+        this.variedadSearch = event.target.value || '';
     }
 
     setVariedadCantidad(id, rawValue) {
@@ -1241,6 +1261,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     handleVolverPaso5() {
         this.aceptaTerminos = false;
         this.syncVariedadCantidadesFromItems();
+        this.variedadSearch = '';
         this.step = 4;
     }
 

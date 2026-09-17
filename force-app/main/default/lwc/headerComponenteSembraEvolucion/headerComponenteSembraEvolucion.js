@@ -101,7 +101,7 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
         window.addEventListener('keydown', this._onKeydown);
         window.addEventListener('pointerdown', this._onPointerDown);
         if (!this.tokensLoaded) {
-            loadStyle(this, TOKENS)
+            loadStyle(this, `${TOKENS}?v=home-canvas-20260914b`)
                 .then(() => {
                     this.tokensLoaded = true;
                 })

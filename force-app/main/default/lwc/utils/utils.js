@@ -80,9 +80,16 @@ const getRecordsFromForms = (elem) => {
 }
 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import logClientError from '@salesforce/apex/ErrorLogLWCController.logClientError';
+import { NavigationMixin } from 'lightning/navigation';
+import { trackErrorFuncional } from 'c/portalGa4Events';
 
 const errorEvent = (err) => {
+    try {
+        const messages = reduceErrors(err);
+        trackErrorFuncional(err, { messages });
+    } catch (e) {
+        // no bloquear UX por analytics
+    }
     return new ShowToastEvent({
         title: 'Error',
         message: reduceErrors(err).join('\n'),
@@ -98,22 +105,6 @@ const warningEvent = (war) => {
         variant: 'warning',
         mode: 'sticky'
     });
-}
-
-function logAndDisplayError(error, componentName, context = {}) {
-    const userMessage = reduceErrors(error).join('\n');
-    const contextPayload = {
-        ...context,
-        pageUrl: window.location.href,
-        timestamp: new Date().toISOString()
-    };
-    logClientError({
-        errorMessage: userMessage,
-        componentName: componentName,
-        pageUrl: window.location.href,
-        userMessage: userMessage,
-        contextJson: JSON.stringify(contextPayload)
-    }).catch(() => {});
 }
 
 function getPageParameter(name) {
@@ -143,4 +134,26 @@ const formatCuit = (value) => {
     return digits.replace(/^(\d{2})(\d{8})(\d{1})$/, '$1-$2-$3');
 };
 
-export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, logAndDisplayError}
+/**
+ * Redirige a SGL por GET con el token cifrado.
+ * Usa NavigationMixin (Experience Cloud bloquea location.replace en LWC).
+ */
+function redirectToSglWithToken(navContext, actionUrl, token, returnUrl) {
+    if (!actionUrl || !token) {
+        throw new Error('actionUrl y token son requeridos para redirectToSglWithToken');
+    }
+    const url =
+        actionUrl +
+        '?token=' + encodeURIComponent(token) +
+        '&url=' + encodeURIComponent(returnUrl || window.location.href);
+    if (navContext && navContext[NavigationMixin.Navigate]) {
+        navContext[NavigationMixin.Navigate](
+            { type: 'standard__webPage', attributes: { url } },
+            true
+        );
+        return;
+    }
+    window.top.location.href = url;
+}
+
+export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, redirectToSglWithToken}

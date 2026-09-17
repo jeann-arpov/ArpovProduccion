@@ -60,34 +60,6 @@ body.se-chrome {
     line-height: 1;
   }
 
-  /* Home: header + hero + contacto en una pantalla, sin scroll fantasma del theme. */
-  html.se-chrome.se-home,
-  body.se-chrome.se-home {
-    height: 100dvh;
-    max-height: 100dvh;
-    overflow: hidden;
-  }
-
-  /* Home desktop: contacto fijo al borde inferior; el campo llena el resto. */
-  html.se-chrome.se-home c-footer-contact,
-  html.se-chrome.se-home c-se-footer-contact {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    z-index: 270;
-    width: 100% !important;
-    max-width: none !important;
-    height: auto !important;
-  }
-
-  .se-chrome.se-home .comm-page-content,
-  .se-chrome.se-home .lwr-main,
-  .se-chrome.se-home main,
-  .se-chrome.se-home [data-region="content"] {
-    min-height: calc(100dvh - 112px) !important;
-    overflow: hidden;
-  }
 }
 
 /* El theme de Community estira el pie a 100vh: el contacto queda arriba y el resto es hueco negro. */
@@ -155,6 +127,88 @@ body.se-chrome {
 
 body.se-drawer-open {
   overflow: hidden;
+}
+
+/* —— Home v3: canvas claro LSG (#eef1f7), sin imagen del theme —— */
+html.se-chrome.se-home {
+  height: auto !important;
+  min-height: 100% !important;
+  background: #eef1f7 !important;
+  background-image: none !important;
+}
+
+body.se-chrome.se-home {
+  min-height: 100% !important;
+  min-height: 100dvh !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: auto !important;
+  background: #eef1f7 !important;
+  background-image: none !important;
+  background-size: auto !important;
+  background-attachment: scroll !important;
+}
+
+body.se-chrome.se-home #ServiceCommunityTemplate,
+body.se-chrome.se-home .siteforceServiceBody,
+body.se-chrome.se-home .cViewPanel.siteforceServiceBody,
+body.se-chrome.se-home .cCenterPanel,
+body.se-chrome.se-home [role="main"].cCenterPanel,
+body.se-chrome.se-home .cCenterPanel .comm-page-content,
+body.se-chrome.se-home .cCenterPanel [data-region="content"],
+body.se-chrome.se-home .cCenterPanel .siteforceContentArea,
+body.se-chrome.se-home .cCenterPanel .lwr-main,
+body.se-chrome.se-home .cCenterPanel main,
+html.se-chrome.se-home .comm-page-content,
+html.se-chrome.se-home .lwr-main,
+html.se-chrome.se-home main,
+html.se-chrome.se-home [data-region="content"] {
+  background: #eef1f7 !important;
+  background-image: none !important;
+  background-size: auto !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  float: none !important;
+  box-sizing: border-box !important;
+}
+
+body.se-chrome.se-home .cCenterPanel::before,
+body.se-chrome.se-home .cCenterPanel::after,
+body.se-chrome.se-home .siteforceServiceBody::before,
+body.se-chrome.se-home .siteforceServiceBody::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+body.se-chrome.se-home .forceCommunitySection,
+body.se-chrome.se-home .cb-section,
+body.se-chrome.se-home .cb-section_column,
+body.se-chrome.se-home .forceCommunityThemeHeroBase,
+body.se-chrome.se-home .themeBackgroundImage,
+body.se-chrome.se-home .comm-page-home {
+  background: #eef1f7 none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+html.se-chrome.se-home c-footer-contact,
+html.se-chrome.se-home c-se-footer-contact,
+body.se-chrome.se-home c-footer-contact,
+body.se-chrome.se-home c-se-footer-contact {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: auto;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
 }
 
 /* —— Inner pages: empujar footer ——

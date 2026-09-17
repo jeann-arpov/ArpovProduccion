@@ -15,6 +15,10 @@ export default class SeDataList extends LightningElement {
     @api mobileActionLabel = 'Ver →';
     @api emptyText = 'No hay registros para mostrar.';
     @api actionDisabledField = 'actionDisabled';
+    /** Si hay mensaje (ej. período finalizado), reemplaza el CTA por el texto. */
+    @api actionDisabledMessageField = '';
+    /** Label del CTA por fila en desktop (ej. Adherir / Abrir). */
+    @api actionLabelField = '';
     /** Si está definido, usa el label por fila en mobile (ej. "Continuar adhesión →"). */
     @api mobileActionLabelField = '';
     /** Campo por fila: "primary" | "ghost" | "link" para el CTA mobile. */
@@ -85,14 +89,26 @@ export default class SeDataList extends LightningElement {
             const key = String(record[this.keyField] ?? '');
             const tone = record[this.badgeToneField] || 'info';
             const actionDisabled = Boolean(record[this.actionDisabledField]);
-            const mobileActionLabel = this.mobileActionLabelField
+            const disabledMessage = this.actionDisabledMessageField
+                ? String(record[this.actionDisabledMessageField] || '').trim()
+                : '';
+            const showDisabledMessage = actionDisabled && Boolean(disabledMessage);
+            const rowActionLabel = this.actionLabelField
+                ? record[this.actionLabelField] || this.actionLabel
+                : this.actionLabel;
+            let mobileActionLabel = this.mobileActionLabelField
                 ? record[this.mobileActionLabelField] || this.mobileActionLabel
                 : this.mobileActionLabel;
+            if (showDisabledMessage) {
+                mobileActionLabel = disabledMessage;
+            }
             const mobileVariant = this.mobileActionVariantField
                 ? record[this.mobileActionVariantField] || this.mobileActionVariant
                 : this.mobileActionVariant;
             let mobileActionClass = 'lic-more lic-more--primary';
-            if (mobileVariant === 'ghost') {
+            if (showDisabledMessage) {
+                mobileActionClass = 'lic-more lic-more--disabled-msg';
+            } else if (mobileVariant === 'ghost') {
                 mobileActionClass = 'lic-more lic-more--ghost';
             } else if (mobileVariant === 'link') {
                 mobileActionClass = 'lic-more lic-more--link';
@@ -105,6 +121,8 @@ export default class SeDataList extends LightningElement {
                 badgeLabel: record[this.badgeField],
                 badgeClass: `badge ${tone}`,
                 actionDisabled,
+                showDisabledMessage,
+                disabledMessage,
                 mobileActionLabel,
                 mobileActionClass,
                 cells: columns.map((col, index) => {
@@ -115,6 +133,7 @@ export default class SeDataList extends LightningElement {
                     const rawValue = record[col.fieldName];
                     const mailtoHref =
                         type === 'mailto' && rawValue ? `mailto:${String(rawValue).trim()}` : '';
+                    const isAction = type === 'action';
                     return {
                         key: `${key}-c${index}`,
                         value: rawValue,
@@ -122,7 +141,8 @@ export default class SeDataList extends LightningElement {
                         isMailto: type === 'mailto' && Boolean(mailtoHref),
                         mailtoHref,
                         isBadge: type === 'badge',
-                        isAction: type === 'action',
+                        isAction: isAction && !showDisabledMessage,
+                        isActionMessage: isAction && showDisabledMessage,
                         isText: type === 'text' && !isAmount && !isStrong && !isAccent,
                         isAmount,
                         isStrong,
@@ -134,8 +154,14 @@ export default class SeDataList extends LightningElement {
                             type === 'badge'
                                 ? `badge ${record[col.toneField || this.badgeToneField] || 'info'}`
                                 : '',
-                        actionLabel: col.actionLabel || this.actionLabel,
-                        tdClass: type === 'action' ? 'td-action' : ''
+                        actionLabel: rowActionLabel || col.actionLabel || this.actionLabel,
+                        actionMessage: disabledMessage,
+                        tdClass:
+                            type === 'action'
+                                ? showDisabledMessage
+                                    ? 'td-action td-action--msg'
+                                    : 'td-action'
+                                : ''
                     };
                 }),
                 fields: mobileFields

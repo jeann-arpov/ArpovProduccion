@@ -53,7 +53,7 @@ export default class SeLogin extends LightningElement {
         return this.isProductorPortal ? 'se-login-root se-login-root--gradient' : 'se-login-root';
     }
 
-    get backgroundStyle() {
+     get backgroundStyle() {
         if (this.isProductorPortal) {
             return '';
         }

@@ -11,61 +11,257 @@
         confirm-label=""
     ></c-one-time-popup>
 
-    <div class="bienvenida-container">
-        <!-- Texto izquierda -->
-        <div class="bienvenida-texto">
-                <h1>Sembrá Evolución, donde tenés que estar.</h1>
+    <div class="home-shell">
+        <div class={homeContentClass}>
+    <div class="home">
+        <header class="home-head">
+            <div class="home-head-text">
+                <p class="home-eyebrow">{greeting}</p>
+                <h1 class="home-title">Tus cultivos</h1>
+            </div>
+            <button type="button" class="home-btn home-btn-dark home-filters-btn" onclick={toggleFilters}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M3 6h18M6 12h12M10 18h4"></path>
+                </svg>
+                Filtros
+                <span class="home-filter-count">{filterCount}</span>
+                <svg class="home-filter-chevron se-desk-only" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6"></path>
+                </svg>
+            </button>
+        </header>
+
+        <section class={filtersPanelClass} aria-label="Filtros">
+            <div class="home-filters-top">
+                <span class="home-filters-title">Filtros</span>
+                <span class="home-filters-hint">Aplican a las 3 sub-secciones de cada cultivo.</span>
+                <a href="#" class="home-link-muted" onclick={clearFilters}>Limpiar</a>
+                <button type="button" class="home-btn home-btn-ghost" onclick={closeFilters}>Cerrar</button>
+            </div>
+            <div class="home-filters-grid">
+                <div>
+                    <p class="home-filters-label">Cultivo</p>
+                    <template for:each={filterOptions} for:item="opt">
+                        <label key={opt.id} class="home-chk">
+                            <input type="checkbox" checked={opt.checked} data-id={opt.id} onchange={toggleCultivoFilter} />
+                            <span>{opt.label}</span>
+                        </label>
+                    </template>
+                </div>
+                <div>
+                    <p class="home-filters-label">Campaña</p>
+                    <span class="home-camp-chip">25/26</span>
+                    <p class="home-filters-hint" style="margin-top:12px">Única campaña disponible en el tablero por ahora.</p>
+                </div>
+                <div>
+                    <p class="home-filters-label">Sub-secciones</p>
+                    <template for:each={sectionOptions} for:item="sec">
+                        <label key={sec.id} class="home-chk">
+                            <input type="checkbox" checked={sec.checked} data-id={sec.id} onchange={toggleSectionFilter} />
+                            <span>{sec.label}</span>
+                        </label>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <div class={filtersSheetClass} role="dialog" aria-modal="true">
+            <div class="home-filters-scrim" onclick={closeFilters}></div>
+            <div class="home-filters-sheet-panel">
+                <div class="home-filters-top">
+                    <span class="home-filters-title" style="text-transform:none;letter-spacing:0;font-size:16px">Filtros</span>
+                    <a href="#" class="home-link-muted" onclick={clearFilters}>Limpiar</a>
+                    <button type="button" class="home-icon-close" aria-label="Cerrar filtros" onclick={closeFilters}>×</button>
+                </div>
+                <p class="home-filters-label">Cultivo</p>
+                <template for:each={filterOptions} for:item="opt">
+                    <label key={opt.id} class="home-chk">
+                        <input type="checkbox" checked={opt.checked} data-id={opt.id} onchange={toggleCultivoFilter} />
+                        <span>{opt.label}</span>
+                    </label>
+                </template>
+                <p class="home-filters-label" style="margin-top:12px">Campaña</p>
+                <span class="home-camp-chip">25/26</span>
+                <p class="home-filters-hint" style="margin-top:8px">Única campaña disponible en el tablero por ahora.</p>
+                <p class="home-filters-label" style="margin-top:12px">Sub-secciones</p>
+                <template for:each={sectionOptions} for:item="sec">
+                    <label key={sec.id} class="home-chk">
+                        <input type="checkbox" checked={sec.checked} data-id={sec.id} onchange={toggleSectionFilter} />
+                        <span>{sec.label}</span>
+                    </label>
+                </template>
+                <button type="button" class="home-btn home-btn-primary home-btn-block" onclick={closeFilters}>Aplicar filtros</button>
+            </div>
         </div>
 
-        <!-- Dashboard derecha -->
-        <div class="dashboard-container">
-            <template if:true={tarjetasHT}>
-                <template for:each={tarjetasHT} for:item="t">
-                    <div key={t.cultivo.Id} class="card ventas-card short-card">
-                        <!-- Título cultivo -->
-                        <h2 class="card-title">{t.cultivo.Name}</h2>
+        <div class="home-crops">
+            <template for:each={visibleCrops} for:item="crop">
+                <article key={crop.id} class="home-crop">
+                    <header class="home-crop-head">
+                        <span class="home-crop-icon" aria-hidden="true">
+                            <img src={crop.iconUrl} alt="" />
+                        </span>
+                        <h2 class="home-crop-name">{crop.name}</h2>
+                    </header>
 
-                        <!-- Métrica saldo -->
-                        <div class="licencias-metrics">
-                            <div class="metric-vt">
-                                <div class="metric-value">{t.saldoHTs}</div>
-                                <div class="metric-label green">
-                                    HT <template if:false={t.isAdherido}>Futuras</template>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Si está adherido -->
-                        <template if:true={t.isAdherido}>
-                            <div class="info-adherido">
-                                <div style="font-size:x-large;color:#bfff00;">
-                                    PPH
-                                    <lightning-icon class="icono-adherido" size="x-small" icon-name="action:approval"></lightning-icon>
-                                </div>
-                                <div style="color: #767171;">
-                                    Adherido al programa de Precertificación
-                                </div>
-                            </div>
-                        </template>
-
-                        <!-- Si no está adherido -->
-                        <template if:false={t.isAdherido}>
-                            <div class="action-button-container">
-                                <button class="primary-button" onclick={doAction} data-id={t.cultivo.Id}>
-                                    {t.buttonLabel}
-                                </button>
-                            </div>
-                        </template>
-
-                        <!-- Footer 
-                        <div class="footer">
-                            <span onclick={redirectToCC} data-id={t.cultivo.Id}>
-                                Ver Cuenta Corriente &gt;
+                    <template if:true={crop.hasFase}>
+                        <div class={crop.faseStripClass}>
+                            <span class="home-phase-ic" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                    <path d="M16 2v4M8 2v4M3 10h18"></path>
+                                </svg>
                             </span>
-                        </div>link -->
-                    </div>
-                </template>
+                            <span class="home-phase-pill">{crop.faseLabel}</span>
+                            <span class="home-phase-hito">{crop.faseHitoFull}</span>
+                        </div>
+                    </template>
+
+                    <template if:true={crop.showHt}>
+                        <section class="home-sub">
+                            <div class="home-subhead">
+                                <span class="home-num">1</span>
+                                <span class="home-sub-title">Hectárea Tecnológica</span>
+                                <button type="button" class="home-cta-btn se-desk-only" onclick={goMovimientos}>Ver movimientos →</button>
+                            </div>
+                            <div class="home-stat">
+                                <p class="home-stat-label">HT adquirida</p>
+                                <p class="home-stat-value">{crop.htAdquiridaLabel}</p>
+                            </div>
+                            <div class="home-cta-row">
+                                <button type="button" class="home-btn home-btn-primary home-btn-block-mob" onclick={goCompraHT}>{crop.buyLabel}</button>
+                                <span class="home-note">{crop.buyNote}</span>
+                            </div>
+                        </section>
+                    </template>
+
+                    <template if:true={crop.showPph}>
+                        <section class="home-sub">
+                            <div class="home-subhead">
+                                <span class="home-num">2</span>
+                                <span class="home-sub-title">PPH</span>
+                                <span class={crop.pphStatusClass}>{crop.pphStatus}</span>
+                                <template if:true={crop.isAdherido}>
+                                    <svg class="home-cucarda se-desk-only" width="70" height="70" viewBox="0 0 100 100" fill="none" aria-label="Cucarda PPH">
+                                        <rect x="42" y="0" width="16" height="14" fill="#bfff00"></rect>
+                                        <rect x="8" y="8" width="84" height="42" rx="21" stroke="#bfff00" stroke-width="6" fill="none"></rect>
+                                        <text x="50" y="36" font-family="Montserrat, sans-serif" font-weight="800" font-size="18" letter-spacing="1" fill="#bfff00" text-anchor="middle">PPH</text>
+                                        <polygon points="34,50 66,50 66,96 50,80 34,96" fill="#bfff00"></polygon>
+                                    </svg>
+                                    <button type="button" class="home-cta-link se-desk-only" data-id={crop.id} onclick={goPph}>Ver detalle de PPH →</button>
+                                </template>
+                            </div>
+
+                            <template if:true={crop.isAdherido}>
+                                <div class="home-stat se-mob-only home-stat-status">
+                                    <p class="home-stat-label">Estado de PPH</p>
+                                    <div class="home-status-row">
+                                        <span class={crop.pphStatusClass}>{crop.pphStatus}</span>
+                                        <svg class="home-cucarda" width="70" height="70" viewBox="0 0 100 100" fill="none" aria-label="Cucarda PPH">
+                                            <rect x="42" y="0" width="16" height="14" fill="#bfff00"></rect>
+                                            <rect x="8" y="8" width="84" height="42" rx="21" stroke="#bfff00" stroke-width="6" fill="none"></rect>
+                                            <text x="50" y="36" font-family="Montserrat, sans-serif" font-weight="800" font-size="18" letter-spacing="1" fill="#bfff00" text-anchor="middle">PPH</text>
+                                            <polygon points="34,50 66,50 66,96 50,80 34,96" fill="#bfff00"></polygon>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="home-stat-grid se-desk-only">
+                                    <div class="home-stat">
+                                        <p class="home-stat-label">Hectáreas precertificadas</p>
+                                        <p class="home-stat-value">{crop.pphHaLabel}</p>
+                                    </div>
+                                    <div class="home-stat">
+                                        <p class="home-stat-label">Establecimientos</p>
+                                        <p class="home-stat-value is-white">{crop.pphEstLabel}</p>
+                                    </div>
+                                    <div class="home-benefit">
+                                        <p class="home-benefit-lead">Beneficios</p>
+                                        <p>· La posibilidad de entregar toda la producción, sin necesidad de segregar tecnologías en la cosecha.</p>
+                                        <p>· Posibilidad de entregar el total de la producción, sin pagos adicionales.</p>
+                                    </div>
+                                </div>
+                                <div class="home-benefit se-mob-only">
+                                    <p class="home-benefit-lead">Beneficios</p>
+                                    <p>· La posibilidad de entregar toda la producción, sin necesidad de segregar tecnologías en la cosecha.</p>
+                                    <p>· Posibilidad de entregar el total de la producción, sin pagos adicionales.</p>
+                                </div>
+                            </template>
+
+                            <template if:false={crop.isAdherido}>
+                                <div class="home-stat se-mob-only home-stat-status">
+                                    <p class="home-stat-label">Estado de PPH</p>
+                                    <span class={crop.pphStatusClass}>{crop.pphStatus}</span>
+                                </div>
+                                <div class={crop.cgMsgClass}>
+                                    <span class="home-cg-ic" aria-hidden="true">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A1.5 1.5 0 003.4 20.5h17.2a1.5 1.5 0 001.29-2.46L13.71 3.86a1.5 1.5 0 00-2.42 0z"></path>
+                                        </svg>
+                                    </span>
+                                    <span class="home-cg-txt">{crop.pphDescription}</span>
+                                    <template if:true={crop.pphCtaLabel}>
+                                        <button type="button" class="home-btn home-btn-primary" data-id={crop.id} onclick={goPph}>{crop.pphCtaLabel}</button>
+                                    </template>
+                                </div>
+                                <div class="home-benefit">
+                                    <p class="home-benefit-lead">Beneficios</p>
+                                    <p>· La posibilidad de entregar toda la producción, sin necesidad de segregar tecnologías en la cosecha.</p>
+                                    <p>· Posibilidad de entregar el total de la producción, sin pagos adicionales.</p>
+                                </div>
+                            </template>
+                        </section>
+                    </template>
+
+                    <template if:true={crop.showCg}>
+                        <section class="home-sub">
+                            <div class="home-subhead">
+                                <span class="home-num">3</span>
+                                <span class="home-sub-title">Cuenta Granaria</span>
+                                <span class={crop.cgIconClass} aria-hidden="true">
+                                    <template if:true={crop.cgNeedsRegularizar}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A1.5 1.5 0 003.4 20.5h17.2a1.5 1.5 0 001.29-2.46L13.71 3.86a1.5 1.5 0 00-2.42 0z"></path>
+                                        </svg>
+                                    </template>
+                                    <template if:false={crop.cgNeedsRegularizar}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 6L9 17l-5-5"></path>
+                                        </svg>
+                                    </template>
+                                </span>
+                            </div>
+                            <div class={crop.cgMsgClass}>
+                                <span class="home-cg-ic se-desk-only" aria-hidden="true">
+                                    <template if:true={crop.cgNeedsRegularizar}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A1.5 1.5 0 003.4 20.5h17.2a1.5 1.5 0 001.29-2.46L13.71 3.86a1.5 1.5 0 00-2.42 0z"></path>
+                                        </svg>
+                                    </template>
+                                    <template if:false={crop.cgNeedsRegularizar}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 6L9 17l-5-5"></path>
+                                        </svg>
+                                    </template>
+                                </span>
+                                <template if:true={crop.cgNeedsRegularizar}>
+                                    <span class="home-cg-txt">Tu Cuenta Granaria de <strong>campañas pasadas</strong> necesita <strong>regularizar toneladas</strong>.</span>
+                                </template>
+                                <template if:false={crop.cgNeedsRegularizar}>
+                                    <span class="home-cg-txt">Tu Cuenta Granaria de <strong>campañas pasadas</strong> se encuentra <strong>en regla</strong>.</span>
+                                </template>
+                                <button type="button" class="home-btn home-btn-outline home-btn-block-mob" onclick={goCuentaGranaria}>Ver Cuenta Granaria →</button>
+                            </div>
+                        </section>
+                    </template>
+                </article>
             </template>
         </div>
+    </div>
+        </div>
+        <template if:true={loading}>
+            <div class="home-veil" role="status" aria-busy="true" aria-label="Cargando">
+                <c-se-brand-loader></c-se-brand-loader>
+            </div>
+        </template>
     </div>
 </template>

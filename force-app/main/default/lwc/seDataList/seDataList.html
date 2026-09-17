@@ -74,6 +74,9 @@
                                                 {cell.actionLabel}
                                             </button>
                                         </template>
+                                        <template if:true={cell.isActionMessage}>
+                                            <span class="action-msg">{cell.actionMessage}</span>
+                                        </template>
                                         <template if:true={cell.isAmount}>
                                             <span class={cell.amountClass}>{cell.value}</span>
                                         </template>
@@ -113,9 +116,14 @@
                             </template>
                         </div>
                         <template if:false={hideMobileAction}>
-                            <button class={row.mobileActionClass} type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
-                                {row.mobileActionLabel}
-                            </button>
+                            <template if:true={row.showDisabledMessage}>
+                                <p class="action-msg action-msg--mobile">{row.disabledMessage}</p>
+                            </template>
+                            <template if:false={row.showDisabledMessage}>
+                                <button class={row.mobileActionClass} type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                                    {row.mobileActionLabel}
+                                </button>
+                            </template>
                         </template>
                     </article>
                 </template>

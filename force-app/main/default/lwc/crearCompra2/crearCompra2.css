@@ -694,8 +694,8 @@
 .se-var-qty-input {
     appearance: textfield;
     -moz-appearance: textfield;
-    width: 64px;
-    min-width: 64px;
+    width: 96px;
+    min-width: 96px;
     padding: 4px 6px;
     border: 1.5px solid #e5e7eb;
     border-radius: 10px;

@@ -45,6 +45,28 @@
     white-space: nowrap;
 }
 
+.td-action--msg {
+    text-align: center;
+    white-space: normal;
+}
+
+.action-msg {
+    display: inline-block;
+    max-width: 220px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #6b7280;
+    text-align: center;
+    white-space: normal;
+}
+
+.action-msg--mobile {
+    max-width: none;
+    margin: 12px 0 0;
+    text-align: center;
+}
+
 .link {
     appearance: none;
     background: none;
