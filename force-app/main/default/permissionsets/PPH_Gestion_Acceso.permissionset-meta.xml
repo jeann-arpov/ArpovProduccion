@@ -17,7 +17,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Plan_de_Siembra__c.Mail_Criterio_03_Enviado__c</field>
+        <field>Plan_de_Siembra__c.Estado__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
