@@ -1,59 +1,110 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">ESTABLECIMIENTOS</div>
-                <div class="title">Todos los Establecimientos</div>
-            </div>
+    <c-se-list-page loading={loading}>
+        <header slot="header" class="est-header">
+            <div class="se-desk-only est-header-desk">
+                <p class="eyebrow">Perfil / Establecimientos</p>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                
-                    <!-- <select data-id="NameSelect" onchange={handleNameSelect}>
-                        <option value="">Nombre del Establecimiento</option>
-                        <template for:each={Name} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select> -->
+                <div class="est-top-row">
+                    <div class="est-title-copy">
+                        <h1 class="title">Establecimientos</h1>
+                        <p class="subtitle">
+                            Los campos que declarás acá se usan para PPH, entregas de semilla y reportes de precertificación.
+                        </p>
+                    </div>
+                    <div class="est-actions">
+                        <c-se-select
+                            options={estadoSelectOptions}
+                            value={statusFilter}
+                            placeholder="Todos los estados"
+                            onchange={handleEstadoChange}
+                        ></c-se-select>
+                        <c-se-select
+                            options={cultivoSelectOptions}
+                            value={cultivoFilter}
+                            placeholder="Todos los cultivos"
+                            onchange={handleCultivoChange}
+                        ></c-se-select>
+                        <button type="button" class="est-btn est-btn-primary" onclick={handleNewEstablecimiento}>
+                            + Nuevo establecimiento
+                        </button>
+                    </div>
+                </div>
+
+                <div class="est-meta-row">
+                    <p class="est-meta">{listMetaLabel}</p>
+                    <div class="est-meta-right">
+                        <label class="est-search">
+                            <span class="sr-only">Buscar</span>
+                            <input
+                                type="search"
+                                placeholder="Buscar por nombre o localidad…"
+                                value={searchKey}
+                                oninput={handleSearchChange}
+                            />
+                        </label>
+                        <button type="button" class="est-btn est-btn-ghost" onclick={handleOpenMapa}>
+                            Ver mapa
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emision • <br>
-                Filtrado por todos los establecimientos • Se actualizó hace una hora
+            <div class="se-mob-only est-header-mob">
+                <c-se-page-header
+                    eyebrow-mobile="Perfil"
+                    title="Establecimientos"
+                    show-search
+                    search-placeholder="Buscar por nombre o localidad…"
+                    onsearchchange={handleSearchChange}
+                ></c-se-page-header>
+                <div class="est-mob-filters">
+                    <c-se-select
+                        inline
+                        options={estadoSelectOptions}
+                        value={statusFilter}
+                        placeholder="Estado"
+                        onchange={handleEstadoChange}
+                    ></c-se-select>
+                    <c-se-select
+                        inline
+                        options={cultivoSelectOptions}
+                        value={cultivoFilter}
+                        placeholder="Cultivo"
+                        onchange={handleCultivoChange}
+                    ></c-se-select>
+                </div>
             </div>
+        </header>
 
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">🔍</span>
-            </div>
+        <c-se-data-list
+            records={filtered}
+            columns={columns}
+            mobile-fields={mobileFields}
+            title-field="title"
+            badge-field="statusLabel"
+            badge-tone-field="statusTone"
+            key-field="id"
+            action-label="Ver detalle"
+            mobile-action-label="Ver detalle →"
+            empty-text="No hay establecimientos para mostrar."
+            page-size={pageSize}
+            loading={loading}
+            onrowaction={handleRowAction}
+        ></c-se-data-list>
+
+        <div slot="pager" class="est-footer se-desk-only">
+            <p class="est-footer-copy" if:true={showFooterSummary}>{footerSummaryLabel}</p>
         </div>
+    </c-se-list-page>
 
-        <!-- Tabla -->
-         <lightning-datatable
-                key-field="uniqueId"
-                class="dataTable"
-                data={filteredEstablecimientos}
-                columns={columns}
-                onrowaction={handleRowAction}
-                onsort={handleOnSort}
-                sorted-by={sortBy}
-                sorted-direction={sortDirection}
-                column-widths-mode="auto"
-                resize-column-disabled
-                hide-checkbox-column>
-            </lightning-datatable>
-
-      
-            <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
-        </div> 
-    
+    <div class="est-mob-actions se-mob-only">
+        <button type="button" class="est-btn est-btn-ghost" onclick={handleOpenMapa}>
+            Ver mapa
+        </button>
+        <button type="button" class="est-btn est-btn-primary" onclick={handleNewEstablecimiento}>
+            + Nuevo
+        </button>
     </div>
+
+    <c-establecimientos-map hide-chrome onsaved={handleEstablecimientoSaved}></c-establecimientos-map>
 </template>

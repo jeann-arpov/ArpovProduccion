@@ -1,8 +1,22 @@
 @isTest
 public class EstablecimientosMapTest {
-    
-    @isTest static void test(){
 
+    private class NominatimMock implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setHeader('Content-Type', 'application/json');
+            res.setStatusCode(200);
+            res.setBody(
+                '{"display_name":"Béccar, Partido de San Isidro, Buenos Aires, Argentina",' +
+                    '"address":{"town":"Béccar","state_district":"Partido de San Isidro",' +
+                    '"state":"Buenos Aires","country":"Argentina","country_code":"ar"}}'
+            );
+            return res;
+        }
+    }
+
+    @isTest
+    static void test() {
         Account productor = Test_TestUtils.crearProductor();
 
         Establecimiento__c establecimiento = new Establecimiento__c();
@@ -16,7 +30,8 @@ public class EstablecimientosMapTest {
 
         System.assertEquals(1, EstablecimientosMap.getEstablecimientos().size());
     }
-     @isTest
+
+    @isTest
     static void testGetAccountId() {
         Account acc = Test_TestUtils.crearProductor();
 
@@ -31,9 +46,8 @@ public class EstablecimientosMapTest {
 
         insert contact;
 
-        // Crear un usuario vinculado a esa cuenta
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
-        
+
         User communityUser = new User(
             Username = 'juan.perez+' + System.currentTimeMillis() + '@example.com',
             Alias = 'jperez',
@@ -63,24 +77,60 @@ public class EstablecimientosMapTest {
 
     @isTest
     static void testInsertEstablecimiento() {
-        // Crear datos simulados
         Map<String, Object> fieldMap = new Map<String, Object>{
             'Name' => 'Farmacia Central',
             'Coordenadas__Latitude__s' => -20.0,
             'Coordenadas__Longitude__s' => -30.0,
             'Vigente__c' => true,
-            'Origen__c'=> 'Propio'
+            'Origen__c' => 'Propio'
         };
+
+        Test.setMock(HttpCalloutMock.class, new NominatimMock());
 
         Test.startTest();
         String resultado = EstablecimientosMap.insertEstablecimiento(fieldMap);
         Test.stopTest();
 
-        // Validar resultado
-        System.assertEquals('Nuevo Establecimiento creado con exito', resultado, 'El establecimiento debe crearse correctamente');
+        System.assertEquals(
+            'Nuevo Establecimiento creado con exito',
+            resultado,
+            'El establecimiento debe crearse correctamente'
+        );
 
-        // Validar que el registro fue insertado
-        List<Establecimiento__c> establecimientos = [SELECT Id, Name FROM Establecimiento__c WHERE Name = 'Farmacia Central'];
+        List<Establecimiento__c> establecimientos = [
+            SELECT Id, Name
+            FROM Establecimiento__c
+            WHERE Name = 'Farmacia Central'
+        ];
         System.assertEquals(1, establecimientos.size(), 'Debe existir un establecimiento con el nombre especificado');
+    }
+
+    @isTest
+    static void testResolveLocalidadBeccar() {
+        Provincia__c prov = new Provincia__c(Name = 'BUENOS AIRES');
+        insert prov;
+
+        Partido__c partido = new Partido__c(Name = 'SAN ISIDRO', Provincia__c = prov.Id);
+        insert partido;
+
+        Localidad__c loc = new Localidad__c(
+            Name = 'BECCAR',
+            Provincia__c = prov.Id,
+            Partido__c = partido.Id
+        );
+        insert loc;
+
+        // Otra BECCAR en otra provincia: no debe ganar
+        Provincia__c otraProv = new Provincia__c(Name = 'CORDOBA');
+        insert otraProv;
+        insert new Localidad__c(Name = 'BECCAR', Provincia__c = otraProv.Id);
+
+        Test.setMock(HttpCalloutMock.class, new NominatimMock());
+
+        Test.startTest();
+        Id resolved = EstablecimientosMap.resolveLocalidadId(-34.467769, -58.540158);
+        Test.stopTest();
+
+        System.assertEquals(loc.Id, resolved, 'Debe matchear Localidad BECCAR + BUENOS AIRES + SAN ISIDRO');
     }
 }

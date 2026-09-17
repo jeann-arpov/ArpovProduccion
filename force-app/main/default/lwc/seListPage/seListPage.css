@@ -10,7 +10,7 @@
 
 .page {
     position: relative;
-    max-width: 1120px;
+    max-width: 1600px;
     margin: 0 auto;
 }
 
@@ -31,16 +31,6 @@
     min-height: 220px;
 }
 
-.pulse-logo {
-    position: relative;
-    z-index: 1;
-    width: 112px;
-    height: auto;
-    max-width: 40vw;
-    animation: se-logo-float 2.4s ease-in-out infinite;
-    pointer-events: none;
-}
-
 /* Halo lima suave detrás del logo */
 .veil::before {
     content: "";
@@ -52,26 +42,12 @@
     border-radius: 50%;
     background: radial-gradient(
         circle,
-        rgba(191, 255, 0, 0.35) 0%,
-        rgba(191, 255, 0, 0.12) 42%,
+        rgba(191, 255, 0, 0.28) 0%,
+        rgba(191, 255, 0, 0.1) 42%,
         transparent 70%
     );
     animation: se-logo-glow 2.4s ease-in-out infinite;
     pointer-events: none;
-}
-
-@keyframes se-logo-float {
-    0%,
-    100% {
-        transform: translateY(0);
-        opacity: 0.92;
-        filter: drop-shadow(0 2px 8px rgba(28, 28, 28, 0.08));
-    }
-    50% {
-        transform: translateY(-6px);
-        opacity: 1;
-        filter: drop-shadow(0 8px 18px rgba(28, 28, 28, 0.14));
-    }
 }
 
 @keyframes se-logo-glow {

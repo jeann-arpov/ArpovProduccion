@@ -1,168 +1,252 @@
-import { LightningElement, track, api } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import getEstablecimientos from '@salesforce/apex/misEstablecimientosController.getEstablecimientos';
-import {reduceErrors} from 'c/utils';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { doRequest } from 'c/utils';
-import icons from 'c/icons';
 
-const COLUMNS = [
-    {
-      label: 'NOMBRE DEL ESTABLECIMIENTO',
-      fieldName: 'link',
-      type: 'url',
-      typeAttributes: {
-        label: { fieldName: 'Name' },
-        target: '_self'
-      }
-    },
-    {label: 'COORDENADAS(LATITUD)', fieldName: 'Coordenadas__Latitude__s', fixedWidth: 400, hideDefaultActions: true},
-    {label: 'COORDENADAS(LONGITUD)', fieldName: 'Coordenadas__Longitude__s', fixedWidth: 400, hideDefaultActions: true}
-];
+const PAGE_SIZE = 200;
+
+function formatHa(value) {
+    if (value == null || value === '') return '—';
+    const n = Number(value);
+    if (Number.isNaN(n)) return '—';
+    return `${new Intl.NumberFormat('es-AR', { maximumFractionDigits: 2 }).format(n)} ha`;
+}
+
+function formatCoord(value) {
+    if (value == null || value === '') return '—';
+    const n = Number(value);
+    if (Number.isNaN(n)) return '—';
+    return `${n.toFixed(6)}°`;
+}
+
+function cultivoLabel(value) {
+    if (!value) return '—';
+    if (Array.isArray(value)) return value.filter(Boolean).join(' · ') || '—';
+    return String(value).replace(/;/g, ' · ').replace(/\s*-\s*/g, ' · ');
+}
 
 export default class MisEstablecimientos extends LightningElement {
     @api type;
-    @track vencimientos = [];
-    columns = COLUMNS;
-    Name = 'Todos';
-    
+    @track rowsAll = [];
+    @track filtered = [];
 
-    @track sortBy = 'fecha';
-    @track sortDirection = 'desc';
-    @track searchTerm = '';
-    @track totalRegistros = 0; // <<--- Nuevo
-    @track NameSelect = '';
-    
-
-    pageSize = 10;
-    currentPage = 1;
-    @track filteredEstablecimientos = [];
-    data = [];
-
-
-    icons = {
-        seed: icons.pph.seed
-    };
-    
+    loading = true;
     initialized = false;
-    loading = false;
+    searchKey = '';
+    statusFilter = 'todos';
+    cultivoFilter = 'todos';
+    pageSize = PAGE_SIZE;
+
+    columns = [
+        { label: 'Nombre', fieldName: 'title', type: 'link' },
+        { label: 'Origen', fieldName: 'origen' },
+        { label: 'Localidad', fieldName: 'localidad' },
+        { label: 'Provincia', fieldName: 'provincia' },
+        { label: 'Latitud', fieldName: 'latLabel' },
+        { label: 'Longitud', fieldName: 'lngLabel' },
+        { label: 'Superficie', fieldName: 'superficieLabel' },
+        { label: 'Superficie sin sembrar', fieldName: 'superficieSinSembrarLabel' },
+        { label: 'Cultivos declarados', fieldName: 'cultivo' },
+        { label: 'PPH', fieldName: 'pphLabel' },
+        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
+        { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver detalle' }
+    ];
+
+    mobileFields = [
+        { label: 'Origen', fieldName: 'origen' },
+        { label: 'Localidad', fieldName: 'localidad' },
+        { label: 'Provincia', fieldName: 'provincia' },
+        { label: 'Latitud', fieldName: 'latLabel' },
+        { label: 'Longitud', fieldName: 'lngLabel' },
+        { label: 'Superficie', fieldName: 'superficieLabel' },
+        { label: 'Sin sembrar', fieldName: 'superficieSinSembrarLabel' },
+        { label: 'Cultivos', fieldName: 'cultivo' },
+        { label: 'PPH', fieldName: 'pphLabel' }
+    ];
+
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+    }
+
+    renderedCallback() {
+        if (!this.initialized) {
+            this.init();
+        }
+    }
 
     async init() {
         this.initialized = true;
+        await this.loadRows();
+    }
 
-        await doRequest.call(this, async _ => {
-            this.data = await getEstablecimientos();
-            this.data = this.data.map(row => ({
-            ...row,
-            link: `/establecimiento/${row.Id}/${row.Name}`
-            }));
-            this.updatePage();
+    async loadRows() {
+        await doRequest.call(this, async () => {
+            const data = await getEstablecimientos();
+            this.rowsAll = (data || []).map((row) => this.decorateRow(row));
+            this.applyFilters();
+            this.loading = false;
         });
     }
 
-
-    renderedCallback() {
-        if (!this.initialized) this.init();
-    }
-
-
-    onError(e) {
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Error',
-            message: reduceErrors(e).join('\n'),
-            variant: 'error',
-            mode: 'sticky'
-        }));
-    }
-
-    //reemplazando vencimientos por data, podemos hacer que los totales sean dinámicos según que facturas se esten visualizando
-    
-
-    handleOnSort(event){
-        this.sortBy = event.detail.fieldName;
-        this.sortDirection = event.detail.sortDirection;
-        this.sortData();
-    }
-
-    sortData() {
-        const parseData = JSON.parse(JSON.stringify(this.data));
-
-        const keyValue = (a) => {
-            return a[this.sortBy];
+    decorateRow(row) {
+        const hasHt = row.hasHt === true;
+        const adheridoPph = row.adheridoPph === true;
+        return {
+            id: row.id,
+            title: row.name,
+            origen: row.origen || '—',
+            localidad: row.localidad || '—',
+            provincia: row.provincia || '—',
+            cultivo: cultivoLabel(row.cultivo),
+            cultivoKey: (row.cultivo || '').trim().toLowerCase() || '—',
+            latLabel: formatCoord(row.lat),
+            lngLabel: formatCoord(row.lng),
+            superficie: row.superficie,
+            superficieSinSembrar: row.superficieSinSembrar,
+            superficieLabel: formatHa(row.superficie),
+            superficieSinSembrarLabel: formatHa(row.superficieSinSembrar),
+            hasHt,
+            adheridoPph,
+            vigente: row.vigente !== false,
+            pphLabel: adheridoPph ? 'Adherido' : '—',
+            statusLabel: hasHt ? 'Activo' : 'Sin HT',
+            statusTone: hasHt ? 'ok' : 'info'
         };
+    }
 
-        const isReverse = this.sortDirection === 'asc' ? 1: -1;
+    get estadoSelectOptions() {
+        return [
+            { value: 'todos', label: 'Todos los estados' },
+            { value: 'conHt', label: 'Activo' },
+            { value: 'sinHt', label: 'Sin HT' }
+        ];
+    }
 
-        parseData.sort((x, y) => {
-            x = keyValue(x) ? keyValue(x) : '';
-            y = keyValue(y) ? keyValue(y) : '';
-            return isReverse * ((x > y) - (y > x));
+    get cultivoSelectOptions() {
+        const set = new Set();
+        (this.rowsAll || []).forEach((row) => {
+            if (row.cultivo && row.cultivo !== '—') {
+                row.cultivo.split(' · ').forEach((c) => {
+                    const t = c.trim();
+                    if (t) set.add(t);
+                });
+            }
         });
-
-        this.data = parseData;
-    } 
-
-
-    handleNameSelect(event){
-        // this.NameSelect = event.target.value;
-        // this.filteredNames = this.Name == 'Todos' ? this.vencimientos : this.vencimientos.filter(v => v.cultivo == this.cultivo);
-        this.updatePage();
+        const options = [{ value: 'todos', label: 'Todos los cultivos' }];
+        [...set].sort((a, b) => a.localeCompare(b, 'es')).forEach((c) => {
+            options.push({ value: c.toLowerCase(), label: c });
+        });
+        return options;
     }
 
-    // Aplicar filtros y búsqueda
-    
     applyFilters() {
-        let filtered = [...this.data];
+        const term = (this.searchKey || '').trim().toLowerCase();
+        let rows = [...(this.rowsAll || [])];
 
-        if (this.searchTerm) {
-            const term = this.searchTerm.toLowerCase();
-            filtered = filtered.filter(l =>
-                (l.Name && l.Name.toLowerCase().includes(term)) 
-            );
+        if (this.statusFilter === 'conHt') {
+            rows = rows.filter((r) => r.hasHt);
+        } else if (this.statusFilter === 'sinHt') {
+            rows = rows.filter((r) => !r.hasHt);
         }
 
-        this.filteredEstablecimientos = filtered;
-        this.totalRegistros = filtered.length; // <<--- Aquí se actualiza el contador
-        this.currentPage = 1;
-    }
-
-    
-        updatePage() {
-        const start = (this.currentPage - 1) * this.pageSize;
-        const end = start + this.pageSize;
-        const establecimientos = this.data.slice(start, end);
-        this.filteredEstablecimientos = establecimientos;
-        this.totalRegistros = this.data.length;
-    } 
-
-   get disablePrev() {
-        return this.currentPage <= 1;
-    }
-
-    get disableNext() {
-        return this.currentPage >= Math.ceil(this.data.length / this.pageSize);
-    }
-
-    handlePrev() {
-        if (!this.disablePrev) {
-            this.currentPage--;
-            this.updatePage();
+        if (this.cultivoFilter && this.cultivoFilter !== 'todos') {
+            const key = this.cultivoFilter.toLowerCase();
+            rows = rows.filter((r) => (r.cultivo || '').toLowerCase().includes(key));
         }
+
+        if (term) {
+            rows = rows.filter((row) => {
+                return (
+                    (row.title && row.title.toLowerCase().includes(term)) ||
+                    (row.origen && row.origen.toLowerCase().includes(term)) ||
+                    (row.localidad && row.localidad.toLowerCase().includes(term)) ||
+                    (row.provincia && row.provincia.toLowerCase().includes(term)) ||
+                    (row.cultivo && row.cultivo.toLowerCase().includes(term)) ||
+                    (row.pphLabel && row.pphLabel.toLowerCase().includes(term)) ||
+                    (row.statusLabel && row.statusLabel.toLowerCase().includes(term)) ||
+                    (row.superficieLabel && row.superficieLabel.toLowerCase().includes(term))
+                );
+            });
+        }
+
+        this.filtered = rows;
     }
 
-    handleNext() {
-        if (!this.disableNext) {
-            this.currentPage++;
-            this.updatePage();
-        }
+    get listMetaLabel() {
+        const count = this.filtered.length;
+        return `${count} establecimiento${count === 1 ? '' : 's'} · Ordenado por Nombre`;
+    }
+
+    get showFooterSummary() {
+        return this.filtered.length > 0;
+    }
+
+    get footerSummaryLabel() {
+        const totalHa = this.filtered.reduce((sum, r) => sum + (Number(r.superficie) || 0), 0);
+        const adheridos = this.filtered.filter((r) => r.adheridoPph).length;
+        const haLabel = formatHa(totalHa);
+        return `${haLabel} totales declaradas · ${adheridos} de ${this.filtered.length} establecimientos adheridos a PPH`;
+    }
+
+    handleEstadoChange(event) {
+        this.statusFilter = event.detail?.value || 'todos';
+        this.applyFilters();
+    }
+
+    handleCultivoChange(event) {
+        this.cultivoFilter = event.detail?.value || 'todos';
+        this.applyFilters();
     }
 
     handleSearchChange(event) {
-        this.searchTerm = event.target.value;
-        if(this.searchTerm.length > 0){
-            this.applyFilters();
+        this.searchKey = event.target?.value ?? event.detail?.value ?? event.detail ?? '';
+        this.applyFilters();
+    }
+
+    handleRowAction(event) {
+        const row = event.detail?.row;
+        if (!row?.id) return;
+        this.goToEstablecimiento(row.id, row.title);
+    }
+
+    getCommunityBasePath() {
+        const pathname = window.location.pathname || '';
+        if (pathname.includes('/SembraEvolucion/s')) {
+            return '/SembraEvolucion/s';
         }
-        else {
-            this.updatePage();
+        if (pathname.includes('/Productores/s')) {
+            return '/Productores/s';
         }
+        if (pathname.includes('/RegaliaProductor/s')) {
+            return '/RegaliaProductor/s';
+        }
+        if (pathname.includes('/s')) {
+            return `${pathname.split('/s')[0]}/s`;
+        }
+        return '/s';
+    }
+
+    goToEstablecimiento(recordId, recordName) {
+        const basePath = this.getCommunityBasePath();
+        const slug = encodeURIComponent(recordName || 'detalle');
+        window.open(`${basePath}/establecimiento/${recordId}/${slug}`, '_self');
+    }
+
+    handleNewEstablecimiento() {
+        this.template.querySelector('c-establecimientos-map')?.openNew?.();
+    }
+
+    handleOpenMapa() {
+        this.template.querySelector('c-establecimientos-map')?.openMap?.();
+    }
+
+    handleEstablecimientoSaved() {
+        this.loading = true;
+        this.loadRows();
     }
 }
