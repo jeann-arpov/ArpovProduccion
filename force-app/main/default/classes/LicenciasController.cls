@@ -37,7 +37,7 @@ public static Boolean esUsuarioEspecial() {
         Id obtentorId = (currentUser.ContactId != null) ? currentUser.Contact.AccountId : null;
         
         if (obtentorId == null) {
-            throw new AuraHandledException(Label.LIC_Usuario_Sin_Cuenta);
+            throw new AuraHandledException('Usuario sin cuenta asociada');
         }
         
         // Construir consulta SOQL dinámica
@@ -205,7 +205,7 @@ public static PaginatedResult getLicencias(Integer pageNumber, Integer pageSize,
     Id accountId = (currentUser.ContactId != null) ? currentUser.Contact.AccountId : null;
     
     if (accountId == null) {
-        throw new AuraHandledException(Label.LIC_Usuario_Sin_Cuenta);
+        throw new AuraHandledException('Usuario sin cuenta asociada');
     }
     
     // Construir consulta SOQL dinámica para distribuidor
@@ -606,7 +606,7 @@ public static PaginatedResult getLicenciasProductor(Integer pageNumber, Integer 
         : null;
     
     if (accountId == null && !Test.isRunningTest()) {
-        throw new AuraHandledException(Label.LIC_Usuario_Sin_Cuenta);
+        throw new AuraHandledException('Usuario sin cuenta asociada');
     }
     
     // Construir consulta SOQL dinámica manteniendo la estructura original
@@ -625,25 +625,66 @@ public static PaginatedResult getLicenciasProductor(Integer pageNumber, Integer 
     }
     
     // Aplicar filtros adicionales
-    if (filterMap.containsKey('estado') && String.isNotBlank((String)filterMap.get('estado'))) {
-        String estado = (String)filterMap.get('estado');
-        if (estado == 'En curso') {
-            conditions.add('Estado__c IN (\'Creada\', \'A validar\', \'Validada\', \'Solicitada\', \'Licencia Firmada\', \'En Proceso de Aprobacion\')');
-        } else if (estado == 'Aprobada') {
-            conditions.add('Estado__c = \'Aprobada\'');
-        } else if (estado == 'Rechazada') {
-            conditions.add('Estado__c = \'Rechazada\'');
+    // estados[] (multi) o estado (legacy single)
+    List<String> estadoFilters = new List<String>();
+    if (filterMap.containsKey('estados') && filterMap.get('estados') instanceof List<Object>) {
+        for (Object o : (List<Object>) filterMap.get('estados')) {
+            if (o != null && String.isNotBlank(String.valueOf(o))) {
+                estadoFilters.add(String.valueOf(o));
+            }
+        }
+    } else if (filterMap.containsKey('estado') && String.isNotBlank((String) filterMap.get('estado'))) {
+        estadoFilters.add((String) filterMap.get('estado'));
+    }
+    if (!estadoFilters.isEmpty()) {
+        List<String> estadoConds = new List<String>();
+        for (String estado : estadoFilters) {
+            if (estado == 'En curso') {
+                estadoConds.add('Estado__c IN (\'Creada\', \'A validar\', \'Validada\', \'Solicitada\', \'Licencia Firmada\', \'En Proceso de Aprobacion\')');
+            } else if (estado == 'Aprobada') {
+                estadoConds.add('Estado__c = \'Aprobada\'');
+            } else if (estado == 'Rechazada') {
+                estadoConds.add('Estado__c = \'Rechazada\'');
+            }
+        }
+        if (!estadoConds.isEmpty()) {
+            conditions.add('(' + String.join(estadoConds, ' OR ') + ')');
         }
     }
-    
-    // Filtro por origen/tecnología
-    if (filterMap.containsKey('origen') && String.isNotBlank((String)filterMap.get('origen'))) {
-        conditions.add('Origen_de_Licencia__c = \'' + String.escapeSingleQuotes((String)filterMap.get('origen')) + '\'');
+
+    // origenes[] o origen
+    List<String> origenFilters = new List<String>();
+    if (filterMap.containsKey('origenes') && filterMap.get('origenes') instanceof List<Object>) {
+        for (Object o : (List<Object>) filterMap.get('origenes')) {
+            if (o != null && String.isNotBlank(String.valueOf(o))) {
+                origenFilters.add(String.escapeSingleQuotes(String.valueOf(o)));
+            }
+        }
+    } else if (filterMap.containsKey('origen') && String.isNotBlank((String) filterMap.get('origen'))) {
+        origenFilters.add(String.escapeSingleQuotes((String) filterMap.get('origen')));
     }
-    
-    // Filtrar por tipo de licencia
-    if (filterMap.containsKey('tipo') && String.isNotBlank((String)filterMap.get('tipo'))) {
-        conditions.add('Tipo_de_Licencia__c = \'' + String.escapeSingleQuotes((String)filterMap.get('tipo')) + '\'');
+    if (!origenFilters.isEmpty()) {
+        conditions.add('Origen_de_Licencia__c IN (\'' + String.join(origenFilters, '\',\'') + '\')');
+    }
+
+    // tipos[] o tipo
+    List<String> tipoFilters = new List<String>();
+    if (filterMap.containsKey('tipos') && filterMap.get('tipos') instanceof List<Object>) {
+        for (Object o : (List<Object>) filterMap.get('tipos')) {
+            if (o != null && String.isNotBlank(String.valueOf(o))) {
+                tipoFilters.add(String.escapeSingleQuotes(String.valueOf(o)));
+            }
+        }
+    } else if (filterMap.containsKey('tipo') && String.isNotBlank((String) filterMap.get('tipo'))) {
+        tipoFilters.add(String.escapeSingleQuotes((String) filterMap.get('tipo')));
+    }
+    if (!tipoFilters.isEmpty()) {
+        conditions.add('Tipo_de_Licencia__c IN (\'' + String.join(tipoFilters, '\',\'') + '\')');
+    }
+
+    // cultivoId (tabs de cultivo)
+    if (filterMap.containsKey('cultivoId') && String.isNotBlank((String) filterMap.get('cultivoId'))) {
+        conditions.add('Cultivo__c = \'' + String.escapeSingleQuotes((String) filterMap.get('cultivoId')) + '\'');
     }
     
     // Filtro por carta de aceptación

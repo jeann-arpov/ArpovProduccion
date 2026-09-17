@@ -37,6 +37,10 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     @track selectedTipo = '';
     @track searchTerm = '';
     @track selectedCarta = '';
+    @track filterEstados = [];
+    @track filterTipos = [];
+    @track filterOrigenes = [];
+    @track filtersPanelOpen = false;
 
     @track totalRegistros = 0;
     @track showModal = false;
@@ -257,7 +261,9 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
 
     handleCultivoResumenSelect(event) {
         this.selectedCultivoId = event.detail?.value;
+        this.currentPage = 1;
         this.loadCultivoSummary();
+        this.loadLicencias();
     }
 
     loadSessionFilters() {
@@ -270,14 +276,17 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
         
         if (estado) {
             this.selectedEstado = estado;
+            this.filterEstados = estado ? [estado] : [];
             console.log('Estado de sesión:', estado);
         }
         if (origen) {
             this.selectedOrigen = origen;
+            this.filterOrigenes = origen ? [origen] : [];
             console.log('Origen de sesión:', origen);
         }
         if (tipo) {
             this.selectedTipo = tipo;
+            this.filterTipos = tipo ? [tipo] : [];
             console.log('Tipo de sesión:', tipo);
         }
         if (carta) {
@@ -294,11 +303,24 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
 
         try {
             const filters = {};
-            if (this.selectedEstado) filters.estado = this.selectedEstado;
-            if (this.selectedOrigen) filters.origen = this.selectedOrigen;
-            if (this.selectedTipo) filters.tipo = this.selectedTipo;
+            if (this.filterEstados?.length) {
+                filters.estados = [...this.filterEstados];
+            } else if (this.selectedEstado) {
+                filters.estado = this.selectedEstado;
+            }
+            if (this.filterOrigenes?.length) {
+                filters.origenes = [...this.filterOrigenes];
+            } else if (this.selectedOrigen) {
+                filters.origen = this.selectedOrigen;
+            }
+            if (this.filterTipos?.length) {
+                filters.tipos = [...this.filterTipos];
+            } else if (this.selectedTipo) {
+                filters.tipo = this.selectedTipo;
+            }
             if (this.selectedCarta) filters.carta = this.selectedCarta;
             if (this.searchTerm) filters.searchTerm = this.searchTerm;
+            if (this.selectedCultivoId) filters.cultivoId = this.selectedCultivoId;
 
             this.currentFilters = filters;
 
@@ -335,11 +357,114 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
 
     get filtroResumen() {
         const partes = [];
-        if (this.selectedEstado) partes.push(this.selectedEstado);
-        if (this.selectedTipo) partes.push(this.selectedTipo);
-        if (this.selectedOrigen) partes.push(this.selectedOrigen);
+        if (this.filterEstados?.length) partes.push(...this.filterEstados);
+        else if (this.selectedEstado) partes.push(this.selectedEstado);
+        if (this.filterTipos?.length) partes.push(...this.filterTipos);
+        else if (this.selectedTipo) partes.push(this.selectedTipo);
+        if (this.filterOrigenes?.length) partes.push(...this.filterOrigenes);
+        else if (this.selectedOrigen) partes.push(this.selectedOrigen);
         if (this.searchTerm) partes.push(`"${this.searchTerm}"`);
-        return partes.length ? partes.join(' - ') : 'Todas las licencias';
+        return partes.length ? partes.join(' · ') : 'Todas las licencias';
+    }
+
+    get activeFilterCount() {
+        return (
+            (this.filterEstados?.length || 0) +
+            (this.filterTipos?.length || 0) +
+            (this.filterOrigenes?.length || 0)
+        );
+    }
+
+    get showFilterBadge() {
+        return this.activeFilterCount > 0;
+    }
+
+    get filterToggleChevronClass() {
+        return this.filtersPanelOpen ? 'filt-chevron is-open' : 'filt-chevron';
+    }
+
+    get estadoFilterItems() {
+        return this.withChecked(
+            [
+                { value: 'En curso', label: 'En curso' },
+                { value: 'Aprobada', label: 'Aprobada' },
+                { value: 'Rechazada', label: 'Rechazada' }
+            ],
+            this.filterEstados
+        );
+    }
+
+    get tipoFilterItems() {
+        return this.withChecked(
+            (this.tipos || []).map((item) => ({ value: item, label: item })),
+            this.filterTipos
+        );
+    }
+
+    get origenFilterItems() {
+        return this.withChecked(
+            (this.origenes || []).map((item) => ({ value: item, label: item })),
+            this.filterOrigenes
+        );
+    }
+
+    withChecked(items, selected) {
+        const set = new Set(selected || []);
+        return (items || []).map((item) => ({
+            ...item,
+            boxClass: set.has(item.value) ? 'filt-check filt-check-on' : 'filt-check'
+        }));
+    }
+
+    toggleInList(list, value) {
+        const next = [...(list || [])];
+        const idx = next.indexOf(value);
+        if (idx >= 0) next.splice(idx, 1);
+        else next.push(value);
+        return next;
+    }
+
+    handleToggleFiltersPanel() {
+        this.filtersPanelOpen = !this.filtersPanelOpen;
+    }
+
+    handleCloseFiltersPanel() {
+        this.filtersPanelOpen = false;
+    }
+
+    handleClearFilters() {
+        this.filterEstados = [];
+        this.filterTipos = [];
+        this.filterOrigenes = [];
+        this.selectedEstado = '';
+        this.selectedTipo = '';
+        this.selectedOrigen = '';
+        sessionStorage.removeItem('selectedBucketProductor');
+        sessionStorage.removeItem('selectedOrigenProductor');
+        sessionStorage.removeItem('selectedTipoProductor');
+        this.currentPage = 1;
+        this.loadLicencias();
+    }
+
+    handleFilterToggle(event) {
+        const group = event.currentTarget?.dataset?.group;
+        const value = event.currentTarget?.dataset?.value;
+        if (!group || !value) return;
+        if (group === 'estado') {
+            this.filterEstados = this.toggleInList(this.filterEstados, value);
+            this.selectedEstado = this.filterEstados[0] || '';
+            sessionStorage.setItem('selectedBucketProductor', this.selectedEstado);
+        } else if (group === 'tipo') {
+            this.filterTipos = this.toggleInList(this.filterTipos, value);
+            this.selectedTipo = this.filterTipos[0] || '';
+            sessionStorage.setItem('selectedTipoProductor', this.selectedTipo);
+        } else if (group === 'origen') {
+            this.filterOrigenes = this.toggleInList(this.filterOrigenes, value);
+            this.selectedOrigen = this.filterOrigenes[0] || '';
+            sessionStorage.setItem('selectedOrigenProductor', this.selectedOrigen);
+        }
+        this.currentPage = 1;
+        this.applyFiltersWithDebounce();
     }
 
     get estadoOptions() {

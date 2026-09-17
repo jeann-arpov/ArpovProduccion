@@ -58,8 +58,8 @@
         <div class="se-buy-layout">
           <div class={buyMainClass}>
       <template if:true={isLoading}>
-        <div class="exampleHolder">
-          <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        <div class="exampleHolder se-brand-loading">
+          <c-se-brand-loader></c-se-brand-loader>
         </div>
       </template>
   
@@ -588,12 +588,14 @@
            
 
             <!-- Sección de agregar nueva variedad -->
+            <template if:true={puedeEditar}>
             <template if:false={guardandoLineas}>
             <div class="acciones-variedad">
                 <button type="button" onclick={addRow} class="add-variedad">
                     <span class="plus-sign">+</span> Agregar Variedad
                 </button>
             </div>
+            </template>
             </template>
 
             <!-- Totales -->
@@ -659,8 +661,8 @@
 
     <!-- Spinner global -->
     <template if:true={isLoading}>
-        <div class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        <div class="exampleHolder se-brand-loading">
+            <c-se-brand-loader></c-se-brand-loader>
         </div>
     </template>
 

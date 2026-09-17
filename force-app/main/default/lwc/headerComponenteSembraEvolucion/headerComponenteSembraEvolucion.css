@@ -82,8 +82,11 @@
 
 .logo img {
     display: block;
-    height: 26px;
+    height: 36px;
     width: auto;
+    max-height: 40px;
+    object-fit: contain;
+    background: transparent;
 }
 
 .topbar {
@@ -246,7 +249,11 @@
 }
 
 .logo-desktop img {
-    height: 32px;
+    height: 40px;
+    width: auto;
+    max-height: 44px;
+    object-fit: contain;
+    background: transparent;
 }
 
 .d-nav nav {

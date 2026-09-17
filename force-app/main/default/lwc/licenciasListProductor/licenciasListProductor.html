@@ -8,24 +8,23 @@
                     <div class="lic-title-row">
                         <h1 class="title">Mis Licencias</h1>
                         <div class="lic-actions">
-                            <c-se-select
-                                options={estadoOptions}
-                                value={selectedEstado}
-                                placeholder="Estado"
-                                onchange={handleEstadoChange}
-                            ></c-se-select>
-                            <c-se-select
-                                options={tipoOptions}
-                                value={selectedTipo}
-                                placeholder="Tipo"
-                                onchange={handleTipoChange}
-                            ></c-se-select>
-                            <c-se-select
-                                options={origenOptions}
-                                value={selectedOrigen}
-                                placeholder="Tecnología"
-                                onchange={handleOrigenChange}
-                            ></c-se-select>
+                            <button
+                                type="button"
+                                class="filt-toggle"
+                                aria-expanded={filtersPanelOpen}
+                                onclick={handleToggleFiltersPanel}
+                            >
+                                <svg class="filt-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                    <path d="M3 6h18M6 12h12M10 18h4"></path>
+                                </svg>
+                                Filtros
+                                <template if:true={showFilterBadge}>
+                                    <span class="filt-badge">{activeFilterCount}</span>
+                                </template>
+                                <svg class={filterToggleChevronClass} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
                             <button type="button" class="btn-solicitar" onclick={handleSolicitarLicencia}>
                                 Solicitar Licencia
                             </button>
@@ -42,7 +41,6 @@
                             <p class="lic-meta-line">
                                 <span>Filtrado por </span>
                                 <strong>{filtroResumen}</strong>
-                                <span> · Se actualizó hace una hora</span>
                             </p>
                         </div>
                         <label class="lic-search">
@@ -70,42 +68,76 @@
                 <h1 class="title">Licencias</h1>
 
                 <template lwc:if={renderFilters}>
-                    <div class="lic-filters-scroll">
-                        <c-se-select
-                            inline
-                            options={estadoOptions}
-                            value={selectedEstado}
-                            placeholder="Estado"
-                            onchange={handleEstadoChange}
-                        ></c-se-select>
-                        <c-se-select
-                            inline
-                            options={tipoOptions}
-                            value={selectedTipo}
-                            placeholder="Tipo"
-                            onchange={handleTipoChange}
-                        ></c-se-select>
-                        <c-se-select
-                            inline
-                            options={origenOptions}
-                            value={selectedOrigen}
-                            placeholder="Tecnología"
-                            onchange={handleOrigenChange}
-                        ></c-se-select>
+                    <div class="lic-mob-tools">
+                        <button
+                            type="button"
+                            class="filt-toggle"
+                            aria-expanded={filtersPanelOpen}
+                            onclick={handleToggleFiltersPanel}
+                        >
+                            Filtros
+                            <template if:true={showFilterBadge}>
+                                <span class="filt-badge">{activeFilterCount}</span>
+                            </template>
+                        </button>
+                        <button type="button" class="btn-solicitar btn-solicitar-mob" onclick={handleSolicitarLicencia}>
+                            + Solicitar Licencia
+                        </button>
                     </div>
-                    <button type="button" class="btn-solicitar btn-solicitar-mob" onclick={handleSolicitarLicencia}>
-                        + Solicitar Licencia
-                    </button>
                     <p class="lic-meta-mobile">
                         <strong>{totalRegistros} elementos</strong>
-                        <span> · Ordenado por </span>
-                        <strong>Fecha de creación</strong>
-                        <br />
-                        <span>Se actualizó hace una hora</span>
+                        <span> · </span>
+                        <strong>{filtroResumen}</strong>
                     </p>
                 </template>
             </div>
         </header>
+
+        <template if:true={filtersPanelOpen}>
+            <section slot="filters" class="filt-panel">
+                <div class="filt-panel-head">
+                    <span class="filt-panel-title">Filtros</span>
+                    <span class="filt-panel-hint">Aplican junto al cultivo activo en las tabs.</span>
+                    <button type="button" class="filt-link" onclick={handleClearFilters}>Limpiar</button>
+                    <button type="button" class="filt-close" onclick={handleCloseFiltersPanel}>Cerrar</button>
+                </div>
+                <div class="filt-grid">
+                    <div class="filt-group">
+                        <p class="filt-label">Estado</p>
+                        <div class="filt-options">
+                            <template for:each={estadoFilterItems} for:item="item">
+                                <button key={item.value} type="button" class="filt-option" data-group="estado" data-value={item.value} onclick={handleFilterToggle}>
+                                    <span class={item.boxClass} aria-hidden="true"></span>
+                                    <span>{item.label}</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="filt-group">
+                        <p class="filt-label">Tipo</p>
+                        <div class="filt-options">
+                            <template for:each={tipoFilterItems} for:item="item">
+                                <button key={item.value} type="button" class="filt-option" data-group="tipo" data-value={item.value} onclick={handleFilterToggle}>
+                                    <span class={item.boxClass} aria-hidden="true"></span>
+                                    <span>{item.label}</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="filt-group">
+                        <p class="filt-label">Tecnología</p>
+                        <div class="filt-options">
+                            <template for:each={origenFilterItems} for:item="item">
+                                <button key={item.value} type="button" class="filt-option" data-group="origen" data-value={item.value} onclick={handleFilterToggle}>
+                                    <span class={item.boxClass} aria-hidden="true"></span>
+                                    <span>{item.label}</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </template>
 
         <template if:true={renderList}>
             <template if:true={showCultivoResumen}>
@@ -219,10 +251,7 @@
                 <div class="slds-modal__content slds-p-around_medium">
                     <template if:true={isReportLoading}>
                         <div class="slds-align_absolute-center slds-p-vertical_large">
-                            <lightning-spinner
-                                alternative-text="Cargando reporte..."
-                                size="medium">
-                            </lightning-spinner>
+                            <c-se-brand-loader></c-se-brand-loader>
                             <p class="slds-text-align_center slds-m-top_small">
                                 Generando reporte de licencias...
                             </p>

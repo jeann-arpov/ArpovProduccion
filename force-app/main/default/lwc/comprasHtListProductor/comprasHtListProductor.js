@@ -115,6 +115,9 @@ export default class ComprasHtListProductor extends LightningElement {
                     varietyList: splitVariedades(c.variedades),
                     productor: c.productor || '',
                     comercio: c.comercio || '',
+                    obtentor: c.obtentor || c.semillero || c.marca || '',
+                    semillero: c.semillero || c.obtentor || c.marca || '',
+                    marca: c.marca || c.semillero || c.obtentor || '',
                     estado,
                     statusLabel: estado,
                     statusTone: statusTone(estado)
@@ -247,7 +250,10 @@ export default class ComprasHtListProductor extends LightningElement {
                     row.comercio,
                     row.cultivo,
                     row.variedades,
-                    row.estado
+                    row.estado,
+                    row.obtentor,
+                    row.semillero,
+                    row.marca
                 ]
                     .join(' ')
                     .toLowerCase();

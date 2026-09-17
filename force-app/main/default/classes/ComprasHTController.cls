@@ -25,7 +25,8 @@ public with sharing class ComprasHTController {
               }
             : [SELECT Id, Name, Estado__c, Cuenta_Productor__r.Name, Comercio__r.Name,
                        CUIT_Productor__c, CUIT_Comercio__c, Total_HT__c, Total_USD__c,
-                       Variedades__c, Cultivo__r.Name, CreatedDate
+                       Variedades__c, Cultivo__r.Name, CreatedDate,
+                       Obtentor__r.Name
                FROM Compra_HT__c
                //WHERE Cuenta_Productor__c = :accountId
                ORDER BY CreatedDate DESC];
@@ -40,6 +41,10 @@ public with sharing class ComprasHTController {
             row.put('comercio', c.Comercio__r != null ? c.Comercio__r.Name : '');
             row.put('cultivo', c.Cultivo__r != null ? c.Cultivo__r.Name : '');
             row.put('variedades', c.Variedades__c);
+            String obtentorName = c.Obtentor__r != null ? c.Obtentor__r.Name : '';
+            row.put('obtentor', obtentorName);
+            row.put('semillero', obtentorName);
+            row.put('marca', obtentorName);
             row.put('totalHt', String.valueOf(c.Total_HT__c));
             row.put('totalUsd', String.valueOf(c.Total_USD__c));
             row.put('fecha', String.valueOf(c.CreatedDate));
@@ -145,7 +150,7 @@ public with sharing class ComprasHTController {
         }
 
         Id productorId = CrearCompraController.getAccount().Id;
-        List<ResumenRow> rows = new List<ResumenRow>();
+        Map<String, Decimal> buckets = new Map<String, Decimal>();
 
         for (AggregateResult ar : [
             SELECT Biotecnologia__c bio, SUM(Cantidad_con_Signo__c) saldo
@@ -157,20 +162,46 @@ public with sharing class ComprasHTController {
             GROUP BY Biotecnologia__c
             ORDER BY Biotecnologia__c ASC NULLS LAST
         ]) {
-            String label = (String) ar.get('bio');
-            if (String.isBlank(label)) {
-                label = 'Sin biotecnología';
-            }
+            String raw = (String) ar.get('bio');
+            String label = mapBiotecnologiaLabel(raw);
             Decimal saldo = (Decimal) ar.get('saldo');
             if (saldo == null) {
                 saldo = 0;
             }
-            rows.add(new ResumenRow(label, saldo));
+            Decimal prev = buckets.containsKey(label) ? buckets.get(label) : 0;
+            buckets.put(label, prev + saldo);
             resumen.total += saldo;
         }
 
+        List<ResumenRow> rows = new List<ResumenRow>();
+        List<String> labels = new List<String>(buckets.keySet());
+        labels.sort();
+        for (String label : labels) {
+            rows.add(new ResumenRow(label, buckets.get(label)));
+        }
         resumen.rows = rows;
         return resumen;
+    }
+
+    private static String mapBiotecnologiaLabel(String raw) {
+        if (String.isBlank(raw)) {
+            return 'Sin biotecnología';
+        }
+        String n = raw.trim().toLowerCase();
+        if (
+            n == 'rr1' ||
+            n == 'rr2 - bt' ||
+            n == 'rr2-bt' ||
+            n == 'bgrr' ||
+            n.contains('convencional') ||
+            n.contains('aporte')
+        ) {
+            return 'Aporte Genético';
+        }
+        if (n.contains('enlist') || n.contains('conkesta')) {
+            return 'Enlist / Conkesta';
+        }
+        return raw;
     }
 
     public class ResumenBiotecnologia {

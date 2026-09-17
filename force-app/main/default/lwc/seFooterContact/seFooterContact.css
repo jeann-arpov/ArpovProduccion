@@ -101,6 +101,23 @@
   width: 1.4rem;
   height: 1.4rem;
   vertical-align: middle;
+  background: transparent;
+}
+
+.contact-button .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-right: 6px;
+  line-height: 0;
+}
+
+.contact-button .icon-svg {
+  background: transparent;
+  mix-blend-mode: multiply;
 }
 
 @media (max-width: 767px) {
