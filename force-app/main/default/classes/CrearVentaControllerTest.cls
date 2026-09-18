@@ -1525,6 +1525,11 @@ public class CrearVentaControllerTest {
       result.get('origenLegal'),
       'Futura no debe validar con SF de la misma campaña'
     );
+    System.assertEquals(
+      true,
+      result.get('Blanqueo'),
+      'SF de la misma campaña no debe bloquear blanqueo en Futura'
+    );
   }
 
   @isTest
@@ -1592,6 +1597,88 @@ public class CrearVentaControllerTest {
       true,
       result.get('origenLegal'),
       'Disponible debe validar con SF de campaña anterior'
+    );
+  }
+
+  private static Account crearOtroObtentor() {
+    Account obtentor = Test_TestUtils.crearObtentor(false);
+    obtentor.Name = 'Obtentor Otro';
+    obtentor.Clave_Unica__c = 'obtentor_otro';
+    obtentor.N_CUIT__c = '30712345678';
+    obtentor.Id_Obtentor__c = '22';
+    insert obtentor;
+    return obtentor;
+  }
+
+  @isTest
+  static void testCanFinish_Blanqueo_SFPosteriorOtroObtentor() {
+    Test_TestUtils.disableFlows();
+    Account obtentorHt = Test_TestUtils.crearObtentor();
+    Account obtentorOtro = crearOtroObtentor();
+    Account productor = Test_TestUtils.crearProductor();
+    Cultivo__c cultivo = Test_TestUtils.crearCultivo('Cultivo Test', 75);
+    List<Campana_Agricola__c> campanas = crearCampanasSE(cultivo);
+
+    crearVentaSF(cultivo, campanas[2], obtentorOtro, productor, 160);
+
+    Map<String, Object> semillero = new Map<String, Object>{
+      'ParentId' => null,
+      'Id' => obtentorHt.Id,
+      'Id_Obtentor__c' => '11'
+    };
+
+    Test.startTest();
+    Map<String, Object> result = CrearVentaController.canFinish(
+      semillero,
+      productor.Id,
+      true,
+      new List<Id>(),
+      'Disponible',
+      cultivo.Id
+    );
+    Test.stopTest();
+
+    System.assertEquals(false, result.get('origenLegal'));
+    System.assertEquals(
+      true,
+      result.get('Blanqueo'),
+      'SF SE de campaña posterior no debe bloquear blanqueo'
+    );
+  }
+
+  @isTest
+  static void testCanFinish_NoBlanqueo_SFAnteriorOtroObtentor() {
+    Test_TestUtils.disableFlows();
+    Account obtentorHt = Test_TestUtils.crearObtentor();
+    Account obtentorOtro = crearOtroObtentor();
+    Account productor = Test_TestUtils.crearProductor();
+    Cultivo__c cultivo = Test_TestUtils.crearCultivo('Cultivo Test', 75);
+    List<Campana_Agricola__c> campanas = crearCampanasSE(cultivo);
+
+    crearVentaSF(cultivo, campanas[0], obtentorOtro, productor, 160);
+
+    Map<String, Object> semillero = new Map<String, Object>{
+      'ParentId' => null,
+      'Id' => obtentorHt.Id,
+      'Id_Obtentor__c' => '11'
+    };
+
+    Test.startTest();
+    Map<String, Object> result = CrearVentaController.canFinish(
+      semillero,
+      productor.Id,
+      true,
+      new List<Id>(),
+      'Disponible',
+      cultivo.Id
+    );
+    Test.stopTest();
+
+    System.assertEquals(false, result.get('origenLegal'));
+    System.assertEquals(
+      false,
+      result.get('Blanqueo'),
+      'SF SE de campaña anterior de otro obtentor debe bloquear blanqueo'
     );
   }
 }

@@ -1022,29 +1022,39 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     return filtradas;
   }
 
-  private static Decimal totalVentasCrmCualquierObtentor(Id cuentaProductor) {
+  private static Decimal totalVentasCrmCualquierObtentor(
+    Id cuentaProductor,
+    String anoHT,
+    String tipoCompra
+  ) {
     return getTotal(
-      [
-        SELECT
-          Categoria__c,
-          Destinatario__c,
-          Cantidad__c,
-          Tipo_de_Producto__c,
-          Tipo_de_Venta__c,
-          Obtentor__c,
-          Originante__r.Id,
-          Variedad__c,
-          Producto__r.Variedad2__r.Name
-        FROM Venta__c
-        WHERE
-          (Originante__c = :cuentaProductor
-          OR Destinatario__c = :cuentaProductor)
-          AND Semba_Evolucion__c = TRUE
-      ]
+      filtrarPorCampana(
+        [
+          SELECT
+            Categoria__c,
+            Destinatario__c,
+            Cantidad__c,
+            Tipo_de_Producto__c,
+            Tipo_de_Venta__c,
+            Obtentor__c,
+            Originante__r.Id,
+            Variedad__c,
+            Producto__r.Variedad2__r.Name,
+            Campana_Agricola__r.Ano__c
+          FROM Venta__c
+          WHERE
+            (Originante__c = :cuentaProductor
+            OR Destinatario__c = :cuentaProductor)
+            AND Semba_Evolucion__c = TRUE
+        ],
+        anoHT,
+        tipoCompra
+      )
     );
   }
 
   // Origen legal y blanqueo: solo ventas CRM (Semba Evolución). Sin cesiones ni compras HT.
+  // Blanqueo: sin origen del obtentor y sin SF de variedad SE en campañas anteriores (cualquier obtentor).
   @AuraEnabled
   public static Map<String, Object> canFinish(
     Map<String, Object> semillero,
@@ -1093,7 +1103,8 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       );
       Boolean origenLegal = totalObtentor > 0;
       Boolean blanqueo =
-        !origenLegal && totalVentasCrmCualquierObtentor(CuentaProductor) <= 0;
+        !origenLegal &&
+        totalVentasCrmCualquierObtentor(CuentaProductor, anoHT, tipoCompra) <= 0;
 
       return new Map<String, Object>{
         'origenLegal' => origenLegal,
