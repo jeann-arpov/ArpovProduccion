@@ -1604,7 +1604,7 @@ public class CrearVentaControllerTest {
     Account obtentor = Test_TestUtils.crearObtentor(false);
     obtentor.Name = 'Obtentor Otro';
     obtentor.Clave_Unica__c = 'obtentor_otro';
-    obtentor.N_CUIT__c = '30712345678';
+    obtentor.N_CUIT__c = '30712345671';
     obtentor.Id_Obtentor__c = '22';
     insert obtentor;
     return obtentor;
