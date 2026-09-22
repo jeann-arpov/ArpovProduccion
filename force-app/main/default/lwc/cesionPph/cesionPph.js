@@ -536,11 +536,11 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
             this.wizardStep -= 1;
             return;
         }
-        goToCommunityPage(PAGES.cesiones);
+        goToCommunityPage(PAGES.home);
     }
 
     handleMobClose() {
-        goToCommunityPage(PAGES.cesiones);
+        goToCommunityPage(PAGES.home);
     }
 
     handleMobCancel() {
