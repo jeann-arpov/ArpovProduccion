@@ -80,7 +80,6 @@ const getRecordsFromForms = (elem) => {
 }
 
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { NavigationMixin } from 'lightning/navigation';
 import { trackErrorFuncional } from 'c/portalGa4Events';
 
 const errorEvent = (err) => {
@@ -136,7 +135,7 @@ const formatCuit = (value) => {
 
 /**
  * Redirige a SGL por GET con el token cifrado.
- * Usa NavigationMixin (Experience Cloud bloquea location.replace en LWC).
+ * Misma pestaña: standard__webPage abre URLs externas en ventana nueva.
  */
 function redirectToSglWithToken(navContext, actionUrl, token, returnUrl) {
     if (!actionUrl || !token) {
@@ -146,14 +145,7 @@ function redirectToSglWithToken(navContext, actionUrl, token, returnUrl) {
         actionUrl +
         '?token=' + encodeURIComponent(token) +
         '&url=' + encodeURIComponent(returnUrl || window.location.href);
-    if (navContext && navContext[NavigationMixin.Navigate]) {
-        navContext[NavigationMixin.Navigate](
-            { type: 'standard__webPage', attributes: { url } },
-            true
-        );
-        return;
-    }
-    window.top.location.href = url;
+    window.open(url, '_self');
 }
 
 export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, redirectToSglWithToken}
