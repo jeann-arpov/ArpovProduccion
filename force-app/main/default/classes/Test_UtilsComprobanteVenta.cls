@@ -1035,6 +1035,54 @@ private class Test_UtilsComprobanteVenta {
 
         UtilsComprobanteVenta.obtenerNrosComprobantesAplicaciones(cvs.values(), new Map<Id, ERPvs__Comprobante_Venta__c>{cv.id => cv});
     }
+
+    public static testmethod void descuentoStineFuturaAplicaSoloCuandoCorresponde() {
+        Opportunity oppStineMs = (Opportunity) JSON.deserialize(
+            '{"Capsula__c":"STINE","Obtentor__r":{"Name":"M.S. TECHNOLOGIES ARGENTINA S.R.L.","Nombre_Obtentor__c":"M.S. TECHNOLOGIES ARGENTINA S.R.L."}}',
+            Opportunity.class
+        );
+        Opportunity oppStine = new Opportunity(Capsula__c = 'STINE');
+        Opportunity oppOtra = new Opportunity(Capsula__c = 'CORTEVA');
+        Opportunity oppSinCapsula = new Opportunity();
+
+        OpportunityLineItem lineaFutura = (OpportunityLineItem) JSON.deserialize(
+            '{"Tipo_de_Compra__c":"Futura","Linea_de_Compra_HT__r":{"Tipo_de_Pago__c":"Contado"}}',
+            OpportunityLineItem.class
+        );
+        OpportunityLineItem lineaDisponible = new OpportunityLineItem(Tipo_de_Compra__c = 'Disponible');
+        OpportunityLineItem lineaSinTipo = new OpportunityLineItem();
+
+        System.assertEquals(5.00, UtilsComprobanteVenta.descuentoErpStineFutura(oppStineMs, lineaFutura));
+        System.assertEquals(null, UtilsComprobanteVenta.descuentoErpStineFutura(oppStine, lineaFutura));
+        System.assertEquals(null, UtilsComprobanteVenta.descuentoErpStineFutura(oppStineMs, lineaDisponible));
+        System.assertEquals(null, UtilsComprobanteVenta.descuentoErpStineFutura(oppOtra, lineaFutura));
+        System.assertEquals(null, UtilsComprobanteVenta.descuentoErpStineFutura(oppStineMs, lineaSinTipo));
+        System.assertEquals(null, UtilsComprobanteVenta.descuentoErpStineFutura(null, lineaFutura));
+
+        OpportunityLineItem lineaFuturaPorProducto = (OpportunityLineItem) JSON.deserialize(
+            '{"Product2":{"Tipo_de_Compra__c":"Futura"},"Linea_de_Compra_HT__r":{"Tipo_de_Pago__c":"Contado"}}',
+            OpportunityLineItem.class
+        );
+        System.assertEquals(5.00, UtilsComprobanteVenta.descuentoErpStineFutura(oppStineMs, lineaFuturaPorProducto));
+
+        OpportunityLineItem lineaStinePorObtentor = (OpportunityLineItem) JSON.deserialize(
+            '{"Tipo_de_Compra__c":"Futura","Linea_de_Compra_HT__r":{"Tipo_de_Pago__c":"Contado"},"Product2":{"Variedad2__r":{"Obtentor_Comercializa__r":{"Id_Obtentor__c":"24","Name":"M.S. TECHNOLOGIES ARGENTINA S.R.L."}}}}',
+            OpportunityLineItem.class
+        );
+        System.assertEquals(5.00, UtilsComprobanteVenta.descuentoErpStineFutura(oppSinCapsula, lineaStinePorObtentor));
+
+        OpportunityLineItem lineaFinanciada = (OpportunityLineItem) JSON.deserialize(
+            '{"Tipo_de_Compra__c":"Futura","Linea_de_Compra_HT__r":{"Tipo_de_Pago__c":"Financiado"},"Product2":{"Variedad2__r":{"Obtentor_Comercializa__r":{"Id_Obtentor__c":"24","Name":"M.S. TECHNOLOGIES ARGENTINA S.R.L."}}}}',
+            OpportunityLineItem.class
+        );
+        System.assertEquals(null, UtilsComprobanteVenta.descuentoErpStineFutura(oppStineMs, lineaFinanciada));
+
+        OpportunityLineItem lineaStineSeed = (OpportunityLineItem) JSON.deserialize(
+            '{"Tipo_de_Compra__c":"Futura","Product2":{"Variedad2__r":{"Obtentor_Comercializa__r":{"Id_Obtentor__c":"24","Name":"STINE SEED ARGENTINA S.R.L."}}}}',
+            OpportunityLineItem.class
+        );
+        System.assertEquals(null, UtilsComprobanteVenta.descuentoErpStineFutura(oppSinCapsula, lineaStineSeed));
+    }
 	
     private static SObject hydrateChildRecordList(String relationshipName, SObject parent, List<SObject> children) {
         String recordJson = JSON.serialize(parent);
