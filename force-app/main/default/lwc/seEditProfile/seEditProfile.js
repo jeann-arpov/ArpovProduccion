@@ -135,14 +135,11 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
     };
 
     handleLogout = () => {
-        const logoutUrl = `${window.location.origin}/secur/logout.jsp`;
-        this[NavigationMixin.Navigate](
-            {
-                type: 'standard__webPage',
-                attributes: { url: logoutUrl }
-            },
-            true
-        );
+        const path = window.location.pathname || '';
+        const siteBase = path.includes('/s/') ? path.split('/s/')[0] : '';
+        const loginUrl = `${window.location.origin}${siteBase}/s/login`;
+        const logoutUrl = `${window.location.origin}/secur/logout.jsp?retUrl=${encodeURIComponent(loginUrl)}`;
+        window.open(logoutUrl, '_self');
     };
 
     handleEmail(event) {
