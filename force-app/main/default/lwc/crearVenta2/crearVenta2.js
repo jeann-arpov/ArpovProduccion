@@ -175,6 +175,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
         return hoyStr >= inicio && hoyStr <= fin;
     }
+  }
 
 
   async evaluarEsStineFutura() {
