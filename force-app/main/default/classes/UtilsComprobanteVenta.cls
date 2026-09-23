@@ -33,11 +33,20 @@ public without sharing class UtilsComprobanteVenta {
         List<WrapperComprobanteVenta> ncs = new List<WrapperComprobanteVenta>();
 
         for (Opportunity opp: [SELECT   Estado__c,
+                                        Capsula__c,
+                                        Obtentor__r.Name,
+                                        Obtentor__r.Nombre_Obtentor__c,
                                         Account.Direccion_de_Correo_electronico_del_CUIT__c,
                                         Tipo_de_Comprobante__c,
                                         Compra_HT__r.Compra_Original__c,
-                                (SELECT Estado__c, 
+                                (SELECT Estado__c,
+                                        Tipo_de_Compra__c,
+                                        Linea_de_Compra_HT__r.Tipo_de_Pago__c,
+                                        Product2.Tipo_de_Compra__c,
                                         Product2.Variedad2__r.Obtentor_Comercializa__c,
+                                        Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c,
+                                        Product2.Variedad2__r.Obtentor_Comercializa__r.Name,
+                                        Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
                                         Product2.ERPvs_Producto__c,
                                         Product2.ERPvs_Producto__r.ERPvs__Tasa_de_Iva__r.ERPvs__Porcentaje__c,
                                         Quantity,
@@ -97,6 +106,10 @@ public without sharing class UtilsComprobanteVenta {
                 pcv.ERPvs__Producto__c = lineItem.Product2.ERPvs_Producto__c;
                 pcv.ERPvs__Canal_de_Venta__c = parametrosERPYCRM[0].Canal_de_venta_cyo_SE__c;
                 pcv.OpportunityLineItem__c = lineItem.id;
+                Decimal descuentoStineFutura = descuentoErpStineFutura(opp, lineItem);
+                if (descuentoStineFutura != null) {
+                    pcv.ERPvs__Descuento__c = descuentoStineFutura.setScale(2);
+                }
                 
                 // Agregamos el producto a la lista de productos
                 wrappers.get(key).productosComprobanteDeVenta.add(pcv);
@@ -142,6 +155,16 @@ public without sharing class UtilsComprobanteVenta {
                 }
             }
         }
+    }
+
+    /**
+    * Dto 5% en ERPvs__Descuento__c (Number 16,2 del ERP / PDF)
+    * cuando cápsula = STINE, tipo de compra = Futura, pago = Contado
+    * y obtentor = M.S. TECHNOLOGIES ARGENTINA S.R.L. No aplica Financiado.
+    */
+    @TestVisible
+    private static Decimal descuentoErpStineFutura(Opportunity opp, OpportunityLineItem lineItem) {
+        return DescuentoStineFutura.porcentaje(opp, lineItem);
     }
 
     /**
