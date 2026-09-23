@@ -13,6 +13,23 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     return getProducts(cultivoId, productorId);
   }
 
+  @future
+  public static void updateCompraDataAsync(Id ventaId, String entidadBancaria, String plazo, string moneda, string tasa) {
+      try {
+          Venta_HT__c vUpdated = [SELECT Id, Compra_HT__c FROM Venta_HT__c WHERE Id = :ventaId LIMIT 1];
+          if(vUpdated.Compra_HT__c != null) {
+              Compra_HT__c compra = new Compra_HT__c(Id = vUpdated.Compra_HT__c);
+              compra.Entidad_Bancaria__c = entidadBancaria;
+              compra.Plazo_maximo__c = plazo;
+              compra.Moneda__c = moneda;
+              compra.TNA__c = tasa;
+              update compra;
+          }
+      } catch(Exception e) {
+          System.debug('Error actualizando Compra async: ' + e.getMessage());
+      }
+  }
+
   public static List<PricebookEntry> getProducts(
     String cultivoId,
     String productorId
@@ -240,6 +257,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
             Tipo_de_Pago__c,
             Producto__r.Variedad2__r.Obtentor_Comercializa__c,
             Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId,
+            Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name,
             Producto__r.Variedad2__r.Biotecnologia__c
           FROM Lineas_de_Venta_HT__r
         )
@@ -348,29 +366,31 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     return data;
   }
 
-  @AuraEnabled
   public static Map<String, Object> finalizarVenta(
     Id ventaId,
     Boolean checkDuplicates,
     Boolean origen
   ) {
-    return finalizarVenta(ventaId, checkDuplicates, origen, false, false);
+    return finalizarVenta(ventaId, checkDuplicates, origen, false, false, null, null, null, null);
   }
 
-  @AuraEnabled
   public static Map<String, Object> finalizarVenta(
     Id ventaId,
     Boolean checkDuplicates,
     Boolean origen,
     Boolean marcarRevisarCompra
   ) {
-    return finalizarVenta(
-      ventaId,
-      checkDuplicates,
-      origen,
-      marcarRevisarCompra,
-      false
-    );
+    return finalizarVenta(ventaId, checkDuplicates, origen, marcarRevisarCompra, false, null, null, null, null);
+  }
+
+  public static Map<String, Object> finalizarVenta(
+    Id ventaId,
+    Boolean checkDuplicates,
+    Boolean origen,
+    Boolean marcarRevisarCompra,
+    Boolean blanqueo
+  ) {
+    return finalizarVenta(ventaId, checkDuplicates, origen, marcarRevisarCompra, blanqueo, null, null, null, null);
   }
 
   @AuraEnabled
@@ -379,7 +399,11 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     Boolean checkDuplicates,
     Boolean origen,
     Boolean marcarRevisarCompra,
-    Boolean blanqueo
+    Boolean blanqueo,
+    String entidadBancaria,
+    String plazo,
+    string moneda,
+    string tasa
   ) {
     try {
       List<Sobject> toUpdate = new List<SObject>();
@@ -428,7 +452,6 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
         linea.Licencia__c = licence != null ? licence.id : null;
 
-        System.debug(linea);
         toUpdate.add(linea);
       }
 
@@ -449,7 +472,6 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         opp.hasLicence__c = true;
       }
 
-      // Blanqueo ≠ falta de origen legal: solo marcar cuando canFinish indique blanqueo real
       if (blanqueo == true) {
         opp.Blanqueo__c = true;
       }
@@ -459,6 +481,19 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
 
       update toUpdate;
       update opp;
+
+      // === Novedad: Actualizamos el Compra_HT__c si existe al finalizar ===
+      if(String.isNotBlank(entidadBancaria) || String.isNotBlank(plazo)) {
+        Venta_HT__c vUpdated = [SELECT Id, Compra_HT__c FROM Venta_HT__c WHERE Id = :ventaId LIMIT 1];
+        if(vUpdated.Compra_HT__c != null) {
+            Compra_HT__c compra = new Compra_HT__c(Id = vUpdated.Compra_HT__c);
+            compra.Entidad_Bancaria__c = entidadBancaria;
+            compra.Plazo_maximo__c = plazo;
+            compra.Moneda__c = moneda;
+            compra.TNA__C = tasa;
+            update compra;
+        }
+      }
 
       return getData(ventaId);
     } catch (Exception e) {
@@ -1109,17 +1144,27 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     }
   }
 
-  @AuraEnabled
   public static Map<String, Object> updateTipoPago(
     Id ventaId,
     String tipoPago
+  ) {
+    return updateTipoPago(ventaId, tipoPago, null, null, null, null);
+  }
+
+  @AuraEnabled
+  public static Map<String, Object> updateTipoPago(
+    Id ventaId,
+    String tipoPago,
+    String entidadBancaria,
+    String plazo,
+    string moneda,
+    string tasa
   ) {
     if (ventaId == null)
       throw new AuraHandledException(Label.VENTAHT_VentaId_Requerido);
     if (String.isBlank(tipoPago))
       throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Requerido);
 
-    // Seguridad / ownership: que la venta sea del comercio logueado
     validateComercio(ventaId);
 
     tipoPago = tipoPago.trim();
@@ -1127,7 +1172,18 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     if (!allowed.contains(tipoPago))
       throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Invalido);
 
-    // 1) Lineas de venta de esa venta
+    // 1) Actualizar la cabecera Compra_HT__c si existe
+    Venta_HT__c ventaHeader = [SELECT Id, Compra_HT__c FROM Venta_HT__c WHERE Id = :ventaId LIMIT 1];
+    if (ventaHeader.Compra_HT__c != null) {
+      Compra_HT__c compra = new Compra_HT__c(Id = ventaHeader.Compra_HT__c);
+      compra.Entidad_Bancaria__c = (tipoPago == 'Financiado' ? entidadBancaria : null);
+      compra.Plazo_maximo__c = (tipoPago == 'Financiado' ? plazo : null);
+      compra.Moneda__c = (tipoPago == 'Financiado' ? moneda : null);
+      compra.TNA__C = (tipoPago == 'Financiado' ? tasa : null);
+      update compra;
+    }
+
+    // 2) Lineas de venta de esa venta
     List<Linea_de_Venta_HT__c> lineasVenta = [
       SELECT Id, Tipo_de_Pago__c
       FROM Linea_de_Venta_HT__c
@@ -1141,8 +1197,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       update lineasVenta;
     }
 
-    // 2) Lineas de compra asociadas a esas lineas de venta
-    //    (asumiendo que existe el lookup Linea_de_Venta_HT__c en Linea_de_Compra_HT__c)
+    // 3) Lineas de compra asociadas a esas lineas de venta
     Set<Id> lineaVentaIds = new Set<Id>();
     for (Linea_de_Venta_HT__c lv : lineasVenta)
       lineaVentaIds.add(lv.Id);

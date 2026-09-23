@@ -112,7 +112,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     }
 
     private static Compra_HT__c getCompraData(Id compraId){
-        return [select Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c,Tipo_de_Pago__c, Licencia__c, Licencia__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
+        return [select Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c,Tipo_de_Pago__c, Licencia__c, Licencia__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId,Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name ,Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
     }
 
     private static Opportunity getOpp(Id compraId) {
@@ -195,14 +195,22 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         return true;
     }
 
-    @AuraEnabled
-    public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates,Boolean origen) {
-        return finalizarCompra(compraId, checkDuplicates, origen, false, false);
+    public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates, Boolean origen) {
+        return finalizarCompra(compraId, checkDuplicates, origen, false, false, null, null, null, null);
     }
 
-    @AuraEnabled
-    public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates,Boolean origen, Boolean marcarRevisarCompra) {
-        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, false);
+    public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates, Boolean origen, Boolean marcarRevisarCompra) {
+        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, false, null, null, null, null);
+    }
+
+    public static Map<String, Object> finalizarCompra(
+        Id compraId,
+        Boolean checkDuplicates,
+        Boolean origen,
+        Boolean marcarRevisarCompra,
+        Boolean blanqueo
+    ) {
+        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, blanqueo, null, null, null, null);
     }
 
     @AuraEnabled
@@ -211,7 +219,11 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         Boolean checkDuplicates,
         Boolean origen,
         Boolean marcarRevisarCompra,
-        Boolean blanqueo
+        Boolean blanqueo,
+        String entidadBancaria,
+        String plazo,
+        string moneda,
+        string tasa
     ) {
         Boolean tieneLicencia;
         List<Sobject> toUpdate = new List<SObject>();
@@ -226,10 +238,18 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         if (Boolean.valueOf(marcarRevisarCompra)) {
             compra.Revisar_Compra__c = true;
         }
+
+        // Persistir Entidad Bancaria, Plazo, Moneda y Tasa en la Compra HT
+        if (String.isNotBlank(entidadBancaria) || String.isNotBlank(plazo) || String.isNotBlank(moneda) || String.isNotBlank(tasa)) {
+            compra.Entidad_Bancaria__c = entidadBancaria;
+            compra.Plazo_maximo__c = plazo;
+            compra.Moneda__c = moneda;
+            compra.TNA__C = tasa;
+        }
+
         toUpdate.add(compra);
 
         Map<String, Licencia__c> licencias = getLicences(getAccount().Id);
-        System.debug(licencias);
         for (Linea_de_Compra_HT__c linea: compra.Lineas_de_Compra_HT__r) {
             String key = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__c + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
             String keyParent = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
@@ -242,31 +262,27 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
 
             if (licence != null && origen != false) {
                 linea.Estado__c = 'Facturable';
-            }
-            else {
-                 linea.Estado__c = 'Pendiente';
+            } else {
+                linea.Estado__c = 'Pendiente';
             }
             linea.Licencia__c = licence != null ? licence.id : null;
 
-            System.debug(linea);
             toUpdate.add(linea);
         }
 
-        Id oppId = [select Oportunidad__c from Compra_HT__c where Id =: compraId limit 1].Oportunidad__c;
-        Opportunity opp = [select id, hasLicence__c, hasLegalOrigin__c,Blanqueo__c from Opportunity where id =: oppId];
+        Id oppId = [SELECT Oportunidad__c FROM Compra_HT__c WHERE Id = :compraId LIMIT 1].Oportunidad__c;
+        Opportunity opp = [SELECT id, hasLicence__c, hasLegalOrigin__c, Blanqueo__c FROM Opportunity WHERE id = :oppId];
 
         if(tieneLicencia == true){
             opp.hasLicence__c = true;
         }
 
-        // Blanqueo ≠ falta de origen legal: solo marcar cuando canFinish indique blanqueo real
         if(blanqueo == true){
             opp.Blanqueo__c = true;
         }
         if(origen == true){
             opp.hasLegalOrigin__c = true;
         }
-
 
         update toUpdate;
         update opp;
@@ -423,8 +439,12 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         return result;
     }
 
-    @AuraEnabled
     public static Map<String, Object> updateTipoPago(Id compraId, String tipoPago) {
+        return updateTipoPago(compraId, tipoPago, null, null, null, null);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> updateTipoPago(Id compraId, String tipoPago, String entidadBancaria, String plazo, string moneda, string tasa) {
         if (compraId == null) throw new AuraHandledException(Label.COMPRAHT_CompraId_Requerido);
         if (String.isBlank(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Requerido);
 
@@ -432,18 +452,31 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
         if (!allowed.contains(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Invalido);
 
-        List<Linea_de_Compra_HT__c> lineas = [
-            SELECT Id
-            FROM Linea_de_Compra_HT__c
-            WHERE Compra_HT__c = :compraId
-        ];
+        try {
+            // 1) Actualizar la cabecera de la Compra_HT__c si existe
+            Compra_HT__c compra = new Compra_HT__c(Id = compraId);
+            compra.Entidad_Bancaria__c = (tipoPago == 'Financiado' ? entidadBancaria : null);
+            compra.Plazo_maximo__c = (tipoPago == 'Financiado' ? plazo : null);
+            compra.Moneda__c = (tipoPago == 'Financiado' ? moneda : null);
+            compra.TNA__C = (tipoPago == 'Financiado' ? tasa : null);
+            update compra;
 
-        for (Linea_de_Compra_HT__c l : lineas) {
-            l.Tipo_de_Pago__c = tipoPago;
+            // 2) Actualizar las líneas asociadas
+            List<Linea_de_Compra_HT__c> lineas = [
+                SELECT Id
+                FROM Linea_de_Compra_HT__c
+                WHERE Compra_HT__c = :compraId
+            ];
+
+            for (Linea_de_Compra_HT__c l : lineas) {
+                l.Tipo_de_Pago__c = tipoPago;
+            }
+            if (!lineas.isEmpty()) update lineas;
+
+            return getData(compraId);
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
         }
-        if (!lineas.isEmpty()) update lineas;
-
-        return getData(compraId);
     }
 
 

@@ -37,6 +37,9 @@ const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
 /** Promo HT Futura Trigo GDM (USD 9 con ≥200 HT). Validación en TEST; prod pendiente. */
 const PROMO_HT_FUTURA_HABILITADA = true;
 
+const FECHA_INICIO_STINE_DEFAULT = "2026-09-21";
+const FECHA_FIN_STINE_DEFAULT = "2026-10-31";
+
 export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
   iconCebadaUrl = `${resourcePortal}/resourcePortal/images/prd-cebada.svg`;
   iconSojaHTUrl = `${resourcePortal}/resourcePortal/images/prd-soja.svg`;
@@ -50,6 +53,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
   @track showResumen = false;
   @api recordId;
+  @api fechaInicioStine;
+  @api fechaFinStine;
 
   @track showFileUploadModal = false;
   @track showObsModal = false;
@@ -67,6 +72,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
   @track _lineasListasFlag = false;
   @track guardandoLineas = false;
   @track finalizandoOperacion = false;
+  @track isOpenPaymentModal = false;
+  @track modalItems = [];
 
   formattedDate = null;
   customCode = null;
@@ -79,12 +86,22 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
   pendingFinalizarPorExpediente = false;
   shouldMarkRevisarCompra = false;
 
+  // Banderas guardado Stine Modal
+  tipoPagoStineSeleccionado = null;
+  @track entidadBancariaStine = null;
+  @track plazoStine = null;
+  @track monedaStine = null;
+  @track tasaStine = null;
+
+  observacionesStine = null;
+
   htFuturaPromoMessage = null;
   htFuturaPromoVariant = "success";
   htFuturaPromoPreviouslyQualified = false;
   htFuturaPromoCelebrationShown = false;
 
   icons = icons.compraVenta;
+
 
   get currentVentaId() {
     if (this.recordId) {
@@ -105,6 +122,96 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       return false;
     }
     return Boolean(this.mostrarBoton);
+  }
+
+  get esVentaHtFutura() {
+    const esHT = this.tipoVenta && this.tipoVenta.toUpperCase() === "HT";
+    const esFutura = this.campana && this.campana.toUpperCase().includes("FUTURA");
+    return esHT && esFutura;
+  }
+
+  get esMarcaStine() {
+    if (this.marca && this.marca.toUpperCase() === "STINE") return true;
+    const semilleroSeleccionado = this.semilleros?.find(s => s.value === this.semillero);
+    return semilleroSeleccionado?.label?.toUpperCase().includes("STINE") || false;
+  }
+
+  get fechaInicioEfectiva() {
+        // 1. Prioriza lo configurado en la Comunidad
+        if (this.fechaInicioStine) return this.fechaInicioStine;
+        // 2. Si es undefined (venga de donde venga el usuario), usa el respaldo guardado en sesión
+        const guardado = sessionStorage.getItem('stine_fechaInicio');
+        if (guardado) return guardado;
+        // 3. Si no hay nada, usa la constante por defecto
+        return FECHA_INICIO_STINE_DEFAULT;
+    }
+
+    get fechaFinEfectiva() {
+        if (this.fechaFinStine) return this.fechaFinStine;
+        const guardado = sessionStorage.getItem('stine_fechaFin');
+        if (guardado) return guardado;
+        return FECHA_FIN_STINE_DEFAULT;
+    }
+
+    estaEnRangoFechasStine() {
+        const inicio = this.fechaInicioEfectiva;
+        const fin = this.fechaFinEfectiva;
+
+        // Si por alguna razón no hay fechas, no bloquea ni muestra modal
+        if (!inicio || !fin) {
+            return false;
+        }
+
+        // Si la Comunidad envió valores válidos en esta vista, actualizamos el almacenamiento local
+        if (this.fechaInicioStine) sessionStorage.setItem('stine_fechaInicio', this.fechaInicioStine);
+        if (this.fechaFinStine) sessionStorage.setItem('stine_fechaFin', this.fechaFinStine);
+
+        // Obtenemos la fecha de hoy local en formato YYYY-MM-DD
+        const hoy = new Date();
+        const year = hoy.getFullYear();
+        const month = String(hoy.getMonth() + 1).padStart(2, '0');
+        const day = String(hoy.getDate()).padStart(2, '0');
+        const hoyStr = `${year}-${month}-${day}`;
+
+        return hoyStr >= inicio && hoyStr <= fin;
+    }
+
+
+  async evaluarEsStineFutura() {
+    console.log("--- [DEBUG] Ejecutando evaluarEsStineFutura ---");
+    console.log("this.DataCompra:", JSON.parse(JSON.stringify(this.DataCompra || {})));
+
+    if (!this.estaEnRangoFechasStine()) {
+      console.log("--- [DEBUG] Fuera de rango de fechas configurado para Stine. Se omite modal y persistencia. ---");
+      return false;
+    }
+
+    const lineas = [
+      ...(this.DataCompra?.record?.Lineas_de_Venta_HT__r || []),
+      ...(this.data?.record?.Lineas_de_Venta_HT__r || []),
+      ...(this.items || []).map(i => i.record || i)
+    ];
+    console.log("Líneas recopiladas:", JSON.parse(JSON.stringify(lineas)));
+
+    let tieneStineFuturaEnLineas = false;
+
+    for (const rec of lineas) {
+      const obtentor = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || "";
+      const tipoCompra = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || "";
+
+      console.log(`Analizando línea -> Obtentor: "${obtentor}", TipoCompra: "${tipoCompra}"`);
+
+      const esObtentorStineExacto = obtentor === "M.S. TECHNOLOGIES ARGENTINA S.R.L.";
+      const esTipoFutura = tipoCompra === "Futura" || this.Futura;
+
+      if (esObtentorStineExacto && esTipoFutura) {
+        tieneStineFuturaEnLineas = true;
+        break;
+      }
+    }
+
+    console.log("--- [DEBUG] Resultado final evaluarEsStineFutura:", tieneStineFuturaEnLineas);
+    return tieneStineFuturaEnLineas;
   }
 
   async connectedCallback() {
@@ -470,6 +577,33 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     this.finalizandoOperacion = true;
 
     try {
+      const esStineFutura = await this.evaluarEsStineFutura();
+
+      if (esStineFutura && !this.tipoPagoStineSeleccionado) {
+        try {
+          this.isLoading = true;
+          await this.saveAllPendingLines();
+        } catch (e) {
+          this.isLoading = false;
+          return this.onError("Error al guardar las líneas: " + (e.message || e));
+        } finally {
+          this.isLoading = false;
+        }
+
+        this.prepararModalItems();
+        this.pendingFinalizar = true;
+        this.currentModal = "forma-pago-stine";
+        return;
+      }
+
+      // Si no es Stine Futura o está fuera del rango de fechas, se resetean los valores para no persistirlos
+      if (!esStineFutura) {
+        this.entidadBancariaStine = null;
+        this.plazoStine = null;
+        this.monedaStine = null;
+        this.tasaStine = null;
+      }
+
       try {
         this.isLoading = true;
         await this.saveAllPendingLines();
@@ -484,6 +618,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         this.currentModal = "tipo-pago";
         return;
       }
+
       if (this.isChildrenLoading) {
         return this.onError("Espere a que se termine de guardar la línea");
       }
@@ -520,7 +655,11 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
             checkDuplicates: activeId != this.lastDuplicateCheckId,
             origen: this.haveOrigenLegal,
             blanqueo: this.Blanqueo === true,
-            marcarRevisarCompra
+            marcarRevisarCompra,
+            entidadBancaria: this.entidadBancariaStine,
+            plazo: this.plazoStine,
+            moneda: this.monedaStine,
+            tasa: this.tasaStine
           });
 
           if (data.duplicate) {
@@ -555,6 +694,129 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     }
   }
 
+  prepararModalItems() {
+    const lineasDOM = Array.from(
+      this.template.querySelectorAll("c-crear-linea-venta-new")
+    );
+
+    if (lineasDOM.length > 0) {
+      this.modalItems = lineasDOM.map((child, index) => {
+        const rec = child.record || {};
+        const productoId = rec.Producto__c;
+        let variedadNombre = "";
+
+        if (productoId && this.variedades) {
+          const prodEncontrado = this.variedades.find(
+            (v) => v.record?.Product2Id === productoId || v.value === productoId
+          );
+          if (prodEncontrado && prodEncontrado.label) {
+            variedadNombre = prodEncontrado.label;
+          }
+        }
+        if (!variedadNombre && rec.Producto__r?.Name) {
+          variedadNombre = rec.Producto__r.Name;
+        }
+        if (!variedadNombre) {
+          variedadNombre = "Variedad " + (index + 1);
+        }
+
+        const cantidad = parseFloat(rec.Cantidad__c) || 0;
+        const precio =
+          parseFloat(rec.Precio_Unitario__c) ||
+          parseFloat(rec.Precio_de_Lista__c) ||
+          0;
+        const totalCalculado = precio * cantidad;
+
+        return {
+          id: rec.Id || `linea-${index}`,
+          variedad: variedadNombre,
+          ht: cantidad,
+          precioUnitario: this.formatCurrency(precio),
+          total: this.formatCurrency(totalCalculado)
+        };
+      });
+    } else if (this.data?.record?.Lineas_de_Venta_HT__r) {
+      this.modalItems = this.data.record.Lineas_de_Venta_HT__r.map(
+        (item, index) => {
+          const precio =
+            parseFloat(item.Precio_Unitario__c) ||
+            parseFloat(item.Precio_de_Lista__c) ||
+            0;
+          const cantidad = parseFloat(item.Cantidad__c) || 0;
+          const totalCalculado = precio * cantidad;
+
+          return {
+            id: item.Id || `linea-${index}`,
+            variedad: item.Producto__r?.Name || "Variedad " + (index + 1),
+            ht: cantidad,
+            precioUnitario: this.formatCurrency(precio),
+            total: this.formatCurrency(totalCalculado)
+          };
+        }
+      );
+    } else {
+      this.modalItems = [];
+    }
+  }
+
+  async handleConfirmPaymentStine(event) {
+    const { formaPago, observaciones, entidadBancaria, plazo, moneda, tasa } = event.detail;
+
+    this.tipoPagoStineSeleccionado = formaPago;
+    this.observacionesStine = observaciones;
+    this.tipoPago = formaPago;
+    
+    // Captura extra
+    this.entidadBancariaStine = formaPago === "Financiado" ? entidadBancaria : null;
+    this.plazoStine = formaPago === "Financiado" ? plazo : null;
+    this.monedaStine = formaPago === "Financiado" ? moneda : null; 
+    this.tasaStine = formaPago === "Financiado" ? tasa : null;
+
+    this.isLoading = true;
+    try {
+      await updateTipoPago({
+        ventaId: this.currentVentaId,
+        tipoPago: formaPago,
+        entidadBancaria: this.entidadBancariaStine,
+        plazo: this.plazoStine,
+        moneda: this.monedaStine,
+        tasa: this.tasaStine
+      });
+
+      if (observaciones && observaciones.trim() !== "") {
+        await saveObvservations({ recordId: this.recordId, obs: observaciones });
+      }
+    } catch (e) {
+    // Imprimir el objeto de error para inspección
+    console.error("Detalle del error en Apex/JS:", JSON.parse(JSON.stringify(e)));
+    
+    // Extraer el mensaje devuelto por Apex
+    const errorMessage = e.body?.message || e.message || "Error al guardar datos de pago";
+    this.onError("Error al guardar datos de pago: " + errorMessage);
+    this.isLoading = false;
+    return;
+  }
+
+    this.isLoading = false;
+    this.currentModal = null;
+    this.pendingFinalizar = false;
+
+    this.finalizar();
+  }
+
+  handleClosePaymentStine() {
+    this.currentModal = null;
+    this.pendingFinalizar = false;
+  }
+
+  formatCurrency(val) {
+    if (isNaN(val)) return "0,00";
+    return parseFloat(val).toLocaleString("es-AR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
   async procesarVentaIncompleta(activeId, marcarRevisarCompra = false) {
     await this.requestWrap(async () => {
       const data = await finalizarVenta({
@@ -562,7 +824,11 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         checkDuplicates: activeId != this.lastDuplicateCheckId,
         origen: this.haveOrigenLegal,
         blanqueo: this.Blanqueo === true,
-        marcarRevisarCompra
+        marcarRevisarCompra,
+        entidadBancaria: this.entidadBancariaStine,
+        plazo: this.plazoStine,
+        moneda: this.monedaStine,
+        tasa: this.tasaStine
       });
 
       if (data.duplicate) {
@@ -1162,23 +1428,30 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     if (!value) return;
 
     this.tipoPago = value;
+    // Reseteamos las propiedades por si es el modal estándar
+    this.entidadBancariaStine = null;
+    this.plazoStine = null;
+    this.monedaStine = null;
+    this.tasaStine = null;
 
     await this.requestWrap(async () => {
       const data = await updateTipoPago({
         ventaId: this.recordId,
-        tipoPago: value
+        tipoPago: value,
+        entidadBancaria: null,
+        plazo: null,
+        moneda: null,
+        tasa: null
       });
       this.setData(data);
       this.DataCompra = data;
     });
 
-    // cierra modal tipo-pago
     this.currentModal = null;
 
-    // si venía de apretar finalizar, continúa
     if (this.pendingFinalizar) {
       this.pendingFinalizar = false;
-      await this.finalizar(); // ahora ya pasa el gate porque this.tipoPago existe
+      await this.finalizar();
     }
   }
 
