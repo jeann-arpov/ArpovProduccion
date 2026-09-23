@@ -248,6 +248,18 @@ public without sharing class lwcVentasImportFromExcel {
     if (!cuentasPorCuit.isEmpty()) {
       cuitCache.mergeCuentasPorCuit(cuentasPorCuit);
     }
+    List<Account> originantesImport = new List<Account>();
+    if (originanteCore != null) {
+      originantesImport.add(originanteCore);
+    }
+    if (userAccont != null) {
+      originantesImport.add(userAccont);
+    }
+    if (!originantesImport.isEmpty()) {
+      cuitCache.mergeCuentasPorCuit(
+        VentasInformadasCuitResolver.agruparCuentasPorCuit(originantesImport)
+      );
+    }
     // Provincia/Localidad Destino: nombres (o Ids) → lookups, misma lógica que el batch.
     Map<String, Id> provinciasByKey = VentasInformadasDestinoGeoService.loadProvinciasByKey();
     Map<Id, Map<String, Id>> localidadesByProvinciaId = VentasInformadasDestinoGeoService.buildLocalidadesCacheForProvinciaIds(

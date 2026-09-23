@@ -407,6 +407,7 @@ public without sharing class VentasInformadasCuitResolver {
     }
 
     CuitResolverCache cache = buildCuitResolverCache(cuits, obtComIds);
+    precargarOriginantesYaAsignados(ventas, cache);
     for (Ventas_Informadas__c venta : ventas) {
       Id obtComId = obtentorComercializaByVariedad != null &&
         String.isNotBlank(venta.Variedad__c)
@@ -414,6 +415,60 @@ public without sharing class VentasInformadasCuitResolver {
         : null;
       aplicarOriginanteYDestinatario(venta, obtComId, cache);
     }
+  }
+
+  /**
+   * El import y el formulario dejan Originante__c antes de resolver por CUIT.
+   * Si esa cuenta no entra en la query, igual hay que evaluar Rol Originante.
+   */
+  private static void precargarOriginantesYaAsignados(
+    List<Ventas_Informadas__c> ventas,
+    CuitResolverCache cache
+  ) {
+    if (ventas == null || cache == null) {
+      return;
+    }
+    Set<Id> faltantes = new Set<Id>();
+    for (Ventas_Informadas__c venta : ventas) {
+      if (
+        venta != null &&
+        venta.Originante__c != null &&
+        !cache.accountsById.containsKey(venta.Originante__c)
+      ) {
+        faltantes.add(venta.Originante__c);
+      }
+    }
+    if (faltantes.isEmpty()) {
+      return;
+    }
+    cache.mergeCuentasPorCuit(
+      agruparCuentasPorCuit([
+        SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
+        FROM Account
+        WHERE Id IN :faltantes
+      ])
+    );
+  }
+
+  private static Account cuentaOriginanteYaAsignada(
+    Id originanteId,
+    Map<Id, Account> accountsById,
+    Boolean consultarSiFalta
+  ) {
+    if (originanteId == null) {
+      return null;
+    }
+    Account ya = accountsById != null ? accountsById.get(originanteId) : null;
+    if (ya != null || consultarSiFalta != true) {
+      return ya;
+    }
+    List<Account> queried = [
+      SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
+      FROM Account
+      WHERE Id = :originanteId
+      LIMIT 1
+    ];
+    return queried.isEmpty() ? null : queried[0];
   }
 
   @TestVisible
@@ -438,34 +493,73 @@ public without sharing class VentasInformadasCuitResolver {
     return out;
   }
 
-  /** Rol originante desde Account.Type o RecordType (misma lógica que reproceso / Nueva Venta). */
+  /**
+   * Rol originante desde Account.Type o RecordType (misma lógica que reproceso / Nueva Venta).
+   * Si el originante es Obtentor pero la variedad no es suya, Rol Originante = Distribuidor.
+   */
   @TestVisible
   public static void aplicarRolOriginante(
     Ventas_Informadas__c venta,
     Account originante
   ) {
-    if (
-      venta == null ||
-      originante == null ||
-      String.isNotBlank(venta.Rol_Originante__c)
-    ) {
+    aplicarRolOriginante(venta, originante, null);
+  }
+
+  @TestVisible
+  public static void aplicarRolOriginante(
+    Ventas_Informadas__c venta,
+    Account originante,
+    Id obtentorComercializaId
+  ) {
+    if (venta == null || originante == null) {
       return;
     }
-    if (
-      originante.RecordType != null &&
-      originante.RecordType.DeveloperName == 'Proveedor'
-    ) {
+    if (String.isBlank(venta.Rol_Originante__c)) {
+      if (
+        originante.RecordType != null &&
+        originante.RecordType.DeveloperName == 'Proveedor'
+      ) {
+        return;
+      }
+      if (String.isNotBlank(originante.Type)) {
+        venta.Rol_Originante__c = originante.Type;
+      } else if (
+        originante.RecordType != null &&
+        String.isNotBlank(originante.RecordType.DeveloperName)
+      ) {
+        venta.Rol_Originante__c = originante.RecordType.DeveloperName;
+      }
+    }
+    ajustarRolOriginanteSiObtentorDeTerceros(
+      venta,
+      originante,
+      obtentorComercializaId
+    );
+  }
+
+  /**
+   * Obtentor que comercializa variedad ajena → Rol Originante Distribuidor.
+   * Aplica aunque el rol ya venga como Obtentor (p. ej. desde el formulario).
+   */
+  @TestVisible
+  public static void ajustarRolOriginanteSiObtentorDeTerceros(
+    Ventas_Informadas__c venta,
+    Account originante,
+    Id obtentorComercializaId
+  ) {
+    if (venta == null || originante == null || obtentorComercializaId == null) {
       return;
     }
-    if (String.isNotBlank(originante.Type)) {
-      venta.Rol_Originante__c = originante.Type;
+    if (originante.Id == obtentorComercializaId) {
       return;
     }
-    if (
-      originante.RecordType != null &&
-      String.isNotBlank(originante.RecordType.DeveloperName)
-    ) {
-      venta.Rol_Originante__c = originante.RecordType.DeveloperName;
+    Boolean esObtentor =
+      venta.Rol_Originante__c == 'Obtentor' ||
+      originante.Type == 'Obtentor' ||
+      (originante.RecordType != null &&
+      originante.RecordType.DeveloperName == 'Obtentor');
+    if (esObtentor) {
+      venta.Rol_Originante__c = 'Distribuidor';
     }
   }
 
@@ -616,9 +710,16 @@ public without sharing class VentasInformadasCuitResolver {
         porCuit.get(venta.CUIT_Originante__c),
         obtComById
       );
+      if (originante == null && venta.Originante__c != null) {
+        originante = cuentaOriginanteYaAsignada(
+          venta.Originante__c,
+          obtComById,
+          cache == null
+        );
+      }
       if (originante != null) {
         venta.Originante__c = originante.Id;
-        aplicarRolOriginante(venta, originante);
+        aplicarRolOriginante(venta, originante, obtentorComercializaId);
         if (cache != null) {
           cache.accountsById.put(originante.Id, originante);
         }
