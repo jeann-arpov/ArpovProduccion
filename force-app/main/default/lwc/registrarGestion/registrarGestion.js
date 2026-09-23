@@ -15,6 +15,89 @@ import RESPUESTA_FIELD from '@salesforce/schema/Gestion_Expedientes__c.Respuesta
 
 const PAGE_SIZE = 10;
 const RESPUESTA_SOLO_PRI = 'Licencia E3 en gestión';
+const CASE_KEY_PREFIX = '500';
+
+/** Fallback si el wire de picklist falla (p.ej. FLS). */
+const RESPUESTAS_FALLBACK = [
+    'Acopio',
+    'Cesión conjunta',
+    'Cesión por descarte',
+    'Compra/Venta HT',
+    'Descarte multiplicación',
+    'Desconoce entrega',
+    'Ensayo',
+    'Entrega cosecha PPH',
+    'Firma licencia',
+    'Informa SF',
+    'No sembró',
+    'Paga factura HT',
+    'Reconsideración BT',
+    'Sin intención de regularizar',
+    'Sin respuesta',
+    'Intención de pago',
+    'NC por Cesión',
+    'NC por compra HT',
+    'NC por Ensayo',
+    'NC por Fiscalizada',
+    'NC por reconsideración',
+    'Paga factura',
+    'Sin intención de pagar',
+    'Solicita NC',
+    'Reclama transferencia de toneladas',
+    'Sin contacto',
+    'Solicita detalle/MBT',
+    'Licencia E3 en gestión',
+    'Reclama CTG otra campaña',
+    'Promesa Compra HT',
+    'Solicitamos Documentación',
+    'Promesa de respuesta'
+].map((v) => ({ label: v, value: v }));
+
+const RESPUESTAS_POR_OPERADOR = {
+    SE: new Set([
+        'Acopio',
+        'Cesión conjunta',
+        'Cesión por descarte',
+        'Compra/Venta HT',
+        'Descarte multiplicación',
+        'Desconoce entrega',
+        'Ensayo',
+        'Firma licencia',
+        'Informa SF',
+        'No sembró',
+        'Paga factura HT',
+        'Reconsideración BT',
+        'Sin intención de regularizar',
+        'Sin respuesta',
+        'Reclama transferencia de toneladas',
+        'Sin contacto',
+        'Solicita detalle/MBT',
+        'Licencia E3 en gestión',
+        'Reclama CTG otra campaña',
+        'Promesa Compra HT',
+        'Solicitamos Documentación',
+        'Promesa de respuesta'
+    ]),
+    CTV: new Set([
+        'Sin respuesta',
+        'Sin contacto',
+        'Solicita detalle/MBT',
+        'Licencia E3 en gestión',
+        'Reclama CTG otra campaña',
+        'Promesa Compra HT',
+        'Solicitamos Documentación',
+        'Entrega cosecha PPH',
+        'Intención de pago',
+        'NC por Cesión',
+        'NC por compra HT',
+        'NC por Ensayo',
+        'NC por Fiscalizada',
+        'NC por reconsideración',
+        'Paga factura',
+        'Sin intención de pagar',
+        'Solicita NC'
+    ])
+};
 
 export default class RegistrarGestion extends NavigationMixin(LightningElement) {
     @api recordId;
@@ -29,6 +112,7 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
     @track inicio = '';
     @track operador = '';
     @track respuesta = '';
+    @track efectividad = '';
     @track comentario = '';
     
     // Timeline data
@@ -55,12 +139,29 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
         { label: 'Entrante', value: 'Entrante' }
     ];
 
+    @track opcionesEfectividad = [
+        { label: 'Efectiva', value: 'Efectiva' },
+        { label: 'No Efectiva', value: 'No Efectiva' }
+    ];
+
     tipoExpediente = '';
     recordTypeId;
     @track operadorPicklist;
     @track respuestaPicklist;
 
-    @wire(getRecord, { recordId: '$recordId', fields: [TIPO_EXPEDIENTE_FIELD] })
+    get esCaso() {
+        return this.recordId && String(this.recordId).startsWith(CASE_KEY_PREFIX);
+    }
+
+    get esExpediente() {
+        return !this.esCaso;
+    }
+
+    get expedienteRecordId() {
+        return this.esCaso ? undefined : this.recordId;
+    }
+
+    @wire(getRecord, { recordId: '$expedienteRecordId', fields: [TIPO_EXPEDIENTE_FIELD] })
     wiredExpediente({ data }) {
         if (data) {
             this.tipoExpediente = getFieldValue(data, TIPO_EXPEDIENTE_FIELD) || '';
@@ -68,43 +169,75 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
     }
 
     @wire(getObjectInfo, { objectApiName: GESTION_OBJECT })
-    wiredGestionObjectInfo({ data }) {
+    wiredGestionObjectInfo({ data, error }) {
         if (data) {
             this.recordTypeId = data.defaultRecordTypeId;
+            if (!this.recordTypeId && data.recordTypeInfos) {
+                const rts = Object.values(data.recordTypeInfos);
+                const master = rts.find((rt) => rt.master) || rts.find((rt) => rt.available);
+                this.recordTypeId = master?.recordTypeId;
+            }
+        } else if (error) {
+            console.error('Error getObjectInfo Gestion_Expedientes__c:', error);
         }
     }
 
     @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: OPERADOR_FIELD })
-    wiredOperadorPicklist({ data }) {
+    wiredOperadorPicklist({ data, error }) {
         if (data) {
             this.operadorPicklist = data;
+        } else if (error) {
+            console.error('Error picklist Operador__c:', error);
         }
     }
 
     @wire(getPicklistValues, { recordTypeId: '$recordTypeId', fieldApiName: RESPUESTA_FIELD })
-    wiredRespuestaPicklist({ data }) {
+    wiredRespuestaPicklist({ data, error }) {
         if (data) {
             this.respuestaPicklist = data;
+        } else if (error) {
+            console.error('Error picklist Respuesta__c:', error);
         }
     }
 
     get opcionesOperador() {
-        return this.operadorPicklist?.values || [];
+        const fromWire = this.operadorPicklist?.values || [];
+        const opciones = fromWire.length
+            ? fromWire
+            : [
+                  { label: 'SE', value: 'SE' },
+                  { label: 'CTV', value: 'CTV' }
+              ];
+        // El valor "Caso" es interno: no se ofrece en Expedientes
+        return opciones.filter((opt) => opt.value !== 'Caso');
     }
 
     get opcionesRespuesta() {
-        if (!this.operador || !this.respuestaPicklist) {
+        const fromWire = this.respuestaPicklist?.values || [];
+        const base = fromWire.length ? fromWire : RESPUESTAS_FALLBACK;
+
+        // Casos: todas las respuestas (Operador "Caso" se setea en Apex)
+        if (this.esCaso) {
+            return base;
+        }
+
+        // Expedientes: filtro por SE/CTV (requiere Operador)
+        if (!this.operador) {
             return [];
         }
 
-        const controllerKey = this.respuestaPicklist.controllerValues[this.operador];
-        if (controllerKey === undefined) {
-            return [];
+        const controllerKey = this.respuestaPicklist?.controllerValues?.[this.operador];
+        let opciones;
+        if (fromWire.length && controllerKey !== undefined) {
+            opciones = fromWire.filter(
+                (opt) => Array.isArray(opt.validFor) && opt.validFor.includes(controllerKey)
+            );
+        } else {
+            const permitidas = RESPUESTAS_POR_OPERADOR[this.operador];
+            opciones = permitidas
+                ? base.filter((opt) => permitidas.has(opt.value))
+                : base;
         }
-
-        let opciones = this.respuestaPicklist.values.filter(
-            (opt) => opt.validFor.includes(controllerKey)
-        );
 
         if (this.tipoExpediente !== 'PRI') {
             opciones = opciones.filter((opt) => opt.value !== RESPUESTA_SOLO_PRI);
@@ -114,7 +247,10 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
     }
 
     get respuestaDeshabilitada() {
-        return !this.operador || !this.respuestaPicklist;
+        if (this.esCaso) {
+            return false;
+        }
+        return !this.operador;
     }
 
     // Getter para saber si hay más registros
@@ -127,8 +263,8 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
         return `Mostrar más`;
     }
 
-    // Wire para cargar gestiones
-    @wire(obtenerGestiones, { expedienteId: '$recordId', limitSize: PAGE_SIZE, offset: 0 })
+    // Wire para cargar gestiones (Expediente o Caso)
+    @wire(obtenerGestiones, { parentId: '$recordId', limitSize: PAGE_SIZE, offset: 0 })
     wiredGestiones(result) {
         this.wiredGestionesResult = result;
         if (result.data) {
@@ -160,7 +296,7 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
      */
     async obtenerNumeroGestion() {
         try {
-            const numero = await obtenerSiguienteNumero({ expedienteId: this.recordId });
+            const numero = await obtenerSiguienteNumero({ parentId: this.recordId });
             this.numeroGestion = numero;
         } catch (error) {
             console.error('Error obteniendo número:', error);
@@ -202,6 +338,10 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
         this.respuesta = event.detail.value;
     }
 
+    handleEfectividadChange(event) {
+        this.efectividad = event.detail.value;
+    }
+
     handleComentarioChange(event) {
         this.comentario = event.target.value;
     }
@@ -219,13 +359,14 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
         
         try {
             await crearGestion({
-                expedienteId: this.recordId,
+                parentId: this.recordId,
                 celular: this.celular,
                 medio: this.medio,
                 tipoGestion: this.inicio,
-                operador: this.operador,
+                operador: this.esCaso ? null : this.operador,
                 respuesta: this.respuesta,
-                comentario: this.comentario
+                comentario: this.comentario,
+                efectividad: this.efectividad
             });
             
             // Refrescar datos desde servidor
@@ -250,7 +391,7 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
         this.cargandoMas = true;
         try {
             const result = await obtenerGestiones({ 
-                expedienteId: this.recordId, 
+                parentId: this.recordId, 
                 limitSize: PAGE_SIZE, 
                 offset: this.registrosCargados 
             });
@@ -289,6 +430,11 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
             
             // Agregar propiedades de visualización
             const tipoTimeline = this.obtenerTipoTimeline(gestion.Medio__c);
+            const resultadoLabel = (gestion.Respuesta__c || '').replace('_', ' ');
+            const colorResultado = gestion.Efectividad__c
+                ? this.obtenerColorPorEfectividad(gestion.Efectividad__c)
+                : this.obtenerColorPorRespuesta(gestion.Respuesta__c);
+
             const gestionConEstilo = {
                 id: gestion.Id,
                 numeroGestion: gestion.Name,
@@ -297,13 +443,17 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
                 inicio: gestion.Tipo_Gestion__c,
                 operador: gestion.Operador__c,
                 respuesta: gestion.Respuesta__c,
+                efectividad: gestion.Efectividad__c,
                 comentario: gestion.Comentario__c,
                 agente: gestion.CreatedBy?.Name || '',
                 fecha: gestion.CreatedDate,
                 icono: this.obtenerIconoPorMedio(gestion.Medio__c),
-                colorIcono: this.obtenerColorPorRespuesta(gestion.Respuesta__c),
+                colorIcono: colorResultado,
                 horaFormateada: this.formatearHora(fecha),
-                respuestaFormateada: (gestion.Respuesta__c || '').replace('_', ' '),
+                respuestaFormateada: resultadoLabel,
+                etiquetaResultado: 'Resultado',
+                mostrarOperador: this.esExpediente && !!gestion.Operador__c,
+                mostrarEfectividad: !!gestion.Efectividad__c,
                 subtitulo: this.obtenerSubtitulo(gestion),
                 expanded: false,
                 expandIcon: 'utility:chevronright',
@@ -386,6 +536,16 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
             'No_Interesado': 'error'
         };
         return colores[respuesta] || 'base';
+    }
+
+    obtenerColorPorEfectividad(efectividad) {
+        if (efectividad === 'Efectiva') {
+            return 'success';
+        }
+        if (efectividad === 'No Efectiva') {
+            return 'warning';
+        }
+        return 'base';
     }
     
     /**
@@ -496,18 +656,33 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
             return false;
         }
 
+        if (!this.efectividad) {
+            this.mostrarError = true;
+            this.mensajeError = 'Debe seleccionar la efectividad';
+            return false;
+        }
+
+        if (this.esCaso) {
+            if (!this.respuesta) {
+                this.mostrarError = true;
+                this.mensajeError = 'Debe seleccionar el tipo de respuesta';
+                return false;
+            }
+            return true;
+        }
+
         if (!this.operador) {
             this.mostrarError = true;
             this.mensajeError = 'Debe seleccionar un operador';
             return false;
         }
-        
+
         if (!this.respuesta) {
             this.mostrarError = true;
             this.mensajeError = 'Debe seleccionar el tipo de respuesta';
             return false;
         }
-        
+
         return true;
     }
     
@@ -530,6 +705,7 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
         this.inicio = '';
         this.operador = '';
         this.respuesta = '';
+        this.efectividad = '';
         this.comentario = '';
         this.mostrarError = false;
         this.mensajeError = '';

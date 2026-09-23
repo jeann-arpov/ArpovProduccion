@@ -157,6 +157,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>registrarGestion</componentName>
+                <identifier>c_registrarGestion</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentName>runtime_sales_activities:activityPanel</componentName>
                 <identifier>runtime_sales_activities_activityPanel</identifier>
             </componentInstance>
