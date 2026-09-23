@@ -16,6 +16,24 @@ import {
     resolveBaseListPrice
 } from 'c/htCondicionPromocionalGdm';
 
+function roundMoney(value) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) {
+        return null;
+    }
+    const sign = amount < 0 ? -1 : 1;
+    return sign * Math.round((Math.abs(amount) + Number.EPSILON) * 100) / 100;
+}
+
+function formatMoney(value) {
+    const rounded = roundMoney(value);
+    return rounded == null ? '' : rounded.toFixed(2);
+}
+
+function hasMoneyValue(value) {
+    return value !== null && value !== undefined && value !== '';
+}
+
 const CSS = `
     lightning-record-edit-form:not(:first-of-type) lightning-helptext {
         display:none;
@@ -528,12 +546,22 @@ updatePriceBasedOnTipoCompra() {
 }
 
     updatePrice() {
-        
         const price = this._record.Precio_de_Lista__c;
-        console.log('Valor de Precio_de_Lista__c:', price);
         const qty = this._record.Cantidad__c;
-        this.precioLista = price;
-        this.precio = price != null && qty != null ? price * qty : '';
+        const hasPrice = hasMoneyValue(price);
+        const qtyNumber = hasMoneyValue(qty) ? Number(qty) : null;
+        this.precioLista = hasPrice ? formatMoney(price) : '';
+        this.precio = hasPrice && qtyNumber != null && Number.isFinite(qtyNumber)
+            ? formatMoney(Number(price) * qtyNumber)
+            : '';
+    }
+
+    normalizeLineAmounts() {
+        const roundedPrice = roundMoney(this._record?.Precio_de_Lista__c);
+        if (roundedPrice != null) {
+            this._record.Precio_de_Lista__c = roundedPrice;
+        }
+        this.updatePrice();
     }
 
     saveRow(event) {
@@ -595,7 +623,7 @@ updatePriceBasedOnTipoCompra() {
 
         console.log('Inputs valid, proceeding to save.');
         try {
-            
+            this.normalizeLineAmounts();
             console.log('414',JSON.stringify(this._record));
 
             if (!this.batchSaving) {
