@@ -97,3 +97,103 @@ button.black-border {
     background-color: #B5EC08;
     color: black;
 }
+
+.custom-modal-container {
+    position: relative;
+    max-width: 650px !important;
+}
+
+.custom-close-button {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    border-radius: 50%;
+    border: none;
+    background: #f3f4f6;
+    padding: 6px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.brand-subtitle {
+    color: #e65100;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.modal-description {
+    color: #4b5563;
+    font-size: 0.875rem;
+}
+
+/* Tarjeta de Resumen por Variedad */
+.summary-card {
+    background-color: #f3f4f6;
+    border-radius: 12px;
+}
+
+.summary-card .label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.summary-card .value {
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Radio Cards para Selección de Pago */
+.payment-card {
+    display: block;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.payment-card.selected {
+    border-color: #84cc16;
+    background-color: #f7fee7;
+}
+
+.option-title {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #111827;
+}
+
+.badge-discount {
+    background-color: #84cc16;
+    color: #000;
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.option-desc {
+    font-size: 0.8rem;
+    color: #4b5563;
+}
+
+.text-required {
+    color: #dc2626;
+}
+
+.warning-box {
+    color: #d97706;
+    font-size: 0.75rem;
+}
+
+.warning-icon {
+    --slds-c-icon-color-foreground: #d97706;
+}

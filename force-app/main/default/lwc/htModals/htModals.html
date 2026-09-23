@@ -1,14 +1,11 @@
 <template>
   <!-- Muestra el modal cuando isOpen = true -->
-  <section if:true={showModal}  class="modal-overlay" role="dialog" aria-modal="true">
+  <section if:true={showModal} class="modal-overlay" role="dialog" aria-modal="true">
     <div class="modal-card">
       <!-- Botón cerrar -->
        <template if:true={showClose}>
          <button class="modal-close" onclick={closeModal} aria-label="Cerrar">✕</button>
         </template>
-
-      <!-- <button class="modal-close" onclick={closeModal} aria-label="Cerrar">✕</button> -->
-
 
         <!-- FINALIZADA -->
         <template if:true={showFinalizada}>
@@ -142,7 +139,6 @@
         <template if:true={showTipoPago}>
         <div class="modal-backdrop">
             <div class="modal" onclick={stopPropagation} onkeydown={handleKeydownNoEsc} tabindex="0">
-            <!-- sin X -->
             <svg class="slds-m-bottom_medium" width="33" height="33">
                 <use xlink:href={icons.error}></use>
             </svg>
@@ -194,6 +190,162 @@
             </div>
         </template>
 
+    <template if:true={showFormaPagoStine}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container custom-modal-container">
+                
+                <div class="slds-modal__content slds-p-around_large custom-modal-body">
+                    
+                    <!-- Header/Subtítulo -->
+                    <p class="brand-subtitle">STINE · FUTURA 26/27</p>
+                    <h2 class="modal-title">Elegí la forma de pago</h2>
+                    <p class="modal-description">
+                        El precio es el mismo en las dos opciones. Cambia quién factura y cómo se abona.
+                    </p>
+
+                    <!-- Resumen por Variedad -->
+                    <div class="summary-list slds-m-vertical_medium">
+                        <template for:each={modalItems} for:item="item">
+                            <div key={item.id} class="summary-card slds-grid slds-grid_vertical-align-center slds-p-around_small slds-m-bottom_x-small">
+                                <div class="slds-col slds-size_3-of-12">
+                                    <span class="label">Variedad</span>
+                                    <span class="value">{item.variedad}</span>
+                                </div>
+                                <div class="slds-col slds-size_2-of-12">
+                                    <span class="label">HT</span>
+                                    <span class="value">{item.ht}</span>
+                                </div>
+                                <div class="slds-col slds-size_3-of-12">
+                                    <span class="label">Precio unit.</span>
+                                    <span class="value">USD {item.precioUnitario}</span>
+                                </div>
+                                <div class="slds-col slds-size_4-of-12 text-right">
+                                    <span class="label">Total</span>
+                                    <span class="value">USD {item.total}</span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Selección Forma de Pago -->
+                    <div class="payment-options slds-grid slds-gutters">
+                        
+                        <!-- Opción Contado -->
+                        <div class="slds-col slds-size_1-of-2">
+                            <label class={contadoCardClass}>
+                                <div class="slds-grid slds-grid_align-spread">
+                                    <div class="slds-grid slds-grid_vertical-align-center">
+                                        <lightning-icon icon-name="utility:moneybag" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                        <span class="option-title">Contado</span>
+                                        <span class="badge-discount slds-m-left_x-small">5% OFF</span>
+                                    </div>
+                                    <input type="radio" name="paymentOption" value="Contado" checked={isContado} onchange={handlePaymentChange}/>
+                                </div>
+                                <p class="option-desc slds-m-top_x-small">
+                                    Factura Sembrá Evolución. Descuento aplicado en la facturación, sin gestión adicional.
+                                </p>
+                            </label>
+                        </div>
+
+                        <!-- Opción Financiado -->
+                        <div class="slds-col slds-size_1-of-2">
+                            <label class={financiadoCardClass}>
+                                <div class="slds-grid slds-grid_align-spread">
+                                    <div class="slds-grid slds-grid_vertical-align-center">
+                                        <lightning-icon icon-name="utility:form" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                        <span class="option-title">Financiado</span>
+                                    </div>
+                                    <input type="radio" name="paymentOption" value="Financiado" checked={isFinanciado} onchange={handlePaymentChange}/>
+                                </div>
+                                <p class="option-desc slds-m-top_x-small">
+                                    Elegí la entidad bancaria o el plazo: el otro campo se ajusta solo a las combinaciones válidas.
+                                </p>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dos Picklists (Entidad bancaria y Plazo) - Solo si es Financiado -->
+                   <!-- PICKLISTS DEPENDIENTES (Solo visible en Financiado) -->
+                        <template if:true={isFinanciado}>
+                            <div class="slds-grid slds-gutters slds-m-top_large">
+                                <!-- 1. Entidad Bancaria -->
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        name="entidadBancaria"
+                                        label="Entidad bancaria"
+                                        value={entidadBancaria}
+                                        placeholder="Seleccioná una entidad"
+                                        options={entidadBancariaOptions}
+                                        onchange={handleEntidadChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+
+                                <!-- 2. Moneda -->
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        name="moneda"
+                                        label="Moneda"
+                                        value={moneda}
+                                        placeholder={placeholderMoneda}
+                                        options={monedaOptions}
+                                        onchange={handleChangeMoneda}
+                                        disabled={isMonedaDisabled}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+
+                            <div class="slds-grid slds-gutters slds-m-top_medium">
+                                <!-- 3. Plazo -->
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        name="plazo"
+                                        label="Plazo"
+                                        value={plazo}
+                                        placeholder={placeholderPlazo}
+                                        options={plazoOptions}
+                                        onchange={handlePlazoChange}
+                                        disabled={isPlazoDisabled}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+
+                                <!-- 4. Tasa (TNA) -->
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        name="tasa"
+                                        label="Tasa (TNA)"
+                                        value={tasa}
+                                        placeholder={placeholderTasa}
+                                        options={tnaOptions}
+                                        onchange={handleChangeTasa}
+                                        disabled={isTasaDisabled}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+
+                        <!-- Caja de Alerta / Advertencia -->
+                        <div class="warning-box slds-m-top_medium slds-p-around_x-small slds-grid slds-grid_vertical-align-center" style="background-color: #f3f4f6; border-radius: 8px;">
+                            <lightning-icon icon-name="utility:warning" size="x-small" class="warning-icon slds-m-right_x-small"></lightning-icon>
+                            <p class="warning-text">
+                                Entidad, moneda, plazo y tasa quedan registrados directo en Salesforce, sin depender de un campo de texto libre.
+                            </p>
+                        </div>
+                    </template>
+
+                    <!-- Acciones del Modal -->
+                    <div class="modal-actions slds-m-top_large slds-grid slds-grid_align-end">
+                        <lightning-button label="Cancelar" variant="neutral" onclick={handleClose} class="slds-m-right_small btn-cancel"></lightning-button>
+                        <lightning-button label="Continuar →" variant="brand" disabled={isContinueDisabled} onclick={handleContinue} class="btn-continue"></lightning-button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
 
     </div>
   </section>
