@@ -121,9 +121,17 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         }
     }
 
+    /** Rol vacío, o Obtentor que puede pasar a Distribuidor si la variedad es de otro. */
+    private static Boolean debeAjustarRolOriginante(Ventas_Informadas__c venta) {
+        return venta != null
+            && venta.Originante__c != null
+            && (String.isBlank(venta.Rol_Originante__c) || venta.Rol_Originante__c == 'Obtentor');
+    }
+
     /**
      * Completa Rol Originante / Destinatario cuando el lookup ya está informado
      * (p. ej. flow before-save Venta_Informada_Razon_Social_Desde_CUIT setea Destinatario__c).
+     * Si el rol ya vino Obtentor y la variedad la comercializa otro obtentor, pasa a Distribuidor.
      */
     @TestVisible
     private static void aplicarRolesDesdeCuentas(List<Ventas_Informadas__c> ventas) {
@@ -132,9 +140,17 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         }
 
         Set<Id> accountIds = new Set<Id>();
+        Set<Id> variedadIds = new Set<Id>();
+        Set<String> cultivares = new Set<String>();
         for (Ventas_Informadas__c venta : ventas) {
-            if (venta.Originante__c != null && String.isBlank(venta.Rol_Originante__c)) {
+            if (debeAjustarRolOriginante(venta)) {
                 accountIds.add(venta.Originante__c);
+                if (venta.Variedad_INASE__c != null) {
+                    variedadIds.add(venta.Variedad_INASE__c);
+                }
+                if (String.isNotBlank(venta.Variedad__c)) {
+                    cultivares.add(venta.Variedad__c);
+                }
             }
             if (venta.Destinatario__c != null && String.isBlank(venta.Rol_Destinatario__c)) {
                 accountIds.add(venta.Destinatario__c);
@@ -149,6 +165,18 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
             FROM Account
             WHERE Id IN :accountIds
         ]);
+        Map<Id, Id> obtentorPorVariedadId = new Map<Id, Id>();
+        if (!variedadIds.isEmpty()) {
+            for (Variedad__c variedad : [
+                SELECT Id, Obtentor_Comercializa__c
+                FROM Variedad__c
+                WHERE Id IN :variedadIds AND Obtentor_Comercializa__c != NULL
+            ]) {
+                obtentorPorVariedadId.put(variedad.Id, variedad.Obtentor_Comercializa__c);
+            }
+        }
+        Map<String, Id> obtentorPorCultivar =
+            VentasInformadasCuitResolver.mapObtentorComercializaPorVariedad(cultivares);
 
         for (Ventas_Informadas__c venta : ventas) {
             venta.CUIT_Originante__c = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Originante__c);
@@ -158,10 +186,16 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
                     && String.isNotBlank(venta.CUIT_Originante__c);
             }
 
-            if (venta.Originante__c != null && String.isBlank(venta.Rol_Originante__c)) {
+            if (debeAjustarRolOriginante(venta)) {
                 Account originante = accountsById.get(venta.Originante__c);
                 if (originante != null) {
-                    VentasInformadasCuitResolver.aplicarRolOriginante(venta, originante);
+                    Id obtComId = venta.Variedad_INASE__c != null
+                        ? obtentorPorVariedadId.get(venta.Variedad_INASE__c)
+                        : null;
+                    if (obtComId == null && String.isNotBlank(venta.Variedad__c)) {
+                        obtComId = obtentorPorCultivar.get(venta.Variedad__c);
+                    }
+                    VentasInformadasCuitResolver.aplicarRolOriginante(venta, originante, obtComId);
                 }
             }
 

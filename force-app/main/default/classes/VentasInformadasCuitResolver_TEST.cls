@@ -353,6 +353,64 @@ private class VentasInformadasCuitResolver_TEST {
     System.assertEquals(1, chunks[1].size());
   }
 
+  @IsTest
+  static void aplicarOriginanteYaAsignadoAunqueCacheNoTengaSuCuit() {
+    Account casaMatriz = crearObtentor('30600000019', '01');
+    Account aca = crearObtentorHijo(casaMatriz.Id, '30500120882', '02');
+    Account gdm = crearObtentor('30715468294', '85');
+
+    Ventas_Informadas__c v = new Ventas_Informadas__c(
+      CUIT_Originante__c = '30500120882',
+      CUIT_Destinatario__c = '20144462980',
+      Originante__c = aca.Id,
+      Rol_Originante__c = 'Obtentor',
+      Variedad__c = 'NEO 47S25 SE'
+    );
+
+    VentasInformadasCuitResolver.aplicarOriginanteYDestinatarioBulk(
+      new List<Ventas_Informadas__c>{ v },
+      new Map<String, Id>{ 'NEO 47S25 SE' => gdm.Id }
+    );
+
+    System.assertEquals(aca.Id, v.Originante__c);
+    System.assertEquals('Distribuidor', v.Rol_Originante__c);
+  }
+
+  @IsTest
+  static void aplicarRolOriginanteObtentorVariedadAjenaEsDistribuidor() {
+    Account obtPropio = crearObtentor('30616275905', '03');
+    Account obtAjeno = crearObtentor('30715468294', '99');
+
+    Ventas_Informadas__c v = new Ventas_Informadas__c(
+      Rol_Originante__c = 'Obtentor'
+    );
+    Account originante = new Account(
+      Id = obtPropio.Id,
+      Type = 'Obtentor',
+      RecordType = new RecordType(DeveloperName = 'Obtentor')
+    );
+
+    VentasInformadasCuitResolver.aplicarRolOriginante(v, originante, obtAjeno.Id);
+
+    System.assertEquals('Distribuidor', v.Rol_Originante__c);
+  }
+
+  @IsTest
+  static void aplicarRolOriginanteObtentorVariedadPropiaSigueObtentor() {
+    Account obtPropio = crearObtentor('30616275905', '04');
+
+    Ventas_Informadas__c v = new Ventas_Informadas__c();
+    Account originante = new Account(
+      Id = obtPropio.Id,
+      Type = 'Obtentor',
+      RecordType = new RecordType(DeveloperName = 'Obtentor')
+    );
+
+    VentasInformadasCuitResolver.aplicarRolOriginante(v, originante, obtPropio.Id);
+
+    System.assertEquals('Obtentor', v.Rol_Originante__c);
+  }
+
   private static Account stubAccount(Id accId, String cuit) {
     return new Account(
       Id = accId,
