@@ -148,15 +148,6 @@
 
         <!-- Card de variedades -->
         <div class="variedades-card">
-            <!-- 
-            <h3 class="titulo-variedades">
-                <svg class="" xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531" >
-                    <use xlink:href={icons.seed}></use>
-                </svg>
-                {variedadesTitle}
-            </h3>
-            <br>
-            -->
             <!-- Header de tabla -->
             <div class="variedades">
                 <div class="tabla-grid tabla-grid-header tabla-grid-con-tipo">
@@ -206,8 +197,6 @@
                 </template>
             </div>
             
-
-           
 
             <!-- Sección de agregar nueva variedad -->
             <template if:false={guardandoLineas}>
@@ -305,26 +294,8 @@
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
-<!--
-    <template if:true={isModalOpen}>
-      <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
-          <div class="slds-modal__container">
-              <header class="slds-modal__header">
-                  <h2 class="slds-text-heading_medium">¡Atención!</h2>
-              </header>
-              <div class="slds-modal__content slds-p-around_medium">
-                  Este precio es válido solo para pago contado dentro del plazo definido.
-                  Si no se cancela en término, la condición se pierde y la operación se revierte.
-              </div>
-              <footer class="slds-modal__footer">
-                  <lightning-button variant="neutral" label="Cerrar" onclick={closeModal}></lightning-button>
-              </footer>
-          </div>
-      </section>
-      <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>-->
 
-    <!-- Modal -->
+    <!-- Modal 1: origen -->
   <template if:true={isOpen}>
     <section
       role="dialog"
@@ -338,12 +309,10 @@
 
         <!-- Header -->
         <header class="slds-modal__header slds-p-around_medium">
-          <!-- Icono informativo al inicio -->
           <div class="header-row">
             <img src={iconVenderHTUrl} style="max-width: 6%;" />
             <h2 id="modal-heading" class="slds-text-heading_medium slds-m-left_small">Compra/Venta pendiente</h2>
 
-            <!-- Botón de cierre circular -->
             <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse close-circle" title="Cerrar" onclick={closeModal}>
               <lightning-icon icon-name="utility:close" alternative-text="Cerrar" size="small"></lightning-icon>
               <span class="slds-assistive-text">Cerrar</span>
@@ -374,7 +343,6 @@
           </p>
 
           <center>
-            <!-- Botón WhatsApp -->   
             <div class="slds-m-top_small">
               <a
                 class="slds-button whatsapp-button"
@@ -386,7 +354,6 @@
               </a>
             </div>
 
-            <!-- Enlace email -->
             <p class="slds-m-top_small">
               o escribinos a
               <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
@@ -395,20 +362,19 @@
         </div>
       </div>
     </section>
-  
 
     <!-- Backdrop -->
     <div class="slds-backdrop slds-backdrop_open"></div>
   </template>
 
   
-  <!-- Modal -->
+  <!-- Modal 2: Licencias -->
   <template if:true={isOpen2}>
     <section
       role="dialog"
       tabindex="-1"
       aria-modal="true"
-      aria-labelledby="modal-heading"
+      aria-labelledby="modal-heading-2"
       class="slds-modal slds-fade-in-open"
       onkeydown={handleKeydown}
     >
@@ -416,12 +382,10 @@
 
         <!-- Header -->
         <header class="slds-modal__header slds-p-around_medium">
-          <!-- Icono informativo al inicio -->
           <div class="header-row">
             <img src={iconVenderHTUrl} style="max-width: 6%;" />
             <h2 id="modal-heading-2" class="slds-text-heading_medium slds-m-left_small">Compra/Venta pendiente</h2>
 
-            <!-- Botón de cierre circular -->
             <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse close-circle" title="Cerrar" onclick={closeModal}>
               <lightning-icon icon-name="utility:close" alternative-text="Cerrar" size="small"></lightning-icon>
               <span class="slds-assistive-text">Cerrar</span>
@@ -444,7 +408,6 @@
           </p>
 
           <center>
-          <!-- Botón WhatsApp -->
           <div class="slds-m-top_small">
             <a
               class="slds-button whatsapp-button"
@@ -456,13 +419,11 @@
             </a>
           </div>
 
-          <!-- Enlace email -->
           <p class="slds-m-top_small">
             o escribinos a
             <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
           </p>
 
-          <!-- Botón consulta de licencias -->
           <div class="slds-m-top_small">
             <a
               class="slds-button license-outline"
@@ -484,6 +445,20 @@
   </template>
 
     <c-pdf-reader></c-pdf-reader>
-    <c-ht-modals current-modal={currentModal} community={community} es-punto-venta={obtentorEsPuntoDeVenta} promo-message={htFuturaPromoMessage} promo-variant={htFuturaPromoVariant} onclose={closeModal} onredirect={redirect} onanular={anular} ontipopagoselected={handleTipoPagoSelected}></c-ht-modals>
+    <c-ht-modals 
+        is-open-payment-modal={isOpenPaymentModal}
+        modal-items={modalItems}
+        current-modal={currentModal} 
+        community={community} 
+        es-punto-venta={obtentorEsPuntoDeVenta} 
+        promo-message={htFuturaPromoMessage} 
+        promo-variant={htFuturaPromoVariant} 
+        onclose={closeModal} 
+        onclosemodal={handleClosePaymentStine}
+        onconfirmpayment={handleConfirmPaymentStine}
+        onredirect={redirect} 
+        onanular={anular} 
+        ontipopagoselected={handleTipoPagoSelected}>
+    </c-ht-modals>
   </div>
 </template>

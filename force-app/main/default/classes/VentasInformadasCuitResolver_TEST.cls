@@ -1,6 +1,5 @@
 @IsTest
 private class VentasInformadasCuitResolver_TEST {
-
   @TestSetup
   static void setup() {
     Test_TestUtils.disableFlows();
@@ -41,7 +40,11 @@ private class VentasInformadasCuitResolver_TEST {
       acc85.Id,
       candidatos
     );
-    System.assertEquals(acc85.Id, res.Id, 'Debe elegir Obtentor Comercializa (85).');
+    System.assertEquals(
+      acc85.Id,
+      res.Id,
+      'Debe elegir Obtentor Comercializa (85).'
+    );
   }
 
   @IsTest
@@ -58,7 +61,11 @@ private class VentasInformadasCuitResolver_TEST {
       acc85.Id,
       candidatos
     );
-    System.assertEquals(acc85.Id, res.Id, 'Debe usar Obtentor Comercializa aunque no esté en candidatos por CUIT.');
+    System.assertEquals(
+      acc85.Id,
+      res.Id,
+      'Debe usar Obtentor Comercializa aunque no esté en candidatos por CUIT.'
+    );
   }
 
   @IsTest
@@ -230,7 +237,10 @@ private class VentasInformadasCuitResolver_TEST {
     );
     Integer qDelta = Limits.getQueries() - q0;
 
-    System.assert(qDelta < 10, 'Bulk debe usar pocas queries SOQL, uso: ' + qDelta);
+    System.assert(
+      qDelta < 10,
+      'Bulk debe usar pocas queries SOQL, uso: ' + qDelta
+    );
     System.assertEquals(acc85.Id, ventas[0].Originante__c);
     System.assertEquals(productor.Id, ventas[0].Destinatario__c);
   }
@@ -272,7 +282,11 @@ private class VentasInformadasCuitResolver_TEST {
     Set<String> missing = new Set<String>{ '27999999994' };
     Set<String> encontrados = new Set<String>();
 
-    VentasInformadasCuitResolver.resolverCuentasCuitFaltantes(cuentas, missing, encontrados);
+    VentasInformadasCuitResolver.resolverCuentasCuitFaltantes(
+      cuentas,
+      missing,
+      encontrados
+    );
 
     System.assertEquals(1, cuentas.size());
     System.assertEquals(acc.Id, cuentas[0].Id);
@@ -289,7 +303,11 @@ private class VentasInformadasCuitResolver_TEST {
     Set<String> encontrados = new Set<String>();
 
     Test.startTest();
-    VentasInformadasCuitResolver.resolverCuentasCuitFaltantes(cuentas, missing, encontrados);
+    VentasInformadasCuitResolver.resolverCuentasCuitFaltantes(
+      cuentas,
+      missing,
+      encontrados
+    );
     Integer queries = Limits.getQueries();
     Test.stopTest();
 
@@ -317,7 +335,9 @@ private class VentasInformadasCuitResolver_TEST {
 
   @IsTest
   static void variantesCuitParaBusquedaGeneraFormatoConGuiones() {
-    Set<String> variantes = VentasInformadasCuitResolver.variantesCuitParaBusqueda('20144462980');
+    Set<String> variantes = VentasInformadasCuitResolver.variantesCuitParaBusqueda(
+      '20144462980'
+    );
     System.assert(variantes.contains('20144462980'));
     System.assert(variantes.contains('20-14446298-0'));
   }
@@ -331,6 +351,64 @@ private class VentasInformadasCuitResolver_TEST {
     System.assertEquals(2, chunks.size());
     System.assertEquals(2, chunks[0].size());
     System.assertEquals(1, chunks[1].size());
+  }
+
+  @IsTest
+  static void aplicarOriginanteYaAsignadoAunqueCacheNoTengaSuCuit() {
+    Account casaMatriz = crearObtentor('30600000019', '01');
+    Account aca = crearObtentorHijo(casaMatriz.Id, '30500120882', '02');
+    Account gdm = crearObtentor('30715468294', '85');
+
+    Ventas_Informadas__c v = new Ventas_Informadas__c(
+      CUIT_Originante__c = '30500120882',
+      CUIT_Destinatario__c = '20144462980',
+      Originante__c = aca.Id,
+      Rol_Originante__c = 'Obtentor',
+      Variedad__c = 'NEO 47S25 SE'
+    );
+
+    VentasInformadasCuitResolver.aplicarOriginanteYDestinatarioBulk(
+      new List<Ventas_Informadas__c>{ v },
+      new Map<String, Id>{ 'NEO 47S25 SE' => gdm.Id }
+    );
+
+    System.assertEquals(aca.Id, v.Originante__c);
+    System.assertEquals('Distribuidor', v.Rol_Originante__c);
+  }
+
+  @IsTest
+  static void aplicarRolOriginanteObtentorVariedadAjenaEsDistribuidor() {
+    Account obtPropio = crearObtentor('30616275905', '03');
+    Account obtAjeno = crearObtentor('30715468294', '99');
+
+    Ventas_Informadas__c v = new Ventas_Informadas__c(
+      Rol_Originante__c = 'Obtentor'
+    );
+    Account originante = new Account(
+      Id = obtPropio.Id,
+      Type = 'Obtentor',
+      RecordType = new RecordType(DeveloperName = 'Obtentor')
+    );
+
+    VentasInformadasCuitResolver.aplicarRolOriginante(v, originante, obtAjeno.Id);
+
+    System.assertEquals('Distribuidor', v.Rol_Originante__c);
+  }
+
+  @IsTest
+  static void aplicarRolOriginanteObtentorVariedadPropiaSigueObtentor() {
+    Account obtPropio = crearObtentor('30616275905', '04');
+
+    Ventas_Informadas__c v = new Ventas_Informadas__c();
+    Account originante = new Account(
+      Id = obtPropio.Id,
+      Type = 'Obtentor',
+      RecordType = new RecordType(DeveloperName = 'Obtentor')
+    );
+
+    VentasInformadasCuitResolver.aplicarRolOriginante(v, originante, obtPropio.Id);
+
+    System.assertEquals('Obtentor', v.Rol_Originante__c);
   }
 
   private static Account stubAccount(Id accId, String cuit) {
@@ -358,7 +436,11 @@ private class VentasInformadasCuitResolver_TEST {
     return acc;
   }
 
-  private static Account crearObtentorHijo(Id parentId, String cuit, String sufijo) {
+  private static Account crearObtentorHijo(
+    Id parentId,
+    String cuit,
+    String sufijo
+  ) {
     Id rtObtentor = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
       .get('Obtentor')
       .getRecordTypeId();

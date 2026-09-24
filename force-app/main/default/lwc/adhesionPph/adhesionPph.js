@@ -480,8 +480,8 @@ export default class AdhesionPph extends LightningElement {
   async enviar() {
     await this.doRequest(async (_) => {
       await sendAdhesion({ planId: this.plan.Id });
-      this.plan.Estado__c = "Adherido";
-      this.currentModal = "adherido";
+      this.plan.Estado__c = "En Revisión";
+      this.currentModal = "en-revision";
       this.trackEnviado();
     });
     if (this.plan.Tiene_Hts_Pendientes__c == true) {

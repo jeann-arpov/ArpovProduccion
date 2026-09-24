@@ -334,8 +334,86 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
       throw new AuraHandledException(Label.COMPRAHT_No_Existe_No_Pertenece);
   }
 
-  private static Boolean hasDuplicate(Compra_HT__c compra1) {
-    DateTime marzo = Date.newInstance(System.today().year() - 1, 3, 1);
+    private static Compra_HT__c getCompraData(Id compraId){
+        return [select Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c,Tipo_de_Pago__c, Licencia__c, Licencia__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId,Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name ,Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
+    }
+
+    private static Opportunity getOpp(Id compraId) {
+        List<Opportunity> opps = [select StageName, (select Estado__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Dias_de_Exclusion_de_Facturacion_SE__c, Linea_de_Compra_HT__r.Linea_de_Venta_HT__c FROM OpportunityLineItems) from opportunity where Compra_HT__c =: compraId];
+        return opps.isEmpty() ? null : opps[0];
+    }
+
+    private static List<Erpvs__Comprobante_Venta__c> getCVS(Id compraId) {
+        return [select id, ERPvs__Comprobante__c, Erpvs__Contabilizar__c, (select name from Attachments), (select id, OpportunityLineItem__c from Erpvs__Renglones_de_Comprobante_de_Venta__r) from Erpvs__Comprobante_Venta__c where Oportunidad__r.Compra_HT__c =: compraId];
+    }
+
+    private static Map<String, Object> getData(Id compraId) {
+        return getData(compraId, false);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> getData(Id compraId, Boolean isFirstLoad) {
+        Map<String, Object> data = new Map<String, Object> {};
+
+        if (String.isNotBlank(compraId)) {
+            validateProductor(compraId);
+            Compra_HT__c compra = getCompraData(compraId);
+            data.put('record', compra);
+            data.put('oportunidad', getOpp(compraId));
+            data.put('cvs', getCVS(compraId));
+            List<PricebookEntry> products = getProducts(compra.Cultivo__c);
+            data.put('products', products);
+            data.put('pendiente', [SELECT Count() FROM Linea_de_Compra_HT__c WHERE Compra_HT__c = :compraId AND Estado__c = 'Pendiente'] > 0);
+        }
+
+        if (isFirstLoad) {
+            data.put('misLicenciasId', CrearCompraController.getListViewId('Licencia__c', 'Mis_Licencias'));
+            data.put('pendientesFacturacionId', CrearCompraController.getListViewId('Compra_HT__c', 'Mis_Compras_Pendientes_de_Facturacion'));
+            data.put('todasListView', CrearCompraController.getListViewId('Compra_HT__c', 'Todas_Mis_Compras'));
+            data.put('condicionesComerciales', CrearCompraController.getCondicionesComerciales());
+            data.put('cultivos', UtilsCompraVentaHT.getCultivos());
+
+            if (String.isNotBlank(compraId)) {
+                Compra_HT__c record = ((Compra_HT__c) data.get('record'));
+                data.put('semilleroData', getSemilleroData(record.Obtentor__r.Id_Obtentor__c));
+            }
+        }
+
+        return data;
+    }
+
+    private static void validateProductor(Id compraId) {
+        validateProductor([select Cuenta_Productor__c from Compra_HT__c where id =: compraId]);
+    }
+
+    private static void validateProductor(Compra_HT__c compra) {
+        if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException(Label.COMPRAHT_No_Existe_No_Pertenece);
+    }
+
+    private static Boolean hasDuplicate(Compra_HT__c compra1) {
+        DateTime marzo = Date.newInstance(System.today().year() - 1, 3, 1);
+
+        for (Compra_HT__c compra2: [select (select Id_Producto_de_Lista_de_Precio__c, Cantidad__c from Lineas_de_Compra_HT__r) from Compra_HT__c where Estado__c in ('Pendiente de Facturación', 'Facturada') and Cuenta_Productor__c =: getAccount().id and id !=: compra1.Id and CreatedDate >=: marzo]) {
+            if (isDuplicate(compra1, compra2)) return true;
+        }
+
+        return false;
+    }
+
+    private static Boolean isDuplicate(Compra_HT__c compra1, Compra_HT__c compra2) {
+        if (compra1.Lineas_de_Compra_HT__r.size() != compra2.Lineas_de_Compra_HT__r.size()) return false;
+
+        Map<String, Linea_de_Compra_HT__c> lineasPorProducto = new Map<String, Linea_de_Compra_HT__c>();
+
+        for (Linea_de_Compra_HT__c linea: compra1.Lineas_de_Compra_HT__r) {
+            lineasPorProducto.put(linea.Id_Producto_de_Lista_de_Precio__c, linea);
+        }
+
+        for (Linea_de_Compra_HT__c linea2: compra2.Lineas_de_Compra_HT__r) {
+            Linea_de_Compra_HT__c linea1 = lineasPorProducto.get(linea2.Id_Producto_de_Lista_de_Precio__c);
+
+            if (linea1 == null || linea1.Cantidad__c != linea2.Cantidad__c) return false;
+        }
 
     for (Compra_HT__c compra2 : [
       SELECT
@@ -354,191 +432,100 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
         return true;
     }
 
-    return false;
-  }
-
-  private static Boolean isDuplicate(
-    Compra_HT__c compra1,
-    Compra_HT__c compra2
-  ) {
-    if (
-      compra1.Lineas_de_Compra_HT__r.size() !=
-      compra2.Lineas_de_Compra_HT__r.size()
-    )
-      return false;
-
-    Map<String, Linea_de_Compra_HT__c> lineasPorProducto = new Map<String, Linea_de_Compra_HT__c>();
-
-    for (Linea_de_Compra_HT__c linea : compra1.Lineas_de_Compra_HT__r) {
-      lineasPorProducto.put(linea.Id_Producto_de_Lista_de_Precio__c, linea);
+    public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates, Boolean origen) {
+        return finalizarCompra(compraId, checkDuplicates, origen, false, false, null, null, null, null);
     }
 
-    for (Linea_de_Compra_HT__c linea2 : compra2.Lineas_de_Compra_HT__r) {
-      Linea_de_Compra_HT__c linea1 = lineasPorProducto.get(
-        linea2.Id_Producto_de_Lista_de_Precio__c
-      );
-
-      if (linea1 == null || linea1.Cantidad__c != linea2.Cantidad__c)
-        return false;
+    public static Map<String, Object> finalizarCompra(Id compraId, Boolean checkDuplicates, Boolean origen, Boolean marcarRevisarCompra) {
+        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, false, null, null, null, null);
     }
 
-    return true;
-  }
-
-  @AuraEnabled
-  public static Map<String, Object> finalizarCompra(
-    Id compraId,
-    Boolean checkDuplicates,
-    Boolean origen
-  ) {
-    return finalizarCompra(compraId, checkDuplicates, origen, false, false);
-  }
-
-  @AuraEnabled
-  public static Map<String, Object> finalizarCompra(
-    Id compraId,
-    Boolean checkDuplicates,
-    Boolean origen,
-    Boolean marcarRevisarCompra
-  ) {
-    return finalizarCompra(
-      compraId,
-      checkDuplicates,
-      origen,
-      marcarRevisarCompra,
-      false
-    );
-  }
-
-  @AuraEnabled
-  public static Map<String, Object> finalizarCompra(
-    Id compraId,
-    Boolean checkDuplicates,
-    Boolean origen,
-    Boolean marcarRevisarCompra,
-    Boolean blanqueo
-  ) {
-    Boolean tieneLicencia;
-    List<Sobject> toUpdate = new List<SObject>();
-    Compra_HT__c compra = getCompraData(compraId);
-    validateProductor(compra);
-
-    if (checkDuplicates == true && hasDuplicate(compra)) {
-      return new Map<String, Object>{ 'duplicate' => true };
-    }
-
-    compra.Estado__c = 'Pendiente de Facturación';
-    if (Boolean.valueOf(marcarRevisarCompra)) {
-      compra.Revisar_Compra__c = true;
-    }
-    toUpdate.add(compra);
-
-    Map<String, Licencia__c> licencias = getLicences(getAccount().Id);
-    System.debug(licencias);
-    for (Linea_de_Compra_HT__c linea : compra.Lineas_de_Compra_HT__r) {
-      String key =
-        linea.Producto__r.Variedad2__r.Obtentor_Comercializa__c +
-        CesionPPH.getMapBiotecnologias()
-          .get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
-      String keyParent =
-        linea.Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId +
-        CesionPPH.getMapBiotecnologias()
-          .get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
-
-      Licencia__c licence = licencias.get(key) ?? licencias.get(keyParent);
-
-      if (licence != null) {
-        tieneLicencia = true;
-      }
-
-      if (licence != null && origen != false) {
-        linea.Estado__c = 'Facturable';
-      } else {
-        linea.Estado__c = 'Pendiente';
-      }
-      linea.Licencia__c = licence != null ? licence.id : null;
-
-      System.debug(linea);
-      toUpdate.add(linea);
-    }
-
-    Id oppId = [
-      SELECT Oportunidad__c
-      FROM Compra_HT__c
-      WHERE Id = :compraId
-      LIMIT 1
-    ]
-    .Oportunidad__c;
-    Opportunity opp = [
-      SELECT id, hasLicence__c, hasLegalOrigin__c, Blanqueo__c
-      FROM Opportunity
-      WHERE id = :oppId
-    ];
-
-    if (tieneLicencia == true) {
-      opp.hasLicence__c = true;
-    }
-
-    // Blanqueo ≠ falta de origen legal: solo marcar cuando canFinish indique blanqueo real
-    if (blanqueo == true) {
-      opp.Blanqueo__c = true;
-    }
-    if (origen == true) {
-      opp.hasLegalOrigin__c = true;
-    }
-
-    update toUpdate;
-    update opp;
-
-    return getData(compraId);
-  }
-
-  @AuraEnabled
-  public static Map<String, Object> deleteItem(Id compraId, Id itemId) {
-    if (!Test.IsRunningTest())
-      validateProductor(compraId);
-    if (
-      [
-        SELECT id
-        FROM Linea_de_Compra_HT__c
-        WHERE Compra_HT__c = :compraId
-        LIMIT 2
-      ]
-      .size() == 1
+    public static Map<String, Object> finalizarCompra(
+        Id compraId,
+        Boolean checkDuplicates,
+        Boolean origen,
+        Boolean marcarRevisarCompra,
+        Boolean blanqueo
     ) {
-      delete new Compra_HT__c(Id = compraId);
-      return null;
-    } else {
-      delete new Linea_de_Compra_HT__c(Id = itemId);
-      return getData(compraId);
+        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, blanqueo, null, null, null, null);
     }
-  }
 
-  @AuraEnabled
-  public static Map<String, Object> saveItem(
-    Id compraId,
-    String itemJson,
-    String cultivo
-  ) {
-    Linea_de_Compra_HT__c item = (Linea_de_Compra_HT__c) JSON.deserialize(
-      itemJson,
-      Linea_de_Compra_HT__c.class
-    );
-    Account obtentor = String.isBlank(compraId)
-      ? [
-          SELECT
-            Product2.Variedad2__r.Obtentor_Comercializa__r.Obtentor_Prefix__c
-          FROM PricebookEntry
-          WHERE id = :item.Id_Producto_de_Lista_de_Precio__c
-        ]
-        .Product2.Variedad2__r.Obtentor_Comercializa__r
-      : new Account(Obtentor_Prefix__c = '');
+    @AuraEnabled
+    public static Map<String, Object> finalizarCompra(
+        Id compraId,
+        Boolean checkDuplicates,
+        Boolean origen,
+        Boolean marcarRevisarCompra,
+        Boolean blanqueo,
+        String entidadBancaria,
+        String plazo,
+        string moneda,
+        string tasa
+    ) {
+        Boolean tieneLicencia;
+        List<Sobject> toUpdate = new List<SObject>();
+        Compra_HT__c compra = getCompraData(compraId);
+        validateProductor(compra);
+        
+        if (checkDuplicates == true && hasDuplicate(compra)) {
+            return new Map<String, Object>{'duplicate' => true};
+        }
+        
+        compra.Estado__c = 'Pendiente de Facturación';
+        if (Boolean.valueOf(marcarRevisarCompra)) {
+            compra.Revisar_Compra__c = true;
+        }
+
+        // Persistir Entidad Bancaria, Plazo, Moneda y Tasa en la Compra HT
+        if (String.isNotBlank(entidadBancaria) || String.isNotBlank(plazo) || String.isNotBlank(moneda) || String.isNotBlank(tasa)) {
+            compra.Entidad_Bancaria__c = entidadBancaria;
+            compra.Plazo_maximo__c = plazo;
+            compra.Moneda__c = moneda;
+            compra.TNA__C = tasa;
+        }
+
+        toUpdate.add(compra);
+
+        Map<String, Licencia__c> licencias = getLicences(getAccount().Id);
+        for (Linea_de_Compra_HT__c linea: compra.Lineas_de_Compra_HT__r) {
+            String key = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__c + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
+            String keyParent = linea.Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId + CesionPPH.getMapBiotecnologias().get(linea.Producto__r.Variedad2__r.Biotecnologia__c);
 
     Compra_HT__c compra = getCompra(compraId, obtentor, cultivo);
     validateProductor(compra);
 
-    if (String.isBlank(item.id)) {
-      item = setItemData(compra, item);
+            if (licence != null) {
+                tieneLicencia = true;
+            }
+
+            if (licence != null && origen != false) {
+                linea.Estado__c = 'Facturable';
+            } else {
+                linea.Estado__c = 'Pendiente';
+            }
+            linea.Licencia__c = licence != null ? licence.id : null;
+
+            toUpdate.add(linea);
+        }
+
+        Id oppId = [SELECT Oportunidad__c FROM Compra_HT__c WHERE Id = :compraId LIMIT 1].Oportunidad__c;
+        Opportunity opp = [SELECT id, hasLicence__c, hasLegalOrigin__c, Blanqueo__c FROM Opportunity WHERE id = :oppId];
+
+        if(tieneLicencia == true){
+            opp.hasLicence__c = true;
+        }
+
+        if(blanqueo == true){
+            opp.Blanqueo__c = true;
+        }
+        if(origen == true){
+            opp.hasLegalOrigin__c = true;
+        }
+
+        update toUpdate;
+        update opp;
+
+        return getData(compraId);
     }
 
     upsert item;
@@ -664,93 +651,123 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     return acc;
   }
 
-  private static Account sembraEvolucionAccount;
-  public static Account getSembraEvolucionAccount() {
-    if (sembraEvolucionAccount != null)
-      return sembraEvolucionAccount;
-    sembraEvolucionAccount = Test.isRunningTest()
-      ? getAccount()
-      : [
-          SELECT id
-          FROM Account
-          WHERE N_cuit__c = '33645022659' AND name = 'Sembrá Evolución'
-          LIMIT 1
-        ];
-    return sembraEvolucionAccount;
-  }
+        return fechaActivacion;
+    }
+    
+    private static Compra_HT__c getCompra(Id compraId, Account obtentor, String cultivo) {
+        if (String.isBlank(compraId)) return createCompra(obtentor, cultivo);
+        return [select Cuenta_Productor__c, Lista_de_Precios__c, Name from Compra_HT__c where id =: compraId];
+    }
 
-  public static Compra_HT__c createCompra(Account obtentor, String cultivo) {
-    Compra_HT__c compra = new Compra_HT__c();
+    @testVisible
+    private static Account acc;
+    public static Account getAccount() {
+        if (acc != null) return acc;
+        acc =  Test.isRunningTest() ? [select N_CUIT__c, Name from account limit 1] : [select contact.account.id, contact.account.N_CUIT__c, contact.account.name, contact.account.Grandes_Cuentas__c from User where id =: UserInfo.getUserId()].contact.account; 
+        //acc = [SELECT Id, N_CUIT__c, Name, Grandes_Cuentas__c 
+        //   FROM Account where id =: '0013F00000ruV0SQAU'
+        //   LIMIT 1];
+        //System.debug('aca va la cuentaaaa '+acc);
 
-    Account acc = getAccount();
-    Integer len =
-      80 -
-      (obtentor.Obtentor_Prefix__c + '-' + acc.N_CUIT__c + '-' + '-').length();
-    compra.Cuenta_Productor__c = acc.id;
-    compra.Name = obtentor.Obtentor_Prefix__c + '-' + acc.N_CUIT__c + '-';
-    compra.Estado__c = 'Creada';
-    compra.Lista_de_Precios__c = Test.isRunningTest()
-      ? Test.getStandardPricebookId()
-      : [
-          SELECT id
-          FROM PriceBook2
-          WHERE name = 'Lista de Precios Sembrá Evolución'
-        ]
-        .id;
-    compra.Comercio__c = getSembraEvolucionAccount().id;
-    compra.Obtentor__c = obtentor.id;
-    compra.Cultivo__c = cultivo;
+        return acc;
+    }
 
-    insert compra;
+    private static Account sembraEvolucionAccount;
+    public static Account getSembraEvolucionAccount() {
+        if (sembraEvolucionAccount != null) return sembraEvolucionAccount;
+        sembraEvolucionAccount = Test.isRunningTest() ? getAccount() : [select id from Account where N_cuit__c = '33645022659' and name = 'Sembrá Evolución' limit 1];
+        return sembraEvolucionAccount;
+    }
 
-    compra.Name += [
-      SELECT AutoNumeric__c
-      FROM Compra_HT__c
-      WHERE id = :compra.id
-    ]
-    .AutoNumeric__c;
-    update compra;
+    public static Compra_HT__c createCompra(Account obtentor, String cultivo){
+        Compra_HT__c compra = new Compra_HT__c();
 
-    return compra;
-  }
+        Account acc = getAccount();
+        Integer len = 80 - (obtentor.Obtentor_Prefix__c + '-' + acc.N_CUIT__c + '-' + '-').length();
+        compra.Cuenta_Productor__c = acc.id;
+        compra.Name = obtentor.Obtentor_Prefix__c + '-' + acc.N_CUIT__c + '-';
+        compra.Estado__c = 'Creada';    
+        compra.Lista_de_Precios__c = Test.isRunningTest() ? Test.getStandardPricebookId() : [select id from PriceBook2 where name = 'Lista de Precios Sembrá Evolución'].id;
+        compra.Comercio__c = getSembraEvolucionAccount().id;
+        compra.Obtentor__c = obtentor.id;
+        compra.Cultivo__c = cultivo;
 
-  @AuraEnabled(cacheable=true)
-  public static Map<String, Object> getUserAccountData() {
-    Map<String, Object> result = new Map<String, Object>();
+        insert compra;
 
-    try {
-      // Traigo el usuario actual con su cuenta asociada
-      User u = [
-        SELECT
-          Id,
-          Contact.Account.Id,
-          Contact.Account.Name,
-          Contact.Account.N_CUIT__c
-        FROM User
-        WHERE Id = :UserInfo.getUserId()
-        LIMIT 1
-      ];
+        compra.Name += [select AutoNumeric__c from Compra_HT__c where id =: compra.id].AutoNumeric__c;
+        update compra;
 
-      if (u.Contact != null && u.Contact.Account != null) {
-        Account acc = u.Contact.Account;
-        result.put('accountId', acc.Id);
-        result.put('productorNombre', acc.Name);
-        // CUIT puede estar en PersonDocumentNumber o N_CUIT__c
-        result.put('cuit', acc.N_CUIT__c);
-      } else {
-        result.put('error', Label.COMPRAHT_Usuario_Sin_Cuenta);
-      }
-    } catch (Exception e) {
-      ApexErrorHandler.logWarning(
-        e,
-        'ERR-COM-001',
-        'CrearCompra',
-        new Map<String, Object>{ 'method' => 'getUserData' }
-      );
-      result.put(
-        'error',
-        ErrorLogService.getUserFriendlyMessage('ERR-COM-001')
-      );
+        return compra;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static Map<String, Object> getUserAccountData() {
+        Map<String, Object> result = new Map<String, Object>();
+
+        try {
+            // Traigo el usuario actual con su cuenta asociada
+            User u = [
+                SELECT Id, Contact.Account.Id, Contact.Account.Name, Contact.Account.N_CUIT__c
+                FROM User
+                WHERE Id = :UserInfo.getUserId()
+                LIMIT 1
+            ];
+
+            if (u.Contact != null && u.Contact.Account != null) {
+                Account acc = u.Contact.Account;
+                result.put('accountId', acc.Id);
+                result.put('productorNombre', acc.Name);
+                // CUIT puede estar en PersonDocumentNumber o N_CUIT__c
+                result.put('cuit', acc.N_CUIT__c);
+            } else {
+                result.put('error', Label.COMPRAHT_Usuario_Sin_Cuenta);
+            }
+        } catch (Exception e) {
+            ApexErrorHandler.logWarning(e, 'ERR-COM-001', 'CrearCompra', new Map<String,Object>{'method' => 'getUserData'});
+            result.put('error', ErrorLogService.getUserFriendlyMessage('ERR-COM-001'));
+        }
+
+        return result;
+    }
+
+    public static Map<String, Object> updateTipoPago(Id compraId, String tipoPago) {
+        return updateTipoPago(compraId, tipoPago, null, null, null, null);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> updateTipoPago(Id compraId, String tipoPago, String entidadBancaria, String plazo, string moneda, string tasa) {
+        if (compraId == null) throw new AuraHandledException(Label.COMPRAHT_CompraId_Requerido);
+        if (String.isBlank(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Requerido);
+
+        tipoPago = tipoPago.trim();
+        Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
+        if (!allowed.contains(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Invalido);
+
+        try {
+            // 1) Actualizar la cabecera de la Compra_HT__c si existe
+            Compra_HT__c compra = new Compra_HT__c(Id = compraId);
+            compra.Entidad_Bancaria__c = (tipoPago == 'Financiado' ? entidadBancaria : null);
+            compra.Plazo_maximo__c = (tipoPago == 'Financiado' ? plazo : null);
+            compra.Moneda__c = (tipoPago == 'Financiado' ? moneda : null);
+            compra.TNA__C = (tipoPago == 'Financiado' ? tasa : null);
+            update compra;
+
+            // 2) Actualizar las líneas asociadas
+            List<Linea_de_Compra_HT__c> lineas = [
+                SELECT Id
+                FROM Linea_de_Compra_HT__c
+                WHERE Compra_HT__c = :compraId
+            ];
+
+            for (Linea_de_Compra_HT__c l : lineas) {
+                l.Tipo_de_Pago__c = tipoPago;
+            }
+            if (!lineas.isEmpty()) update lineas;
+
+            return getData(compraId);
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
     }
 
     return result;

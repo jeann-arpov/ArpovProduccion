@@ -4,7 +4,6 @@
  * prioriza Obtentor_Comercializa__c del maestro de producto (Variedad).
  */
 public without sharing class VentasInformadasCuitResolver {
-
   /**
    * @param cuit CUIT normalizado (solo dígitos).
    * @param obtentorComercializaId Account Id desde Variedad__c.Obtentor_Comercializa__c.
@@ -43,7 +42,10 @@ public without sharing class VentasInformadasCuitResolver {
     }
 
     for (Account acc : candidatos) {
-      if (acc.RecordType != null && acc.RecordType.DeveloperName != 'Proveedor') {
+      if (
+        acc.RecordType != null &&
+        acc.RecordType.DeveloperName != 'Proveedor'
+      ) {
         return acc;
       }
     }
@@ -73,7 +75,9 @@ public without sharing class VentasInformadasCuitResolver {
       }
     }
 
-    Account cached = obtComById != null ? obtComById.get(obtentorComercializaId) : null;
+    Account cached = obtComById != null
+      ? obtComById.get(obtentorComercializaId)
+      : null;
     if (cached == null && obtComById == null) {
       List<Account> obtCom = [
         SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
@@ -95,7 +99,9 @@ public without sharing class VentasInformadasCuitResolver {
   }
 
   @TestVisible
-  public static Map<String, List<Account>> agruparCuentasPorCuit(List<Account> cuentas) {
+  public static Map<String, List<Account>> agruparCuentasPorCuit(
+    List<Account> cuentas
+  ) {
     Map<String, List<Account>> porCuit = new Map<String, List<Account>>();
     if (cuentas == null) {
       return porCuit;
@@ -120,7 +126,9 @@ public without sharing class VentasInformadasCuitResolver {
    * Busca cuentas por CUIT aceptando formato con/sin guiones (planilla → solo dígitos).
    */
   @TestVisible
-  public static Map<String, List<Account>> queryCuentasPorCuitsNormalizados(Set<String> cuits) {
+  public static Map<String, List<Account>> queryCuentasPorCuitsNormalizados(
+    Set<String> cuits
+  ) {
     Set<String> normalizados = new Set<String>();
     if (cuits != null) {
       for (String cuit : cuits) {
@@ -137,14 +145,12 @@ public without sharing class VentasInformadasCuitResolver {
     List<Account> cuentas = [
       SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
       FROM Account
-      WHERE (
-        N_CUIT__c IN :normalizados
-        OR N_CUIT__c IN :cuits
-      )
-      AND (
-        (N_CUIT__c IN ('30569723023', '30715468294') AND Type = 'Obtentor')
-        OR ParentId = NULL
-      )
+      WHERE
+        (N_CUIT__c IN :normalizados
+        OR N_CUIT__c IN :cuits)
+        AND ((N_CUIT__c IN ('30569723023', '30715468294')
+        AND Type = 'Obtentor')
+        OR ParentId = NULL)
     ];
 
     Set<String> encontrados = new Set<String>();
@@ -188,13 +194,15 @@ public without sharing class VentasInformadasCuitResolver {
       for (Account acc : [
         SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
         FROM Account
-        WHERE N_CUIT__c IN :chunkSet
-        AND (
-          (N_CUIT__c IN ('30569723023', '30715468294') AND Type = 'Obtentor')
-          OR ParentId = NULL
-        )
+        WHERE
+          N_CUIT__c IN :chunkSet
+          AND ((N_CUIT__c IN ('30569723023', '30715468294')
+          AND Type = 'Obtentor')
+          OR ParentId = NULL)
       ]) {
-        String key = CrearVentaInformadaLWCController.limpiarCuit(acc.N_CUIT__c);
+        String key = CrearVentaInformadaLWCController.limpiarCuit(
+          acc.N_CUIT__c
+        );
         if (String.isNotBlank(key) && missing.contains(key)) {
           cuentas.add(acc);
           encontrados.add(key);
@@ -212,25 +220,35 @@ public without sharing class VentasInformadasCuitResolver {
       return;
     }
     // LIKE agrupado (OR) — 1 SOQL por CUIT volvía a disparar "Too many SOQL queries: 101".
-    for (List<String> chunk : chunkStrings(new List<String>(stillMissing), 20)) {
+    for (
+      List<String> chunk : chunkStrings(new List<String>(stillMissing), 20)
+    ) {
       List<String> clauses = new List<String>();
       for (String cuit : chunk) {
         if (String.isBlank(cuit)) {
           continue;
         }
-        clauses.add('N_CUIT__c LIKE \'%' + String.escapeSingleQuotes(cuit) + '%\'');
+        clauses.add(
+          'N_CUIT__c LIKE \'%' + String.escapeSingleQuotes(cuit) + '%\''
+        );
       }
       if (clauses.isEmpty()) {
         continue;
       }
       String soql =
-        'SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName '
-        + 'FROM Account WHERE ParentId = NULL AND ('
-        + String.join(clauses, ' OR ')
-        + ')';
+        'SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName ' +
+        'FROM Account WHERE ParentId = NULL AND (' +
+        String.join(clauses, ' OR ') +
+        ')';
       for (Account acc : Database.query(soql)) {
-        String key = CrearVentaInformadaLWCController.limpiarCuit(acc.N_CUIT__c);
-        if (String.isNotBlank(key) && stillMissing.contains(key) && !encontrados.contains(key)) {
+        String key = CrearVentaInformadaLWCController.limpiarCuit(
+          acc.N_CUIT__c
+        );
+        if (
+          String.isNotBlank(key) &&
+          stillMissing.contains(key) &&
+          !encontrados.contains(key)
+        ) {
           cuentas.add(acc);
           encontrados.add(key);
         }
@@ -247,16 +265,21 @@ public without sharing class VentasInformadasCuitResolver {
     out.add(cuitLimpio);
     if (cuitLimpio.length() == 11) {
       out.add(
-        cuitLimpio.substring(0, 2) + '-' +
-        cuitLimpio.substring(2, 10) + '-' +
-        cuitLimpio.substring(10)
+        cuitLimpio.substring(0, 2) +
+          '-' +
+          cuitLimpio.substring(2, 10) +
+          '-' +
+          cuitLimpio.substring(10)
       );
     }
     return out;
   }
 
   @TestVisible
-  private static List<List<String>> chunkStrings(List<String> values, Integer size) {
+  private static List<List<String>> chunkStrings(
+    List<String> values,
+    Integer size
+  ) {
     List<List<String>> chunks = new List<List<String>>();
     if (values == null || values.isEmpty() || size == null || size < 1) {
       return chunks;
@@ -360,15 +383,22 @@ public without sharing class VentasInformadasCuitResolver {
       if (venta == null) {
         continue;
       }
-      String cuitOrig = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Originante__c);
-      String cuitDest = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Destinatario__c);
+      String cuitOrig = CrearVentaInformadaLWCController.limpiarCuit(
+        venta.CUIT_Originante__c
+      );
+      String cuitDest = CrearVentaInformadaLWCController.limpiarCuit(
+        venta.CUIT_Destinatario__c
+      );
       if (String.isNotBlank(cuitOrig)) {
         cuits.add(cuitOrig);
       }
       if (String.isNotBlank(cuitDest)) {
         cuits.add(cuitDest);
       }
-      if (obtentorComercializaByVariedad != null && String.isNotBlank(venta.Variedad__c)) {
+      if (
+        obtentorComercializaByVariedad != null &&
+        String.isNotBlank(venta.Variedad__c)
+      ) {
         Id obtId = obtentorComercializaByVariedad.get(venta.Variedad__c);
         if (obtId != null) {
           obtComIds.add(obtId);
@@ -377,16 +407,74 @@ public without sharing class VentasInformadasCuitResolver {
     }
 
     CuitResolverCache cache = buildCuitResolverCache(cuits, obtComIds);
+    precargarOriginantesYaAsignados(ventas, cache);
     for (Ventas_Informadas__c venta : ventas) {
-      Id obtComId = obtentorComercializaByVariedad != null && String.isNotBlank(venta.Variedad__c)
+      Id obtComId = obtentorComercializaByVariedad != null &&
+        String.isNotBlank(venta.Variedad__c)
         ? obtentorComercializaByVariedad.get(venta.Variedad__c)
         : null;
       aplicarOriginanteYDestinatario(venta, obtComId, cache);
     }
   }
 
+  /**
+   * El import y el formulario dejan Originante__c antes de resolver por CUIT.
+   * Si esa cuenta no entra en la query, igual hay que evaluar Rol Originante.
+   */
+  private static void precargarOriginantesYaAsignados(
+    List<Ventas_Informadas__c> ventas,
+    CuitResolverCache cache
+  ) {
+    if (ventas == null || cache == null) {
+      return;
+    }
+    Set<Id> faltantes = new Set<Id>();
+    for (Ventas_Informadas__c venta : ventas) {
+      if (
+        venta != null &&
+        venta.Originante__c != null &&
+        !cache.accountsById.containsKey(venta.Originante__c)
+      ) {
+        faltantes.add(venta.Originante__c);
+      }
+    }
+    if (faltantes.isEmpty()) {
+      return;
+    }
+    cache.mergeCuentasPorCuit(
+      agruparCuentasPorCuit([
+        SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
+        FROM Account
+        WHERE Id IN :faltantes
+      ])
+    );
+  }
+
+  private static Account cuentaOriginanteYaAsignada(
+    Id originanteId,
+    Map<Id, Account> accountsById,
+    Boolean consultarSiFalta
+  ) {
+    if (originanteId == null) {
+      return null;
+    }
+    Account ya = accountsById != null ? accountsById.get(originanteId) : null;
+    if (ya != null || consultarSiFalta != true) {
+      return ya;
+    }
+    List<Account> queried = [
+      SELECT Id, N_CUIT__c, Type, Name, RecordType.DeveloperName
+      FROM Account
+      WHERE Id = :originanteId
+      LIMIT 1
+    ];
+    return queried.isEmpty() ? null : queried[0];
+  }
+
   @TestVisible
-  public static Map<String, Id> mapObtentorComercializaPorVariedad(Set<String> cultivaresInase) {
+  public static Map<String, Id> mapObtentorComercializaPorVariedad(
+    Set<String> cultivaresInase
+  ) {
     Map<String, Id> out = new Map<String, Id>();
     if (cultivaresInase == null || cultivaresInase.isEmpty()) {
       return out;
@@ -394,7 +482,9 @@ public without sharing class VentasInformadasCuitResolver {
     for (Variedad__c v : [
       SELECT Cultivar_INASE__c, Obtentor_Comercializa__c
       FROM Variedad__c
-      WHERE Cultivar_INASE__c IN :cultivaresInase AND Obtentor_Comercializa__c != NULL
+      WHERE
+        Cultivar_INASE__c IN :cultivaresInase
+        AND Obtentor_Comercializa__c != NULL
     ]) {
       if (String.isNotBlank(v.Cultivar_INASE__c)) {
         out.put(v.Cultivar_INASE__c, v.Obtentor_Comercializa__c);
@@ -403,33 +493,86 @@ public without sharing class VentasInformadasCuitResolver {
     return out;
   }
 
-  /** Rol originante desde Account.Type o RecordType (misma lógica que reproceso / Nueva Venta). */
+  /**
+   * Rol originante desde Account.Type o RecordType (misma lógica que reproceso / Nueva Venta).
+   * Si el originante es Obtentor pero la variedad no es suya, Rol Originante = Distribuidor.
+   */
   @TestVisible
-  public static void aplicarRolOriginante(Ventas_Informadas__c venta, Account originante) {
-    if (venta == null || originante == null || String.isNotBlank(venta.Rol_Originante__c)) {
+  public static void aplicarRolOriginante(
+    Ventas_Informadas__c venta,
+    Account originante
+  ) {
+    aplicarRolOriginante(venta, originante, null);
+  }
+
+  @TestVisible
+  public static void aplicarRolOriginante(
+    Ventas_Informadas__c venta,
+    Account originante,
+    Id obtentorComercializaId
+  ) {
+    if (venta == null || originante == null) {
       return;
     }
-    if (
-      originante.RecordType != null &&
-      originante.RecordType.DeveloperName == 'Proveedor'
-    ) {
+    if (String.isBlank(venta.Rol_Originante__c)) {
+      if (
+        originante.RecordType != null &&
+        originante.RecordType.DeveloperName == 'Proveedor'
+      ) {
+        return;
+      }
+      if (String.isNotBlank(originante.Type)) {
+        venta.Rol_Originante__c = originante.Type;
+      } else if (
+        originante.RecordType != null &&
+        String.isNotBlank(originante.RecordType.DeveloperName)
+      ) {
+        venta.Rol_Originante__c = originante.RecordType.DeveloperName;
+      }
+    }
+    ajustarRolOriginanteSiObtentorDeTerceros(
+      venta,
+      originante,
+      obtentorComercializaId
+    );
+  }
+
+  /**
+   * Obtentor que comercializa variedad ajena → Rol Originante Distribuidor.
+   * Aplica aunque el rol ya venga como Obtentor (p. ej. desde el formulario).
+   */
+  @TestVisible
+  public static void ajustarRolOriginanteSiObtentorDeTerceros(
+    Ventas_Informadas__c venta,
+    Account originante,
+    Id obtentorComercializaId
+  ) {
+    if (venta == null || originante == null || obtentorComercializaId == null) {
       return;
     }
-    if (String.isNotBlank(originante.Type)) {
-      venta.Rol_Originante__c = originante.Type;
+    if (originante.Id == obtentorComercializaId) {
       return;
     }
-    if (
-      originante.RecordType != null &&
-      String.isNotBlank(originante.RecordType.DeveloperName)
-    ) {
-      venta.Rol_Originante__c = originante.RecordType.DeveloperName;
+    Boolean esObtentor =
+      venta.Rol_Originante__c == 'Obtentor' ||
+      originante.Type == 'Obtentor' ||
+      (originante.RecordType != null &&
+      originante.RecordType.DeveloperName == 'Obtentor');
+    if (esObtentor) {
+      venta.Rol_Originante__c = 'Distribuidor';
     }
   }
 
   @TestVisible
-  public static void aplicarRolDestinatario(Ventas_Informadas__c venta, Account destinatario) {
-    if (venta == null || destinatario == null || String.isNotBlank(venta.Rol_Destinatario__c)) {
+  public static void aplicarRolDestinatario(
+    Ventas_Informadas__c venta,
+    Account destinatario
+  ) {
+    if (
+      venta == null ||
+      destinatario == null ||
+      String.isNotBlank(venta.Rol_Destinatario__c)
+    ) {
       return;
     }
     String tipo = destinatario.Type;
@@ -440,8 +583,12 @@ public without sharing class VentasInformadasCuitResolver {
     ) {
       tipo = destinatario.RecordType.DeveloperName;
     }
-    String cuitOrig = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Originante__c);
-    String cuitDest = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Destinatario__c);
+    String cuitOrig = CrearVentaInformadaLWCController.limpiarCuit(
+      venta.CUIT_Originante__c
+    );
+    String cuitDest = CrearVentaInformadaLWCController.limpiarCuit(
+      venta.CUIT_Destinatario__c
+    );
     if (tipo == 'Productor') {
       venta.Rol_Destinatario__c = 'Productor';
     } else if (tipo == 'Distribuidor' && cuitDest != cuitOrig) {
@@ -473,13 +620,18 @@ public without sharing class VentasInformadasCuitResolver {
     if (venta.Originante__c != null) {
       venta.Destinatario__c = venta.Originante__c;
       if (String.isBlank(venta.Razon_Social_Destinatario__c)) {
-        Account orig = accountsById != null ? accountsById.get(venta.Originante__c) : null;
+        Account orig = accountsById != null
+          ? accountsById.get(venta.Originante__c)
+          : null;
         if (orig == null) {
           orig = ventaInternaAccountCache.get(venta.Originante__c);
         }
         if (orig == null) {
           List<Account> queried = [
-            SELECT Name FROM Account WHERE Id = :venta.Originante__c LIMIT 1
+            SELECT Name
+            FROM Account
+            WHERE Id = :venta.Originante__c
+            LIMIT 1
           ];
           orig = queried.isEmpty() ? null : queried[0];
         }
@@ -500,7 +652,11 @@ public without sharing class VentasInformadasCuitResolver {
     Ventas_Informadas__c venta,
     Id obtentorComercializaId
   ) {
-    aplicarOriginanteYDestinatario(venta, obtentorComercializaId, (CuitResolverCache) null);
+    aplicarOriginanteYDestinatario(
+      venta,
+      obtentorComercializaId,
+      (CuitResolverCache) null
+    );
   }
 
   @TestVisible
@@ -513,18 +669,26 @@ public without sharing class VentasInformadasCuitResolver {
       return;
     }
 
-    venta.CUIT_Originante__c = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Originante__c);
-    venta.CUIT_Destinatario__c = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Destinatario__c);
+    venta.CUIT_Originante__c = CrearVentaInformadaLWCController.limpiarCuit(
+      venta.CUIT_Originante__c
+    );
+    venta.CUIT_Destinatario__c = CrearVentaInformadaLWCController.limpiarCuit(
+      venta.CUIT_Destinatario__c
+    );
     if (venta.Venta_Interna__c != true) {
-      venta.Venta_Interna__c = venta.CUIT_Destinatario__c == venta.CUIT_Originante__c
-        && String.isNotBlank(venta.CUIT_Originante__c);
+      venta.Venta_Interna__c =
+        venta.CUIT_Destinatario__c == venta.CUIT_Originante__c &&
+        String.isNotBlank(venta.CUIT_Originante__c);
     }
 
     Set<String> cuits = new Set<String>();
     if (String.isNotBlank(venta.CUIT_Originante__c)) {
       cuits.add(venta.CUIT_Originante__c);
     }
-    if (venta.Venta_Interna__c != true && String.isNotBlank(venta.CUIT_Destinatario__c)) {
+    if (
+      venta.Venta_Interna__c != true &&
+      String.isNotBlank(venta.CUIT_Destinatario__c)
+    ) {
       cuits.add(venta.CUIT_Destinatario__c);
     }
     if (cuits.isEmpty()) {
@@ -546,9 +710,16 @@ public without sharing class VentasInformadasCuitResolver {
         porCuit.get(venta.CUIT_Originante__c),
         obtComById
       );
+      if (originante == null && venta.Originante__c != null) {
+        originante = cuentaOriginanteYaAsignada(
+          venta.Originante__c,
+          obtComById,
+          cache == null
+        );
+      }
       if (originante != null) {
         venta.Originante__c = originante.Id;
-        aplicarRolOriginante(venta, originante);
+        aplicarRolOriginante(venta, originante, obtentorComercializaId);
         if (cache != null) {
           cache.accountsById.put(originante.Id, originante);
         }

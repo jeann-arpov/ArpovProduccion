@@ -99,15 +99,23 @@
                                                     <span class="slds-text-body_medium slds-truncate">{gestion.inicio}</span>
                                                 </li>
                                                 <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
-                                                    <span class="slds-text-title slds-p-bottom_x-small">Resultado</span>
+                                                    <span class="slds-text-title slds-p-bottom_x-small">{gestion.etiquetaResultado}</span>
                                                     <span class="slds-text-body_medium slds-truncate">
                                                         <lightning-badge label={gestion.respuestaFormateada} variant={gestion.colorIcono}></lightning-badge>
                                                     </span>
                                                 </li>
-                                                <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
-                                                    <span class="slds-text-title slds-p-bottom_x-small">Operador</span>
-                                                    <span class="slds-text-body_medium slds-truncate">{gestion.operador}</span>
-                                                </li>
+                                                <template if:true={gestion.mostrarOperador}>
+                                                    <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                                                        <span class="slds-text-title slds-p-bottom_x-small">Operador</span>
+                                                        <span class="slds-text-body_medium slds-truncate">{gestion.operador}</span>
+                                                    </li>
+                                                </template>
+                                                <template if:true={gestion.mostrarEfectividad}>
+                                                    <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                                                        <span class="slds-text-title slds-p-bottom_x-small">Efectividad</span>
+                                                        <span class="slds-text-body_medium slds-truncate">{gestion.efectividad}</span>
+                                                    </li>
+                                                </template>
                                                 <template if:true={gestion.agente}>
                                                     <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
                                                         <span class="slds-text-title slds-p-bottom_x-small">Agente</span>
@@ -216,23 +224,35 @@
                         </lightning-radio-group>
                     </fieldset>
 
-                    <!-- Operador -->
-                    <lightning-combobox
-                        label="Operador"
-                        value={operador}
-                        options={opcionesOperador}
-                        onchange={handleOperadorChange}
-                        required
-                        class="slds-m-bottom_small">
-                    </lightning-combobox>
+                    <!-- Operador (solo Expedientes) -->
+                    <template if:true={esExpediente}>
+                        <lightning-combobox
+                            label="Operador"
+                            value={operador}
+                            options={opcionesOperador}
+                            onchange={handleOperadorChange}
+                            required
+                            class="slds-m-bottom_small">
+                        </lightning-combobox>
+                    </template>
 
-                    <!-- Respuesta -->
+                    <!-- Respuesta: Expediente filtrada por Operador; Caso todas -->
                     <lightning-combobox
                         label="Respuesta"
                         value={respuesta}
                         options={opcionesRespuesta}
                         onchange={handleRespuestaChange}
                         disabled={respuestaDeshabilitada}
+                        required
+                        class="slds-m-bottom_small">
+                    </lightning-combobox>
+
+                    <!-- Efectividad (Casos y Expedientes) -->
+                    <lightning-combobox
+                        label="Efectividad"
+                        value={efectividad}
+                        options={opcionesEfectividad}
+                        onchange={handleEfectividadChange}
                         required
                         class="slds-m-bottom_small">
                     </lightning-combobox>

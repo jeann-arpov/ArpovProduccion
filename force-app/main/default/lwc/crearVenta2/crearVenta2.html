@@ -861,12 +861,16 @@
 
   <c-pdf-reader></c-pdf-reader>
   <c-ht-modals
+    is-open-payment-modal={isOpenPaymentModal}
+    modal-items={modalItems}
     current-modal={currentModal}
     community={community}
     es-punto-venta={obtentorEsPuntoDeVenta}
     promo-message={htFuturaPromoMessage}
     promo-variant={htFuturaPromoVariant}
     onclose={closeModal}
+    onclosemodal={handleClosePaymentStine}
+    onconfirmpayment={handleConfirmPaymentStine}
     onredirect={redirect}
     onanular={anular}
     ontipopagoselected={handleTipoPagoSelected}

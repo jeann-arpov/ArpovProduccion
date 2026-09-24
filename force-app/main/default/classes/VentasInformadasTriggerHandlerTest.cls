@@ -78,6 +78,64 @@ private class VentasInformadasTriggerHandlerTest {
     }
 
     @IsTest
+    static void obtentorConVariedadAjenaQuedaDistribuidor() {
+        Test_TestUtils.disableFlows();
+
+        Id rtObtentor = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
+            .get('Obtentor')
+            .getRecordTypeId();
+        Account aca = new Account(
+            Name = 'ASOCIACION DE COOPERATIVAS ARGENTINAS COOP LTDA',
+            N_CUIT__c = '30500120882',
+            Type = 'Obtentor',
+            RecordTypeId = rtObtentor,
+            Id_Obtentor__c = '01',
+            Nombre_Obtentor__c = 'ACA'
+        );
+        Account gdm = new Account(
+            Name = 'GDM ARGENTINA S. A. (85)',
+            N_CUIT__c = '30715468294',
+            Type = 'Obtentor',
+            RecordTypeId = rtObtentor,
+            Id_Obtentor__c = '85',
+            Nombre_Obtentor__c = 'GDM'
+        );
+        insert new List<Account>{ aca, gdm };
+
+        Variedad__c variedad = new Variedad__c(
+            Name = 'NEO 47S25 SE',
+            Cultivar_INASE__c = 'NEO 47S25 SE',
+            Obtentor_Comercializa__c = gdm.Id
+        );
+        insert variedad;
+
+        Ventas_Informadas__c venta = new Ventas_Informadas__c(
+            CUIT_Originante__c = '30500120882',
+            CUIT_Destinatario__c = '20144462980',
+            Originante__c = aca.Id,
+            Rol_Originante__c = 'Obtentor',
+            Variedad__c = 'NEO 47S25 SE',
+            Variedad_INASE__c = variedad.Id
+        );
+
+        Test.startTest();
+        insert venta;
+        Test.stopTest();
+
+        venta = [
+            SELECT Rol_Originante__c, Originante__c
+            FROM Ventas_Informadas__c
+            WHERE Id = :venta.Id
+        ];
+        System.assertEquals(aca.Id, venta.Originante__c);
+        System.assertEquals(
+            'Distribuidor',
+            venta.Rol_Originante__c,
+            'Obtentor que informa variedad de otro obtentor debe quedar Distribuidor'
+        );
+    }
+
+    @IsTest
     static void persisteVariedadInaseOnInsert() {
         Test_TestUtils.disableFlows();
 

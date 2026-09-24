@@ -1337,9 +1337,7 @@
     </fieldPermissions>
     <flowAccesses>
         <enabled>true</enabled>
-        <flow>
-Venta_HT_Crear_NC;
-    </flow>
+        <flow>Venta_HT_Crear_NC</flow>
     </flowAccesses>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Notas de Creditos</label>

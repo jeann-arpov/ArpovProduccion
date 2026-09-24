@@ -1,4 +1,4 @@
-import { LightningElement, track } from "lwc";
+import { LightningElement, api, track } from "lwc";
 import getDataApex from "@salesforce/apex/CrearCompraController.getData";
 import finalizarCompra from "@salesforce/apex/CrearCompraController.finalizarCompra";
 import anular from "@salesforce/apex/CrearCompraController.anular";
@@ -26,6 +26,8 @@ import {
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
+const FECHA_INICIO_STINE_DEFAULT = "2026-09-21";
+const FECHA_FIN_STINE_DEFAULT = "2026-10-31";
 
 export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   showFacturaRegaliaEnlistMsg;
@@ -37,7 +39,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   showResumen = false;
   semilleroIcono = false;
   showFileUploadModal = false;
-  isLoading = false; // ✅ Nuevo estado para spinner
+  isLoading = false;
   showFinanciamientoColumn = false;
   isModalOpen = false;
   @track DataCompra;
@@ -52,11 +54,24 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   @track _lineasListasFlag = false;
   @track guardandoLineas = false;
   @track finalizandoOperacion = false;
+  @track isOpenPaymentModal = false;
+  @track modalItems = [];
+
+  // Configuración comunidad Stine
+  @api fechaInicioStine;
+  @api fechaFinStine;
 
   tipoPago = null; // 'Contado' | 'Financiado'
   pendingFinalizar = false; // para reintentar
   pendingFinalizarPorExpediente = false;
   shouldMarkRevisarCompra = false;
+
+  // Banderas guardado Stine Modal
+  tipoPagoStineSeleccionado = null;
+  @track entidadBancariaStine = null;
+  @track plazoStine = null;
+  @track monedaStine = null;
+  @track tasaStine = null;
 
   htFuturaPromoMessage = null;
   htFuturaPromoVariant = "success";
@@ -81,6 +96,94 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       (c) => c.value === this.cultivo
     );
     return seleccionado ? seleccionado.label : "";
+  }
+
+  get esVentaHtFutura() {
+    const esHT = this.tipoVenta && this.tipoVenta.toUpperCase() === "HT";
+    const esFutura = this.campana && this.campana.toUpperCase().includes("FUTURA");
+    return esHT && esFutura;
+  }
+
+  get esMarcaStine() {
+    if (this.marca && this.marca.toUpperCase() === "STINE") return true;
+    const semilleroSeleccionado = this.semilleros?.find(s => s.value === this.semillero);
+    return semilleroSeleccionado?.label?.toUpperCase().includes("STINE") || false;
+  }
+
+  get fechaInicioEfectiva() {
+        // 1. Prioriza lo configurado en la Comunidad
+        if (this.fechaInicioStine) return this.fechaInicioStine;
+        // 2. Si es undefined (venga de donde venga el usuario), usa el respaldo guardado en sesión
+        const guardado = sessionStorage.getItem('stine_fechaInicio');
+        if (guardado) return guardado;
+        // 3. Si no hay nada, usa la constante por defecto
+        return FECHA_INICIO_STINE_DEFAULT;
+    }
+
+    get fechaFinEfectiva() {
+        if (this.fechaFinStine) return this.fechaFinStine;
+        const guardado = sessionStorage.getItem('stine_fechaFin');
+        if (guardado) return guardado;
+        return FECHA_FIN_STINE_DEFAULT;
+    }
+
+   estaEnRangoFechasStine() {
+        const inicio = this.fechaInicioEfectiva;
+        const fin = this.fechaFinEfectiva;
+
+        // Si por alguna razón no hay fechas, no bloquea ni muestra modal
+        if (!inicio || !fin) {
+            return false;
+        }
+
+        // Si la Comunidad envió valores válidos en esta vista, actualizamos el almacenamiento local
+        if (this.fechaInicioStine) sessionStorage.setItem('stine_fechaInicio', this.fechaInicioStine);
+        if (this.fechaFinStine) sessionStorage.setItem('stine_fechaFin', this.fechaFinStine);
+
+        // Obtenemos la fecha de hoy local en formato YYYY-MM-DD
+        const hoy = new Date();
+        const year = hoy.getFullYear();
+        const month = String(hoy.getMonth() + 1).padStart(2, '0');
+        const day = String(hoy.getDate()).padStart(2, '0');
+        const hoyStr = `${year}-${month}-${day}`;
+
+        return hoyStr >= inicio && hoyStr <= fin;
+    }
+
+  async evaluarEsStineFutura() {
+    console.log("--- [DEBUG] Ejecutando evaluarEsStineFutura ---");
+
+    if (!await this.estaEnRangoFechasStine()) {
+      console.log("--- [DEBUG] Fuera de rango de fechas configurado para Stine. Se omite modal y persistencia. ---");
+      return false;
+    }
+
+    const lineas = [
+      ...(this.DataCompra?.record?.Lineas_de_Compra_HT__r || []),
+      ...(this.data?.record?.Lineas_de_Compra_HT__r || []),
+      ...(this.items || []).map(i => i.record || i)
+    ];
+    console.log("Líneas recopiladas:", JSON.parse(JSON.stringify(lineas)));
+
+    let tieneStineFuturaEnLineas = false;
+
+    for (const rec of lineas) {
+      const obtentor = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || "";
+      const tipoCompra = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || "";
+
+      console.log(`Analizando línea -> Obtentor: "${obtentor}", TipoCompra: "${tipoCompra}"`);
+
+      const esObtentorStineExacto = obtentor === "M.S. TECHNOLOGIES ARGENTINA S.R.L.";
+      const esTipoFutura = tipoCompra === "Futura" || this.Futura;
+
+      if (esObtentorStineExacto && esTipoFutura) {
+        tieneStineFuturaEnLineas = true;
+        break;
+      }
+    }
+
+    console.log("--- [DEBUG] Resultado final evaluarEsStineFutura:", tieneStineFuturaEnLineas);
+    return tieneStineFuturaEnLineas;
   }
 
   async connectedCallback() {
@@ -123,26 +226,22 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             }
           }
         } catch (e) {
-          // eslint-disable-next-line no-console
           console.error("Error cargando compra desde Apex", e);
         } finally {
           this.isLoading = false;
         }
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Error obteniendo la cuenta del usuario:", error);
     }
   }
 
   handleOpenModal(event) {
-    console.log("Evento recibido del hijo:", event.detail);
     this.isModalOpen = true;
   }
 
   openModal(event) {
-    console.log("Evento openmodal recibido del hijo:", event.detail);
-    this.isModalOpen = true; // 🔹 este abre el modal del padre
+    this.isModalOpen = true;
   }
 
   async closeModal() {
@@ -153,7 +252,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     this.isModalOpen = false;
     this.isOpen = false;
     this.isOpen2 = false;
-    this.currentModal = null; // asegúrate de resetearlo en el padre también
+    this.currentModal = null;
 
     if (debeContinuarFinalizar) {
       this.shouldMarkRevisarCompra = true;
@@ -168,7 +267,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   }
 
   handleSemilleroIconReady(event) {
-    console.log("que valor llegó a semilleroIcono", event.detail);
     this.semilleroIcono = event.detail;
     if (event.detail == null) {
       this.step = 3;
@@ -237,7 +335,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     if (!this.puedeEditar || this.guardandoLineas) {
       return false;
     }
-    // eslint-disable-next-line no-unused-expressions
     this._lineasListasFlag;
     return this.tieneLineasPendientesDeGuardar;
   }
@@ -360,6 +457,35 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     this.finalizandoOperacion = true;
 
     try {
+      // Evaluamos directamente la función de Stine aquí
+      const esStineFutura = await this.evaluarEsStineFutura();
+
+      if (esStineFutura && !this.tipoPagoStineSeleccionado) {
+        try {
+          this.isLoading = true;
+          await this.saveAllPendingLines();
+        } catch (e) {
+          this.isLoading = false;
+          return this.onError("Error al guardar las líneas: " + (e.message || e));
+        } finally {
+          this.isLoading = false;
+        }
+
+        this.prepararModalItems();
+
+        this.pendingFinalizar = true;
+        this.currentModal = "forma-pago-stine";
+        return;
+      }
+
+      // Si no es Stine Futura o está fuera del rango de fechas, reseteamos las variables
+      if (!esStineFutura) {
+        this.entidadBancariaStine = null;
+        this.plazoStine = null;
+        this.monedaStine = null;
+        this.tasaStine = null;
+      }
+
       try {
         this.isLoading = true;
         await this.saveAllPendingLines();
@@ -370,11 +496,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       this.isLoading = false;
 
       // ===== Gate Tipo de Pago =====
-      console.log("[CrearCompra] finalizar() -> tipo de pago: ", this.tipoPago);
-      console.log(
-        "[CrearCompra] finalizar() -> tipo de pago:",
-        this.requiresTipoPago()
-      );
       if (this.requiresTipoPago() && !this.tipoPago) {
         this.pendingFinalizar = true;
         this.currentModal = "tipo-pago";
@@ -403,29 +524,26 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
       // Ejecuta canFinish y setea flags de licencia / origen legal
       const guardar = await this.finish();
-      console.log(guardar);
 
       if (guardar === false) {
-        // =========================
-        // CASO 1: FALTA LICENCIA
-        // =========================
-        // Cuando NO hay licencia aprobada → mostrar pop de licencia
-        //   “Tu compra/venta de HT queda pendiente porque el CUIT no cuenta con la licencia…”
-        if (this.haveLicence === false) {
+        if (this.haveLicence === false || (this.haveLicence === false && this.haveOrigenLegal === false)) {
           await this.requestWrap(async () => {
             const data = await finalizarCompra({
               compraId: this.recordId,
               checkDuplicates: this.recordId != this.lastDuplicateCheckId,
               origen: this.haveOrigenLegal,
               blanqueo: this.Blanqueo === true,
-              marcarRevisarCompra
+              marcarRevisarCompra,
+              entidadBancaria: this.entidadBancariaStine,
+              plazo: this.plazoStine,
+              moneda: this.monedaStine,
+              tasa: this.tasaStine
             });
 
             if (data.duplicate) {
               return this.notifyDuplicate();
             }
 
-            // Refresca la venta y las líneas en pantalla
             this.setData(data);
             this.DataCompra = data;
             this.currentModal = data.pendiente
@@ -441,10 +559,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
           return;
         }
 
-        // ==========================================
-        // CASO 2: TIENE LICENCIA PERO FALTA ORIGEN
-        // ==========================================
-        // Cuando hay licencia pero NO hay origen legal → pop de “no encontramos compras o tenencia…”
         if (this.haveOrigenLegal === false && this.haveLicence === true) {
           await this.requestWrap(async () => {
             const data = await finalizarCompra({
@@ -452,14 +566,17 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
               checkDuplicates: this.recordId != this.lastDuplicateCheckId,
               origen: this.haveOrigenLegal,
               blanqueo: this.Blanqueo === true,
-              marcarRevisarCompra
+              marcarRevisarCompra,
+              entidadBancaria: this.entidadBancariaStine,
+              plazo: this.plazoStine,
+              moneda: this.monedaStine,
+              tasa: this.tasaStine
             });
 
             if (data.duplicate) {
               return this.notifyDuplicate();
             }
 
-            // Refresca la venta y las líneas en pantalla
             this.setData(data);
             this.DataCompra = data;
             this.currentModal = data.pendiente
@@ -471,52 +588,18 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
           return;
         }
-        // =========================
-        // CASO 4: FALTA LICENCIA Y ORIGEN LEGAL
-        // =========================
-        if (this.haveLicence == false && this.haveOrigenLegal == false) {
-          await this.requestWrap(async () => {
-            const data = await finalizarCompra({
-              compraId: this.recordId,
-              checkDuplicates: this.recordId != this.lastDuplicateCheckId,
-              origen: this.haveOrigenLegal,
-              blanqueo: this.Blanqueo === true,
-              marcarRevisarCompra
-            });
-
-            if (data.duplicate) {
-              return this.notifyDuplicate();
-            }
-
-            // Refresca la venta y las líneas en pantalla
-            this.setData(data);
-            this.DataCompra = data;
-            this.currentModal = data.pendiente
-              ? "Pendiente de Facturación"
-              : "finalizada";
-            window.sessionStorage.setItem(
-              "htPopup_" + this.recordId,
-              "licencia"
-            );
-            this.isOpen2 = true;
-          });
-
-          return;
-        }
-      }
-
-      // =========================
-      // CASO 3: TODO OK
-      // =========================
-      // Tiene licencia y tiene origen legal → venta normal
-      else if (guardar === true) {
+      } else if (guardar === true) {
         await this.requestWrap(async () => {
           const data = await finalizarCompra({
             compraId: this.recordId,
             checkDuplicates: this.recordId != this.lastDuplicateCheckId,
             origen: this.haveOrigenLegal,
             blanqueo: this.Blanqueo === true,
-            marcarRevisarCompra
+            marcarRevisarCompra,
+            entidadBancaria: this.entidadBancariaStine,
+            plazo: this.plazoStine,
+            moneda: this.monedaStine,
+            tasa: this.tasaStine
           });
 
           if (data.duplicate) {
@@ -546,6 +629,122 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
   }
 
+  prepararModalItems() {
+    const lineasDOM = Array.from(
+      this.template.querySelectorAll("c-crear-linea-compra-new")
+    );
+
+    if (lineasDOM.length > 0) {
+      this.modalItems = lineasDOM.map((child, index) => {
+        const rec = child.record || {};
+        const productoId = rec.Producto__c;
+        let variedadNombre = "";
+
+        if (productoId && this.variedades) {
+          const prodEncontrado = this.variedades.find(
+            (v) => v.record?.Product2Id === productoId || v.value === productoId
+          );
+          if (prodEncontrado && prodEncontrado.label) {
+            variedadNombre = prodEncontrado.label;
+          }
+        }
+        if (!variedadNombre && rec.Producto__r?.Name) {
+          variedadNombre = rec.Producto__r.Name;
+        }
+        if (!variedadNombre) {
+          variedadNombre = "Variedad " + (index + 1);
+        }
+
+        const cantidad = parseFloat(rec.Cantidad__c) || 0;
+        const precio =
+          parseFloat(rec.Precio_Unitario__c) ||
+          parseFloat(rec.Precio_de_Lista__c) ||
+          0;
+        const totalCalculado = precio * cantidad;
+
+        return {
+          id: rec.Id || `linea-${index}`,
+          variedad: variedadNombre,
+          ht: cantidad,
+          precioUnitario: this.formatCurrency(precio),
+          total: this.formatCurrency(totalCalculado)
+        };
+      });
+    } else if (this.data?.record?.Lineas_de_Compra_HT__r) {
+      this.modalItems = this.data.record.Lineas_de_Compra_HT__r.map(
+        (item, index) => {
+          const precio =
+            parseFloat(item.Precio_Unitario__c) ||
+            parseFloat(item.Precio_de_Lista__c) ||
+            0;
+          const cantidad = parseFloat(item.Cantidad__c) || 0;
+          const totalCalculado = precio * cantidad;
+
+          return {
+            id: item.Id || `linea-${index}`,
+            variedad: item.Producto__r?.Name || "Variedad " + (index + 1),
+            ht: cantidad,
+            precioUnitario: this.formatCurrency(precio),
+            total: this.formatCurrency(totalCalculado)
+          };
+        }
+      );
+    } else {
+      this.modalItems = [];
+    }
+  }
+
+  async handleConfirmPaymentStine(event) {
+    const { formaPago, entidadBancaria, plazo, moneda, tasa } = event.detail;
+
+    this.tipoPagoStineSeleccionado = formaPago;
+    this.tipoPago = formaPago;
+
+    this.entidadBancariaStine = formaPago === "Financiado" ? entidadBancaria : null;
+    this.plazoStine = formaPago === "Financiado" ? plazo : null;
+    this.monedaStine = formaPago === "Financiado" ? moneda : null;
+    this.tasaStine = formaPago === "Financiado" ? tasa : null;
+
+    const activeRecordId = this.recordId || this.pageRecordId;
+
+    this.isLoading = true;
+    try {
+      await updateTipoPago({
+        compraId: activeRecordId,
+        tipoPago: formaPago,
+        entidadBancaria: this.entidadBancariaStine,
+        plazo: this.plazoStine,
+        moneda: this.monedaStine,
+        tasa: this.tasaStine
+      });
+    } catch (e) {
+      console.error("Error detallado en handleConfirmPaymentStine:", e);
+      const errorMsg = e.body?.message || e.message || (typeof e === 'object' ? JSON.stringify(e) : e);
+      this.onError("Error al guardar datos de pago: " + errorMsg);
+      this.isLoading = false;
+      return;
+    }
+
+    this.isLoading = false;
+    this.currentModal = null;
+    this.pendingFinalizar = false;
+
+    this.finalizar();
+  }
+
+  handleClosePaymentStine() {
+    this.currentModal = null;
+    this.pendingFinalizar = false;
+  }
+
+  formatCurrency(val) {
+    if (isNaN(val)) return "0,00";
+    return parseFloat(val).toLocaleString("es-AR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
   notifyDuplicate() {
     this.currentModal = "duplicate-compra";
     this.lastDuplicateCheckId = this.recordId;
@@ -562,11 +761,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
   // ====== DATOS COMPLEMENTARIOS ======
   getSemilleroData() {
-    console.log("Semillero data:", JSON.stringify(this.semillero));
-    console.log(
-      "Semillero data:",
-      JSON.stringify(getSemilleroData({ obtentorId: this.semillero }))
-    );
     return getSemilleroData({ obtentorId: this.semillero });
   }
 
@@ -734,14 +928,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     this.showFileUploadModal = false;
   }
 
-  openFileUpload() {
-    this.showFileUploadModal = true;
-  }
-
-  closeFileUpload() {
-    this.showFileUploadModal = false;
-  }
-
   get acceptedFormats() {
     return [".pdf"];
   }
@@ -787,14 +973,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   }
 
   handleTipoHtChange(event) {
-    console.log("llego aca el evento ", JSON.stringify(event.detail));
-    console.log("llego aca el evento ", JSON.stringify(event.detail.isFutura));
     const { isFutura } = event.detail;
     this.Futura = event.detail.isFutura;
-    console.log("isFutura extraído:", isFutura);
-    //Pre Campaña
     this.showFinanciamientoColumn = isFutura && this.cultivoNombre === "SOJA";
-    console.log("showFinanciamientoColumn:", this.showFinanciamientoColumn);
     this.syncPromoQualificationState();
     Promise.resolve().then(() => {
       this.refreshAllLinePromoPrices();
@@ -944,7 +1125,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         semillero: this.DataCompra.semilleroData?.semillero || {},
         CuentaProductor: this.DataCompra.record.Cuenta_Productor__r?.Id,
         tieneLicencia: poseeLicencia,
-        Variedades: variedades
+        Variedades: variedades,
+        tipoCompra: this.tipoCompraSeleccionado,
+        cultivoId: this.DataCompra.record.Cultivo__c
       });
 
       this.haveLicence = res.TieneLicencia;
@@ -996,23 +1179,29 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     if (!value) return;
 
     this.tipoPago = value;
+    this.entidadBancariaStine = null;
+    this.plazoStine = null;
+    this.monedaStine = null;
+    this.tasaStine = null;
 
     await this.requestWrap(async () => {
       const data = await updateTipoPago({
         compraId: this.recordId,
-        tipoPago: value
+        tipoPago: value,
+        entidadBancaria: null,
+        plazo: null,
+        moneda: null,
+        tasa: null
       });
       this.setData(data);
       this.DataCompra = data;
     });
 
-    // cierra modal tipo-pago
     this.currentModal = null;
 
-    // si venía de apretar finalizar, continúa
     if (this.pendingFinalizar) {
       this.pendingFinalizar = false;
-      await this.finalizar(); // ahora ya pasa el gate porque this.tipoPago existe
+      await this.finalizar();
     }
   }
 
@@ -1028,11 +1217,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         compraVentaId: this.recordId,
         tipoOperacion: "compra"
       });
-      // eslint-disable-next-line no-console
-      console.log(
-        "[CrearCompra2] verificarExpedienteEnHTDisponible result:",
-        JSON.stringify(result)
-      );
       const tieneExpediente = Boolean(result?.tieneExpediente);
       if (tieneExpediente && mostrarModalSiTieneExpediente) {
         this.currentModal = "expediente-disponible-alert";
@@ -1040,7 +1224,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       }
       return false;
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(
         "Error validando expediente en HT disponible (compra):",
         error

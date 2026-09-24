@@ -111,7 +111,12 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     if (estado == null || estado == "Sin adherir") {
       actionName = "Adherir";
     }
-    if (estado == "Adherido" || estado == "Rechazado" || estado == "Vencido") {
+    if (
+      estado == "Adherido" ||
+      estado == "Rechazado" ||
+      estado == "Vencido" ||
+      estado == "En Revisión"
+    ) {
       actionName = "Ver";
     }
     if (estado == "En Preparación" || estado == "Rectificado") {
@@ -144,6 +149,9 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     }
     if (estado == "En Preparación") {
       estadoClass = "preparacion";
+    }
+    if (estado == "En Revisión") {
+      estadoClass = "revision";
     }
     if (estado == "Vencido") {
       estadoClass = "vencido";
