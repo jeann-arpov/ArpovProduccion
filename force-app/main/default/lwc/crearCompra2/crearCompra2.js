@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import getDataApex from '@salesforce/apex/CrearCompraController.getData';
 import finalizarCompra from '@salesforce/apex/CrearCompraController.finalizarCompra';
 import anular from '@salesforce/apex/CrearCompraController.anular';
@@ -44,6 +44,10 @@ const MAP_TECNOLOGIAS_LICENCIA = {
 };
 
 export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
+    /** Fechas Stine configurables en Experience Builder (compatibilidad con páginas existentes). */
+    @api fechaInicioStine;
+    @api fechaFinStine;
+
     showFacturaRegaliaEnlistMsg;
     iconCebadaUrl = `${resourcePortal}/resourcePortal/images/prd-cebada.svg`;
     iconSojaHTUrl = `${resourcePortal}/resourcePortal/images/prd-soja.svg`;
