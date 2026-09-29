@@ -3,6 +3,7 @@ import getLoadData from '@salesforce/apex/HomeMulticultivo.getLoadData';
 import { NavigationMixin } from 'lightning/navigation';
 import { trackGa4Event } from 'c/portalGa4Events';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import enRevisionDetalle from '@salesforce/label/c.PPH_Estado_En_Revision_Detalle';
 
 const NUMBER_FMT = new Intl.NumberFormat('es-AR', {
     maximumFractionDigits: 0
@@ -131,6 +132,7 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
         const isComprar = t.version === 'comprar';
         const isAdherir = t.version === 'adherir';
         const isAdherido = t.version === 'adherido';
+        const isRevision = t.version === 'revision';
         const htAdq = Number(t.htAdquirida != null ? t.htAdquirida : t.htSinConsumir || 0);
         const needsCg = t.cgNeedsRegularizar === true;
         const hasFase = t.hasFase === true;
@@ -154,6 +156,9 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
                 ? `Ya podés adherir a PPH para la campaña ${period}.`
                 : 'Ya podés adherir a PPH.';
         }
+        if (isRevision) {
+            pphDescription = enRevisionDetalle;
+        }
 
         const pphHa = Number(t.pphHectareas || 0);
         const pphEst = Number(t.pphEstablecimientos || 0);
@@ -175,8 +180,9 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
             buyNote: hasFase && (t.faseLabel || '').toLowerCase().includes('pre')
                 ? 'Accedé a un precio diferencial en precampaña.'
                 : 'Campaña abierta con precio diferencial.',
-            pphStatus: isAdherido ? 'ADHERIDO' : 'SIN ADHERIR',
-            pphStatusClass: 'home-pill' + (isAdherido ? ' is-lima' : ' is-gris'),
+            isRevision,
+            pphStatus: isAdherido ? 'ADHERIDO' : isRevision ? 'EN REVISIÓN' : 'SIN ADHERIR',
+            pphStatusClass: 'home-pill' + (isAdherido ? ' is-lima' : isRevision ? ' is-revision' : ' is-gris'),
             pphCtaLabel: isAdherir ? 'Adherí a PPH →' : null,
             pphDescription,
             pphHaLabel: `${NUMBER_FMT.format(pphHa)} ha`,
@@ -186,6 +192,7 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
                 ? 'Tu Cuenta Granaria de campañas pasadas necesita regularizar toneladas.'
                 : 'Tu Cuenta Granaria de campañas pasadas se encuentra en regla.',
             cgMsgClass: 'home-cg-msg' + (needsCg ? ' is-warn' : ' is-ok'),
+            cgBareClass: 'home-cg-msg is-bare' + (needsCg ? ' is-warn' : ' is-ok'),
             cgIconClass: 'home-cg-head-ic' + (needsCg ? ' is-warn' : ' is-ok'),
             showHt: true,
             showPph: true,

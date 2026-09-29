@@ -133,6 +133,46 @@
     border: 1px solid #dde2eb;
 }
 
+.badge.pph-adherido,
+.badge.pph-rectificado,
+.badge.pph-rechazado,
+.badge.pph-preparacion,
+.badge.pph-no-adherido,
+.badge.pph-vencido {
+    color: #fff;
+    border: 1px solid transparent;
+}
+
+.badge.pph-adherido {
+    background: green;
+}
+
+.badge.pph-rectificado {
+    background: #e67e22;
+}
+
+.badge.pph-rechazado {
+    background: red;
+}
+
+.badge.pph-preparacion {
+    background: black;
+}
+
+.badge.pph-revision {
+    background: #f1c40f;
+    color: black;
+    border: 1px solid transparent;
+}
+
+.badge.pph-no-adherido {
+    background: grey;
+}
+
+.badge.pph-vencido {
+    background: brown;
+}
+
 .lic-card {
     background: #fff;
     border: 1px solid #dde2eb;

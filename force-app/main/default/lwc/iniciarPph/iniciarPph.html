@@ -1,69 +1,80 @@
 <template>
     <template if:false={loaded}>
-        <div class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        <div class="se-pph-loading">
+            <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
         </div>
     </template>
 
     <template if:true={loaded}>
         <template if:true={hasHTs}>
-            <section class="pph-landing">
-                <header class="pph-landing-head">
-                    <p class="pph-eyebrow">Precertificación</p>
-                    <h1 class="pph-title">Adherí PPH</h1>
-                    <p class="pph-lead">Precertificá tu semilla propia y sembrá tranquilo la campaña 26/27.</p>
-                    <p class="pph-body">
-                        La adhesión al Programa de Precertificación te habilita a usar semilla propia en tu establecimiento sin conflictos de propiedad intelectual. El proceso lleva unos minutos y no tiene costo dentro del período de adhesión.
-                    </p>
-                </header>
+            <div class="se-pph">
+                <c-se-page-header
+                    eyebrow="PRECERTIFICACIÓN"
+                    eyebrow-mobile="MÓDULOS · PPH"
+                    title="Adhesión al Programa de Precertificación de Hectáreas"
+                    subtitle="Es un programa de beneficios para quienes participan de Sembrá Evolución. La adhesión es gratuita, voluntaria y 100% digital"
+                ></c-se-page-header>
 
-                <div class="pph-accordions">
-                    <details class="pph-accordion" open>
-                        <summary class="pph-accordion-summary">
-                            Beneficios de adherir
-                            <span class="pph-chevron" aria-hidden="true">⌄</span>
-                        </summary>
-                        <ul class="pph-benefits">
-                            <li>Semilla propia habilitada en tus establecimientos declarados.</li>
-                            <li>Posibilidad de entregar toda la producción sin segregar tecnologías en la cosecha.</li>
-                            <li>Adhesión gratuita y voluntaria al aceptar los Términos y Condiciones.</li>
-                            <li>Certificado digital emitido al completar el trámite.</li>
+                <div class="se-pph-layout">
+                    <section class="se-panel">
+                        <h2 class="se-panel-title">Requisitos para adherir</h2>
+                        <ul class="se-pph-checks">
+                            <template for:each={requisitos} for:item="item">
+                                <li key={item.id} class="se-pph-check">
+                                    <span class="se-pph-check-dot" aria-hidden="true">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1c1c1c" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"></path></svg>
+                                    </span>
+                                    <span>{item.label}</span>
+                                </li>
+                            </template>
                         </ul>
-                    </details>
+                    </section>
 
-                    <details class="pph-accordion">
-                        <summary class="pph-accordion-summary">
-                            ¿Cómo funciona?
-                            <span class="pph-chevron" aria-hidden="true">⌄</span>
-                        </summary>
-                        <div class="pph-accordion-body">
-                            <p>Declarás la capacidad productiva total por CUIT, cargás tus establecimientos y aceptás los Términos y Condiciones del programa. Luego podés seguir el estado de cada campaña desde <strong>Tus adhesiones</strong>.</p>
-                        </div>
-                    </details>
-
-                    <details class="pph-accordion">
-                        <summary class="pph-accordion-summary">
-                            Requisitos
-                            <span class="pph-chevron" aria-hidden="true">⌄</span>
-                        </summary>
-                        <div class="pph-accordion-body">
-                            <p>Contar con HT disponibles para precertificar, establecimientos declarados y aceptar los Términos y Condiciones vigentes para la campaña.</p>
-                        </div>
-                    </details>
+                    <section class="se-pph-resumen">
+                        <p class="se-pph-resumen-eyebrow">Beneficios</p>
+                        <p class="se-pph-resumen-lead">
+                            Gracias a tu adhesión a PPH vas a poder entregar el grano obtenido
+                            <strong>sin segregar tecnologías</strong>, de acuerdo a:
+                        </p>
+                        <p class="se-pph-resumen-lead">
+                            El rendimiento promedio de tu zona, según los datos informados por la
+                            Bolsa de Cereales de Buenos Aires.
+                        </p>
+                        <p class="se-pph-resumen-note">
+                            El sistema podrá realizar validaciones técnicas para verificar la
+                            correspondencia entre lo declarado y lo efectivamente entregado.
+                        </p>
+                    </section>
                 </div>
 
-                <div class="pph-landing-cta">
-                    <button type="button" class="pph-btn-primary" onclick={redirectAdhesion}>Adherite a PPH →</button>
-                </div>
-            </section>
+                <footer class="se-pph-footer">
+                    <button type="button" class="se-btn se-btn-primary" onclick={redirectAdhesion}>
+                        Continuar →
+                    </button>
+                    <template if:true={hasTycLinks}>
+                        <nav class="se-pph-tyc" aria-label="Términos y condiciones por cultivo">
+                            <template for:each={tycLinks} for:item="link">
+                                <button key={link.id} type="button" class="se-pph-tyc-link" data-id={link.id} title={link.title} onclick={openTyc}>{link.label}</button>
+                            </template>
+                        </nav>
+                    </template>
+                </footer>
+            </div>
+            <c-pdf-reader></c-pdf-reader>
         </template>
 
         <template if:false={hasHTs}>
-            <section class="pph-empty">
-                <h2 class="pph-empty-title">Todavía no tenés HT para precertificar</h2>
-                <p class="pph-empty-copy">Comprá hectáreas tecnológicas y volvé para adherirte al programa.</p>
-                <button type="button" class="pph-btn-primary" onclick={redirectComprar}>Ir a comprar HT</button>
-            </section>
+            <div class="se-pph se-pph-empty">
+                <c-se-page-header
+                    eyebrow="PRECERTIFICACIÓN"
+                    eyebrow-mobile="MÓDULOS · PPH"
+                    title="Todavía no tenés HT para precertificar"
+                    subtitle="Comprá hectáreas tecnológicas y volvé para adherirte al programa."
+                ></c-se-page-header>
+                <button type="button" class="se-btn se-btn-primary" onclick={redirectComprar}>
+                    Ir a comprar HT
+                </button>
+            </div>
         </template>
     </template>
 </template>

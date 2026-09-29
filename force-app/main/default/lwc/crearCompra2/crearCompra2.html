@@ -251,7 +251,9 @@
 
                       <template if:true={v.hasLicencia}>
                         <div class="se-var-row">
-                          <div class="se-var-price">{v.priceLabel}</div>
+                          <div class="se-var-price">
+                            <template if:true={v.showSubtotal}>{v.priceLabel}</template>
+                          </div>
                           <div class="se-var-qty" role="group" aria-label="Cantidad HT">
                             <button
                               type="button"
@@ -498,9 +500,14 @@
         </div>
         <div class="venta-header">
             <lightning-layout-item class="logo-container" style="width: 210px" padding="horizontal-small">
-                <svg width="200" height="100">
-                    <use xlink:href={semilleroIcono}></use>
-                </svg>
+                <template if:true={semilleroIcono}>
+                    <svg width="200" height="100">
+                        <use xlink:href={semilleroIcono}></use>
+                    </svg>
+                </template>
+                <template if:false={semilleroIcono}>
+                    <span class="logo-fallback">{resumenMarca}</span>
+                </template>
             </lightning-layout-item>
             <div class="info-box">
                 <div class="info-card">
@@ -708,6 +715,22 @@
 
     <c-pdf-reader></c-pdf-reader>
 
+    <c-ht-modals
+        is-open-payment-modal={isOpenPaymentModal}
+        modal-items={modalItems}
+        current-modal={currentModal}
+        community={community}
+        es-punto-venta={obtentorEsPuntoDeVenta}
+        promo-message={htFuturaPromoMessage}
+        promo-variant={htFuturaPromoVariant}
+        onclose={closeModal}
+        onclosemodal={handleClosePaymentStine}
+        onconfirmpayment={handleConfirmPaymentStine}
+        onredirect={redirect}
+        onanular={anular}
+        ontipopagoselected={handleTipoPagoSelected}
+    ></c-ht-modals>
+
     <template if:true={showTipoPagoSheet}>
       <div class="se-pay-sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="se-pay-sheet-title">
         <button type="button" class="se-pay-scrim" onclick={handleTipoPagoCancel} aria-label="Cerrar"></button>
@@ -816,8 +839,28 @@
             <div class="se-result-summary">
               <div class="se-result-summary-mob">
                 <div class="se-result-row">
+                  <span class="se-result-k">Código</span>
+                  <span class="se-result-v">{resultCodigoCompra}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Cultivo</span>
+                  <span class="se-result-v">{cultivoNombre}</span>
+                </div>
+                <div class="se-result-row">
                   <span class="se-result-k">Marca</span>
                   <span class="se-result-v">{resumenMarca}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Variedad</span>
+                  <span class="se-result-v">{resultVariedadesLabel}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Tipo de HT</span>
+                  <span class="se-result-v">{resumenTipo}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Cantidad HT</span>
+                  <span class="se-result-v">{resumenHt}</span>
                 </div>
                 <div class="se-result-row">
                   <span class="se-result-k">Licencia</span>
@@ -830,8 +873,24 @@
               </div>
               <div class="se-result-summary-desk">
                 <div class="se-result-grid-item">
+                  <div class="se-result-k">Código</div>
+                  <div class="se-result-v">{resultCodigoCompra}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Cultivo</div>
+                  <div class="se-result-v">{cultivoNombre}</div>
+                </div>
+                <div class="se-result-grid-item">
                   <div class="se-result-k">Marca</div>
                   <div class="se-result-v">{resumenMarca}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Variedad</div>
+                  <div class="se-result-v">{resultVariedadesLabel}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Tipo de HT</div>
+                  <div class="se-result-v">{resumenTipo}</div>
                 </div>
                 <div class="se-result-grid-item">
                   <div class="se-result-k">Licencia</div>

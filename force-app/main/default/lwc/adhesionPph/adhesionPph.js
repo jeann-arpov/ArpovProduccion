@@ -506,7 +506,7 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
         this.showCreatePanel = true;
       }
     } catch (e) {
-      this.onError(e);
+      this.notifyValidationError(e);
     }
   }
 
@@ -549,7 +549,7 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
         Coordenadas__Latitude__s: item.lat,
         Coordenadas__Longitude__s: item.lng
       },
-      Cantidad_Variedad_No_SE__c: 0
+      Cantidad_Variedad_No_SE__c: null
     };
     // No enviar Id temporal a Salesforce
     if (!item.id) {
@@ -618,11 +618,11 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
   confirmCreateEstablecimiento() {
     const name = (this.createName || "").trim();
     if (!name) {
-      this.onError("Ingresá el nombre del establecimiento");
+      this.notifyValidationError("Ingresá el nombre del establecimiento");
       return;
     }
     if (this.createLat == null || this.createLng == null) {
-      this.onError("Seleccioná la georeferencia del establecimiento");
+      this.notifyValidationError("Seleccioná la georeferencia del establecimiento");
       return;
     }
 
@@ -909,13 +909,12 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
     return this.mobPageSubtitle;
   }
 
-  /** HT disponibles para precertificar (stock vigente), no el residual post-adhesión. */
+  /** HT disponibles para precertificar: solo stock por variedad (las globales no se pueden repartir). */
   get saldoDisponibleHt() {
-    const fromVariedades = (this.variedades || []).reduce(
+    return (this.variedades || []).reduce(
       (sum, v) => sum + (Number(v.totals?.total) || 0),
       0
     );
-    return fromVariedades + (Number(this.htsGlobales?.total) || 0);
   }
 
   get saldoPphLabel() {
@@ -1162,7 +1161,7 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
       }
       return true;
     } catch (e) {
-      if (showError) this.onError(e);
+      if (showError) this.notifyValidationError(e);
       return false;
     }
   }
@@ -1266,6 +1265,8 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
   }
 
   renderedCallback() {
+    document.documentElement.classList.add("se-inner", "se-inner-wizard");
+    document.body.classList.add("se-inner", "se-inner-wizard");
     if (!this.loading && !this._loggedReady) {
       this._loggedReady = true;
       console.log("[adhesionPph] ready", {
@@ -1416,7 +1417,7 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
   updateCantidadNoSe(event) {
     const estId = event.target?.info?.id;
     const cantidad = event.detail?.cantidad;
-    if (estId == null || cantidad == null) return;
+    if (estId == null || cantidad === undefined) return;
     this.establecimientos = this.establecimientos.map((e) => {
       if (e.id !== estId) return e;
       return {
@@ -1578,7 +1579,10 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
           pphId: this.isSalesforceId(est.pphId) ? est.pphId : null,
           latitude: est.latitude,
           longitude: est.longitude,
-          cantidadNoSE: Number(est.cantidadNoSE) || 0,
+          cantidadNoSE:
+            est.cantidadNoSE == null || est.cantidadNoSE === ""
+              ? null
+              : Number(est.cantidadNoSE),
           name: est.name,
           origen: est.origen,
           variedades
@@ -1598,7 +1602,7 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
 
   remove(event) {
     if (this.establecimientos.length == 1)
-      return this.onError("No puede borrar el único establecimiento restante");
+      return this.notifyValidationError("No puede borrar el único establecimiento restante");
     this.modalCallback = this.confirmDelete.bind(this, event.target);
     this.currentModal = "confirm-delete";
   }
@@ -1659,7 +1663,7 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
     try {
       await callback();
     } catch (e) {
-      this.onError(e);
+      this.notifyValidationError(e);
     }
 
     if (!quiet) this.loading = false;
@@ -1756,11 +1760,13 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
       this.clearSuperficieSeErrors();
 
       let cantidadSE = 0;
+      let faltaNoSe = false;
       for (const establecimiento of this.template.querySelectorAll(
         "c-establecimiento-pph"
       )) {
         if (!establecimiento.validate()) valid = false;
         const estData = establecimiento.getData();
+        if (estData.cantidadNoSE == null) faltaNoSe = true;
         if (estData.cantidadSE != null) {
           cantidadSE += Number(estData.cantidadSE) || 0;
         } else {
@@ -1770,11 +1776,13 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
         }
       }
 
-      if (!valid) {
+      if (!valid || faltaNoSe) {
         if (showError) {
           this.notifyValidationError(
             new Error(
-              "Revisá las hectáreas ingresadas: hay valores inválidos o incompletos"
+              faltaNoSe
+                ? "Indicá las hectáreas que no utilizan Sembrá Evolución en cada establecimiento (poné 0 si no tenés)"
+                : "Revisá las hectáreas ingresadas: hay valores inválidos o incompletos"
             )
           );
         }
@@ -1923,8 +1931,8 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
   async enviar() {
     await this.doRequest(async (_) => {
       await sendAdhesion({ planId: this.plan.Id });
-      this.plan.Estado__c = "Adherido";
-      this.currentModal = "adherido";
+      this.plan.Estado__c = "En Revisión";
+      this.currentModal = "en-revision";
       this.trackEnviado();
     });
     if (this.plan.Tiene_Hts_Pendientes__c == true) {

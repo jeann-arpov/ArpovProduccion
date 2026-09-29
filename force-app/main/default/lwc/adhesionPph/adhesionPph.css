@@ -1142,9 +1142,44 @@
     margin-top: 20px;
 }
 
-.exampleHolder {
+.pph-veil {
     position: relative;
-    min-height: 120px;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    background: rgba(243, 244, 246, 0.36);
+}
+
+.pph-veil::before {
+    content: '';
+    position: absolute;
+    width: 148px;
+    height: 148px;
+    max-width: 52vw;
+    max-height: 52vw;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(191, 255, 0, 0.28) 0%,
+        rgba(191, 255, 0, 0.1) 42%,
+        transparent 70%
+    );
+    animation: se-logo-glow 2.4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes se-logo-glow {
+    0%,
+    100% {
+        transform: scale(0.92);
+        opacity: 0.55;
+    }
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
 }
 
 @media (max-width: 767px) {

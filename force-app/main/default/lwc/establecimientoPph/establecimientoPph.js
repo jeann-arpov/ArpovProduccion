@@ -219,13 +219,16 @@ export default class EstablecimientoPph extends NavigationMixin(LightningElement
 
     updateCantidadFuera(event) {
         const raw = event.detail?.value ?? event.target?.value;
-        const parsed = raw === '' || raw == null ? 0 : Number(raw);
-        this.cantidadNoSE = Number.isFinite(parsed) ? parsed : 0;
+        const parsed = raw === '' || raw == null ? null : Number(raw);
+        this.cantidadNoSE = Number.isFinite(parsed) ? parsed : null;
         this.dispatchEvent(
             new CustomEvent('updatecantidadnose', {
                 detail: { cantidad: this.cantidadNoSE }
             })
         );
+        if (this.cantidadNoSE > 0) {
+            this.dispatchEvent(new CustomEvent('pasohectareasnose'));
+        }
     }
 
     showMap(event) {
@@ -264,6 +267,12 @@ export default class EstablecimientoPph extends NavigationMixin(LightningElement
 
     get safeCantidadNoSE() {
         return this.cantidadNoSE || 0;
+    }
+
+    get declaredCantidadNoSE() {
+        if (this.cantidadNoSE == null || this.cantidadNoSE === '') return null;
+        const n = Number(this.cantidadNoSE);
+        return Number.isFinite(n) ? n : null;
     }
 
     get totalSuperficieSe() {
@@ -362,7 +371,7 @@ export default class EstablecimientoPph extends NavigationMixin(LightningElement
                 id: this.establecimiento?.Id,
                 latitude: this.establecimiento?.Coordenadas__Latitude__s || this.latitude,
                 longitude: this.establecimiento?.Coordenadas__Longitude__s || this.longitude,
-                cantidadNoSE: this.safeCantidadNoSE,
+                cantidadNoSE: this.declaredCantidadNoSE,
                 cantidadSE: this.safeCantidadSE,
                 name: this.establecimiento?.Name || this.name,
                 lineasMeta: (this.info?.lineas || []).map((l) => ({

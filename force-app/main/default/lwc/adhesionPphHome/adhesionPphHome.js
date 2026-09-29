@@ -3,16 +3,21 @@ import { NavigationMixin } from 'lightning/navigation';
 import getLoadData from '@salesforce/apex/AdhesionPPHHome.getLoadData';
 import getContext from '@salesforce/apex/AdhesionPPHHome.getContext';
 import { errorEvent } from 'c/utils';
+import { trackGa4Event } from 'c/portalGa4Events';
 
 const PAGE_SIZE = 200;
 
+const ESTADO_TONE = {
+    Adherido: 'pph-adherido',
+    Rectificado: 'pph-rectificado',
+    Rechazado: 'pph-rechazado',
+    'En Preparación': 'pph-preparacion',
+    'En Revisión': 'pph-revision',
+    Vencido: 'pph-vencido'
+};
+
 function statusTone(estado) {
-    const s = (estado || '').toLowerCase();
-    if (/certific|adherid/.test(s)) return 'ok';
-    if (/rechaz|cerrad|vencid/.test(s)) return 'danger';
-    if (/curso|rectif|prepar/.test(s)) return 'warn';
-    if (/sin adher/.test(s)) return 'info';
-    return 'info';
+    return ESTADO_TONE[estado] || 'pph-no-adherido';
 }
 
 function campaignTitle(paramName) {
@@ -31,9 +36,6 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     initialized = false;
     pageSize = PAGE_SIZE;
     accountContext = null;
-
-    rectificacionTooltip =
-        'Tenés una rectificación de PPH sin finalizar. Ingresá, completá tu plan de siembra y aceptá los términos y condiciones.';
 
     columns = [
         { label: 'Campaña', fieldName: 'title', type: 'link' },
@@ -74,6 +76,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             this.accountContext = context;
             this.rowsAll = this.flattenRows(data);
             this.loading = false;
+            trackGa4Event('pph_vista');
         } catch (error) {
             this.loading = false;
             this.onError(error);
@@ -126,7 +129,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             mobileExtraValue: wParam.mobileExtraValue || '',
             periodo,
             statusLabel,
-            statusTone: statusTone(statusLabel),
+            statusTone: statusTone(estadoRaw),
             statusBucket,
             statusNote: disableAction ? wParam.disabledCause || '' : '',
             actionName,
@@ -162,6 +165,10 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         const row = event.detail?.row;
         if (!row || row.actionDisabled) return;
 
+        if (row.actionName === 'Adherir' || row.actionName === 'Continuar') {
+            trackGa4Event('pph_declaracion_iniciada');
+        }
+
         if (row.actionName === 'Adherir' || row.actionName === 'Continuar' || row.actionName === 'Ver') {
             this.redirectToParam(row.paramId);
         }
@@ -194,17 +201,27 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             wParam.planSiembra.Estado__c === 'Sin adherir' ||
             wParam.planSiembra.Estado__c === 'En Preparación'
         ) {
-            if (new Date(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c) > hoy) {
+            const inicio = this.parseLocalDate(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c);
+            const fin = this.parseLocalDate(wParam.parametro.Fecha_Fin_Adhesion_PPH__c);
+            if (fin) fin.setHours(23, 59, 59, 999);
+            if (inicio && inicio > hoy) {
                 wParam.disabledCause = 'El período de adhesión no ha comenzado';
                 return true;
             }
-            if (new Date(wParam.parametro.Fecha_Fin_Adhesion_PPH__c) < hoy) {
+            if (fin && fin < hoy) {
                 wParam.disabledCause = 'El período de adhesión ya ha finalizado';
                 return true;
             }
         }
 
         return false;
+    }
+
+    parseLocalDate(value) {
+        if (!value) return null;
+        const [y, m, d] = String(value).substring(0, 10).split('-').map(Number);
+        if (!y || !m || !d) return null;
+        return new Date(y, m - 1, d);
     }
 
     getEstadoLabel(estado) {

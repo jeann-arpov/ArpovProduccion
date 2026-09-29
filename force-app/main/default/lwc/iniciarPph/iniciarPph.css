@@ -2,188 +2,227 @@
     display: block;
     font-family: "Montserrat", "Roboto", Arial, sans-serif;
     color: #1c1c1c;
+    background: #eef1f7;
 }
 
-.pph-landing {
-    max-width: 640px;
+.se-pph-loading {
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef1f7;
+}
+
+.se-pph {
+    max-width: 1180px;
     margin: 0 auto;
-    padding: 20px 16px calc(100px + env(safe-area-inset-bottom, 0px));
+    padding: 28px 32px 48px;
     box-sizing: border-box;
 }
 
-.pph-landing-head {
-    margin-bottom: 16px;
-}
-
-.pph-eyebrow {
-    margin: 0 0 6px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #6b7280;
-}
-
-.pph-title {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1.15;
-}
-
-.pph-lead {
-    margin: 8px 0 0;
-    font-size: 15px;
-    line-height: 1.45;
-    color: #4b5563;
-}
-
-.pph-body {
-    margin: 12px 0 0;
-    font-size: 14px;
-    line-height: 1.55;
-}
-
-.pph-accordions {
+.se-pph-empty {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 16px;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 48px;
 }
 
-.pph-accordion {
+.se-panel {
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 1px 2px rgba(28, 28, 28, 0.04);
+    border-radius: 16px;
+    padding: 26px 28px 28px;
+    box-shadow: 0 1px 3px rgba(28, 28, 28, 0.06);
+    box-sizing: border-box;
 }
 
-.pph-accordion-summary {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 16px;
-    font-size: 15px;
+.se-panel-title {
+    margin: 0 0 16px;
+    font-size: 22px;
     font-weight: 800;
-    cursor: pointer;
+    line-height: 1.2;
+    color: #1c1c1c;
 }
 
-.pph-accordion-summary::-webkit-details-marker {
-    display: none;
+.se-pph-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    margin-top: 4px;
 }
 
-.pph-chevron {
-    flex-shrink: 0;
-    font-size: 18px;
-    line-height: 1;
-    color: #6b7280;
-    transition: transform 0.15s ease;
-}
-
-.pph-accordion[open] .pph-chevron {
-    transform: rotate(180deg);
-}
-
-.pph-benefits {
-    margin: 0;
-    padding: 0 16px 14px;
+.se-pph-checks {
     list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
 }
 
-.pph-benefits li {
+.se-pph-check {
     display: flex;
-    gap: 10px;
-    padding: 8px 0;
+    align-items: flex-start;
+    gap: 12px;
     font-size: 14px;
-    line-height: 1.45;
+    line-height: 1.5;
+    color: #1c1c1c;
 }
 
-.pph-benefits li::before {
-    content: '✓';
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background: rgba(191, 255, 0, 0.25);
-    color: #3d5900;
+.se-pph-check-dot {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 999px;
+    background: #bfff00;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+}
+
+.se-pph-resumen {
+    background: #1c1c1c;
+    color: #fff;
+    border-radius: 16px;
+    padding: 24px 22px;
+    box-sizing: border-box;
+}
+
+.se-pph-resumen-eyebrow {
+    margin: 0 0 12px;
+    font-size: 11px;
     font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #bfff00;
 }
 
-.pph-accordion-body {
-    padding: 0 16px 14px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #4b5563;
+.se-pph-resumen-lead {
+    margin: 0 0 12px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #fff;
 }
 
-.pph-landing-cta {
-    margin-top: 24px;
-}
-
-.pph-btn-primary {
-    appearance: none;
-    width: 100%;
-    border: none;
-    border-radius: 999px;
-    background: #bfff00;
-    color: #1c1c1c;
-    padding: 14px 20px;
-    font-family: inherit;
-    font-size: 14px;
+.se-pph-resumen-lead strong {
+    color: #bfff00;
     font-weight: 700;
-    cursor: pointer;
 }
 
-.pph-empty {
-    min-height: 50vh;
+.se-pph-resumen-note {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.se-pph-footer {
+    margin-top: 32px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 32px 20px;
+    gap: 14px;
     text-align: center;
 }
 
-.pph-empty-title {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 800;
-    line-height: 1.25;
-    max-width: 420px;
-}
-
-.pph-empty-copy {
-    margin: 0;
+.se-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 12px 44px;
+    border-radius: 999px;
+    font-family: inherit;
     font-size: 14px;
-    color: #6b7280;
-    line-height: 1.45;
-    max-width: 360px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 1.5px solid transparent;
 }
 
-@media (min-width: 768px) {
-    .pph-landing {
-        max-width: 720px;
-        padding: 28px 32px 48px;
+.se-btn-primary {
+    background: #bfff00;
+    color: #1c1c1c;
+    border-color: #bfff00;
+}
+
+.se-btn-primary:hover {
+    background: #d4ff33;
+    border-color: #d4ff33;
+}
+
+.se-pph-tyc {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 16px;
+}
+
+.se-pph-tyc-link {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: #1c1c1c;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+    .se-pph {
+        padding: 16px 16px 24px;
     }
 
-    .pph-title {
-        font-size: 32px;
+    .se-pph-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
 
-    .pph-btn-primary {
-        width: auto;
-        min-width: 240px;
+    .se-panel {
+        padding: 20px 18px;
     }
 
-    .pph-landing-cta {
-        text-align: left;
+    .se-panel-title {
+        font-size: 18px;
+    }
+
+    .se-pph-check {
+        font-size: 16px;
+    }
+
+    .se-pph-resumen {
+        padding: 24px 20px;
+    }
+
+    .se-pph-resumen-lead {
+        font-size: 16px;
+    }
+
+    .se-pph-resumen-note {
+        font-size: 14px;
+    }
+
+    .se-pph-footer {
+        margin-top: 24px;
+        align-items: stretch;
+    }
+
+    .se-pph-footer .se-btn {
+        width: 100%;
+        min-height: 56px;
+        font-size: 16px;
+    }
+
+    .se-pph-tyc-link {
+        font-size: 15px;
+    }
+
+    .se-pph-empty .se-btn {
+        width: 100%;
     }
 }

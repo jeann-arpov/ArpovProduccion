@@ -2,10 +2,12 @@ import { LightningElement, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import registerCuit from '@salesforce/apex/CesionPPH.registerCuit';
 import {errorEvent} from 'c/utils';
+import recibidaLabel from '@salesforce/label/c.PPH_Mensaje_Recibida';
 
 export default class ModalsPph extends NavigationMixin(LightningElement) {
     @api currentModal;
     @api callback;
+    recibidaLabel = recibidaLabel;
 
     loading = false;
 
@@ -35,6 +37,10 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
 
     get isAdherido() {
         return this.currentModal == "adherido";
+    }
+
+    get isEnRevision() {
+        return this.currentModal == "en-revision";
     }
 
     get isDeleteDestinatarioConfirm() {

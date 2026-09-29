@@ -536,11 +536,11 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
             this.wizardStep -= 1;
             return;
         }
-        goToCommunityPage(PAGES.home);
+        goToCommunityPage(PAGES.cesiones);
     }
 
     handleMobClose() {
-        goToCommunityPage(PAGES.home);
+        goToCommunityPage(PAGES.cesiones);
     }
 
     handleMobCancel() {
@@ -845,8 +845,14 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         await this.doRequest(async _ => {
             await sendCesion({cesionId: this.cesion.Id}).then(data => this.loadData(data));
             this.currentModal = "adherido-cesion";
-            trackGa4Event('cesion_confirmada', { modulo: 'Cesiones' });
+            this.trackCesionConfirmada();
         });
+    }
+
+    trackCesionConfirmada() {
+        const cultivo = this.cesion?.Cultivo__r?.Name;
+        const cantidad_ht = (this.variedades || []).reduce((acc, v) => acc + (v.totals?.current || 0), 0);
+        trackGa4Event('cesion_confirmada', { modulo: 'Cesiones', cultivo, cantidad_ht });
     }
 
     get title() {

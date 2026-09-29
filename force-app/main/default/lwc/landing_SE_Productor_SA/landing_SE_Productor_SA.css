@@ -314,12 +314,17 @@
 }
 
 .home-phase.is-urgent {
-    background: rgba(255, 169, 69, 0.1);
-    border-color: rgba(255, 169, 69, 0.35);
+    background: var(--naranja);
+    border-color: var(--naranja);
 }
 
 .home-phase.is-urgent .home-phase-ic,
 .home-phase.is-urgent .home-phase-hito {
+    color: var(--negro);
+}
+
+.home-phase.is-urgent .home-phase-pill {
+    background: var(--negro);
     color: var(--naranja);
 }
 
@@ -486,6 +491,12 @@
     color: var(--lima);
 }
 
+.home-pill.is-revision {
+    background: #f1c40f;
+    color: #000;
+    border: none;
+}
+
 .home-pill.is-neutral {
     border: 1px solid rgba(255, 255, 255, 0.45);
     color: rgba(255, 255, 255, 0.85);
@@ -534,6 +545,12 @@
 
 .home-cg-msg.is-warn .home-cg-txt {
     color: var(--naranja);
+}
+
+.home-cg-msg.is-bare {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
 }
 
 .home-cg-detail {

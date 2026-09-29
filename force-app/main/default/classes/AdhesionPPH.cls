@@ -1,4 +1,4 @@
-public without sharing class AdhesionPPH {
+public without sharing class AdhesionPPH extends ApexErrorHandler {
 
     @AuraEnabled
     public static Map<String, Object> getLoadData(Id parametroId) {
@@ -284,8 +284,8 @@ public without sharing class AdhesionPPH {
         Plan_de_siembra__c plan = (Plan_de_siembra__c) Database.query(Utils.selectByName('Plan_de_siembra__c', ' where id =: planId'))[0];
         Parametro_PPH__c parametro = [select Name, Fecha_Inicio_Rectificacion_1__c, Fecha_Fin_Rectificacion_1__c from Parametro_PPH__c where id =: plan.Parametro_PPH__c];
         
-        if (parametro.Fecha_Inicio_Rectificacion_1__c < System.now() == false) throw new AuraHandledException('El período de rectificación a este plan de siembra no ha comenzado');
-        if (parametro.Fecha_Fin_Rectificacion_1__c > System.now() == false) throw new AuraHandledException('El período de rectificación a este plan de siembra ya ha finalizado');
+        if (parametro.Fecha_Inicio_Rectificacion_1__c < System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_No_Comenzado);
+        if (parametro.Fecha_Fin_Rectificacion_1__c > System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_Finalizado);
 
         Decimal nroRectificacion = plan.Numero_de_Rectificacion__c ?? 0;
         return rectificarAdhesion(plan, parametro.Name, 'Rectificación ' +(nroRectificacion + 1)).id;
@@ -296,22 +296,22 @@ public without sharing class AdhesionPPH {
         Plan_de_siembra__c plan = (Plan_de_siembra__c) Database.query(Utils.selectByName('Plan_de_siembra__c', ' where id =: planId'))[0];
         Parametro_PPH__c parametro = [select Name, Fecha_Inicio_Rectificacion_2__c, Fecha_Fin_Rectificacion_2__c from Parametro_PPH__c where id =: plan.Parametro_PPH__c];
         
-        if (parametro.Fecha_Inicio_Rectificacion_2__c < System.now() == false) throw new AuraHandledException('El período de rectificación a este plan de siembra no ha comenzado');
-        if (parametro.Fecha_Fin_Rectificacion_2__c > System.now() == false) throw new AuraHandledException('El período de rectificación a este plan de siembra ya ha finalizado');
+        if (parametro.Fecha_Inicio_Rectificacion_2__c < System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_No_Comenzado);
+        if (parametro.Fecha_Fin_Rectificacion_2__c > System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_Finalizado);
         
         return rectificarAdhesion(plan, parametro.Name, 'Rectificación 2').id;
     }
 
     private static void validateInPeriodoAdhesion(Parametro_PPH__c param, String version) {
         if (version == 'Original') {
-            if (param.Fecha_Inicio_Adhesion_PPH__c > System.now()) throw new AuraHandledException('El período de adhesión a este plan de siembra no ha comenzado');
-            if (param.Fecha_Fin_Adhesion_PPH__c < System.now()) throw new AuraHandledException('El período de adhesión a este plan de siembra ya ha finalizado');
+            if (param.Fecha_Inicio_Adhesion_PPH__c > System.now()) throw new AuraHandledException(Label.PPH_Periodo_Adhesion_No_Comenzado);
+            if (param.Fecha_Fin_Adhesion_PPH__c < System.now()) throw new AuraHandledException(Label.PPH_Periodo_Adhesion_Finalizado);
         } else if (version == 'Rectificación 1') {
-            if (param.Fecha_Inicio_Rectificacion_1__c > System.now()) throw new AuraHandledException('El período de rectificación 1 a este plan de siembra no ha comenzado');
-            if (param.Fecha_Fin_Rectificacion_1__c < System.now()) throw new AuraHandledException('El período de rectificación 1 a este plan de siembra ya ha finalizado');
+            if (param.Fecha_Inicio_Rectificacion_1__c > System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_1_No_Comenzado);
+            if (param.Fecha_Fin_Rectificacion_1__c < System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_1_Finalizado);
         }  else if (version == 'Rectificación 2') {
-            if (param.Fecha_Inicio_Rectificacion_2__c > System.now()) throw new AuraHandledException('El período de rectificación 2 a este plan de siembra no ha comenzado');
-            if (param.Fecha_Fin_Rectificacion_2__c < System.now()) throw new AuraHandledException('El período de rectificación 2 a este plan de siembra ya ha finalizado');
+            if (param.Fecha_Inicio_Rectificacion_2__c > System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_2_No_Comenzado);
+            if (param.Fecha_Fin_Rectificacion_2__c < System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_2_Finalizado);
         }
     }
 
@@ -345,19 +345,23 @@ public without sharing class AdhesionPPH {
             WHERE id =: plan.Parametro_PPH__c
         ];
 
-        validateInPeriodoAdhesion(parametro, plan.Version__c);
-        if ([select id from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_siembra__c =: planId and Cantidad_Declarada__c > 0 limit 1].isEmpty()) throw new AuraHandledException('No se puede realizar la adhesión sin tener hectareas SE en al menos un establecimiento');
-        if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado') throw new AuraHandledException('El plan debe encontrarse en estado en preparación o rectificado');
+        try {
+            validateInPeriodoAdhesion(parametro, plan.Version__c);
+            if ([select id from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_siembra__c =: planId and Cantidad_Declarada__c > 0 limit 1].isEmpty()) throw new AuraHandledException(Label.PPH_Adhesion_Sin_Hectareas_SE);
+            if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado') throw new AuraHandledException(Label.PPH_Plan_Estado_Invalido);
 
-        String error = validateStockAndGetError(getStockPorVariedad(parametro), plan, false);
-        if (String.isBlank(error) == false) throw new AuraHandledException(error);
+            String error = validateStockAndGetError(getStockPorVariedad(parametro), plan, false);
+            if (String.isBlank(error) == false) throw new AuraHandledException(error);
+        } catch (Exception e) {
+            throw handleException(e, 'ERR-ADH-001', 'AdhesionPPH', planId);
+        }
 
         if(plan.Version__c == 'Original'){
             plan.Fecha_de_Adhesion__c = System.today();
         } else {
             plan.Fecha_de_Ultima_Rectificacion__c = System.today();
         }
-        plan.Estado__c = 'Adherido';
+        plan.Estado__c = 'En Revisión';
         update plan;
 
         Account sembraAccount = CrearCompraController.getSembraEvolucionAccount();
@@ -553,7 +557,7 @@ public without sharing class AdhesionPPH {
             est.fillInternal();
 
             if(setEstablecimientos.contains(est.establecimiento.Id)){
-                throw new AuraHandledException('No puede seleccionar el mismo establecimiento más de una vez en un mismo plan de siembra');
+                throw new AuraHandledException(Label.PPH_Establecimiento_Duplicado);
             }else{
                 setEstablecimientos.add(est.establecimiento.Id);
             }

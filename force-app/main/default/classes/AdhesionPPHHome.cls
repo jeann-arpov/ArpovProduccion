@@ -95,6 +95,57 @@ public without sharing class AdhesionPPHHome {
         return cultivosParams;
     }
 
+    @AuraEnabled
+    public static List<TycDocumento> getTycDocumentos() {
+        Boolean isGrandesCuentas = !Test.isRunningTest() ? CrearCompraController.getAccount().Grandes_Cuentas__c == true : false;
+
+        List<Parametro_PPH__c> parametros = [
+            SELECT Id, Name, Cultivo__c, Cultivo__r.Name
+            FROM Parametro_PPH__c
+            WHERE Cultivo__r.Sembra_Evolucion__c = true
+            ORDER BY Fecha_Inicio_Adhesion_PPH__c DESC NULLS LAST, CreatedDate DESC
+        ];
+
+        Map<Id, Id> generalByParametro = new Map<Id, Id>();
+        Map<Id, Id> gcByParametro = new Map<Id, Id>();
+        Map<Id, Parametro_PPH__c> parametrosById = new Map<Id, Parametro_PPH__c>(parametros);
+        for (ContentDocumentLink link : [
+            SELECT LinkedEntityId, ContentDocumentId, ContentDocument.Title
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :parametrosById.keySet() AND ContentDocument.Title LIKE 'TyC%'
+            ORDER BY ContentDocument.CreatedDate DESC
+        ]) {
+            Boolean esGC = link.ContentDocument.Title.containsIgnoreCase('- GC');
+            Map<Id, Id> destino = esGC ? gcByParametro : generalByParametro;
+            if (!destino.containsKey(link.LinkedEntityId)) {
+                destino.put(link.LinkedEntityId, link.ContentDocumentId);
+            }
+        }
+
+        Map<Id, TycDocumento> tycByCultivo = new Map<Id, TycDocumento>();
+        for (Parametro_PPH__c param : parametros) {
+            if (tycByCultivo.containsKey(param.Cultivo__c)) continue;
+            Id documentId = isGrandesCuentas ? gcByParametro.get(param.Id) : null;
+            if (documentId == null) documentId = generalByParametro.get(param.Id);
+            if (documentId != null) {
+                tycByCultivo.put(param.Cultivo__c, new TycDocumento(param.Cultivo__r.Name, param.Name, documentId));
+            }
+        }
+        return tycByCultivo.values();
+    }
+
+    public class TycDocumento {
+        @AuraEnabled public String cultivo;
+        @AuraEnabled public String parametro;
+        @AuraEnabled public Id contentDocumentId;
+
+        public TycDocumento(String cultivo, String parametro, Id contentDocumentId) {
+            this.cultivo = cultivo;
+            this.parametro = parametro;
+            this.contentDocumentId = contentDocumentId;
+        }
+    }
+
     @AuraEnabled(cacheable=true)
     public static AccountContext getContext() {
         Account acc = CrearCompraController.getAccount();

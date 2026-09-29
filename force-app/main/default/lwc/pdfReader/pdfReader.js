@@ -19,7 +19,7 @@ export default class PdfReader extends LightningElement {
 
     @api
     hide() {
-        this.showPdf = true;
+        this.showPdf = false;
         this.documentId = null;
     }
 

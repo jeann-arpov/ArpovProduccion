@@ -32,6 +32,8 @@ import {
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
+const FECHA_INICIO_STINE_DEFAULT = '2026-09-21';
+const FECHA_FIN_STINE_DEFAULT = '2026-10-31';
 
 /** Mapeo variedad → tecnología de licencia (CesionPPH.getMapBiotecnologias). */
 const MAP_TECNOLOGIAS_LICENCIA = {
@@ -44,9 +46,17 @@ const MAP_TECNOLOGIAS_LICENCIA = {
 };
 
 export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
-    /** Fechas Stine configurables en Experience Builder (compatibilidad con páginas existentes). */
+    /** Fechas Stine configurables en Experience Builder. */
     @api fechaInicioStine;
     @api fechaFinStine;
+
+    tipoPagoStineSeleccionado = null;
+    @track entidadBancariaStine = null;
+    @track plazoStine = null;
+    @track monedaStine = null;
+    @track tasaStine = null;
+    @track isOpenPaymentModal = false;
+    @track modalItems = [];
 
     showFacturaRegaliaEnlistMsg;
     iconCebadaUrl = `${resourcePortal}/resourcePortal/images/prd-cebada.svg`;
@@ -250,6 +260,145 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         return 'Compra';
     }
 
+    get esMarcaStine() {
+        if (this.marca && this.marca.toUpperCase() === 'STINE') return true;
+        const semilleroSeleccionado = this.semilleros?.find((s) => s.value === this.semillero);
+        return semilleroSeleccionado?.label?.toUpperCase().includes('STINE') || false;
+    }
+
+    get fechaInicioEfectiva() {
+        if (this.fechaInicioStine) return this.fechaInicioStine;
+        const guardado = sessionStorage.getItem('stine_fechaInicio');
+        if (guardado) return guardado;
+        return FECHA_INICIO_STINE_DEFAULT;
+    }
+
+    get fechaFinEfectiva() {
+        if (this.fechaFinStine) return this.fechaFinStine;
+        const guardado = sessionStorage.getItem('stine_fechaFin');
+        if (guardado) return guardado;
+        return FECHA_FIN_STINE_DEFAULT;
+    }
+
+    estaEnRangoFechasStine() {
+        const inicio = this.fechaInicioEfectiva;
+        const fin = this.fechaFinEfectiva;
+        if (!inicio || !fin) return false;
+        if (this.fechaInicioStine) sessionStorage.setItem('stine_fechaInicio', this.fechaInicioStine);
+        if (this.fechaFinStine) sessionStorage.setItem('stine_fechaFin', this.fechaFinStine);
+        const hoy = new Date();
+        const hoyStr =
+            `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+        return hoyStr >= inicio && hoyStr <= fin;
+    }
+
+    async evaluarEsStineFutura() {
+        if (!this.estaEnRangoFechasStine()) return false;
+
+        const lineas = [
+            ...(this.DataCompra?.record?.Lineas_de_Compra_HT__r || []),
+            ...(this.data?.record?.Lineas_de_Compra_HT__r || []),
+            ...(this.items || []).map((i) => i.record || i)
+        ];
+
+        const STINE_NAME = 'M.S. TECHNOLOGIES ARGENTINA S.R.L.';
+        const semilleroId = this.semilleroData?.semillero?.Id || this.DataCompra?.semilleroData?.semillero?.Id;
+        const semilleroName =
+            this.semilleroData?.semillero?.Name ||
+            this.DataCompra?.semilleroData?.semillero?.Name ||
+            '';
+
+        for (const rec of lineas) {
+            const obtentorName = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || '';
+            const obtentorId = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__c || '';
+            const tipoCompra = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || '';
+            const esObtentorStineExacto =
+                obtentorName === STINE_NAME ||
+                obtentorId === semilleroId ||
+                (semilleroName === STINE_NAME && !!obtentorId) ||
+                this.esMarcaStine;
+            const esTipoFutura = tipoCompra === 'Futura' || this.Futura === true;
+            if (esObtentorStineExacto && esTipoFutura) return true;
+        }
+
+        // Fallback: compra armada como Stine Futura aunque las líneas aún no traigan Name
+        if (this.esMarcaStine && this.Futura === true && lineas.length > 0) return true;
+        return false;
+    }
+
+    prepararModalItems() {
+        const lineas =
+            this.DataCompra?.record?.Lineas_de_Compra_HT__r ||
+            this.data?.record?.Lineas_de_Compra_HT__r ||
+            [];
+        if (lineas.length) {
+            this.modalItems = lineas.map((rec, index) => {
+                let variedadNombre =
+                    rec.Producto__r?.Variedad2__r?.Name ||
+                    rec.Producto__r?.Name ||
+                    `Variedad ${index + 1}`;
+                const cantidad = parseFloat(rec.Cantidad__c) || 0;
+                const precio =
+                    parseFloat(rec.Precio_Unitario__c) || parseFloat(rec.Precio_de_Lista__c) || 0;
+                return {
+                    id: rec.Id || `linea-${index}`,
+                    variedad: variedadNombre,
+                    ht: cantidad,
+                    precioUnitario: this.formatCurrency(precio),
+                    total: this.formatCurrency(precio * cantidad)
+                };
+            });
+        } else {
+            this.modalItems = [];
+        }
+    }
+
+    formatCurrency(val) {
+        if (isNaN(val)) return '0,00';
+        return parseFloat(val).toLocaleString('es-AR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    async handleConfirmPaymentStine(event) {
+        const { formaPago, entidadBancaria, plazo, moneda, tasa } = event.detail || {};
+        this.tipoPagoStineSeleccionado = formaPago;
+        this.tipoPago = formaPago;
+        this.entidadBancariaStine = formaPago === 'Financiado' ? entidadBancaria : null;
+        this.plazoStine = formaPago === 'Financiado' ? plazo : null;
+        this.monedaStine = formaPago === 'Financiado' ? moneda : null;
+        this.tasaStine = formaPago === 'Financiado' ? tasa : null;
+
+        const activeRecordId = this.recordId || this.pageRecordId;
+        this.isLoading = true;
+        try {
+            await updateTipoPago({
+                compraId: activeRecordId,
+                tipoPago: formaPago,
+                entidadBancaria: this.entidadBancariaStine,
+                plazo: this.plazoStine,
+                moneda: this.monedaStine,
+                tasa: this.tasaStine
+            });
+        } catch (e) {
+            const errorMsg = e.body?.message || e.message || String(e);
+            this.onError('Error al guardar datos de pago: ' + errorMsg);
+            this.isLoading = false;
+            return;
+        }
+        this.isLoading = false;
+        this.currentModal = null;
+        this.pendingFinalizar = false;
+        await this.finalizar();
+    }
+
+    handleClosePaymentStine() {
+        this.currentModal = null;
+        this.pendingFinalizar = false;
+        this.finalizandoOperacion = false;
+    }
+
     // ====== LÍNEAS ======
     addRow(event) {
         this.addRowInternal(Array.from(this.template.querySelectorAll('c-crear-linea-compra')));
@@ -385,6 +534,21 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 return this.onError('Error al guardar las líneas: ' + (e.message || e));
             }
             this.isLoading = false;
+
+            // ===== Gate Stine Futura (main) =====
+            const esStineFutura = await this.evaluarEsStineFutura();
+            if (esStineFutura && !this.tipoPagoStineSeleccionado) {
+                this.prepararModalItems();
+                this.pendingFinalizar = true;
+                this.currentModal = 'forma-pago-stine';
+                return;
+            }
+            if (!esStineFutura) {
+                this.entidadBancariaStine = null;
+                this.plazoStine = null;
+                this.monedaStine = null;
+                this.tasaStine = null;
+            }
 
             // ===== Gate Tipo de Pago =====
         console.log('[CrearCompra] finalizar() -> tipo de pago: ', this.tipoPago);
@@ -1735,6 +1899,16 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         await this.applyTipoPagoSelection(this.selectedTipoPago);
     }
 
+    async handleTipoPagoSelected(event) {
+        const value = event?.detail?.value;
+        if (!value) return;
+        this.entidadBancariaStine = null;
+        this.plazoStine = null;
+        this.monedaStine = null;
+        this.tasaStine = null;
+        await this.applyTipoPagoSelection(value);
+    }
+
     async applyTipoPagoSelection(value) {
         if (value !== 'Contado' && value !== 'Financiado') return;
 
@@ -1744,7 +1918,11 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         await this.requestWrap(async () => {
             const data = await updateTipoPago({
                 compraId: this.recordId,
-                tipoPago: value
+                tipoPago: value,
+                entidadBancaria: this.entidadBancariaStine,
+                plazo: this.plazoStine,
+                moneda: this.monedaStine,
+                tasa: this.tasaStine
             });
             this.setData(data);
             this.DataCompra = data;
@@ -1897,6 +2075,17 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     get resumenLicencia() {
         return this.semilleroData?.licencia?.Name ? 'Vigente' : 'Pendiente';
+    }
+
+    get resultCodigoCompra() {
+        return this.data?.record?.Name || '—';
+    }
+
+    get resultVariedadesLabel() {
+        const names = this.confirmacionLineas
+            .map((l) => l.name)
+            .filter((n) => n && n !== '—');
+        return names.length ? names.join(', ') : '—';
     }
 
     get resultSuccessSubtext() {

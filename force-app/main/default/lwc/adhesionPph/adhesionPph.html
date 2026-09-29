@@ -9,8 +9,8 @@
         </template>
 
         <template if:true={loading}>
-            <div class="exampleHolder">
-                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            <div class="pph-veil" role="status" aria-busy="true" aria-label="Cargando">
+                <c-se-brand-loader></c-se-brand-loader>
             </div>
         </template>
 
