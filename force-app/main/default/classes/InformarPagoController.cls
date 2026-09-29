@@ -1,4 +1,6 @@
 public without sharing class InformarPagoController extends ApexErrorHandler {
+  private static final Integer MAX_FILE_SIZE_BYTES = 26214400; // 25 MB
+
   @AuraEnabled
   public static void sendEmail(
     Map<String, Object> caseFields,
@@ -51,6 +53,20 @@ public without sharing class InformarPagoController extends ApexErrorHandler {
         WHERE Id = :opportunityId
         LIMIT 1
       ];
+
+      if (contentVersionIds != null && !contentVersionIds.isEmpty()) {
+        for (ContentVersion cv : [
+          SELECT Id, ContentSize
+          FROM ContentVersion
+          WHERE Id IN :contentVersionIds
+        ]) {
+          if (cv.ContentSize > MAX_FILE_SIZE_BYTES) {
+            throw new AuraHandledException(
+              'Uno o más archivos superan el tamaño máximo permitido (25 MB).'
+            );
+          }
+        }
+      }
 
       if (contentDocumentIds != null && !contentDocumentIds.isEmpty()) {
         List<ContentDocumentLink> links = new List<ContentDocumentLink>();

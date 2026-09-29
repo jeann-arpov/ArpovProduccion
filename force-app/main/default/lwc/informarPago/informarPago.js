@@ -261,7 +261,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
   }
 
   get acceptedFormats() {
-    return [".pdf", ".png", ".jpg", ".jpeg"];
+    return [".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx", ".xls", ".xlsx"];
   }
 
   get showSpinner() {

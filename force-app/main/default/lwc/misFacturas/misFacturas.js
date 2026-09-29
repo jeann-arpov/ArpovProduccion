@@ -8,6 +8,9 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { doRequest } from "c/utils";
 import icons from "c/icons";
 
+const TOOLTIP_PAGO_INFORMADO =
+  "Recibimos la información de tu pago. A la brevedad se acreditará en el sistema. Si tenés alguna consulta, escribinos a cobranzas@sembraevolucion.com.ar.";
+
 const COLUMNS = [
   {
     label: "CUIT",
@@ -69,9 +72,16 @@ const COLUMNS = [
   {
     label: "ESTADO",
     fieldName: "oppStage",
-    fixedWidth: 150,
-    hideDefaultActions: true,
-    cellAttributes: { fieldName: "oppStageCellAttributes" }
+    type: "button",
+    fixedWidth: 170,
+    typeAttributes: {
+      label: { fieldName: "oppStage" },
+      name: "estado",
+      variant: "base",
+      title: { fieldName: "oppStageTooltip" },
+      iconName: { fieldName: "estadoInfoIcon" },
+      iconPosition: "right"
+    }
   },
   {
     type: "button-icon",
@@ -146,6 +156,12 @@ export default class MisFacturas extends LightningElement {
         if (vencimiento.pagoInformado === true) {
           vencimiento.oppStage = "Pago informado";
         }
+        vencimiento.oppStageTooltip = vencimiento.pagoInformado
+          ? TOOLTIP_PAGO_INFORMADO
+          : "";
+        vencimiento.estadoInfoIcon = vencimiento.pagoInformado
+          ? "utility:info"
+          : "";
         vencimiento.disableInfPago = !(
           vencimiento.oppStage == "Facturada" ||
           vencimiento.oppStage == "Pedido de Facturacion"
@@ -156,15 +172,6 @@ export default class MisFacturas extends LightningElement {
           vencimiento.file = { id: vencimiento.facturaPVId };
         vencimiento.disableVerFactura = !vencimiento.file;
         vencimiento.iconoClass = !vencimiento.file ? "icono-disabled" : "icono";
-        vencimiento.oppStageCellAttributes =
-          vencimiento.oppStage === "Pago informado"
-            ? {
-                iconName: "utility:info",
-                iconAlternativeText:
-                  "Recibimos la información de tu pago. A la brevedad se acreditará en el sistema. Si tenés alguna consulta, escribinos a cobranzas@sembraevolucion.com.ar.",
-                iconPosition: "right"
-              }
-            : {};
         if (vencimiento.id == null) vencimiento.id = vencimiento.numero;
         vencimiento.uniqueId = idx;
         idx++;
