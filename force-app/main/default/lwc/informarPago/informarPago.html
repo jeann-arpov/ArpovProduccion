@@ -79,13 +79,19 @@
             </div>
           </template>
 
-          <lightning-file-upload
-            label="Comprobante"
-            name="fileUploader"
-            accept={acceptedFormats}
-            onuploadfinished={handleOnUploadFinished}
-            multiple="true"
-          ></lightning-file-upload>
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="fileUploader">
+              <abbr class="slds-required" title="required">*</abbr>
+              Comprobante
+            </label>
+            <lightning-file-upload
+              label=""
+              name="fileUploader"
+              accept={acceptedFormats}
+              onuploadfinished={handleOnUploadFinished}
+              multiple="true"
+            ></lightning-file-upload>
+          </div>
 
           <div class="slds-grid slds-wrap">
             <template for:each={docs} for:item="doc">
