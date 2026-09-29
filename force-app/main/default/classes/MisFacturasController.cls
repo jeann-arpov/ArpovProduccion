@@ -434,39 +434,24 @@ public without sharing class MisFacturasController {
     if (opportunityId == null)
       return result;
 
-    Map<Id, String> titles = new Map<Id, String>();
-    List<Id> docIds = new List<Id>();
+    String fileBase = URL.getOrgDomainUrl()
+      .toExternalForm()
+      .replace('.my.salesforce.com', '.file.force.com');
+
     for (ContentDocumentLink cdl : [
       SELECT ContentDocumentId, ContentDocument.Title
       FROM ContentDocumentLink
       WHERE LinkedEntityId = :opportunityId
     ]) {
-      titles.put(cdl.ContentDocumentId, cdl.ContentDocument.Title);
-      docIds.add(cdl.ContentDocumentId);
-    }
-
-    if (docIds.isEmpty())
-      return result;
-
-    String fileBase = URL.getSalesforceBaseUrl()
-      .toExternalForm()
-      .replace('.my.salesforce.com', '.file.force.com');
-
-    Map<Id, String> versionIds = new Map<Id, String>();
-    for (ContentVersion cv : [
-      SELECT ContentDocumentId, Id
-      FROM ContentVersion
-      WHERE ContentDocumentId IN :docIds AND IsLatest = TRUE
-    ]) {
-      versionIds.put(cv.ContentDocumentId, cv.Id);
-    }
-
-    for (Id docId : docIds) {
-      String versionId = versionIds.get(docId);
-      String url = versionId != null
-        ? fileBase + '/sfc/servlet.shepherd/version/download/' + versionId
-        : null;
-      result.add(new AdjuntoPago(docId, titles.get(docId), url));
+      result.add(
+        new AdjuntoPago(
+          cdl.ContentDocumentId,
+          cdl.ContentDocument.Title,
+          fileBase +
+            '/sfc/servlet.shepherd/document/download/' +
+            cdl.ContentDocumentId
+        )
+      );
     }
     return result;
   }
