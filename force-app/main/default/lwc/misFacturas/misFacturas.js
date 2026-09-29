@@ -434,34 +434,14 @@ export default class MisFacturas extends LightningElement {
   async openDocumentos(vencimiento) {
     this.adjuntos = [];
     this.showAdjuntos = true;
-    const docs = [];
-    if (vencimiento.file && vencimiento.file.id) {
-      docs.push({ id: vencimiento.file.id, title: "Factura Eléctronica" });
+    if (!vencimiento.opportunityId) return;
+    try {
+      this.adjuntos = await getAdjuntosPago({
+        opportunityId: vencimiento.opportunityId
+      });
+    } catch (error) {
+      this.onError(error);
     }
-    if (vencimiento.opportunityId) {
-      try {
-        const adjuntos = await getAdjuntosPago({
-          opportunityId: vencimiento.opportunityId
-        });
-        const facturaId = vencimiento.file ? vencimiento.file.id : null;
-        for (const a of adjuntos) {
-          if (facturaId && a.id === facturaId) continue;
-          docs.push(a);
-        }
-      } catch (error) {
-        this.onError(error);
-      }
-    }
-    this.adjuntos = docs;
-  }
-
-  handleVerAdjunto(event) {
-    const docId = event.currentTarget.dataset.id;
-    const title = event.currentTarget.dataset.title;
-    this.template.querySelector("c-pdf-reader").show({
-      documentId: docId,
-      title: title
-    });
   }
 
   closeAdjuntos() {

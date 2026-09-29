@@ -433,14 +433,40 @@ public without sharing class MisFacturasController {
     List<AdjuntoPago> result = new List<AdjuntoPago>();
     if (opportunityId == null)
       return result;
+
+    Map<Id, String> titles = new Map<Id, String>();
+    List<Id> docIds = new List<Id>();
     for (ContentDocumentLink cdl : [
       SELECT ContentDocumentId, ContentDocument.Title
       FROM ContentDocumentLink
       WHERE LinkedEntityId = :opportunityId
     ]) {
-      result.add(
-        new AdjuntoPago(cdl.ContentDocumentId, cdl.ContentDocument.Title)
-      );
+      titles.put(cdl.ContentDocumentId, cdl.ContentDocument.Title);
+      docIds.add(cdl.ContentDocumentId);
+    }
+
+    if (docIds.isEmpty())
+      return result;
+
+    String fileBase = URL.getSalesforceBaseUrl()
+      .toExternalForm()
+      .replace('.my.salesforce.com', '.file.force.com');
+
+    Map<Id, String> versionIds = new Map<Id, String>();
+    for (ContentVersion cv : [
+      SELECT ContentDocumentId, Id
+      FROM ContentVersion
+      WHERE ContentDocumentId IN :docIds AND IsLatest = TRUE
+    ]) {
+      versionIds.put(cv.ContentDocumentId, cv.Id);
+    }
+
+    for (Id docId : docIds) {
+      String versionId = versionIds.get(docId);
+      String url = versionId != null
+        ? fileBase + '/sfc/servlet.shepherd/version/download/' + versionId
+        : null;
+      result.add(new AdjuntoPago(docId, titles.get(docId), url));
     }
     return result;
   }
@@ -450,10 +476,13 @@ public without sharing class MisFacturasController {
     public Id id;
     @AuraEnabled
     public String title;
+    @AuraEnabled
+    public String url;
 
-    public AdjuntoPago(Id id, String title) {
+    public AdjuntoPago(Id id, String title, String url) {
       this.id = id;
       this.title = title;
+      this.url = url;
     }
   }
 }

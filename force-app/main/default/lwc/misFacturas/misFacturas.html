@@ -114,11 +114,7 @@
               <ul class="slds-has-dividers_around">
                 <template for:each={adjuntos} for:item="a">
                   <li key={a.id} class="slds-p-vertical_x-small">
-                    <a
-                      href="javascript:void(0);"
-                      data-id={a.id}
-                      data-title={a.title}
-                      onclick={handleVerAdjunto}
+                    <a href={a.url} target="_blank" rel="noopener noreferrer"
                       >{a.title}</a
                     >
                   </li>
