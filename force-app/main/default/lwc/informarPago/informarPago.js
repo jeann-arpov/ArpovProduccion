@@ -6,6 +6,7 @@ import createCasePPH from "@salesforce/apex/InformarPagoController.createCasePPH
 import deleteDocument from "@salesforce/apex/InformarPagoController.deleteDocument";
 import sendEmail from "@salesforce/apex/InformarPagoController.sendEmail";
 import informarPagoFactura from "@salesforce/apex/InformarPagoController.informarPagoFactura";
+import InformarPagoTooltip from "@salesforce/label/c.InformarPago_Tooltip";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { reduceErrors } from "c/utils";
 import { NavigationMixin } from "lightning/navigation";

@@ -1602,4 +1602,30 @@
     >false</protected><shortDescription
     >Mensaje tipo objeto no soportado</shortDescription><value
     >Tipo de objeto no soportado:</value></labels>
+    <labels>
+        <fullName>InformarPago_Tooltip</fullName>
+        <categories>InformarPago</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Tooltip Informar Pago</shortDescription>
+        <value
+    >Adjuntá el comprobante de pago y la documentación relacionada, como certificados de retenciones, órdenes de pago u otros documentos asociados a la operación.</value>
+    </labels>
+    <labels>
+        <fullName>PagoInformado_Tooltip</fullName>
+        <categories>InformarPago</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Tooltip Pago informado</shortDescription>
+        <value
+    >Recibimos la información de tu pago. A la brevedad se acreditará en el sistema. Si tenés alguna consulta, escribinos a cobranzas@sembraevolucion.com.ar.</value>
+    </labels>
+    <labels>
+        <fullName>Cobranzas_Email</fullName>
+        <categories>Cobranzas</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Correo de Cobranzas</shortDescription>
+        <value>cobranzas@sembraevolucion.com.ar</value>
+    </labels>
 </CustomLabels>

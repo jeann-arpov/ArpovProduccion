@@ -427,4 +427,33 @@ public without sharing class MisFacturasController {
       cuentaName = opp.Account != null ? opp.Account.Name : null;
     }
   }
+
+  @AuraEnabled
+  public static List<AdjuntoPago> getAdjuntosPago(Id opportunityId) {
+    List<AdjuntoPago> result = new List<AdjuntoPago>();
+    if (opportunityId == null)
+      return result;
+    for (ContentDocumentLink cdl : [
+      SELECT ContentDocumentId, ContentDocument.Title
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :opportunityId
+    ]) {
+      result.add(
+        new AdjuntoPago(cdl.ContentDocumentId, cdl.ContentDocument.Title)
+      );
+    }
+    return result;
+  }
+
+  public class AdjuntoPago {
+    @AuraEnabled
+    public Id id;
+    @AuraEnabled
+    public String title;
+
+    public AdjuntoPago(Id id, String title) {
+      this.id = id;
+      this.title = title;
+    }
+  }
 }

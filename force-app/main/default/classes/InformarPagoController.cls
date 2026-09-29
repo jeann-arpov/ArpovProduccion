@@ -118,12 +118,6 @@ public without sharing class InformarPagoController extends ApexErrorHandler {
       '\n' +
       (String.isNotBlank(comentarios) ? '\nComentarios: ' + comentarios : '');
 
-    OrgWideEmailAddress recipient = [
-      SELECT Id, Address
-      FROM OrgWideEmailAddress
-      WHERE DisplayName = 'Cobranzas'
-      LIMIT 1
-    ];
     OrgWideEmailAddress owd = [
       SELECT Id
       FROM OrgWideEmailAddress
@@ -131,7 +125,7 @@ public without sharing class InformarPagoController extends ApexErrorHandler {
     ];
 
     Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-    mail.setToAddresses(new List<String>{ recipient.Address });
+    mail.setToAddresses(new List<String>{ System.Label.Cobranzas_Email });
     mail.setOrgWideEmailAddressId(owd.Id);
     mail.setSubject('Informar Pago - ' + razonSocial + ' - ' + numeroFactura);
     mail.setPlainTextBody(body);

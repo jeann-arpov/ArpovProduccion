@@ -7,9 +7,8 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 //import basePath from '@salesforce/community/basePath';
 import { doRequest } from "c/utils";
 import icons from "c/icons";
-
-const TOOLTIP_PAGO_INFORMADO =
-  "Recibimos la información de tu pago. A la brevedad se acreditará en el sistema. Si tenés alguna consulta, escribinos a cobranzas@sembraevolucion.com.ar.";
+import getAdjuntosPago from "@salesforce/apex/MisFacturasController.getAdjuntosPago";
+import PagoInformadoTooltip from "@salesforce/label/c.PagoInformado_Tooltip";
 
 const COLUMNS = [
   {
@@ -139,6 +138,9 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
   agropago;
   vencimientoPagar;
 
+  adjuntos = [];
+  showAdjuntos = false;
+
   initialized = false;
   loading = false;
 
@@ -157,7 +159,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
           vencimiento.oppStage = "Pago informado";
         }
         vencimiento.oppStageTooltip = vencimiento.pagoInformado
-          ? TOOLTIP_PAGO_INFORMADO
+          ? PagoInformadoTooltip
           : "";
         vencimiento.estadoInfoIcon = vencimiento.pagoInformado
           ? "utility:info"
@@ -298,7 +300,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     const row = event.detail.row;
     switch (action.name) {
       case "Ver":
-        this.showPdf(row);
+        this.openDocumentos(row);
         break;
       case "Pagar":
         this.handleOnPayClickConfirm(row);
@@ -429,13 +431,42 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
   //     return paymentLink;
   // }
 
-  showPdf(vencimiento) {
-    //const vencimiento = this.vencimientos.find((ven) => ven.id == event.target.dataset.id);
+  async openDocumentos(vencimiento) {
+    this.adjuntos = [];
+    this.showAdjuntos = true;
+    const docs = [];
+    if (vencimiento.file && vencimiento.file.id) {
+      docs.push({ id: vencimiento.file.id, title: "Factura Eléctronica" });
+    }
+    if (vencimiento.opportunityId) {
+      try {
+        const adjuntos = await getAdjuntosPago({
+          opportunityId: vencimiento.opportunityId
+        });
+        const facturaId = vencimiento.file ? vencimiento.file.id : null;
+        for (const a of adjuntos) {
+          if (facturaId && a.id === facturaId) continue;
+          docs.push(a);
+        }
+      } catch (error) {
+        this.onError(error);
+      }
+    }
+    this.adjuntos = docs;
+  }
 
+  handleVerAdjunto(event) {
+    const docId = event.currentTarget.dataset.id;
+    const title = event.currentTarget.dataset.title;
     this.template.querySelector("c-pdf-reader").show({
-      documentId: vencimiento.file.id,
-      title: "Factura Eléctronica"
+      documentId: docId,
+      title: title
     });
+  }
+
+  closeAdjuntos() {
+    this.showAdjuntos = false;
+    this.adjuntos = [];
   }
 
   onPaymentApproved(event) {
