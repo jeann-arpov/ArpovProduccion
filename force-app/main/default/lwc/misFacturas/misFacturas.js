@@ -138,8 +138,8 @@ export default class MisFacturas extends LightningElement {
   agropago;
   vencimientoPagar;
 
-  adjuntos = [];
-  showAdjuntos = false;
+  @track adjuntos = [];
+  @track showAdjuntos = false;
 
   initialized = false;
   loading = false;
@@ -172,8 +172,8 @@ export default class MisFacturas extends LightningElement {
           vencimiento.disableInfPago = true;
         if (vencimiento.file == null && vencimiento.facturaPVId)
           vencimiento.file = { id: vencimiento.facturaPVId };
-        vencimiento.disableVerFactura = !vencimiento.file;
-        vencimiento.iconoClass = !vencimiento.file ? "icono-disabled" : "icono";
+        vencimiento.disableVerFactura = false;
+        vencimiento.iconoClass = "icono";
         if (vencimiento.id == null) vencimiento.id = vencimiento.numero;
         vencimiento.uniqueId = idx;
         idx++;
