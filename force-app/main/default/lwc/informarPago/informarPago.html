@@ -65,10 +65,17 @@
           </lightning-record-edit-form>
 
           <template if:true={informarFactura}>
-            <div class="slds-p-top_small slds-p-bottom_x-small">
-              <lightning-helptext
-                content="Adjuntá el comprobante de pago y la documentación relacionada, como certificados de retenciones, órdenes de pago u otros documentos asociados a la operación."
-              ></lightning-helptext>
+            <div class="info-pago-banner" role="note">
+              <lightning-icon
+                icon-name="utility:info"
+                alternative-text="Información"
+                size="small"
+              ></lightning-icon>
+              <span
+                >Adjuntá el comprobante de pago y la documentación relacionada,
+                como certificados de retenciones, órdenes de pago u otros
+                documentos asociados a la operación.</span
+              >
             </div>
           </template>
 
