@@ -463,6 +463,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Linea_de_Compra_HT__c.Descuento__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Linea_de_Compra_HT__c.Producto__c</field>
         <readable>true</readable>
     </fieldPermissions>

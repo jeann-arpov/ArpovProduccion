@@ -113,7 +113,7 @@ public without sharing class CrearCompraController {
     }
 
     private static Compra_HT__c getCompraData(Id compraId){
-        return [select Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c,Tipo_de_Pago__c, Licencia__c, Licencia__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
+        return [select Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c, Tipo_de_Pago__c, Tipo_de_Compra__c, Licencia__c, Licencia__r.Name, Producto__r.Name, Producto__r.Tipo_de_Compra__c, Producto__r.Variedad2__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
     }
 
     private static Opportunity getOpp(Id compraId) {
@@ -429,25 +429,48 @@ public without sharing class CrearCompraController {
 
     @AuraEnabled
     public static Map<String, Object> updateTipoPago(Id compraId, String tipoPago) {
+        return updateTipoPago(compraId, tipoPago, null, null, null, null);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> updateTipoPago(
+        Id compraId,
+        String tipoPago,
+        String entidadBancaria,
+        String plazo,
+        String moneda,
+        String tasa
+    ) {
         if (compraId == null) throw new AuraHandledException('compraId es requerido');
         if (String.isBlank(tipoPago)) throw new AuraHandledException('Debe seleccionar un tipo de pago');
 
         tipoPago = tipoPago.trim();
         Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
-        if (!allowed.contains(tipoPago)) throw new AuraHandledException('Tipo de pago inválido');
+        if (!allowed.contains(tipoPago)) throw new AuraHandledException('Tipo de pago invalido');
 
-        List<Linea_de_Compra_HT__c> lineas = [
-            SELECT Id
-            FROM Linea_de_Compra_HT__c
-            WHERE Compra_HT__c = :compraId
-        ];
+        try {
+            Compra_HT__c compra = new Compra_HT__c(Id = compraId);
+            compra.Entidad_Bancaria__c = (tipoPago == 'Financiado' ? entidadBancaria : null);
+            compra.Plazo_maximo__c = (tipoPago == 'Financiado' ? plazo : null);
+            compra.Moneda__c = (tipoPago == 'Financiado' ? moneda : null);
+            compra.TNA__c = (tipoPago == 'Financiado' ? tasa : null);
+            update compra;
 
-        for (Linea_de_Compra_HT__c l : lineas) {
-            l.Tipo_de_Pago__c = tipoPago;
+            List<Linea_de_Compra_HT__c> lineas = [
+                SELECT Id
+                FROM Linea_de_Compra_HT__c
+                WHERE Compra_HT__c = :compraId
+            ];
+
+            for (Linea_de_Compra_HT__c l : lineas) {
+                l.Tipo_de_Pago__c = tipoPago;
+            }
+            if (!lineas.isEmpty()) update lineas;
+
+            return getData(compraId);
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
         }
-        if (!lineas.isEmpty()) update lineas;
-
-        return getData(compraId);
     }
 
 

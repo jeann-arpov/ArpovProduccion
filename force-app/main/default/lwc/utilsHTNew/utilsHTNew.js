@@ -2,13 +2,30 @@ import fontAwesome from '@salesforce/resourceUrl/fontawesome';
 import { loadStyle } from 'lightning/platformResourceLoader';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {reduceErrors, validateInputs} from 'c/utils';
-import { trackErrorFuncional, trackGa4Event } from 'c/portalGa4Events';
 import {api, track} from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import icons from 'c/icons';
 import HT_DISPONIBLES from '@salesforce/label/c.Compra_Venta_HT_Disponibles';
 import HT_FUTURAS from '@salesforce/label/c.Compra_Venta_HT_Futuras';
 import HT_FUTURAS_TRIGO from '@salesforce/label/c.Compra_Venta_HT_Futuras_Trigo';
+
+function roundMoney(value) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) {
+        return null;
+    }
+    const sign = amount < 0 ? -1 : 1;
+    return sign * Math.round((Math.abs(amount) + Number.EPSILON) * 100) / 100;
+}
+
+function formatMoney(value) {
+    const rounded = roundMoney(value);
+    return rounded == null ? '' : rounded.toFixed(2);
+}
+
+function hasMoneyValue(value) {
+    return value !== null && value !== undefined && value !== '';
+}
 
 const CSS = `
     lightning-record-edit-form:not(:first-of-type) lightning-helptext {
@@ -300,12 +317,22 @@ const LineaCompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
     }
 
     updatePrice() {
-        
         const price = this._record.Precio_de_Lista__c;
-        console.log('Valor de Precio_de_Lista__c:', price);
         const qty = this._record.Cantidad__c;
-        this.precioLista = price;
-        this.precio = price != null && qty != null ? price * qty : '';
+        const hasPrice = hasMoneyValue(price);
+        const qtyNumber = hasMoneyValue(qty) ? Number(qty) : null;
+        this.precioLista = hasPrice ? formatMoney(price) : '';
+        this.precio = hasPrice && qtyNumber != null && Number.isFinite(qtyNumber)
+            ? formatMoney(Number(price) * qtyNumber)
+            : '';
+    }
+
+    normalizeLineAmounts() {
+        const roundedPrice = roundMoney(this._record?.Precio_de_Lista__c);
+        if (roundedPrice != null) {
+            this._record.Precio_de_Lista__c = roundedPrice;
+        }
+        this.updatePrice();
     }
 
     saveRow(event) {
@@ -318,11 +345,6 @@ const LineaCompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
     }
 
     onError(e) {
-        try {
-            trackErrorFuncional(e, { messages: reduceErrors(e), modulo: 'HT' });
-        } catch (ignore) {
-            // ignore
-        }
         this.dispatchEvent(new ShowToastEvent({
             title: 'Error',
             message: reduceErrors(e).join('\n'),
@@ -381,6 +403,7 @@ const LineaCompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
         if (!validateInputs(form)) return success;
 
         try {
+            this.normalizeLineAmounts();
             console.log(JSON.stringify(this._record));
 
             // Avisar que empieza el loading
@@ -782,11 +805,6 @@ const CompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
     }
 
     onError(e) {
-        try {
-            trackErrorFuncional(e, { messages: reduceErrors(e), modulo: 'HT' });
-        } catch (ignore) {
-            // ignore
-        }
         this.dispatchEvent(new ShowToastEvent({
             title: 'Error',
             message: reduceErrors(e).join('\n'),
@@ -876,10 +894,6 @@ const CompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
 
     openFactura(event) {
         console.log(event)
-        trackGa4Event('factura_vista', {
-            portal: 'Comercio',
-            origen: 'detalle_ht'
-        });
         this.template.querySelector('c-pdf-reader').show({
             documentId: event.detail.Id,
             title: event.detail.Name

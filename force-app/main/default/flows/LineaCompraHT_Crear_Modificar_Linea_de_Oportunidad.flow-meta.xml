@@ -318,6 +318,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Discount</field>
+            <value>
+                <elementReference>$Record.Descuento__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>UnitPrice</field>
             <value>
                 <elementReference>$Record.Precio_de_Lista__c</elementReference>
@@ -362,6 +368,12 @@
             <field>UnitPrice</field>
             <value>
                 <elementReference>$Record.Precio_de_Lista__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Discount</field>
+            <value>
+                <elementReference>$Record.Descuento__c</elementReference>
             </value>
         </inputAssignments>
         <object>OpportunityLineItem</object>

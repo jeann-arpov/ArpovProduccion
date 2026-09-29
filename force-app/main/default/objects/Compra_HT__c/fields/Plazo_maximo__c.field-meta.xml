@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plazo_maximo__c</fullName>
+    <label>Plazo maximo</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>30 dias</fullName>
+                <default>false</default>
+                <label>30 dias</label>
+            </value>
+            <value>
+                <fullName>90 dias</fullName>
+                <default>false</default>
+                <label>90 dias</label>
+            </value>
+            <value>
+                <fullName>120 dias</fullName>
+                <default>false</default>
+                <label>120 dias</label>
+            </value>
+            <value>
+                <fullName>150 dias</fullName>
+                <default>false</default>
+                <label>150 dias</label>
+            </value>
+            <value>
+                <fullName>180 dias</fullName>
+                <default>false</default>
+                <label>180 dias</label>
+            </value>
+            <value>
+                <fullName>210 dias</fullName>
+                <default>false</default>
+                <label>210 dias</label>
+            </value>
+            <value>
+                <fullName>270 dias</fullName>
+                <default>false</default>
+                <label>270 dias</label>
+            </value>
+            <value>
+                <fullName>300 dias</fullName>
+                <default>false</default>
+                <label>300 dias</label>
+            </value>
+            <value>
+                <fullName>360 dias</fullName>
+                <default>false</default>
+                <label>360 dias</label>
+            </value>
+            <value>
+                <fullName>365 dias</fullName>
+                <default>false</default>
+                <label>365 dias</label>
+            </value>
+            <value>
+                <fullName>6 meses</fullName>
+                <default>false</default>
+                <label>6 meses</label>
+            </value>
+            <value>
+                <fullName>9 meses</fullName>
+                <default>false</default>
+                <label>9 meses</label>
+            </value>
+            <value>
+                <fullName>12 meses</fullName>
+                <default>false</default>
+                <label>12 meses</label>
+            </value>
+            <value>
+                <fullName>Bullet 90 dias</fullName>
+                <default>false</default>
+                <label>Bullet 90 dias</label>
+            </value>
+            <value>
+                <fullName>Bullet 180 dias</fullName>
+                <default>false</default>
+                <label>Bullet 180 dias</label>
+            </value>
+            <value>
+                <fullName>Bullet 240 dias</fullName>
+                <default>false</default>
+                <label>Bullet 240 dias</label>
+            </value>
+            <value>
+                <fullName>Bullet 270 dias</fullName>
+                <default>false</default>
+                <label>Bullet 270 dias</label>
+            </value>
+            <value>
+                <fullName>Bullet 360 dias</fullName>
+                <default>false</default>
+                <label>Bullet 360 dias</label>
+            </value>
+            <value>
+                <fullName>Cosecha</fullName>
+                <default>false</default>
+                <label>Cosecha</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
