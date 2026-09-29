@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pago_Informado__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >Indica que el operador informó el pago de la factura y se encuentra pendiente de acreditación por Cobranzas.</description>
+    <externalId>false</externalId>
+    <label>Pago Informado</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

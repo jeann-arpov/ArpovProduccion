@@ -27,7 +27,8 @@ public without sharing class MisFacturasController {
           ERPVS__Comprobante_Venta__r.ERPvs__Moneda__r.Name,
           ERPVS__Comprobante_Venta__r.ERPvs__Total__c,
           ERPvs__Importe_MO_x_Signo__c,
-          ERPVS__Comprobante_Venta__r.Oportunidad__r.StageName
+          ERPVS__Comprobante_Venta__r.Oportunidad__r.StageName,
+          ERPVS__Comprobante_Venta__r.Oportunidad__r.Pago_Informado__c
         FROM ERPvs__Vencimientos__c
         WHERE
           ERPvs__Cuenta__c = :CrearCompraController.getAccount().id
@@ -97,6 +98,7 @@ public without sharing class MisFacturasController {
           Compra_HT__r.Comercio__r.Name,
           Compra_HT__r.Cuenta_Productor__r.Name,
           StageName,
+          Pago_Informado__c,
           Cultivo__c,
           CUIT__c,
           Account.Name
@@ -341,6 +343,8 @@ public without sharing class MisFacturasController {
     public String facturaPVId;
     @AuraEnabled
     public String oppStage;
+    @AuraEnabled
+    public Boolean pagoInformado;
     //@AuraEnabled public String linkDePago;
     @AuraEnabled
     public String cultivo;
@@ -367,6 +371,7 @@ public without sharing class MisFacturasController {
         opportunityId = cv.Oportunidad__c;
         if (cv.Oportunidad__r != null) {
           oppStage = cv.Oportunidad__r.StageName;
+          pagoInformado = cv.Oportunidad__r.Pago_Informado__c == true;
           if (cv.Oportunidad__r.Compra_HT__r != null) {
             cultivo = cv.Oportunidad__r.Compra_HT__r.Nombre_Cultivo__c;
             if (cv.Oportunidad__r.Compra_HT__r.Cuenta_Productor__r != null) {
@@ -416,6 +421,7 @@ public without sharing class MisFacturasController {
       }
       opportunityId = opp.Id;
       oppStage = opp.StageName;
+      pagoInformado = opp.Pago_Informado__c == true;
       cultivo = opp.Cultivo__c;
       cuit = opp.CUIT__c;
       cuentaName = opp.Account != null ? opp.Account.Name : null;
