@@ -42,6 +42,9 @@
                                 oninput={handleSearchChange}
                             />
                         </label>
+                        <button type="button" class="est-btn est-btn-ghost" onclick={handleCargaMasiva}>
+                            Carga masiva (Excel)
+                        </button>
                         <button type="button" class="est-btn est-btn-ghost" onclick={handleOpenMapa}>
                             Ver mapa
                         </button>
@@ -98,6 +101,9 @@
     </c-se-list-page>
 
     <div class="est-mob-actions se-mob-only">
+        <button type="button" class="est-btn est-btn-ghost" onclick={handleCargaMasiva}>
+            Carga masiva
+        </button>
         <button type="button" class="est-btn est-btn-ghost" onclick={handleOpenMapa}>
             Ver mapa
         </button>
@@ -107,4 +113,5 @@
     </div>
 
     <c-establecimientos-map hide-chrome onsaved={handleEstablecimientoSaved}></c-establecimientos-map>
+    <c-import-establecimientos-excel hide-buttons></c-import-establecimientos-excel>
 </template>

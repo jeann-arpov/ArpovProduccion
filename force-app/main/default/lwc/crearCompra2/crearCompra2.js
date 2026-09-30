@@ -8,6 +8,7 @@ import canFinish from '@salesforce/apex/CrearVentaController.canFinish';
 import getUserAccountData from '@salesforce/apex/CrearCompraController.getUserAccountData';
 import updateTipoPago from '@salesforce/apex/CrearCompraController.updateTipoPago';
 import saveItem from '@salesforce/apex/CrearCompraController.saveItem';
+import deleteItem from '@salesforce/apex/CrearCompraController.deleteItem';
 import verificarExpedienteEnHTDisponible from '@salesforce/apex/ExpedientesController.verificarExpedienteEnHTDisponible';
 import { CompraVentaMixin } from 'c/utilsHTNew';
 import { NavigationMixin } from 'lightning/navigation';
@@ -1330,8 +1331,33 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         });
     }
 
+    marcaDeProducto(pbeId) {
+        return Object.keys(this.variedadesByObtentor || {}).find((key) =>
+            (this.variedadesByObtentor[key] || []).some((v) => v.value === pbeId)
+        );
+    }
+
+    async descartarCompraDeOtraMarca() {
+        if (!this.recordId || !this.semillero) return;
+        const guardadas = (this.items || []).filter((item) => item.record?.Id);
+        const otraMarca = guardadas.some((item) => {
+            const marca = this.marcaDeProducto(item.record.Id_Producto_de_Lista_de_Precio__c);
+            return marca && marca !== this.semillero;
+        });
+        if (!otraMarca) return;
+        for (const item of guardadas) {
+            if (!item.record?.Id) continue;
+            const data = await deleteItem({ compraId: this.recordId, itemId: item.record.Id });
+            if (data) this.setData(data);
+        }
+        this.recordId = null;
+        this.data = {};
+        this.items = [];
+    }
+
     async persistSelectedVariedades() {
         const selected = this.decoratedVariedadesPaso4.filter((v) => v.hasLicencia && v.qty > 0);
+        if (selected.length) await this.descartarCompraDeOtraMarca();
         let lastData = null;
         for (const v of selected) {
             const existing = (this.items || []).find(
@@ -1357,6 +1383,19 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         }
         if (lastData) {
             this.setData(lastData);
+        }
+
+        // deleteItem borra la compra entera si se elimina su única línea: solo limpiar con al menos una variedad elegida.
+        if (!selected.length || !this.recordId) return;
+        const selectedIds = new Set(selected.map((v) => v.id));
+        const stale = (this.items || []).filter(
+            (item) =>
+                item.record?.Id &&
+                !selectedIds.has(item.record.Id_Producto_de_Lista_de_Precio__c)
+        );
+        for (const item of stale) {
+            const data = await deleteItem({ compraId: this.recordId, itemId: item.record.Id });
+            if (data) this.setData(data);
         }
     }
 

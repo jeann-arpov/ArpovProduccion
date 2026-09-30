@@ -69,7 +69,10 @@
                         <div class="se-saldo-bar">
                             <div class="se-saldo-bar-main">
                                 <span class="se-saldo-bar-label">Saldo PPH</span>
-                                <strong class="se-saldo-bar-value">{saldoPphLabel} HT</strong>
+                                <strong class="se-saldo-bar-value">{saldoRestanteLabel} HT</strong>
+                                <template if:true={hasSeAsignado}>
+                                    <span class="se-saldo-bar-meta">de {saldoPphLabel} HT</span>
+                                </template>
                                 <span class="se-saldo-bar-sep" aria-hidden="true">·</span>
                                 <span class="se-saldo-bar-meta">{cultivoPillLabel}</span>
                             </div>

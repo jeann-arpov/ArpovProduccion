@@ -245,6 +245,10 @@ export default class MisEstablecimientos extends LightningElement {
         this.template.querySelector('c-establecimientos-map')?.openMap?.();
     }
 
+    handleCargaMasiva() {
+        this.template.querySelector('c-import-establecimientos-excel')?.open();
+    }
+
     handleEstablecimientoSaved() {
         this.loading = true;
         this.loadRows();

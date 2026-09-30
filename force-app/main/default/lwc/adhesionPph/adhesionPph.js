@@ -923,6 +923,25 @@ export default class AdhesionPph extends NavigationMixin(LightningElement) {
     return new Intl.NumberFormat("es-AR").format(n);
   }
 
+  get totalSeAsignado() {
+    return (this.establecimientos || []).reduce(
+      (sum, e) => sum + (Number(e.cantidadSE) || 0),
+      0
+    );
+  }
+
+  get saldoRestanteLabel() {
+    const n = this.saldoDisponibleHt;
+    if (Number.isNaN(n)) return "—";
+    return new Intl.NumberFormat("es-AR").format(
+      Math.max(n - this.totalSeAsignado, 0)
+    );
+  }
+
+  get hasSeAsignado() {
+    return this.totalSeAsignado > 0;
+  }
+
   get showSaldoCompraHint() {
     const n = this.saldoDisponibleHt;
     return Number.isNaN(n) || n <= 0;
