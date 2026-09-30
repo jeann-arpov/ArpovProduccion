@@ -24,14 +24,13 @@
 }
 
 .home-veil {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 40;
+    z-index: 9000;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(238, 241, 247, 0.36);
-    min-height: 280px;
+    background: rgba(238, 241, 247, 0.6);
 }
 
 .home-veil::before {

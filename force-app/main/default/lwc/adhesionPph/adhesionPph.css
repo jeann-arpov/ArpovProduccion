@@ -1143,13 +1143,15 @@
 }
 
 .pph-veil {
-    position: relative;
-    z-index: 40;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 50vh;
-    background: rgba(243, 244, 246, 0.36);
+    background: rgba(243, 244, 246, 0.72);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
 }
 
 .pph-veil::before {

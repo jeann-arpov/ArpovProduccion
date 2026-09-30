@@ -15,8 +15,8 @@
         </div>
 
         <template if:true={showSpinner}>
-            <div class="se-login-veil" role="status" aria-live="polite">
-                <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
+            <div class="se-login-veil" role="status" aria-live="polite" aria-label="Cargando">
+                <c-se-brand-loader></c-se-brand-loader>
             </div>
         </template>
 

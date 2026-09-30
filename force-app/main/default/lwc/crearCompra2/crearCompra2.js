@@ -1954,6 +1954,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.tipoPago = value;
         trackGa4Event('ht_seleccion_financiamiento', { forma_pago: value });
 
+        this.isLoading = true;
         await this.requestWrap(async () => {
             const data = await updateTipoPago({
                 compraId: this.recordId,
@@ -1966,6 +1967,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             this.setData(data);
             this.DataCompra = data;
         });
+        this.isLoading = false;
 
         this.showTipoPagoSheet = false;
 

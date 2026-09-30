@@ -1,7 +1,7 @@
 <template>
     <section if:true={showModal} style="margin:auto" role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-text-align_center">
-        <div if:true={loading} class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        <div if:true={loading} class="pph-modal-veil" role="status" aria-busy="true" aria-label="Cargando">
+            <c-se-brand-loader></c-se-brand-loader>
         </div>
         <div class={cls}>
             <div class="slds-modal__content" id="modal-content-id-1">

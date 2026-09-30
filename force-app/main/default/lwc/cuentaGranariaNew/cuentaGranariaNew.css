@@ -12,9 +12,13 @@
 }
 
 .cg-spinner {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
     display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 48px 0;
+    background: rgba(243, 244, 246, 0.6);
 }
 
 /* ===== Horizontal stepper (Compra HT / .prog-h) ===== */
@@ -215,7 +219,7 @@
 
 .cg-cultivo-tile.is-selected .cg-cultivo-radio {
     border-color: #fff;
-    background: radial-gradient(circle at center, #bfff00 0 40%, #1c1c1c 45% 100%);
+    background: radial-gradient(circle at center, #bfff00 0 42%, #1c1c1c 45% 100%);
 }
 
 .cg-cultivo-icon-wrap {
@@ -227,6 +231,7 @@
     align-items: center;
     justify-content: center;
     margin: 0 0 14px;
+    flex-shrink: 0;
 }
 
 .cg-cultivo-tile.is-selected .cg-cultivo-icon-wrap {
@@ -1076,6 +1081,7 @@
 
     .cg-cultivo-tile {
         flex-direction: row;
+        align-items: center;
         justify-content: flex-start;
         text-align: left;
         min-height: 76px;
@@ -1083,25 +1089,46 @@
         gap: 12px;
     }
 
+    .cg-cultivo-tile.is-selected {
+        background: #1c1c1c;
+        color: #fff;
+        border: 2px solid #bfff00;
+    }
+
     .cg-cultivo-icon-wrap {
         margin: 0;
         width: 48px;
         height: 48px;
         border-radius: 12px;
+        background: #eef2e6;
+    }
+
+    .cg-cultivo-tile.is-selected .cg-cultivo-icon-wrap {
+        background: #bfff00;
     }
 
     .cg-cultivo-icon {
         width: 28px;
         height: 28px;
+        filter: brightness(0);
     }
 
     .cg-cultivo-name {
         font-size: 15px;
+        flex: 1;
+        min-width: 0;
     }
 
+    /* Mock mobile: radio a la izquierda del ícono */
     .cg-cultivo-radio {
         position: static;
-        margin-left: auto;
+        margin: 0;
         flex-shrink: 0;
+        order: -1;
+    }
+
+    .cg-cultivo-tile.is-selected .cg-cultivo-radio {
+        border-color: #fff;
+        background: radial-gradient(circle at center, #bfff00 0 42%, #1c1c1c 45% 100%);
     }
 }

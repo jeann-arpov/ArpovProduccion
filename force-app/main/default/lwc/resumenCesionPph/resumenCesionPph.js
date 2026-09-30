@@ -1,5 +1,4 @@
 import { LightningElement, api, track } from 'lwc';
-import icons from 'c/icons';
 import { NavigationMixin } from 'lightning/navigation';
 import { goToCommunityPage, PAGES } from 'c/seNav';
 
@@ -17,14 +16,8 @@ export default class ResumenCesionPph extends NavigationMixin(LightningElement) 
     @api mobileEmbedded = false;
     @track collapsed = {};
 
-    icons = icons.pph;
-
-    get fecha() {
-        return new Date(this.info.cesion.CreatedDate);
-    }
-
     get fechaLabel() {
-        return this.fecha.toLocaleDateString('es-AR');
+        return new Date(this.info.cesion.CreatedDate).toLocaleDateString('es-AR');
     }
 
     get toneladasTotalesCedidas() {
@@ -98,7 +91,6 @@ export default class ResumenCesionPph extends NavigationMixin(LightningElement) 
                     };
                 });
             dest.collapsed = this.collapsed[e.id] === true;
-            dest.class = 'extra' + (dest.collapsed ? ' collapsed' : '');
             dest.canEdit = e.record.Estado__c == 'En Curso' || e.record.Estado__c == 'Pendiente de Validación';
             dest.enCurso = e.record.Estado__c == 'En Curso';
             return dest;
@@ -115,9 +107,13 @@ export default class ResumenCesionPph extends NavigationMixin(LightningElement) 
     }
 
     get mobileSectionClass() {
-        let cls = 'se-resumen-mob se-mob-only';
+        let cls = 'se-resumen-mob';
         if (this.mobileEmbedded) cls += ' se-resumen-mob--embedded';
         return cls;
+    }
+
+    get showEmbeddedAnular() {
+        return this.mobileEmbedded && this.canAnular;
     }
 
     get showMobileHead() {

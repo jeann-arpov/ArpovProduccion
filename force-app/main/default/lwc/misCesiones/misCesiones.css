@@ -140,4 +140,13 @@
     .se-new-sheet-wrap.is-open {
         display: none;
     }
+
+    .ces-filters {
+        flex-wrap: wrap;
+    }
+
+    .ces-filters c-se-select {
+        flex: 0 0 220px;
+        width: 220px;
+    }
 }

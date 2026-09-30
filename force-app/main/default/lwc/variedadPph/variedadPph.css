@@ -1,17 +1,25 @@
 .se-var-row {
-    display: grid;
-    grid-template-columns: 56px 1fr auto;
-    gap: 10px;
+    display: flex;
     align-items: center;
-    padding: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #fafafa;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid #bfff00;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.se-var-brand {
+    flex-shrink: 0;
 }
 
 .se-var-logo {
     width: 48px;
     height: 28px;
+}
+
+.se-var-copy {
+    flex: 1;
+    min-width: 0;
 }
 
 .se-var-name {
@@ -28,5 +36,6 @@
 }
 
 .se-var-input {
-    width: 88px;
+    width: 96px;
+    flex-shrink: 0;
 }

@@ -57,12 +57,6 @@
 
         <div class="se-buy-layout">
           <div class={buyMainClass}>
-      <template if:true={isLoading}>
-        <div class="exampleHolder se-brand-loading">
-          <c-se-brand-loader></c-se-brand-loader>
-        </div>
-      </template>
-  
             <!-- Paso 1: Cultivo (SG 2g1-desk / 2g1-mob) -->
           <template if:true={isStep1Active}>
               <section class="se-panel se-panel-step1">
@@ -668,7 +662,7 @@
 
     <!-- Spinner global -->
     <template if:true={isLoading}>
-        <div class="exampleHolder se-brand-loading">
+        <div class="se-brand-loading" role="status" aria-live="polite" aria-label="Procesando">
             <c-se-brand-loader></c-se-brand-loader>
         </div>
     </template>

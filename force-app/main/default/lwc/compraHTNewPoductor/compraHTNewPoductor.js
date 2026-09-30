@@ -55,6 +55,14 @@ function uniqueFromRows(rows, valueKey, labelKey, emptyLabel) {
         .sort((a, b) => a.label.localeCompare(b.label, 'es'));
 }
 
+function anioDeMovimiento(row) {
+    const match = /^\s*(\d{4})/.exec(row.campaniaLabel || '');
+    if (match) return match[1];
+    if (!row.fechaTransaccion) return null;
+    const dt = new Date(row.fechaTransaccion);
+    return Number.isNaN(dt.getTime()) ? null : String(dt.getFullYear());
+}
+
 function toggleInList(list, value) {
     const next = new Set(list || []);
     if (next.has(value)) {
@@ -92,16 +100,16 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     @track filtersSheetOpen = false;
 
     @track filterCultivoIds = [];
-    @track filterCampaniaIds = [];
+    @track filterAnios = [];
     @track filterBiotecnologias = [];
     @track filterOrigenes = [];
 
     @track draftCultivoIds = [];
-    @track draftCampaniaIds = [];
+    @track draftAnios = [];
     @track draftBiotecnologias = [];
     @track draftOrigenes = [];
 
-    @track campaniaOptions = [];
+    @track anioOptions = [];
     @track biotecnologiaOptions = [];
     @track origenOptions = [];
 
@@ -135,7 +143,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     get activeFilterCount() {
         let count = 0;
         if (this.cultivos?.length && this.filterCultivoIds.length < this.cultivos.length) count++;
-        if (this.campaniaOptions.length && this.filterCampaniaIds.length < this.campaniaOptions.length) count++;
+        if (this.anioOptions.length && this.filterAnios.length < this.anioOptions.length) count++;
         if (this.biotecnologiaOptions.length && this.filterBiotecnologias.length < this.biotecnologiaOptions.length) count++;
         if (this.origenOptions.length && this.filterOrigenes.length < this.origenOptions.length) count++;
         return count;
@@ -152,10 +160,10 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
         );
     }
 
-    get campaniaFilterItems() {
+    get anioFilterItems() {
         return withChecked(
-            this.campaniaOptions,
-            this.filtersSheetOpen ? this.draftCampaniaIds : this.filterCampaniaIds
+            this.anioOptions,
+            this.filtersSheetOpen ? this.draftAnios : this.filterAnios
         );
     }
 
@@ -173,12 +181,12 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
         );
     }
 
-    get singleCampaniaHint() {
-        return this.campaniaOptions.length === 1;
+    get singleAnioHint() {
+        return this.anioOptions.length === 1;
     }
 
-    get singleCampaniaLabel() {
-        return this.campaniaOptions.length === 1 ? this.campaniaOptions[0].label : '';
+    get singleAnioLabel() {
+        return this.anioOptions.length === 1 ? this.anioOptions[0].label : '';
     }
 
     connectedCallback() {
@@ -251,12 +259,13 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     decorateRow(row, index) {
         const hasDebito = row.debito != null && row.debito !== '' && Number(row.debito) !== 0;
         const hasCredito = row.credito != null && row.credito !== '' && Number(row.credito) !== 0;
-        const campaniaKey = row.campaniaId || NONE_KEY;
+        const anio = anioDeMovimiento(row);
 
         return {
             ...row,
             id: row.id || `row-${index}`,
-            campaniaKey,
+            anioKey: anio || NONE_KEY,
+            anioLabel: anio,
             biotecnologiaKey: row.biotecnologia ? row.biotecnologia : NONE_KEY,
             origenKey: row.origen ? row.origen : NONE_KEY,
             fechaLabel: formatDate(row.fechaTransaccion),
@@ -271,12 +280,16 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     initFilterOptions() {
         const rows = this.hectareasTecnologicas;
 
-        this.campaniaOptions = uniqueFromRows(rows, 'campaniaKey', 'campaniaLabel', 'Sin campaña');
+        this.anioOptions = uniqueFromRows(rows, 'anioKey', 'anioLabel', 'Sin año').sort((a, b) => {
+            if (a.value === NONE_KEY) return 1;
+            if (b.value === NONE_KEY) return -1;
+            return b.value.localeCompare(a.value);
+        });
         this.biotecnologiaOptions = uniqueFromRows(rows, 'biotecnologiaKey', 'biotecnologia', 'Sin biotecnología');
         this.origenOptions = uniqueFromRows(rows, 'origenKey', 'origen', 'Sin origen');
 
         this.filterCultivoIds = (this.cultivos || []).map((c) => c.value);
-        this.filterCampaniaIds = this.campaniaOptions.map((o) => o.value);
+        this.filterAnios = this.anioOptions.map((o) => o.value);
         this.filterBiotecnologias = this.biotecnologiaOptions.map((o) => o.value);
         this.filterOrigenes = this.origenOptions.map((o) => o.value);
     }
@@ -323,7 +336,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
 
     handleOpenFiltersSheet() {
         this.draftCultivoIds = [...this.filterCultivoIds];
-        this.draftCampaniaIds = [...this.filterCampaniaIds];
+        this.draftAnios = [...this.filterAnios];
         this.draftBiotecnologias = [...this.filterBiotecnologias];
         this.draftOrigenes = [...this.filterOrigenes];
         this.filtersSheetOpen = true;
@@ -335,11 +348,11 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
 
     handleClearFilters() {
         this.filterCultivoIds = (this.cultivos || []).map((c) => c.value);
-        this.filterCampaniaIds = this.campaniaOptions.map((o) => o.value);
+        this.filterAnios = this.anioOptions.map((o) => o.value);
         this.filterBiotecnologias = this.biotecnologiaOptions.map((o) => o.value);
         this.filterOrigenes = this.origenOptions.map((o) => o.value);
         this.draftCultivoIds = [...this.filterCultivoIds];
-        this.draftCampaniaIds = [...this.filterCampaniaIds];
+        this.draftAnios = [...this.filterAnios];
         this.draftBiotecnologias = [...this.filterBiotecnologias];
         this.draftOrigenes = [...this.filterOrigenes];
         this.applyFilters();
@@ -347,7 +360,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
 
     handleApplyFiltersSheet() {
         this.filterCultivoIds = [...this.draftCultivoIds];
-        this.filterCampaniaIds = [...this.draftCampaniaIds];
+        this.filterAnios = [...this.draftAnios];
         this.filterBiotecnologias = [...this.draftBiotecnologias];
         this.filterOrigenes = [...this.draftOrigenes];
         this.filtersSheetOpen = false;
@@ -361,14 +374,14 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
 
         if (isMobile) {
             if (group === 'cultivo') this.draftCultivoIds = toggleInList(this.draftCultivoIds, value);
-            if (group === 'campania') this.draftCampaniaIds = toggleInList(this.draftCampaniaIds, value);
+            if (group === 'anio') this.draftAnios = toggleInList(this.draftAnios, value);
             if (group === 'biotecnologia') this.draftBiotecnologias = toggleInList(this.draftBiotecnologias, value);
             if (group === 'origen') this.draftOrigenes = toggleInList(this.draftOrigenes, value);
             return;
         }
 
         if (group === 'cultivo') this.filterCultivoIds = toggleInList(this.filterCultivoIds, value);
-        if (group === 'campania') this.filterCampaniaIds = toggleInList(this.filterCampaniaIds, value);
+        if (group === 'anio') this.filterAnios = toggleInList(this.filterAnios, value);
         if (group === 'biotecnologia') this.filterBiotecnologias = toggleInList(this.filterBiotecnologias, value);
         if (group === 'origen') this.filterOrigenes = toggleInList(this.filterOrigenes, value);
         this.applyFilters();
@@ -376,7 +389,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
 
     applyFilters() {
         const cultivoSet = new Set(this.filterCultivoIds);
-        const campaniaSet = new Set(this.filterCampaniaIds);
+        const anioSet = new Set(this.filterAnios);
         const bioSet = new Set(this.filterBiotecnologias);
         const origenSet = new Set(this.filterOrigenes);
         const cultivoCount = this.cultivos?.length || 0;
@@ -387,8 +400,8 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
             filtered = filtered.filter((row) => cultivoSet.has(row.cultivoId));
         }
 
-        if (this.campaniaOptions.length && campaniaSet.size < this.campaniaOptions.length) {
-            filtered = filtered.filter((row) => campaniaSet.has(row.campaniaKey));
+        if (this.anioOptions.length && anioSet.size < this.anioOptions.length) {
+            filtered = filtered.filter((row) => anioSet.has(row.anioKey));
         }
         if (this.biotecnologiaOptions.length && bioSet.size < this.biotecnologiaOptions.length) {
             filtered = filtered.filter((row) => bioSet.has(row.biotecnologiaKey));

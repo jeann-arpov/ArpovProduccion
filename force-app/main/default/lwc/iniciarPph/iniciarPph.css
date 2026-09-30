@@ -6,11 +6,13 @@
 }
 
 .se-pph-loading {
-    min-height: 40vh;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #eef1f7;
+    background: rgba(238, 241, 247, 0.72);
 }
 
 .se-pph {

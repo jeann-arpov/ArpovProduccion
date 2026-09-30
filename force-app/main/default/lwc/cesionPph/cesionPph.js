@@ -595,11 +595,6 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         return `${this.formatTonLabel(this.wizardToneladasTotal)} t`;
     }
 
-    get isResumenMobileEmbedded() {
-        if (typeof window === 'undefined') return false;
-        return window.matchMedia('(max-width: 767px)').matches;
-    }
-
     handleWizardStepClick(event) {
         const clicked = Number(event.detail?.step);
         if (!clicked || clicked >= this.wizardStep) return;

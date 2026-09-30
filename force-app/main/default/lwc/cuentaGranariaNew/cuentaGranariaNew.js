@@ -315,13 +315,14 @@ export default class CuentaGranariaNew extends LightningElement {
         }
 
         return sorted.map((c, idx) => {
-            const isLast = idx === sorted.length - 1;
+            const isCurrent = idx === sorted.length - 1;
             const hasAdhesion = campanasConAdhesion.has(c.id) || c.pphAdherida === true;
             const showPPH = hasAdhesion;
             const displayToneladas = Number(c.totalToneladas ?? c.saldoCuentaGranaria ?? 0) || 0;
             const isSelected = this.campanaSeleccionada === c.id;
-            // LSG: Ingresar deshabilitado cuando no hay toneladas (PPH siempre permite ver)
-            const ingresarDisabled = displayToneladas <= 0 && !showPPH;
+            // Regla de negocio (prod): solo la campaña actual admite Ingresar;
+            // si esa campaña está adherida a PPH, el CTA queda deshabilitado.
+            const ingresarDisabled = !isCurrent || showPPH;
 
             return {
                 ...c,
@@ -338,7 +339,8 @@ export default class CuentaGranariaNew extends LightningElement {
                 tipBody: showPPH
                     ? 'Podés entregar tu grano sin segregar tecnologías en función del plan de siembra informado.'
                     : 'Es el saldo que se usa primero cuando realizás una entrega de grano de esta campaña. Si tenés saldo suficiente, se debita automáticamente. Si no alcanza, el sistema utilizará tus HT disponibles.',
-                isLast,
+                isLast: isCurrent,
+                isCurrent,
                 showPPH,
                 hideToneladas: showPPH,
                 hasAdhesion,
@@ -346,7 +348,7 @@ export default class CuentaGranariaNew extends LightningElement {
                 isDisabled: ingresarDisabled,
                 statusMeta: hasAdhesion
                     ? 'Campaña con PPH'
-                    : isLast
+                    : isCurrent
                       ? 'Activa · disponible'
                       : 'Histórico',
                 adhesionVencimiento:

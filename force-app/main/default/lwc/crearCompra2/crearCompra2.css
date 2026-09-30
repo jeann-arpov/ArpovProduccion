@@ -952,6 +952,18 @@
     font-weight: 700;
 }
 
+.se-brand-loading {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.82);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
 /* —— Modal método de pago · SG 2g6-mob / 2g6-desk —— */
 .body.se-pay-backdrop-open .visible {
     pointer-events: none;

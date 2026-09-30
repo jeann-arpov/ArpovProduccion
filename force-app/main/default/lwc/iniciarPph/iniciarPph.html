@@ -1,7 +1,7 @@
 <template>
     <template if:false={loaded}>
-        <div class="se-pph-loading">
-            <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
+        <div class="se-pph-loading" role="status" aria-busy="true" aria-label="Cargando">
+            <c-se-brand-loader></c-se-brand-loader>
         </div>
     </template>
 

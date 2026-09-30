@@ -2,8 +2,8 @@
 <template>
     <div class="cg-root">
         <template if:true={loading}>
-            <div class="cg-spinner">
-                <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
+            <div class="cg-spinner" role="status" aria-busy="true" aria-label="Cargando">
+                <c-se-brand-loader></c-se-brand-loader>
             </div>
         </template>
 
