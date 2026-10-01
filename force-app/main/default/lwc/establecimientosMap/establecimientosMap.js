@@ -28,7 +28,6 @@ export default class EstablecimientosMap extends LightningElement {
     mensaje = '';
 
     selectedName = '';
-    selectedSuperficie = '';
     selectedProductor;
     latitude;
     longitude;
@@ -303,10 +302,6 @@ export default class EstablecimientosMap extends LightningElement {
         this.selectedName = event.target.value;
     }
 
-    handleSuperficieInput(event) {
-        this.selectedSuperficie = event.target.value;
-    }
-
     handleBackdropClick(event) {
         if (event.target.classList.contains('se-sheet-backdrop')) {
             this.closeNew();
@@ -353,7 +348,6 @@ export default class EstablecimientosMap extends LightningElement {
 
     resetForm() {
         this.selectedName = '';
-        this.selectedSuperficie = '';
         this.latitude = undefined;
         this.longitude = undefined;
     }

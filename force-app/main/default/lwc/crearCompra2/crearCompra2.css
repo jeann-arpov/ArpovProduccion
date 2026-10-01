@@ -3362,3 +3362,147 @@ a.c-tooltip {
         margin-top: 4px;
     }
 }
+
+/* —— Detalle de compra finalizada (Mis Compras) —— */
+.se-det .se-resumen {
+    min-height: 0;
+}
+
+.se-det-table td {
+    vertical-align: middle;
+}
+
+.se-det-biotech {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.se-det-estado,
+.se-det-licencia {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #eef1f7;
+    color: #1c1c1c;
+}
+
+.se-det-estado.is-ok,
+.se-det-licencia.is-ok {
+    background: #ecfccb;
+    color: #3f6212;
+}
+
+.se-det-estado.is-warn,
+.se-det-licencia.is-warn {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.se-det-factura {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin-left: 8px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1c1c1c;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.se-det-actions {
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.se-det-actions-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+@media (max-width: 760px) {
+    .se-det {
+        padding: 16px 14px 32px;
+    }
+
+    .se-det .se-title {
+        font-size: 24px;
+    }
+
+    .se-det .se-panel {
+        padding: 18px 16px;
+    }
+
+    .se-det-table-wrap {
+        border: none;
+        overflow: visible;
+    }
+
+    .se-det-table thead {
+        display: none;
+    }
+
+    .se-det-table,
+    .se-det-table tbody,
+    .se-det-table tr,
+    .se-det-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .se-det-table tbody tr {
+        margin-bottom: 12px;
+        padding: 12px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+    }
+
+    .se-det-table tbody tr:last-child {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .se-det-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 0;
+        text-align: right;
+    }
+
+    .se-det-table td.is-name {
+        display: block;
+        text-align: left;
+        font-size: 15px;
+        padding-bottom: 8px;
+    }
+
+    .se-det-table td:not(.is-name)::before {
+        content: attr(data-label);
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        text-align: left;
+    }
+
+    .se-det-actions,
+    .se-det-actions-right {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .se-det-actions .se-btn {
+        width: 100%;
+    }
+}

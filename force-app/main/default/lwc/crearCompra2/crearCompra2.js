@@ -67,6 +67,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     productor;
     showResumen = false;
     legacyResumenMode = false;
+    /** Compra "En Curso" abierta desde Mis Compras: el cultivo ya quedó fijado en la compra. */
+    compraRetomada = false;
     aceptaTerminos = false;
     semilleroIcono = false;
     showFileUploadModal = false;
@@ -152,6 +154,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     this.setData(compraData);
                     await this.finish();
                     await this.validarExpedienteDisponible(false);
+                    if (this.puedeEditar) {
+                        this.retomarCompraEnCurso();
+                    }
                     setTimeout(() => {
                         this.syncPromoQualificationState();
                         this.refreshAllLinePromoPrices();
@@ -892,6 +897,10 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleMobBack() {
+        if (this.compraRetomada && this.step <= 2) {
+            this.close();
+            return;
+        }
         if (this.step > 1 && !this.legacyResumenMode) {
             this.step -= 1;
             return;
@@ -910,7 +919,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             const num = index + 1;
             const isActive = num === current;
             const isDone = num < current;
-            const disabled = num > current;
+            const disabled = num > current || (this.compraRetomada && num === 1);
             return {
                 key: `wiz-${num}`,
                 num,
@@ -939,6 +948,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     handleWizardStepClick(event) {
         const clicked = Number(event.currentTarget.dataset.step);
         if (!clicked || clicked > this.uiStep || this.legacyResumenMode) return;
+        if (this.compraRetomada && clicked === 1) return;
         if (clicked <= this.step) {
             this.step = clicked;
         }
@@ -1484,6 +1494,88 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.variedadCantidades = map;
     }
 
+    retomarCompraEnCurso() {
+        this.compraRetomada = true;
+        this.legacyResumenMode = false;
+        this.showResumen = false;
+        this.syncVariedadCantidadesFromItems();
+        if (!this.tipoCompraSeleccionado) {
+            this.step = 2;
+        } else if (!this.semillero || !(this.variedades || []).length) {
+            this.step = 3;
+        } else {
+            this.step = 4;
+        }
+    }
+
+    // ====== DETALLE DE COMPRA FINALIZADA ======
+    get detalleEstado() {
+        const estado = this.data?.record?.Estado__c;
+        return estado === 'Creada' ? 'En Curso' : estado || '—';
+    }
+
+    get detalleFecha() {
+        return this.formatFechaCorta(this.data?.record?.CreatedDate);
+    }
+
+    get detalleTotalHt() {
+        const n = Number(this.data?.record?.Total_HT__c) || 0;
+        return n.toLocaleString('es-AR', { maximumFractionDigits: 0 });
+    }
+
+    get detalleTotalUsd() {
+        return this.formatUsd(this.data?.record?.Total_USD__c);
+    }
+
+    get detalleLineas() {
+        const pbes = Object.values(this.variedadesByObtentor || {}).flat();
+        return (this.items || [])
+            .filter((item) => item.record?.Id)
+            .map((item) => {
+                const rec = item.record;
+                const pbe = pbes.find((v) => v.value === rec.Id_Producto_de_Lista_de_Precio__c);
+                const qty = Number(rec.Cantidad__c) || 0;
+                const unit = Number(rec.Precio_de_Lista__c) || 0;
+                const estado = rec.Estado__c === 'Creada' ? 'En Curso' : rec.Estado__c || '—';
+                const tipo = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c;
+                let estadoClass = 'se-det-estado';
+                if (estado === 'Facturable') estadoClass += ' is-ok';
+                else if (estado === 'Pendiente') estadoClass += ' is-warn';
+                return {
+                    id: item.id,
+                    name: pbe?.label || rec.Producto__r?.Variedad2__r?.Name || rec.Producto__r?.Name || '—',
+                    biotech: rec.Producto__r?.Variedad2__r?.Biotecnologia__c || '',
+                    tipo: tipo ? `HT ${tipo}` : '—',
+                    fecha: this.formatFechaCorta(rec.Fecha_de_Activacion__c),
+                    ht: qty.toLocaleString('es-AR', { maximumFractionDigits: 0 }),
+                    unitPrice: unit.toLocaleString('es-AR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }),
+                    subtotal: this.formatUsd(qty * unit),
+                    estado,
+                    estadoClass,
+                    licencia: rec.Licencia__r?.Name || null,
+                    sinLicencia: !rec.Licencia__c && rec.Estado__c !== 'Creada',
+                    hasFactura: !!item.factura
+                };
+            });
+    }
+
+    formatFechaCorta(value) {
+        if (!value) return '—';
+        const [y, m, d] = String(value).slice(0, 10).split('-');
+        return y && m && d ? `${d}/${m}/${y}` : '—';
+    }
+
+    handleDetalleFactura(event) {
+        const id = event.currentTarget?.dataset?.id;
+        const item = (this.items || []).find((i) => String(i.id) === String(id));
+        if (item?.factura) {
+            this.openFactura({ detail: item.factura });
+        }
+    }
+
     async handleConfirmarCompra() {
         if (this.confirmarCompraDisabled) return;
         await this.finalizar();
@@ -1548,6 +1640,10 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleVolverPaso2() {
+        if (this.compraRetomada) {
+            this.close();
+            return;
+        }
         this.step = 1;
     }
 

@@ -478,181 +478,125 @@
       
     <div class={bloqueResumenClass}>
       <template if:true={showResumen}>
-        <!-- Header con logo y datos del productor -->
-        <div class="step-content vertical" style="display: none;">
-            <c-semillero-data-new data-id="semilleroComponent" placeholder="Seleccionar marca" 
-                            disabled={productorMissing} 
-                            missing-confirm-data={missingConfirmData} 
-                            semilleros={semilleros} 
-                            semillero-data={semilleroData} 
-                            onopencondicionescomerciales={openCondicionesComerciales} 
-                            onsemilleroselected={semilleroSelected} 
-                            onsemilleroiconready={handleSemilleroIconReady} 
-                            onconfirm={confirm} 
-                            onredirectmislicencias={redirectMisLicencias}>
-            </c-semillero-data-new>
-        </div>
-        <div class="venta-header">
-            <lightning-layout-item class="logo-container" style="width: 210px" padding="horizontal-small">
-                <template if:true={semilleroIcono}>
-                    <svg width="200" height="100">
-                        <use xlink:href={semilleroIcono}></use>
-                    </svg>
-                </template>
-                <template if:false={semilleroIcono}>
-                    <span class="logo-fallback">{resumenMarca}</span>
-                </template>
-            </lightning-layout-item>
-            <div class="info-box">
-                <div class="info-card">
-                    <label>CULTIVO</label>
-                    <div>{cultivoNombre}</div>
-                </div>
-                <div class="info-card">
-                    <label>PRODUCTOR</label>
-                    <div>{productorNombre}</div>
-                </div>
-                <div class="info-card">
-                    <label>CUIT NRO.</label>
-                    <div>{cuit}</div>
-                </div>
-            </div>
-        </div>
+        <div class="se-buy se-det">
+          <header class="se-buy-head">
+            <p class="se-eyebrow se-eyebrow-tight">Mis Compras · {detalleFecha}</p>
+            <h1 class="se-title">Detalle de la compra</h1>
+          </header>
 
-        <!-- Card de variedades -->
-        <div class="variedades-card">
-            <!-- 
-            <h3 class="titulo-variedades">
-                <svg class="" xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531" >
-                    <use xlink:href={icons.seed}></use>
-                </svg>
-                {variedadesTitle}
-            </h3>
-            <br>
-            -->
-            <!-- Header de tabla -->
-            <div class="variedades">
-                <div class="tabla-grid tabla-grid-header tabla-grid-con-tipo">
-                    <div class="col-header">
-                        <span if:false={finalizada}>Seleccioná </span>Variedad
-                    </div>
-                    <div class="col-header">Tipo de HT</div>
-                    <div class="col-header">Fecha Conversión</div>
-                    <div class="col-header">Cantidad HT</div>
-                    <div class="col-header">Precio Unit. (USD)</div>
-                    <div class="col-header">Total (USD)</div>
-                    <div class="col-header">Estado</div>
-                    <div class="col-header">Licencia</div>
-                    <div class="col-header"></div>
+          <div class="se-buy-layout">
+            <div class="se-buy-main">
+              <section class="se-panel">
+                <p class="se-eyebrow se-eyebrow-tight">{resumenCultivo} · {resumenMarca}</p>
+                <h2 class="se-panel-title">Variedades</h2>
+
+                <div class="se-confirm-table-wrap se-det-table-wrap">
+                  <table class="se-confirm-table se-det-table">
+                    <thead>
+                      <tr>
+                        <th>Variedad</th>
+                        <th>Tipo de HT</th>
+                        <th>Fecha conversión</th>
+                        <th class="is-num">HT</th>
+                        <th class="is-num">USD / HT</th>
+                        <th class="is-num">Subtotal</th>
+                        <th>Estado</th>
+                        <th>Licencia</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template for:each={detalleLineas} for:item="line">
+                        <tr key={line.id}>
+                          <td class="is-name" data-label="Variedad">
+                            {line.name}
+                            <template if:true={line.biotech}>
+                              <span class="se-det-biotech">{line.biotech}</span>
+                            </template>
+                          </td>
+                          <td class="is-muted" data-label="Tipo de HT">{line.tipo}</td>
+                          <td class="is-muted" data-label="Fecha conversión">{line.fecha}</td>
+                          <td class="is-num" data-label="HT">{line.ht}</td>
+                          <td class="is-num" data-label="USD / HT">{line.unitPrice}</td>
+                          <td class="is-num is-strong" data-label="Subtotal">{line.subtotal}</td>
+                          <td data-label="Estado">
+                            <span class={line.estadoClass}>{line.estado}</span>
+                            <template if:true={line.hasFactura}>
+                              <button type="button" class="se-det-factura" data-id={line.id} onclick={handleDetalleFactura}>Ver factura</button>
+                            </template>
+                          </td>
+                          <td data-label="Licencia">
+                            <template if:true={line.licencia}>
+                              <span class="se-det-licencia is-ok">{line.licencia}</span>
+                            </template>
+                            <template if:true={line.sinLicencia}>
+                              <span class="se-det-licencia is-warn">Sin licencia</span>
+                            </template>
+                          </td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
                 </div>
 
-                <template if:true={guardandoLineas}>
-                    <div class="guardando-lineas-panel">
-                        <span class="btn-spinner" aria-hidden="true"></span>
-                        <span>Guardando variedades...</span>
-                    </div>
-                </template>
-                <template if:false={guardandoLineas}>
-                    <template for:each={items} for:item="item" for:index="index">
-                        <div key={item.id} class="linea-variedad">
-                            <c-crear-linea-compra-new
-                                record={item.record}
-                                batch-saving={guardandoLineas}
-                                onloadingchange={handleLoadingChange}
-                                factura={item.factura}
-                                index={item.id}
-                                price-book-entries={variedades}
-                                semillero-id={semillero}
-                                ondelete={removeRow}
-                                cultivo-seleccionado={cultivoNombre}
-                                tipo-compra-seleccionado={tipoCompraSeleccionado}
-                                onrecord={updateRecord}
-                                onsave={saveRow}
-                                oncantidadchange={handleCantidadChange}
-                                ontipohtchange={handleTipoHtChange}
-                                onpromolinechange={handlePromoLineChange}
-                                onopenmodal={openModal}
-                                onopenfactura={openFactura}>
-                            </c-crear-linea-compra-new>
-                        </div>
+                <div class="se-confirm-billing">
+                  <strong>Datos de facturación:</strong> {facturacionLabel}
+                </div>
+
+                <div class="se-panel-actions se-panel-actions-spread se-det-actions">
+                  <button type="button" class="se-btn se-btn-ghost" onclick={close}>{closeLabel}</button>
+                  <div class="se-det-actions-right">
+                    <template if:true={puedeAnular}>
+                      <button type="button" class="se-btn se-btn-ghost" onclick={showAnularConfirm}>Anular</button>
                     </template>
-                </template>
-            </div>
-            
-
-           
-
-            <!-- Sección de agregar nueva variedad -->
-            <template if:true={puedeEditar}>
-            <template if:false={guardandoLineas}>
-            <div class="acciones-variedad">
-                <button type="button" onclick={addRow} class="add-variedad">
-                    <span class="plus-sign">+</span> Agregar Variedad
-                </button>
-            </div>
-            </template>
-            </template>
-
-            <!-- Totales -->
-            <template if:true={data.record}>
-                <div class="totales-bar">
-                    <div class="totales-resumen">
-                        <div class="totales-label">TOTALES</div>
-                        <div class="totales-valores">
-                            <div class="total-item">
-                                <span class="total-number">{data.record.Total_HT__c}</span>
-                                <span class="total-unit">HT</span>
-                            </div>
-                            <div class="total-item">
-                                <span class="total-number">{data.record.Total_USD__c}</span>
-                                <span class="total-unit">USD</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button if:true={mostrarFinalizarCompra} type="button" class="action-btn finalizar-btn" onclick={finalizar} disabled={finalizarDeshabilitado}>
-                        <template if:true={finalizandoOperacion}>
-                            <span class="btn-spinner" aria-hidden="true"></span>
-                            <span>Finalizando...</span>
-                        </template>
-                        <template if:false={finalizandoOperacion}>
-                            <span>Finalizar Compra</span>
-                            <span class="btn-arrow" aria-hidden="true">➞</span>
-                        </template>
-                    </button>
+                    <template if:true={puedeFacturar}>
+                      <button type="button" class="se-btn se-btn-ghost" onclick={facturar}>Facturar</button>
+                    </template>
+                    <template if:true={puedeRealizarNueva}>
+                      <button type="button" class="se-btn se-btn-primary" onclick={redirectToNew}>Nueva compra</button>
+                    </template>
+                  </div>
                 </div>
-            </template>
+              </section>
+            </div>
 
-            <template if:true={mostrarContinuar}>
-                <div class="totales-bar totales-bar-actions">
-                    <button type="button" class="action-btn continuar-btn" onclick={continuar} disabled={guardandoLineas}>
-                        <template if:true={guardandoLineas}>
-                            <span class="btn-spinner" aria-hidden="true"></span>
-                            <span>Guardando...</span>
-                        </template>
-                        <template if:false={guardandoLineas}>
-                            <span>Continuar</span>
-                            <span class="btn-arrow" aria-hidden="true">➞</span>
-                        </template>
-                    </button>
+            <aside class="se-resumen" aria-label="Resumen de la compra">
+              <p class="se-resumen-eyebrow">Resumen</p>
+              <h2 class="se-resumen-title">Compra de HT</h2>
+              <dl class="se-resumen-list">
+                <div class="se-resumen-row">
+                  <dt>Estado</dt>
+                  <dd>{detalleEstado}</dd>
                 </div>
-            </template>
+                <div class="se-resumen-row">
+                  <dt>Cultivo</dt>
+                  <dd>{resumenCultivo}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>Marca</dt>
+                  <dd>{resumenMarca}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>Productor</dt>
+                  <dd>{productorNombre}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>CUIT</dt>
+                  <dd>{cuit}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>HT</dt>
+                  <dd>{detalleTotalHt}</dd>
+                </div>
+              </dl>
+              <div class="se-resumen-total">
+                <span class="se-resumen-total-label">Total</span>
+                <span class="se-resumen-total-value">{detalleTotalUsd}</span>
+              </div>
+            </aside>
+          </div>
         </div>
       </template>
     </div>
-    
-    <template if:true={showLegacyFooter}>
-    <lightning-layout class="slds-m-top_large footer" horizontal-align="center">
-        <lightning-layout-item>
-            <template if:false={created}>
-                <lightning-button onclick={close} variant="brand" class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label={closeLabel}></lightning-button>
-                
-                <lightning-button if:true={puedeAnular} variant="brand" onclick={showAnularConfirm} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Anular"></lightning-button>
-                <lightning-button if:true={puedeFacturar} variant="brand" onclick={facturar} class="slds-m-top_medium slds-m-left--medium facturar" type="submit" label="Facturar"></lightning-button>
-                <lightning-button if:true={puedeRealizarNueva} variant="brand" onclick={redirectToNew} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Nueva Venta"></lightning-button>
-            </template>
-        </lightning-layout-item>
-    </lightning-layout>     
-    </template>     
 
     <!-- Spinner global -->
     <template if:true={isLoading}>
