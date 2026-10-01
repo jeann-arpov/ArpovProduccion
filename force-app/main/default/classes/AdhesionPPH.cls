@@ -567,6 +567,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         }
 
         upsert establecimientos;
+        EstablecimientoLocalidadQueueable.enqueue(establecimientos);
 
         for (Establecimiento est: data.establecimientos) {
             if (est.establecimientoPPH.Id == null) {

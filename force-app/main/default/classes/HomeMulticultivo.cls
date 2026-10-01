@@ -162,6 +162,7 @@ public without sharing class HomeMulticultivo {
             AND Cultivo__c IN :mapCultivos.keySet()
             AND Campania__c != null
             AND Saldo_Cuenta__c < 0
+            AND PPH_Adherida__c = false
             GROUP BY Cultivo__c
         ]) {
             cultivosConDeuda.add((Id) ar.get('cultivoId'));

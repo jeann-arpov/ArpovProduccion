@@ -304,8 +304,8 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
             return;
         }
         this[NavigationMixin.Navigate]({
-            type: 'standard__webPage',
-            attributes: { url: '/adhesion-pph' }
+            type: 'comm__namedPage',
+            attributes: { pageName: 'pre-certificacion' }
         });
     }
 

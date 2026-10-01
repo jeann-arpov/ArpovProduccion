@@ -142,7 +142,11 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
 
     get activeFilterCount() {
         let count = 0;
-        if (this.cultivos?.length && this.filterCultivoIds.length < this.cultivos.length) count++;
+        const tabIds = this.tabCultivoIds();
+        const sameAsTab =
+            this.filterCultivoIds.length === tabIds.length &&
+            tabIds.every((id) => this.filterCultivoIds.includes(id));
+        if (this.cultivos?.length && !sameAsTab) count++;
         if (this.anioOptions.length && this.filterAnios.length < this.anioOptions.length) count++;
         if (this.biotecnologiaOptions.length && this.filterBiotecnologias.length < this.biotecnologiaOptions.length) count++;
         if (this.origenOptions.length && this.filterOrigenes.length < this.origenOptions.length) count++;
@@ -220,9 +224,17 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
         }
     }
 
+    tabCultivoIds() {
+        if (this.summaryCultivoId) return [this.summaryCultivoId];
+        return (this.cultivos || []).map((c) => c.value);
+    }
+
     handleCultivoResumenSelect(event) {
         this.summaryCultivoId = event.detail?.value;
+        this.filterCultivoIds = this.tabCultivoIds();
+        this.draftCultivoIds = [...this.filterCultivoIds];
         this.loadSummary();
+        this.applyFilters();
     }
 
     get paramCultivo() {
@@ -288,7 +300,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
         this.biotecnologiaOptions = uniqueFromRows(rows, 'biotecnologiaKey', 'biotecnologia', 'Sin biotecnología');
         this.origenOptions = uniqueFromRows(rows, 'origenKey', 'origen', 'Sin origen');
 
-        this.filterCultivoIds = (this.cultivos || []).map((c) => c.value);
+        this.filterCultivoIds = this.tabCultivoIds();
         this.filterAnios = this.anioOptions.map((o) => o.value);
         this.filterBiotecnologias = this.biotecnologiaOptions.map((o) => o.value);
         this.filterOrigenes = this.origenOptions.map((o) => o.value);
@@ -347,7 +359,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     }
 
     handleClearFilters() {
-        this.filterCultivoIds = (this.cultivos || []).map((c) => c.value);
+        this.filterCultivoIds = this.tabCultivoIds();
         this.filterAnios = this.anioOptions.map((o) => o.value);
         this.filterBiotecnologias = this.biotecnologiaOptions.map((o) => o.value);
         this.filterOrigenes = this.origenOptions.map((o) => o.value);

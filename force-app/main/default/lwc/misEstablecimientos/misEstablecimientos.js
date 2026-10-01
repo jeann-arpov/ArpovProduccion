@@ -38,29 +38,23 @@ export default class MisEstablecimientos extends LightningElement {
 
     columns = [
         { label: 'Nombre', fieldName: 'title', type: 'link' },
-        { label: 'Origen', fieldName: 'origen' },
         { label: 'Localidad', fieldName: 'localidad' },
         { label: 'Provincia', fieldName: 'provincia' },
         { label: 'Latitud', fieldName: 'latLabel' },
         { label: 'Longitud', fieldName: 'lngLabel' },
         { label: 'Superficie', fieldName: 'superficieLabel' },
-        { label: 'Superficie sin sembrar', fieldName: 'superficieSinSembrarLabel' },
         { label: 'Cultivos declarados', fieldName: 'cultivo' },
-        { label: 'PPH', fieldName: 'pphLabel' },
         { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
         { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver detalle' }
     ];
 
     mobileFields = [
-        { label: 'Origen', fieldName: 'origen' },
         { label: 'Localidad', fieldName: 'localidad' },
         { label: 'Provincia', fieldName: 'provincia' },
         { label: 'Latitud', fieldName: 'latLabel' },
         { label: 'Longitud', fieldName: 'lngLabel' },
         { label: 'Superficie', fieldName: 'superficieLabel' },
-        { label: 'Sin sembrar', fieldName: 'superficieSinSembrarLabel' },
-        { label: 'Cultivos', fieldName: 'cultivo' },
-        { label: 'PPH', fieldName: 'pphLabel' }
+        { label: 'Cultivos', fieldName: 'cultivo' }
     ];
 
     connectedCallback() {
@@ -163,11 +157,9 @@ export default class MisEstablecimientos extends LightningElement {
             rows = rows.filter((row) => {
                 return (
                     (row.title && row.title.toLowerCase().includes(term)) ||
-                    (row.origen && row.origen.toLowerCase().includes(term)) ||
                     (row.localidad && row.localidad.toLowerCase().includes(term)) ||
                     (row.provincia && row.provincia.toLowerCase().includes(term)) ||
                     (row.cultivo && row.cultivo.toLowerCase().includes(term)) ||
-                    (row.pphLabel && row.pphLabel.toLowerCase().includes(term)) ||
                     (row.statusLabel && row.statusLabel.toLowerCase().includes(term)) ||
                     (row.superficieLabel && row.superficieLabel.toLowerCase().includes(term))
                 );
@@ -243,10 +235,6 @@ export default class MisEstablecimientos extends LightningElement {
 
     handleOpenMapa() {
         this.template.querySelector('c-establecimientos-map')?.openMap?.();
-    }
-
-    handleCargaMasiva() {
-        this.template.querySelector('c-import-establecimientos-excel')?.open();
     }
 
     handleEstablecimientoSaved() {
