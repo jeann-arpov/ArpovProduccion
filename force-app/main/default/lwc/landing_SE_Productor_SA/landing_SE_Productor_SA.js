@@ -146,15 +146,18 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
 
         const period = t.pphPeriod || '';
         let pphDescription = 'Precertificar libera el tope de entrega por hectárea declarada.';
-        if (t.pphInicioAdhesion && period) {
+        if (isAdherir) {
+            pphDescription = period
+                ? `Ya podés adherir a PPH para la campaña ${period}.`
+                : 'Ya podés adherir a PPH.';
+            if (t.pphFinAdhesion) {
+                pphDescription += ` Tenés hasta el ${t.pphFinAdhesion} para adherir.`;
+            }
+        } else if (t.pphAdhesionProxima === true && t.pphInicioAdhesion && period) {
             pphDescription = `La adhesión a PPH para la campaña ${period} se habilita el ${t.pphInicioAdhesion}.`;
             if (t.pphFinAdhesion) {
                 pphDescription += ` Vas a tener hasta el ${t.pphFinAdhesion} para adherir.`;
             }
-        } else if (isAdherir) {
-            pphDescription = period
-                ? `Ya podés adherir a PPH para la campaña ${period}.`
-                : 'Ya podés adherir a PPH.';
         }
         if (isRevision) {
             pphDescription = enRevisionDetalle;

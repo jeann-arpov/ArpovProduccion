@@ -514,6 +514,15 @@
     color: rgba(255, 255, 255, 0.85);
 }
 
+.home-benefit p + p {
+    margin-top: 6px;
+}
+
+.home-benefit strong {
+    color: #bfff00;
+    font-weight: 700;
+}
+
 .home-benefit-lead {
     font-weight: 700 !important;
     color: #fff !important;

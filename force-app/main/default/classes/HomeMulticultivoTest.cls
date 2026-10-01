@@ -366,4 +366,43 @@ public class HomeMulticultivoTest {
         );
         System.assertNotEquals(true, lejano.faseUrgent);
     }
+
+    @isTest
+    static void testResolveVersionUsaFinAdhesion() {
+        Date hoy = Date.today();
+        // Fin de adhesión posterior al fin de rectificación 2 (caso Soja 26/27)
+        Parametro_PPH__c param = new Parametro_PPH__c(
+            Fecha_Inicio_Adhesion_PPH__c = hoy.addDays(-30),
+            Fecha_Fin_Adhesion_PPH__c = hoy.addDays(120),
+            Fecha_Fin_Rectificacion_2__c = hoy.addDays(30)
+        );
+        Plan_de_Siembra__c adherido = new Plan_de_Siembra__c(Estado__c = 'Adherido');
+        Plan_de_Siembra__c revision = new Plan_de_Siembra__c(Estado__c = 'En Revisión');
+
+        System.assertEquals('adherir', HomeMulticultivo.resolveVersion(param, null, hoy.addDays(60)),
+            'Sin plan se puede adherir hasta el fin de adhesión aunque haya cerrado la rectificación 2');
+        System.assertEquals('comprar', HomeMulticultivo.resolveVersion(param, null, hoy.addDays(121)));
+        System.assertEquals('comprar', HomeMulticultivo.resolveVersion(param, null, hoy.addDays(-31)));
+        System.assertEquals('adherido', HomeMulticultivo.resolveVersion(param, adherido, hoy.addDays(60)));
+        System.assertEquals('revision', HomeMulticultivo.resolveVersion(param, revision, hoy));
+        System.assertEquals('comprar', HomeMulticultivo.resolveVersion(param, adherido, hoy.addDays(121)));
+        System.assertEquals(true, HomeMulticultivo.isInPphLifecycle(param, hoy.addDays(60)));
+
+        // Fin de rectificación 2 posterior: el adherido se sigue mostrando, pero ya no se puede adherir
+        Parametro_PPH__c conRect = new Parametro_PPH__c(
+            Fecha_Inicio_Adhesion_PPH__c = hoy.addDays(-30),
+            Fecha_Fin_Adhesion_PPH__c = hoy.addDays(10),
+            Fecha_Fin_Rectificacion_2__c = hoy.addDays(50)
+        );
+        System.assertEquals('comprar', HomeMulticultivo.resolveVersion(conRect, null, hoy.addDays(20)));
+        System.assertEquals('adherido', HomeMulticultivo.resolveVersion(conRect, adherido, hoy.addDays(20)));
+
+        // Sin fin de adhesión: usa la rectificación 2
+        Parametro_PPH__c soloRect = new Parametro_PPH__c(
+            Fecha_Inicio_Adhesion_PPH__c = hoy.addDays(-30),
+            Fecha_Fin_Rectificacion_2__c = hoy.addDays(5)
+        );
+        System.assertEquals('adherir', HomeMulticultivo.resolveVersion(soloRect, null, hoy));
+        System.assertEquals('comprar', HomeMulticultivo.resolveVersion(soloRect, null, hoy.addDays(6)));
+    }
 }

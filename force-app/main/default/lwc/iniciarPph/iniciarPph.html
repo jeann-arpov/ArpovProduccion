@@ -33,8 +33,7 @@
                     <section class="se-pph-resumen">
                         <p class="se-pph-resumen-eyebrow">Beneficios</p>
                         <p class="se-pph-resumen-lead">
-                            Gracias a tu adhesión a PPH vas a poder entregar el grano obtenido
-                            <strong>sin segregar tecnologías</strong>, de acuerdo a:
+                            Gracias a tu adhesión a PPH vas a poder entregar el grano obtenido <strong>sin segregar tecnologías</strong>, de acuerdo a:
                         </p>
                         <p class="se-pph-resumen-lead">
                             El rendimiento promedio de tu zona, según los datos informados por la
@@ -51,16 +50,13 @@
                     <button type="button" class="se-btn se-btn-primary" onclick={redirectAdhesion}>
                         Continuar →
                     </button>
-                    <template if:true={hasTycLinks}>
-                        <nav class="se-pph-tyc" aria-label="Términos y condiciones por cultivo">
-                            <template for:each={tycLinks} for:item="link">
-                                <button key={link.id} type="button" class="se-pph-tyc-link" data-id={link.id} title={link.title} onclick={openTyc}>{link.label}</button>
-                            </template>
-                        </nav>
-                    </template>
+                    <nav class="se-pph-tyc" aria-label="Términos y condiciones por cultivo">
+                        <template for:each={tycLinks} for:item="link">
+                            <a key={link.id} class="se-pph-tyc-link" href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
+                        </template>
+                    </nav>
                 </footer>
             </div>
-            <c-pdf-reader></c-pdf-reader>
         </template>
 
         <template if:false={hasHTs}>

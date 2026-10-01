@@ -1,11 +1,26 @@
 import { LightningElement } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import hasHT from '@salesforce/apex/AdhesionPPH.hasHT';
-import getTycDocumentos from '@salesforce/apex/AdhesionPPHHome.getTycDocumentos';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { reduceErrors } from 'c/utils';
 
-const CULTIVO_ORDER = ['SOJA', 'TRIGO', 'CEBADA'];
+const TYC_PPH_LINKS = [
+    {
+        id: 'soja',
+        label: 'Ver T&C Soja',
+        url: 'https://sembraevolucion.com.ar/wp-content/uploads/2026/10/Terminos-y-Condiciones_Soja_PPH_Campana_26_27.pdf'
+    },
+    {
+        id: 'trigo',
+        label: 'Ver T&C Trigo',
+        url: 'https://sembraevolucion.com.ar/wp-content/uploads/2026/10/Terminos-y-Condiciones_Trigo_PPH_Campana_26_27.pdf'
+    },
+    {
+        id: 'cebada',
+        label: 'Ver T&C Cebada',
+        url: 'https://sembraevolucion.com.ar/wp-content/uploads/2026/09/Terminos-y-Condiciones_Cebada_PPH_Campana_26_27.pdf'
+    }
+];
 
 export default class IniciarPph extends NavigationMixin(LightningElement) {
     initialized = false;
@@ -28,11 +43,7 @@ export default class IniciarPph extends NavigationMixin(LightningElement) {
         }
     ];
 
-    tycLinks = [];
-
-    get hasTycLinks() {
-        return this.tycLinks.length > 0;
-    }
+    tycLinks = TYC_PPH_LINKS;
 
     connectedCallback() {
         document.documentElement.classList.add('se-inner');
@@ -53,41 +64,6 @@ export default class IniciarPph extends NavigationMixin(LightningElement) {
         } catch (e) {
             this.onError(e);
         }
-        this.loadTyc();
-    }
-
-    async loadTyc() {
-        try {
-            const docs = await getTycDocumentos();
-            const rank = (c) => {
-                const i = CULTIVO_ORDER.indexOf((c || '').toUpperCase());
-                return i === -1 ? CULTIVO_ORDER.length : i;
-            };
-            this.tycLinks = [...(docs || [])]
-                .sort((a, b) => rank(a.cultivo) - rank(b.cultivo))
-                .map((d) => {
-                    const nombre = (d.cultivo || '').toLowerCase();
-                    const cultivo = nombre.charAt(0).toUpperCase() + nombre.slice(1);
-                    return {
-                        id: d.contentDocumentId,
-                        label: `Ver T&C ${cultivo}`,
-                        title: `Términos y Condiciones PPH · ${d.parametro}`
-                    };
-                });
-        } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error('[iniciarPph] getTycDocumentos', e);
-            this.tycLinks = [];
-        }
-    }
-
-    openTyc(event) {
-        const link = this.tycLinks.find((l) => l.id === event.currentTarget.dataset.id);
-        if (!link) return;
-        this.template.querySelector('c-pdf-reader')?.show({
-            documentId: link.id,
-            title: link.title
-        });
     }
 
     renderedCallback() {

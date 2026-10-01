@@ -26,6 +26,7 @@ public without sharing class HomeMulticultivo {
         @AuraEnabled public String pphPeriod;
         @AuraEnabled public String pphInicioAdhesion;
         @AuraEnabled public String pphFinAdhesion;
+        @AuraEnabled public Boolean pphAdhesionProxima;
     }
 
     @AuraEnabled
@@ -181,18 +182,14 @@ public without sharing class HomeMulticultivo {
 
         for (Id cultivoId : mapCultivoParametro.keySet()) {
             Parametro_PPH__c param = mapCultivoParametro.get(cultivoId);
+            Plan_de_Siembra__c plan = mapPlanesSiembra.get(param.Id);
+            String version = resolveVersion(param, plan, Date.today());
             Decimal saldo;
-            String version;
-            if (Date.today() < param.Fecha_Inicio_Adhesion_PPH__c || Date.today() > param.Fecha_Fin_Rectificacion_2__c) {
-                saldo = mapSaldos.containsKey(cultivoId) ? mapSaldos.get(cultivoId) : 0;
-                version = 'comprar';
-            } else if (!mapPlanesSiembra.containsKey(param.Id)) {
-                saldo = mapSaldos.containsKey(cultivoId) ? mapSaldos.get(cultivoId) : 0;
-                version = 'adherir';
-            } else {
-                version = mapPlanesSiembra.get(param.Id).Estado__c == 'En Revisión' ? 'revision' : 'adherido';
-                saldo = mapSaldosAdheridos.get(mapPlanesSiembra.get(param.Id).Id);
+            if (version == 'adherido' || version == 'revision') {
+                saldo = mapSaldosAdheridos.get(plan.Id);
                 if (saldo == null) saldo = 0;
+            } else {
+                saldo = mapSaldos.containsKey(cultivoId) ? mapSaldos.get(cultivoId) : 0;
             }
 
             Decimal htSinConsumir = mapHtSinConsumir.containsKey(cultivoId)
@@ -224,11 +221,9 @@ public without sharing class HomeMulticultivo {
             String period = camp != null ? formatPeriod(camp.Ano__c) : null;
             t.pphPeriod = period;
             t.pphInicioAdhesion = formatDate(param.Fecha_Inicio_Adhesion_PPH__c);
-            t.pphFinAdhesion = formatDate(
-                param.Fecha_Fin_Adhesion_PPH__c != null
-                    ? param.Fecha_Fin_Adhesion_PPH__c
-                    : param.Fecha_Fin_Rectificacion_2__c
-            );
+            t.pphAdhesionProxima = param.Fecha_Inicio_Adhesion_PPH__c != null
+                && Date.today() < param.Fecha_Inicio_Adhesion_PPH__c;
+            t.pphFinAdhesion = formatDate(getFinAdhesion(param));
 
             if (version == 'adherido' && mapPlanesSiembra.containsKey(param.Id)) {
                 Id planId = mapPlanesSiembra.get(param.Id).Id;
@@ -290,10 +285,45 @@ public without sharing class HomeMulticultivo {
     private static Boolean isInPphLifecycle(Parametro_PPH__c param, Date today) {
         if (param == null || param.Fecha_Inicio_Adhesion_PPH__c == null) return false;
         if (today < param.Fecha_Inicio_Adhesion_PPH__c) return false;
-        if (param.Fecha_Fin_Rectificacion_2__c != null && today > param.Fecha_Fin_Rectificacion_2__c) {
+        Date finCiclo = getFinCiclo(param);
+        if (finCiclo != null && today > finCiclo) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Sin plan: se puede adherir entre el inicio y el fin de adhesión (mismo criterio que AdhesionPPH).
+     * Con plan Adherido / En Revisión: se muestra hasta el fin del ciclo (adhesión o rectificación 2, la que sea posterior).
+     */
+    @TestVisible
+    private static String resolveVersion(Parametro_PPH__c param, Plan_de_Siembra__c plan, Date today) {
+        Boolean empezo = param.Fecha_Inicio_Adhesion_PPH__c == null || today >= param.Fecha_Inicio_Adhesion_PPH__c;
+        if (!empezo) return 'comprar';
+
+        if (plan != null) {
+            Date finCiclo = getFinCiclo(param);
+            if (finCiclo != null && today > finCiclo) return 'comprar';
+            return plan.Estado__c == 'En Revisión' ? 'revision' : 'adherido';
+        }
+
+        Date finAdhesion = getFinAdhesion(param);
+        if (finAdhesion != null && today > finAdhesion) return 'comprar';
+        return 'adherir';
+    }
+
+    private static Date getFinAdhesion(Parametro_PPH__c param) {
+        return param.Fecha_Fin_Adhesion_PPH__c != null
+            ? param.Fecha_Fin_Adhesion_PPH__c
+            : param.Fecha_Fin_Rectificacion_2__c;
+    }
+
+    private static Date getFinCiclo(Parametro_PPH__c param) {
+        Date finAdhesion = param.Fecha_Fin_Adhesion_PPH__c;
+        Date finRect2 = param.Fecha_Fin_Rectificacion_2__c;
+        if (finAdhesion == null) return finRect2;
+        if (finRect2 == null) return finAdhesion;
+        return finAdhesion > finRect2 ? finAdhesion : finRect2;
     }
 
     private static Boolean isBetterTieBreak(Parametro_PPH__c candidate, Parametro_PPH__c current) {
