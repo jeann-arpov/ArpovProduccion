@@ -5,7 +5,7 @@ import apexConfirmLogin from '@salesforce/apex/RegisterCommunityController.confi
 import apexLoginWithPassword from '@salesforce/apex/RegisterCommunityController.loginWithPassword';
 import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLogoSE';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
-import seLogoUrl from '@salesforce/resourceUrl/seLogoHorizontal';
+import seLogoUrl from '@salesforce/resourceUrl/seLogoPngOscuro';
 import geneticaIconUrl from '@salesforce/resourceUrl/seIconGenetica';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import sitePath from '@salesforce/community/basePath';

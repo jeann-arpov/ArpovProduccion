@@ -113,7 +113,9 @@
                                 </svg>
                             </span>
                             <span class="home-phase-pill">{crop.faseLabel}</span>
-                            <span class="home-phase-hito">{crop.faseHitoFull}</span>
+                            <template if:true={crop.faseHitoFull}>
+                                <span class="home-phase-hito">{crop.faseHitoFull}</span>
+                            </template>
                         </div>
                     </template>
 
@@ -130,7 +132,6 @@
                             </div>
                             <div class="home-cta-row">
                                 <button type="button" class="home-btn home-btn-primary home-btn-block-mob" onclick={goCompraHT}>{crop.buyLabel}</button>
-                                <span class="home-note">{crop.buyNote}</span>
                             </div>
                         </section>
                     </template>

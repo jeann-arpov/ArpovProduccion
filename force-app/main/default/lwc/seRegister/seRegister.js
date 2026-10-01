@@ -4,7 +4,7 @@ import verifyUserCreation from '@salesforce/apex/RegisterCommunityController.ver
 import confirmUserCreation from '@salesforce/apex/RegisterCommunityController.confirmUserCreation';
 import doCreateUser from '@salesforce/apex/RegisterCommunityController.doCreateUser';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
-import seLogoUrl from '@salesforce/resourceUrl/seLogoHorizontal';
+import seLogoUrl from '@salesforce/resourceUrl/seLogoPngOscuro';
 import geneticaIconUrl from '@salesforce/resourceUrl/seIconGenetica';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import sitePath from '@salesforce/community/basePath';

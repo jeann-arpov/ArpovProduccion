@@ -125,6 +125,21 @@ public without sharing class HomeMulticultivo {
             }
         }
 
+        // Mismo criterio que el total de Movimientos HT (ComprasHTController.getResumenBiotecnologiaPorCultivo)
+        Map<Id, Decimal> mapHtAdquirida = new Map<Id, Decimal>();
+        for (AggregateResult ar : [
+            SELECT Cultivo__c cultivo, SUM(Cantidad_con_Signo__c) saldo
+            FROM Hectareas_Tecnologicas__c
+            WHERE Cultivo__c IN :mapCultivos.keySet()
+            AND Productor__c = :productorId
+            AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica', 'PPH')
+            AND HT_Vigente__c = true
+            GROUP BY Cultivo__c
+        ]) {
+            Decimal total = (Decimal) ar.get('saldo');
+            mapHtAdquirida.put((Id) ar.get('cultivo'), total != null ? total : 0);
+        }
+
         Map<Id, Decimal> mapHtSinConsumir = new Map<Id, Decimal>();
         for (AggregateResult ar : [
             SELECT Cultivo__c cultivoId, SUM(Saldo_Cuenta__c) total
@@ -190,8 +205,7 @@ public without sharing class HomeMulticultivo {
             Decimal htFuturas = mapSaldos.containsKey(cultivoId) ? mapSaldos.get(cultivoId) : 0;
             if (htFuturas == null) htFuturas = 0;
 
-            Decimal htAdquirida = htSinConsumir > 0 ? htSinConsumir : htFuturas;
-            if (htAdquirida == null) htAdquirida = saldo != null ? saldo : 0;
+            Decimal htAdquirida = mapHtAdquirida.containsKey(cultivoId) ? mapHtAdquirida.get(cultivoId) : 0;
 
             Tarjeta t = new Tarjeta();
             t.cultivo = mapCultivos.get(cultivoId);
@@ -334,32 +348,13 @@ public without sharing class HomeMulticultivo {
         if (camp == null) return;
 
         String period = formatPeriod(camp.Ano__c);
-        Date today = Date.today();
 
         if (camp.Estado__c == 'En Preparación' && camp.Fecha_de_Inicio__c != null) {
-            Integer dias = today.daysBetween(camp.Fecha_de_Inicio__c);
             t.hasFase = true;
             t.faseLabel = 'Precampaña ' + period;
-            t.faseHito = 'Arranca el ' + formatDate(camp.Fecha_de_Inicio__c);
-            t.faseDias = dias >= 0 ? dias : 0;
-            t.faseUrgent = false;
         } else if (camp.Estado__c == 'Activa') {
             t.hasFase = true;
             t.faseLabel = 'Campaña ' + period;
-            if (camp.Fecha_de_Fin__c != null) {
-                Integer dias = today.daysBetween(camp.Fecha_de_Fin__c);
-                t.faseHito = 'Cierra el ' + formatDate(camp.Fecha_de_Fin__c);
-                t.faseDias = dias >= 0 ? dias : 0;
-                t.faseUrgent = dias >= 0 && dias <= URGENCIA_DIAS;
-            } else if (camp.Fecha_de_Inicio__c != null) {
-                t.faseHito = 'Desde el ' + formatDate(camp.Fecha_de_Inicio__c);
-                t.faseDias = null;
-                t.faseUrgent = false;
-            } else {
-                t.faseHito = 'Campaña activa';
-                t.faseDias = null;
-                t.faseUrgent = false;
-            }
         }
     }
 

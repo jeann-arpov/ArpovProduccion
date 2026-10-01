@@ -2,7 +2,7 @@ import { LightningElement, track, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { loadStyle } from 'lightning/platformResourceLoader';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
-import MY_LOGO from '@salesforce/resourceUrl/SembraEvolucionLogo';
+import MY_LOGO from '@salesforce/resourceUrl/seLogoPngBlanco';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import USER_ID from '@salesforce/user/Id';
 import NAME_FIELD from '@salesforce/schema/User.Name';

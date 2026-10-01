@@ -177,9 +177,6 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
             faseHitoFull,
             htAdquiridaLabel: `${NUMBER_FMT.format(htAdq)} HT`,
             buyLabel: 'Comprar HT →',
-            buyNote: hasFase && (t.faseLabel || '').toLowerCase().includes('pre')
-                ? 'Accedé a un precio diferencial en precampaña.'
-                : 'Campaña abierta con precio diferencial.',
             isRevision,
             pphStatus: isAdherido ? 'ADHERIDO' : isRevision ? 'EN REVISIÓN' : 'SIN ADHERIR',
             pphStatusClass: 'home-pill' + (isAdherido ? ' is-lima' : isRevision ? ' is-revision' : ' is-gris'),
