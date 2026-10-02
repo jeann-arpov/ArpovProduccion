@@ -549,6 +549,26 @@
     flex-shrink: 0;
 }
 
+.se-marca-badge.has-logo {
+    width: 64px;
+    height: 34px;
+    padding: 2px 4px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+}
+
+.se-marca-logo {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.se-panel-title-solo {
+    margin-bottom: 16px;
+}
+
 .se-marca-name {
     flex: 1;
     min-width: 0;
@@ -3332,8 +3352,16 @@ a.c-tooltip {
         gap: 10px 20px;
     }
 
+    .se-result-grid-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+    }
+
     .se-result-grid-item .se-result-k {
-        margin-bottom: 2px;
+        margin-bottom: 0;
+        flex-shrink: 0;
     }
 
     .se-result-grid-item .se-result-total {

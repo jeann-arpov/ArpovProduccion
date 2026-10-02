@@ -14,6 +14,8 @@ import { CompraVentaMixin } from 'c/utilsHTNew';
 import { NavigationMixin } from 'lightning/navigation';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import basePath from '@salesforce/community/basePath';
+import icons from 'c/icons';
+import { PAGES, communityPageUrl } from 'c/seNav';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {
     isHtFuturaPromoScreen,
@@ -35,6 +37,17 @@ import {
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
 const FECHA_INICIO_STINE_DEFAULT = '2026-09-21';
 const FECHA_FIN_STINE_DEFAULT = '2026-10-31';
+
+/** BASF/Credenz solo trae un <symbol> en el SVG (no se ve en <img>) y ACA no tiene SVG. */
+const SEMILLEROS_LOGO_JPG = ['77', '26'];
+
+function semilleroLogoUrl(idObtentor) {
+    if (SEMILLEROS_LOGO_JPG.includes(idObtentor)) {
+        return icons.marcas?.[idObtentor] || null;
+    }
+    const sprite = icons.semilleros?.[idObtentor];
+    return sprite ? sprite.split('#')[0] : null;
+}
 
 /** Mapeo variedad → tecnología de licencia (CesionPPH.getMapBiotecnologias). */
 const MAP_TECNOLOGIAS_LICENCIA = {
@@ -69,7 +82,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     legacyResumenMode = false;
     /** Compra "En Curso" abierta desde Mis Compras: el cultivo ya quedó fijado en la compra. */
     compraRetomada = false;
-    aceptaTerminos = false;
+    /** Marca a la que pertenecen las cantidades de variedadCantidades (se conservan al volver de paso). */
+    semilleroCantidades = null;
     semilleroIcono = false;
     showFileUploadModal = false;
     isLoading = false;   // ✅ Nuevo estado para spinner
@@ -308,21 +322,19 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         ];
 
         const STINE_NAME = 'M.S. TECHNOLOGIES ARGENTINA S.R.L.';
-        const semilleroId = this.semilleroData?.semillero?.Id || this.DataCompra?.semilleroData?.semillero?.Id;
-        const semilleroName =
-            this.semilleroData?.semillero?.Name ||
-            this.DataCompra?.semilleroData?.semillero?.Name ||
-            '';
+        const STINE_ID_OBTENTOR = '24';
+        const idObtentor =
+            this.semillero ||
+            this.semilleroData?.semillero?.Id_Obtentor__c ||
+            this.DataCompra?.semilleroData?.semillero?.Id_Obtentor__c;
+        const esStineSeleccionado = idObtentor === STINE_ID_OBTENTOR || this.esMarcaStine;
 
         for (const rec of lineas) {
             const obtentorName = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || '';
             const obtentorId = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__c || '';
             const tipoCompra = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || '';
             const esObtentorStineExacto =
-                obtentorName === STINE_NAME ||
-                obtentorId === semilleroId ||
-                (semilleroName === STINE_NAME && !!obtentorId) ||
-                this.esMarcaStine;
+                obtentorName === STINE_NAME || (esStineSeleccionado && !!obtentorId);
             const esTipoFutura = tipoCompra === 'Futura' || this.Futura === true;
             if (esObtentorStineExacto && esTipoFutura) return true;
         }
@@ -803,7 +815,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     get mobFooterStepLabel() {
-        return this.step === 5 ? 'Total a pagar' : this.wizardProgressLabel;
+        return this.step === 5 ? 'Total Neto' : this.wizardProgressLabel;
     }
 
     get mobFooterStatus() {
@@ -1108,24 +1120,20 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     get licensesHref() {
-        const path = (basePath || '').replace(/\/$/, '');
-        return `${path}/licencias`;
+        return communityPageUrl(PAGES.licencias);
     }
 
     get selectedVariedadCount() {
-        return this.decoratedVariedadesPaso4.filter((v) => v.qty > 0 && v.hasLicencia).length;
+        return this.decoratedVariedadesPaso4.filter((v) => v.qty > 0).length;
     }
 
     get selectedVariedadHtTotal() {
-        return this.decoratedVariedadesPaso4.reduce(
-            (sum, v) => sum + (v.hasLicencia ? v.qty : 0),
-            0
-        );
+        return this.decoratedVariedadesPaso4.reduce((sum, v) => sum + v.qty, 0);
     }
 
     get selectedVariedadUsdTotal() {
         return this.decoratedVariedadesPaso4.reduce(
-            (sum, v) => sum + (v.hasLicencia && v.qty > 0 ? v.qty * v.unitPrice : 0),
+            (sum, v) => sum + (v.qty > 0 ? v.qty * v.unitPrice : 0),
             0
         );
     }
@@ -1169,22 +1177,26 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 const selected = this.semillero === s.value;
                 const letters = (s.label || '').replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, '');
                 const initials = (letters.slice(0, 2) || '??').toUpperCase();
+                const logo = this.logosFallidos.includes(s.value) ? null : semilleroLogoUrl(s.value);
                 return {
                     id: s.value,
                     label: s.label,
                     initials,
+                    logo,
+                    badgeClass: 'se-marca-badge' + (logo ? ' has-logo' : ''),
                     ariaChecked: selected ? 'true' : 'false',
                     cssClass: 'se-marca-tile' + (selected ? ' is-selected' : '')
                 };
             });
     }
 
-    get marcaCountLabel() {
-        const n = (this.filteredSemilleros || []).length;
-        const cultivo = this.cultivoNombre || 'este cultivo';
-        const noun = n === 1 ? 'semillero' : 'semilleros';
-        const adj = n === 1 ? 'disponible' : 'disponibles';
-        return `${n} ${noun} ${adj} para ${cultivo} · el listado cambia si el cultivo cambia.`;
+    logosFallidos = [];
+
+    handleMarcaLogoError(event) {
+        const id = event.currentTarget?.dataset?.id;
+        if (id && !this.logosFallidos.includes(id)) {
+            this.logosFallidos = [...this.logosFallidos, id];
+        }
     }
 
     handleMarcaSearch(event) {
@@ -1210,7 +1222,10 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         await this.requestWrap(async () => {
             this.semilleroData = await this.getSemilleroData();
         });
-        this.variedadCantidades = {};
+        if (this.semilleroCantidades !== this.semillero) {
+            this.variedadCantidades = {};
+        }
+        this.semilleroCantidades = this.semillero;
         this.variedadSearch = '';
         this.step = 4;
         trackGa4Event('ht_seleccion_semillero', {
@@ -1277,15 +1292,15 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     name,
                     category: biotech || '',
                     unitPrice,
-                    qty: hasLicencia ? qty : 0,
+                    qty,
                     hasLicencia,
-                    showSubtotal: hasLicencia && qty > 0,
+                    showSubtotal: qty > 0,
                     minusDisabled: qty <= 0,
                     priceLabel: `${this.formatUsd(unitPrice)} / HT`,
                     subtotalLabel: this.formatUsd(subtotal),
                     badgeLabel: hasLicencia ? 'Con Licencia' : 'Sin Licencia',
                     badgeClass: 'se-var-badge ' + (hasLicencia ? 'is-ok' : 'is-warn'),
-                    cssClass: 'se-var-card' + (hasLicencia ? '' : ' is-locked')
+                    cssClass: 'se-var-card'
                 };
             })
             .filter((v) => {
@@ -1302,12 +1317,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     setVariedadCantidad(id, rawValue) {
-        const entry = (this.variedades || []).find(
-            (item) => (item.value || item.record?.Id) === id
-        );
-        const biotech = entry?.record?.Product2?.Variedad2__r?.Biotecnologia__c || '';
-        if (!this.varietyHasLicencia(biotech)) return;
-
         const next = Math.max(0, Math.floor(Number(rawValue) || 0));
         this.variedadCantidades = { ...this.variedadCantidades, [id]: next };
     }
@@ -1333,7 +1342,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     handleContinuarPaso4() {
         if (this.continuarPaso4Disabled) return;
-        this.aceptaTerminos = false;
         this.step = 5;
         Promise.resolve().then(() => {
             this.syncPromoQualificationState();
@@ -1366,7 +1374,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     async persistSelectedVariedades() {
-        const selected = this.decoratedVariedadesPaso4.filter((v) => v.hasLicencia && v.qty > 0);
+        const selected = this.decoratedVariedadesPaso4.filter((v) => v.qty > 0);
         if (selected.length) await this.descartarCompraDeOtraMarca();
         let lastData = null;
         for (const v of selected) {
@@ -1447,7 +1455,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         }
 
         return this.decoratedVariedadesPaso4
-            .filter((v) => v.hasLicencia && v.qty > 0)
+            .filter((v) => v.qty > 0)
             .map((v) => ({
                 id: v.id,
                 name: v.name,
@@ -1463,21 +1471,18 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     get facturacionLabel() {
         const parts = [this.productorNombre, this.cuit ? `CUIT ${this.cuit}` : null].filter(Boolean);
-        const base = parts.join(' · ');
-        return base ? `${base} · Débito de Cuenta Granaria.` : 'Débito de Cuenta Granaria.';
+        return parts.join(' · ') || '—';
     }
 
     get confirmarCompraDisabled() {
-        return !this.aceptaTerminos || this.finalizandoOperacion;
-    }
-
-    handleToggleTerminos(event) {
-        this.aceptaTerminos = event.target.checked;
+        return this.finalizandoOperacion;
     }
 
     handleVolverPaso5() {
-        this.aceptaTerminos = false;
-        this.syncVariedadCantidadesFromItems();
+        const hayCantidades = Object.values(this.variedadCantidades || {}).some((q) => Number(q) > 0);
+        if (!hayCantidades) {
+            this.syncVariedadCantidadesFromItems();
+        }
         this.variedadSearch = '';
         this.step = 4;
     }
@@ -1499,6 +1504,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.legacyResumenMode = false;
         this.showResumen = false;
         this.syncVariedadCantidadesFromItems();
+        this.semilleroCantidades = this.semillero;
         if (!this.tipoCompraSeleccionado) {
             this.step = 2;
         } else if (!this.semillero || !(this.variedades || []).length) {
@@ -1997,8 +2003,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     requiresTipoPago() {
-                return ['03','14','85'].includes(this.semillero) && this.cultivoNombre === 'SOJA';
-
+        // Solo Stine elige forma de pago (gate forma-pago-stine); el resto confirma la compra directo.
+        return false;
     }
 
     get tipoPagoContadoCardClass() {
@@ -2211,11 +2217,10 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     get resumenLicencia() {
-        return this.semilleroData?.licencia?.Name ? 'Vigente' : 'Pendiente';
-    }
-
-    get resultCodigoCompra() {
-        return this.data?.record?.Name || '—';
+        const lic = this.semilleroData?.licencia || this.DataCompra?.semilleroData?.licencia;
+        if (!lic?.Id && this.haveLicence !== true) return 'Pendiente';
+        const adenda = lic?.Estado_Adenda__c;
+        return adenda && adenda !== 'NA' ? `Vigente · ${adenda}` : 'Vigente';
     }
 
     get resultVariedadesLabel() {

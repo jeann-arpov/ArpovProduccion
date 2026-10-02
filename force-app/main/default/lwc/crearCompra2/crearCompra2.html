@@ -61,8 +61,7 @@
           <template if:true={isStep1Active}>
               <section class="se-panel se-panel-step1">
                 <p class="se-eyebrow se-eyebrow-tight">{campaignLabel}</p>
-                <h2 class="se-panel-title">Elegí el cultivo</h2>
-                <p class="se-panel-sub">Solo cultivos con saldo de HT disponible.</p>
+                <h2 class="se-panel-title se-panel-title-solo">Elegí el cultivo</h2>
                 <div class="se-cultivo-grid" role="radiogroup" aria-label="Cultivo">
                   <template for:each={decoratedCultivos} for:item="c">
                     <button
@@ -103,7 +102,7 @@
               <section class="se-panel">
                 <p class="se-eyebrow se-eyebrow-tight">{tipoStepEyebrow}</p>
                 <h2 class="se-panel-title">Tipo de HT</h2>
-                <p class="se-panel-sub">Elegí cómo se acreditan las toneladas.</p>
+                <p class="se-panel-sub">Elegí cómo se acreditan las toneladas tecnológicas.</p>
                 <div class="se-tipo-grid" role="radiogroup" aria-label="Tipo de HT">
                   <template for:each={decoratedTiposCompra} for:item="tc">
                     <button
@@ -127,9 +126,6 @@
                     </button>
                   </template>
                 </div>
-                <div class="se-tipo-help" role="note">
-                  <strong>¿Cuál elijo?</strong> Si vas a precertificar en PPH, elegí <em>Futura</em>. Si necesitás toneladas ya acreditadas, <em>Disponible</em>.
-                </div>
                 <div class="se-panel-actions se-panel-actions-spread se-desk-only">
                   <button type="button" class="se-btn se-btn-ghost" onclick={handleVolverPaso2}>← Volver</button>
                   <button
@@ -147,10 +143,7 @@
               <section class="se-panel se-panel-step3">
                 <div class="se-panel-intro">
                   <p class="se-eyebrow se-eyebrow-tight">{marcaStepEyebrow}</p>
-                  <h2 class="se-panel-title">Elegí la marca</h2>
-                  <p class="se-panel-sub">
-                    Semilleros con licencias vigentes para <strong>{cultivoNombre}</strong>. Filtrado dinámicamente según el paso 1.
-                  </p>
+                  <h2 class="se-panel-title se-panel-title-solo">Elegí la marca</h2>
 
                   <div class="se-marca-search">
                     <span class="se-marca-search-icon" aria-hidden="true">
@@ -182,14 +175,17 @@
                         data-id={m.id}
                         onclick={handleSelectMarca}
                       >
-                        <span class="se-marca-badge">{m.initials}</span>
+                        <span class={m.badgeClass}>
+                          <template if:true={m.logo}>
+                            <img src={m.logo} alt="" class="se-marca-logo" data-id={m.id} onerror={handleMarcaLogoError} />
+                          </template>
+                          <template if:false={m.logo}>{m.initials}</template>
+                        </span>
                         <span class="se-marca-name">{m.label}</span>
                         <span class="se-marca-radio" aria-hidden="true"></span>
                       </button>
                     </template>
                   </div>
-
-                  <p class="se-marca-count">{marcaCountLabel}</p>
                 </div>
 
                 <div class="se-panel-actions se-panel-actions-spread se-desk-only">
@@ -243,7 +239,6 @@
                         <span class={v.badgeClass}>{v.badgeLabel}</span>
                       </div>
 
-                      <template if:true={v.hasLicencia}>
                         <div class="se-var-row">
                           <div class="se-var-price">
                             <template if:true={v.showSubtotal}>{v.priceLabel}</template>
@@ -286,11 +281,10 @@
                             <strong>{v.subtotalLabel}</strong>
                           </div>
                         </template>
-                      </template>
 
                       <template if:false={v.hasLicencia}>
                         <p class="se-var-locked">
-                          Gestioná la licencia en <a href={licensesHref} target="_blank" rel="noopener noreferrer">Licencias</a> para poder comprarla.
+                          Podés comprarla igual: la compra queda pendiente hasta que gestiones la licencia en <a href={licensesHref}>Licencias</a>.
                         </p>
                       </template>
                     </article>
@@ -318,7 +312,7 @@
                 <div class="se-confirm-mob">
                   <div class="se-confirm-hero">
                     <div class="se-confirm-hero-top">
-                      <span class="se-confirm-hero-label">Total a pagar</span>
+                      <span class="se-confirm-hero-label">Total Neto</span>
                       <span class="se-confirm-hero-total">{resumenTotal}</span>
                     </div>
                     <dl class="se-confirm-hero-list">
@@ -364,7 +358,7 @@
                       <thead>
                         <tr>
                           <th>Variedad</th>
-                          <th>Ciclo · Biotec</th>
+                          <th>Biotecnología</th>
                           <th class="is-num">HT</th>
                           <th class="is-num">USD / HT</th>
                           <th class="is-num">Subtotal</th>
@@ -388,27 +382,6 @@
                     <strong>Datos de facturación:</strong> {facturacionLabel}
                   </div>
         </div>
-
-                <label class="se-confirm-terms">
-                  <input
-                    type="checkbox"
-                    checked={aceptaTerminos}
-                    onchange={handleToggleTerminos}
-                  />
-                  <span class="se-confirm-terms-text se-confirm-terms-text-mob">
-                    Acepto los
-                    <button type="button" class="se-confirm-terms-link" onclick={openCondicionesComerciales}>
-                      Términos y Condiciones
-                    </button>.
-                  </span>
-                  <span class="se-confirm-terms-text se-confirm-terms-text-desk se-desk-only">
-                    Acepto los
-                    <button type="button" class="se-confirm-terms-link" onclick={openCondicionesComerciales}>
-                      Términos y Condiciones
-                    </button>
-                    de compra de HT.
-                  </span>
-                </label>
 
                 <div class="se-panel-actions se-panel-actions-spread se-desk-only">
                   <button type="button" class="se-btn se-btn-ghost" onclick={handleVolverPaso5}>← Volver</button>
@@ -452,7 +425,7 @@
               </div>
             </dl>
             <div class="se-resumen-total">
-              <span class="se-resumen-total-label">Total</span>
+              <span class="se-resumen-total-label">Total Neto</span>
               <span class="se-resumen-total-value">{resumenTotal}</span>
             </div>
           </aside>
@@ -764,16 +737,9 @@
               </svg>
             </div>
             <h2 id="se-result-title" class="se-result-title">¡Compra exitosa!</h2>
-            <p class="se-result-sub">
-              {resultSuccessSubtext}
-              <span class="se-result-sub-desk"> Recibirás un email con el detalle de la operación.</span>
-            </p>
+            <p class="se-result-sub">{resultSuccessSubtext}</p>
             <div class="se-result-summary">
               <div class="se-result-summary-mob">
-                <div class="se-result-row">
-                  <span class="se-result-k">Código</span>
-                  <span class="se-result-v">{resultCodigoCompra}</span>
-                </div>
                 <div class="se-result-row">
                   <span class="se-result-k">Cultivo</span>
                   <span class="se-result-v">{cultivoNombre}</span>
@@ -804,10 +770,6 @@
                 </div>
               </div>
               <div class="se-result-summary-desk">
-                <div class="se-result-grid-item">
-                  <div class="se-result-k">Código</div>
-                  <div class="se-result-v">{resultCodigoCompra}</div>
-                </div>
                 <div class="se-result-grid-item">
                   <div class="se-result-k">Cultivo</div>
                   <div class="se-result-v">{cultivoNombre}</div>
@@ -883,10 +845,9 @@
                 Contactar por WhatsApp
               </a>
               <p class="se-result-meta">
-                o escribinos a
-                <a href="mailto:info@sembrarevolucion.com.ar">info@sembrarevolucion.com.ar</a>
+                o escribinos a&nbsp;<a href="mailto:info@sembrarevolucion.com.ar">info@sembrarevolucion.com.ar</a>
               </p>
-              <a class="se-result-btn se-result-btn-ghost se-result-link-btn" href={licensesHref} target="_blank" rel="noopener noreferrer">
+              <a class="se-result-btn se-result-btn-ghost se-result-link-btn" href={licensesHref}>
                 Ir a mis licencias →
               </a>
             </div>
@@ -912,8 +873,7 @@
                 Contactar por WhatsApp
               </a>
               <p class="se-result-meta">
-                o escribinos a
-                <a href="mailto:info@sembrarevolucion.com.ar">info@sembrarevolucion.com.ar</a>
+                o escribinos a&nbsp;<a href="mailto:info@sembrarevolucion.com.ar">info@sembrarevolucion.com.ar</a>
               </p>
         </div>
             <div class="se-result-actions">

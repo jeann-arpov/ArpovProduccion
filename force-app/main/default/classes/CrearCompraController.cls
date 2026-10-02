@@ -62,7 +62,7 @@ public without sharing class CrearCompraController {
         List<Id> ids = new List<Id>{obtentor};
         if (obtentorParent != null) ids.add(obtentorParent);
 
-        List<Licencia__c> licencias = [select id
+        List<Licencia__c> licencias = [select id, Name, Estado__c, Estado_Adenda__c
                                         from Licencia__c
                                         where Cuenta_Productor__c =: productor and
                                         Estado__c = 'Aprobada' and
@@ -266,6 +266,31 @@ public without sharing class CrearCompraController {
         update opp;
 
         return getData(compraId);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> finalizarCompra(
+        Id compraId,
+        Boolean checkDuplicates,
+        Boolean origen,
+        Boolean marcarRevisarCompra,
+        Boolean blanqueo,
+        String entidadBancaria,
+        String plazo,
+        String moneda,
+        String tasa
+    ) {
+        validateProductor(compraId);
+        if (String.isNotBlank(entidadBancaria) || String.isNotBlank(plazo) || String.isNotBlank(moneda) || String.isNotBlank(tasa)) {
+            update new Compra_HT__c(
+                Id = compraId,
+                Entidad_Bancaria__c = entidadBancaria,
+                Plazo_maximo__c = plazo,
+                Moneda__c = moneda,
+                TNA__c = tasa
+            );
+        }
+        return finalizarCompra(compraId, checkDuplicates, origen, marcarRevisarCompra, blanqueo);
     }
 
     @AuraEnabled

@@ -10,7 +10,7 @@ public inherited sharing class UtilsCompraVentaHT {
         return options;
     }
 
-    /** Cultivos SE con saldo de Cuenta Granaria HT (Campania nula = Compra HT Disponible). */
+    /** Cultivos SE con las HT vigentes del productor (sin Semilla Original/Pre Básica ni PPH). */
     public static List<Map<String, Object>> getCultivosConSaldo(Id productorId) {
         List<Map<String, Object>> options = getCultivos();
         if (productorId == null || options.isEmpty()) {
@@ -22,13 +22,15 @@ public inherited sharing class UtilsCompraVentaHT {
             cultivoIds.add((Id) option.get('value'));
         }
 
+        // Mismo criterio que las HT del Home y el total de Movimientos HT
         Map<Id, Decimal> saldoByCultivo = new Map<Id, Decimal>();
         for (AggregateResult ar : [
-            SELECT Cultivo__c cultivoId, SUM(Saldo_Cuenta__c) total
-            FROM Cuenta_Granaria__c
+            SELECT Cultivo__c cultivoId, SUM(Cantidad_con_Signo__c) total
+            FROM Hectareas_Tecnologicas__c
             WHERE Productor__c = :productorId
             AND Cultivo__c IN :cultivoIds
-            AND Campania__c = null
+            AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica', 'PPH')
+            AND HT_Vigente__c = true
             GROUP BY Cultivo__c
         ]) {
             Decimal total = (Decimal) ar.get('total');
