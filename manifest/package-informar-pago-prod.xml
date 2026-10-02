@@ -4,6 +4,7 @@
         <members>InformarPagoController</members>
         <members>MisFacturasController</members>
         <members>InformarPagoControllerTest</members>
+        <members>VentasInformadasTriggerHandler</members>
         <name>ApexClass</name>
     </types>
     <types>
