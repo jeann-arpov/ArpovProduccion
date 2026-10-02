@@ -32,9 +32,7 @@
             <article key={est.key} class="p-acc">
                 <div class="p-acc-h">
                     <div class="ttl">
-                        <template if:false={isGrandesCuentas}>
-                            <small>Establecimiento {est.index}</small>
-                        </template>
+                        <small>Establecimiento {est.index}</small>
                         <b>{est.name}</b>
                     </div>
                     <template if:true={canEdit}>

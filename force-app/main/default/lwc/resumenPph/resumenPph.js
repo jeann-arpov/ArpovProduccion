@@ -63,10 +63,6 @@ export default class ResumenPph extends LightningElement {
         return fmt(this.creditoDisponible);
     }
 
-    get isGrandesCuentas() {
-        return this.info?.grandesCuentas === true;
-    }
-
     get establecimientos() {
         return this.establecimientosData.map((e, idx) => {
             const key = e.pphId || e.id || `est-${idx}`;
@@ -86,7 +82,7 @@ export default class ResumenPph extends LightningElement {
                 name: e.name,
                 totalSembradoLabel: fmt(sumVariedades(e) + (Number(e.cantidadNoSE) || 0)),
                 georeferencia:
-                    !this.isGrandesCuentas && e.latitude != null && e.longitude != null
+                    e.latitude != null && e.longitude != null
                         ? Number(e.latitude).toFixed(2) + '; ' + Number(e.longitude).toFixed(2)
                         : null,
                 lineas,

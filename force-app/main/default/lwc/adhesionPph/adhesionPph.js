@@ -198,7 +198,7 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get showAddButton() {
-    return this.isAdhesion && !this.grandesCuentas;
+    return this.isAdhesion;
   }
 
   get cultivo() {
@@ -219,10 +219,6 @@ export default class AdhesionPph extends LightningElement {
 
   get grandesCuentas() {
     return this.account?.Grandes_Cuentas__c === true;
-  }
-
-  get gcEstablecimientoName() {
-    return this.account.N_CUIT__c + " - " + this.plan.Parametro_PPH__r.Name;
   }
 
   addRow() {
@@ -380,10 +376,7 @@ export default class AdhesionPph extends LightningElement {
 
     for (const establecimiento of this.template.querySelectorAll("c-establecimiento-pph")) {
       const est = establecimiento.getData();
-
-      if (this.grandesCuentas == true) est.name = this.gcEstablecimientoName;
-
-      est.origen = this.grandesCuentas == true ? "Grandes Cuentas" : "Propio";
+      est.origen = "Propio";
 
       if (establecimiento.info.record.Establecimiento__r) {
         est.id = establecimiento.info.record.Establecimiento__r.Id;
@@ -396,7 +389,6 @@ export default class AdhesionPph extends LightningElement {
     data.total =
       this.variedades.map((v) => v.totals?.total || 0).reduce((a, b) => a + b, 0) +
       (this.htsGlobales?.total || 0);
-    data.grandesCuentas = this.grandesCuentas;
     data.saldoPph = this.saldoPph;
     return data;
   }

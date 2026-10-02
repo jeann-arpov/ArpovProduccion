@@ -13,7 +13,6 @@ export default class EstablecimientoPph extends LightningElement {
     @api info;
     @api hiding;
     @api cultivo;
-    @api grandesCuentas;
 
     name = '';
     cantidadNoSEInput = '';
@@ -57,14 +56,6 @@ export default class EstablecimientoPph extends LightningElement {
         clearTimeout(this.searchTimer);
     }
 
-    get isGrandesCuentas() {
-        return this.grandesCuentas === true;
-    }
-
-    get showSeleccion() {
-        return !this.isGrandesCuentas;
-    }
-
     get cultivoName() {
         return this.cultivo?.Name || '';
     }
@@ -82,7 +73,7 @@ export default class EstablecimientoPph extends LightningElement {
     }
 
     get showCrear() {
-        return !this.isGrandesCuentas && !this.establecimiento;
+        return !this.establecimiento;
     }
 
     get establecimientosUrl() {
@@ -138,11 +129,7 @@ export default class EstablecimientoPph extends LightningElement {
     }
 
     get disabled() {
-        return (
-            !this.isGrandesCuentas &&
-            !this.establecimiento &&
-            (this.name.trim() === '' || !this.hasCoordinates)
-        );
+        return !this.establecimiento && (this.name.trim() === '' || !this.hasCoordinates);
     }
 
     get infoClass() {
