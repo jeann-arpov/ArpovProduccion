@@ -1,395 +1,152 @@
 <template>
-    <div class="se-adhesion-root">
-        <template if:true={showLoadError}>
-            <section class="pph-load-error">
-                <h2>No se pudo cargar la adhesión PPH</h2>
-                <p>{loadError}</p>
-                <p class="pph-load-error-hint">Revisá que la URL tenga <code>?recordId=</code> con el Id del Parámetro PPH.</p>
-            </section>
-        </template>
-
-        <template if:true={loading}>
-            <div class="pph-veil" role="status" aria-busy="true" aria-label="Cargando">
-                <c-se-brand-loader></c-se-brand-loader>
+    <c-se-list-page loading={loading}>
+        <div slot="header" class="p-head">
+            <div class="p-head-copy">
+                <p class="eyebrow">Precertificación / Adhesión PPH</p>
+                <h1 class="p-title">{pageTitle}</h1>
+                <template if:true={pageSubtitle}>
+                    <p class="p-sub">{pageSubtitle}</p>
+                </template>
             </div>
-        </template>
+            <template if:true={showHelpButton}>
+                <button type="button" class="p-help-btn" onclick={handleOnInformarPagoClick}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"></path></svg>
+                    No veo mis HTs
+                </button>
+            </template>
+            <template if:true={status}>
+                <span class={status.className}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+                    {status.label}
+                </span>
+            </template>
+        </div>
 
-        <template if:true={showDeclarationWizard}>
-            <div class="pph-wiz">
-                <div class="pph-wiz-prog" aria-label="Progreso">
-                    <div class="pph-wiz-prog-mob">
-                        <div class="pph-wiz-prog-row">
-                            <span>{wizardProgressLabel}</span>
-                            <span>{wizardProgressPctLabel}</span>
-                        </div>
-                        <div class="pph-wiz-prog-bar" aria-hidden="true">
-                            <span class="pph-wiz-prog-fill" style={wizardProgressBarStyle}></span>
-                        </div>
-                        <div class="pph-wiz-steps">
-                            <template for:each={wizardStepsUi} for:item="s">
-                                <span key={s.key} class={s.className}>{s.label}</span>
+        <div class="p-body">
+            <template if:true={plan}>
+                <div class={formClass}>
+                    <div class="p-stack">
+                        <template for:each={establecimientos} for:item="establecimiento">
+                            <c-establecimiento-pph
+                                key={establecimiento.id}
+                                cultivo={cultivoRecord}
+                                info={establecimiento}
+                                hiding={hiding}
+                                grandes-cuentas={grandesCuentas}
+                                onupdatecantidad={updateCantidad}
+                                onshowmap={showMap}
+                                onremove={remove}
+                                onautosave={autosave}
+                                onnotify={handleNotify}
+                                onestablecimientochange={changeEstablecimiento}
+                                onpasoestablecimiento={handlePasoEstablecimiento}
+                                onpasohectareasnose={handlePasoHectareasNoSE}
+                            ></c-establecimiento-pph>
+                        </template>
+                    </div>
+
+                    <div class="p-dfoot">
+                        <template if:true={showAddButton}>
+                            <button type="button" class="p-add" onclick={handleAddRow}>
+                                <span class="plus" aria-hidden="true">+</span>Agregar establecimiento
+                            </button>
+                        </template>
+                        <div class="p-cta-bar">
+                            <template if:true={isAdhesion}>
+                                <button type="button" class="btn continue" onclick={continuar}>Continuar</button>
+                            </template>
+                            <template if:true={isEdit}>
+                                <button type="button" class="btn continue" onclick={backToResumen}>Volver al resumen</button>
                             </template>
                         </div>
                     </div>
-
-                    <div class="se-prog-steps se-desk-only" aria-label="Pasos de adhesión">
-                        <template for:each={deskWizardSteps} for:item="s">
-                            <div key={s.key} class={s.wrapClass}>
-                                <button
-                                    class={s.btnClass}
-                                    type="button"
-                                    data-step={s.num}
-                                    disabled={s.disabled}
-                                    onclick={handleDeskWizardStepClick}
-                                    aria-current={s.ariaCurrent}
-                                >
-                                    <span class={s.circleClass}>{s.circleText}</span>
-                                    <span class={s.labelClass}>{s.label}</span>
-                                </button>
-                                <template if:true={s.showLine}>
-                                    <span class="se-prog-line" aria-hidden="true"></span>
-                                </template>
-                            </div>
-                        </template>
-                    </div>
                 </div>
 
-                <div class="pph-wiz-layout">
-                    <section class="se-panel se-panel--pph-step">
-                        <header class="pph-step-head">
-                            <p class="pph-step-eyebrow" if:true={cultivoPillLabel}>{cultivoPillLabel}</p>
-                            <h1 class="pph-step-title">{mobPageTitle}</h1>
-                            <p class="pph-step-sub">{mobPageSubtitle}</p>
-                        </header>
+                <template if:true={isTerminosYCondiciones}>
+                    <c-terminos-y-condiciones
+                        cultivo={cultivo}
+                        grandes-cuentas={grandesCuentas}
+                        campaña={campaña}
+                        oncancel={cancelTerms}
+                        onaccept={acceptTerms}
+                    ></c-terminos-y-condiciones>
+                </template>
 
-                        <button type="button" class="se-link-btn" onclick={handleOnInformarPagoClick}>
-                            No veo mis HTs
-                        </button>
-
-                        <div class="se-saldo-bar">
-                            <div class="se-saldo-bar-main">
-                                <span class="se-saldo-bar-label">Saldo PPH</span>
-                                <strong class="se-saldo-bar-value">{saldoRestanteLabel} HT</strong>
-                                <template if:true={hasSeAsignado}>
-                                    <span class="se-saldo-bar-meta">de {saldoPphLabel} HT</span>
-                                </template>
-                                <span class="se-saldo-bar-sep" aria-hidden="true">·</span>
-                                <span class="se-saldo-bar-meta">{cultivoPillLabel}</span>
-                            </div>
-                            <button type="button" class="se-btn se-btn-dark se-saldo-buy" onclick={redirectCompraHT}>
-                                Comprar HT
-                            </button>
-                        </div>
-                        <p class="se-saldo-bar-hint" if:true={showSaldoCompraHint}>{saldoCompraHint}</p>
-
-                        <template if:true={showEstablecimientoChecklist}>
-                            <div class="se-est-picker">
-                                <div class="se-est-picker-head">
-                                    <p class="se-est-picker-label">Establecimientos</p>
-                                    <button
-                                        type="button"
-                                        class="se-btn se-btn-ghost se-est-picker-add"
-                                        onclick={openCreatePanel}
-                                        if:true={showAddEstablecimiento}
-                                    >+ Agregar establecimiento</button>
-                                </div>
-
-                                <div class="se-est-check-list" if:true={hasChecklistItems}>
-                                    <template for:each={checklistItems} for:item="est">
-                                        <button
-                                            type="button"
-                                            key={est.key}
-                                            class={est.rowClass}
-                                            data-key={est.key}
-                                            onclick={handleToggleEstablecimiento}
-                                            aria-pressed={est.selected}
-                                        >
-                                            <span class={est.checkClass} aria-hidden="true">
-                                                <svg if:true={est.selected} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1C1C1C" stroke-width="3.5" stroke-linecap="round"><path d="M5 12l5 5L19 7"></path></svg>
-                                            </span>
-                                            <span class="se-est-check-copy">
-                                                <strong class="se-est-check-name">{est.name}</strong>
-                                                <span class="se-est-check-loc">{est.locationLabel}</span>
-                                            </span>
-                                        </button>
-                                    </template>
-                                </div>
-
-                                <div class="se-est-empty" if:false={hasChecklistItems}>
-                                    <p class="se-est-empty-title">Todavía no tenés establecimientos vigentes</p>
-                                    <p class="se-est-empty-copy">Creá uno para declarar la superficie de esta adhesión.</p>
-                                    <button
-                                        type="button"
-                                        class="se-btn se-btn-primary"
-                                        onclick={openCreatePanel}
-                                        if:false={showCreatePanel}
-                                    >+ Crear establecimiento</button>
-                                </div>
-
-                                <p class="se-est-check-summary" if:true={hasChecklistItems}>{checklistSummary}</p>
-
-                                <div class="se-est-create" if:true={showCreatePanel}>
-                                    <p class="se-field-label se-field-label--section">Nuevo establecimiento</p>
-                                    <lightning-input
-                                        label="Nombre"
-                                        value={createName}
-                                        onchange={handleCreateNameChange}
-                                        required
-                                    ></lightning-input>
-                                    <button type="button" class="se-geo-btn" onclick={openCreateMap}>
-                                        <span class="se-geo-label">Georeferencia</span>
-                                        <span class="se-geo-value">{createMapLabel}</span>
-                                    </button>
-                                    <div class="se-est-create-actions">
-                                        <button type="button" class="se-btn se-btn-ghost" onclick={cancelCreatePanel}>Cancelar</button>
-                                        <button type="button" class="se-btn se-btn-primary" onclick={confirmCreateEstablecimiento}>Agregar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <template if:true={showEstablecimientoCards}>
-                            <div class="se-sup-panel">
-                                <template for:each={establecimientos} for:item="establecimiento">
-                                    <c-establecimiento-pph
-                                        cultivo={plan.Parametro_PPH__r.Cultivo__r}
-                                        class="se-est-block"
-                                        key={establecimiento.id}
-                                        info={establecimiento}
-                                        hiding={hiding}
-                                        grandes-cuentas={grandesCuentas}
-                                        variant="wizard"
-                                        wizard-phase={establecimientoWizardPhase}
-                                        onupdatecantidad={updateCantidad}
-                                        onupdatecantidadse={updateCantidadSe}
-                                        onupdatecantidadnose={updateCantidadNoSe}
-                                        saldo-ht={saldoDisponibleHt}
-                                        onshowmap={showMap}
-                                        onremove={remove}
-                                        onautosave={autosave}
-                                        onestablecimientochange={changeEstablecimiento}
-                                        onpasoestablecimiento={handlePasoEstablecimiento}
-                                        onpasohectareasnose={handlePasoHectareasNoSE}
-                                    ></c-establecimiento-pph>
-                                </template>
-                            </div>
-
-                            <button
-                                type="button"
-                                class="se-add-est"
-                                onclick={addRow}
-                                if:true={showAddEstablecimientoLegacy}
-                            >
-                                + Agregar establecimiento
-                            </button>
-                        </template>
-
-                        <div class="se-panel-actions">
-                            <button
-                                type="button"
-                                class="se-btn se-btn-ghost"
-                                if:false={showDeclarationBack}
-                                onclick={handleMobClose}
-                            >Cancelar</button>
-                            <button
-                                type="button"
-                                class="se-btn se-btn-ghost"
-                                if:true={showDeclarationBack}
-                                onclick={handleDeclarationBack}
-                            >Atrás</button>
-                            <button
-                                type="button"
-                                class="se-btn se-btn-primary continue"
-                                disabled={mobFooterContinuarDisabled}
-                                onclick={handleMobContinuar}
-                            >Continuar →</button>
-                        </div>
-                    </section>
-
-                    <aside class="se-side-card se-side-card--dark se-desk-only">
-                        <h2 class="se-side-title">Resumen</h2>
-                        <dl class="se-side-list">
-                            <div class="se-side-row">
-                                <dt>Campaña</dt>
-                                <dd>{paramName}</dd>
-                            </div>
-                            <div class="se-side-row">
-                                <dt>Cultivo</dt>
-                                <dd>{cultivoPillLabel}</dd>
-                            </div>
-                            <div class="se-side-row">
-                                <dt>Establecimientos</dt>
-                                <dd>{deskEstablecimientosCount}</dd>
-                            </div>
-                            <div class="se-side-row">
-                                <dt>{sideTotalLabel}</dt>
-                                <dd>{deskTotalSeLabel}</dd>
-                            </div>
-                            <div class="se-side-row" if:true={showSideNoSe}>
-                                <dt>Ha no SE</dt>
-                                <dd>{deskTotalNoSeLabel}</dd>
-                            </div>
-                        </dl>
-                        <div class="se-side-total">
-                            <span class="se-side-total-label">{sideTotalLabel}</span>
-                            <span class="se-side-total-value">{deskTotalSeLabel}</span>
-                        </div>
-                    </aside>
-                </div>
-            </div>
-        </template>
-
-        <template if:true={showTerminos}>
-            <section class="se-panel se-panel--pph-tc">
-                <c-terminos-y-condiciones
-                    cultivo={cultivo}
-                    grandes-cuentas={grandesCuentas}
-                    campaña={campaña}
-                    oncancel={cancelTerms}
-                    onaccept={acceptTerms}
-                ></c-terminos-y-condiciones>
-            </section>
-        </template>
-
-        <template if:true={showResumenWizard}>
-            <div class="pph-confirm-root">
-                <header class="pph-confirm-mob-head se-mob-only">
-                    <button type="button" class="pph-confirm-back" onclick={handleConfirmBack} aria-label="Volver">
-                        ←
-                    </button>
-                    <span class="pph-confirm-mob-title">Precertificación</span>
-                    <span class="pph-confirm-spacer"></span>
-                </header>
-
-                <div class="pph-confirm-body">
-                    <p class="pph-confirm-eyebrow se-desk-only">{confirmBreadcrumb}</p>
-
-                    <div class="pph-confirm-hero">
-                        <div class="pph-confirm-hero-copy">
-                            <span class="pph-confirm-badge">Listo para enviar</span>
-                            <h1 class="pph-confirm-title">{confirmPageTitle}</h1>
-                            <p class="pph-confirm-sub">{confirmPageSubtitle}</p>
-                        </div>
-                        <div class="pph-confirm-hero-actions se-desk-only">
-                            <button type="button" class="se-btn se-btn-ghost" onclick={handleConfirmBack}>
-                                Volver
-                            </button>
-                            <button type="button" class="se-btn se-btn-primary" onclick={enviarConfirm}>
-                                Enviar adhesión
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="pph-confirm-grid">
-                        <section class="pph-confirm-resumen">
-                            <h2 class="pph-confirm-section-title">Resumen</h2>
-                            <dl class="pph-confirm-kv">
-                                <template for:each={confirmSummaryRows} for:item="row">
-                                    <div key={row.key} class="pph-confirm-kv-row">
-                                        <dt>{row.label}</dt>
-                                        <dd class={row.valueClass}>{row.value}</dd>
-                                    </div>
-                                </template>
-                            </dl>
-                        </section>
-
-                        <section class="pph-confirm-ests">
-                            <h2 class="pph-confirm-section-title">Establecimientos</h2>
-                            <div class="pph-confirm-ests-card">
-                                <template for:each={confirmEstablecimientos} for:item="est">
-                                    <article key={est.key} class="pph-confirm-est">
-                                        <div class="pph-confirm-est-head">
-                                            <h3 class="pph-confirm-est-name">{est.name}</h3>
-                                            <button
-                                                type="button"
-                                                class="se-btn se-btn-ghost pph-confirm-edit"
-                                                data-id={est.editId}
-                                                onclick={handleConfirmEdit}
-                                            >Editar</button>
-                                        </div>
-                                        <dl class="pph-confirm-est-kv">
-                                            <div class="pph-confirm-est-row">
-                                                <dt>Superficie SE</dt>
-                                                <dd>{est.seLabel}</dd>
-                                            </div>
-                                            <div class="pph-confirm-est-row">
-                                                <dt>Ha no SE</dt>
-                                                <dd>{est.noSeLabel}</dd>
-                                            </div>
-                                        </dl>
-                                    </article>
-                                </template>
-                            </div>
-                        </section>
-                    </div>
-
-                    <div class="pph-confirm-mob-actions se-mob-only">
-                        <button type="button" class="se-btn se-btn-primary se-btn-full" onclick={enviarConfirm}>
-                            Enviar adhesión
-                        </button>
-                        <button type="button" class="se-btn se-btn-ghost se-btn-full" onclick={handleConfirmBack}>
-                            Volver
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <template if:true={showPphDetalle}>
-            <c-pph-detalle
-                info={resumenData}
-                certificado-document-id={certificadoDocumentId}
-                onback={handleDetalleBack}
-                onverexpediente={handleDetalleVerExpediente}
-                ondownloadpdf={handleDetalleDownloadPdf}
-                onnotify={handleDetalleNotify}
-            ></c-pph-detalle>
-        </template>
-        <div class="se-panel-actions se-panel-actions--detalle" if:true={showDetalleRectificar}>
-            <button
-                type="button"
-                class="se-btn se-btn-primary"
-                onclick={rectificarConfirm}
-            >Rectificar</button>
+                <template if:true={isResumen}>
+                    <c-resumen-pph
+                        info={data}
+                        onedit={edit}
+                        onenviar={enviarConfirm}
+                        onrectificar={rectificarConfirm}
+                    ></c-resumen-pph>
+                </template>
+            </template>
         </div>
+    </c-se-list-page>
 
-        <template if:true={showResumenContent}>
-            <section class="se-panel se-panel--pph-resumen">
-                <c-resumen-pph
-                    mobile-embedded={isResumenMobileEmbedded}
-                    info={resumenData}
-                    onedit={edit}
-                    onenviar={enviarConfirm}
-                    onrectificar={rectificarConfirm}
-                ></c-resumen-pph>
-                <div class="se-panel-actions">
-                    <button type="button" class="se-btn se-btn-ghost" onclick={handleDetalleBack}>
-                        Volver a adhesiones
-                    </button>
-                    <button
-                        type="button"
-                        class="se-btn se-btn-primary"
-                        if:true={canRectificarResumen}
-                        onclick={rectificarConfirm}
-                    >Rectificar</button>
-                </div>
-            </section>
-        </template>
+    <template if:true={toast}>
+        <div class={toast.className} role="alert">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+            <div class="p-toast-txt">
+                <b>{toast.title}</b>
+                <span>{toast.message}</span>
+            </div>
+            <button type="button" class="p-toast-x" aria-label="Cerrar" onclick={closeToast}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    </template>
 
-        <template if:true={showEmptyState}>
-            <section class="pph-load-error">
-                <h2>No hay contenido para mostrar</h2>
-                <p>El plan cargó pero ninguna vista quedó activa.</p>
-            </section>
-        </template>
+    <template if:true={showModal}>
+        <div class="p-layer">
+            <div class="p-scrim"></div>
+            <div class="p-dmodal" role="dialog" aria-modal="true">
+                <template if:true={isContinueConfirm}>
+                    <span class="p-confirm-ic warn" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>
+                    </span>
+                    <p class="p-msg">Recordá que tenés que declarar también las hectáreas que no están por SE</p>
+                    <div class="p-mfoot">
+                        <button type="button" class="btn ghost" onclick={closeModal}>Volver</button>
+                        <button type="button" class="btn" onclick={executeModal}>Aceptar y continuar</button>
+                    </div>
+                </template>
 
-        <c-map onlocationselected={updateLocation}></c-map>
-        <c-modals-pph
-            callback={modalCallback}
-            current-modal={currentModal}
-            onclose={closeModal}
-        ></c-modals-pph>
-        <c-informar-pago></c-informar-pago>
-        <c-pdf-reader></c-pdf-reader>
-    </div>
+                <template if:true={isEnRevision}>
+                    <span class="p-confirm-ic" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+                    </span>
+                    <p class="p-msg">Tu solicitud de adhesión ya fue enviada</p>
+                    <div class="p-mfoot single">
+                        <button type="button" class="btn" onclick={goHome}>Volver al inicio</button>
+                    </div>
+                </template>
+
+                <template if:true={isDeleteConfirm}>
+                    <span class="p-confirm-ic warn" aria-hidden="true">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"></path></svg>
+                    </span>
+                    <p class="p-msg">¿Está seguro que desea eliminar este establecimiento?</p>
+                    <div class="p-mfoot">
+                        <button type="button" class="btn ghost" onclick={closeModal}>No</button>
+                        <button type="button" class="btn" onclick={executeModal}>Sí, eliminar</button>
+                    </div>
+                </template>
+
+                <template if:true={isRectificarConfirm}>
+                    <span class="p-confirm-ic warn" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>
+                    </span>
+                    <p class="p-msg">¿Está seguro que desea realizar la rectificación?</p>
+                    <div class="p-mfoot">
+                        <button type="button" class="btn ghost" onclick={closeModal}>No</button>
+                        <button type="button" class="btn" onclick={executeModal}>Sí, rectificar</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <c-map></c-map>
+    <c-informar-pago></c-informar-pago>
 </template>

@@ -1,56 +1,31 @@
 import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import getLoadData from '@salesforce/apex/AdhesionPPHHome.getLoadData';
-import getContext from '@salesforce/apex/AdhesionPPHHome.getContext';
 import { errorEvent } from 'c/utils';
 import { trackGa4Event } from 'c/portalGa4Events';
 
-const PAGE_SIZE = 200;
-
-const ESTADO_TONE = {
-    Adherido: 'pph-adherido',
-    Rectificado: 'pph-rectificado',
-    Rechazado: 'pph-rechazado',
-    'En Preparación': 'pph-preparacion',
-    'En Revisión': 'pph-revision',
-    Vencido: 'pph-vencido'
+const ESTADO_LABEL = {
+    'Sin adherir': 'Sin adherir',
+    'En Preparación': 'En preparación',
+    'En Revisión': 'En revisión',
+    Rectificado: 'En rectificación',
+    Adherido: 'Adherido',
+    Rechazado: 'Rechazado',
+    Vencido: 'Vencido'
 };
 
-function statusTone(estado) {
-    return ESTADO_TONE[estado] || 'pph-no-adherido';
-}
-
-function campaignTitle(paramName) {
-    const raw = (paramName || '').trim();
-    if (!raw) return 'Campaña';
-    if (/^campa[nñ]a\b/i.test(raw)) return raw;
-    const yearMatch = raw.match(/(\d{2}\s*\/\s*\d{2}|\d{4})/);
-    if (yearMatch) return `Campaña ${yearMatch[1].replace(/\s+/g, '')}`;
-    return raw;
-}
+const ESTADO_TONE = {
+    'En Revisión': 'warn',
+    Rectificado: 'warn',
+    Adherido: 'ok',
+    Rechazado: 'danger'
+};
 
 export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
-    @track rowsAll = [];
+    @track groups = [];
 
     loading = true;
     initialized = false;
-    pageSize = PAGE_SIZE;
-    accountContext = null;
-
-    columns = [
-        { label: 'Campaña', fieldName: 'title', type: 'link' },
-        { label: 'Cultivo', fieldName: 'cultivo' },
-        { label: 'Establecimiento', fieldName: 'establecimientoLabel' },
-        { label: 'Período', fieldName: 'periodo' },
-        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
-        { label: '', fieldName: 'action', type: 'action', actionLabel: 'Abrir' }
-    ];
-
-    mobileFields = [
-        { label: 'Cultivo', fieldName: 'cultivo' },
-        { label: 'Establecimiento', fieldName: 'establecimientoLabel' },
-        { labelFieldName: 'mobileExtraLabel', fieldName: 'mobileExtraValue' }
-    ];
 
     connectedCallback() {
         document.documentElement.classList.add('se-inner');
@@ -68,13 +43,22 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         }
     }
 
+    get isEmpty() {
+        return !this.loading && this.groups.length === 0;
+    }
+
     async init() {
         this.initialized = true;
 
         try {
-            const [data, context] = await Promise.all([getLoadData(), getContext()]);
-            this.accountContext = context;
-            this.rowsAll = this.flattenRows(data);
+            const data = await getLoadData();
+            this.groups = (data || [])
+                .filter((w) => (w.parametros || []).length)
+                .map((w) => ({
+                    id: w.cultivo.Id,
+                    name: w.cultivo.Name,
+                    plans: w.parametros.map((wParam) => this.decoratePlan(wParam))
+                }));
             this.loading = false;
             trackGa4Event('pph_vista');
         } catch (error) {
@@ -83,137 +67,50 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         }
     }
 
-    flattenRows(data) {
-        const rows = [];
-
-        (data || []).forEach((w) => {
-            (w.parametros || []).forEach((wParam) => {
-                rows.push(this.decorateRow(w.cultivo, wParam));
-            });
-        });
-
-        return rows;
-    }
-
-    decorateRow(cultivo, wParam) {
-        const actionName = this.getActionName(wParam);
-        const estadoRaw = wParam.planSiembra?.Estado__c;
-        const statusLabel = this.getEstadoLabel(estadoRaw);
-        const statusBucket = this.getStatusBucket(statusLabel);
-        const disableAction = this.getDisableAction(wParam, actionName);
-        const periodo = `Del ${this.getLocaleDateString(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c)} al ${this.getLocaleDateString(wParam.parametro.Fecha_Fin_Adhesion_PPH__c)}`;
-
-        let mobileActionLabel = 'Ver historial';
-        let mobileActionVariant = 'ghost';
-
-        if (actionName === 'Adherir') {
-            mobileActionLabel = 'Adherir →';
-            mobileActionVariant = 'primary';
-        } else if (actionName === 'Continuar') {
-            mobileActionLabel = 'Continuar adhesión →';
-            mobileActionVariant = 'primary';
-        } else if (actionName === 'Ver' && statusLabel === 'Certificada') {
-            mobileActionLabel = 'Ver certificado';
-            mobileActionVariant = 'ghost';
-        }
+    decoratePlan(wParam) {
+        const estado = wParam.planSiembra?.Estado__c || 'Sin adherir';
+        const actionName = this.getActionName(estado);
+        const actionDisabled = this.getDisableAction(wParam, estado, actionName);
 
         return {
             id: wParam.parametro.Id,
-            paramId: wParam.parametro.Id,
-            cultivoId: cultivo.Id,
-            contentDocumentId: wParam.contentDocumentId,
-            title: campaignTitle(wParam.parametro.Name),
-            cultivo: cultivo.Name,
-            establecimientoLabel: wParam.establecimientoLabel || '—',
-            mobileExtraLabel: wParam.mobileExtraLabel || '',
-            mobileExtraValue: wParam.mobileExtraValue || '',
-            periodo,
-            statusLabel,
-            statusTone: statusTone(estadoRaw),
-            statusBucket,
-            statusNote: disableAction ? wParam.disabledCause || '' : '',
+            title: wParam.parametro.Name,
+            periodo: `Adhesión de ${this.formatDate(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c)} a ${this.formatDate(wParam.parametro.Fecha_Fin_Adhesion_PPH__c)}`,
+            statusLabel: ESTADO_LABEL[estado] || estado,
+            badgeClass: `pph-badge pph-badge-${ESTADO_TONE[estado] || 'info'}`,
             actionName,
-            actionDisabled: disableAction,
+            actionLabel: actionName,
+            btnClass: actionName === 'Ver' ? 'pph-btn pph-btn-ghost' : 'pph-btn pph-btn-primary',
+            actionDisabled,
             disabledCause: wParam.disabledCause,
-            mobileActionLabel,
-            mobileActionVariant,
-            showRectificacionInfo: estadoRaw === 'Rectificado'
+            contentDocumentId: wParam.contentDocumentId,
+            hasTerminos: !!wParam.contentDocumentId
         };
     }
 
-    getStatusBucket(label) {
-        if (label === 'Certificada') return 'Certificada';
-        if (label === 'Sin Adherir' || label === 'Sin adherir') return 'Sin adherir';
-        if (label === 'En rectificación') return 'En curso';
-        if (label === 'En curso') return 'En curso';
-        if (label === 'En Preparación') return 'En curso';
-        if (label === 'Cerrada') return 'Vencida';
-        if (/rechaz/i.test(label)) return 'Rechazada';
-        if (/vencid/i.test(label)) return 'Vencida';
-        return label;
-    }
-
-    getActionName(wParam) {
-        const estado = wParam.planSiembra?.Estado__c;
-        if (estado == null || estado === 'Sin adherir') return 'Adherir';
-        if (estado === 'Adherido' || estado === 'Rechazado' || estado === 'Vencido') return 'Ver';
+    getActionName(estado) {
+        if (estado === 'Sin adherir') return 'Adherir';
         if (estado === 'En Preparación' || estado === 'Rectificado') return 'Continuar';
         return 'Ver';
     }
 
-    handleRowAction(event) {
-        const row = event.detail?.row;
-        if (!row || row.actionDisabled) return;
-
-        if (row.actionName === 'Adherir' || row.actionName === 'Continuar') {
-            trackGa4Event('pph_declaracion_iniciada');
-        }
-
-        if (row.actionName === 'Adherir' || row.actionName === 'Continuar' || row.actionName === 'Ver') {
-            this.redirectToParam(row.paramId);
-        }
-    }
-
-    handleAddEstablecimiento() {
-        this.template.querySelector('c-establecimientos-map')?.openNew?.();
-    }
-
-    handleNoVeoHts() {
-        const cuit = this.accountContext?.cuit || '';
-        this.template.querySelector('c-informar-pago')?.show({
-            title: 'No veo mis HTs',
-            subject: `CUIT: ${cuit} · PPH`,
-            accountId: this.accountContext?.accountId,
-            variant: 'sg'
-        });
-    }
-
-    getDisableAction(wParam, actionName) {
-        if (actionName !== 'Adherir' && actionName !== 'Continuar') {
-            return false;
-        }
+    getDisableAction(wParam, estado, actionName) {
+        if (actionName !== 'Adherir' && actionName !== 'Continuar') return false;
+        if (estado !== 'Sin adherir' && estado !== 'En Preparación') return false;
 
         const hoy = new Date();
-        wParam.disabledCause = '';
+        const inicio = this.parseLocalDate(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c);
+        const fin = this.parseLocalDate(wParam.parametro.Fecha_Fin_Adhesion_PPH__c);
+        if (fin) fin.setHours(23, 59, 59, 999);
 
-        if (
-            !wParam.planSiembra ||
-            wParam.planSiembra.Estado__c === 'Sin adherir' ||
-            wParam.planSiembra.Estado__c === 'En Preparación'
-        ) {
-            const inicio = this.parseLocalDate(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c);
-            const fin = this.parseLocalDate(wParam.parametro.Fecha_Fin_Adhesion_PPH__c);
-            if (fin) fin.setHours(23, 59, 59, 999);
-            if (inicio && inicio > hoy) {
-                wParam.disabledCause = 'El período de adhesión no ha comenzado';
-                return true;
-            }
-            if (fin && fin < hoy) {
-                wParam.disabledCause = 'El período de adhesión ya ha finalizado';
-                return true;
-            }
+        if (inicio && inicio > hoy) {
+            wParam.disabledCause = 'El período de adhesión no ha comenzado';
+            return true;
         }
-
+        if (fin && fin < hoy) {
+            wParam.disabledCause = 'El período de adhesión ya ha finalizado';
+            return true;
+        }
         return false;
     }
 
@@ -224,19 +121,27 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         return new Date(y, m - 1, d);
     }
 
-    getEstadoLabel(estado) {
-        if (estado == null || estado === 'Sin adherir') return 'Sin Adherir';
-        if (estado === 'Rectificado') return 'En rectificación';
-        if (estado === 'Adherido') return 'Certificada';
-        if (estado === 'En Preparación') return 'En curso';
-        if (estado === 'Vencido') return 'Cerrada';
-        return estado;
+    formatDate(value) {
+        const date = this.parseLocalDate(value);
+        return date ? date.toLocaleDateString('es-AR') : '—';
     }
 
-    getLocaleDateString(date) {
-        const newDate = new Date(date);
-        newDate.setHours(newDate.getHours() + 3);
-        return newDate.toLocaleDateString('es-AR');
+    findPlan(id) {
+        for (const group of this.groups) {
+            const plan = group.plans.find((p) => p.id === id);
+            if (plan) return plan;
+        }
+        return null;
+    }
+
+    handleAction(event) {
+        const plan = this.findPlan(event.currentTarget.dataset.id);
+        if (!plan || plan.actionDisabled) return;
+
+        if (plan.actionName === 'Adherir' || plan.actionName === 'Continuar') {
+            trackGa4Event('pph_declaracion_iniciada');
+        }
+        this.redirectToParam(plan.id);
     }
 
     redirectToParam(paramId) {
@@ -251,12 +156,13 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     }
 
     showTerminos(event) {
-        const id = event.target.dataset.id;
-        const row = this.rowsAll.find((r) => r.paramId === id);
-        if (!row?.contentDocumentId) return;
+        const plan = this.findPlan(event.currentTarget.dataset.id);
+        if (!plan?.contentDocumentId) return;
         this.template.querySelector('c-pdf-reader').show({
-            documentId: row.contentDocumentId,
-            title: 'Términos y Condiciones'
+            documentId: plan.contentDocumentId,
+            title: 'Términos y Condiciones',
+            barLabel: 'T&C PPH',
+            variant: 'sg'
         });
     }
 

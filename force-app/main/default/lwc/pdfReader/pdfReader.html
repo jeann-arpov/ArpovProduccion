@@ -1,5 +1,28 @@
 <template>
-        <section if:true={showPdf} role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-modal_large slds-fade-in-open">
+        <template if:true={showSgModal}>
+            <div class="sg-layer" role="dialog" aria-modal="true" aria-labelledby="sg-pdf-title">
+                <div class="sg-scrim" onclick={handleOnCloseModal}></div>
+                <div class="sg-modal">
+                    <div class="sg-mhead">
+                        <h2 id="sg-pdf-title" class="sg-mtitle">{title}</h2>
+                        <button type="button" class="sg-x" aria-label="Cerrar" onclick={handleOnCloseModal}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                        </button>
+                    </div>
+                    <div class="sg-pdfbar">
+                        <span>{barLabel}</span>
+                        <a class="sg-pdfbar-act" href={pdfUrl} target="_blank" rel="noopener noreferrer" aria-label="Abrir en una pestaña nueva" title="Abrir en una pestaña nueva">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"></path></svg>
+                        </a>
+                    </div>
+                    <div class="sg-pdfbody">
+                        <iframe src={pdfUrl} title={title} onload={handleOnLoadPDF}></iframe>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <section if:true={showLegacyModal} role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-modal_large slds-fade-in-open">
             <div class="slds-modal__container">
                 <!-- Modal/Popup Box LWC header here -->
                 <header class="slds-modal__header">
@@ -25,5 +48,5 @@
                 </div>
             </div>
         </section>
-        <div if:true={showPdf} class="slds-backdrop slds-backdrop_open"></div>
+        <div if:true={showLegacyModal} class="slds-backdrop slds-backdrop_open"></div>
 </template>

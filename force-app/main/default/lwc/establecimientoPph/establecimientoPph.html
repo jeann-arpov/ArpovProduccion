@@ -1,212 +1,189 @@
 <template>
-    <div class={establecimientoClass}>
-        <article if:true={isWizardVariant} class="se-est-card se-est-card--superficie">
-                <header class="se-est-head" if:true={showWizardLegacyHead}>
-                    <div>
-                        <p class="se-est-eyebrow">Establecimiento</p>
-                        <h3 class="se-est-title">{titulo}</h3>
-                    </div>
-                    <button
-                        type="button"
-                        class="se-est-remove"
-                        title="Eliminar establecimiento"
-                        onclick={remove}
-                        if:false={grandesCuentas}
-                    >
-                        <lightning-icon icon-name="utility:delete" size="x-small" alternative-text="Eliminar"></lightning-icon>
-                    </button>
-                </header>
-
-                <p class="se-est-name-chip" if:true={showWizardNameChip}>{superficieTitle}</p>
-
-                <div class="se-est-body" if:true={showWizardEstablecimientoBody}>
-                    <p class="se-field-label">Establecimiento</p>
-                    <div class="se-choice-card se-choice-card--search">
-                        <c-lookup
-                            variant="label-hidden"
-                            onselectionchange={establecimientoSelected}
-                            onsearch={search}
-                            label="Buscar establecimiento"
-                            selection={establecimiento}
-                            placeholder="Nombre del establecimiento"
-                        >
-                            <div slot="no-results">
-                                <span class="se-est-miss">Establecimiento no registrado</span>
-                                <p class="se-est-help">
-                                    Los establecimientos deben estar vigentes para seleccionarlos acá.
-                                </p>
-                            </div>
-                        </c-lookup>
-                    </div>
-                    <p class="se-est-hint">
-                        Para editar nombre o coordenadas, andá a Pre Certificación &gt; Mis Establecimientos.
-                    </p>
-
-                    <div if:false={establecimiento}>
-                        <p class="se-field-label se-field-label--spaced">O creá uno nuevo</p>
-                        <lightning-input
-                            label="Nombre"
-                            value={name}
-                            onchange={updateName}
-                            required
-                            message-when-value-missing="Este campo es obligatorio"
-                            onfocus={focus}
-                            onblur={blur}
-                        ></lightning-input>
-                        <button type="button" class="se-geo-btn" onclick={showMap}>
-                            <span class="se-geo-label">Georeferencia</span>
-                            <span class="se-geo-value">{mapCoodinates}</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class={infoClass} if:true={showWizardSuperficieBlock}>
-                    <div class="se-sup-grid">
-                        <div class="se-sup-col">
-                            <p class="se-field-label se-field-label--section">Superficie a precertificar</p>
-                            <template if:true={hasSaldoHt}>
-                                <div class="se-ha-input se-ha-input--lg">
-                                    <lightning-input
-                                        class="se-se-input"
-                                        variant="label-hidden"
-                                        label="Superficie a precertificar"
-                                        placeholder="0"
-                                        type="number"
-                                        step="1"
-                                        min="0"
-                                        onchange={updateCantidadSe}
-                                        onfocus={focus}
-                                        onblur={blur}
-                                        value={cantidadSE}
-                                    ></lightning-input>
-                                    <span class="se-ha-unit" aria-hidden="true">ha</span>
-                                </div>
-                                <p class="se-panel-sub se-est-var-hint">{superficieSeHint}</p>
-                            </template>
-                            <template if:false={hasSaldoHt}>
-                                <div class="se-ha-input se-ha-input--lg se-ha-input--disabled" aria-disabled="true">
-                                    <span class="se-ha-placeholder">—</span>
-                                    <span class="se-ha-unit" aria-hidden="true">ha</span>
-                                </div>
-                                <p class="se-panel-sub">
-                                    Sin HT disponibles para este cultivo. Usá Comprar HT arriba.
-                                </p>
-                            </template>
-                        </div>
-
-                        <div class="se-sup-col">
-                            <p class="se-field-label se-field-label--section">Hectáreas que no utilizan Sembrá Evolución</p>
-                            <div class="se-ha-input se-ha-input--lg">
-                                <lightning-input
-                                    class="se-no-se-input"
-                                    variant="label-hidden"
-                                    label="Hectáreas que no utilizan Sembrá Evolución"
-                                    placeholder="0"
-                                    type="number"
-                                    step="1"
-                                    min="0"
-                                    required
-                                    message-when-value-missing="Este campo es obligatorio (poné 0 si no tenés)"
-                                    onchange={updateCantidadFuera}
-                                    onfocus={focus}
-                                    onblur={blur}
-                                    value={cantidadNoSE}
-                                ></lightning-input>
-                                <span class="se-ha-unit" aria-hidden="true">ha</span>
-                            </div>
-                            <p class="se-panel-sub">
-                                Sembradas con variedades de terceros. No generan toneladas a precertificar.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    type="button"
-                    class="se-est-toggle"
-                    onclick={changeCollapsed}
-                    if:true={showWizardToggle}
-                >
-                    {collapsedLabel}
+    <article class={blockClass}>
+        <template if:true={showSeleccion}>
+            <header class="p-block-h">
+                <span class="t">
+                    <small>Establecimiento</small>
+                    <template if:true={headerName}>{headerName}</template>
+                </span>
+                <button type="button" class="p-icon-btn inv" aria-label="Eliminar establecimiento" title="Eliminar establecimiento" onclick={remove}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"></path></svg>
                 </button>
-        </article>
+            </header>
 
-        <div if:false={isWizardVariant}>
-            <div class="title slds-p-left_large slds-p-right_small slds-p-vertical_small slds-m-bottom_medium" if:false={grandesCuentas}>
-                <b>{titulo}</b>
-                <lightning-button-icon size="large" class="slds-float_right" icon-name="utility:delete" variant="bare" alternative-text="Eliminar Establecimiento" title="Eliminar Establecimiento" onclick={remove}></lightning-button-icon>
-            </div>
-            <div class="slds-m-horizontal_large" if:false={grandesCuentas}>
-                <p class="slds-m-bottom_small">1. Para comenzar seleccione un establecimiento ya creado:</p>
-                <lightning-layout class="slds-m-bottom_small">
-                    <lightning-layout-item size="6">
-                        <c-lookup variant="label-hidden" onselectionchange={establecimientoSelected} onsearch={search} label="Buscar establecimiento" selection={establecimiento} placeholder="Ingrese nombre del establecimiento">
-                            <div slot="no-results">
-                                <span style="color:#FF0000;font-size:18px;">ESTABLECIMIENTO NO REGISTRADO</span>
-                                <div style="color:#1C1C1C;font-size: 14px">Recuerde que los establecimientos deben estar marcados como vigentes para poder seleccionarlos en esta pantalla</div>
+            <section class="p-sec">
+                <p class="p-step"><span class="n">1</span>Para comenzar seleccioná un establecimiento ya creado:</p>
+
+                <div class="p-pick">
+                    <template if:true={hasEstablecimiento}>
+                        <div class="p-selected">
+                            <span class="pin">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                            </span>
+                            <span class="nm">{establecimiento.Name}</span>
+                            <button type="button" class="x" aria-label="Quitar establecimiento" title="Quitar establecimiento" onclick={handleClearSelection}>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                    </template>
+
+                    <template if:false={hasEstablecimiento}>
+                        <div class="p-search">
+                            <input
+                                class="p-input"
+                                type="search"
+                                autocomplete="off"
+                                placeholder="Ingresá nombre del establecimiento"
+                                aria-label="Buscar establecimiento"
+                                value={searchTerm}
+                                oninput={handleSearchInput}
+                            />
+                            <span class="ic" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+                            </span>
+                        </div>
+                        <template if:true={showDropdown}>
+                            <div class="p-dd" role="listbox">
+                                <template for:each={searchResults} for:item="result">
+                                    <button key={result.id} type="button" class="p-dd-item" role="option" data-id={result.id} onclick={handleSelectResult}>
+                                        <span class="pin">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                                        </span>
+                                        <span class="txt"><b>{result.title}</b><span>{result.subtitle}</span></span>
+                                    </button>
+                                </template>
+                                <template if:true={noResults}>
+                                    <div class="p-dd-empty">
+                                        <b>Establecimiento no registrado</b>
+                                        <span>Recordá que los establecimientos deben estar marcados como vigentes para poder seleccionarlos en esta pantalla.</span>
+                                    </div>
+                                </template>
                             </div>
-                        </c-lookup>
-                        <span style="color:grey;font-size:x-small;">Para editar el nombre o las coordenadas de un Establecimiento existente, puede ir a Pre Certificación &gt; Mis Establecimientos</span>
-                    </lightning-layout-item>
-                </lightning-layout>
-                <p if:false={establecimiento}>O crea un establecimiento nuevo:</p>
-                <lightning-layout class="slds-m-bottom_small" if:false={establecimiento}>
-                    <lightning-layout-item size="6">
-                        <lightning-input label="Nombre" value={name} onchange={updateName} required message-when-value-missing="Este campo es obligatorio" onfocus={focus} onblur={blur}></lightning-input>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="3" padding="horizontal-large">
-                        <lightning-input type="search" value={mapCoodinates} class={coordinatesClass} label="Georeferencia" onclick={showMap} required message-when-value-missing="Este campo es obligatorio"></lightning-input>
-                    </lightning-layout-item>
-                </lightning-layout>
-            </div>
-            <div class={infoClass}>
-                <div class="heading green slds-p-vertical_small slds-m-vertical_medium">
-                    <lightning-layout>
-                        <lightning-layout-item size="3">
-                            <span class="slds-m-horizontal_large">Hectáreas SEMBRA EVOLUCIÓN</span>
-                        </lightning-layout-item>
-                        <lightning-layout-item size="3" style="text-align:center;">
-                            <span style="font-size:small">{totalesSembradasLabel}: {totalSembrado}</span>
-                        </lightning-layout-item>
-                        <lightning-layout-item size="6" class="slds-text-align_right">
-                            <lightning-button class="comprar-ht slds-m-horizontal_large" title="Si te faltaron HT podes comprarlas ahora" label="Comprar Hectáreas" onclick={redirectCompraHT}></lightning-button>
-                        </lightning-layout-item>
-                    </lightning-layout>
-                </div>
-                <div class="slds-m-horizontal_large slds-m-bottom_medium">
-                    <p><span if:false={grandesCuentas}>2. </span>Detalla variedades y hectáreas sembradas con SEMBRA EVOLUCION</p>
-                </div>
-
-                <div class="slds-m-horizontal_large variedades">
-                    <svg class="slds-m-horizontal_small" xmlns="http://www.w3.org/2000/svg" width="17.75" height="15.531">
-                        <use xlink:href={icons.seed}></use>
-                    </svg>
-                    Variedades
-                    <lightning-layout vertical-align="center" horizontal-align="space" class="slds-text-align_center variedades-titles slds-p-vertical_medium slds-m-top_small">
-                        <lightning-layout-item size="2">Marca</lightning-layout-item>
-                        <lightning-layout-item size="2">Variedad</lightning-layout-item>
-                        <lightning-layout-item size="2">Hectáreas</lightning-layout-item>
-                        <lightning-layout-item size="1" title="Saldo de HTs disponibles">HT Disponibles</lightning-layout-item>
-                    </lightning-layout>
-
-                    <template for:each={info.lineas} for:item="linea">
-                        <c-variedad-pph key={linea.id} info={linea} onupdatecantidad={updateCantidad} onautosave={autosave}></c-variedad-pph>
+                        </template>
                     </template>
                 </div>
 
-                <div class="heading grey slds-p-vertical_small slds-m-vertical_medium">
-                    <span class="slds-m-horizontal_large">Hectáreas que NO utilizan SEMBRA EVOLUCIÓN</span>
-                </div>
+                <p class="p-help">
+                    Para editar el nombre o las coordenadas de un establecimiento existente, podés ir a
+                    <a href={establecimientosUrl} target="_blank">Precertificación &gt; Mis establecimientos</a>
+                </p>
 
-                <div class="slds-m-horizontal_large slds-m-bottom_medium">
-                    <p class="slds-m-bottom_medium"><span if:false={grandesCuentas}>3. </span>Indicar cantidad de hectáreas de {cultivo.Name} con variedades por fuera de SE</p>
-                    <lightning-input required class="slds-size_1-of-8" variant="label-hidden" label="" placeholder="Indicá cantidad de Hectáreas" type="number" step="1" onchange={updateCantidadFuera} onfocus={focus} onblur={blur} value={cantidadNoSE} message-when-value-missing="Este campo es obligatorio"></lightning-input>
+                <template if:true={showCrear}>
+                    <p class="p-or">O creá un establecimiento nuevo:</p>
+                    <div class="p-fields">
+                        <div>
+                            <label class="p-label" for="nombre">Nombre<span class="req">*</span></label>
+                            <input
+                                id="nombre"
+                                class={nameClass}
+                                type="text"
+                                value={name}
+                                oninput={updateName}
+                                onfocus={handleFocus}
+                                onblur={handleBlur}
+                            />
+                            <template if:true={nameError}>
+                                <p class="p-err" role="alert">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+                                    <span>{nameError}</span>
+                                </p>
+                            </template>
+                        </div>
+                        <div>
+                            <span class="p-label">Georreferencia<span class="req">*</span></span>
+                            <button type="button" class={geoClass} onclick={showMap}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+                                <template if:true={hasCoordinates}>
+                                    <span class="v">{mapCoordinates}</span>
+                                </template>
+                                <template if:false={hasCoordinates}>
+                                    <span>Seleccionar punto de lote</span>
+                                </template>
+                            </button>
+                            <template if:true={geoError}>
+                                <p class="p-err" role="alert">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+                                    <span>{geoError}</span>
+                                </p>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </section>
+        </template>
+
+        <section class={infoClass}>
+            <div class="p-ha-col">
+                <div class={haWrapClass}>
+                    <div class="p-ha">
+                        <span class="k"><b>Hectáreas Sembrá Evolución</b>{haCaption}</span>
+                        <span class="v">{totalSembradoLabel}</span>
+                    </div>
+                    <button type="button" class="btn btn-buy" disabled={disabled} title="Si te faltaron HT podés comprarlas ahora" onclick={redirectCompraHT}>
+                        Comprar hectáreas
+                    </button>
                 </div>
             </div>
-            <lightning-layout horizontal-align="center">
-                <lightning-button-icon size="large" if:false={collapsed} icon-name="utility:chevronup" variant="bare" alternative-text="Colapsar" title="Colapsar" onclick={changeCollapsed}></lightning-button-icon>
-                <lightning-button-icon size="large" if:true={collapsed} icon-name="utility:chevrondown" variant="bare" alternative-text="Expandir" title="Expandir" onclick={changeCollapsed}></lightning-button-icon>
-            </lightning-layout>
+
+            <div class="p-main">
+                <div class="p-area">
+                    <p class="p-step"><span class="n" if:true={showSeleccion}>2</span>{step2Label}</p>
+                    <template if:true={hasVariedades}>
+                        <div class="p-vhead" aria-hidden="true">
+                            <span>Marca</span>
+                            <span>Variedad</span>
+                            <span>Hectáreas</span>
+                            <span class="r">HT disponibles</span>
+                        </div>
+                    </template>
+                    <div class="p-vlist">
+                        <template for:each={info.lineas} for:item="linea">
+                            <c-variedad-pph
+                                key={linea.id}
+                                info={linea}
+                                onupdatecantidad={updateCantidad}
+                                onautosave={autosave}
+                            ></c-variedad-pph>
+                        </template>
+                    </div>
+                    <template if:false={hasVariedades}>
+                        <div class="p-empty">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"></path><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5zM12 9c0-3-2-5-5-5 0 3 2 5 5 5z"></path></svg>
+                            <span>Marca · Variedad · Hectáreas · HT disponibles</span>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="p-area">
+                    <p class="p-step"><span class="n" if:true={showSeleccion}>3</span>{step3Label}</p>
+                    <label class="p-label" for="nose">Hectáreas que NO utilizan Sembrá Evolución<span class="req">*</span></label>
+                    <input
+                        id="nose"
+                        class={noSEClass}
+                        type="number"
+                        inputmode="numeric"
+                        min="0"
+                        step="1"
+                        placeholder="Indicá cantidad de hectáreas"
+                        value={cantidadNoSEInput}
+                        oninput={updateCantidadFuera}
+                        onfocus={handleFocus}
+                        onblur={handleBlur}
+                    />
+                    <template if:true={noSEError}>
+                        <p class="p-err" role="alert">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+                            <span>{noSEError}</span>
+                        </p>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <div class="p-collapse">
+            <button type="button" aria-label={collapseLabel} title={collapseLabel} onclick={changeCollapsed}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={chevronPath}></path></svg>
+            </button>
         </div>
-    </div>
+    </article>
 </template>

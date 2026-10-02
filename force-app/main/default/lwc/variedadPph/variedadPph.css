@@ -1,41 +1,186 @@
-.se-var-row {
-    display: flex;
+:host {
+    display: block;
+    font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #1c1c1c;
+}
+
+.v-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        'brand ht'
+        'name ht'
+        'ha ha';
+    gap: 4px 12px;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border: 1.5px solid #bfff00;
-    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #dde2eb;
+    border-radius: 12px;
     background: #fff;
 }
 
-.se-var-brand {
-    flex-shrink: 0;
+.v-brand {
+    grid-area: brand;
 }
 
-.se-var-logo {
-    width: 48px;
-    height: 28px;
+.brand {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #eef1f7;
+    font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #1c1c1c;
 }
 
-.se-var-copy {
-    flex: 1;
-    min-width: 0;
-}
-
-.se-var-name {
-    display: block;
-    font-size: 14px;
+.v-name {
+    grid-area: name;
     font-weight: 700;
-}
-
-.se-var-disp {
-    display: block;
+    font-size: 14px;
     margin-top: 2px;
-    font-size: 12px;
-    color: #6b7280;
 }
 
-.se-var-input {
-    width: 96px;
-    flex-shrink: 0;
+.v-ht {
+    grid-area: ht;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.v-ht-k {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #4a5261;
+}
+
+.v-ha {
+    grid-area: ha;
+    margin-top: 8px;
+}
+
+.v-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1c1c1c;
+    margin: 0 0 6px;
+}
+
+.p-input {
+    width: 100%;
+    min-height: 44px;
+    border: 1.5px solid #dde2eb;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #1c1c1c;
+    background: #fff;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.p-input.num {
+    font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.p-input::placeholder {
+    color: #8892a3;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.p-input:focus {
+    border-color: #bfff00;
+    box-shadow: 0 0 0 3px rgba(191, 255, 0, 0.35);
+}
+
+.p-input.err {
+    border-color: #d64545;
+    background: rgba(214, 69, 69, 0.06);
+}
+
+.p-err {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #b83232;
+    font-weight: 600;
+    margin: 6px 0 0;
+}
+
+.p-err svg {
+    flex: none;
+    margin-top: 1px;
+}
+
+.p-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #bfff00;
+    color: #1c1c1c;
+    font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.p-num.zero {
+    background: rgba(255, 169, 69, 0.2);
+    border: 1px solid #ffa945;
+    color: #7a4400;
+}
+
+@media (min-width: 768px) {
+    .v-row {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 220px 140px;
+        grid-template-areas: 'brand name ha ht';
+        gap: 0;
+        padding: 0;
+        border: none;
+        border-bottom: 1px solid #dde2eb;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .v-row > div {
+        padding: 12px;
+    }
+
+    .v-name {
+        margin-top: 0;
+    }
+
+    .v-ha {
+        margin-top: 0;
+    }
+
+    .v-label,
+    .v-ht-k {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .v-ht {
+        align-items: flex-end;
+    }
 }

@@ -1,69 +1,275 @@
 :host {
     display: block;
+    --pph-black: #1c1c1c;
+    --pph-lime: #bfff00;
+    --pph-orange: #ffa945;
+    --pph-muted-bg: #eef1f7;
+    --pph-border: #dde2eb;
+    --pph-text-muted: #4a5261;
+    --pph-shadow-card: 0 1px 2px rgba(28, 28, 28, 0.06), 0 4px 12px rgba(28, 28, 28, 0.06);
+    font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: var(--pph-black);
 }
 
-.pph-list-footer {
+.pph-stack {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    margin-top: 8px;
-    padding: 0 16px 24px;
+    gap: 16px;
+    margin-top: 14px;
 }
 
-.pph-add-est {
-    appearance: none;
-    width: 100%;
+.pph-crop {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: var(--pph-shadow-card);
+    overflow: hidden;
+}
+
+.pph-crop-h {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 18px;
-    border-radius: 999px;
-    border: 1.5px dashed #1c1c1c;
-    background: transparent;
-    color: #1c1c1c;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--pph-black);
+    color: #fff;
+    font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
-.pph-add-icon {
-    width: 22px;
-    height: 22px;
+.pph-crop-h svg {
+    color: var(--pph-lime);
+    flex: none;
+}
+
+.pph-plan {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        'info badge'
+        'actions actions';
+    gap: 12px;
+    padding: 16px;
+}
+
+.pph-plan + .pph-plan {
+    border-top: 1px solid var(--pph-border);
+}
+
+.pph-plan-info {
+    grid-area: info;
+    min-width: 0;
+}
+
+.pph-plan-name {
+    margin: 0;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 20px;
+    color: var(--pph-black);
+}
+
+.pph-meta {
+    margin: 2px 0 0;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--pph-text-muted);
+}
+
+.pph-plan-badge {
+    grid-area: badge;
+    padding-top: 2px;
+}
+
+.pph-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
     border-radius: 999px;
-    background: #bfff00;
-    color: #1c1c1c;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.pph-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    background: currentColor;
+}
+
+.pph-badge-info {
+    background: var(--pph-muted-bg);
+    color: var(--pph-black);
+    border: 1px solid var(--pph-border);
+}
+
+.pph-badge-info .pph-dot {
+    background: var(--pph-text-muted);
+}
+
+.pph-badge-warn {
+    background: rgba(255, 169, 69, 0.18);
+    color: #7a4400;
+    border: 1px solid var(--pph-orange);
+}
+
+.pph-badge-ok {
+    background: rgba(191, 255, 0, 0.2);
+    color: #4d6b00;
+    border: 1px solid var(--pph-lime);
+}
+
+.pph-badge-danger {
+    background: rgba(214, 69, 69, 0.14);
+    color: #8a2222;
+    border: 1px solid #d64545;
+}
+
+.pph-actions {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pph-actions .pph-icon-btn,
+.pph-actions .pph-icon-spacer {
+    order: 2;
+}
+
+.pph-icon-spacer {
+    display: none;
+}
+
+.pph-icon-btn {
+    width: 44px;
+    height: 44px;
+    flex: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.pph-help-link {
-    appearance: none;
-    border: none;
-    background: transparent;
-    padding: 4px 0;
-    margin: 0 auto;
-    font-size: 12px;
-    color: #6b7280;
-    text-decoration: underline;
+    border-radius: 999px;
+    border: 1.5px solid var(--pph-black);
+    background: #fff;
+    color: var(--pph-black);
     cursor: pointer;
 }
 
+.pph-btn {
+    flex: 1;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.pph-btn-primary {
+    background: var(--pph-lime);
+    color: var(--pph-black);
+    border: none;
+}
+
+.pph-btn-primary:hover {
+    background: #a8e600;
+}
+
+.pph-btn-ghost {
+    background: #fff;
+    color: var(--pph-black);
+    border: 1.5px solid var(--pph-black);
+}
+
+.pph-btn-ghost:hover {
+    background: var(--pph-muted-bg);
+}
+
+.pph-closed {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--pph-muted-bg);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pph-text-muted);
+}
+
+.pph-empty {
+    margin: 0;
+    padding: 24px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--pph-shadow-card);
+    text-align: center;
+    color: var(--pph-text-muted);
+}
+
 @media (min-width: 768px) {
-    .pph-list-footer {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 0 0;
+    .pph-stack {
+        margin-top: 20px;
     }
 
-    .pph-add-est {
-        width: auto;
-        min-width: 280px;
+    .pph-crop-h {
+        padding: 14px 24px;
+    }
+
+    .pph-plan {
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.3fr) 150px 210px;
+        grid-template-areas: none;
+        align-items: center;
+        gap: 20px;
+        padding: 18px 24px;
+    }
+
+    .pph-plan-info {
+        display: contents;
+    }
+
+    .pph-plan-info,
+    .pph-plan-badge,
+    .pph-actions {
+        grid-area: auto;
+    }
+
+    .pph-meta {
+        margin: 0;
+    }
+
+    .pph-plan-badge {
+        padding-top: 0;
+    }
+
+    .pph-actions .pph-icon-btn,
+    .pph-actions .pph-icon-spacer {
+        order: 0;
+    }
+
+    .pph-icon-spacer {
+        display: block;
+        width: 44px;
+        flex: none;
+    }
+
+    .pph-closed {
+        justify-content: center;
+        text-align: center;
+        line-height: 16px;
+        padding: 6px 14px;
     }
 }

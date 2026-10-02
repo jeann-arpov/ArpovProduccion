@@ -1,52 +1,39 @@
 <template>
-    <div class="tc-root">
-        <p class="tc-eyebrow">{eyebrowLabel}</p>
-        <h1 class="tc-title">Términos y Condiciones</h1>
+    <section class="tc-card">
+        <div class="tc-doc" onscroll={scrollTerminos}>
+            <div class="tc-rich" lwc:dom="manual"></div>
+        </div>
 
-        <nav class="tc-steps" aria-label="Progreso de adhesión">
-            <div class="tc-step tc-step--done">
-                <span class="tc-step-marker" aria-hidden="true">✓</span>
-                <span class="tc-step-label">Establecimientos y superficie</span>
+        <div class="tc-foot">
+            <div class="tc-accept">
+                <label class={checkRowClass}>
+                    <input
+                        type="checkbox"
+                        class="tc-native"
+                        disabled={checkboxDisabled}
+                        checked={accepted}
+                        onchange={handleCheckChange}
+                    />
+                    <span class={checkClass} aria-hidden="true">
+                        <template if:true={accepted}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+                        </template>
+                    </span>
+                    <span>Acepto términos y condiciones</span>
+                </label>
+                <template if:true={showError}>
+                    <p class="tc-err" role="alert">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+                        <span>Tenés que aceptar los términos y condiciones</span>
+                    </p>
+                </template>
+                <p class="tc-hint">Leé los términos y condiciones hasta el final para poder continuar</p>
             </div>
-            <div class="tc-step tc-step--current" aria-current="step">
-                <span class="tc-step-marker" aria-hidden="true">2</span>
-                <span class="tc-step-label">Términos y Condiciones</span>
-            </div>
-        </nav>
-
-        <section class="tc-card">
-            <div class="tc-scroll" onscroll={scrollTerminos}>
-                <lightning-formatted-rich-text
-                    class="tc-rich"
-                    value={terminosYCondiciones}
-                ></lightning-formatted-rich-text>
-            </div>
-
-            <label class="tc-check-row">
-                <input
-                    type="checkbox"
-                    class="tc-check"
-                    disabled={checkboxDisabled}
-                    checked={accepted}
-                    onchange={handleCheckChange}
-                />
-                <span class="tc-check-label">Acepto los términos y condiciones</span>
-            </label>
-            <p class="tc-hint">Leer términos y condiciones hasta el final para poder continuar</p>
 
             <div class="tc-actions">
-                <button type="button" class="tc-btn tc-btn-ghost" onclick={cancel}>
-                    ← Volver
-                </button>
-                <button
-                    type="button"
-                    class="tc-btn tc-btn-primary"
-                    disabled={acceptDisabled}
-                    onclick={accept}
-                >
-                    Aceptar
-                </button>
+                <button type="button" class="tc-btn tc-btn-ghost" onclick={cancel}>Volver</button>
+                <button type="button" class="tc-btn tc-btn-primary" onclick={accept}>Aceptar</button>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
 </template>

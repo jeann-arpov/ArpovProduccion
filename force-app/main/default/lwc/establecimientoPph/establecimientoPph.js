@@ -1,239 +1,282 @@
-import { LightningElement, api } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { LightningElement, api, track } from 'lwc';
 import searchEstablecimientos from '@salesforce/apex/AdhesionPPH.searchEstablecimientos';
-import icons from 'c/icons';
-import { errorEvent } from 'c/utils';
+import { reduceErrors } from 'c/utils';
+import { PAGES, communityPageUrl } from 'c/seNav';
 
-export default class EstablecimientoPph extends NavigationMixin(LightningElement) {
+const MSG_REQUERIDO = 'Este campo es obligatorio';
+const MSG_SIN_CANTIDAD =
+    'Debe ingresarse cantidad distinto a 0 en al menos una variedad para poder avanzar';
+
+const fmt = (n) => new Intl.NumberFormat('es-AR').format(Number(n) || 0);
+
+export default class EstablecimientoPph extends LightningElement {
     @api info;
     @api hiding;
     @api cultivo;
     @api grandesCuentas;
-    @api variant = 'legacy';
-    /** wizard: 'establecimiento' | 'superficie' | 'full' (default full = ambos bloques) */
-    @api wizardPhase = 'full';
-    /** Saldo HT total del cultivo (opcional; si no viene se estima desde lineas). */
-    @api saldoHt;
 
-    name = "";
-    cantidadNoSE;
-    cantidadSE;
+    name = '';
+    cantidadNoSEInput = '';
     longitude;
     latitude;
     collapsed = false;
     establecimiento;
+    showErrors = false;
 
-    icons = icons.pph;
+    searchTerm = '';
+    @track searchResults = [];
+    searchDone = false;
+    searching = false;
+    searchTimer;
 
-    init() {
+    @track cantidades = {};
+
+    connectedCallback() {
+        if (this.initialized) return;
         this.initialized = true;
 
-        this.cantidadNoSE = this.info.record.Cantidad_Variedad_No_SE__c;
-        this.cantidadSE =
-            this.info.cantidadSE != null
-                ? this.info.cantidadSE
-                : (this.info.lineas || []).reduce(
-                      (sum, l) => sum + (Number(l.record?.Cantidad_Declarada__c) || 0),
-                      0
-                  );
+        const record = this.info?.record || {};
+        const noSE = record.Cantidad_Variedad_No_SE__c;
+        this.cantidadNoSEInput = noSE == null ? '' : String(noSE);
 
-        if (this.info.record.Establecimiento__r) {
+        if (record.Establecimiento__r) {
             this.establecimiento = {
-                ...this.info.record.Establecimiento__r,
-                title: this.info.record.Name,
-                id: this.info.record.Establecimiento__r.Id,
-                icon: 'standard:address'
+                ...record.Establecimiento__r,
+                id: record.Establecimiento__r.Id
             };
         }
+
+        const cantidades = {};
+        for (const linea of this.info?.lineas || []) {
+            cantidades[linea.id] = linea.record?.Cantidad_Declarada__c || 0;
+        }
+        this.cantidades = cantidades;
     }
 
-    renderedCallback() {
-        if (!this.initialized) this.init();
+    disconnectedCallback() {
+        clearTimeout(this.searchTimer);
     }
 
-    get titulo() {
-        return "Establecimiento " + (this.establecimiento?.Name || (this.name ? " - " + this.name : ""));
+    get isGrandesCuentas() {
+        return this.grandesCuentas === true;
     }
 
-    get isWizardVariant() {
-        return this.variant === 'wizard';
+    get showSeleccion() {
+        return !this.isGrandesCuentas;
     }
 
-    get showWizardEstablecimientoBlock() {
-        if (!this.isWizardVariant) return true;
-        return this.wizardPhase !== 'superficie';
+    get cultivoName() {
+        return this.cultivo?.Name || '';
     }
 
-    /** Nunca mostrar el header legacy ESTABLECIMIENTO en el wizard rediseñado. */
-    get showWizardLegacyHead() {
-        return false;
+    get blockClass() {
+        return 'p-block' + (this.hiding && this.hiding[this.info?.id] ? ' is-hidden' : '');
     }
 
-    get showWizardNameChip() {
-        if (!(this.isWizardVariant && this.wizardPhase === 'superficie')) return false;
-        const nombre =
-            this.establecimiento?.Name ||
-            this.establecimiento?.title ||
-            this.name ||
-            this.info?.record?.Establecimiento__r?.Name ||
-            this.info?.record?.Name;
-        return !!nombre;
+    get headerName() {
+        return this.establecimiento?.Name || this.name || '';
     }
 
-    get showWizardEstablecimientoBody() {
-        // La selección se hace con el checklist del padre.
-        return false;
+    get hasEstablecimiento() {
+        return !!this.establecimiento;
     }
 
-    get showWizardSuperficieOnlyHead() {
-        return false;
+    get showCrear() {
+        return !this.isGrandesCuentas && !this.establecimiento;
     }
 
-    get showWizardSuperficieBlock() {
-        if (!this.isWizardVariant) return true;
-        return this.wizardPhase !== 'establecimiento';
+    get establecimientosUrl() {
+        return communityPageUrl(PAGES.establecimientos);
     }
 
-    get showWizardToggle() {
-        return this.isWizardVariant && this.wizardPhase === 'full' && !this.grandesCuentas;
+    get step2Label() {
+        return 'Detallá variedades y hectáreas sembradas con Sembrá Evolución';
     }
 
-    get collapsedLabel() {
-        return this.collapsed ? 'Expandir establecimiento' : 'Colapsar establecimiento';
+    get step3Label() {
+        return `Indicá cantidad de hectáreas de ${this.cultivoName} con variedades por fuera de SE`;
     }
 
-    get superficieEyebrow() {
-        return 'Establecimiento';
+    get haCaption() {
+        return `Hectáreas totales de ${this.cultivoName} sembradas`;
     }
 
-    get superficieTitle() {
-        const nombre =
-            this.establecimiento?.Name ||
-            this.establecimiento?.title ||
-            this.name ||
-            this.info?.record?.Name ||
-            this.info?.record?.Establecimiento__r?.Name ||
-            '';
-        return nombre || 'Establecimiento';
+    get hasCoordinates() {
+        return this.latitude != null && this.longitude != null;
+    }
+
+    get mapCoordinates() {
+        if (!this.hasCoordinates) return '';
+        return Number(this.latitude).toFixed(2) + ', ' + Number(this.longitude).toFixed(2);
+    }
+
+    get geoClass() {
+        let cls = 'p-geo';
+        if (this.hasCoordinates) cls += ' filled';
+        if (this.geoError) cls += ' err';
+        return cls;
+    }
+
+    get nameError() {
+        return this.showErrors && this.showCrear && !this.name.trim() ? MSG_REQUERIDO : null;
+    }
+
+    get geoError() {
+        return this.showErrors && this.showCrear && !this.hasCoordinates ? MSG_REQUERIDO : null;
+    }
+
+    get nameClass() {
+        return this.nameError ? 'p-input err' : 'p-input';
+    }
+
+    get noSEError() {
+        return this.showErrors && this.cantidadNoSEInput === '' ? MSG_REQUERIDO : null;
+    }
+
+    get noSEClass() {
+        return this.noSEError ? 'p-input num p-input-short err' : 'p-input num p-input-short';
+    }
+
+    get disabled() {
+        return (
+            !this.isGrandesCuentas &&
+            !this.establecimiento &&
+            (this.name.trim() === '' || !this.hasCoordinates)
+        );
+    }
+
+    get infoClass() {
+        let cls = 'p-sec p-info';
+        if (this.disabled) cls += ' is-disabled';
+        if (this.collapsed) cls += ' is-collapsed';
+        return cls;
+    }
+
+    get haWrapClass() {
+        return 'p-ha-wrap' + (this.disabled ? ' off' : '');
+    }
+
+    get safeCantidadNoSE() {
+        const value = Number(this.cantidadNoSEInput);
+        return this.cantidadNoSEInput === '' || Number.isNaN(value) ? 0 : value;
+    }
+
+    get totalSE() {
+        return Object.values(this.cantidades).reduce((a, b) => a + (Number(b) || 0), 0);
+    }
+
+    get totalSembrado() {
+        return this.totalSE + this.safeCantidadNoSE;
+    }
+
+    get totalSembradoLabel() {
+        return fmt(this.totalSembrado);
     }
 
     get hasVariedades() {
-        return (this.info?.lineas || []).length > 0;
+        return (this.info?.lineas || []).some((linea) => {
+            const totals = linea.variedad?.totals || {};
+            const disponibles = (totals.total || 0) - (totals.current || 0);
+            return disponibles > 0 || (this.cantidades[linea.id] || 0) > 0;
+        });
     }
 
-    get saldoHtCultivo() {
-        if (this.saldoHt != null && this.saldoHt !== undefined) {
-            return Number(this.saldoHt) || 0;
+    get collapseLabel() {
+        return this.collapsed ? 'Expandir' : 'Colapsar';
+    }
+
+    get chevronPath() {
+        return this.collapsed ? 'M6 9l6 6 6-6' : 'M18 15l-6-6-6 6';
+    }
+
+    get hasSearchTerm() {
+        return this.searchTerm.trim().length > 0;
+    }
+
+    get showDropdown() {
+        return this.hasSearchTerm && (this.searchResults.length > 0 || this.searchDone);
+    }
+
+    get noResults() {
+        return this.searchDone && this.searchResults.length === 0;
+    }
+
+    handleSearchInput(event) {
+        this.searchTerm = event.target.value || '';
+        this.searchDone = false;
+        clearTimeout(this.searchTimer);
+        if (this.searchTerm.trim().length < 2) {
+            this.searchResults = [];
+            return;
         }
-        return (this.info?.lineas || []).reduce(
-            (sum, l) => sum + (Number(l.variedad?.totals?.total) || 0),
-            0
-        );
+        const term = this.searchTerm.trim();
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        this.searchTimer = setTimeout(() => this.runSearch(term), 300);
     }
 
-    get hasSaldoHt() {
-        return this.saldoHtCultivo > 0 || this.safeCantidadSE > 0;
-    }
-
-    get maxCantidadSe() {
-        return Math.max(Number(this.saldoHtCultivo) || 0, 0);
-    }
-
-    get safeCantidadSE() {
-        return Number(this.cantidadSE) || 0;
-    }
-
-    get superficieSeHint() {
-        const saldo = new Intl.NumberFormat('es-AR').format(this.saldoHtCultivo || 0);
-        return `HT disponibles del cultivo: ${saldo}. Si te faltan, usá Comprar HT arriba.`;
-    }
-
-    get seInput() {
-        return this.template.querySelector('.se-se-input');
-    }
-
-    get overSaldoSeMessage() {
-        const saldo = new Intl.NumberFormat('es-AR').format(this.maxCantidadSe);
-        return `No puede superar las ${saldo} HT disponibles del cultivo`;
-    }
-
-    /** Marca / limpia error inline del input SE (también usable desde el padre). */
-    @api
-    setSuperficieSeError(message) {
-        const input = this.seInput;
-        if (!input) return;
-        input.setCustomValidity(message || '');
-        if (message) input.reportValidity();
-    }
-
-    @api
-    applySeFieldValidity() {
-        if (!this.isWizardVariant) return true;
-        const input = this.seInput;
-        if (!input) return true;
-        if (this.safeCantidadSE > this.maxCantidadSe) {
-            input.setCustomValidity(this.overSaldoSeMessage);
-            return false;
+    async runSearch(term) {
+        this.searching = true;
+        try {
+            const res = await searchEstablecimientos({ searchTerm: term });
+            if (term !== this.searchTerm.trim()) return;
+            this.searchResults = (res || []).map((r) => ({
+                id: r.id,
+                title: r.title,
+                subtitle: r.subtitle || 'Establecimiento',
+                record: r.record
+            }));
+            this.searchDone = true;
+        } catch (e) {
+            this.notify(reduceErrors(e).join('\n'));
         }
-        input.setCustomValidity('');
-        return true;
+        this.searching = false;
     }
 
-    @api
-    reportSeValidity() {
-        this.seInput?.reportValidity();
+    handleSelectResult(event) {
+        const id = event.currentTarget.dataset.id;
+        const result = this.searchResults.find((r) => r.id === id);
+        if (!result) return;
+        this.establecimiento = { ...result.record, id: result.record.Id };
+        this.searchTerm = '';
+        this.searchResults = [];
+        this.searchDone = false;
+        this.dispatchEvent(new CustomEvent('pasoestablecimiento'));
+        this.autosave();
     }
 
-    @api
-    validateSelection() {
-        if (this.grandesCuentas) return true;
-        if (this.establecimiento) return true;
-        if (this.name?.trim() && this.latitude !== undefined && this.longitude !== undefined) {
-            return true;
+    handleClearSelection() {
+        this.establecimiento = null;
+        if (this.info?.record?.Id) {
+            this.dispatchEvent(new CustomEvent('establecimientochange'));
         }
-        return false;
     }
 
     updateName(event) {
-        this.name = event.target.value;
+        this.name = event.target.value || '';
     }
 
     updateCantidad(event) {
+        const { variedad, cantidad } = event.detail;
+        this.cantidades = {
+            ...this.cantidades,
+            [variedad]: (this.cantidades[variedad] || 0) + cantidad
+        };
         this.dispatchEvent(new CustomEvent('updatecantidad', { detail: event.detail }));
     }
 
-    updateCantidadSe(event) {
-        const prev = this.safeCantidadSE;
-        const raw = event.detail?.value ?? event.target?.value;
-        const parsed = raw === '' || raw == null ? 0 : Number(raw);
-        const next = Number.isFinite(parsed) ? parsed : 0;
-        this.cantidadSE = next;
-        this.applySeFieldValidity();
-        this.seInput?.reportValidity();
-        this.dispatchEvent(
-            new CustomEvent('updatecantidadse', {
-                detail: { previous: prev, cantidad: next, delta: next - prev }
-            })
-        );
-    }
-
     updateCantidadFuera(event) {
-        const raw = event.detail?.value ?? event.target?.value;
-        const parsed = raw === '' || raw == null ? null : Number(raw);
-        this.cantidadNoSE = Number.isFinite(parsed) ? parsed : null;
-        this.dispatchEvent(
-            new CustomEvent('updatecantidadnose', {
-                detail: { cantidad: this.cantidadNoSE }
-            })
-        );
-        if (this.cantidadNoSE > 0) {
+        this.cantidadNoSEInput = event.target.value === '' ? '' : String(event.target.value);
+        if (this.safeCantidadNoSE > 0) {
             this.dispatchEvent(new CustomEvent('pasohectareasnose'));
         }
     }
 
-    showMap(event) {
-        event?.preventDefault?.();
-        this.dispatchEvent(new CustomEvent('showmap', { detail: { callback: this.updateLocation.bind(this) } }));
+    showMap() {
+        this.dispatchEvent(
+            new CustomEvent('showmap', {
+                detail: { callback: this.updateLocation.bind(this) }
+            })
+        );
     }
 
     updateLocation(data, map) {
@@ -241,15 +284,10 @@ export default class EstablecimientoPph extends NavigationMixin(LightningElement
         if (this.validateCoordinates(data.longitude, data.latitude)) {
             this.longitude = data.longitude;
             this.latitude = data.latitude;
-            const coordinates = this.template.querySelector('.coordinates');
-            if (coordinates) {
-                coordinates.value = this.mapCoodinates;
-                coordinates.setCustomValidity('');
-                coordinates.reportValidity();
-            }
             this.autosave();
+            this.dispatchEvent(new CustomEvent('pasoestablecimiento'));
         } else {
-            this.dispatchEvent(errorEvent(new Error('Las coordenadas deben ser negativas')));
+            this.notify('Las coordenadas deben ser negativas');
         }
     }
 
@@ -265,125 +303,35 @@ export default class EstablecimientoPph extends NavigationMixin(LightningElement
         this.dispatchEvent(new CustomEvent('remove'));
     }
 
-    get safeCantidadNoSE() {
-        return this.cantidadNoSE || 0;
+    get variedadesPPH() {
+        return Array.from(this.template.querySelectorAll('c-variedad-pph'));
     }
 
-    get declaredCantidadNoSE() {
-        if (this.cantidadNoSE == null || this.cantidadNoSE === '') return null;
-        const n = Number(this.cantidadNoSE);
-        return Number.isFinite(n) ? n : null;
-    }
-
-    get totalSuperficieSe() {
-        if (this.isWizardVariant) {
-            return this.safeCantidadSE;
-        }
-        try {
-            return (this.variedadesPPH || [])
-                .map((e) => Number(e.getData()?.cantidad) || 0)
-                .reduce((a, b) => a + b, 0);
-        } catch (e) {
-            return 0;
-        }
-    }
-
-    get totalSembrado() {
-        return this.safeCantidadNoSE + this.totalSuperficieSe;
-    }
-
-    get totalSembradoLabel() {
-        return `${new Intl.NumberFormat('es-AR').format(this.totalSuperficieSe || 0)} ha`;
-    }
-
-    get cantidadNoSeLabel() {
-        return `${new Intl.NumberFormat('es-AR').format(this.safeCantidadNoSE || 0)} ha`;
-    }
-
-    get mapCoodinates() {
-        if (this.latitude !== undefined) return this.latitude.toFixed(2) + ', ' + this.longitude.toFixed(2);
-        return 'Seleccionar Punto de lote';
-    }
-
-    get coordinatesClass() {
-        return 'coordinates' + (this.latitude !== undefined ? '' : ' black');
-    }
-
-    get disabled() {
-        return (
-            this.grandesCuentas === false &&
-            !this.establecimiento &&
-            (this.name.trim() === '' || this.longitude === undefined || this.latitude === undefined)
-        );
-    }
-
-    get infoClass() {
-        let cls = this.isWizardVariant ? 'se-est-info' : 'info';
-        if (this.collapsed) cls += ' collapsed';
-        if (this.disabled) cls += ' disabled';
-        return cls;
-    }
-
+    /** Devuelve true si no hubo errores. report=false valida sin marcar los campos. */
     @api
-    validate() {
+    validate(report = true) {
+        if (report) this.showErrors = true;
         let valid = true;
 
-        if (this.grandesCuentas === false && !this.establecimiento && this.mapCoodinates.startsWith('Selec')) {
-            const coordinates = this.template.querySelector('.coordinates');
-            if (coordinates) coordinates.setCustomValidity('Este campo es obligatorio');
-        }
+        if (this.showCrear && (!this.name.trim() || !this.hasCoordinates)) valid = false;
+        if (this.cantidadNoSEInput === '') valid = false;
 
         let total = 0;
-
-        if (this.isWizardVariant) {
-            total = this.safeCantidadSE;
-            if (!this.applySeFieldValidity()) {
-                valid = false;
-            }
-        } else {
-            for (const element of this.template.querySelectorAll('c-variedad-pph')) {
-                if (!element.validate()) valid = false;
-                total += element.getData().cantidad;
-            }
+        for (const element of this.variedadesPPH) {
+            if (!element.validate(report)) valid = false;
+            total += element.getData().cantidad;
         }
 
-        for (const element of this.template.querySelectorAll('lightning-input')) {
-            if (!element.reportValidity()) valid = false;
-        }
+        if (!valid && report) this.collapsed = false;
 
         if (valid && total + this.safeCantidadNoSE === 0) {
-            throw this.isWizardVariant
-                ? 'Debe ingresarse superficie SE o hectáreas fuera de SE para poder avanzar'
-                : 'Debe ingresarse cantidad distinto a 0 en al menos una variedad para poder avanzar';
+            throw new Error(MSG_SIN_CANTIDAD);
         }
 
         return valid;
     }
 
-    get variedadesPPH() {
-        return Array.from(this.template.querySelectorAll('c-variedad-pph'));
-    }
-
-    @api
-    getData() {
-        if (this.isWizardVariant) {
-            return {
-                id: this.establecimiento?.Id,
-                latitude: this.establecimiento?.Coordenadas__Latitude__s || this.latitude,
-                longitude: this.establecimiento?.Coordenadas__Longitude__s || this.longitude,
-                cantidadNoSE: this.declaredCantidadNoSE,
-                cantidadSE: this.safeCantidadSE,
-                name: this.establecimiento?.Name || this.name,
-                lineasMeta: (this.info?.lineas || []).map((l) => ({
-                    variedadId: l.id,
-                    lineaId: l.record?.Id || null,
-                    stock: Number(l.variedad?.totals?.total) || 0,
-                    variedad: l.variedad
-                })),
-                variedades: {}
-            };
-        }
-
+    @api getData() {
         const variedades = Object.fromEntries(
             this.variedadesPPH
                 .filter((v) => v.cantidad > 0 || v.info.record.Id)
@@ -400,62 +348,25 @@ export default class EstablecimientoPph extends NavigationMixin(LightningElement
     }
 
     redirectCompraHT() {
-        this[NavigationMixin.GenerateUrl]({
-            type: 'comm__namedPage',
-            attributes: {
-                pageName: 'FormularioNuevaVentaHT'
-            }
-        }).then((url) => window.open(url, '_blank'));
-    }
-
-    get establecimientoClass() {
-        return 'establecimiento' + (this.hiding[this.info.id] ? ' slds-hide' : '');
+        if (this.disabled) return;
+        window.open(communityPageUrl(PAGES.comprar), '_blank');
     }
 
     autosave() {
         this.dispatchEvent(new CustomEvent('autosave'));
     }
 
-    blur(e) {
-        // lightning-input: value puede ser number; dataset siempre string
-        const prev = String(e.target.dataset.val ?? '');
-        const next = String(e.target.value ?? '');
-        if (prev !== next) {
+    handleBlur(event) {
+        if (event.target.dataset.val !== event.target.value) {
             this.autosave();
         }
     }
 
-    focus(e) {
-        e.target.dataset.val = String(e.target.value ?? '');
+    handleFocus(event) {
+        event.target.dataset.val = event.target.value;
     }
 
-    onError(e) {
-        this.dispatchEvent(errorEvent(e));
-    }
-
-    establecimientoSelected(event) {
-        const selection = event.target.getSelection();
-        this.establecimiento = selection.length
-            ? { ...selection[0].record, title: selection[0].record.Name, icon: 'standard:address' }
-            : null;
-
-        if (this.establecimiento === null && this.info.record.Id) {
-            this.dispatchEvent(new CustomEvent('establecimientochange'));
-        }
-    }
-
-    async search(event) {
-        const lookup = event.target;
-        await searchEstablecimientos({ searchTerm: event.detail.searchTerm })
-            .then((res) => lookup.setSearchResults(res))
-            .catch((e) => this.onError(e));
-    }
-
-    get totalesSembradasLabel() {
-        return `Hectáreas TOTALES de ${this.cultivo.Name} Sembradas`;
-    }
-
-    get superficieBannerTitle() {
-        return 'Superficie a precertificar (ha)';
+    notify(message) {
+        this.dispatchEvent(new CustomEvent('notify', { detail: { message } }));
     }
 }

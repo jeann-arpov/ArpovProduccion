@@ -3,15 +3,21 @@ import { LightningElement, api } from 'lwc';
 export default class Map extends LightningElement {
     @api latitude;
     @api longitude;
+    @api title = 'Seleccionar punto de lote';
     callback;
+    isOpen = false;
 
     connectedCallback() {
-        window.addEventListener("message", this.handleVFResponse.bind(this));
+        this.messageHandler = this.handleVFResponse.bind(this);
+        window.addEventListener('message', this.messageHandler);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('message', this.messageHandler);
     }
 
     handleVFResponse(message) {
         if (message.origin === new URL(location.href).origin && message.data.lat != undefined) {
-            console.log(JSON.parse(JSON.stringify(message.data)));
             const location = {latitude: message.data.lat, longitude: message.data.lng};
             this.latitude = location.latitude;
             this.longitude = location.longitude;
@@ -27,10 +33,10 @@ export default class Map extends LightningElement {
 
     @api show(callback) {
         this.callback = callback;
-        this.template.querySelector('c-modal').show();
+        this.isOpen = true;
     }
 
     @api hide() {
-        this.template.querySelector('c-modal').hide();
+        this.isOpen = false;
     }
 }

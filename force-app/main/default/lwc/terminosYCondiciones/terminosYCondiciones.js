@@ -4,24 +4,39 @@ export default class TerminosYCondiciones extends LightningElement {
     @api cultivo;
     @api grandesCuentas;
     @api campaña;
-    saveDisabled = true;
     scrolledToEnd = false;
     accepted = false;
+    showError = false;
 
-    get eyebrowLabel() {
-        const cultivo = this.cultivo || '';
-        const campania = this.campaña || '';
-        const plan = campania ? `Plan de Siembra ${campania}` : 'Plan de Siembra';
-        const crop = cultivo ? ` · ${cultivo}` : '';
-        return `Adhesión al Programa de Precertificación de Hectáreas (PPH) – ${plan}${crop}`;
+    renderedCallback() {
+        const container = this.template.querySelector('.tc-rich');
+        const html = this.formattedTerminos;
+        if (container && this.renderedHtml !== html) {
+            container.innerHTML = html;
+            this.renderedHtml = html;
+        }
+    }
+
+    get formattedTerminos() {
+        const raw = (this.terminosYCondiciones || '').trim();
+        if (/<(p|div|ol|ul)[\s>]/i.test(raw)) return raw.replace(/>\s+</g, '><');
+        return raw
+            .split(/\n\s*\n/)
+            .map((par) => `<p>${par.trim().replace(/\s*\n\s*/g, '<br>')}</p>`)
+            .join('');
     }
 
     get checkboxDisabled() {
         return !this.scrolledToEnd;
     }
 
-    get acceptDisabled() {
-        return !this.scrolledToEnd || !this.accepted;
+    get checkClass() {
+        if (this.accepted) return 'tc-check on';
+        return this.showError ? 'tc-check err' : 'tc-check';
+    }
+
+    get checkRowClass() {
+        return 'tc-checkrow' + (this.scrolledToEnd ? '' : ' is-disabled');
     }
 
     get terminosYCondiciones() {
@@ -150,6 +165,77 @@ export default class TerminosYCondiciones extends LightningElement {
                 <p>6.2. El Productor podrá informar al Semillero y/o a Sembrá Evolución, su intención de dejar de participar del PPH hasta el 28 de febrero de 2025. En tal supuesto, el Productor no podrá gozar de los Beneficios del PPH, sin que esto genere derecho a reembolso o indemnización alguna al Productor, más que la conversión de lo abonado a créditos a razón de tres (3) toneladas por 1.5 bolsas de 40 kgs o por Hectárea Tecnológica, según corresponda.</p>
                 <p><b>7 CARÁCTER COMPLEMENTARIO</b></p>
                 <p>El presente documento es complementario a las Licencias y en ningún caso se considerará que las reemplaza o sustituye. En caso de inconsistencias entre este documento y alguna Licencia e particular, prevalecerán las condiciones de cada Licencia.</p>`;
+            case '2026/2027':
+                return `<p><b>TÉRMINOS Y CONDICIONES DEL PROGRAMA DE PRECERTIFICACIÓN DE HECTÁREAS DE SOJA - SISTEMA "SEMBRÁ EVOLUCIÓN"</b></p>
+                <p><b>Campaña 2026/27</b></p>
+                <p><b>I. CONSIDERANDOS:</b></p>
+                <p>1.1. El productor (el "Productor") comercializa ciertas variedades de soja (las "Variedades") que forman parte del sistema denominado "Sembrá Evolución" disponible en www.sembraevolucion.com.ar ("Sembrá Evolución" o el "Sistema"), en virtud de ciertos contratos de licencia de uso suscriptos con ciertos semilleros que también forman parte de Sembrá Evolución (la/s "Licencias" y lo/s "Semillero/s", respectivamente). Dichas Licencias, le otorgan al Productor la autorización para utilizar los derechos de propiedad intelectual contenidos en las Variedades indicadas en cada Licencia en particular y se limitan a permitirle al Productor que: (i) produzca y comercialice el grano resultante de la cosecha de dichas Variedades y (ii) produzca nueva semilla a partir de las Variedades, para ser utilizada únicamente por el Productor para su siembra.</p>
+                <p>1.2. Las Licencias vigentes entre el Productor y los distintos Semilleros, determinan la facultad de que el Productor pueda adherir a los presentes Términos y Condiciones del Programa de Precertificación de Hectáreas (el PPH) que se desarrollará e implementará a través de Sembrá Evolución.</p>
+                <p>1.3. El PPH permitirá al Productor, sujeto al cumplimiento de los términos y condiciones aquí establecidos, cancelar el pago de todos los derechos de propiedad intelectual en virtud de los contratos de Licencia vigentes, antes del 28.02.2027, y en función de la cantidad de hectáreas que el Productor declare sembrar con cada una de las Variedades, conforme lo aquí previsto. Asimismo, el Semillero le podrá otorgar al Productor ciertos beneficios comerciales a su exclusiva discreción y por sus Variedades.</p>
+                <p>1.4. La Asociación Argentina de Protección de las Obtenciones Vegetales es una asociación civil sin fines de lucro que tiene a su cargo la gestión del Sistema, actuando en representación de los Semilleros.</p>
+                <p>1.5. El Productor se encuentra interesado en adherir al PPH.</p>
+                <p>1.6. Por ende, este documento describe los términos y condiciones generales (los "Términos y Condiciones") del PPH.</p>
+                <p><b>II. ACEPTACIÓN</b></p>
+                <p><b>ESTOS TÉRMINOS Y CONDICIONES SE CONSIDERARÁN ACEPTADOS POR EL PRODUCTOR EN CASO DE QUE ESTE CARGUE EN EL SISTEMA SEMBRÁ EVOLUCIÓN LA DECLARACIÓN JURADA DE HECTÁREAS SEMBRADAS MENCIONADA EN LA CLÁUSULA 3.2. CORRESPONDIENTE A LA CAMPAÑA 2026/2027.</b></p>
+                <p><b>CUALQUIER PRODUCTOR QUE NO ESTÉ DE ACUERDO CON ESTOS TÉRMINOS Y CONDICIONES, LOS CUALES TIENEN UN CARÁCTER VINCULANTE, DEBERÁ ABSTENERSE DE ACEPTARLOS.</b></p>
+                <p><b>III. TÉRMINOS Y CONDICIONES</b></p>
+                <p>3.1. Conforme los términos de las Licencias, el Productor manifiesta su intención de adherir al PPH para la campaña 2026/2027.</p>
+                <p>3.2. La solicitud de adhesión por parte del Productor a los presentes Términos y Condiciones generales del PPH para la campaña 2026/27 se realizará por única vez, quedando la misma sujeta a la aprobación por parte de Sembrá Evolución. A tal fin el Productor deberá:</p>
+                <p>(a) En o antes del 31 de enero de 2027, presentar a través de Sembrá Evolución (www.sembraevolucion.com.ar), la declaración jurada que contemplará la información que se adjunta como Anexo I (la "Declaración Jurada de Hectáreas de Soja Sembradas"). En la Declaración Jurada de Hectáreas de Soja Sembradas, el Productor deberá especificar, entre otras cosas, la totalidad de hectáreas que durante la campaña agrícola en curso sembró o sembrará con variedades de soja (las "Hectáreas de Soja Sembradas"), distinguiendo especialmente aquellas Variedades que formen parte de Sembrá Evolución. Respecto de las Variedades que forman parte de Sembrá Evolución deberá identificar (i) la variedad de soja en particular; (ii) la empresa Semillera; (iii) la ubicación de los lotes de siembra con georreferenciación, entre otros datos contenidos en la Declaración Jurada de Hectáreas de Soja Sembradas. Respecto a las variedades de soja que no forman parte de Sembrá Evolución deberá identificar la ubicación de los lotes de siembra con georreferenciación.</p>
+                <p>(b) Sin perjuicio de lo anterior, hasta el 28 de febrero de 2027 inclusive, el Productor tendrá la posibilidad de cargar a través de Sembrá Evolución (www.sembraevolucion.com.ar) tantas Declaraciones Juradas Complementarias como considere necesarias, en función de las variaciones que haya detectado respecto de las Hectáreas de Soja Sembradas previamente declaradas (la "Declaración Jurada de Hectáreas de Soja Sembradas Complementaria" y, junto con la Declaración Jurada de Hectáreas de Soja Sembradas, las "Declaraciones"). Se adjunta como Anexo II el modelo con la información que deberá incluirse en la Declaración Jurada de Hectáreas de Soja Sembradas Complementaria, que deberá ser presentada a través de Sembrá Evolución.</p>
+                <p>Se deja establecido que cada Semillero podrá acceder únicamente a la información de las Declaraciones que corresponda a las variedades de soja que tal Semillero comercialice o respecto de las cuales sea titular o licenciatario de los derechos de propiedad intelectual contenidos en las mismas, conforme lo acordado en las respectivas Licencias. La totalidad de la información contenida en las Declaraciones será únicamente accesible para el tercero independiente a los Semilleros, es decir, Sembrá Evolución.</p>
+                <p>(c) Adquiera y pague previo al 28 de febrero de 2027 las Hectáreas Tecnológicas adicionales para cubrir las diferencias de Hectáreas de Soja Sembradas.</p>
+                <p>(d) En todos los casos para que sean aplicables los Beneficios, el Productor debe adherir al PPH por la totalidad de las hectáreas de soja sembradas no pudiendo hacerlo parcialmente.</p>
+                <p>Se deja expresa constancia de que la factura por Hectáreas Tecnológicas que no fuera cancelada por el Productor antes del 28 de febrero de 2027, dentro del plazo de pago estipulado, será cancelada emitiéndose la nota de crédito correspondiente, quedando sin efecto la adhesión del Productor a los Beneficios en curso y debiendo el Productor pagar las regalías conforme lo establecido en las Licencias, no siendo de aplicación los presentes Términos y Condiciones para dicha campaña. Igual remedio será de aplicación para el caso que no presente la Declaración Jurada de Hectáreas Sembradas Complementaria.</p>
+                <p>(e) El valor de la Hectárea Tecnológica será comunicado al Productor a más tardar el 1 de octubre de la campaña agrícola anterior a dicha siembra en los medios y plazos establecidos en las respectivas Licencias por cada Semillero, incluyendo sin limitación mediante correo electrónico a la dirección informada por el PRODUCTOR en el Artículo 8 de la respectiva Licencia.</p>
+                <p>3.3. Sembrá Evolución realizará un proceso de validación previo a la aprobación de la adhesión verificando el cumplimiento de los requisitos previstos en los presentes Términos y Condiciones, incluyendo la presentación de la correspondiente Declaración Jurada de Hectáreas Sembradas de Soja. Asimismo, podrá solicitar al Productor la documentación adicional que considere necesaria para respaldar la información declarada. La falta de presentación de dicha documentación o la imposibilidad de validar razonablemente la información podrá motivar el rechazo de la solicitud.</p>
+                <p>3.4. Como parte del proceso de validación previo a la aprobación de la adhesión al PPH, Sembrá Evolución podrá evaluar, entre otros, los siguientes aspectos:</p>
+                <p>(a) La consistencia entre la superficie declarada por el Productor y la información disponible en Sembrá Evolución, incluyendo aquella que surja de las entregas de grano efectuadas en el marco del Sistema BOLSATECH, a fin de identificar desvíos relevantes que requieran validación adicional.</p>
+                <p>(b) La razonabilidad y coherencia de la información declarada respecto de campañas anteriores, considerando el historial disponible del Productor en Sembrá Evolución como indicador para detectar variaciones significativas en su comportamiento.</p>
+                <p>(c) El cumplimiento de las obligaciones de pago asumidas por el Productor en Sembrá Evolución y en las Licencias a la fecha de adhesión al presente.</p>
+                <p>Sembrá Evolución podrá considerar y requerir cualquier otro antecedente, información o documentación que resulte razonablemente necesaria para verificar la correcta adhesión al Programa.</p>
+                <p>3.5. En caso de que, como resultado del proceso de validación, se detectasen inconsistencias, incumplimientos o faltase información, Sembrá Evolución podrá rechazar la solicitud de adhesión al PPH. La aprobación o rechazo podrá ser comunicada al Productor por los medios habilitados por Sembrá Evolución.</p>
+                <p><b>IV. BENEFICIOS DEL PPH</b></p>
+                <p>4.1 Para gozar de los beneficios del PPH (los "Beneficios"), el Productor deberá (i) cumplir con la totalidad de los presentes Términos y Condiciones; (ii) cumplir con los términos y condiciones de la Licencias incluyendo, pero no limitándose al pago de las facturas que se emitan en concepto de Regalía Enlist®; y (iii) aceptar los Beneficios adicionales que podrá otorgar discrecionalmente cada Semillero. De esta forma, con el pago de las Hectáreas Tecnológicas, el cumplimento de la totalidad de las obligaciones de las Licencias y los presentes Términos y Condiciones, quedará cancelada la totalidad de la contraprestación debida por el Productor en virtud de las Licencias en concepto de derechos de propiedad intelectual correspondientes a la campaña agrícola objeto de los presentes Términos y Condiciones.</p>
+                <p>4.2. Sin perjuicio de los Beneficios adicionales que podrá otorgar cada Semillero, con el cumplimiento de los presentes Términos y Condiciones, el Productor estará habilitado para entregar el grano obtenido a partir de las Variedades que forman parte de Sembrá Evolución sin limitación y sin obligación de segregación (obligación presente en las aquellas Licencias que tienen como objeto eventos biotecnológicos) hasta el 28 de febrero de 2028 (el "Plazo").</p>
+                <p>4.3. Vencido el Plazo sin que el Productor haya entregado el grano o habiendo hecho una entrega únicamente parcial (reservándose el Productor un remanente), el beneficio de no segregar quedará sin efecto, sin que esto genere derecho a reembolso o indemnización alguna al Productor. El Productor podrá solicitar autorización para la entrega a los Operadores de dichos remanentes sin deber de segregación, por un (1) periodo adicional, es decir hasta el 28 de febrero de 2029. Para ello deberá informar a Sembrá Evolución a título de DDJJ las toneladas remanentes correspondientes a la cosecha de la campaña 2026/27. Sembrá Evolución podrá solicitar información y/o documentación adicional y/o auditorias necesarias para verificar la veracidad del requerimiento y podrá denegar o autorizar parcialmente en caso de detectar inconsistencias. Toda entrega de grano realizada en el periodo adicional deberá estar amparada por la carta de porte indicando el año de cosecha, sin excepción.</p>
+                <p>4.4. En cualquier caso, el límite de toneladas a entregar sin segregar estará sujeto a un estándar de razonabilidad dado por los promedios de rendimiento históricos y de la campaña en curso para el partido o departamento en la cual estén ubicadas las Hectáreas Tecnológicas, según publicaciones de la Bolsa de Cereales de Buenos Aires, los cuales serán considerados a los efectos de los controles y auditorias.</p>
+                <p>4.5. Los Beneficios del PPH no pueden cederse a terceros.</p>
+                <p><b>V. AUDITORÍAS DEL PPH</b></p>
+                <p>5.1. En el marco de la facultad, por parte de los titulares o licenciatarios de los derechos de propiedad intelectual, de auditar las obligaciones asumidas por el Productor previstas en las Licencias, en lo que respecta específicamente al PPH, se deja expresa constancia de que los titulares y/o licenciatarios de los derechos de propiedad intelectual llevarán adelante dichas auditorias con el objetivo de también verificar el cumplimiento de los presentes Términos y Condiciones. A tales efectos y sin que implique limitación alguna, verificar que la localidad de procedencia informada en las cartas de porte dirigidas a los operadores de grano resulte consistente con las localidades informadas en las Declaraciones y que las toneladas de grano Enlist® entregadas se correspondan con los rendimientos promedios de las localidades declaradas.</p>
+                <p>5.2. Si los titulares o licenciatarios de los derechos de propiedad intelectual de las Variedades y/o Sembrá Evolución detectaren inconsistencias entre las Declaraciones y la información suministrada por los Semilleros a Sembrá Evolución por operaciones comerciales ocurridas con anterioridad al 28.02.2027, dichas inconsistencias serán debidamente informadas y el Productor podrá dentro de los cinco (5) días hábiles de informada dicha inconsistencia, (i) realizar una nueva declaración jurada de hectáreas sembradas complementaria de las Declaraciones, por la diferencia detectada, hasta el 28.02.2027, debiendo abonar la Hectárea Tecnológica correspondiente en función de las nuevas Hectáreas Sembradas declaradas; o ii) informar al Semillero y/o a Sembrá Evolución, su decisión de dejar de participar en el PPH, en cuyo caso las sumas ya abonadas en el marco del PPH serán tomadas como pago a cuenta de las regalías que corresponda abonar conforme las Licencias suscriptas, convirtiéndose a razón de tres (3) toneladas por 1.5 bolsas de 40 kgs o tres (3) toneladas por Hectárea Tecnológica, según corresponda.</p>
+                <p>5.3 A su vez, si luego de finalizada la campaña agrícola, Sembrá Evolución y/o los Semilleros detectaren inconsistencias o incumplimientos por parte del Productor que surjan de analizar lo Declarado, el total de resultados positivos de presencia de la Tecnología Enlist® de la entrega del grano y los rendimientos promedios zonales, ambos correspondientes a la campaña agrícola finalizada, los titulares o licenciatarios de los derechos de propiedad intelectual contenidos en las Variedades notificarán al Productor tales inconsistencias, teniendo el mismo cinco (5) días hábiles contados a partir de la notificación para reconsiderar en los términos del Artículo 5 del Reglamento de Bolsatech www.bolsatech.com.ar. Las toneladas de diferencia que arrojen dichas inconsistencias serán facturadas por el titular de los derechos de propiedad intelectual. Ante el vencimiento y la falta de pago de la factura, el titular de los derechos de propiedad intelectual podrá iniciar contra el Productor las acciones legales que correspondieren, conforme lo estipulado en los presentes Términos y Condiciones y/o en las Licencias.</p>
+                <p>5.4. Se deja asimismo establecido que, en caso que la georreferenciación informada en las Declaraciones no coincidiera con la localidad indicada en las cartas de porte correspondientes a las entregas de soja que se reciban hasta el 28 de febrero de 2028, y conforme las tomas de muestras indicadas en las Licencias se detectaren tecnologías de los titulares de los derechos de propiedad intelectual, quedarán automáticamente sin efecto los Beneficios del PPH, siendo de aplicación lo estipulado en el punto 4 precedente.</p>
+                <p><b>VI. VIGENCIA. RESCISIÓN.</b></p>
+                <p>6.1. Los presentes Términos y Condiciones permanecerán vigentes en Argentina durante la campaña de soja 2026/2027 y hasta la fecha límite de entrega de grano correspondiente a dicha campaña que se detalla más arriba (el "Plazo de Vigencia"). Sin perjuicio del Plazo de Vigencia estipulado, ante la terminación de una Licencia en particular, por cualquier causa que fuera, los presentes Términos y Condiciones permanecerán vigentes.</p>
+                <p>6.2. El Productor podrá informar al Semillero y/o a Sembrá Evolución, su intención de dejar de participar del PPH hasta el 28 de febrero de 2027. En tal supuesto, el Productor no podrá gozar de los Beneficios del PPH, sin que esto genere derecho a reembolso o indemnización alguna al Productor, más que la conversión de lo abonado a créditos a razón de tres (3) toneladas por 1.5 bolsas de 40 kgs o por Hectárea Tecnológica, según corresponda.</p>
+                <p><b>VII. CARÁCTER COMPLEMENTARIO</b></p>
+                <p>El presente documento es complementario a las Licencias y en ningún caso se considerará que las reemplaza o sustituye. En caso de inconsistencias entre este documento y alguna Licencia en particular, prevalecerán las condiciones de cada Licencia.</p>
+                <p><b>Anexo I. Información requerida en la Declaración Jurada de Hectáreas de Soja Sembradas</b></p>
+                <p>En la Declaración Jurada de Hectáreas de Soja Sembradas, el Productor deberá informar todos los establecimientos en los que haya sembrado o tenga previsto sembrar el cultivo de soja durante la campaña agrícola en curso.</p>
+                <p>Cada establecimiento deberá ser identificado con:</p>
+                <p>• Un nombre o denominación</p>
+                <p>• Su georreferenciación</p>
+                <p>• La cantidad de hectáreas sembradas de soja, discriminadas según:</p>
+                <p>1. Variedades que forman parte de Sembrá Evolución:</p>
+                <p>• Detallar la cantidad de hectáreas sembradas con cada variedad específica</p>
+                <p>• Indicar la empresa semillera correspondiente</p>
+                <p>2. Variedades que no forman parte de Sembrá Evolución:</p>
+                <p>• Informar únicamente la cantidad total de hectáreas sembradas</p>
+                <p>• No será necesario especificar ni el nombre de las variedades ni la empresa semillera</p>
+                <p><b>Anexo II – Información requerida en la Declaración Jurada Complementaria de Hectáreas de Soja Sembradas</b></p>
+                <p>En la Declaración Jurada Complementaria de Hectáreas de Soja Sembradas, el Productor podrá informar las variaciones detectadas respecto de lo declarado en la Declaración Jurada de Hectáreas de Soja Sembradas originalmente presentada.</p>
+                <p>Al igual que en la declaración inicial, deberá informar todos los establecimientos en los que haya sembrado o tenga previsto sembrar soja durante la campaña agrícola en curso.</p>
+                <p>Cada establecimiento deberá ser identificado con:</p>
+                <p>• Un nombre o denominación</p>
+                <p>• Su georreferenciación</p>
+                <p>• La cantidad de hectáreas sembradas de soja, discriminadas según:</p>
+                <p>1. Variedades que forman parte de Sembrá Evolución:</p>
+                <p>• Detallar la cantidad de hectáreas sembradas con cada variedad específica</p>
+                <p>• Indicar la empresa semillera correspondiente</p>
+                <p>2. Variedades que no forman parte de Sembrá Evolución:</p>
+                <p>• Informar únicamente la cantidad total de hectáreas sembradas</p>
+                <p>• No será necesario especificar ni las variedades ni la empresa semillera</p>`;
             case '2025/2026':
                     return `<div><p>TÉRMINOS Y CONDICIONES DEL PROGRAMA DE PRECERTIFICACIÓN DE HECTÁREAS DE SOJA - SISTEMA “SEMBRÁ EVOLUCIÓN”</p></div>
                 <div><p>Campaña 2025/26</p></div>
@@ -358,6 +444,77 @@ export default class TerminosYCondiciones extends LightningElement {
                 <p>6.2. El Productor podrá informar al Semillero y/o a Sembrá Evolución, su intención de dejar de participar del PPH hasta el 28 de febrero de 2025. En tal supuesto, el Productor no podrá gozar de los Beneficios del PPH, sin que esto genere derecho a reembolso o indemnización alguna al Productor, más que la conversión de lo abonado a créditos a razón de tres (3) toneladas por 1.5 bolsas de 40 kgs o por Hectárea Tecnológica, según corresponda.</p>
                 <p><b>7 CARÁCTER COMPLEMENTARIO</b></p>
                 <p>El presente documento es complementario a las Licencias y en ningún caso se considerará que las reemplaza o sustituye. En caso de inconsistencias entre este documento y alguna Licencia en particular, prevalecerán las condiciones de cada Licencia.</p>`;
+            case '2026/2027':
+                return `<p><b>TÉRMINOS Y CONDICIONES DEL PROGRAMA DE PRECERTIFICACIÓN DE HECTÁREAS DE SOJA - SISTEMA "SEMBRÁ EVOLUCIÓN"</b></p>
+                <p><b>Campaña 2026/27</b></p>
+                <p><b>I. CONSIDERANDOS:</b></p>
+                <p>1.1. El productor (el "Productor") comercializa ciertas variedades de soja (las "Variedades") que forman parte del sistema denominado "Sembrá Evolución" disponible en www.sembraevolucion.com.ar ("Sembrá Evolución" o el "Sistema"), en virtud de ciertos contratos de licencia de uso suscriptos con ciertos semilleros que también forman parte de Sembrá Evolución (la/s "Licencias" y lo/s "Semillero/s", respectivamente). Dichas Licencias, le otorgan al Productor la autorización para utilizar los derechos de propiedad intelectual contenidos en las Variedades indicadas en cada Licencia en particular y se limitan a permitirle al Productor que: (i) produzca y comercialice el grano resultante de la cosecha de dichas Variedades y (ii) produzca nueva semilla a partir de las Variedades, para ser utilizada únicamente por el Productor para su siembra.</p>
+                <p>1.2. Las Licencias vigentes entre el Productor y los distintos Semilleros, determinan la facultad de que el Productor pueda adherir a los presentes Términos y Condiciones del Programa de Precertificación de Hectáreas (el PPH) que se desarrollará e implementará a través de Sembrá Evolución.</p>
+                <p>1.3. El PPH permitirá al Productor, sujeto al cumplimiento de los términos y condiciones aquí establecidos, cancelar el pago de todos los derechos de propiedad intelectual en virtud de los contratos de Licencia vigentes, antes del 28.02.2027, y en función de la cantidad de hectáreas que el Productor declare sembrar con cada una de las Variedades, conforme lo aquí previsto. Asimismo, el Semillero le podrá otorgar al Productor ciertos beneficios comerciales a su exclusiva discreción y por sus Variedades.</p>
+                <p>1.4. La Asociación Argentina de Protección de las Obtenciones Vegetales es una asociación civil sin fines de lucro que tiene a su cargo la gestión del Sistema, actuando en representación de los Semilleros.</p>
+                <p>1.5. El Productor se encuentra interesado en adherir al PPH.</p>
+                <p>1.6. Por ende, este documento describe los términos y condiciones generales (los "Términos y Condiciones") del PPH.</p>
+                <p><b>II. ACEPTACIÓN</b></p>
+                <p><b>ESTOS TÉRMINOS Y CONDICIONES SE CONSIDERARÁN ACEPTADOS POR EL PRODUCTOR EN CASO DE QUE ESTE CARGUE EN EL SISTEMA SEMBRÁ EVOLUCIÓN LA DECLARACIÓN JURADA DE HECTÁREAS SEMBRADAS MENCIONADA EN LA CLÁUSULA 3.2. CORRESPONDIENTE A LA CAMPAÑA 2026/2027.</b></p>
+                <p><b>CUALQUIER PRODUCTOR QUE NO ESTÉ DE ACUERDO CON ESTOS TÉRMINOS Y CONDICIONES, LOS CUALES TIENEN UN CARÁCTER VINCULANTE, DEBERÁ ABSTENERSE DE ACEPTARLOS.</b></p>
+                <p><b>III. TÉRMINOS Y CONDICIONES</b></p>
+                <p>3.1. Conforme los términos de las Licencias, el Productor manifiesta su intención de adherir al PPH para la campaña 2026/2027.</p>
+                <p>3.2. La solicitud de adhesión por parte del Productor a los presentes Términos y Condiciones generales del PPH para la campaña 2026/27 se realizará por única vez, quedando la misma sujeta a la aprobación por parte de Sembrá Evolución. A tal fin el Productor deberá:</p>
+                <p>(a) En o antes del 31 de enero de 2027, presentar a través de Sembrá Evolución (www.sembraevolucion.com.ar), la declaración jurada que contemplará la información que se adjunta como Anexo I (la "Declaración Jurada de Hectáreas de Soja Sembradas"). En la Declaración Jurada de Hectáreas de Soja Sembradas, el Productor deberá especificar, entre otras cosas, la totalidad de hectáreas que durante la campaña agrícola en curso sembró o sembrará con variedades de soja (las "Hectáreas de Soja Sembradas"), distinguiendo especialmente aquellas Variedades que formen parte de Sembrá Evolución. Respecto de las Variedades que forman parte de Sembrá Evolución deberá identificar (i) la variedad de soja en particular; (ii) la empresa Semillera; (iii) la ubicación de los lotes de siembra con georreferenciación, entre otros datos contenidos en la Declaración Jurada de Hectáreas de Soja Sembradas. Respecto a las variedades de soja que no forman parte de Sembrá Evolución deberá identificar la ubicación de los lotes de siembra con georreferenciación.</p>
+                <p>(b) Sin perjuicio de lo anterior, hasta el 28 de febrero de 2027 inclusive, el Productor tendrá la posibilidad de cargar a través de Sembrá Evolución (www.sembraevolucion.com.ar) tantas Declaraciones Juradas Complementarias como considere necesarias, en función de las variaciones que haya detectado respecto de las Hectáreas de Soja Sembradas previamente declaradas (la "Declaración Jurada de Hectáreas de Soja Sembradas Complementaria" y, junto con la Declaración Jurada de Hectáreas de Soja Sembradas, las "Declaraciones"). Se adjunta como Anexo II el modelo con la información que deberá incluirse en la Declaración Jurada de Hectáreas de Soja Sembradas Complementaria, que deberá ser presentada a través de Sembrá Evolución.</p>
+                <p>Se deja establecido que cada Semillero podrá acceder únicamente a la información de las Declaraciones que corresponda a las variedades de soja que tal Semillero comercialice o respecto de las cuales sea titular o licenciatario de los derechos de propiedad intelectual contenidos en las mismas, conforme lo acordado en las respectivas Licencias. La totalidad de la información contenida en las Declaraciones será únicamente accesible para el tercero independiente a los Semilleros, es decir, Sembrá Evolución.</p>
+                <p>(c) Adquiera y pague previo al 28 de febrero de 2027 las Hectáreas Tecnológicas adicionales para cubrir las diferencias de Hectáreas de Soja Sembradas.</p>
+                <p>(d) En todos los casos para que sean aplicables los Beneficios, el Productor debe adherir al PPH por la totalidad de las hectáreas de soja sembradas no pudiendo hacerlo parcialmente.</p>
+                <p>Se deja expresa constancia de que la factura por Hectáreas Tecnológicas que no fuera cancelada por el Productor antes del 28 de febrero de 2027, dentro del plazo de pago estipulado, será cancelada emitiéndose la nota de crédito correspondiente, quedando sin efecto la adhesión del Productor a los Beneficios en curso y debiendo el Productor pagar las regalías conforme lo establecido en las Licencias, no siendo de aplicación los presentes Términos y Condiciones para dicha campaña. Igual remedio será de aplicación para el caso que no presente la Declaración Jurada de Hectáreas Sembradas Complementaria.</p>
+                <p>(e) El valor de la Hectárea Tecnológica será comunicado al Productor a más tardar el 1 de octubre de la campaña agrícola anterior a dicha siembra en los medios y plazos establecidos en las respectivas Licencias por cada Semillero, incluyendo sin limitación mediante correo electrónico a la dirección informada por el PRODUCTOR en el Artículo 8 de la respectiva Licencia.</p>
+                <p>3.3. Sembrá Evolución realizará un proceso de validación previo a la aprobación de la adhesión verificando el cumplimiento de los requisitos previstos en los presentes Términos y Condiciones, incluyendo la presentación de la correspondiente Declaración Jurada de Hectáreas Sembradas de Soja. Asimismo, podrá solicitar al Productor la documentación adicional que considere necesaria para respaldar la información declarada. La falta de presentación de dicha documentación o la imposibilidad de validar razonablemente la información podrá motivar el rechazo de la solicitud.</p>
+                <p>3.4. Como parte del proceso de validación previo a la aprobación de la adhesión al PPH, Sembrá Evolución podrá evaluar, entre otros, los siguientes aspectos:</p>
+                <p>(a) La consistencia entre la superficie declarada por el Productor y la información disponible en Sembrá Evolución, incluyendo aquella que surja de las entregas de grano efectuadas en el marco del Sistema BOLSATECH, a fin de identificar desvíos relevantes que requieran validación adicional.</p>
+                <p>(b) La razonabilidad y coherencia de la información declarada respecto de campañas anteriores, considerando el historial disponible del Productor en Sembrá Evolución como indicador para detectar variaciones significativas en su comportamiento.</p>
+                <p>(c) El cumplimiento de las obligaciones de pago asumidas por el Productor en Sembrá Evolución y en las Licencias a la fecha de adhesión al presente.</p>
+                <p>Sembrá Evolución podrá considerar y requerir cualquier otro antecedente, información o documentación que resulte razonablemente necesaria para verificar la correcta adhesión al Programa.</p>
+                <p>3.5. En caso de que, como resultado del proceso de validación, se detectasen inconsistencias, incumplimientos o faltase información, Sembrá Evolución podrá rechazar la solicitud de adhesión al PPH. La aprobación o rechazo podrá ser comunicada al Productor por los medios habilitados por Sembrá Evolución.</p>
+                <p><b>IV. BENEFICIOS DEL PPH</b></p>
+                <p>4.1 Para gozar de los beneficios del PPH (los "Beneficios"), el Productor deberá (i) cumplir con la totalidad de los presentes Términos y Condiciones; (ii) cumplir con los términos y condiciones de la Licencias incluyendo, pero no limitándose al pago de las facturas que se emitan en concepto de Regalía Enlist®; y (iii) aceptar los Beneficios adicionales que podrá otorgar discrecionalmente cada Semillero. De esta forma, con el pago de las Hectáreas Tecnológicas, el cumplimento de la totalidad de las obligaciones de las Licencias y los presentes Términos y Condiciones, quedará cancelada la totalidad de la contraprestación debida por el Productor en virtud de las Licencias en concepto de derechos de propiedad intelectual correspondientes a la campaña agrícola objeto de los presentes Términos y Condiciones.</p>
+                <p>4.2. Sin perjuicio de los Beneficios adicionales que podrá otorgar cada Semillero, con el cumplimiento de los presentes Términos y Condiciones, el Productor estará habilitado para entregar el grano obtenido a partir de las Variedades que forman parte de Sembrá Evolución sin limitación y sin obligación de segregación (obligación presente en las aquellas Licencias que tienen como objeto eventos biotecnológicos) hasta el 28 de febrero de 2028 (el "Plazo").</p>
+                <p>4.3. Vencido el Plazo sin que el Productor haya entregado el grano o habiendo hecho una entrega únicamente parcial (reservándose el Productor un remanente), el beneficio de no segregar quedará sin efecto, sin que esto genere derecho a reembolso o indemnización alguna al Productor. El Productor podrá solicitar autorización para la entrega a los Operadores de dichos remanentes sin deber de segregación, por un (1) periodo adicional, es decir hasta el 28 de febrero de 2029. Para ello deberá informar a Sembrá Evolución a título de DDJJ las toneladas remanentes correspondientes a la cosecha de la campaña 2026/27. Sembrá Evolución podrá solicitar información y/o documentación adicional y/o auditorias necesarias para verificar la veracidad del requerimiento y podrá denegar o autorizar parcialmente en caso de detectar inconsistencias. Toda entrega de grano realizada en el periodo adicional deberá estar amparada por la carta de porte indicando el año de cosecha, sin excepción.</p>
+                <p>4.4. En cualquier caso, el límite de toneladas a entregar sin segregar estará sujeto a un estándar de razonabilidad dado por los promedios de rendimiento históricos y de la campaña en curso para el partido o departamento en la cual estén ubicadas las Hectáreas Tecnológicas, según publicaciones de la Bolsa de Cereales de Buenos Aires, los cuales serán considerados a los efectos de los controles y auditorias.</p>
+                <p>4.5. Los Beneficios del PPH no pueden cederse a terceros.</p>
+                <p><b>V. AUDITORÍAS DEL PPH</b></p>
+                <p>5.1. En el marco de la facultad, por parte de los titulares o licenciatarios de los derechos de propiedad intelectual, de auditar las obligaciones asumidas por el Productor previstas en las Licencias, en lo que respecta específicamente al PPH, se deja expresa constancia de que los titulares y/o licenciatarios de los derechos de propiedad intelectual llevarán adelante dichas auditorias con el objetivo de también verificar el cumplimiento de los presentes Términos y Condiciones. A tales efectos y sin que implique limitación alguna, verificar que la localidad de procedencia informada en las cartas de porte dirigidas a los operadores de grano resulte consistente con las localidades informadas en las Declaraciones y que las toneladas de grano Enlist® entregadas se correspondan con los rendimientos promedios de las localidades declaradas.</p>
+                <p>5.2. Si los titulares o licenciatarios de los derechos de propiedad intelectual de las Variedades y/o Sembrá Evolución detectaren inconsistencias entre las Declaraciones y la información suministrada por los Semilleros a Sembrá Evolución por operaciones comerciales ocurridas con anterioridad al 28.02.2027, dichas inconsistencias serán debidamente informadas y el Productor podrá dentro de los cinco (5) días hábiles de informada dicha inconsistencia, (i) realizar una nueva declaración jurada de hectáreas sembradas complementaria de las Declaraciones, por la diferencia detectada, hasta el 28.02.2027, debiendo abonar la Hectárea Tecnológica correspondiente en función de las nuevas Hectáreas Sembradas declaradas; o ii) informar al Semillero y/o a Sembrá Evolución, su decisión de dejar de participar en el PPH, en cuyo caso las sumas ya abonadas en el marco del PPH serán tomadas como pago a cuenta de las regalías que corresponda abonar conforme las Licencias suscriptas, convirtiéndose a razón de tres (3) toneladas por 1.5 bolsas de 40 kgs o tres (3) toneladas por Hectárea Tecnológica, según corresponda.</p>
+                <p>5.3 A su vez, si luego de finalizada la campaña agrícola, Sembrá Evolución y/o los Semilleros detectaren inconsistencias o incumplimientos por parte del Productor que surjan de analizar lo Declarado, el total de resultados positivos de presencia de la Tecnología Enlist® de la entrega del grano y los rendimientos promedios zonales, ambos correspondientes a la campaña agrícola finalizada, los titulares o licenciatarios de los derechos de propiedad intelectual contenidos en las Variedades notificarán al Productor tales inconsistencias, teniendo el mismo cinco (5) días hábiles contados a partir de la notificación para reconsiderar en los términos del Artículo 5 del Reglamento de Bolsatech www.bolsatech.com.ar. Las toneladas de diferencia que arrojen dichas inconsistencias serán facturadas por el titular de los derechos de propiedad intelectual. Ante el vencimiento y la falta de pago de la factura, el titular de los derechos de propiedad intelectual podrá iniciar contra el Productor las acciones legales que correspondieren, conforme lo estipulado en los presentes Términos y Condiciones y/o en las Licencias.</p>
+                <p>5.4. Se deja asimismo establecido que, en caso que la georreferenciación informada en las Declaraciones no coincidiera con la localidad indicada en las cartas de porte correspondientes a las entregas de soja que se reciban hasta el 28 de febrero de 2028, y conforme las tomas de muestras indicadas en las Licencias se detectaren tecnologías de los titulares de los derechos de propiedad intelectual, quedarán automáticamente sin efecto los Beneficios del PPH, siendo de aplicación lo estipulado en el punto 4 precedente.</p>
+                <p><b>VI. VIGENCIA. RESCISIÓN.</b></p>
+                <p>6.1. Los presentes Términos y Condiciones permanecerán vigentes en Argentina durante la campaña de soja 2026/2027 y hasta la fecha límite de entrega de grano correspondiente a dicha campaña que se detalla más arriba (el "Plazo de Vigencia"). Sin perjuicio del Plazo de Vigencia estipulado, ante la terminación de una Licencia en particular, por cualquier causa que fuera, los presentes Términos y Condiciones permanecerán vigentes.</p>
+                <p>6.2. El Productor podrá informar al Semillero y/o a Sembrá Evolución, su intención de dejar de participar del PPH hasta el 28 de febrero de 2027. En tal supuesto, el Productor no podrá gozar de los Beneficios del PPH, sin que esto genere derecho a reembolso o indemnización alguna al Productor, más que la conversión de lo abonado a créditos a razón de tres (3) toneladas por 1.5 bolsas de 40 kgs o por Hectárea Tecnológica, según corresponda.</p>
+                <p><b>VII. CARÁCTER COMPLEMENTARIO</b></p>
+                <p>El presente documento es complementario a las Licencias y en ningún caso se considerará que las reemplaza o sustituye. En caso de inconsistencias entre este documento y alguna Licencia en particular, prevalecerán las condiciones de cada Licencia.</p>
+                <p><b>Anexo I. Información requerida en la Declaración Jurada de Hectáreas de Soja Sembradas</b></p>
+                <p>En la Declaración Jurada de Hectáreas de Soja Sembradas, el Productor deberá informar todos los establecimientos en los que haya sembrado o tenga previsto sembrar el cultivo de soja durante la campaña agrícola en curso.</p>
+                <p>Cada establecimiento deberá ser identificado con:</p>
+                <p>• Un nombre o denominación</p>
+                <p>• Su georreferenciación</p>
+                <p>• La cantidad de hectáreas sembradas de soja, discriminadas según:</p>
+                <p>1. Variedades que forman parte de Sembrá Evolución:</p>
+                <p>• Detallar la cantidad de hectáreas sembradas con cada variedad específica</p>
+                <p>• Indicar la empresa semillera correspondiente</p>
+                <p>2. Variedades que no forman parte de Sembrá Evolución:</p>
+                <p>• Informar únicamente la cantidad total de hectáreas sembradas</p>
+                <p>• No será necesario especificar ni el nombre de las variedades ni la empresa semillera</p>
+                <p><b>Anexo II – Información requerida en la Declaración Jurada Complementaria de Hectáreas de Soja Sembradas</b></p>
+                <p>En la Declaración Jurada Complementaria de Hectáreas de Soja Sembradas, el Productor podrá informar las variaciones detectadas respecto de lo declarado en la Declaración Jurada de Hectáreas de Soja Sembradas originalmente presentada.</p>
+                <p>Al igual que en la declaración inicial, deberá informar todos los establecimientos en los que haya sembrado o tenga previsto sembrar soja durante la campaña agrícola en curso.</p>
+                <p>Cada establecimiento deberá ser identificado con:</p>
+                <p>• Un nombre o denominación</p>
+                <p>• Su georreferenciación</p>
+                <p>• La cantidad de hectáreas sembradas de soja, discriminadas según:</p>
+                <p>1. Variedades que forman parte de Sembrá Evolución:</p>
+                <p>• Detallar la cantidad de hectáreas sembradas con cada variedad específica</p>
+                <p>• Indicar la empresa semillera correspondiente</p>
+                <p>2. Variedades que no forman parte de Sembrá Evolución:</p>
+                <p>• Informar únicamente la cantidad total de hectáreas sembradas</p>
+                <p>• No será necesario especificar ni las variedades ni la empresa semillera</p>`;
             case '2025/2026':
                     return `<div><p>TÉRMINOS Y CONDICIONES DEL PROGRAMA DE PRECERTIFICACIÓN DE HECTÁREAS DE SOJA - SISTEMA “SEMBRÁ EVOLUCIÓN”</p></div>
                 <div><p>Campaña 2025/26</p></div>
@@ -614,12 +771,12 @@ export default class TerminosYCondiciones extends LightningElement {
         const el = e.target;
         if (el.scrollHeight <= el.scrollTop + el.clientHeight + 5) {
             this.scrolledToEnd = true;
-            this.saveDisabled = false;
         }
     }
 
     handleCheckChange(e) {
         this.accepted = e.target.checked;
+        if (this.accepted) this.showError = false;
     }
 
     cancel() {
@@ -628,6 +785,7 @@ export default class TerminosYCondiciones extends LightningElement {
 
     accept() {
         if (!this.accepted) {
+            this.showError = true;
             return;
         }
         this.dispatchEvent(new CustomEvent("accept"));
