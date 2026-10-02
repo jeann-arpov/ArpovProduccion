@@ -13,17 +13,69 @@ public without sharing class misEstablecimientosController {
         @AuraEnabled public Decimal superficieSinSembrar;
         @AuraEnabled public Boolean hasHt;
         @AuraEnabled public Boolean adheridoPph;
+        @AuraEnabled public String productor;
+        @AuraEnabled public Datetime createdDate;
+    }
+
+    private static Id currentAccountId() {
+        Id userId = UserInfo.getUserId();
+        return [SELECT AccountId FROM User WHERE Id = :userId LIMIT 1][0].AccountId;
+    }
+
+    @AuraEnabled
+    public static void updateEstablecimiento(
+        Id establecimientoId,
+        String name,
+        Decimal lat,
+        Decimal lng,
+        Boolean vigente
+    ) {
+        if (String.isBlank(name)) {
+            throw new AuraHandledException('El nombre del establecimiento es obligatorio.');
+        }
+        Id accId = currentAccountId();
+        List<Establecimiento__c> found = [
+            SELECT Id, Coordenadas__Latitude__s, Coordenadas__Longitude__s, Localidad__c
+            FROM Establecimiento__c
+            WHERE Id = :establecimientoId AND Productor__c = :accId
+            LIMIT 1
+        ];
+        if (found.isEmpty()) {
+            throw new AuraHandledException('No se encontró el establecimiento.');
+        }
+
+        Establecimiento__c est = found[0];
+        Boolean coordsChanged =
+            est.Coordenadas__Latitude__s != lat || est.Coordenadas__Longitude__s != lng;
+        est.Name = name.trim();
+        est.Coordenadas__Latitude__s = lat;
+        est.Coordenadas__Longitude__s = lng;
+        est.Vigente__c = vigente == true;
+        if (coordsChanged) {
+            est.Localidad__c = null;
+        }
+
+        try {
+            update est;
+        } catch (DmlException e) {
+            throw new AuraHandledException(e.getDmlMessage(0));
+        }
+
+        if (coordsChanged) {
+            EstablecimientoLocalidadQueueable.enqueue(new List<Establecimiento__c>{ est });
+        }
     }
 
     @AuraEnabled
     public static List<EstRow> getEstablecimientos() {
-        Id userId = UserInfo.getUserId();
-        Id accId = [SELECT AccountId FROM User WHERE Id = :userId LIMIT 1][0].AccountId;
+        Id accId = currentAccountId();
 
         List<Establecimiento__c> establecimientos = [
             SELECT
                 Id,
                 Name,
+                CreatedDate,
+                Productor__r.Name,
                 Origen__c,
                 Localidad__r.Name,
                 Provincia__c,
@@ -110,6 +162,8 @@ public without sharing class misEstablecimientosController {
             EstRow row = new EstRow();
             row.id = est.Id;
             row.name = est.Name;
+            row.productor = est.Productor__r != null ? est.Productor__r.Name : null;
+            row.createdDate = est.CreatedDate;
             row.origen = est.Origen__c;
             row.localidad = est.Localidad__r != null ? est.Localidad__r.Name : null;
             row.provincia = est.Provincia__c;

@@ -2,386 +2,254 @@ import { LightningElement, api } from 'lwc';
 import getEstablecimientos from '@salesforce/apex/EstablecimientosMap.getEstablecimientos';
 import getAccountId from '@salesforce/apex/EstablecimientosMap.getAccountId';
 import insertEstablecimiento from '@salesforce/apex/EstablecimientosMap.insertEstablecimiento';
-import { doRequest, errorEvent } from 'c/utils';
+import { errorEvent, reduceErrors } from 'c/utils';
 
-const DEFAULT_LAT = -34.603722;
-const DEFAULT_LNG = -58.381592;
-/** Misma duración que el drawer del header / pay sheet de Compra HT */
-const SHEET_MS = 280;
+const MAP_MOUNT_DELAY_MS = 320;
+const REQUIRED_MSG = 'Este campo es obligatorio';
+
+function formatCoord(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? String(n) : '';
+}
 
 export default class EstablecimientosMap extends LightningElement {
     @api hideChrome = false;
 
     markers = [];
-    initialized = false;
+    selectedProductor;
     loading = false;
+    _loaded = false;
 
-    mapSheetMounted = false;
-    mapSheetOpen = false;
+    mapOpen = false;
     mapReady = false;
+    selectedMarker;
 
-    newSheetMounted = false;
-    newSheetOpen = false;
+    newOpen = false;
+    selectedName = '';
+    latitude;
+    longitude;
+    showErrors = false;
+    geoError = '';
+    saveError = '';
+    saving = false;
 
-    successMounted = false;
     successOpen = false;
     mensaje = '';
 
-    selectedName = '';
-    selectedProductor;
-    latitude;
-    longitude;
-    mapTick = 0;
-
-    _boundVfHandler;
-    _mapCloseTimer;
-    _newCloseTimer;
-    _successCloseTimer;
-    _openRaf;
-    _bodyLocked = false;
-
-    connectedCallback() {
-        this._boundVfHandler = this.handleVfMessage.bind(this);
-        window.addEventListener('message', this._boundVfHandler);
-    }
+    _mapTimer;
 
     disconnectedCallback() {
-        if (this._boundVfHandler) {
-            window.removeEventListener('message', this._boundVfHandler);
-        }
-        this.clearTimers();
-        this.unlockBody();
+        if (this._mapTimer) window.clearTimeout(this._mapTimer);
+        document.body.classList.remove('se-drawer-open');
     }
 
-    clearTimers() {
-        if (this._mapCloseTimer) window.clearTimeout(this._mapCloseTimer);
-        if (this._newCloseTimer) window.clearTimeout(this._newCloseTimer);
-        if (this._successCloseTimer) window.clearTimeout(this._successCloseTimer);
-        if (this._openRaf) window.cancelAnimationFrame(this._openRaf);
-        this._mapCloseTimer = null;
-        this._newCloseTimer = null;
-        this._successCloseTimer = null;
-        this._openRaf = null;
+    onError(e) {
+        this.dispatchEvent(errorEvent(e));
     }
 
-    lockBody() {
-        if (this._bodyLocked) return;
-        document.body.classList.add('se-drawer-open');
-        this._bodyLocked = true;
+    syncBodyLock() {
+        const open = this.mapOpen || this.newOpen || this.successOpen;
+        document.body.classList.toggle('se-drawer-open', open);
     }
 
-    unlockBody() {
-        if (!this._bodyLocked) return;
-        if (!this.mapSheetMounted && !this.newSheetMounted && !this.successMounted) {
-            document.body.classList.remove('se-drawer-open');
-            this._bodyLocked = false;
-        }
-    }
-
-    /** Montar → paint → is-open (para que el transition corra) */
-    afterMountOpen(setter) {
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
-        this._openRaf = window.requestAnimationFrame(() => {
-            // eslint-disable-next-line @lwc/lwc/no-async-operation
-            this._openRaf = window.requestAnimationFrame(() => {
-                setter();
-                this._openRaf = null;
-            });
-        });
-    }
-
-    async init() {
-        this.initialized = true;
-        await this.refreshMarkers();
-    }
-
-    async refreshMarkers() {
-        await doRequest.call(this, async () => {
-            const establecimientos = await getEstablecimientos();
-            this.selectedProductor = await getAccountId();
+    async ensureData(force = false) {
+        if (this._loaded && !force) return;
+        this.loading = true;
+        try {
+            const [establecimientos, accountId] = await Promise.all([getEstablecimientos(), getAccountId()]);
+            this.selectedProductor = accountId;
             this.markers = (establecimientos || [])
                 .filter((est) => est.Coordenadas__Latitude__s != null && est.Coordenadas__Longitude__s != null)
                 .map((est) => ({
+                    value: est.Id,
                     title: est.Name,
                     location: {
                         Latitude: Number(est.Coordenadas__Latitude__s),
                         Longitude: Number(est.Coordenadas__Longitude__s)
                     }
                 }));
-        });
-    }
-
-    renderedCallback() {
-        if (!this.initialized) {
-            this.init();
+            this._loaded = true;
+        } catch (e) {
+            this.onError(e);
         }
+        this.loading = false;
     }
 
-    get mapBackdropClass() {
-        return `se-sheet-backdrop${this.mapSheetOpen ? ' is-open' : ''}`;
-    }
-
-    get mapSheetClass() {
-        return `se-sheet se-map-view${this.mapSheetOpen ? ' is-open' : ''}`;
-    }
-
-    get newBackdropClass() {
-        return `se-sheet-backdrop${this.newSheetOpen ? ' is-open' : ''}`;
-    }
-
-    get newSheetClass() {
-        return `se-sheet${this.newSheetOpen ? ' is-open' : ''}`;
-    }
-
-    get successBackdropClass() {
-        return `se-sheet-backdrop${this.successOpen ? ' is-open' : ''}`;
-    }
-
-    get successDialogClass() {
-        return `se-dialog${this.successOpen ? ' is-open' : ''}`;
-    }
-
-    /** Compat: callers / lógica interna que chequeaban showNewSheet */
-    get showNewSheet() {
-        return this.newSheetMounted;
-    }
-
-    @api
-    openNew() {
-        if (this._newCloseTimer) {
-            window.clearTimeout(this._newCloseTimer);
-            this._newCloseTimer = null;
-        }
-        this.resetForm();
-        this.latitude = DEFAULT_LAT;
-        this.longitude = DEFAULT_LNG;
-        this.mapTick += 1;
-        this.newSheetMounted = true;
-        this.newSheetOpen = false;
-        this.lockBody();
-        this.afterMountOpen(() => {
-            this.newSheetOpen = true;
-        });
-    }
+    /* ---------- Mapa ---------- */
 
     @api
     openMap() {
-        if (this._mapCloseTimer) {
-            window.clearTimeout(this._mapCloseTimer);
-            this._mapCloseTimer = null;
-        }
-        this.mapSheetMounted = true;
-        this.mapSheetOpen = false;
+        this.mapOpen = true;
         this.mapReady = false;
-        this.lockBody();
-        this.afterMountOpen(() => {
-            this.mapSheetOpen = true;
-        });
-        // Montar el mapa cuando el sheet ya tiene tamaño real (fitBounds correcto)
+        this.selectedMarker = undefined;
+        this.syncBodyLock();
+        this.ensureData();
+        if (this._mapTimer) window.clearTimeout(this._mapTimer);
+        // lightning-map calcula los bounds al montarse: esperar a que el modal tenga su tamaño final
         // eslint-disable-next-line @lwc/lwc/no-async-operation
-        window.setTimeout(() => {
+        this._mapTimer = window.setTimeout(() => {
             this.mapReady = true;
-        }, SHEET_MS + 40);
+        }, MAP_MOUNT_DELAY_MS);
     }
 
     closeMap() {
-        this.mapSheetOpen = false;
+        this.mapOpen = false;
         this.mapReady = false;
-        if (this._mapCloseTimer) window.clearTimeout(this._mapCloseTimer);
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
-        this._mapCloseTimer = window.setTimeout(() => {
-            this.mapSheetMounted = false;
-            this._mapCloseTimer = null;
-            this.unlockBody();
-        }, SHEET_MS);
-    }
-
-    handleMapBackdropClick(event) {
-        if (event.target.classList.contains('se-sheet-backdrop')) {
-            this.closeMap();
-        }
+        this.syncBodyLock();
     }
 
     get hasMarkers() {
-        return (this.markers || []).length > 0;
+        return this.markers.length > 0;
     }
 
     get showMapCanvas() {
         return this.hasMarkers && this.mapReady;
     }
 
-    get markersCountLabel() {
-        const n = (this.markers || []).length;
-        return n === 1 ? '1 establecimiento' : `${n} establecimientos`;
+    get showMapEmpty() {
+        return !this.loading && !this.hasMarkers;
+    }
+
+    get markersLabel() {
+        return `Marcadores (${this.markers.length})`;
     }
 
     get markerItems() {
-        return (this.markers || []).map((m, i) => {
-            const lat = Number(m?.location?.Latitude);
-            const lng = Number(m?.location?.Longitude);
-            const coords =
-                Number.isFinite(lat) && Number.isFinite(lng)
-                    ? `${lat.toFixed(5)}, ${lng.toFixed(5)}`
-                    : '';
-            return {
-                key: String(i),
-                title: m.title || 'Sin nombre',
-                coords
-            };
+        return this.markers.map((m) => ({
+            key: m.value,
+            title: m.title || 'Sin nombre',
+            coords: `${formatCoord(m.location.Latitude)}, ${formatCoord(m.location.Longitude)}`,
+            className: `p-mk${m.value === this.selectedMarker ? ' is-on' : ''}`
+        }));
+    }
+
+    handleMarkerSelect(event) {
+        this.selectedMarker = event.currentTarget.dataset.id;
+    }
+
+    handleMapMarkerSelect(event) {
+        this.selectedMarker = event.target.selectedMarkerValue;
+    }
+
+    /* ---------- Nuevo establecimiento ---------- */
+
+    @api
+    openNew() {
+        this.selectedName = '';
+        this.latitude = undefined;
+        this.longitude = undefined;
+        this.showErrors = false;
+        this.geoError = '';
+        this.saveError = '';
+        this.newOpen = true;
+        this.syncBodyLock();
+        this.ensureData();
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        window.requestAnimationFrame(() => {
+            this.template.querySelector('[data-id="new-name"]')?.focus();
         });
     }
 
-    get mapPreviewSource() {
-        const lat = this.latitude != null ? this.latitude : DEFAULT_LAT;
-        const lng = this.longitude != null ? this.longitude : DEFAULT_LNG;
-        const pathParts = location.href.split('/s')[0].split('/');
-        const community = pathParts[pathParts.length - 1] || '';
-        return `/${community}/apex/GoogleMapIframe?latitud=${lat}&longitud=${lng}&t=${this.mapTick}`;
-    }
-
-    get mapCoodinates() {
-        if (this.latitude != null && this.longitude != null) {
-            return `${Number(this.latitude).toFixed(3)}°, ${Number(this.longitude).toFixed(3)}°`;
-        }
-        return 'Elegir georeferencia';
-    }
-
-    get saveDisabled() {
-        return !this.selectedName?.trim() || this.latitude == null || this.longitude == null;
-    }
-
-    validateCoordinates(longitude, latitude) {
-        return Math.sign(longitude) === -1 && Math.sign(latitude) === -1;
-    }
-
-    handleVfMessage(message) {
-        if (!this.newSheetMounted) return;
-        try {
-            if (message.origin !== new URL(location.href).origin) return;
-            if (message.data?.lat == null || message.data?.lng == null) return;
-            const latitude = Number(message.data.lat);
-            const longitude = Number(message.data.lng);
-            if (!this.validateCoordinates(longitude, latitude)) {
-                this.dispatchEvent(errorEvent(new Error('Las coordenadas deben ser negativas')));
-                return;
-            }
-            this.latitude = latitude;
-            this.longitude = longitude;
-        } catch (e) {
-            // ignore cross-origin noise
-        }
-    }
-
-    handleLocateMe() {
-        if (!navigator.geolocation) {
-            this.dispatchEvent(errorEvent(new Error('Tu navegador no permite geolocalización')));
-            return;
-        }
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const latitude = pos.coords.latitude;
-                const longitude = pos.coords.longitude;
-                if (!this.validateCoordinates(longitude, latitude)) {
-                    this.dispatchEvent(
-                        errorEvent(new Error('La ubicación actual no es válida para Argentina (coords negativas)'))
-                    );
-                    return;
-                }
-                this.latitude = latitude;
-                this.longitude = longitude;
-                this.mapTick += 1;
-            },
-            () => {
-                this.dispatchEvent(errorEvent(new Error('No se pudo obtener tu ubicación')));
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
+    closeNew() {
+        if (this.saving) return;
+        this.newOpen = false;
+        this.syncBodyLock();
     }
 
     handleNameInput(event) {
         this.selectedName = event.target.value;
     }
 
-    handleBackdropClick(event) {
-        if (event.target.classList.contains('se-sheet-backdrop')) {
-            this.closeNew();
-        }
+    get hasGeo() {
+        return this.latitude != null && this.longitude != null;
     }
 
-    closeNew() {
-        this.newSheetOpen = false;
-        if (this._newCloseTimer) window.clearTimeout(this._newCloseTimer);
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
-        this._newCloseTimer = window.setTimeout(() => {
-            this.newSheetMounted = false;
-            this.resetForm();
-            this._newCloseTimer = null;
-            this.unlockBody();
-        }, SHEET_MS);
+    get geoLabel() {
+        return this.hasGeo ? `${formatCoord(this.latitude)}, ${formatCoord(this.longitude)}` : '';
     }
 
-    openSuccess(message) {
-        if (this._successCloseTimer) {
-            window.clearTimeout(this._successCloseTimer);
-            this._successCloseTimer = null;
-        }
-        this.mensaje = message;
-        this.successMounted = true;
-        this.successOpen = false;
-        this.lockBody();
-        this.afterMountOpen(() => {
-            this.successOpen = true;
+    get nameError() {
+        return this.showErrors && !this.selectedName.trim() ? REQUIRED_MSG : '';
+    }
+
+    get geoErrorMsg() {
+        if (this.geoError) return this.geoError;
+        return this.showErrors && !this.hasGeo ? REQUIRED_MSG : '';
+    }
+
+    get nameInputClass() {
+        return `p-input${this.nameError ? ' err' : ''}`;
+    }
+
+    get geoClass() {
+        let cls = 'p-geo';
+        if (this.hasGeo) cls += ' filled';
+        if (this.geoErrorMsg) cls += ' err';
+        return cls;
+    }
+
+    openGeo() {
+        this.template.querySelector('c-map')?.show((data, map) => {
+            map.hide();
+            const latitude = Number(data.latitude);
+            const longitude = Number(data.longitude);
+            if (!(Math.sign(latitude) === -1 && Math.sign(longitude) === -1)) {
+                this.geoError = 'Las coordenadas deben ser negativas';
+                return;
+            }
+            this.geoError = '';
+            this.latitude = latitude;
+            this.longitude = longitude;
         });
+    }
+
+    async handleSave() {
+        this.showErrors = true;
+        this.saveError = '';
+        if (this.nameError || this.geoErrorMsg || this.saving) return;
+
+        this.saving = true;
+        try {
+            await this.ensureData();
+            const result = await insertEstablecimiento({
+                fieldMap: {
+                    Name: this.selectedName.trim(),
+                    Coordenadas__Latitude__s: this.latitude,
+                    Coordenadas__Longitude__s: this.longitude,
+                    Vigente__c: true,
+                    Origen__c: 'Propio',
+                    Productor__c: this.selectedProductor
+                }
+            });
+            if (result?.startsWith?.('Error')) {
+                throw new Error(result);
+            }
+            this.saving = false;
+            this.newOpen = false;
+            this.mensaje = result || 'Nuevo establecimiento creado con éxito';
+            this.successOpen = true;
+            this.syncBodyLock();
+            this.dispatchEvent(new CustomEvent('saved'));
+            this.ensureData(true);
+        } catch (e) {
+            this.saving = false;
+            this.saveError = reduceErrors(e).join('\n') || 'No se pudo crear el establecimiento';
+        }
+    }
+
+    get saveLabel() {
+        return this.saving ? 'Guardando…' : 'Guardar';
     }
 
     closeSuccess() {
         this.successOpen = false;
-        if (this._successCloseTimer) window.clearTimeout(this._successCloseTimer);
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
-        this._successCloseTimer = window.setTimeout(() => {
-            this.successMounted = false;
-            this.mensaje = '';
-            this._successCloseTimer = null;
-            this.unlockBody();
-        }, SHEET_MS);
+        this.syncBodyLock();
     }
 
-    resetForm() {
-        this.selectedName = '';
-        this.latitude = undefined;
-        this.longitude = undefined;
-    }
-
-    async handleSave() {
-        if (this.saveDisabled) return;
-
-        const fieldMap = {
-            Name: this.selectedName.trim(),
-            Coordenadas__Latitude__s: parseFloat(this.latitude),
-            Coordenadas__Longitude__s: parseFloat(this.longitude),
-            Vigente__c: true,
-            Origen__c: 'Propio',
-            Productor__c: this.selectedProductor
-        };
-
-        this.newSheetOpen = false;
-        if (this._newCloseTimer) window.clearTimeout(this._newCloseTimer);
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
-        this._newCloseTimer = window.setTimeout(() => {
-            this.newSheetMounted = false;
-            this._newCloseTimer = null;
-            this.unlockBody();
-        }, SHEET_MS);
-
-        await doRequest.call(this, async () => {
-            const result = await insertEstablecimiento({ fieldMap });
-            if (result?.startsWith?.('Error')) {
-                throw new Error(result);
-            }
-            await this.refreshMarkers();
-            this.dispatchEvent(new CustomEvent('saved'));
-            this.resetForm();
-            this.openSuccess(result || 'Nuevo establecimiento generado con éxito');
-        });
+    handleKeydown(event) {
+        if (event.key !== 'Escape') return;
+        if (this.successOpen) this.closeSuccess();
+        else if (this.newOpen) this.closeNew();
+        else if (this.mapOpen) this.closeMap();
     }
 }

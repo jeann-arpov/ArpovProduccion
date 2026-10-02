@@ -1,244 +1,393 @@
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getEstablecimientos from '@salesforce/apex/misEstablecimientosController.getEstablecimientos';
-import { doRequest } from 'c/utils';
+import updateEstablecimiento from '@salesforce/apex/misEstablecimientosController.updateEstablecimiento';
+import { doRequest, errorEvent, reduceErrors } from 'c/utils';
 
-const PAGE_SIZE = 200;
+const PAGE_SIZE = 10;
+const DETAIL_PARAM = 'establecimiento';
+const REQUIRED_MSG = 'Este campo es obligatorio';
 
-function formatHa(value) {
-    if (value == null || value === '') return '—';
+function toNumber(value) {
+    if (value == null || value === '') return null;
     const n = Number(value);
-    if (Number.isNaN(n)) return '—';
-    return `${new Intl.NumberFormat('es-AR', { maximumFractionDigits: 2 }).format(n)} ha`;
+    return Number.isFinite(n) ? n : null;
 }
 
-function formatCoord(value) {
-    if (value == null || value === '') return '—';
-    const n = Number(value);
-    if (Number.isNaN(n)) return '—';
-    return `${n.toFixed(6)}°`;
-}
-
-function cultivoLabel(value) {
-    if (!value) return '—';
-    if (Array.isArray(value)) return value.filter(Boolean).join(' · ') || '—';
-    return String(value).replace(/;/g, ' · ').replace(/\s*-\s*/g, ' · ');
+function parseCoord(text) {
+    const clean = String(text ?? '').trim().replace(',', '.');
+    if (!clean) return null;
+    return /^-?\d+(\.\d+)?$/.test(clean) ? Number(clean) : NaN;
 }
 
 export default class MisEstablecimientos extends LightningElement {
     @api type;
-    @track rowsAll = [];
-    @track filtered = [];
 
+    rowsAll = [];
     loading = true;
-    initialized = false;
     searchKey = '';
-    statusFilter = 'todos';
-    cultivoFilter = 'todos';
-    pageSize = PAGE_SIZE;
+    page = 1;
 
-    columns = [
-        { label: 'Nombre', fieldName: 'title', type: 'link' },
-        { label: 'Localidad', fieldName: 'localidad' },
-        { label: 'Provincia', fieldName: 'provincia' },
-        { label: 'Latitud', fieldName: 'latLabel' },
-        { label: 'Longitud', fieldName: 'lngLabel' },
-        { label: 'Superficie', fieldName: 'superficieLabel' },
-        { label: 'Cultivos declarados', fieldName: 'cultivo' },
-        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
-        { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver detalle' }
-    ];
+    selectedId;
+    infoOpen = true;
 
-    mobileFields = [
-        { label: 'Localidad', fieldName: 'localidad' },
-        { label: 'Provincia', fieldName: 'provincia' },
-        { label: 'Latitud', fieldName: 'latLabel' },
-        { label: 'Longitud', fieldName: 'lngLabel' },
-        { label: 'Superficie', fieldName: 'superficieLabel' },
-        { label: 'Cultivos', fieldName: 'cultivo' }
-    ];
+    editOpen = false;
+    editName = '';
+    editLat = '';
+    editLng = '';
+    editVigente = false;
+    editShowErrors = false;
+    editSaveError = '';
+    saving = false;
+    _focusField;
+
+    _initialized = false;
+    _popHandler;
 
     connectedCallback() {
         document.documentElement.classList.add('se-inner');
         document.body.classList.add('se-inner');
+        this.selectedId = new URLSearchParams(window.location.search).get(DETAIL_PARAM) || undefined;
+        this._popHandler = () => {
+            this.selectedId = new URLSearchParams(window.location.search).get(DETAIL_PARAM) || undefined;
+            this.editOpen = false;
+            this.syncBodyLock();
+        };
+        window.addEventListener('popstate', this._popHandler);
     }
 
     disconnectedCallback() {
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
+        document.body.classList.remove('se-drawer-open');
+        window.removeEventListener('popstate', this._popHandler);
     }
 
     renderedCallback() {
-        if (!this.initialized) {
-            this.init();
+        if (!this._initialized) {
+            this._initialized = true;
+            this.loadRows();
+        }
+        if (this._focusField) {
+            const el = this.template.querySelector(`[data-field="${this._focusField}"]`);
+            if (el) {
+                el.focus();
+                this._focusField = undefined;
+            }
         }
     }
 
-    async init() {
-        this.initialized = true;
-        await this.loadRows();
+    onError(e) {
+        this.dispatchEvent(errorEvent(e));
     }
 
     async loadRows() {
         await doRequest.call(this, async () => {
             const data = await getEstablecimientos();
-            this.rowsAll = (data || []).map((row) => this.decorateRow(row));
-            this.applyFilters();
-            this.loading = false;
+            this.rowsAll = (data || [])
+                .map((row) => this.decorateRow(row))
+                .sort((a, b) => b.created - a.created || a.name.localeCompare(b.name, 'es'));
         });
     }
 
     decorateRow(row) {
-        const hasHt = row.hasHt === true;
-        const adheridoPph = row.adheridoPph === true;
+        const lat = toNumber(row.lat);
+        const lng = toNumber(row.lng);
+        const hasCoords = lat != null && lng != null;
+        const name = row.name || 'Sin nombre';
         return {
             id: row.id,
-            title: row.name,
-            origen: row.origen || '—',
-            localidad: row.localidad || '—',
-            provincia: row.provincia || '—',
-            cultivo: cultivoLabel(row.cultivo),
-            cultivoKey: (row.cultivo || '').trim().toLowerCase() || '—',
-            latLabel: formatCoord(row.lat),
-            lngLabel: formatCoord(row.lng),
-            superficie: row.superficie,
-            superficieSinSembrar: row.superficieSinSembrar,
-            superficieLabel: formatHa(row.superficie),
-            superficieSinSembrarLabel: formatHa(row.superficieSinSembrar),
-            hasHt,
-            adheridoPph,
-            vigente: row.vigente !== false,
-            pphLabel: adheridoPph ? 'Adherido' : '—',
-            statusLabel: hasHt ? 'Activo' : 'Sin HT',
-            statusTone: hasHt ? 'ok' : 'info'
+            name,
+            productor: row.productor || '—',
+            lat,
+            lng,
+            latLabel: lat != null ? String(lat) : '—',
+            lngLabel: lng != null ? String(lng) : '—',
+            coordsLabel: hasCoords ? `${lat}, ${lng}` : 'Sin coordenadas',
+            vigente: row.vigente === true,
+            created: row.createdDate ? Date.parse(row.createdDate) || 0 : 0,
+            search: `${name} ${hasCoords ? `${lat} ${lng}` : ''}`.toLowerCase()
         };
     }
 
-    get estadoSelectOptions() {
-        return [
-            { value: 'todos', label: 'Todos los estados' },
-            { value: 'conHt', label: 'Activo' },
-            { value: 'sinHt', label: 'Sin HT' }
-        ];
+    /* ---------- Listado ---------- */
+
+    get isList() {
+        return !this.selectedId;
     }
 
-    get cultivoSelectOptions() {
-        const set = new Set();
-        (this.rowsAll || []).forEach((row) => {
-            if (row.cultivo && row.cultivo !== '—') {
-                row.cultivo.split(' · ').forEach((c) => {
-                    const t = c.trim();
-                    if (t) set.add(t);
-                });
-            }
-        });
-        const options = [{ value: 'todos', label: 'Todos los cultivos' }];
-        [...set].sort((a, b) => a.localeCompare(b, 'es')).forEach((c) => {
-            options.push({ value: c.toLowerCase(), label: c });
-        });
-        return options;
+    get filtered() {
+        const term = this.searchKey.trim().toLowerCase();
+        return term ? this.rowsAll.filter((r) => r.search.includes(term)) : this.rowsAll;
     }
 
-    applyFilters() {
-        const term = (this.searchKey || '').trim().toLowerCase();
-        let rows = [...(this.rowsAll || [])];
-
-        if (this.statusFilter === 'conHt') {
-            rows = rows.filter((r) => r.hasHt);
-        } else if (this.statusFilter === 'sinHt') {
-            rows = rows.filter((r) => !r.hasHt);
-        }
-
-        if (this.cultivoFilter && this.cultivoFilter !== 'todos') {
-            const key = this.cultivoFilter.toLowerCase();
-            rows = rows.filter((r) => (r.cultivo || '').toLowerCase().includes(key));
-        }
-
-        if (term) {
-            rows = rows.filter((row) => {
-                return (
-                    (row.title && row.title.toLowerCase().includes(term)) ||
-                    (row.localidad && row.localidad.toLowerCase().includes(term)) ||
-                    (row.provincia && row.provincia.toLowerCase().includes(term)) ||
-                    (row.cultivo && row.cultivo.toLowerCase().includes(term)) ||
-                    (row.statusLabel && row.statusLabel.toLowerCase().includes(term)) ||
-                    (row.superficieLabel && row.superficieLabel.toLowerCase().includes(term))
-                );
-            });
-        }
-
-        this.filtered = rows;
+    get totalPages() {
+        return Math.max(1, Math.ceil(this.filtered.length / PAGE_SIZE));
     }
 
-    get listMetaLabel() {
-        const count = this.filtered.length;
-        return `${count} establecimiento${count === 1 ? '' : 's'} · Ordenado por Nombre`;
+    get currentPage() {
+        return Math.min(this.page, this.totalPages);
     }
 
-    get showFooterSummary() {
+    get pageRows() {
+        const start = (this.currentPage - 1) * PAGE_SIZE;
+        return this.filtered.slice(start, start + PAGE_SIZE).map((r) => ({ ...r, href: this.detailHref(r.id) }));
+    }
+
+    get hasRows() {
         return this.filtered.length > 0;
     }
 
-    get footerSummaryLabel() {
-        const totalHa = this.filtered.reduce((sum, r) => sum + (Number(r.superficie) || 0), 0);
-        const adheridos = this.filtered.filter((r) => r.adheridoPph).length;
-        const haLabel = formatHa(totalHa);
-        return `${haLabel} totales declaradas · ${adheridos} de ${this.filtered.length} establecimientos adheridos a PPH`;
+    get showEmpty() {
+        return !this.loading && !this.hasRows;
     }
 
-    handleEstadoChange(event) {
-        this.statusFilter = event.detail?.value || 'todos';
-        this.applyFilters();
+    get emptyText() {
+        return this.searchKey.trim()
+            ? 'No encontramos establecimientos con esa búsqueda.'
+            : 'Todavía no cargaste establecimientos.';
     }
 
-    handleCultivoChange(event) {
-        this.cultivoFilter = event.detail?.value || 'todos';
-        this.applyFilters();
+    get showPager() {
+        return this.totalPages > 1;
+    }
+
+    get pageLabel() {
+        return `Página ${this.currentPage}`;
+    }
+
+    get prevDisabled() {
+        return this.currentPage <= 1;
+    }
+
+    get nextDisabled() {
+        return this.currentPage >= this.totalPages;
+    }
+
+    get countLabel() {
+        const n = this.filtered.length;
+        return `${n} elemento${n === 1 ? '' : 's'} · Ordenado por fecha de emisión`;
     }
 
     handleSearchChange(event) {
-        this.searchKey = event.target?.value ?? event.detail?.value ?? event.detail ?? '';
-        this.applyFilters();
+        this.searchKey = event.target.value || '';
+        this.page = 1;
     }
 
-    handleRowAction(event) {
-        const row = event.detail?.row;
-        if (!row?.id) return;
-        this.goToEstablecimiento(row.id, row.title);
+    handlePrev() {
+        if (!this.prevDisabled) this.page = this.currentPage - 1;
     }
 
-    getCommunityBasePath() {
-        const pathname = window.location.pathname || '';
-        if (pathname.includes('/SembraEvolucion/s')) {
-            return '/SembraEvolucion/s';
-        }
-        if (pathname.includes('/Productores/s')) {
-            return '/Productores/s';
-        }
-        if (pathname.includes('/RegaliaProductor/s')) {
-            return '/RegaliaProductor/s';
-        }
-        if (pathname.includes('/s')) {
-            return `${pathname.split('/s')[0]}/s`;
-        }
-        return '/s';
+    handleNext() {
+        if (!this.nextDisabled) this.page = this.currentPage + 1;
     }
 
-    goToEstablecimiento(recordId, recordName) {
-        const basePath = this.getCommunityBasePath();
-        const slug = encodeURIComponent(recordName || 'detalle');
-        window.open(`${basePath}/establecimiento/${recordId}/${slug}`, '_self');
+    handleOpenRow(event) {
+        event.preventDefault();
+        this.openDetail(event.currentTarget.dataset.id);
+    }
+
+    detailHref(id) {
+        const url = new URL(window.location.href);
+        if (id) url.searchParams.set(DETAIL_PARAM, id);
+        else url.searchParams.delete(DETAIL_PARAM);
+        return url.pathname + url.search + url.hash;
+    }
+
+    openDetail(id) {
+        if (!id) return;
+        window.history.pushState({}, '', this.detailHref(id));
+        this.selectedId = id;
+        this.infoOpen = true;
+        window.scrollTo(0, 0);
+    }
+
+    backToList(event) {
+        event?.preventDefault();
+        window.history.pushState({}, '', this.detailHref(null));
+        this.selectedId = undefined;
+        this.editOpen = false;
+        this.syncBodyLock();
     }
 
     handleNewEstablecimiento() {
-        this.template.querySelector('c-establecimientos-map')?.openNew?.();
+        this.template.querySelector('c-establecimientos-map')?.openNew();
     }
 
     handleOpenMapa() {
-        this.template.querySelector('c-establecimientos-map')?.openMap?.();
+        this.template.querySelector('c-establecimientos-map')?.openMap();
     }
 
     handleEstablecimientoSaved() {
-        this.loading = true;
         this.loadRows();
+    }
+
+    /* ---------- Detalle ---------- */
+
+    get selected() {
+        return this.rowsAll.find((r) => r.id === this.selectedId);
+    }
+
+    get showDetail() {
+        return !!this.selectedId && !!this.selected;
+    }
+
+    get showNotFound() {
+        return !!this.selectedId && !this.loading && !this.selected;
+    }
+
+    get listHref() {
+        return this.detailHref(null);
+    }
+
+    get infoChevronClass() {
+        return `p-chev${this.infoOpen ? ' open' : ''}`;
+    }
+
+    get infoExpanded() {
+        return this.infoOpen ? 'true' : 'false';
+    }
+
+    get vigenteBoxClass() {
+        return `p-check${this.selected?.vigente ? ' on' : ''}`;
+    }
+
+    get vigenteLabel() {
+        return this.selected?.vigente ? 'Vigente' : 'No vigente';
+    }
+
+    toggleInfo() {
+        this.infoOpen = !this.infoOpen;
+    }
+
+    /* ---------- Modificar ---------- */
+
+    openEdit(event) {
+        const row = this.selected;
+        if (!row) return;
+        this.editName = row.name === 'Sin nombre' ? '' : row.name;
+        this.editLat = row.lat != null ? String(row.lat) : '';
+        this.editLng = row.lng != null ? String(row.lng) : '';
+        this.editVigente = row.vigente;
+        this.editShowErrors = false;
+        this.editSaveError = '';
+        this.editOpen = true;
+        this._focusField = event?.currentTarget?.dataset?.focus || 'name';
+        this.syncBodyLock();
+    }
+
+    closeEdit() {
+        if (this.saving) return;
+        this.editOpen = false;
+        this.syncBodyLock();
+    }
+
+    syncBodyLock() {
+        document.body.classList.toggle('se-drawer-open', this.editOpen);
+    }
+
+    handleEditKeydown(event) {
+        if (event.key === 'Escape') this.closeEdit();
+    }
+
+    handleEditInput(event) {
+        const field = event.target.dataset.field;
+        if (field === 'name') this.editName = event.target.value;
+        else if (field === 'lat') this.editLat = event.target.value;
+        else if (field === 'lng') this.editLng = event.target.value;
+    }
+
+    toggleEditVigente() {
+        this.editVigente = !this.editVigente;
+    }
+
+    get editTitle() {
+        return `Modificar ${this.selected?.name || 'establecimiento'}`;
+    }
+
+    get editNameError() {
+        return this.editShowErrors && !this.editName.trim() ? REQUIRED_MSG : '';
+    }
+
+    coordError(text, min, other) {
+        if (!this.editShowErrors) return '';
+        const value = parseCoord(text);
+        const otherValue = parseCoord(other);
+        if (value == null) return otherValue == null ? '' : 'Completá latitud y longitud';
+        if (Number.isNaN(value)) return 'Ingresá un número válido';
+        if (value >= 0 || value < min) return 'Las coordenadas deben ser negativas';
+        return '';
+    }
+
+    get editLatError() {
+        return this.coordError(this.editLat, -90, this.editLng);
+    }
+
+    get editLngError() {
+        return this.coordError(this.editLng, -180, this.editLat);
+    }
+
+    get editNameClass() {
+        return `p-input${this.editNameError ? ' err' : ''}`;
+    }
+
+    get editLatClass() {
+        return `p-input${this.editLatError ? ' err' : ''}`;
+    }
+
+    get editLngClass() {
+        return `p-input${this.editLngError ? ' err' : ''}`;
+    }
+
+    get editVigenteClass() {
+        return `p-check${this.editVigente ? ' on' : ''}`;
+    }
+
+    get editVigenteAria() {
+        return this.editVigente ? 'true' : 'false';
+    }
+
+    get saveLabel() {
+        return this.saving ? 'Guardando…' : 'Guardar';
+    }
+
+    handleSave() {
+        this.save(false);
+    }
+
+    handleSaveAndNew() {
+        this.save(true);
+    }
+
+    async save(andNew) {
+        this.editShowErrors = true;
+        this.editSaveError = '';
+        if (this.editNameError || this.editLatError || this.editLngError || this.saving) return;
+
+        this.saving = true;
+        try {
+            await updateEstablecimiento({
+                establecimientoId: this.selectedId,
+                name: this.editName.trim(),
+                lat: parseCoord(this.editLat),
+                lng: parseCoord(this.editLng),
+                vigente: this.editVigente
+            });
+            this.saving = false;
+            this.editOpen = false;
+            this.syncBodyLock();
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Establecimiento actualizado',
+                    message: 'Los cambios se guardaron correctamente.',
+                    variant: 'success'
+                })
+            );
+            await this.loadRows();
+            if (andNew) this.handleNewEstablecimiento();
+        } catch (e) {
+            this.saving = false;
+            this.editSaveError = reduceErrors(e).join('\n') || 'No se pudo guardar el establecimiento';
+        }
     }
 }
