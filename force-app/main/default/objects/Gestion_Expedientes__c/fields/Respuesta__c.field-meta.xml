@@ -171,6 +171,16 @@
                 <label>Promesa de respuesta</label>
             </value>
             <value>
+                <fullName>Sin intención de compra</fullName>
+                <default>false</default>
+                <label>Sin intención de compra</label>
+            </value>
+            <value>
+                <fullName>Sin contacto activo</fullName>
+                <default>false</default>
+                <label>Sin contacto activo</label>
+            </value>
+            <value>
                 <fullName>Contactado</fullName>
                 <default>false</default>
                 <isActive>false</isActive>
@@ -226,6 +236,7 @@
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>Caso</controllingFieldValue>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
             <valueName>Compra/Venta HT</valueName>
         </valueSettings>
         <valueSettings>
@@ -251,11 +262,13 @@
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>Caso</controllingFieldValue>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
             <valueName>Informa SF</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>Caso</controllingFieldValue>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
             <valueName>No sembró</valueName>
         </valueSettings>
         <valueSettings>
@@ -277,11 +290,13 @@
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>CTV</controllingFieldValue>
             <controllingFieldValue>Caso</controllingFieldValue>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
             <valueName>Sin respuesta</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>Caso</controllingFieldValue>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
             <valueName>Reclama transferencia de toneladas</valueName>
         </valueSettings>
         <valueSettings>
@@ -323,6 +338,7 @@
         <valueSettings>
             <controllingFieldValue>SE</controllingFieldValue>
             <controllingFieldValue>Caso</controllingFieldValue>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
             <valueName>Promesa de respuesta</valueName>
         </valueSettings>
         <!-- CTV only (+ Caso) -->
@@ -375,6 +391,14 @@
             <controllingFieldValue>CTV</controllingFieldValue>
             <controllingFieldValue>Caso</controllingFieldValue>
             <valueName>Solicita NC</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
+            <valueName>Sin intención de compra</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Caso VHT</controllingFieldValue>
+            <valueName>Sin contacto activo</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>
