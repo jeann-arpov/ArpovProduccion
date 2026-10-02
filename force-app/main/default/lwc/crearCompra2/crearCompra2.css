@@ -3396,6 +3396,38 @@ a.c-tooltip {
     min-height: 0;
 }
 
+.se-det-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.se-det-panel-copy {
+    min-width: 0;
+}
+
+.se-det-marca-logo {
+    flex: none;
+    width: 120px;
+    height: 56px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.se-det-marca-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
 .se-det-table td {
     vertical-align: middle;
 }
@@ -3465,6 +3497,12 @@ a.c-tooltip {
 
     .se-det .se-title {
         font-size: 24px;
+    }
+
+    .se-det-marca-logo {
+        width: 92px;
+        height: 44px;
+        padding: 6px 10px;
     }
 
     .se-det .se-panel {

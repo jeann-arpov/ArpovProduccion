@@ -458,6 +458,26 @@ body.se-chrome .slds-col--padded.comm-content-footer {
     min-height: 0 !important;
     margin-top: auto !important;
   }
+
+  /* Compra HT: la página de registro la deja en una columna angosta; ocupa todo el ancho. */
+  body.se-chrome.se-inner :is(.comm-layout-column, .slds-col, [class*="slds-size"], .cb-section_column, .dxp-column):has(c-crear-compra2) {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  body.se-chrome.se-inner :is(.slds-grid, .cb-section_row, .comm-layout-row):has(> :is(.comm-layout-column, .slds-col, [class*="slds-size"], .cb-section_column, .dxp-column) c-crear-compra2)
+    > :is(.comm-layout-column, .slds-col, [class*="slds-size"], .cb-section_column, .dxp-column):not(:has(c-crear-compra2)) {
+    display: none !important;
+  }
+
+  body.se-chrome.se-inner c-crear-compra2 {
+    display: block;
+    width: 100% !important;
+    max-width: none !important;
+  }
 }
 .se-chrome .myAccount,
 .se-chrome .slds-icon-utility-down {

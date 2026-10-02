@@ -1192,6 +1192,11 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     logosFallidos = [];
 
+    get detalleMarcaLogo() {
+        if (!this.semillero || this.logosFallidos.includes(this.semillero)) return null;
+        return semilleroLogoUrl(this.semillero);
+    }
+
     handleMarcaLogoError(event) {
         const id = event.currentTarget?.dataset?.id;
         if (id && !this.logosFallidos.includes(id)) {

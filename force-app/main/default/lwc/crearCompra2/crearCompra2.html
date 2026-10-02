@@ -460,8 +460,17 @@
           <div class="se-buy-layout">
             <div class="se-buy-main">
               <section class="se-panel">
-                <p class="se-eyebrow se-eyebrow-tight">{resumenCultivo} · {resumenMarca}</p>
-                <h2 class="se-panel-title">Variedades</h2>
+                <div class="se-det-panel-head">
+                  <div class="se-det-panel-copy">
+                    <p class="se-eyebrow se-eyebrow-tight">{resumenCultivo} · {resumenMarca}</p>
+                    <h2 class="se-panel-title">Variedades</h2>
+                  </div>
+                  <template if:true={detalleMarcaLogo}>
+                    <span class="se-det-marca-logo">
+                      <img src={detalleMarcaLogo} alt={resumenMarca} data-id={semillero} onerror={handleMarcaLogoError} />
+                    </span>
+                  </template>
+                </div>
 
                 <div class="se-confirm-table-wrap se-det-table-wrap">
                   <table class="se-confirm-table se-det-table">
