@@ -217,6 +217,13 @@ export default class AdhesionPph extends LightningElement {
     return this.plan?.Parametro_PPH__r?.Name?.match(/\d{4}\/\d{4}/)?.[0];
   }
 
+  get totalHtCultivo() {
+    return (
+      this.variedades.reduce((acc, v) => acc + (v.totals?.total || 0), 0) +
+      (this.htsGlobales?.total || 0)
+    );
+  }
+
   get grandesCuentas() {
     return this.account?.Grandes_Cuentas__c === true;
   }
@@ -386,9 +393,7 @@ export default class AdhesionPph extends LightningElement {
       data.establecimientos.push(est);
     }
 
-    data.total =
-      this.variedades.map((v) => v.totals?.total || 0).reduce((a, b) => a + b, 0) +
-      (this.htsGlobales?.total || 0);
+    data.total = this.totalHtCultivo;
     data.saldoPph = this.saldoPph;
     return data;
   }

@@ -13,6 +13,7 @@ export default class EstablecimientoPph extends LightningElement {
     @api info;
     @api hiding;
     @api cultivo;
+    @api totalHt;
 
     name = '';
     cantidadNoSEInput = '';
@@ -89,7 +90,7 @@ export default class EstablecimientoPph extends LightningElement {
     }
 
     get haCaption() {
-        return `Hectáreas totales de ${this.cultivoName} sembradas`;
+        return `HT totales de ${this.cultivoName}`;
     }
 
     get hasCoordinates() {
@@ -148,16 +149,8 @@ export default class EstablecimientoPph extends LightningElement {
         return this.cantidadNoSEInput === '' || Number.isNaN(value) ? 0 : value;
     }
 
-    get totalSE() {
-        return Object.values(this.cantidades).reduce((a, b) => a + (Number(b) || 0), 0);
-    }
-
-    get totalSembrado() {
-        return this.totalSE + this.safeCantidadNoSE;
-    }
-
-    get totalSembradoLabel() {
-        return fmt(this.totalSembrado);
+    get totalHtLabel() {
+        return fmt(this.totalHt);
     }
 
     get hasVariedades() {
