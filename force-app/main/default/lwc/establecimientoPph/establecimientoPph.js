@@ -141,7 +141,7 @@ export default class EstablecimientoPph extends LightningElement {
     }
 
     get haWrapClass() {
-        return 'p-ha-wrap' + (this.disabled ? ' off' : '');
+        return 'p-ha-wrap' + (this.disabled || !(Number(this.totalHt) > 0) ? ' off' : '');
     }
 
     get safeCantidadNoSE() {
