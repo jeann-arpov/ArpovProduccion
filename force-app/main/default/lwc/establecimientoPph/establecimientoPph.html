@@ -126,7 +126,7 @@
             <div class="p-main">
                 <div class="p-area">
                     <p class="p-step"><span class="n">2</span>{step2Label}</p>
-                    <template if:true={hasVariedades}>
+                    <template if:true={showVariedades}>
                         <div class="p-vhead" aria-hidden="true">
                             <span>Marca</span>
                             <span>Variedad</span>
@@ -134,7 +134,7 @@
                             <span class="r">HT disponibles</span>
                         </div>
                     </template>
-                    <div class="p-vlist">
+                    <div class={vlistClass}>
                         <template for:each={info.lineas} for:item="linea">
                             <c-variedad-pph
                                 key={linea.id}
@@ -144,7 +144,7 @@
                             ></c-variedad-pph>
                         </template>
                     </div>
-                    <template if:false={hasVariedades}>
+                    <template if:false={showVariedades}>
                         <div class="p-empty">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"></path><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5zM12 9c0-3-2-5-5-5 0 3 2 5 5 5z"></path></svg>
                             <span>Marca · Variedad · Hectáreas · HT disponibles</span>

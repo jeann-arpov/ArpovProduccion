@@ -535,6 +535,10 @@
     gap: 10px;
 }
 
+.p-vlist.is-hidden {
+    display: none;
+}
+
 .p-empty {
     display: flex;
     align-items: center;

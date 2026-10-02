@@ -168,6 +168,14 @@ export default class EstablecimientoPph extends LightningElement {
         });
     }
 
+    get showVariedades() {
+        return this.hasVariedades && !this.disabled;
+    }
+
+    get vlistClass() {
+        return this.showVariedades ? 'p-vlist' : 'p-vlist is-hidden';
+    }
+
     get collapseLabel() {
         return this.collapsed ? 'Expandir' : 'Colapsar';
     }
