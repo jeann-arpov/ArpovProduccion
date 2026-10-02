@@ -2,9 +2,14 @@ public with sharing class GestionExpedientesController {
 
     private static final String CASE_PREFIX = Case.SObjectType.getDescribe().getKeyPrefix();
     private static final String EXPEDIENTE_PREFIX = Expediente_de_Negativos__c.SObjectType.getDescribe().getKeyPrefix();
-    /** Operador interno para gestiones de Caso: habilita todas las Respuestas en el picklist dependiente. */
+    /** Operador interno para gestiones de Caso: habilita el subconjunto de Respuestas de Casos. */
     @TestVisible
     private static final String OPERADOR_CASO = 'Caso';
+    /** Tipo (Case.Type) Venta HT + Tema Futura Soja. No se ofrece en el desplegable de expedientes. */
+    @TestVisible
+    private static final String OPERADOR_CASO_VHT = 'Caso VHT';
+    private static final String TIPO_VENTA_HT = 'Venta HT';
+    private static final String TEMA_FUTURA_SOJA = 'Futura Soja';
 
     /**
      * Obtiene gestiones paginadas para un expediente o caso
@@ -54,7 +59,7 @@ public with sharing class GestionExpedientesController {
 
     /**
      * Crea una nueva gestión asociada a Expediente o Caso.
-     * En Caso: Operador interno "Caso" (no visible en UI) + respuesta + efectividad.
+     * En Caso: Operador interno "Caso", o "Caso VHT" si Tipo es Venta HT y el tema es Futura Soja.
      * En Expediente: operador SE/CTV + respuesta filtrada + efectividad.
      */
     @AuraEnabled
@@ -75,7 +80,7 @@ public with sharing class GestionExpedientesController {
             Celular__c = celular,
             Medio__c = medio,
             Tipo_Gestion__c = tipoGestion,
-            Operador__c = esCaso ? OPERADOR_CASO : operador,
+            Operador__c = esCaso ? operadorDeCaso(parentId) : operador,
             Respuesta__c = respuesta,
             Comentario__c = comentario,
             Efectividad__c = efectividad
@@ -102,6 +107,19 @@ public with sharing class GestionExpedientesController {
             SELECT Id FROM Gestion_Expedientes__c WHERE Id = :gestionId LIMIT 1
         ];
         delete gestion;
+    }
+
+    private static String operadorDeCaso(Id casoId) {
+        Case caso = [
+            SELECT Type, Tema__c
+            FROM Case
+            WHERE Id = :casoId
+            LIMIT 1
+        ];
+        if (caso.Type == TIPO_VENTA_HT && caso.Tema__c == TEMA_FUTURA_SOJA) {
+            return OPERADOR_CASO_VHT;
+        }
+        return OPERADOR_CASO;
     }
 
     private static String resolveParentField(Id parentId) {
