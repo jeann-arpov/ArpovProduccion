@@ -202,7 +202,7 @@
             <name>Es_Negativo</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Buscar_Expediente.Saldo_CG__c</leftValueReference>
+                <leftValueReference>forSaldoAFacturar</leftValueReference>
                 <operator>LessThan</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
@@ -224,7 +224,7 @@ Se agrega que al crear la TN con origen = Regalía Enlist --&gt; Etapa = Factura
     <formulas>
         <name>forCantidadTN</name>
         <dataType>Number</dataType>
-        <expression>{!Buscar_Expediente.Saldo_CG__c} * (-1)</expression>
+        <expression>{!forSaldoAFacturar} * (-1)</expression>
         <scale>0</scale>
     </formulas>
     <formulas>
@@ -239,6 +239,16 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>forFechaVtoTN</name>
         <dataType>Date</dataType>
         <expression>{!Buscar_Cultivo_SOJA.Fecha_Vencimiento_de_Tonelada__c}</expression>
+    </formulas>
+    <formulas>
+        <name>forSaldoAFacturar</name>
+        <dataType>Number</dataType>
+        <expression>IF(
+  TEXT({!Buscar_Expediente.Tipo_expendiente__c}) = &quot;EXP&quot;,
+  {!Buscar_Expediente.Saldo_CG__c},
+  {!Buscar_Expediente.Saldo_Expediente__c}
+)</expression>
+        <scale>0</scale>
     </formulas>
     <interviewLabel>ExpDeNeg - Facturar Regalía Enlist {!$Flow.CurrentDateTime}</interviewLabel>
     <label>ExpDeNeg - Facturar Regalía Enlist</label>
@@ -617,7 +627,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <allowPause>false</allowPause>
         <fields>
             <name>MsgEsPositivo</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente {!Buscar_Expediente.Name} tiene la cuenta granaria &amp;gt;= 0.&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente {!Buscar_Expediente.Name} no tiene saldo de expediente negativo.&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -734,7 +744,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <targetReference>Buscar_Expediente</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>

@@ -24,6 +24,11 @@
                 <default>false</default>
                 <label>Caso</label>
             </value>
+            <value>
+                <fullName>Caso VHT</fullName>
+                <default>false</default>
+                <label>Caso VHT</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

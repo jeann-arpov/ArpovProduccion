@@ -53,28 +53,32 @@ public with sharing class CuentaGranariaTriggerHandler extends TriggerHandler {
             return;
         }
 
-        // Excluir cuentas tipo Obtentor: no se les crea CG ni expedientes
+        // Excluir Obtentor y sucursales (ParentId / Cuenta principal != null):
+        // no se les crean expedientes
         Set<Id> productoresObjetivo = new Set<Id>();
         for (Cuenta_Granaria__c cg : cuentaPorId.values()) {
             if (cg.Productor__c != null) {
                 productoresObjetivo.add(cg.Productor__c);
             }
         }
-        Set<Id> productoresObtentor = new Set<Id>();
+        Set<Id> productoresExcluidos = new Set<Id>();
         if (!productoresObjetivo.isEmpty()) {
-            for (Account cuentaObtentor : [
+            for (Account cuenta : [
                 SELECT Id
                 FROM Account
                 WHERE Id IN :productoresObjetivo
-                    AND RecordType.Name = 'Obtentor'
+                    AND (
+                        RecordType.Name = 'Obtentor'
+                        OR ParentId != null
+                    )
             ]) {
-                productoresObtentor.add(cuentaObtentor.Id);
+                productoresExcluidos.add(cuenta.Id);
             }
         }
-        if (!productoresObtentor.isEmpty()) {
+        if (!productoresExcluidos.isEmpty()) {
             for (Id cuentaId : new Set<Id>(cuentaIdsObjetivo)) {
                 Cuenta_Granaria__c cg = cuentaPorId.get(cuentaId);
-                if (cg != null && productoresObtentor.contains(cg.Productor__c)) {
+                if (cg != null && productoresExcluidos.contains(cg.Productor__c)) {
                     cuentaIdsObjetivo.remove(cuentaId);
                     cuentaPorId.remove(cuentaId);
                 }
@@ -161,7 +165,7 @@ public with sharing class CuentaGranariaTriggerHandler extends TriggerHandler {
             }
         }
         if (!expedientePorCg.isEmpty()) {
-            CuentaGranariaExpedienteService.vincularToneladasYMovimientosPorCg(expedientePorCg);
+            //CuentaGranariaExpedienteService.vincularToneladasYMovimientosPorCg(expedientePorCg);
         }
     }
 }
