@@ -4,7 +4,7 @@
  * Responsabilidades:
  * - afterInsert: Filtra toneladas válidas y delega a ActualizarCuentaGranariaBatch.procesarToneladasEspecificas()
  *   para crear/asignar Cuenta_Granaria__c, compensaciones y expedientes (reutiliza lógica del batch).
- *   Tras compensar, encola sincronización del expediente hacia el MBT asociado (post-commit).
+ *   Tras compensar, encola sincronización del expediente / TN_Id hacia el MBT asociado (post-commit).
  * - afterUpdate: Reprocesa al entrar en Cobrada/Debitada, Cancelada por NC, al cambiar campaña,
  *   o al modificar cantidad/CG de negativos consumibles (p. ej. BolsaTech Debitada);
  *   si cambia Expediente_de_Negativos__c, propaga el valor al MBT vinculado;
@@ -16,6 +16,7 @@
  * - Con CG ya asignada: Compra HT positiva en CG HT → dispara compensación
  * - Requiere: Biotecnología, Productor, Cultivo
  * - Excluye: Etapa = 'Pendiente', Origen = 'Balance Anual'
+ * - Además: cualquier TN con Mov_BolsaTech__c encola sync MBT (TN_Id / expediente) post-commit
  */
 public without sharing class ToneladaTriggerHandler {
     
@@ -42,22 +43,32 @@ public without sharing class ToneladaTriggerHandler {
         }
         
         Set<Id> toneladasIds = new Set<Id>();
+        Set<Id> toneladasConMbt = new Set<Id>();
         for (Tonelada__c tn : newToneladas) {
             if (cumpleCriteriosAsignacion(tn) || cumpleCriteriosReprocesoPorCgManual(tn)) {
                 toneladasIds.add(tn.Id);
             }
+            // Self-heal TN_Id / expediente en MBT aunque la TN no entre a compensación CG
+            if (tn.Mov_BolsaTech__c != null) {
+                toneladasConMbt.add(tn.Id);
+            }
         }
         
-        if (toneladasIds.isEmpty()) {
-            System.debug('No hay toneladas para procesar');
-            return;
+        if (!toneladasIds.isEmpty()) {
+            System.debug('Toneladas a procesar: ' + toneladasIds.size());
+            ejecutarReprocesamiento(toneladasIds);
         }
-        
-        System.debug('Toneladas a procesar: ' + toneladasIds.size());
-        ejecutarReprocesamiento(toneladasIds);
-        // Post-commit: el flow de débito BolsaTech puede actualizar el MBT después del trigger
-        // y dejar Expediente_de_Negativos__c en null aunque compensar ya lo haya seteado en la TN.
-        CuentaGranariaExpedienteService.programarSincronizacionMbtDesdeToneladas(toneladasIds);
+
+        Set<Id> toneladasParaSyncMbt = new Set<Id>();
+        toneladasParaSyncMbt.addAll(toneladasIds);
+        toneladasParaSyncMbt.addAll(toneladasConMbt);
+        if (!toneladasParaSyncMbt.isEmpty()) {
+            // Post-commit: el flow de débito BolsaTech puede actualizar el MBT después del trigger
+            // y dejar Expediente_de_Negativos__c / TN_Id__c incompletos.
+            //CuentaGranariaExpedienteService.programarSincronizacionMbtDesdeToneladas(toneladasParaSyncMbt);
+        } else {
+            System.debug('No hay toneladas para procesar ni sync MBT');
+        }
     }
     
     /**
@@ -93,6 +104,7 @@ public without sharing class ToneladaTriggerHandler {
         Set<Id> cuentasARecalcular = new Set<Id>();
         Set<Id> toneladasAReprocesar = new Set<Id>();
         Set<Id> toneladasConExpedienteNuevo = new Set<Id>();
+        Set<Id> toneladasConMbtNuevo = new Set<Id>();
         
         for (Tonelada__c tn : newToneladas) {
             Tonelada__c old = oldMap.get(tn.Id);
@@ -100,6 +112,11 @@ public without sharing class ToneladaTriggerHandler {
             if (tn.Expediente_de_Negativos__c != old.Expediente_de_Negativos__c
                 && tn.Expediente_de_Negativos__c != null) {
                 toneladasConExpedienteNuevo.add(tn.Id);
+            }
+
+            if (tn.Mov_BolsaTech__c != null
+                && tn.Mov_BolsaTech__c != old.Mov_BolsaTech__c) {
+                toneladasConMbtNuevo.add(tn.Id);
             }
             
             // Reprocesar cuando entra a etapa cobrable/acreditable:
@@ -160,10 +177,14 @@ public without sharing class ToneladaTriggerHandler {
         
         ejecutarReprocesamiento(toneladasAReprocesar);
 
-        if (!toneladasConExpedienteNuevo.isEmpty()) {
+        Set<Id> toneladasParaSyncMbt = new Set<Id>();
+        toneladasParaSyncMbt.addAll(toneladasConExpedienteNuevo);
+        toneladasParaSyncMbt.addAll(toneladasConMbtNuevo);
+        if (!toneladasParaSyncMbt.isEmpty()) {
+            /*
             CuentaGranariaExpedienteService.programarSincronizacionMbtDesdeToneladas(
-                toneladasConExpedienteNuevo
-            );
+                toneladasParaSyncMbt
+            ); */
         }
         
         if (!cuentasARecalcular.isEmpty()) {

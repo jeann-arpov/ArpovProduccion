@@ -87,7 +87,7 @@ private class CuentaGranariaTriggerHandlerTest {
     }
 
     @IsTest
-    static void testCreaExpedienteVinculaToneladaYMbt() {
+    static void testCreaExpedienteNoVinculaToneladaNiMbt() {
         Test_TestUtils.disableFlows();
         CuentaGranariaTriggerHandler.HABILITAR_CREACION_EXPEDIENTES_NEGATIVOS = true;
         Cuenta_Granaria__c cg = crearCuentaManualNegativa('Enlist E3/Conkesta E3', 0);
@@ -127,13 +127,77 @@ private class CuentaGranariaTriggerHandlerTest {
             WHERE Cuenta_Granaria__c = :cg.Id
             LIMIT 1
         ];
+        System.assertNotEquals(null, expediente.Id, 'Debe crear el EXP de la CG');
         System.assertEquals(
-            expediente.Id,
-            [SELECT Expediente_de_Negativos__c FROM Tonelada__c WHERE Id = :tn.Id].Expediente_de_Negativos__c
+            null,
+            [SELECT Expediente_de_Negativos__c FROM Tonelada__c WHERE Id = :tn.Id].Expediente_de_Negativos__c,
+            'Crear el EXP de la CG no debe vincular la tonelada'
         );
         System.assertEquals(
-            expediente.Id,
-            [SELECT Expediente_de_Negativos__c FROM Movimiento_BolsaTech__c WHERE Id = :mbt.Id].Expediente_de_Negativos__c
+            null,
+            [SELECT Expediente_de_Negativos__c FROM Movimiento_BolsaTech__c WHERE Id = :mbt.Id].Expediente_de_Negativos__c,
+            'Crear el EXP de la CG no debe vincular el movimiento Bolsatech'
+        );
+    }
+
+    @IsTest
+    static void testNoCreaExpedienteParaSucursalConCuentaPrincipal() {
+        CuentaGranariaTriggerHandler.HABILITAR_CREACION_EXPEDIENTES_NEGATIVOS = true;
+        Account principal = Test_TestUtils.crearProductor();
+
+        Account sucursal = new Account(
+            Name = 'productor (Suc. Test)',
+            RecordTypeId = RecordTypeTool.GetRecordTypeIdsByDeveloperName(Account.SObjectType).get('Productor'),
+            Clave_Unica__c = 'prod-suc-01',
+            N_CUIT__c = '30641405554',
+            Direccion_de_Correo_electronico_del_CUIT__c = 'sucursal@test.com',
+            Localidad_Envio__c = principal.Localidad_Envio__c,
+            Condicion_Impositiva__c = 'No Aplica',
+            Type = 'Productor',
+            ParentId = principal.Id
+        );
+        insert sucursal;
+
+        Cultivo__c cultivo = new Cultivo__c(
+            Name = 'SOJA',
+            Tipo_de_Especie__c = 'SOJA',
+            Densidad_de_Siembra__c = 75,
+            Sembra_Evolucion__c = true
+        );
+        insert cultivo;
+
+        Campana_Agricola__c campania = new Campana_Agricola__c(
+            Name = 'SOJA 2025 CG SUC TEST',
+            Ano__c = '2025',
+            Estado__c = 'Activa',
+            Cultivo__c = cultivo.Id,
+            Fecha_de_Inicio__c = Date.today().addMonths(-2),
+            Fecha_de_Fin__c = Date.today().addMonths(8)
+        );
+        insert campania;
+
+        Cuenta_Granaria__c cg = new Cuenta_Granaria__c(
+            Productor__c = sucursal.Id,
+            Cultivo__c = cultivo.Id,
+            Campania__c = campania.Id,
+            Tecnologia__c = 'Enlist E3/Conkesta E3',
+            Es_Carga_Manual__c = true,
+            Saldo_Cuenta__c = -4,
+            Clave_Unica__c = sucursal.Id + '|' + campania.Id + '|' + cultivo.Id + '|Enlist E3/Conkesta E3'
+        );
+
+        Test.startTest();
+        insert cg;
+        Test.stopTest();
+
+        System.assertEquals(
+            0,
+            [
+                SELECT COUNT()
+                FROM Expediente_de_Negativos__c
+                WHERE Cuenta_Granaria__c = :cg.Id
+            ],
+            'No debe crear expediente en cuentas con Cuenta principal (ParentId) distinta de null.'
         );
     }
 }
