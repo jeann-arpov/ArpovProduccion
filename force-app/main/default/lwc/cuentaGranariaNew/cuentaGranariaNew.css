@@ -610,6 +610,12 @@
     visibility: visible;
 }
 
+.cg-tipwrap:focus-visible {
+    outline: 2px solid #bfff00;
+    outline-offset: 2px;
+    border-radius: 50%;
+}
+
 .cg-camp-side {
     display: flex;
     flex-direction: column;

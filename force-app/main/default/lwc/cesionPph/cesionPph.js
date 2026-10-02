@@ -731,6 +731,32 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         return !this.resumenCanEnviar;
     }
 
+    /** Una cesión ya enviada (Pendiente de Validación, Validada…) no se vuelve a enviar. */
+    get resumenShowEnviar() {
+        return this.isEnCurso;
+    }
+
+    get resumenFooterVariant() {
+        return this.resumenShowEnviar ? 'dual' : 'status';
+    }
+
+    get resumenContinueLabel() {
+        return this.resumenShowEnviar ? 'Enviar cesión' : 'Volver a mis cesiones';
+    }
+
+    get resumenContinueDisabled() {
+        return this.resumenShowEnviar ? this.resumenEnviarDisabled : false;
+    }
+
+    get resumenGuardarLabel() {
+        return this.resumenShowEnviar ? 'Guardar' : 'Volver a mis cesiones';
+    }
+
+    handleResumenContinue() {
+        if (this.resumenShowEnviar) this.handleResumenEnviar();
+        else this.handleResumenGuardar();
+    }
+
     get showResumenMobFooter() {
         if (typeof window === 'undefined') return true;
         return window.matchMedia('(max-width: 767px)').matches;

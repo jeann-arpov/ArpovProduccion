@@ -185,7 +185,13 @@
                     <div class={regularizarCardClass}>
                         <span class="cg-reg-lbl">
                             Toneladas a regularizar
-                            <span class="cg-info-i" aria-hidden="true">i</span>
+                            <span class="cg-tipwrap" tabindex="0" aria-label="Más información sobre toneladas a regularizar">
+                                <span class="cg-info-i" aria-hidden="true">i</span>
+                                <span class="cg-tip" role="tooltip">
+                                    <b>Toneladas a regularizar</b>
+                                    Es el saldo negativo de la campaña: entregaste más toneladas de las que tenés acreditadas. Comprá HT para regularizarlo.
+                                </span>
+                            </span>
                         </span>
                         <span class="cg-reg-val">
                             <lightning-formatted-number

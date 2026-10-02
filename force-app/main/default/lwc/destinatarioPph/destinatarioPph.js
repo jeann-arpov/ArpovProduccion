@@ -3,6 +3,25 @@ import searchDestinatarios from '@salesforce/apex/CesionPPH.searchDestinatarios'
 import {errorEvent} from 'c/utils';
 import icons from 'c/icons';
 
+const MARCAS = {
+    '03': 'DONMARIO',
+    '04': 'NIDERA',
+    '05': 'BUCK',
+    '06': 'KLEIN',
+    '12': 'LG',
+    '13': 'PIONEER',
+    '14': 'ILLINOIS',
+    '16': 'MACROSEED',
+    '19': 'BIOCERES',
+    '23': 'NK',
+    '24': 'STINE',
+    '51': 'QUILMES',
+    '77': 'CREDENZ',
+    '85': 'NEOGEN',
+    '87': 'BREVANT',
+    '90': 'NORD'
+};
+
 export default class DestinatarioPph extends LightningElement {
     /** 'all' | 'destinatario' | 'toneladas' — wizard mobile split (SG 3g / 3h). */
     @api phase = 'all';
@@ -17,7 +36,7 @@ export default class DestinatarioPph extends LightningElement {
     destinatario;
     icons = icons;
     collapsed;
-    wizardInput = '';
+    wizardInputs = {};
     wizardInputInitialized = false;
     wizardCantidades = {};
 
@@ -144,9 +163,12 @@ export default class DestinatarioPph extends LightningElement {
 
         if (this.showWizardToneladas && !this.wizardInputInitialized) {
             this.wizardInputInitialized = true;
-            const total = this.computeTotalFromLineas();
-            this.wizardInput = total > 0 ? this.formatTon(total) : '';
-            this.distributeWizardToneladas(this.computeTotalFromLineas());
+            const inputs = {};
+            for (const linea of this.info?.lineas || []) {
+                const qty = this.getLineaCantidad(linea.id);
+                inputs[linea.id] = qty > 0 ? this.formatTon(qty) : '';
+            }
+            this.wizardInputs = inputs;
             this.dispatchToneladasChange();
         }
     }
@@ -182,27 +204,49 @@ export default class DestinatarioPph extends LightningElement {
     }
 
     get wizardToneladasNum() {
-        return this.parseTon(this.wizardInput);
+        return this.computeTotalFromLineas();
+    }
+
+    get wizardTotalLabel() {
+        return this.formatTon(this.wizardToneladasNum);
+    }
+
+    brandFor(variedad) {
+        return MARCAS[variedad?.Obtentor_Comercializa__r?.Id_Obtentor__c] || '';
+    }
+
+    get wizardLineas() {
+        return (this.info?.lineas || [])
+            .filter((linea) => this.lineaCapacidad(linea) > 0 || this.getLineaCantidad(linea.id) > 0)
+            .map((linea) => {
+                const capacidad = this.lineaCapacidad(linea);
+                const hasError = this.getLineaCantidad(linea.id) > capacidad;
+                const name = linea.variedad?.Name || 'Variedad';
+                return {
+                    id: linea.id,
+                    name,
+                    brand: this.brandFor(linea.variedad),
+                    disponibleLabel: this.formatTon(capacidad),
+                    input: this.wizardInputs[linea.id] ?? '',
+                    hasError,
+                    rowClass: `se-var-row${hasError ? ' is-error' : ''}`,
+                    inputWrapClass: `se-var-input-wrap${hasError ? ' se-ton-input-wrap--error' : ''}`,
+                    ariaLabel: `Toneladas a ceder de ${name}`,
+                    ariaInvalid: hasError ? 'true' : 'false'
+                };
+            });
+    }
+
+    get hasWizardLineas() {
+        return this.wizardLineas.length > 0;
     }
 
     get hasToneladasError() {
-        const n = this.wizardToneladasNum;
-        return this.wizardInput !== '' && n > 0 && n > this.totalSaldoDisponible;
-    }
-
-    get toneladasErrorDetail() {
-        return `Podés ceder hasta ${this.formatTon(this.totalSaldoDisponible)} t de ${this.cultivoLabel}. Ajustá la cantidad para continuar.`;
-    }
-
-    get tonInputWrapClass() {
-        let cls = 'se-ton-input-wrap';
-        if (this.hasToneladasError) cls += ' se-ton-input-wrap--error';
-        return cls;
+        return this.wizardLineas.some((linea) => linea.hasError);
     }
 
     get isWizardToneladasValid() {
-        const n = this.wizardToneladasNum;
-        return n > 0 && n <= this.totalSaldoDisponible;
+        return this.wizardToneladasNum > 0 && !this.hasToneladasError;
     }
 
     parseTon(value) {
@@ -216,51 +260,25 @@ export default class DestinatarioPph extends LightningElement {
         return Number(n).toLocaleString('es-AR', { maximumFractionDigits: 0 });
     }
 
-    handleWizardToneladasInput(event) {
-        this.wizardInput = event.target.value;
-        this.distributeWizardToneladas(this.wizardToneladasNum);
-        this.dispatchToneladasChange();
-    }
-
-    handleWizardToneladasBlur(event) {
-        const n = this.wizardToneladasNum;
-        this.wizardInput = n > 0 ? this.formatTon(n) : '';
-        event.target.value = this.wizardInput;
-        this.dispatchToneladasChange();
-    }
-
-    distributeWizardToneladas(targetTotal) {
-        const lineas = this.info?.lineas || [];
-        const target = Math.max(0, Number(targetTotal) || 0);
-
-        lineas.forEach((linea) => {
-            const oldQty = this.getLineaCantidad(linea.id);
-            if (oldQty > 0) {
-                this.notifyCantidadChange(linea.id, -oldQty);
-            }
-            this.wizardCantidades[linea.id] = 0;
-        });
-
-        let remaining = target;
-        const order = lineas
-            .map((linea, index) => ({
-                index,
-                capacity: Math.max(
-                    0,
-                    (linea.variedad?.totals?.stock || 0) - (linea.variedad?.totals?.current || 0)
-                )
-            }))
-            .sort((a, b) => b.capacity - a.capacity);
-
-        for (const { index, capacity } of order) {
-            if (remaining <= 0) break;
-            const assign = Math.min(remaining, capacity);
-            if (assign <= 0) continue;
-            const linea = lineas[index];
-            this.wizardCantidades[linea.id] = assign;
-            this.notifyCantidadChange(linea.id, assign);
-            remaining -= assign;
+    handleLineaInput(event) {
+        const id = event.target.dataset.id;
+        const raw = event.target.value;
+        this.wizardInputs = { ...this.wizardInputs, [id]: raw };
+        const next = this.parseTon(raw);
+        const old = this.getLineaCantidad(id);
+        if (next !== old) {
+            this.wizardCantidades = { ...this.wizardCantidades, [id]: next };
+            this.notifyCantidadChange(id, next - old);
         }
+        this.dispatchToneladasChange();
+    }
+
+    handleLineaBlur(event) {
+        const id = event.target.dataset.id;
+        const n = this.getLineaCantidad(id);
+        const formatted = n > 0 ? this.formatTon(n) : '';
+        this.wizardInputs = { ...this.wizardInputs, [id]: formatted };
+        event.target.value = formatted;
     }
 
     notifyCantidadChange(variedad, cantidad) {
@@ -304,10 +322,9 @@ export default class DestinatarioPph extends LightningElement {
             if (total <= 0) {
                 throw 'Debe ingresarse una cantidad distinta a 0 para poder avanzar';
             }
-            if (total > this.totalSaldoDisponible) {
+            if (this.hasToneladasError) {
                 return false;
             }
-            this.distributeWizardToneladas(total);
             if (isContinue && this.hasNegativeStock()) {
                 throw 'Debe comprar HT para poder avanzar con la cesión';
             }

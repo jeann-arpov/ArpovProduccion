@@ -253,6 +253,146 @@
     gap: 2px;
 }
 
+.se-var-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.se-var-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 150px;
+    gap: 8px 12px;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid #dde2eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.se-var-row.is-error {
+    border-color: #d64545;
+    background: rgba(214, 69, 69, 0.04);
+}
+
+.se-var-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+
+.se-var-brand {
+    display: inline-flex;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #eef1f7;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #1c1c1c;
+}
+
+.se-var-brand:empty {
+    display: none;
+}
+
+.se-var-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1c1c1c;
+    overflow-wrap: anywhere;
+}
+
+.se-var-disp {
+    font-size: 12px;
+    color: #4a5261;
+    font-variant-numeric: tabular-nums;
+}
+
+.se-var-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 48px;
+    padding: 0 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.se-var-input-wrap:focus-within {
+    border-color: #bfff00;
+    box-shadow: 0 0 0 3px rgba(191, 255, 0, 0.35);
+}
+
+.se-var-input-wrap.se-ton-input-wrap--error:focus-within {
+    border-color: #d64545;
+    box-shadow: none;
+}
+
+.se-var-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 20px;
+    font-weight: 800;
+    text-align: right;
+    color: #1c1c1c;
+    font-variant-numeric: tabular-nums;
+}
+
+.se-var-err {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    color: #b83232;
+}
+
+.se-var-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: #1c1c1c;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.se-var-total strong {
+    font-size: 22px;
+    font-weight: 800;
+    color: #bfff00;
+    font-variant-numeric: tabular-nums;
+}
+
+.se-var-empty {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #eef1f7;
+    font-size: 13px;
+    color: #4a5261;
+}
+
+@media (max-width: 480px) {
+    .se-var-row {
+        grid-template-columns: minmax(0, 1fr) 120px;
+    }
+}
+
 .se-resumen-card {
     margin-top: 20px;
     padding: 14px 16px;

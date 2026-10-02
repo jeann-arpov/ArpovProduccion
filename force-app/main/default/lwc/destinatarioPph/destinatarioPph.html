@@ -122,28 +122,47 @@
                     <span class="se-saldo-value">{saldoDisponibleLabel}</span>
                 </div>
 
-                <p class="se-field-label">Toneladas a ceder</p>
-                <div class={tonInputWrapClass}>
-                    <input
-                        class="se-ton-input"
-                        type="text"
-                        inputmode="decimal"
-                        value={wizardInput}
-                        aria-invalid={hasToneladasError}
-                        oninput={handleWizardToneladasInput}
-                        onblur={handleWizardToneladasBlur}
-                    />
-                    <span class="se-ton-suffix">t</span>
-                </div>
-
-                <template if:true={hasToneladasError}>
-                    <div class="se-ton-error" role="alert">
-                        <span class="se-ton-error-icon" aria-hidden="true">!</span>
-                        <div class="se-ton-error-copy">
-                            <strong>Superás tu saldo disponible.</strong>
-                            <span>{toneladasErrorDetail}</span>
-                        </div>
+                <p class="se-field-label">Toneladas a ceder por variedad</p>
+                <template if:true={hasWizardLineas}>
+                    <div class="se-var-list">
+                        <template for:each={wizardLineas} for:item="linea">
+                            <div key={linea.id} class={linea.rowClass}>
+                                <div class="se-var-copy">
+                                    <span class="se-var-brand">{linea.brand}</span>
+                                    <span class="se-var-name">{linea.name}</span>
+                                    <span class="se-var-disp">Disponible: {linea.disponibleLabel} t</span>
+                                </div>
+                                <div class={linea.inputWrapClass}>
+                                    <input
+                                        class="se-var-input"
+                                        type="text"
+                                        inputmode="decimal"
+                                        placeholder="0"
+                                        data-id={linea.id}
+                                        value={linea.input}
+                                        aria-label={linea.ariaLabel}
+                                        aria-invalid={linea.ariaInvalid}
+                                        oninput={handleLineaInput}
+                                        onblur={handleLineaBlur}
+                                    />
+                                    <span class="se-ton-suffix">t</span>
+                                </div>
+                                <template if:true={linea.hasError}>
+                                    <p class="se-var-err" role="alert">
+                                        <span class="se-ton-error-icon" aria-hidden="true">!</span>
+                                        Superás el saldo de esta variedad (máx. {linea.disponibleLabel} t).
+                                    </p>
+                                </template>
+                            </div>
+                        </template>
                     </div>
+                    <div class="se-var-total">
+                        <span>Total a ceder</span>
+                        <strong>{wizardTotalLabel} t</strong>
+                    </div>
+                </template>
+                <template if:false={hasWizardLineas}>
+                    <div class="se-var-empty">No tenés toneladas disponibles para ceder en este cultivo.</div>
                 </template>
 
                 <div class="se-resumen-card">

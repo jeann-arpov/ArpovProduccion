@@ -103,6 +103,8 @@ export default class ResumenCesionPph extends NavigationMixin(LightningElement) 
     }
 
     get canSend() {
+        const estado = this.info?.cesion?.Estado__c;
+        if (estado !== 'En Curso' && estado !== 'Borrador') return false;
         return this.destinatarios.find(d => d.enCurso) != null;
     }
 

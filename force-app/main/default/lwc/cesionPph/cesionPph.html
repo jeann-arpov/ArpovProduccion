@@ -223,16 +223,16 @@
                 current-step={wizardStepsTotal}
                 total-steps={wizardStepsTotal}
                 step-labels={wizardStepLabels}
-                footer-variant="dual"
+                footer-variant={resumenFooterVariant}
                 cancel-label="Guardar"
-                continue-label="Enviar cesión"
-                continue-disabled={resumenEnviarDisabled}
+                continue-label={resumenContinueLabel}
+                continue-disabled={resumenContinueDisabled}
                 footer-status={resumenFooterStatus}
                 show-footer={showResumenMobFooter}
                 onback={handleResumenBack}
                 onclose={handleMobClose}
                 oncancel={handleResumenGuardar}
-                oncontinue={handleResumenEnviar}
+                oncontinue={handleResumenContinue}
             >
                 <c-resumen-cesion-pph
                     mobile-embedded
@@ -243,13 +243,15 @@
                 ></c-resumen-cesion-pph>
 
                 <div class="se-panel-actions se-desk-only se-resumen-desk-actions">
-                    <button type="button" class="se-btn se-btn-ghost" onclick={handleResumenGuardar}>Guardar</button>
-                    <button
-                        type="button"
-                        class="se-btn se-btn-primary"
-                        disabled={resumenEnviarDisabled}
-                        onclick={handleResumenEnviar}
-                    >Enviar cesión</button>
+                    <button type="button" class="se-btn se-btn-ghost" onclick={handleResumenGuardar}>{resumenGuardarLabel}</button>
+                    <template if:true={resumenShowEnviar}>
+                        <button
+                            type="button"
+                            class="se-btn se-btn-primary"
+                            disabled={resumenEnviarDisabled}
+                            onclick={handleResumenEnviar}
+                        >Enviar cesión</button>
+                    </template>
                 </div>
             </c-se-mob-wizard>
             <!-- Desktop legacy resumen: ver cesionPph.legacy-desktop.html -->
