@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Obtener_campania</name>
         <label>Obtener campañaBolsaTech</label>
-        <locationX>446</locationX>
-        <locationY>1598</locationY>
+        <locationX>600</locationX>
+        <locationY>1190</locationY>
         <actionName>ObtenerCampana</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -53,8 +53,8 @@
     <assignments>
         <name>Asignar_expediente</name>
         <label>Asignar expediente</label>
-        <locationX>314</locationX>
-        <locationY>1406</locationY>
+        <locationX>666</locationX>
+        <locationY>1622</locationY>
         <assignmentItems>
             <assignToReference>varExpDeNeg</assignToReference>
             <operator>Assign</operator>
@@ -67,25 +67,9 @@
         </connector>
     </assignments>
     <assignments>
-        <name>Preservar_Expediente_PRI_SEC</name>
-        <label>Preservar Expediente PRI/SEC</label>
-        <locationX>182</locationX>
-        <locationY>1406</locationY>
-        <assignmentItems>
-            <assignToReference>varExpDeNeg</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Buscar_Mov_BolsaTech.Expediente_de_Negativos__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>GetTN</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <name>Asignar_Tecnolog</name>
         <label>Asignar Tecnolog</label>
-        <locationX>479</locationX>
+        <locationX>583</locationX>
         <locationY>458</locationY>
         <assignmentItems>
             <assignToReference>varTecnologia</assignToReference>
@@ -101,7 +85,7 @@
     <assignments>
         <name>Asignar_Tecnologia</name>
         <label>Asignar Tecnología</label>
-        <locationX>215</locationX>
+        <locationX>319</locationX>
         <locationY>458</locationY>
         <assignmentItems>
             <assignToReference>varTecnologia</assignToReference>
@@ -117,8 +101,8 @@
     <assignments>
         <name>Cambiar_a_True</name>
         <label>Cambiar a True</label>
-        <locationX>446</locationX>
-        <locationY>2438</locationY>
+        <locationX>468</locationX>
+        <locationY>2822</locationY>
         <assignmentItems>
             <assignToReference>varTNsCreadas</assignToReference>
             <operator>Assign</operator>
@@ -127,11 +111,207 @@
             </value>
         </assignmentItems>
     </assignments>
+    <assignments>
+        <name>Preservar_Expediente_PRI_SEC</name>
+        <label>Preservar Expediente PRI/SEC</label>
+        <locationX>402</locationX>
+        <locationY>1406</locationY>
+        <assignmentItems>
+            <assignToReference>varExpDeNeg</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Mov_BolsaTech.Expediente_de_Negativos__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>GetTN</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Actualizar_expediente_en_TN_existente</name>
+        <label>Actualizar expediente en TN existente?</label>
+        <locationX>446</locationX>
+        <locationY>2114</locationY>
+        <defaultConnector>
+            <targetReference>Actualizar_TN_en_Mov_BolsaTech_copy</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Sin expediente</defaultConnectorLabel>
+        <rules>
+            <name>Con_expediente_TN</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varExpDeNeg</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>UpdateTN</targetReference>
+            </connector>
+            <label>Con expediente</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Asignar_expediente_en_MBT</name>
+        <label>Asignar expediente en MBT?</label>
+        <locationX>600</locationX>
+        <locationY>2606</locationY>
+        <defaultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Buscar_Expediente_Abierto</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Sin expediente</defaultConnectorLabel>
+        <rules>
+            <name>Con_expediente</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varExpDeNeg</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar_MBT_Expediente_y_Obtentor</targetReference>
+            </connector>
+            <label>Con expediente</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Cual_tecnologia_es</name>
+        <label>Cuál tecnología es?</label>
+        <locationX>451</locationX>
+        <locationY>350</locationY>
+        <defaultConnector>
+            <targetReference>Asignar_Tecnolog</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Otra</defaultConnectorLabel>
+        <rules>
+            <name>Enlist</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Mov_BolsaTech.Tecnologia__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>ENLIST</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Buscar_Mov_BolsaTech.Tecnologia__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>CONKESTA</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_Tecnologia</targetReference>
+            </connector>
+            <label>Enlist</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>EsUsuarioEnlist</name>
+        <label>EsUsuarioEnlist</label>
+        <locationX>853</locationX>
+        <locationY>1082</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>UsuarioEnlist</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Obtener_campania</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Existe_Plan_de_Siembra</name>
+        <label>Existe Plan de Siembra?</label>
+        <locationX>451</locationX>
+        <locationY>974</locationY>
+        <defaultConnector>
+            <targetReference>EsUsuarioEnlist</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No hay</defaultConnectorLabel>
+        <rules>
+            <name>Hay</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Plan_de_Siembra_Adherido.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar_estado_en_Mov_BolsaTech</targetReference>
+            </connector>
+            <label>Hay</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Tiene_expediente_abierto</name>
+        <label>Tiene expediente abierto?</label>
+        <locationX>798</locationX>
+        <locationY>1514</locationY>
+        <defaultConnector>
+            <targetReference>GetTN</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Expediente_Abierto.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_expediente</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>TN_Existente</name>
+        <label>TN Existente</label>
+        <locationX>600</locationX>
+        <locationY>2006</locationY>
+        <defaultConnector>
+            <targetReference>Crear_TN</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Existente</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>GetTN.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Actualizar_expediente_en_TN_existente</targetReference>
+            </connector>
+            <label>Existente</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Ya_Facturado_PRI_SEC</name>
         <label>Ya Facturado PRI/SEC?</label>
-        <locationX>446</locationX>
-        <locationY>1280</locationY>
+        <locationX>600</locationX>
+        <locationY>1298</locationY>
         <defaultConnector>
             <targetReference>Buscar_Expediente_Abierto</targetReference>
         </defaultConnector>
@@ -171,185 +351,6 @@
                 <targetReference>Preservar_Expediente_PRI_SEC</targetReference>
             </connector>
             <label>Preservar PRI/SEC facturado</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Actualizar_expediente_en_TN_existente</name>
-        <label>Actualizar expediente en TN existente?</label>
-        <locationX>314</locationX>
-        <locationY>1922</locationY>
-        <defaultConnector>
-            <targetReference>Actualizar_TN_en_Mov_BolsaTech</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Sin expediente</defaultConnectorLabel>
-        <rules>
-            <name>Con_expediente_TN</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>varExpDeNeg</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>UpdateTN</targetReference>
-            </connector>
-            <label>Con expediente</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Asignar_expediente_en_MBT</name>
-        <label>Asignar expediente en MBT?</label>
-        <locationX>446</locationX>
-        <locationY>2222</locationY>
-        <defaultConnector>
-            <targetReference>Cambiar_a_True</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Sin expediente</defaultConnectorLabel>
-        <rules>
-            <name>Con_expediente</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>varExpDeNeg</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Actualizar_MBT_Expediente_y_Obtentor</targetReference>
-            </connector>
-            <label>Con expediente</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Cual_tecnologia_es</name>
-        <label>Cuál tecnología es?</label>
-        <locationX>347</locationX>
-        <locationY>350</locationY>
-        <defaultConnector>
-            <targetReference>Asignar_Tecnolog</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Otra</defaultConnectorLabel>
-        <rules>
-            <name>Enlist</name>
-            <conditionLogic>or</conditionLogic>
-            <conditions>
-                <leftValueReference>Buscar_Mov_BolsaTech.Tecnologia__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>ENLIST</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Buscar_Mov_BolsaTech.Tecnologia__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>CONKESTA</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Asignar_Tecnologia</targetReference>
-            </connector>
-            <label>Enlist</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>EsUsuarioEnlist</name>
-        <label>EsUsuarioEnlist</label>
-        <locationX>644</locationX>
-        <locationY>1082</locationY>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
-        <rules>
-            <name>Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>UsuarioEnlist</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Obtener_campania</targetReference>
-            </connector>
-            <label>Yes</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Existe_Plan_de_Siembra</name>
-        <label>Existe Plan de Siembra?</label>
-        <locationX>347</locationX>
-        <locationY>974</locationY>
-        <defaultConnector>
-            <targetReference>EsUsuarioEnlist</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No hay</defaultConnectorLabel>
-        <rules>
-            <name>Hay</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Buscar_Plan_de_Siembra_Adherido.Id</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Actualizar_estado_en_Mov_BolsaTech</targetReference>
-            </connector>
-            <label>Hay</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Tiene_expediente_abierto</name>
-        <label>Tiene expediente abierto?</label>
-        <locationX>446</locationX>
-        <locationY>1298</locationY>
-        <defaultConnector>
-            <targetReference>GetTN</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No</defaultConnectorLabel>
-        <rules>
-            <name>Si</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Buscar_Expediente_Abierto.Id</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Asignar_expediente</targetReference>
-            </connector>
-            <label>Si</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>TN_Existente</name>
-        <label>TN Existente</label>
-        <locationX>446</locationX>
-        <locationY>1814</locationY>
-        <defaultConnector>
-            <targetReference>Crear_TN</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No</defaultConnectorLabel>
-        <rules>
-            <name>Existente</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>GetTN.Id</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Actualizar_expediente_en_TN_existente</targetReference>
-            </connector>
-            <label>Existente</label>
         </rules>
     </decisions>
     <description>Dado un movim BolsaTech, se debitan las TNs si no existe un Plan de Siembra Adherido y Vigente para el productor, cultivo y biotecnología del movimiento.
@@ -426,8 +427,8 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordCreates>
         <name>Crear_TN</name>
         <label>Crear TN</label>
-        <locationX>578</locationX>
-        <locationY>1922</locationY>
+        <locationX>754</locationX>
+        <locationY>2114</locationY>
         <connector>
             <targetReference>Actualizar_TN_en_Mov_BolsaTech</targetReference>
         </connector>
@@ -539,7 +540,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordLookups>
         <name>Buscar_Cultivo</name>
         <label>Buscar Cultivo</label>
-        <locationX>347</locationX>
+        <locationX>451</locationX>
         <locationY>242</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -560,8 +561,8 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordLookups>
         <name>Buscar_Expediente_Abierto</name>
         <label>Buscar Expediente Abierto</label>
-        <locationX>446</locationX>
-        <locationY>1190</locationY>
+        <locationX>798</locationX>
+        <locationY>1406</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Tiene_expediente_abierto</targetReference>
@@ -609,7 +610,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordLookups>
         <name>Buscar_Mov_BolsaTech</name>
         <label>Buscar Mov BolsaTech</label>
-        <locationX>347</locationX>
+        <locationX>451</locationX>
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -630,7 +631,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordLookups>
         <name>Buscar_Plan_de_Siembra_Adherido</name>
         <label>Buscar Plan de Siembra Adherido</label>
-        <locationX>347</locationX>
+        <locationX>451</locationX>
         <locationY>866</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -679,7 +680,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordLookups>
         <name>Buscar_Productor</name>
         <label>Buscar Productor</label>
-        <locationX>347</locationX>
+        <locationX>451</locationX>
         <locationY>758</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -707,8 +708,8 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordLookups>
         <name>GetTN</name>
         <label>GetTN</label>
-        <locationX>446</locationX>
-        <locationY>1706</locationY>
+        <locationX>600</locationX>
+        <locationY>1898</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>TN_Existente</targetReference>
@@ -755,8 +756,8 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordUpdates>
         <name>Actualizar_MBT_Expediente_y_Obtentor</name>
         <label>Actualizar MBT Expediente y Obtentor</label>
-        <locationX>314</locationX>
-        <locationY>2330</locationY>
+        <locationX>468</locationX>
+        <locationY>2714</locationY>
         <connector>
             <targetReference>Cambiar_a_True</targetReference>
         </connector>
@@ -785,8 +786,8 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <recordUpdates>
         <name>Actualizar_TN_en_Mov_BolsaTech</name>
         <label>Actualizar TN en Mov BolsaTech</label>
-        <locationX>446</locationX>
-        <locationY>2114</locationY>
+        <locationX>754</locationX>
+        <locationY>2222</locationY>
         <connector>
             <targetReference>Asignar_expediente_en_MBT</targetReference>
         </connector>
@@ -819,12 +820,42 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <object>Movimiento_BolsaTech__c</object>
     </recordUpdates>
     <recordUpdates>
+        <name>Actualizar_TN_en_Mov_BolsaTech_copy</name>
+        <label>Actualizar TN en Mov BolsaTech</label>
+        <locationX>446</locationX>
+        <locationY>2414</locationY>
+        <connector>
+            <targetReference>Asignar_expediente_en_MBT</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varMovBolsaTechId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Crear_TN__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Estado__c</field>
+            <value>
+                <stringValue>Procesado</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Movimiento_BolsaTech__c</object>
+    </recordUpdates>
+    <recordUpdates>
         <name>UpdateTN</name>
         <label>Update TN</label>
-        <locationX>182</locationX>
-        <locationY>2030</locationY>
+        <locationX>314</locationX>
+        <locationY>2222</locationY>
         <connector>
-            <targetReference>Actualizar_TN_en_Mov_BolsaTech</targetReference>
+            <targetReference>Actualizar_TN_en_Mov_BolsaTech_copy</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -841,12 +872,6 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Expediente_de_Origen__c</field>
-            <value>
-                <elementReference>forExpOrigenPriSec</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>FT_RE3_Id__c</field>
             <value>
                 <elementReference>Buscar_Mov_BolsaTech.FT_RE3_Id__c</elementReference>
@@ -855,7 +880,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <object>Tonelada__c</object>
     </recordUpdates>
     <start>
-        <locationX>221</locationX>
+        <locationX>325</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Buscar_Mov_BolsaTech</targetReference>
@@ -865,7 +890,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
     <subflows>
         <name>Evaluar_Usuario</name>
         <label>Evaluar Usuario</label>
-        <locationX>347</locationX>
+        <locationX>451</locationX>
         <locationY>650</locationY>
         <connector>
             <targetReference>Buscar_Productor</targetReference>

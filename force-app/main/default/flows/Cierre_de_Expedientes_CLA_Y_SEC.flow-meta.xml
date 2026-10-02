@@ -48,6 +48,52 @@
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <name>Agregar_Coleccion_TN_CLA</name>
+        <label>Agregar y Sumar CLA</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>colNuevasToneladas</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varToneladaIndividual</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>CLATotalSaldoTN</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>LoopMBTCLA.Tonelada_MBT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>LoopMBTCLA</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Agregar_Coleccion_TN_SEC</name>
+        <label>Agregar y Sumar SEC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>colNuevasToneladas</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varToneladaIndividual</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>SECTotalSaldoTN</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>LoopMBT_SEC.Tonelada_MBT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>LoopMBT_SEC</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Asignacion_de_loop_CLA</name>
         <label>Asignacion de loop CLA</label>
         <locationX>0</locationX>
@@ -60,7 +106,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>MBT_CLA</targetReference>
+            <targetReference>Tiene_Movimientos_BT_CLA</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -92,7 +138,480 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>MBT_SEC</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>Buscar_Facturas_SEC</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Campos_TN_CLA_Remitente</name>
+        <label>Asignar Campos TN CLA Remitente</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Biotecnologia__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Enlist E3</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Campania__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Obtener_Campa_a.campanaId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cantidad__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBTCLA.Tonelada_MBT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cultivo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Cultivo.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Etapa__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Debitada</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Expediente_de_Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Expedientes_Abiertos_CLA.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin_Original__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Inicio__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Mov_BolsaTech__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBTCLA.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.N_CUIT__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountRemitenteComercial.N_CUIT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>BolsaTech</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Productor__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountRemitenteComercial.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Signo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>-1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Tipo_de_Movimiento__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>D</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Agregar_Coleccion_TN_CLA</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Campos_TN_CLA_Titular</name>
+        <label>Asignar Campos TN CLA Titular</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Biotecnologia__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Enlist E3</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Campania__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Obtener_Campa_a.campanaId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cantidad__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBTCLA.Tonelada_MBT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cultivo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Cultivo.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Etapa__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Debitada</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Expediente_de_Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Expedientes_Abiertos_CLA.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin_Original__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Inicio__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Mov_BolsaTech__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBTCLA.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.N_CUIT__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountTitular.N_CUIT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>BolsaTech</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Productor__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountTitular.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Signo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>-1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Tipo_de_Movimiento__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>D</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Agregar_Coleccion_TN_CLA</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Campos_TN_SEC_Remitente</name>
+        <label>Asignar Campos TN SEC Remitente</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Biotecnologia__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Enlist E3</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Campania__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Obtener_Campa_a.campanaId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cantidad__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBT_SEC.Tonelada_MBT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cultivo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Cultivo.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Etapa__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Debitada</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Expediente_de_Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Expedientes_Abiertos_SEC.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin_Original__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Inicio__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Mov_BolsaTech__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBT_SEC.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.N_CUIT__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountRemitenteComercial.N_CUIT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>BolsaTech</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Productor__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountRemitenteComercial.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Signo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>-1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Tipo_de_Movimiento__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>D</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Agregar_Coleccion_TN_SEC</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Campos_TN_SEC_Titular</name>
+        <label>Asignar Campos TN SEC Titular</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Biotecnologia__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Enlist E3</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Campania__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Obtener_Campa_a.campanaId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cantidad__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBT_SEC.Tonelada_MBT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Cultivo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Cultivo.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Etapa__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Debitada</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Expediente_de_Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Expedientes_Abiertos_SEC.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin_Original__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Fin__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>forFechaFin</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Fecha_Inicio__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Mov_BolsaTech__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>LoopMBT_SEC.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.N_CUIT__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountTitular.N_CUIT__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Origen__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>BolsaTech</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Productor__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AccountTitular.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Signo__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>-1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varToneladaIndividual.Tipo_de_Movimiento__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>D</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Agregar_Coleccion_TN_SEC</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_String_CTGs</name>
+        <label>Asignar String CTGs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>StringCTGsFacturados</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formConcatenarCTGs</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Facturas_SEC</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -108,79 +627,64 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Tiene_Movimientos_BT_CLA</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>Buscar_Facturas_SEC</targetReference>
         </connector>
     </assignments>
-    <assignments>
-        <name>MBT_ID_CLA</name>
-        <label>MBT_ID</label>
+    <decisions>
+        <name>Es_Actualizacion_de_MBT</name>
+        <label>Es Actualizacion de MBT</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>MBT</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>MBT_CLA</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>MBT_CLA</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>MBT_ID_SEC</name>
-        <label>MBT_ID</label>
+        <defaultConnector>
+            <targetReference>UpdateExpedienteCLA</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Update_MBT</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>OrigenBolsaTech</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Update MBT</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Evaluar_CTG_Facturado</name>
+        <label>Evaluar CTG Facturado</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>MBT</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>MBT_SEC</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>MBT_SEC</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>TotalSaldoTN_CLA</name>
-        <label>TotalSaldoTN_CLA</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>CLATotalSaldoTN</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>LoopMBTCLA.Tonelada_MBT__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Origen</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>TotalSaldoTN_SEC</name>
-        <label>TotalSaldoTN_SEC</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>SECTotalSaldoTN</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>LoopMBT_SEC.Tonelada_MBT__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
+        <defaultConnector>
             <targetReference>Origen_evaluacion</targetReference>
-        </connector>
-    </assignments>
+        </defaultConnector>
+        <defaultConnectorLabel>No Facturado</defaultConnectorLabel>
+        <rules>
+            <name>Ya_Facturado</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>StringCTGsFacturados</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <elementReference>LoopMBT_SEC.CTG__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>LoopMBT_SEC</targetReference>
+            </connector>
+            <label>Ya Facturado</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Expediente_Abierto_CLA</name>
         <label>Expediente Abierto CLA</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
+            <isGoTo>true</isGoTo>
             <targetReference>Expediente_SEC_Abierto</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
@@ -231,7 +735,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Crear_TN_CLA_remitente</targetReference>
+            <targetReference>Asignar_Campos_TN_CLA_Remitente</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Update Account</defaultConnectorLabel>
         <rules>
@@ -245,18 +749,18 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Crear_TN_CLA_Titular</targetReference>
+                <targetReference>Asignar_Campos_TN_CLA_Titular</targetReference>
             </connector>
             <label>Update BT</label>
         </rules>
     </decisions>
     <decisions>
         <name>Origen_evaluacion</name>
-        <label>Origen</label>
+        <label>Origen evaluacion SEC</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Crear_TN_SEC_remitente</targetReference>
+            <targetReference>Asignar_Campos_TN_SEC_Remitente</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Modificacion Account</defaultConnectorLabel>
         <rules>
@@ -270,7 +774,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Crear_TN_SEC_Titular</targetReference>
+                <targetReference>Asignar_Campos_TN_SEC_Titular</targetReference>
             </connector>
             <label>Update BT</label>
         </rules>
@@ -331,7 +835,8 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Tiene_Movimientos_BT_SEC</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>Buscar_Facturas_SEC</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -355,6 +860,9 @@
         <label>Tiene Movimientos BT SEC</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Insertar_Todas_Toneladas_Bulk</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>Tiene_Movimientos_SEC</name>
@@ -372,7 +880,38 @@
             <label>Tiene Movimientos SEC</label>
         </rules>
     </decisions>
-    <description>Proceso que cierra los expedientes abiertos CLA Y SEC una vez el usuario es Enlist</description>
+    <decisions>
+        <name>Verificar_CTG_En_Factura</name>
+        <label>Verificar CTG En Factura</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Loop_Facturas_SEC</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Tiene CTGs</defaultConnectorLabel>
+        <rules>
+            <name>Tiene_CTGs</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_Facturas_SEC.CTGs_Involucrados__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_Facturas_SEC.CTGs_Involucrados__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_String_CTGs</targetReference>
+            </connector>
+            <label>Tiene CTGs</label>
+        </rules>
+    </decisions>
     <environments>Default</environments>
     <formulas>
         <name>CreatedDate</name>
@@ -391,6 +930,11 @@
         <expression>{!Buscar_Cultivo.Fecha_Vencimiento_de_Tonelada__c}</expression>
     </formulas>
     <formulas>
+        <name>formConcatenarCTGs</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE({!StringCTGsFacturados}, &quot;&quot;) &amp; IF(ISBLANK({!Loop_Facturas_SEC.CTGs_Involucrados__c}), &quot;&quot;, {!Loop_Facturas_SEC.CTGs_Involucrados__c} &amp; &quot;,&quot;)</expression>
+    </formulas>
+    <formulas>
         <name>SaldoExpedienteCLAActualizado</name>
         <dataType>Number</dataType>
         <expression>{!Buscar_Expedientes_Abiertos_CLA.Saldo_Expediente__c} - {!CLATotalSaldoTN}</expression>
@@ -405,6 +949,20 @@
     <interviewLabel>Cierre de Expedientes CLA Y SEC {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Cierre de Expedientes CLA Y SEC</label>
     <loops>
+        <name>Loop_Facturas_SEC</name>
+        <label>Loop Facturas SEC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Buscar_Facturas_SEC</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Verificar_CTG_En_Factura</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Tiene_Movimientos_BT_SEC</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
         <name>LoopMBT_SEC</name>
         <label>LoopMBT_SEC</label>
         <locationX>0</locationX>
@@ -412,10 +970,10 @@
         <collectionReference>LoopMBTSEC</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference>TotalSaldoTN_SEC</targetReference>
+            <targetReference>Evaluar_CTG_Facturado</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>Actualizar_Expediente_SEC</targetReference>
+            <targetReference>Insertar_Todas_Toneladas_Bulk</targetReference>
         </noMoreValuesConnector>
     </loops>
     <loops>
@@ -426,38 +984,10 @@
         <collectionReference>ListaMBTCLALOOP</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference>TotalSaldoTN_CLA</targetReference>
+            <targetReference>Origen</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>UpdateExpedienteCLA</targetReference>
-        </noMoreValuesConnector>
-    </loops>
-    <loops>
-        <name>MBT_CLA</name>
-        <label>MBT</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <collectionReference>MovimientoBT</collectionReference>
-        <iterationOrder>Asc</iterationOrder>
-        <nextValueConnector>
-            <targetReference>MBT_ID_CLA</targetReference>
-        </nextValueConnector>
-        <noMoreValuesConnector>
-            <targetReference>Expediente_SEC_Abierto</targetReference>
-        </noMoreValuesConnector>
-    </loops>
-    <loops>
-        <name>MBT_SEC</name>
-        <label>MBT</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <collectionReference>MovimientoBT</collectionReference>
-        <iterationOrder>Asc</iterationOrder>
-        <nextValueConnector>
-            <targetReference>MBT_ID_SEC</targetReference>
-        </nextValueConnector>
-        <noMoreValuesConnector>
-            <targetReference>Tiene_Movimientos_BT_CLA</targetReference>
+            <targetReference>Buscar_Facturas_SEC</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -480,408 +1010,14 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <name>Crear_TN_CLA_remitente</name>
-        <label>Crear TN CLA_remitente</label>
+        <name>Insertar_Todas_Toneladas_Bulk</name>
+        <label>Insertar Todas las Toneladas</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>LoopMBTCLA</targetReference>
+            <targetReference>Es_Actualizacion_de_MBT</targetReference>
         </connector>
-        <inputAssignments>
-            <field>Biotecnologia__c</field>
-            <value>
-                <stringValue>Enlist E3</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Campania__c</field>
-            <value>
-                <elementReference>Obtener_Campa_a.campanaId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cantidad__c</field>
-            <value>
-                <elementReference>LoopMBTCLA.Tonelada_MBT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cultivo__c</field>
-            <value>
-                <elementReference>Buscar_Cultivo.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Etapa__c</field>
-            <value>
-                <stringValue>Debitada</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Expediente_de_Origen__c</field>
-            <value>
-                <elementReference>Buscar_Expedientes_Abiertos_CLA.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin_Original__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Inicio__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Mov_BolsaTech__c</field>
-            <value>
-                <elementReference>LoopMBTCLA.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>N_CUIT__c</field>
-            <value>
-                <elementReference>AccountRemitenteComercial.N_CUIT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Origen__c</field>
-            <value>
-                <stringValue>BolsaTech</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Productor__c</field>
-            <value>
-                <elementReference>AccountRemitenteComercial.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Signo__c</field>
-            <value>
-                <numberValue>-1.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Tipo_de_Movimiento__c</field>
-            <value>
-                <stringValue>D</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Tonelada__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
-        <name>Crear_TN_CLA_Titular</name>
-        <label>Crear TN CLA Titular</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>LoopMBTCLA</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>Biotecnologia__c</field>
-            <value>
-                <stringValue>Enlist E3</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Campania__c</field>
-            <value>
-                <elementReference>Obtener_Campa_a.campanaId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cantidad__c</field>
-            <value>
-                <elementReference>LoopMBTCLA.Tonelada_MBT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cultivo__c</field>
-            <value>
-                <elementReference>Buscar_Cultivo.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Etapa__c</field>
-            <value>
-                <stringValue>Debitada</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Expediente_de_Origen__c</field>
-            <value>
-                <elementReference>Buscar_Expedientes_Abiertos_CLA.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin_Original__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Inicio__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Mov_BolsaTech__c</field>
-            <value>
-                <elementReference>LoopMBTCLA.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>N_CUIT__c</field>
-            <value>
-                <elementReference>AccountTitular.N_CUIT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Origen__c</field>
-            <value>
-                <stringValue>BolsaTech</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Productor__c</field>
-            <value>
-                <elementReference>AccountTitular.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Signo__c</field>
-            <value>
-                <numberValue>-1.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Tipo_de_Movimiento__c</field>
-            <value>
-                <stringValue>D</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Tonelada__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
-        <name>Crear_TN_SEC_remitente</name>
-        <label>Crear TN SEC_remitente</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>LoopMBT_SEC</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>Biotecnologia__c</field>
-            <value>
-                <stringValue>Enlist E3</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Campania__c</field>
-            <value>
-                <elementReference>Obtener_Campa_a.campanaId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cantidad__c</field>
-            <value>
-                <elementReference>LoopMBT_SEC.Tonelada_MBT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cultivo__c</field>
-            <value>
-                <elementReference>Buscar_Cultivo.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Etapa__c</field>
-            <value>
-                <stringValue>Debitada</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Expediente_de_Origen__c</field>
-            <value>
-                <elementReference>Buscar_Expedientes_Abiertos_SEC.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin_Original__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Inicio__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Mov_BolsaTech__c</field>
-            <value>
-                <elementReference>LoopMBT_SEC.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>N_CUIT__c</field>
-            <value>
-                <elementReference>AccountRemitenteComercial.N_CUIT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Origen__c</field>
-            <value>
-                <stringValue>BolsaTech</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Productor__c</field>
-            <value>
-                <elementReference>AccountRemitenteComercial.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Signo__c</field>
-            <value>
-                <numberValue>-1.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Tipo_de_Movimiento__c</field>
-            <value>
-                <stringValue>D</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Tonelada__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
-        <name>Crear_TN_SEC_Titular</name>
-        <label>Crear TN SEC Titular</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>LoopMBT_SEC</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>Biotecnologia__c</field>
-            <value>
-                <stringValue>Enlist E3</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Campania__c</field>
-            <value>
-                <elementReference>Obtener_Campa_a.campanaId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cantidad__c</field>
-            <value>
-                <elementReference>LoopMBT_SEC.Tonelada_MBT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Cultivo__c</field>
-            <value>
-                <elementReference>Buscar_Cultivo.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Etapa__c</field>
-            <value>
-                <stringValue>Debitada</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Expediente_de_Origen__c</field>
-            <value>
-                <elementReference>Buscar_Expedientes_Abiertos_SEC.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin_Original__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Fin__c</field>
-            <value>
-                <elementReference>forFechaFin</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Fecha_Inicio__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Mov_BolsaTech__c</field>
-            <value>
-                <elementReference>LoopMBT_SEC.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>N_CUIT__c</field>
-            <value>
-                <elementReference>AccountTitular.N_CUIT__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Origen__c</field>
-            <value>
-                <stringValue>BolsaTech</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Productor__c</field>
-            <value>
-                <elementReference>AccountTitular.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Signo__c</field>
-            <value>
-                <numberValue>-1.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Tipo_de_Movimiento__c</field>
-            <value>
-                <stringValue>D</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Tonelada__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <inputReference>colNuevasToneladas</inputReference>
     </recordCreates>
     <recordLookups>
         <name>Buscar_Cultivo</name>
@@ -975,6 +1111,27 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <name>Buscar_Facturas_SEC</name>
+        <label>Buscar Facturas SEC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Facturas_SEC</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Expediente_de_Negativos__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Buscar_Expedientes_Abiertos_SEC.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>TN_Regalia_Enlist__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>Buscar_Movimientos_BT_Relacionados</name>
         <label>Buscar Movimientos BT Relacionados CLA</label>
         <locationX>0</locationX>
@@ -1044,9 +1201,21 @@
             </value>
         </filters>
         <inputAssignments>
+            <field>Estado_de_la_Etapa__c</field>
+            <value>
+                <stringValue>Finalizado</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Etapa__c</field>
+            <value>
+                <stringValue>Firma Licencia</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Saldo_Expediente__c</field>
             <value>
-                <elementReference>SaldoTotalSECActualizado</elementReference>
+                <numberValue>0.0</numberValue>
             </value>
         </inputAssignments>
         <object>Expediente_de_Negativos__c</object>
@@ -1057,7 +1226,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Tiene_Movimientos_BT_SEC</targetReference>
+            <targetReference>Actualizar_Expediente_SEC</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1082,9 +1251,21 @@
             </value>
         </filters>
         <inputAssignments>
+            <field>Estado_de_la_Etapa__c</field>
+            <value>
+                <stringValue>Finalizado</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Etapa__c</field>
+            <value>
+                <stringValue>Firma Licencia</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Saldo_Expediente__c</field>
             <value>
-                <elementReference>SaldoExpedienteCLAActualizado</elementReference>
+                <numberValue>0.0</numberValue>
             </value>
         </inputAssignments>
         <object>Expediente_de_Negativos__c</object>
@@ -1122,6 +1303,14 @@
         <scale>0</scale>
     </variables>
     <variables>
+        <name>colNuevasToneladas</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Tonelada__c</objectType>
+    </variables>
+    <variables>
         <name>ListaMBTCLALOOP</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
@@ -1133,14 +1322,6 @@
         <name>LoopMBTSEC</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>Movimiento_BolsaTech__c</objectType>
-    </variables>
-    <variables>
-        <name>MBT</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Movimiento_BolsaTech__c</objectType>
@@ -1169,11 +1350,18 @@
         <scale>0</scale>
     </variables>
     <variables>
-        <name>TotalSaldoTN</name>
-        <dataType>Number</dataType>
+        <name>StringCTGsFacturados</name>
+        <dataType>String</dataType>
         <isCollection>false</isCollection>
-        <isInput>true</isInput>
-        <isOutput>true</isOutput>
-        <scale>0</scale>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varToneladaIndividual</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Tonelada__c</objectType>
     </variables>
 </Flow>
