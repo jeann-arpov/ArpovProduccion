@@ -9,12 +9,18 @@ import obtenerSiguienteNumero from '@salesforce/apex/GestionExpedientesControlle
 import crearGestion from '@salesforce/apex/GestionExpedientesController.crearGestion';
 import eliminarGestionApex from '@salesforce/apex/GestionExpedientesController.eliminarGestion';
 import TIPO_EXPEDIENTE_FIELD from '@salesforce/schema/Expediente_de_Negativos__c.Tipo_expendiente__c';
+import TEMA_CASO_FIELD from '@salesforce/schema/Case.Tema__c';
+import TIPO_CASO_FIELD from '@salesforce/schema/Case.Type';
 import GESTION_OBJECT from '@salesforce/schema/Gestion_Expedientes__c';
 import OPERADOR_FIELD from '@salesforce/schema/Gestion_Expedientes__c.Operador__c';
 import RESPUESTA_FIELD from '@salesforce/schema/Gestion_Expedientes__c.Respuesta__c';
 
 const PAGE_SIZE = 10;
 const RESPUESTA_SOLO_PRI = 'Licencia E3 en gestión';
+const OPERADOR_CASO = 'Caso';
+const OPERADOR_CASO_VHT = 'Caso VHT';
+const TIPO_VENTA_HT = 'Venta HT';
+const TEMA_FUTURA_SOJA = 'Futura Soja';
 const CASE_KEY_PREFIX = '500';
 
 /** Fallback si el wire de picklist falla (p.ej. FLS). */
@@ -50,7 +56,9 @@ const RESPUESTAS_FALLBACK = [
     'Reclama CTG otra campaña',
     'Promesa Compra HT',
     'Solicitamos Documentación',
-    'Promesa de respuesta'
+    'Promesa de respuesta',
+    'Sin intención de compra',
+    'Sin contacto activo'
 ].map((v) => ({ label: v, value: v }));
 
 const RESPUESTAS_POR_OPERADOR = {
@@ -96,6 +104,16 @@ const RESPUESTAS_POR_OPERADOR = {
         'Paga factura',
         'Sin intención de pagar',
         'Solicita NC'
+    ]),
+    'Caso VHT': new Set([
+        'Sin intención de compra',
+        'Reclama transferencia de toneladas',
+        'Informa SF',
+        'Sin respuesta',
+        'Compra/Venta HT',
+        'Promesa de respuesta',
+        'No sembró',
+        'Sin contacto activo'
     ])
 };
 
@@ -145,6 +163,9 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
     ];
 
     tipoExpediente = '';
+    tipoCaso = '';
+    temaCaso = '';
+    casoListo = false;
     recordTypeId;
     @track operadorPicklist;
     @track respuestaPicklist;
@@ -161,10 +182,33 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
         return this.esCaso ? undefined : this.recordId;
     }
 
+    get caseRecordId() {
+        return this.esCaso ? this.recordId : undefined;
+    }
+
+    get esVentaHtFuturaSoja() {
+        return this.tipoCaso === TIPO_VENTA_HT && this.temaCaso === TEMA_FUTURA_SOJA;
+    }
+
     @wire(getRecord, { recordId: '$expedienteRecordId', fields: [TIPO_EXPEDIENTE_FIELD] })
     wiredExpediente({ data }) {
         if (data) {
             this.tipoExpediente = getFieldValue(data, TIPO_EXPEDIENTE_FIELD) || '';
+        }
+    }
+
+    @wire(getRecord, { recordId: '$caseRecordId', fields: [TIPO_CASO_FIELD, TEMA_CASO_FIELD] })
+    wiredCaso({ data, error }) {
+        if (data) {
+            this.tipoCaso = getFieldValue(data, TIPO_CASO_FIELD) || '';
+            this.temaCaso = getFieldValue(data, TEMA_CASO_FIELD) || '';
+            this.casoListo = true;
+            this.descartarRespuestaInvalida();
+        } else if (error) {
+            console.error('Error cargando tipo y tema del caso:', error);
+            this.tipoCaso = '';
+            this.temaCaso = '';
+            this.casoListo = true;
         }
     }
 
@@ -208,17 +252,25 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
                   { label: 'SE', value: 'SE' },
                   { label: 'CTV', value: 'CTV' }
               ];
-        // El valor "Caso" es interno: no se ofrece en Expedientes
-        return opciones.filter((opt) => opt.value !== 'Caso');
+        // "Caso" y "Caso VHT" son internos: no se ofrecen en Expedientes
+        return opciones.filter((opt) => opt.value !== OPERADOR_CASO && opt.value !== OPERADOR_CASO_VHT);
     }
 
     get opcionesRespuesta() {
         const fromWire = this.respuestaPicklist?.values || [];
         const base = fromWire.length ? fromWire : RESPUESTAS_FALLBACK;
 
-        // Casos: todas las respuestas (Operador "Caso" se setea en Apex)
         if (this.esCaso) {
-            return base;
+            if (!this.casoListo) {
+                return [];
+            }
+            if (this.esVentaHtFuturaSoja) {
+                const permitidas = RESPUESTAS_POR_OPERADOR[OPERADOR_CASO_VHT];
+                return base.filter((opt) => permitidas.has(opt.value));
+            }
+            return base.filter(
+                (opt) => opt.value !== 'Sin intención de compra' && opt.value !== 'Sin contacto activo'
+            );
         }
 
         // Expedientes: filtro por SE/CTV (requiere Operador)
@@ -248,9 +300,19 @@ export default class RegistrarGestion extends NavigationMixin(LightningElement) 
 
     get respuestaDeshabilitada() {
         if (this.esCaso) {
-            return false;
+            return !this.casoListo;
         }
         return !this.operador;
+    }
+
+    descartarRespuestaInvalida() {
+        if (!this.respuesta || !this.esCaso || !this.casoListo) {
+            return;
+        }
+        const visibles = this.opcionesRespuesta.map((opt) => opt.value);
+        if (!visibles.includes(this.respuesta)) {
+            this.respuesta = '';
+        }
     }
 
     // Getter para saber si hay más registros
