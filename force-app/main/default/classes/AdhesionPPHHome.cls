@@ -54,36 +54,19 @@ public without sharing class AdhesionPPHHome {
             }
         }
 
-        Map<String, Id> mapTitleToContentDocumentId = new Map<String, Id>();
-        for(ContentDocumentLink link : [SELECT LinkedEntityId, ContentDocumentId, ContentDocument.Title FROM ContentDocumentLink WHERE LinkedEntityId IN :parametrosIds AND ContentDocument.Title LIKE 'TyC%']){
-            mapTitleToContentDocumentId.put(link.ContentDocument.Title, link.ContentDocumentId);
-        }
+        Map<Id, Id> tycPorParametro = getTycPorParametro(parametrosIds, isGrandesCuentas());
 
-        System.debug('mapTitleToContentDocumentId.values(): ' + mapTitleToContentDocumentId.values());
-
-        Map<Id, ContentVersion> mapContentVersions = new Map<Id, ContentVersion>([select id from contentversion where contentdocumentid in :mapTitleToContentDocumentId.values()]);
-
-        Map<String, String> mapFileTitleToPublicUrl = new Map<String, String>();
-        for(ContentDistribution cd : [SELECT Id, DistributionPublicUrl, ContentVersion.Title FROM ContentDistribution WHERE ContentVersionId IN :mapContentVersions.keySet()]){
-            mapFileTitleToPublicUrl.put(cd.ContentVersion.Title, cd.DistributionPublicUrl);
-        }
-
-        System.debug('mapFileTitleToPublicUrl: ' + mapFileTitleToPublicUrl);
-        
         List<CultivoParametro> cultivosParams = new List<CultivoParametro>();
-        Boolean isGrandesCuentas = !Test.isRunningTest() ? CrearCompraController.getAccount().Grandes_Cuentas__c : false;
-        
+
         for(Id cultivoId : cultivosSE.keySet()){
             if(mapCultivoParametros.containsKey(cultivoId)) {
                 List<Parametro_PPH__c> parametrosSf = mapCultivoParametros.get(cultivoId);  
                 List<Parametro> parametros = new List<Parametro>();
                 for(Parametro_PPH__c param : parametrosSf){
-                    String documentName = 'TyC' + (isGrandesCuentas ? ' - GC - ' : ' - ') + param.Name.remove('/');
                     parametros.add(new Parametro(
                         param,
                         mapParamPlanSiembra.get(param.Id),
-                        mapFileTitleToPublicUrl.get(documentName),
-                        mapTitleToContentDocumentId.get(documentName),
+                        tycPorParametro.get(param.Id),
                         planEstablecimientoNames
                     ));
                 }
@@ -95,10 +78,44 @@ public without sharing class AdhesionPPHHome {
         return cultivosParams;
     }
 
+    private static Boolean isGrandesCuentas() {
+        return !Test.isRunningTest() && CrearCompraController.getAccount().Grandes_Cuentas__c == true;
+    }
+
+    // Prioridad por parametro: T&C de Grandes Cuentas (solo GC) > T&C general > cualquier otro adjunto.
+    @TestVisible
+    private static Map<Id, Id> getTycPorParametro(Set<Id> parametrosIds, Boolean grandesCuentas) {
+        Map<Id, Id> documentoPorParametro = new Map<Id, Id>();
+        Map<Id, Integer> prioridadPorParametro = new Map<Id, Integer>();
+        if (parametrosIds.isEmpty()) return documentoPorParametro;
+
+        for (ContentDocumentLink link : [
+            SELECT LinkedEntityId, ContentDocumentId, ContentDocument.Title
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :parametrosIds
+            ORDER BY ContentDocument.CreatedDate DESC
+        ]) {
+            String titulo = link.ContentDocument.Title == null ? '' : link.ContentDocument.Title;
+            Boolean esTyc = titulo.startsWithIgnoreCase('TyC');
+            Boolean esGC = titulo.containsIgnoreCase('- GC');
+
+            Integer prioridad = 1;
+            if (esTyc && esGC) prioridad = grandesCuentas ? 3 : 0;
+            else if (esTyc) prioridad = 2;
+
+            Integer actual = prioridadPorParametro.containsKey(link.LinkedEntityId)
+                ? prioridadPorParametro.get(link.LinkedEntityId)
+                : 0;
+            if (prioridad > actual) {
+                prioridadPorParametro.put(link.LinkedEntityId, prioridad);
+                documentoPorParametro.put(link.LinkedEntityId, link.ContentDocumentId);
+            }
+        }
+        return documentoPorParametro;
+    }
+
     @AuraEnabled
     public static List<TycDocumento> getTycDocumentos() {
-        Boolean isGrandesCuentas = !Test.isRunningTest() ? CrearCompraController.getAccount().Grandes_Cuentas__c == true : false;
-
         List<Parametro_PPH__c> parametros = [
             SELECT Id, Name, Cultivo__c, Cultivo__r.Name
             FROM Parametro_PPH__c
@@ -106,27 +123,12 @@ public without sharing class AdhesionPPHHome {
             ORDER BY Fecha_Inicio_Adhesion_PPH__c DESC NULLS LAST, CreatedDate DESC
         ];
 
-        Map<Id, Id> generalByParametro = new Map<Id, Id>();
-        Map<Id, Id> gcByParametro = new Map<Id, Id>();
-        Map<Id, Parametro_PPH__c> parametrosById = new Map<Id, Parametro_PPH__c>(parametros);
-        for (ContentDocumentLink link : [
-            SELECT LinkedEntityId, ContentDocumentId, ContentDocument.Title
-            FROM ContentDocumentLink
-            WHERE LinkedEntityId IN :parametrosById.keySet() AND ContentDocument.Title LIKE 'TyC%'
-            ORDER BY ContentDocument.CreatedDate DESC
-        ]) {
-            Boolean esGC = link.ContentDocument.Title.containsIgnoreCase('- GC');
-            Map<Id, Id> destino = esGC ? gcByParametro : generalByParametro;
-            if (!destino.containsKey(link.LinkedEntityId)) {
-                destino.put(link.LinkedEntityId, link.ContentDocumentId);
-            }
-        }
+        Map<Id, Id> tycPorParametro = getTycPorParametro(new Map<Id, Parametro_PPH__c>(parametros).keySet(), isGrandesCuentas());
 
         Map<Id, TycDocumento> tycByCultivo = new Map<Id, TycDocumento>();
         for (Parametro_PPH__c param : parametros) {
             if (tycByCultivo.containsKey(param.Cultivo__c)) continue;
-            Id documentId = isGrandesCuentas ? gcByParametro.get(param.Id) : null;
-            if (documentId == null) documentId = generalByParametro.get(param.Id);
+            Id documentId = tycPorParametro.get(param.Id);
             if (documentId != null) {
                 tycByCultivo.put(param.Cultivo__c, new TycDocumento(param.Cultivo__r.Name, param.Name, documentId));
             }
@@ -177,7 +179,6 @@ public without sharing class AdhesionPPHHome {
     public class Parametro {
         @AuraEnabled public Parametro_PPH__c parametro;
         @AuraEnabled public Plan_de_Siembra__c planSiembra;
-        @AuraEnabled public String tycUrl;
         @AuraEnabled public String contentDocumentId;
         @AuraEnabled public String establecimientoLabel;
         @AuraEnabled public String mobileExtraLabel;
@@ -186,13 +187,11 @@ public without sharing class AdhesionPPHHome {
         public Parametro(
             Parametro_PPH__c param,
             Plan_de_Siembra__c plan,
-            String tycUrl,
             String contentDocumentId,
             Map<Id, List<String>> planEstablecimientoNames
         ){
             parametro = param;
             planSiembra = plan;
-            this.tycUrl = tycUrl;
             this.contentDocumentId = contentDocumentId;
             establecimientoLabel = '—';
             mobileExtraLabel = '';
