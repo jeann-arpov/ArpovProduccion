@@ -14,6 +14,8 @@ import { NavigationMixin } from "lightning/navigation";
 export default class InformarPago extends NavigationMixin(LightningElement) {
   subject = "Informar Pago";
 
+  informarPagoTooltip = InformarPagoTooltip;
+
   showModal = false;
   title;
 

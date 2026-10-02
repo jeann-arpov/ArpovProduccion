@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>InformarPagoController</members>
+        <members>MisFacturasController</members>
+        <members>InformarPagoControllerTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>Opportunity.Pago_Informado__c</members>
+        <members>Opportunity.Fecha_Pago_Informado__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>InformarPago_Tooltip</members>
+        <members>PagoInformado_Tooltip</members>
+        <members>Cobranzas_Email</members>
+        <name>CustomLabel</name>
+    </types>
+    <types>
+        <members>informarPago</members>
+        <members>misFacturas</members>
+        <members>misFacturasSembraEvolucion</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <version>67.0</version>
+</Package>
