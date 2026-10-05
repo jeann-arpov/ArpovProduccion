@@ -3266,9 +3266,23 @@ a.c-tooltip {
     color: #1c1c1c;
 }
 
+.se-result-btn-primary:hover {
+    background: #a8e600;
+    color: #1c1c1c;
+}
+
+.se-result-btn-primary:active {
+    background: #8fcc00;
+}
+
 .se-result-btn-ghost {
     border: 1.5px solid #1c1c1c;
     background: #fff;
+    color: #1c1c1c;
+}
+
+.se-result-btn-ghost:hover {
+    background: #eef1f7;
     color: #1c1c1c;
 }
 
