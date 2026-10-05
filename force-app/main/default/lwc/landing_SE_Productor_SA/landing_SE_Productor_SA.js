@@ -10,6 +10,22 @@ const NUMBER_FMT = new Intl.NumberFormat('es-AR', {
 });
 
 const ALL_SECTIONS = ['ht', 'pph', 'cg'];
+
+const PPH_ESTADO_LABEL = {
+    'En Preparación': 'En preparación',
+    'En Revisión': 'En revisión',
+    Rectificado: 'En rectificación',
+    Adherido: 'Adherido',
+    Rechazado: 'Rechazado',
+    Vencido: 'Vencido'
+};
+
+const PPH_ESTADO_TONE = {
+    'En Revisión': 'warn',
+    Rectificado: 'warn',
+    Adherido: 'ok',
+    Rechazado: 'danger'
+};
 const HOME_CANVAS_STYLE_ID = 'se-home-canvas-override';
 
 const HOME_CANVAS_CSS = `
@@ -162,6 +178,17 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
         if (isRevision) {
             pphDescription = enRevisionDetalle;
         }
+        const pphEstado = t.pphEstado || '';
+        const puedeContinuar = pphEstado === 'En Preparación' || pphEstado === 'Rectificado';
+        if (pphEstado === 'En Preparación') {
+            pphDescription = period
+                ? `Tu adhesión a PPH para la campaña ${period} está en preparación. Completala y enviala para que pase a revisión.`
+                : 'Tu adhesión a PPH está en preparación. Completala y enviala para que pase a revisión.';
+        } else if (pphEstado === 'Rectificado') {
+            pphDescription = 'Tu adhesión a PPH está en rectificación. Completá los cambios y enviala nuevamente.';
+        } else if (pphEstado === 'Rechazado') {
+            pphDescription = 'Tu adhesión a PPH fue rechazada. Revisá el detalle en Mis PPH.';
+        }
 
         const pphHa = Number(t.pphHectareas || 0);
         const pphEst = Number(t.pphEstablecimientos || 0);
@@ -182,9 +209,9 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
             htAdquiridaLabel: `${NUMBER_FMT.format(htAdq)} HT`,
             buyLabel: 'Comprar HT →',
             isRevision,
-            pphStatus: isAdherido ? 'ADHERIDO' : isRevision ? 'EN REVISIÓN' : 'SIN ADHERIR',
-            pphStatusTone: isAdherido ? 'ok' : isRevision ? 'warn' : 'info',
-            pphCtaLabel: isAdherir ? 'Adherí a PPH →' : null,
+            pphStatus: PPH_ESTADO_LABEL[pphEstado] || pphEstado || 'Sin adherir',
+            pphStatusTone: PPH_ESTADO_TONE[pphEstado] || 'info',
+            pphCtaLabel: isAdherir ? 'Adherí a PPH →' : puedeContinuar ? 'Continuar adhesión →' : null,
             pphDescription,
             pphHaLabel: `${NUMBER_FMT.format(pphHa)} ha`,
             pphEstLabel: String(pphEst),

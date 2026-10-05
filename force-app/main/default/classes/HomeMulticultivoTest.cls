@@ -385,6 +385,9 @@ public class HomeMulticultivoTest {
         System.assertEquals('comprar', HomeMulticultivo.resolveVersion(param, null, hoy.addDays(-31)));
         System.assertEquals('adherido', HomeMulticultivo.resolveVersion(param, adherido, hoy.addDays(60)));
         System.assertEquals('revision', HomeMulticultivo.resolveVersion(param, revision, hoy));
+        System.assertEquals('enCurso', HomeMulticultivo.resolveVersion(param, new Plan_de_Siembra__c(Estado__c = 'En Preparación'), hoy),
+            'Un plan En Preparación se muestra con su estado, igual que en Mis PPH');
+        System.assertEquals('enCurso', HomeMulticultivo.resolveVersion(param, new Plan_de_Siembra__c(Estado__c = 'Rectificado'), hoy));
         System.assertEquals('comprar', HomeMulticultivo.resolveVersion(param, adherido, hoy.addDays(121)));
         System.assertEquals(true, HomeMulticultivo.isInPphLifecycle(param, hoy.addDays(60)));
 

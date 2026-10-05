@@ -15,6 +15,7 @@ public without sharing class HomeMulticultivo {
         @AuraEnabled public Decimal htFuturas;
         @AuraEnabled public Decimal htAdquirida;
         @AuraEnabled public String version;
+        @AuraEnabled public String pphEstado;
         @AuraEnabled public Boolean cgNeedsRegularizar;
         @AuraEnabled public String faseLabel;
         @AuraEnabled public String faseHito;
@@ -62,8 +63,9 @@ public without sharing class HomeMulticultivo {
             SELECT Id, Parametro_PPH__c, Estado__c
             FROM Plan_de_Siembra__c
             WHERE Parametro_PPH__r.Cultivo__c IN :mapCultivos.keySet()
-            AND Estado__c IN ('Adherido', 'En Revisión')
+            AND Estado__c != 'Cancelado'
             AND Productor__c = :productorId
+            ORDER BY CreatedDate ASC
         ]) {
             mapPlanesSiembra.put(plan.Parametro_PPH__c, plan);
         }
@@ -202,6 +204,7 @@ public without sharing class HomeMulticultivo {
             t.htFuturas = htFuturas;
             t.htAdquirida = htAdquirida;
             t.version = version;
+            t.pphEstado = plan != null && version != 'comprar' ? plan.Estado__c : null;
             t.cgNeedsRegularizar = cultivosConDeuda.contains(cultivoId);
 
             Campana_Agricola__c camp = campanaPorCultivo.get(cultivoId);
@@ -284,7 +287,8 @@ public without sharing class HomeMulticultivo {
 
     /**
      * Sin plan: se puede adherir entre el inicio y el fin de adhesión (mismo criterio que AdhesionPPH).
-     * Con plan Adherido / En Revisión: se muestra hasta el fin del ciclo (adhesión o rectificación 2, la que sea posterior).
+     * Con plan (cualquier estado salvo Cancelado, igual que Mis PPH): se muestra hasta el fin del ciclo
+     * (adhesión o rectificación 2, la que sea posterior). 'enCurso' = En Preparación, Rectificado, Rechazado, etc.
      */
     @TestVisible
     private static String resolveVersion(Parametro_PPH__c param, Plan_de_Siembra__c plan, Date today) {
@@ -294,7 +298,9 @@ public without sharing class HomeMulticultivo {
         if (plan != null) {
             Date finCiclo = getFinCiclo(param);
             if (finCiclo != null && today > finCiclo) return 'comprar';
-            return plan.Estado__c == 'En Revisión' ? 'revision' : 'adherido';
+            if (plan.Estado__c == 'Adherido') return 'adherido';
+            if (plan.Estado__c == 'En Revisión') return 'revision';
+            return 'enCurso';
         }
 
         Date finAdhesion = getFinAdhesion(param);
