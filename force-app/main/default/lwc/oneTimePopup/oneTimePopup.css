@@ -154,7 +154,7 @@
   border-radius: 34px;
   border: 2px solid #b7f302;
   box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
-  font-family: 'Salesforce Sans', Arial, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
   overflow-y: auto;
 }
 
@@ -170,6 +170,7 @@
 }
 
 .popup-overlay-productor .popup-header h3 {
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
   color: #111;
   font-size: 48px;
   line-height: 1.05;
@@ -197,6 +198,7 @@
 }
 
 .popup-overlay-productor .popup-subtitle {
+  font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
   margin: 0 0 18px;
   font-size: 34px;
   line-height: 1.08;

@@ -4,8 +4,29 @@
     margin: 0 auto;
     padding: 28px 32px 40px;
     box-sizing: border-box;
-    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
     color: #1c1c1c;
+}
+
+h1,
+h2,
+h3,
+.se-title,
+.se-panel-title,
+.se-panel-title-solo,
+.se-cultivo-name,
+.se-tipo-title,
+.se-marca-name,
+.se-confirm-detail-title,
+.se-pay-title-fin-desk,
+.se-pay-title-fin-mob,
+.se-pay-sheet-title,
+.se-pay-card-title,
+.se-resumen-title,
+.se-mob-top-title,
+.tipo-card-title,
+.se-result-title {
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
 }
 
 .se-buy-head {
@@ -1003,7 +1024,7 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
     color: #1c1c1c;
 }
 
@@ -2228,7 +2249,7 @@
     max-width: 1000px;
     margin: 0 auto;
     padding: 1.5rem;
-    font-family: 'Salesforce Sans', sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
     background-color: #fff;
 }
 
@@ -3062,7 +3083,7 @@ a.c-tooltip {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
     color: #1c1c1c;
 }
 

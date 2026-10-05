@@ -2,8 +2,19 @@
 
 :host {
     display: block;
-    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
     color: #1c1c1c;
+}
+
+h1,
+h2,
+h3,
+.se-title,
+.se-panel-title,
+.se-side-title,
+.se-choice-title,
+.se-files-title {
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
 }
 
 .pph-veil {

@@ -1,4 +1,11 @@
 :host {
+    font-family: "Roboto", Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.ip-title {
     font-family: "Montserrat", "Roboto", Arial, sans-serif;
 }
 

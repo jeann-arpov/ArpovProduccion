@@ -25,6 +25,7 @@
 
 .title {
     margin: 0;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
     font-size: 32px;
     font-weight: 800;
     line-height: 1.15;
@@ -334,6 +335,7 @@
 
 .filt-sheet-title {
     margin: 0;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
     font-size: 16px;
     font-weight: 800;
     flex: 1;

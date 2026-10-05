@@ -1,8 +1,15 @@
 :host {
     display: block;
-    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
     color: #1c1c1c;
     background: #eef1f7;
+}
+
+h1,
+h2,
+h3,
+.se-panel-title {
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
 }
 
 .se-pph-loading {

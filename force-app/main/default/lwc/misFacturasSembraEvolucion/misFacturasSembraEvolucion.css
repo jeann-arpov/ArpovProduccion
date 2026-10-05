@@ -53,6 +53,10 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
     box-sizing: border-box;
     color: #1c1c1c;
+    font-family: "Roboto", Arial, sans-serif;
+}
+
+.mf-title {
     font-family: "Montserrat", "Roboto", Arial, sans-serif;
 }
 
