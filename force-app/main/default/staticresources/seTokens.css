@@ -286,7 +286,7 @@ body.se-chrome.se-inner [role="contentinfo"].cFooterPanel {
   max-width: none !important;
   min-height: 0 !important;
   height: auto !important;
-  background: #000000 !important;
+  background: #1C1C1C !important;
   border: none !important;
   box-shadow: none !important;
   float: none !important;
@@ -460,7 +460,7 @@ body.se-chrome .slds-col--padded.comm-content-footer {
 
   body.se-chrome.se-inner .cFooterPanel,
   body.se-chrome.se-inner #footer.cFooterPanel {
-    background: #000000 !important;
+    background: #1C1C1C !important;
     padding: 0 !important;
     height: auto !important;
     min-height: 0 !important;

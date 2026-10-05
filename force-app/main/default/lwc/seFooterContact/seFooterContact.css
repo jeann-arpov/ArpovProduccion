@@ -10,8 +10,8 @@
 }
 
 .footer {
-  background-color: #000000;
-  color: white;
+  background-color: #1c1c1c;
+  color: #ffffff;
   padding: var(--se-footer-pad, 16px 40px);
   display: flex;
   justify-content: space-between;
@@ -38,6 +38,17 @@
   font-size: 16px;
 }
 
+.line-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: #bfff00;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -47,7 +58,7 @@
 
 .contact-button {
   background-color: #bfff00;
-  color: black;
+  color: #1c1c1c;
   border: none;
   padding: 2px 24px;
   border-radius: 30px;
@@ -58,7 +69,11 @@
 }
 
 .contact-button:hover {
-  background-color: #bfff00;
+  background-color: #a8e600;
+}
+
+.contact-button:active {
+  background-color: #8fcc00;
 }
 
 .faq-button {
@@ -78,15 +93,15 @@
 
 .faq-button:hover {
   background-color: #bfff00;
-  color: black;
+  color: #1c1c1c;
 }
 
 .badge-new {
   position: absolute;
   top: -9px;
   right: -10px;
-  background-color: #ff7a00;
-  color: black;
+  background-color: #ffa945;
+  color: #1c1c1c;
   font-size: 10px;
   font-weight: bold;
   line-height: 1;

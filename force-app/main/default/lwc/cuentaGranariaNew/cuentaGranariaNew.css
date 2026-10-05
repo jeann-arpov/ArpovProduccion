@@ -467,8 +467,8 @@
 }
 
 .cg-camp-card {
-    background: #282828;
-    border: 1.5px solid #3a3a3a;
+    background: #2e2e2e;
+    border: 1.5px solid #4a5261;
     border-radius: 10px;
     padding: 20px 16px;
     display: flex;
@@ -684,7 +684,7 @@
 
 .cg-btn-camp-sel {
     background: transparent;
-    border: 1.5px solid #6b7280;
+    border: 1.5px solid #8892a3;
     color: #fff;
 }
 
@@ -857,6 +857,23 @@
     color: #1c1c1c;
 }
 
+.cg-btn-primary:hover:not(:disabled) {
+    background: #a8e600;
+    border-color: #a8e600;
+}
+
+.cg-btn-primary:active:not(:disabled) {
+    background: #8fcc00;
+    border-color: #8fcc00;
+}
+
+.cg-camp-card .cg-btn-primary:disabled {
+    opacity: 1;
+    background: #4a5261;
+    border-color: #4a5261;
+    color: #c3cad6;
+}
+
 .cg-btn-ghost {
     background: #fff;
     color: #1c1c1c;
@@ -877,7 +894,7 @@
 }
 
 .cg-btn-icon:hover {
-    background: #bfff00;
+    background: #2e2e2e;
 }
 
 /* Resumen */
