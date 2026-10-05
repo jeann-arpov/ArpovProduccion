@@ -127,7 +127,7 @@ export default class SeDataList extends LightningElement {
                 mobileKey: `m-${key}`,
                 title: record[this.titleField],
                 badgeLabel: record[this.badgeField],
-                badgeClass: `badge ${tone}`,
+                badgeTone: tone,
                 actionDisabled,
                 showDisabledMessage,
                 disabledMessage,
@@ -159,9 +159,9 @@ export default class SeDataList extends LightningElement {
                         amountClass: isAmount ? 'amount' : '',
                         strongClass: isStrong ? 'cell-strong' : '',
                         accentClass: isAccent ? 'cell-accent' : '',
-                        badgeClass:
+                        badgeTone:
                             type === 'badge'
-                                ? `badge ${record[col.toneField || this.badgeToneField] || 'info'}`
+                                ? record[col.toneField || this.badgeToneField] || 'info'
                                 : '',
                         actionLabel: rowActionLabel || col.actionLabel || this.actionLabel,
                         actionMessage: disabledMessage,

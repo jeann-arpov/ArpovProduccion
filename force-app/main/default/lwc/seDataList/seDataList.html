@@ -64,10 +64,7 @@
                                             <a class="link" href={cell.mailtoHref}>{cell.value}</a>
                                         </template>
                                         <template if:true={cell.isBadge}>
-                                            <span class={cell.badgeClass}>
-                                                <span class="dot"></span>
-                                                {cell.value}
-                                            </span>
+                                            <c-se-badge label={cell.value} tone={cell.badgeTone} show-dot></c-se-badge>
                                         </template>
                                         <template if:true={cell.isAction}>
                                             <template if:true={row.showSecondary}>
@@ -107,10 +104,7 @@
                     <article class="lic-card" key={row.mobileKey}>
                         <div class="lic-head">
                             <span class="lic-code">{row.title}</span>
-                            <span class={row.badgeClass}>
-                                <span class="dot"></span>
-                                {row.badgeLabel}
-                            </span>
+                            <c-se-badge label={row.badgeLabel} tone={row.badgeTone} show-dot></c-se-badge>
                         </div>
                         <div class="lic-grid">
                             <template for:each={row.fields} for:item="field">

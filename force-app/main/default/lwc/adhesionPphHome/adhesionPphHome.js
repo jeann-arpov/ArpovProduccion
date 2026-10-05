@@ -77,7 +77,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             title: wParam.parametro.Name,
             periodo: `Adhesión de ${this.formatDate(wParam.parametro.Fecha_Inicio_Adhesion_PPH__c)} a ${this.formatDate(wParam.parametro.Fecha_Fin_Adhesion_PPH__c)}`,
             statusLabel: ESTADO_LABEL[estado] || estado,
-            badgeClass: `pph-badge pph-badge-${ESTADO_TONE[estado] || 'info'}`,
+            badgeTone: ESTADO_TONE[estado] || 'info',
             actionName,
             actionLabel: actionName,
             btnClass: actionName === 'Ver' ? 'pph-btn pph-btn-ghost' : 'pph-btn pph-btn-primary',

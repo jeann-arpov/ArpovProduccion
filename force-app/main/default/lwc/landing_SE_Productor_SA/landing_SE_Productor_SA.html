@@ -145,7 +145,7 @@
                             <div class="home-subhead">
                                 <span class="home-num">2</span>
                                 <span class="home-sub-title">PPH</span>
-                                <span class={crop.pphStatusClass}>{crop.pphStatus}</span>
+                                <c-se-badge class="home-pill" label={crop.pphStatus} tone={crop.pphStatusTone} variant="dark"></c-se-badge>
                                 <template if:true={crop.isAdherido}>
                                     <svg class="home-cucarda se-desk-only" width="70" height="70" viewBox="0 0 100 100" fill="none" aria-label="Cucarda PPH">
                                         <rect x="42" y="0" width="16" height="14" fill="#bfff00"></rect>
@@ -161,7 +161,7 @@
                                 <div class="home-stat se-mob-only home-stat-status">
                                     <p class="home-stat-label">Estado de PPH</p>
                                     <div class="home-status-row">
-                                        <span class={crop.pphStatusClass}>{crop.pphStatus}</span>
+                                        <c-se-badge class="home-pill" label={crop.pphStatus} tone={crop.pphStatusTone} variant="dark"></c-se-badge>
                                         <svg class="home-cucarda" width="70" height="70" viewBox="0 0 100 100" fill="none" aria-label="Cucarda PPH">
                                             <rect x="42" y="0" width="16" height="14" fill="#bfff00"></rect>
                                             <rect x="8" y="8" width="84" height="42" rx="21" stroke="#bfff00" stroke-width="6" fill="none"></rect>
@@ -195,7 +195,7 @@
                             <template if:false={crop.isAdherido}>
                                 <div class="home-stat se-mob-only home-stat-status">
                                     <p class="home-stat-label">Estado de PPH</p>
-                                    <span class={crop.pphStatusClass}>{crop.pphStatus}</span>
+                                    <c-se-badge class="home-pill" label={crop.pphStatus} tone={crop.pphStatusTone} variant="dark"></c-se-badge>
                                 </div>
                                 <div class={crop.cgMsgClass}>
                                     <span class="home-cg-ic" aria-hidden="true">

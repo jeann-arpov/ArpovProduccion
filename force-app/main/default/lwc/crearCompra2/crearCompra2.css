@@ -669,25 +669,7 @@ h3,
 }
 
 .se-var-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
     flex-shrink: 0;
-}
-
-.se-var-badge.is-ok {
-    background: rgba(191, 255, 0, 0.2);
-    color: #4d6b00;
-    border: 1px solid #bfff00;
-}
-
-.se-var-badge.is-warn {
-    background: rgba(255, 169, 69, 0.18);
-    color: #7a4400;
-    border: 1px solid #ffa945;
 }
 
 .se-var-row {

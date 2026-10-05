@@ -183,7 +183,7 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
             buyLabel: 'Comprar HT →',
             isRevision,
             pphStatus: isAdherido ? 'ADHERIDO' : isRevision ? 'EN REVISIÓN' : 'SIN ADHERIR',
-            pphStatusClass: 'home-pill' + (isAdherido ? ' is-lima' : isRevision ? ' is-revision' : ' is-gris'),
+            pphStatusTone: isAdherido ? 'ok' : isRevision ? 'warn' : 'info',
             pphCtaLabel: isAdherir ? 'Adherí a PPH →' : null,
             pphDescription,
             pphHaLabel: `${NUMBER_FMT.format(pphHa)} ha`,

@@ -133,10 +133,10 @@ export default class PphDetalle extends LightningElement {
         return `Enviada · ${fmtDate(this.plan?.Fecha_de_Adhesion__c)}`;
     }
 
-    get statusBadgeClass() {
-        if (this.estadoRaw === 'Vencido') return 'pph-badge pph-badge--info';
-        if (this.estadoRaw === 'Rechazado') return 'pph-badge pph-badge--danger';
-        return 'pph-badge pph-badge--ok';
+    get statusBadgeTone() {
+        if (this.estadoRaw === 'Vencido') return 'info';
+        if (this.estadoRaw === 'Rechazado') return 'danger';
+        return 'ok';
     }
 
     get establecimientosCount() {

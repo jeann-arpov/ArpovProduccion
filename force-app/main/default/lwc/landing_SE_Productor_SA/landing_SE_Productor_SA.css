@@ -328,12 +328,6 @@
     color: var(--naranja);
 }
 
-.home-pill.is-gris {
-    background: var(--gris);
-    color: var(--negro);
-    border: none;
-}
-
 .home-mobile-more {
     display: none;
     flex-direction: column;
@@ -477,29 +471,6 @@
 
 .home-pill {
     display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-}
-
-.home-pill.is-lima {
-    border: 1px solid var(--lima);
-    color: var(--lima);
-}
-
-.home-pill.is-revision {
-    background: #f1c40f;
-    color: #000;
-    border: none;
-}
-
-.home-pill.is-neutral {
-    border: 1px solid rgba(255, 255, 255, 0.45);
-    color: rgba(255, 255, 255, 0.85);
 }
 
 .home-benefit {

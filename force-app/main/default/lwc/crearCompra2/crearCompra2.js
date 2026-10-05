@@ -1336,7 +1336,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     priceLabel: `${this.formatUsd(unitPrice)} / HT`,
                     subtotalLabel: this.formatUsd(subtotal),
                     badgeLabel: hasLicencia ? 'Con Licencia' : 'Sin Licencia',
-                    badgeClass: 'se-var-badge ' + (hasLicencia ? 'is-ok' : 'is-warn'),
+                    badgeTone: hasLicencia ? 'ok' : 'warn',
                     cssClass: 'se-var-card'
                 };
             })
