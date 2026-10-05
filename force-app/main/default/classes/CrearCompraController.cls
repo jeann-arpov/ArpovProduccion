@@ -113,7 +113,7 @@ public without sharing class CrearCompraController {
     }
 
     private static Compra_HT__c getCompraData(Id compraId){
-        return [select Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c, Tipo_de_Pago__c, Tipo_de_Compra__c, Licencia__c, Licencia__r.Name, Producto__r.Name, Producto__r.Tipo_de_Compra__c, Producto__r.Variedad2__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
+        return [select Obtentor__c, Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c, Tipo_de_Pago__c, Tipo_de_Compra__c, Licencia__c, Licencia__r.Name, Producto__r.Name, Producto__r.Tipo_de_Compra__c, Producto__r.Variedad2__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
     }
 
     private static Opportunity getOpp(Id compraId) {
@@ -168,32 +168,50 @@ public without sharing class CrearCompraController {
         if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException('La compra no existe o no le pertenece');
     }
 
-    private static Boolean hasDuplicate(Compra_HT__c compra1) {
-        DateTime marzo = Date.newInstance(System.today().year() - 1, 3, 1);
+    private static final Set<String> ESTADOS_COMPRA_EN_PROCESO = new Set<String>{
+        'Creada',
+        'Pendiente de Facturación'
+    };
 
-        for (Compra_HT__c compra2: [select (select Id_Producto_de_Lista_de_Precio__c, Cantidad__c from Lineas_de_Compra_HT__r) from Compra_HT__c where Estado__c in ('Pendiente de Facturación', 'Facturada') and Cuenta_Productor__c =: getAccount().id and id !=: compra1.Id and CreatedDate >=: marzo]) {
-            if (isDuplicate(compra1, compra2)) return true;
-        }
-
-        return false;
+    @AuraEnabled
+    public static Map<String, Object> findCompraEnProceso(String obtentorId, Id cultivoId) {
+        if (String.isBlank(obtentorId) || cultivoId == null) return null;
+        List<Account> obtentores = [SELECT Id FROM Account WHERE Id_Obtentor__c = :obtentorId LIMIT 1];
+        if (obtentores.isEmpty()) return null;
+        Compra_HT__c existing = findCompraEnProcesoRecord(obtentores[0].Id, cultivoId, null);
+        return existing == null ? null : toDuplicatePayload(existing);
     }
 
-    private static Boolean isDuplicate(Compra_HT__c compra1, Compra_HT__c compra2) {
-        if (compra1.Lineas_de_Compra_HT__r.size() != compra2.Lineas_de_Compra_HT__r.size()) return false;
+    @TestVisible
+    private static Compra_HT__c findCompraEnProcesoRecord(Id obtentorId, Id cultivoId, Id excludeCompraId) {
+        if (obtentorId == null || cultivoId == null) return null;
+        List<Compra_HT__c> compras = [
+            SELECT Id, Name, Estado__c
+            FROM Compra_HT__c
+            WHERE Cuenta_Productor__c = :getAccount().Id
+            AND Obtentor__c = :obtentorId
+            AND Cultivo__c = :cultivoId
+            AND Estado__c IN :ESTADOS_COMPRA_EN_PROCESO
+            AND Id != :excludeCompraId
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+        return compras.isEmpty() ? null : compras[0];
+    }
 
-        Map<String, Linea_de_Compra_HT__c> lineasPorProducto = new Map<String, Linea_de_Compra_HT__c>();
+    private static Map<String, Object> toDuplicatePayload(Compra_HT__c existing) {
+        return new Map<String, Object>{
+            'duplicate' => true,
+            'existingCompraId' => existing.Id,
+            'existingCompraName' => existing.Name,
+            'id' => existing.Id,
+            'name' => existing.Name,
+            'estado' => existing.Estado__c
+        };
+    }
 
-        for (Linea_de_Compra_HT__c linea: compra1.Lineas_de_Compra_HT__r) {
-            lineasPorProducto.put(linea.Id_Producto_de_Lista_de_Precio__c, linea);
-        }
-
-        for (Linea_de_Compra_HT__c linea2: compra2.Lineas_de_Compra_HT__r) {
-            Linea_de_Compra_HT__c linea1 = lineasPorProducto.get(linea2.Id_Producto_de_Lista_de_Precio__c);
-
-            if (linea1 == null || linea1.Cantidad__c != linea2.Cantidad__c) return false;
-        }
-
-        return true;
+    private static Boolean hasDuplicate(Compra_HT__c compra1) {
+        return findCompraEnProcesoRecord(compra1.Obtentor__c, compra1.Cultivo__c, compra1.Id) != null;
     }
 
     @AuraEnabled
@@ -213,8 +231,11 @@ public without sharing class CrearCompraController {
         Compra_HT__c compra = getCompraData(compraId);
         validateProductor(compra);
         
-        if (checkDuplicates == true && hasDuplicate(compra)) {
-            return new Map<String, Object>{'duplicate' => true};
+        if (checkDuplicates == true) {
+            Compra_HT__c enProceso = findCompraEnProcesoRecord(compra.Obtentor__c, compra.Cultivo__c, compra.Id);
+            if (enProceso != null) {
+                return toDuplicatePayload(enProceso);
+            }
         }
         
         compra.Estado__c = 'Pendiente de Facturación';
@@ -309,8 +330,15 @@ public without sharing class CrearCompraController {
     public static Map<String, Object> saveItem(Id compraId, String itemJson, String cultivo) {
         Linea_de_Compra_HT__c item = (Linea_de_Compra_HT__c) JSON.deserialize(itemJson, Linea_de_Compra_HT__c.class);
         Account obtentor = String.isBlank(compraId)
-            ? [select Product2.Variedad2__r.Obtentor_Comercializa__r.Obtentor_Prefix__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Parent.Obtentor_Prefix__c from PricebookEntry where id =: item.Id_Producto_de_Lista_de_Precio__c].Product2.Variedad2__r.Obtentor_Comercializa__r
+            ? [select Product2.Variedad2__r.Obtentor_Comercializa__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Obtentor_Prefix__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Parent.Obtentor_Prefix__c from PricebookEntry where id =: item.Id_Producto_de_Lista_de_Precio__c].Product2.Variedad2__r.Obtentor_Comercializa__r
             : new Account(Obtentor_Prefix__c = '');
+
+        if (String.isBlank(compraId) && obtentor != null) {
+            Compra_HT__c enProceso = findCompraEnProcesoRecord(obtentor.Id, cultivo, null);
+            if (enProceso != null) {
+                return toDuplicatePayload(enProceso);
+            }
+        }
         
         Compra_HT__c compra = getCompra(compraId, obtentor, cultivo);
         validateProductor(compra);

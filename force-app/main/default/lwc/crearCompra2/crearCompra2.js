@@ -9,6 +9,7 @@ import getUserAccountData from '@salesforce/apex/CrearCompraController.getUserAc
 import updateTipoPago from '@salesforce/apex/CrearCompraController.updateTipoPago';
 import saveItem from '@salesforce/apex/CrearCompraController.saveItem';
 import deleteItem from '@salesforce/apex/CrearCompraController.deleteItem';
+import findCompraEnProceso from '@salesforce/apex/CrearCompraController.findCompraEnProceso';
 import verificarExpedienteEnHTDisponible from '@salesforce/apex/ExpedientesController.verificarExpedienteEnHTDisponible';
 import { CompraVentaMixin } from 'c/utilsHTNew';
 import { NavigationMixin } from 'lightning/navigation';
@@ -92,6 +93,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     @track DataCompra;
     /** success | pending-payment | pending-licencia | pending-origen | duplicate | expediente | promo | anular | vigencia */
     resultModal = null;
+    duplicateCompraId;
+    duplicateCompraName;
     haveLicence;
     haveOrigenLegal;
     Blanqueo;
@@ -611,14 +614,14 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                             await this.requestWrap(async () => {
                                 const data = await finalizarCompra({
                                     compraId: this.recordId,
-                                    checkDuplicates: this.recordId != this.lastDuplicateCheckId,
+                                    checkDuplicates: true,
                                     origen: this.haveOrigenLegal,
                                     blanqueo: this.Blanqueo === true,
                                     marcarRevisarCompra
                                 });
                 
                                 if (data.duplicate) {
-                                    return this.notifyDuplicate();
+                                    return this.notifyDuplicate(data);
                                 }
                 
                                 // Refresca la venta y las líneas en pantalla
@@ -639,14 +642,14 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                             await this.requestWrap(async () => {
                                 const data = await finalizarCompra({
                                     compraId: this.recordId,
-                                    checkDuplicates: this.recordId != this.lastDuplicateCheckId,
+                                    checkDuplicates: true,
                                     origen: this.haveOrigenLegal,
                                     blanqueo: this.Blanqueo === true,
                                     marcarRevisarCompra
                                 });
                 
                                 if (data.duplicate) {
-                                    return this.notifyDuplicate();
+                                    return this.notifyDuplicate(data);
                                 }
                 
                                 // Refresca la venta y las líneas en pantalla
@@ -665,14 +668,14 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                              await this.requestWrap(async () => {
                                 const data = await finalizarCompra({
                                     compraId: this.recordId,
-                                    checkDuplicates: this.recordId != this.lastDuplicateCheckId,
+                                    checkDuplicates: true,
                                     origen: this.haveOrigenLegal,
                                     blanqueo: this.Blanqueo === true,
                                     marcarRevisarCompra
                                 });
                 
                                 if (data.duplicate) {
-                                    return this.notifyDuplicate();
+                                    return this.notifyDuplicate(data);
                                 }
                 
                                 // Refresca la venta y las líneas en pantalla
@@ -694,14 +697,14 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     await this.requestWrap(async () => {
                         const data = await finalizarCompra({
                             compraId: this.recordId,
-                            checkDuplicates: this.recordId != this.lastDuplicateCheckId,
+                            checkDuplicates: true,
                             origen: this.haveOrigenLegal,
                             blanqueo: this.Blanqueo === true,
                             marcarRevisarCompra
                         });
         
                         if (data.duplicate) {
-                            return this.notifyDuplicate();
+                            return this.notifyDuplicate(data);
                         }
         
                         this.setData(data);
@@ -720,8 +723,10 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         }
     }
 
-    notifyDuplicate() {
+    notifyDuplicate(data) {
         this.lastDuplicateCheckId = this.recordId;
+        this.duplicateCompraId = data?.existingCompraId || data?.id || null;
+        this.duplicateCompraName = data?.existingCompraName || data?.name || '';
         this.resultModal = 'duplicate';
     }
 
@@ -1224,9 +1229,20 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     async confirmMarcaAndContinue() {
+        let blocked = false;
         await this.requestWrap(async () => {
             this.semilleroData = await this.getSemilleroData();
+            const existing = await findCompraEnProceso({
+                obtentorId: this.semillero,
+                cultivoId: this.cultivo
+            });
+            const existingId = existing?.id || existing?.existingCompraId;
+            if (existingId && existingId !== this.recordId) {
+                this.notifyDuplicate(existing);
+                blocked = true;
+            }
         });
+        if (blocked) return;
         if (this.semilleroCantidades !== this.semillero) {
             this.variedadCantidades = {};
         }
@@ -1400,6 +1416,10 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 itemJson: JSON.stringify(linePayload),
                 cultivo: this.cultivo
             });
+            if (lastData?.duplicate) {
+                this.notifyDuplicate(lastData);
+                return;
+            }
             if (lastData?.record?.Id) {
                 this.recordId = lastData.record.Id;
             }
@@ -2184,7 +2204,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         return (
             !this.isResultSuccess &&
             !this.isResultPendingPayment &&
-            !this.isResultAnular
+            !this.isResultAnular &&
+            !this.isResultDuplicate
         );
     }
 
@@ -2245,6 +2266,17 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         return 'https://api.whatsapp.com/send/?phone=5491131172022&text=Hola%2C+quiero+informaci%C3%B3n+sobre+mi+compra&type=phone_number&app_absent=0';
     }
 
+    get duplicateCompraSubtext() {
+        if (this.duplicateCompraName) {
+            return `Tenés la compra ${this.duplicateCompraName} en proceso para este semillero. Para no duplicar, continuá desde esa operación.`;
+        }
+        return 'Ya tenés una compra en proceso para este semillero. Para no duplicar, continuá desde esa operación.';
+    }
+
+    get hasDuplicateCompraLink() {
+        return !!this.duplicateCompraId;
+    }
+
     handleResultScrimClick() {
         if (!this.resultScrimDismissible) return;
         if (this.isResultExpediente && this.pendingFinalizarPorExpediente) {
@@ -2266,6 +2298,12 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         }
         if (this.isResultSuccess || this.isResultPendingPayment) {
             this.handleResultVerMisCompras();
+            return;
+        }
+        if (this.isResultDuplicate) {
+            if (this.duplicateCompraId) {
+                this.handleResultDuplicateVerExistente();
+            }
             return;
         }
         this.resultModal = null;
@@ -2327,8 +2365,17 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.handleResultVerMisCompras();
     }
 
-    handleResultDuplicateContinuar() {
+    handleResultDuplicateVerExistente() {
+        const compraId = this.duplicateCompraId;
+        const compraName = this.duplicateCompraName || '';
         this.resultModal = null;
+        if (!compraId) {
+            this.handleResultVerMisCompras();
+            return;
+        }
+        const path = (basePath || '').replace(/\/$/, '');
+        const slug = compraName || compraId;
+        window.open(`${path}/compra-ht/${compraId}/${slug}`, '_self');
     }
 
     handleResultExpedienteEntendido() {

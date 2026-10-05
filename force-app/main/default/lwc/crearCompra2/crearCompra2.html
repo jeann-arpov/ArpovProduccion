@@ -895,16 +895,18 @@
           <template if:true={isResultDuplicate}>
             <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
             <h2 class="se-result-title">Ya existe una compra en proceso</h2>
-            <p class="se-result-sub">Por favor, revisá tus operaciones previas en Mis compras antes de continuar.</p>
+            <p class="se-result-sub">{duplicateCompraSubtext}</p>
             <div class="se-result-actions se-result-actions--success">
-              <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultDuplicateVerCompras}>
+              <template if:true={hasDuplicateCompraLink}>
+                <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultDuplicateVerExistente}>
+                  Ver compra
+                </button>
+              </template>
+              <button type="button" class="se-result-btn se-result-btn-ghost" onclick={handleResultDuplicateVerCompras}>
                 Ir a mis compras
               </button>
-              <button type="button" class="se-result-btn se-result-btn-ghost" onclick={handleResultDuplicateContinuar}>
-                Continuar
-              </button>
             </div>
-  </template>
+          </template>
 
           <template if:true={isResultExpediente}>
             <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
