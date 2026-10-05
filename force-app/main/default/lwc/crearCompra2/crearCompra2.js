@@ -34,17 +34,11 @@ import {
     resolveSemilleroLabel,
     buildHtCompraConfirmadaParams
 } from 'c/portalGa4Events';
+import { compraEstadoLabel, compraEstadoTone } from 'c/seCompraEstado';
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
 const FECHA_INICIO_STINE_DEFAULT = '2026-09-21';
-const DETALLE_ESTADO_TONE = {
-    Facturable: 'ok',
-    Facturada: 'ok',
-    Pendiente: 'warn',
-    Anulada: 'danger',
-    Rechazada: 'danger'
-};
 const FECHA_FIN_STINE_DEFAULT = '2026-10-31';
 
 /** BASF/Credenz solo trae un <symbol> en el SVG (no se ve en <img>) y ACA no tiene SVG. */
@@ -1564,8 +1558,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     // ====== DETALLE DE COMPRA FINALIZADA ======
     get detalleEstado() {
-        const estado = this.data?.record?.Estado__c;
-        return estado === 'Creada' ? 'En Curso' : estado || '—';
+        return compraEstadoLabel(this.data?.record?.Estado__c);
     }
 
     get detalleFecha() {
@@ -1590,7 +1583,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 const pbe = pbes.find((v) => v.value === rec.Id_Producto_de_Lista_de_Precio__c);
                 const qty = Number(rec.Cantidad__c) || 0;
                 const unit = Number(rec.Precio_de_Lista__c) || 0;
-                const estado = rec.Estado__c === 'Creada' ? 'En Curso' : rec.Estado__c || '—';
                 const tipo = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c;
                 const fecha = rec.Fecha_de_Activacion__c ? this.formatFechaCorta(rec.Fecha_de_Activacion__c) : '';
                 return {
@@ -1607,8 +1599,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                         maximumFractionDigits: 2
                     }),
                     subtotal: this.formatUsd(qty * unit),
-                    estado,
-                    estadoTone: DETALLE_ESTADO_TONE[estado] || 'info',
+                    estado: compraEstadoLabel(rec.Estado__c),
+                    estadoTone: compraEstadoTone(rec.Estado__c),
                     licencia: rec.Licencia__r?.Name || null,
                     sinLicencia: !rec.Licencia__c && rec.Estado__c !== 'Creada',
                     hasFactura: !!item.factura
@@ -2266,10 +2258,13 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     get resumenLicencia() {
+        const lineas = this.detalleLineas;
+        if (lineas.some((l) => l.sinLicencia)) return 'Sin licencia';
+        const codigos = [...new Set(lineas.map((l) => l.licencia).filter(Boolean))];
+        if (codigos.length) return codigos.join(', ');
         const lic = this.semilleroData?.licencia || this.DataCompra?.semilleroData?.licencia;
-        if (!lic?.Id && this.haveLicence !== true) return 'Pendiente';
-        const adenda = lic?.Estado_Adenda__c;
-        return adenda && adenda !== 'NA' ? `Vigente · ${adenda}` : 'Vigente';
+        if (lic?.Name) return lic.Name;
+        return lic?.Id || this.haveLicence === true ? 'Con licencia' : 'Sin licencia';
     }
 
     get resultVariedadesLabel() {

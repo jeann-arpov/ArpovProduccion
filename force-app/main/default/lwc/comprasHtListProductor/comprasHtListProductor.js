@@ -2,6 +2,7 @@ import { LightningElement, track, wire } from 'lwc';
 import getComprasHT from '@salesforce/apex/ComprasHTController.getComprasHT';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import { trackGa4Event } from 'c/portalGa4Events';
+import { compraEstadoLabel, compraEstadoTone } from 'c/seCompraEstado';
 
 function pad(n) {
     return String(n).padStart(2, '0');
@@ -21,14 +22,6 @@ function formatTotal(value) {
     return num.toLocaleString('es-AR', { maximumFractionDigits: 0 });
 }
 
-function statusTone(estado) {
-    const s = (estado || '').toLowerCase();
-    if (/pagad/.test(s)) return 'ok';
-    if (/vencid|cancel/.test(s)) return 'danger';
-    if (/factur|pendiente/.test(s)) return 'warn';
-    return 'info';
-}
-
 function splitVariedades(value) {
     return String(value || '')
         .split(';')
@@ -36,7 +29,7 @@ function splitVariedades(value) {
         .filter((item) => item && item !== 'Sin variedad');
 }
 
-const STATUS_ORDER = ['Pagada', 'Facturada', 'Vencida', 'Cancelada', 'Pendiente de Facturación', 'Pendiente'];
+const STATUS_ORDER = ['Pagada', 'Facturada', 'Vencida', 'Cancelada', 'Pendiente de facturación'];
 const PAGE_SIZE = 200;
 const SESSION_KEYS = {
     estado: 'selectedEstadoComprasProductor',
@@ -95,7 +88,7 @@ export default class ComprasHtListProductor extends LightningElement {
     }
 
     loadSessionFilters() {
-        this.estadoSeleccionado = sessionStorage.getItem(SESSION_KEYS.estado) || 'todas';
+        this.estadoSeleccionado = compraEstadoLabel(sessionStorage.getItem(SESSION_KEYS.estado) || 'todas');
         this.cultivoSeleccionado = sessionStorage.getItem(SESSION_KEYS.cultivo) || 'todas';
         this.variedadSeleccionada = sessionStorage.getItem(SESSION_KEYS.variedad) || 'todas';
     }
@@ -104,7 +97,7 @@ export default class ComprasHtListProductor extends LightningElement {
     wiredCompras({ data, error }) {
         if (data) {
             this.comprasAll = data.map((c) => {
-                const estado = c.estado || 'Sin estado';
+                const estado = c.estado ? compraEstadoLabel(c.estado) : 'Sin estado';
                 return {
                     id: c.id,
                     name: c.compra,
@@ -120,7 +113,7 @@ export default class ComprasHtListProductor extends LightningElement {
                     marca: c.marca || c.semillero || c.obtentor || '',
                     estado,
                     statusLabel: estado,
-                    statusTone: statusTone(estado)
+                    statusTone: compraEstadoTone(estado)
                 };
             });
 

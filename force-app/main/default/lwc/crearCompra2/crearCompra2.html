@@ -773,6 +773,10 @@
                   <span class="se-result-v">{resumenLicencia}</span>
                 </div>
                 <div class="se-result-row">
+                  <span class="se-result-k">Estado</span>
+                  <span class="se-result-v">{detalleEstado}</span>
+                </div>
+                <div class="se-result-row">
                   <span class="se-result-k">Total</span>
                   <span class="se-result-v se-result-total">{resumenTotal}</span>
                 </div>
@@ -799,6 +803,10 @@
                   <div class="se-result-v">{resumenLicencia}</div>
                 </div>
                 <div class="se-result-grid-item">
+                  <div class="se-result-k">Estado</div>
+                  <div class="se-result-v">{detalleEstado}</div>
+                </div>
+                <div class="se-result-grid-item">
                   <div class="se-result-k">Cantidad HT</div>
                   <div class="se-result-v">{resumenHt}</div>
                 </div>
@@ -823,6 +831,7 @@
             <h2 class="se-result-title">Compra pendiente de pago</h2>
             <p class="se-result-sub">Tu orden {resultOrdenRef} quedó registrada. Completá el pago para avanzar con la facturación.</p>
             <ul class="se-result-bullets">
+              <li>Estado: <strong>{detalleEstado}</strong></li>
               <li>Total: <strong>{resumenTotal}</strong></li>
               <li>Método: <strong>{tipoPago}</strong></li>
               <li>Marca: <strong>{resumenMarca}</strong></li>
