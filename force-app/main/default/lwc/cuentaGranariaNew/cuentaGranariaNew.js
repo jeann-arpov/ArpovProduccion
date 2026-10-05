@@ -281,16 +281,13 @@ export default class CuentaGranariaNew extends LightningElement {
         });
     }
 
-    // Genera el nombre corto de campaña, ej: SOJA '2025' -> '24/25', otros '2025' -> '2025'
+    // Año cruzado como en Home y Compra HT: '2026' -> '26/27'
     getCampanaPeriod(ano) {
         const year = parseInt(ano, 10);
         if (isNaN(year)) return ano;
-        if (this.cultivoName === 'SOJA') {
-            const next = String(year + 1).slice(-2);
-            const curr = String(year).slice(-2);
-            return `${curr}/${next}`;
-        }
-        return String(year);
+        const next = String(year + 1).slice(-2);
+        const curr = String(year).slice(-2);
+        return `${curr}/${next}`;
     }
 
     // Devuelve el nombre del cultivo seleccionado
@@ -314,8 +311,12 @@ export default class CuentaGranariaNew extends LightningElement {
             });
         }
 
+        const activaIdx = sorted.map((c) => c.estado).lastIndexOf('Activa');
+        const currentIdx = activaIdx >= 0 ? activaIdx : sorted.length - 1;
+
         return sorted.map((c, idx) => {
-            const isCurrent = idx === sorted.length - 1;
+            const isCurrent = idx === currentIdx;
+            const isPrecampana = !isCurrent && c.estado === 'En Preparación';
             const hasAdhesion = campanasConAdhesion.has(c.id) || c.pphAdherida === true;
             const showPPH = hasAdhesion;
             const displayToneladas = Number(c.totalToneladas ?? c.saldoCuentaGranaria ?? 0) || 0;
@@ -350,7 +351,9 @@ export default class CuentaGranariaNew extends LightningElement {
                     ? 'Campaña con PPH'
                     : isCurrent
                       ? 'Activa · disponible'
-                      : 'Histórico',
+                      : isPrecampana
+                        ? 'Precampaña'
+                        : 'Histórico',
                 adhesionVencimiento:
                     hasAdhesion && this.adhesion?.[0]
                         ? this.adhesion[0].Parametro_PPH__r?.Fecha_Vencimiento_PPH__c

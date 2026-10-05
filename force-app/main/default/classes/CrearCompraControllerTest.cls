@@ -307,4 +307,23 @@ public class CrearCompraControllerTest {
         System.assertEquals(ctx.compra.Id, saveResult.get('existingCompraId'));
         System.assertEquals(1, [SELECT Count() FROM Compra_HT__c WHERE Obtentor__c = :ctx.obtentor.Id AND Cultivo__c = :ctx.cultivo.Id]);
     }
+
+    @IsTest
+    static void testGetCampanasVigentes() {
+        Cultivo__c cultivo = new Cultivo__c(Name = 'SOJA VIG', Tipo_de_Especie__c = 'SOJA', Densidad_de_Siembra__c = 75, Sembra_Evolucion__c = true);
+        insert cultivo;
+        Campana_Agricola__c anterior = Test_TestUtils.crearCampanaAgricola('2025', cultivo, Date.today().addYears(-1), Date.today().addDays(-1), 'SOJA VIG 2025', false);
+        anterior.Estado__c = 'Activa';
+        Campana_Agricola__c vigente = Test_TestUtils.crearCampanaAgricola('2026', cultivo, Date.today().addDays(-1), Date.today().addYears(1), 'SOJA VIG 2026', false);
+        vigente.Estado__c = 'En Preparación';
+        Campana_Agricola__c futura = Test_TestUtils.crearCampanaAgricola('2027', cultivo, Date.today().addYears(1), Date.today().addYears(2), 'SOJA VIG 2027', false);
+        futura.Estado__c = 'En Preparación';
+        insert new List<Campana_Agricola__c>{ anterior, vigente, futura };
+
+        Test.startTest();
+        Map<Id, String> result = CrearCompraController.getCampanasVigentes();
+        Test.stopTest();
+
+        System.assertEquals('26/27', result.get(cultivo.Id), 'Debe tomar la campaña más reciente ya iniciada');
+    }
 }

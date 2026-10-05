@@ -8,6 +8,20 @@ public without sharing class CrearCompraController {
         return getProducts(cultivoId);
     }
 
+    /** Período de la campaña vigente por cultivo (cultivoId -> '26/27'), mismo criterio que Home. */
+    @AuraEnabled(cacheable=true)
+    public static Map<Id, String> getCampanasVigentes() {
+        Set<Id> cultivoIds = new Map<Id, Cultivo__c>([SELECT Id FROM Cultivo__c WHERE Sembra_Evolucion__c = true]).keySet();
+        Map<Id, String> result = new Map<Id, String>();
+        for (Campana_Agricola__c camp : HomeMulticultivo.getCampanaVigentePorCultivo(cultivoIds).values()) {
+            String periodo = HomeMulticultivo.formatPeriod(camp.Ano__c);
+            if (String.isNotBlank(periodo)) {
+                result.put(camp.Cultivo__c, periodo);
+            }
+        }
+        return result;
+    }
+
     public static List<PricebookEntry> getProducts(String cultivoId) {
         Set<Id> variedadesSreIds = UtilsCompraVentaHT.getVariedadesSreProductor(getAccount().Id);
         return [SELECT id, Product2Id, Unit_Price__c, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__c, Product2.Variedad2__r.Biotecnologia__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND (Product2.Variedad2__r.Sembra_Evolucion__c = true OR Product2.Variedad2__c IN :variedadesSreIds) ORDER BY Product2.Nombre_Comercial__c ASC];

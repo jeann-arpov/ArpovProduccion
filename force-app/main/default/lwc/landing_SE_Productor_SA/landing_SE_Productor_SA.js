@@ -169,6 +169,7 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
         return {
             id: t.cultivo.Id,
             name,
+            period,
             paramId: t.paramId,
             iconUrl: this.iconFor(name),
             isComprar,
@@ -208,6 +209,17 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
 
     get greeting() {
         return this.firstName ? `Hola, ${this.firstName}` : 'Hola';
+    }
+
+    get campaignChips() {
+        const periodos = [...new Set(this.crops.map((c) => c.period).filter(Boolean))];
+        return periodos.sort().map((p) => ({ id: p, label: p }));
+    }
+
+    get campaignHint() {
+        return this.campaignChips.length > 1
+            ? 'Campañas vigentes según cada cultivo.'
+            : 'Única campaña disponible en el tablero por ahora.';
     }
 
     get filterCount() {

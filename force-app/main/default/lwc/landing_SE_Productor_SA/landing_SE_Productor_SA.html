@@ -50,8 +50,10 @@
                 </div>
                 <div>
                     <p class="home-filters-label">Campaña</p>
-                    <span class="home-camp-chip">25/26</span>
-                    <p class="home-filters-hint" style="margin-top:12px">Única campaña disponible en el tablero por ahora.</p>
+                    <template for:each={campaignChips} for:item="camp">
+                        <span key={camp.id} class="home-camp-chip">{camp.label}</span>
+                    </template>
+                    <p class="home-filters-hint" style="margin-top:12px">{campaignHint}</p>
                 </div>
                 <div>
                     <p class="home-filters-label">Sub-secciones</p>
@@ -81,8 +83,10 @@
                     </label>
                 </template>
                 <p class="home-filters-label" style="margin-top:12px">Campaña</p>
-                <span class="home-camp-chip">25/26</span>
-                <p class="home-filters-hint" style="margin-top:8px">Única campaña disponible en el tablero por ahora.</p>
+                <template for:each={campaignChips} for:item="camp">
+                    <span key={camp.id} class="home-camp-chip">{camp.label}</span>
+                </template>
+                <p class="home-filters-hint" style="margin-top:8px">{campaignHint}</p>
                 <p class="home-filters-label" style="margin-top:12px">Sub-secciones</p>
                 <template for:each={sectionOptions} for:item="sec">
                     <label key={sec.id} class="home-chk">

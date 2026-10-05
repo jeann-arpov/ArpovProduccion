@@ -1,5 +1,6 @@
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, api, track, wire } from 'lwc';
 import getDataApex from '@salesforce/apex/CrearCompraController.getData';
+import getCampanasVigentes from '@salesforce/apex/CrearCompraController.getCampanasVigentes';
 import finalizarCompra from '@salesforce/apex/CrearCompraController.finalizarCompra';
 import anular from '@salesforce/apex/CrearCompraController.anular';
 import getSemilleroData from '@salesforce/apex/CrearCompraController.getSemilleroData';
@@ -767,7 +768,22 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     // ====== STEPS ======
     step = 1;
-    campaignLabel = 'Campaña 25/26';
+    campanasVigentes = {};
+
+    @wire(getCampanasVigentes)
+    wiredCampanasVigentes({ data }) {
+        if (data) this.campanasVigentes = data;
+    }
+
+    get campaignLabel() {
+        const map = this.campanasVigentes || {};
+        const periodoCultivo = this.cultivo ? map[this.cultivo] : null;
+        if (periodoCultivo) return `Campaña ${periodoCultivo}`;
+        const ids = (this.cultivos || []).map((c) => c.value);
+        const periodos = ids.length ? ids.map((id) => map[id]) : Object.values(map);
+        const distintos = [...new Set(periodos.filter(Boolean))];
+        return distintos.length === 1 ? `Campaña ${distintos[0]}` : 'Campaña';
+    }
 
     get uiStep() {
         if (this.legacyResumenMode) return 5;

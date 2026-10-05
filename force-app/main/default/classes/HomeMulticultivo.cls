@@ -168,18 +168,7 @@ public without sharing class HomeMulticultivo {
             cultivosConDeuda.add((Id) ar.get('cultivoId'));
         }
 
-        Map<Id, Campana_Agricola__c> campanaPorCultivo = new Map<Id, Campana_Agricola__c>();
-        for (Campana_Agricola__c camp : [
-            SELECT Id, Cultivo__c, Name, Ano__c, Estado__c, Fecha_de_Inicio__c, Fecha_de_Fin__c
-            FROM Campana_Agricola__c
-            WHERE Cultivo__c IN :mapCultivos.keySet()
-            AND (Estado__c = 'Activa' OR Estado__c = 'En Preparación')
-            ORDER BY Fecha_de_Inicio__c DESC
-        ]) {
-            if (!campanaPorCultivo.containsKey(camp.Cultivo__c)) {
-                campanaPorCultivo.put(camp.Cultivo__c, camp);
-            }
-        }
+        Map<Id, Campana_Agricola__c> campanaPorCultivo = getCampanaVigentePorCultivo(mapCultivos.keySet());
 
         for (Id cultivoId : mapCultivoParametro.keySet()) {
             Parametro_PPH__c param = mapCultivoParametro.get(cultivoId);
@@ -389,7 +378,31 @@ public without sharing class HomeMulticultivo {
         }
     }
 
-    private static String formatPeriod(String ano) {
+    /** Más reciente ya iniciada (Activa o En Preparación); si no hay, la próxima en preparación. */
+    public static Map<Id, Campana_Agricola__c> getCampanaVigentePorCultivo(Set<Id> cultivoIds) {
+        Map<Id, Campana_Agricola__c> iniciadas = new Map<Id, Campana_Agricola__c>();
+        Map<Id, Campana_Agricola__c> proximas = new Map<Id, Campana_Agricola__c>();
+        Date hoy = Date.today();
+        for (Campana_Agricola__c camp : [
+            SELECT Id, Cultivo__c, Name, Ano__c, Estado__c, Fecha_de_Inicio__c, Fecha_de_Fin__c
+            FROM Campana_Agricola__c
+            WHERE Cultivo__c IN :cultivoIds
+            AND (Estado__c = 'Activa' OR Estado__c = 'En Preparación')
+            ORDER BY Fecha_de_Inicio__c DESC NULLS LAST
+        ]) {
+            Boolean iniciada = camp.Fecha_de_Inicio__c == null || camp.Fecha_de_Inicio__c <= hoy;
+            if (iniciada) {
+                if (!iniciadas.containsKey(camp.Cultivo__c)) iniciadas.put(camp.Cultivo__c, camp);
+            } else {
+                proximas.put(camp.Cultivo__c, camp);
+            }
+        }
+        Map<Id, Campana_Agricola__c> result = new Map<Id, Campana_Agricola__c>(proximas);
+        result.putAll(iniciadas);
+        return result;
+    }
+
+    public static String formatPeriod(String ano) {
         if (String.isBlank(ano) || !ano.isNumeric()) return ano;
         Integer y = Integer.valueOf(ano);
         String a = String.valueOf(Math.mod(y, 100)).leftPad(2, '0');

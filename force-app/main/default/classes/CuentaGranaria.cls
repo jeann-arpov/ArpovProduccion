@@ -40,7 +40,8 @@ public without sharing class CuentaGranaria {
                                                FROM   Campana_Agricola__c
                                                WHERE  Cultivo__c = :cultivoId
                                                AND Fecha_de_Inicio__c != null
-                                               AND (Estado__c = 'Activa' OR Estado__c = 'Completa' )
+                                               AND Fecha_de_Inicio__c <= TODAY
+                                               AND (Estado__c = 'Activa' OR Estado__c = 'Completa' OR Estado__c = 'En Preparación')
                                                ORDER BY Fecha_de_Inicio__c DESC
                                                LIMIT 3];
 
