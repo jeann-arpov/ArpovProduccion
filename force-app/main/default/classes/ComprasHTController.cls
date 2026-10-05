@@ -26,7 +26,9 @@ public with sharing class ComprasHTController {
             : [SELECT Id, Name, Estado__c, Cuenta_Productor__r.Name, Comercio__r.Name,
                        CUIT_Productor__c, CUIT_Comercio__c, Total_HT__c, Total_USD__c,
                        Variedades__c, Cultivo__r.Name, CreatedDate,
-                       Obtentor__r.Name
+                       Obtentor__r.Name,
+                       (SELECT Producto__r.Nombre_Comercial__c, Variedad__c
+                        FROM Lineas_de_Compra_HT__r ORDER BY CreatedDate ASC)
                FROM Compra_HT__c
                //WHERE Cuenta_Productor__c = :accountId
                ORDER BY CreatedDate DESC];
@@ -40,7 +42,7 @@ public with sharing class ComprasHTController {
             row.put('productor', c.Cuenta_Productor__r != null ? c.Cuenta_Productor__r.Name : '');
             row.put('comercio', c.Comercio__r != null ? c.Comercio__r.Name : '');
             row.put('cultivo', c.Cultivo__r != null ? c.Cultivo__r.Name : '');
-            row.put('variedades', c.Variedades__c);
+            row.put('variedades', getVariedadesComerciales(c));
             String obtentorName = c.Obtentor__r != null ? c.Obtentor__r.Name : '';
             row.put('obtentor', obtentorName);
             row.put('semillero', obtentorName);
@@ -52,6 +54,24 @@ public with sharing class ComprasHTController {
         }
 
         return result;
+    }
+
+    /** Nombre comercial del catálogo (ej. DM46E21 SE) por línea, sin repetir; si no hay líneas, el texto guardado en la compra. */
+    @TestVisible
+    private static String getVariedadesComerciales(Compra_HT__c c) {
+        List<String> nombres = new List<String>();
+        List<Linea_de_Compra_HT__c> lineas = c.getSObjects('Lineas_de_Compra_HT__r');
+        if (lineas != null) {
+            for (Linea_de_Compra_HT__c l : lineas) {
+                String nombre = l.Producto__r != null && String.isNotBlank(l.Producto__r.Nombre_Comercial__c)
+                    ? l.Producto__r.Nombre_Comercial__c
+                    : l.Variedad__c;
+                if (String.isNotBlank(nombre) && !nombres.contains(nombre)) {
+                    nombres.add(nombre);
+                }
+            }
+        }
+        return nombres.isEmpty() ? c.Variedades__c : String.join(nombres, '; ');
     }
 
     @AuraEnabled(cacheable=true)
@@ -183,6 +203,7 @@ public with sharing class ComprasHTController {
         return resumen;
     }
 
+    @TestVisible
     private static String mapBiotecnologiaLabel(String raw) {
         if (String.isBlank(raw)) {
             return 'Sin biotecnología';
