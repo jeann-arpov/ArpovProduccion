@@ -2301,9 +2301,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             return;
         }
         if (this.isResultDuplicate) {
-            if (this.duplicateCompraId) {
-                this.handleResultDuplicateVerExistente();
-            }
+            this.handleResultVerMisCompras();
             return;
         }
         this.resultModal = null;
