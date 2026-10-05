@@ -35,6 +35,7 @@ import {
     buildHtCompraConfirmadaParams
 } from 'c/portalGa4Events';
 import { compraEstadoLabel, compraEstadoTone } from 'c/seCompraEstado';
+import { releaseModalLayer, restoreModalLayer } from 'c/seModalLayer';
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
@@ -1834,6 +1835,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         document.body.style.left = '0';
         document.body.style.right = '0';
         document.body.style.width = '100%';
+        this._modalLayer = releaseModalLayer(this.template.host);
         this._payModalScrollLocked = true;
     }
 
@@ -1841,6 +1843,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         if (typeof document === 'undefined') {
             return;
         }
+        restoreModalLayer(this._modalLayer);
+        this._modalLayer = null;
         document.documentElement.classList.remove('se-pay-modal-open');
         document.body.classList.remove('se-pay-modal-open');
         document.body.style.position = '';

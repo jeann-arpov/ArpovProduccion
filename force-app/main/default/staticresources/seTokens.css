@@ -324,6 +324,14 @@ body.se-pay-modal-open [role="main"].cCenterPanel {
   overflow: hidden !important;
 }
 
+/* Overlay de modales sobre header y footer (z-index 200): sin stacking context en el contenido */
+body.se-pay-modal-open .cCenterPanel,
+body.se-pay-modal-open [role="main"].cCenterPanel,
+body.se-pay-modal-open .cCenterPanel .siteforceContentArea,
+body.se-pay-modal-open .cCenterPanel .comm-page-content {
+  z-index: auto !important;
+}
+
 /* Columnas vacías del one-col layout */
 body.se-chrome .comm-content-header.comm-layout-column,
 body.se-chrome .comm-content-footer.comm-layout-column,
