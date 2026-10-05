@@ -50,6 +50,14 @@ private class misEstablecimientosControllerTest {
                 Coordenadas__Latitude__s = 10.789,
                 Coordenadas__Longitude__s = -71.987,
                 Vigente__c = true
+            ),
+            new Establecimiento__c(
+                Name = acc.N_CUIT__c + ' - Plan de Siembra 2025/2026 - SOJA',
+                Productor__c = acc.Id,
+                Origen__c = 'Grandes Cuentas',
+                Coordenadas__Latitude__s = 10.5,
+                Coordenadas__Longitude__s = -71.5,
+                Vigente__c = true
             )
         };
         insert listaEstablecimientos;
@@ -59,7 +67,7 @@ private class misEstablecimientosControllerTest {
             List<misEstablecimientosController.EstRow> resultado = misEstablecimientosController.getEstablecimientos();
             Test.stopTest();
 
-            System.assertEquals(2, resultado.size(), 'Debe devolver los establecimientos asociados al productor');
+            System.assertEquals(2, resultado.size(), 'Debe devolver solo los establecimientos propios del productor (sin los de Grandes Cuentas)');
             System.assertEquals('Finca El Sol', resultado[0].name);
             System.assertEquals('Granja La Luna', resultado[1].name);
             System.assertEquals(false, resultado[0].hasHt);

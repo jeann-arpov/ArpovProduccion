@@ -85,6 +85,7 @@ public without sharing class misEstablecimientosController {
                 Cultivo__r.Name
             FROM Establecimiento__c
             WHERE Productor__c = :accId
+            AND Origen__c = 'Propio'
             ORDER BY Name ASC
             LIMIT 200
         ];
