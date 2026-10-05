@@ -5,6 +5,8 @@ import createCase from '@salesforce/apex/InformarPagoController.createCase';
 import createCasePPH from '@salesforce/apex/InformarPagoController.createCasePPH';
 import deleteDocument from '@salesforce/apex/InformarPagoController.deleteDocument';
 import sendEmail from '@salesforce/apex/InformarPagoController.sendEmail';
+import informarPagoFactura from '@salesforce/apex/InformarPagoController.informarPagoFactura';
+import InformarPagoTooltip from '@salesforce/label/c.InformarPago_Tooltip';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {reduceErrors} from 'c/utils'
 import { NavigationMixin } from 'lightning/navigation';
@@ -12,6 +14,8 @@ import { NavigationMixin } from 'lightning/navigation';
 export default class InformarPago extends NavigationMixin(LightningElement) {
 
     subject = 'Informar Pago';
+
+    informarPagoTooltip = InformarPagoTooltip;
 
     showModal = false;
     title;
@@ -23,8 +27,12 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     recordId;
     reason;
     accountId;
+    razonSocial;
+    numero;
+    informarFactura = false;
 
     contentVersionIds = [];
+    contentDocumentIds = [];
     docs = [];
 
     @wire(getFieldSetFieldsByFieldSetName,{objectApiName: 'Case', fieldSetName: 'Informar_Pago'})
@@ -68,10 +76,15 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
         this._processing = true;
         this.title = data.title;
         this.variant = data.variant || 'legacy';
+        this.successMessage = data.successMessage;
         this.showModal = true;
         this.recordId = data.recordId;
         this.accountId = data.accountId;
+        this.razonSocial = data.razonSocial;
+        this.numero = data.numero;
+        this.informarFactura = data.informarFactura === true;
         this.contentVersionIds = [];
+        this.contentDocumentIds = [];
         this.docs = [];
     }
 
@@ -125,6 +138,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
                 VersionId: file.contentVersionId
             });
             this.contentVersionIds.push(file.contentVersionId);
+            this.contentDocumentIds.push(file.documentId);
         });
 
         this.docs = docs;
@@ -146,7 +160,36 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
             );    
         }
 
+        if (this.informarFactura && (!this.docs || this.docs.length === 0)) {
+            return this.dispatchEvent(
+                new ShowToastEvent({
+                    message: 'Debe cargar el archivo del comprobante.',
+                    variant: 'error'
+                })
+            );
+        }
+
         this._processing = true;
+
+        if (this.informarFactura && this.recordId) {
+            informarPagoFactura({
+                opportunityId: this.recordId,
+                contentDocumentIds: this.contentDocumentIds,
+                contentVersionIds: this.contentVersionIds,
+                comentarios: this._extraFields['Description'] || ''
+            })
+                .then(() => {
+                    this._processing = false;
+                    this.showSuccess();
+                    this.showModal = false;
+                    this.dispatchEvent(new CustomEvent('pagoinformado'));
+                })
+                .catch((error) => {
+                    this._processing = false;
+                    this.processError(error);
+                });
+            return;
+        }
 
         // calling apex class
 
@@ -194,9 +237,11 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     }
 
     showSuccess(){
-        const message = this.isSgVariant
-            ? 'Tu reclamo se registró correctamente.'
-            : 'Información de pago registrada éxitosamente.';
+        const message =
+            this.successMessage ||
+            (this.isSgVariant
+                ? 'Tu reclamo se registró correctamente.'
+                : 'Información de pago registrada éxitosamente.');
         this.dispatchEvent(
             new ShowToastEvent({
                 message,
@@ -241,6 +286,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
             let element = this.docs.find(doc => doc.Id == elementId);
             this.docs = this.docs.filter(doc => doc.Id !== elementId);
             this.contentVersionIds = this.contentVersionIds.filter(version => version !== element.VersionId);
+            this.contentDocumentIds = this.contentDocumentIds.filter(docId => docId !== elementId);
 
             const evt = new ShowToastEvent({
                 title:  '¡Documento eliminado!',
@@ -264,7 +310,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     }
 
     get acceptedFormats() {
-        return ['.pdf', '.png','.jpg','.jpeg'];
+        return ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.xls', '.xlsx'];
     }
 
     get showSpinner(){

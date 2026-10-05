@@ -2,3 +2,146 @@
     display: block;
     overflow-x: clip;
 }
+
+.mf-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    background: #f7ffd9;
+    border: 1px solid #bfff00;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #1c1c1c;
+}
+
+.mf-notice-icon {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #1c1c1c;
+    color: #bfff00;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 18px;
+    text-align: center;
+}
+
+.mf-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(28, 28, 28, 0.55);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 64px 16px 24px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.mf-dialog {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    padding: 26px 28px 22px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    color: #1c1c1c;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+}
+
+.mf-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    color: #1c1c1c;
+}
+
+.mf-title {
+    margin: 0 0 4px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.mf-rule {
+    width: 48px;
+    height: 3px;
+    margin: 8px auto 18px;
+    border-radius: 999px;
+    background: #bfff00;
+}
+
+.mf-docs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mf-doc {
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.mf-doc:last-child {
+    border-bottom: none;
+}
+
+.mf-doc-link {
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-weight: 700;
+    color: #1c1c1c;
+    text-decoration: underline;
+    text-align: left;
+    cursor: pointer;
+    word-break: break-word;
+}
+
+.mf-docs-loading {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+}
+
+.mf-empty {
+    margin: 8px 0;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.mf-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+.mf-btn {
+    appearance: none;
+    padding: 10px 22px;
+    border: 1px solid #dde2eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #1c1c1c;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}

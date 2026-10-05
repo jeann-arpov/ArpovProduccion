@@ -1,5 +1,7 @@
 import { LightningElement, track, api } from 'lwc';
 import getVencimientos from '@salesforce/apex/MisFacturasController.getVencimientos';
+import getAdjuntosPago from '@salesforce/apex/MisFacturasController.getAdjuntosPago';
+import PagoInformadoTooltip from '@salesforce/label/c.PagoInformado_Tooltip';
 import { fetchCultivoOptions, fetchCultivoSummary } from 'c/cultivoResumenService';
 import { reduceErrors } from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -24,6 +26,8 @@ function formatImporte(total, moneda) {
     return `${prefix} ${amount}`;
 }
 
+const STAGES_INFORMAR_PAGO = ['Facturada', 'Pedido de Facturacion'];
+
 function isPagada(stage) {
     return /pagad/i.test(stage || '');
 }
@@ -31,6 +35,9 @@ function isPagada(stage) {
 function resolveStatus(row) {
     if (isPagada(row.oppStage)) {
         return { label: 'Pagada', tone: 'ok', bucket: 'pagadas' };
+    }
+    if (row.pagoInformado === true) {
+        return { label: 'Pago informado', tone: 'info', bucket: 'facturadas' };
     }
     const due = row.fechaVencimiento ? new Date(row.fechaVencimiento) : null;
     const overdue = due && !Number.isNaN(due.getTime()) && due < new Date();
@@ -52,6 +59,11 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     @track cultivoSummaryTotal = 0;
     @track cultivoSummaryLoading = false;
     @track showCultivoResumen = false;
+    @track adjuntos = [];
+    @track showDocumentos = false;
+    @track documentosLoading = false;
+    documentosFactura;
+    pagoInformadoTooltip = PagoInformadoTooltip;
     statusFilter = 'todas';
     pageSize = 200;
     initialized = false;
@@ -116,8 +128,13 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
 
         await doRequest.call(this, async () => {
             const vencimientos = await getVencimientos({ type: this.type || 'Productor' });
+            const isProductor = (this.type || 'Productor') === 'Productor';
 
             this.vencimientos = (vencimientos || []).map((vencimiento, idx) => {
+                vencimiento.canInformarPago =
+                    vencimiento.pagoInformado !== true &&
+                    ((Boolean(vencimiento.id) && isProductor) ||
+                        STAGES_INFORMAR_PAGO.includes(vencimiento.oppStage));
                 if (vencimiento.file == null && vencimiento.facturaPVId) {
                     vencimiento.file = { id: vencimiento.facturaPVId };
                 }
@@ -135,7 +152,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
                 vencimiento.conceptoLine = `${vencimiento.concepto} · ${vencimiento.cultivoLabel}`;
                 vencimiento.statusLabel = status.label;
                 vencimiento.statusTone = status.tone;
-                vencimiento.actionDisabled = vencimiento.disableVerFactura;
+                vencimiento.actionDisabled = vencimiento.disableVerFactura && !vencimiento.opportunityId;
                 vencimiento.bucket = status.bucket;
                 return vencimiento;
             });
@@ -186,6 +203,18 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
         this.loadCultivoSummary();
     }
 
+    get hasPagoInformado() {
+        return this.vencimientos.some((row) => row.pagoInformado === true);
+    }
+
+    get hasAdjuntos() {
+        return this.adjuntos.length > 0;
+    }
+
+    get showDocumentosEmpty() {
+        return !this.documentosLoading && !this.documentosFactura && !this.hasAdjuntos;
+    }
+
     handlePill(event) {
         this.statusFilter = event.detail.id;
         this.applyFilters();
@@ -202,7 +231,60 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     handleRowAction(event) {
         const row = event.detail.row;
         if (!row) return;
-        this.showPdf(row);
+        if (event.detail.action === 'secondary') {
+            this.handleInformarPago(row);
+            return;
+        }
+        this.openDocumentos(row);
+    }
+
+    handleInformarPago(vencimiento) {
+        this.template.querySelector('c-informar-pago')?.show({
+            title: 'Informar Pago',
+            recordId: vencimiento.opportunityId,
+            cuit: vencimiento.cuit,
+            comprobante: vencimiento.numero,
+            razonSocial: vencimiento.cuentaName,
+            numero: vencimiento.numero,
+            informarFactura: true,
+            variant: 'sg',
+            successMessage: 'Información de pago registrada exitosamente.'
+        });
+    }
+
+    handlePagoInformado() {
+        this.init();
+    }
+
+    async openDocumentos(vencimiento) {
+        this.documentosFactura = vencimiento.file ? vencimiento : null;
+        this.adjuntos = [];
+        this.showDocumentos = true;
+        if (!vencimiento.opportunityId) return;
+        this.documentosLoading = true;
+        try {
+            this.adjuntos = (await getAdjuntosPago({ opportunityId: vencimiento.opportunityId })) || [];
+        } catch (error) {
+            this.onError(error);
+        } finally {
+            this.documentosLoading = false;
+        }
+    }
+
+    handleVerFacturaPdf() {
+        const factura = this.documentosFactura;
+        this.closeDocumentos();
+        if (factura) this.showPdf(factura);
+    }
+
+    closeDocumentos() {
+        this.showDocumentos = false;
+        this.adjuntos = [];
+        this.documentosFactura = null;
+    }
+
+    stopPropagation(event) {
+        event.stopPropagation();
     }
 
     handleExport() {

@@ -82,6 +82,10 @@
     font-family: inherit;
 }
 
+.link--secondary {
+    margin-right: 16px;
+}
+
 .link:disabled,
 .lic-more:disabled {
     opacity: 0.35;

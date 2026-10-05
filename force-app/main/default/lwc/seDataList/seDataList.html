@@ -70,6 +70,11 @@
                                             </span>
                                         </template>
                                         <template if:true={cell.isAction}>
+                                            <template if:true={row.showSecondary}>
+                                                <button class="link link--secondary" type="button" data-key={row.key} onclick={handleSecondary}>
+                                                    {secondaryActionLabel}
+                                                </button>
+                                            </template>
                                             <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
                                                 {cell.actionLabel}
                                             </button>
@@ -124,6 +129,11 @@
                                     {row.mobileActionLabel}
                                 </button>
                             </template>
+                        </template>
+                        <template if:true={row.showSecondary}>
+                            <button class="lic-more lic-more--ghost" type="button" data-key={row.key} onclick={handleSecondary}>
+                                {secondaryActionLabel}
+                            </button>
                         </template>
                     </article>
                 </template>

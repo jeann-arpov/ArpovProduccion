@@ -41,8 +41,16 @@
                 </template>
             </lightning-record-edit-form>
 
+            <div class="ip-info" role="note" if:true={informarFactura}>
+                <span class="ip-info-icon" aria-hidden="true">i</span>
+                <span>{informarPagoTooltip}</span>
+            </div>
+
             <div class="ip-field">
-                <span class="ip-label">Comprobante</span>
+                <span class="ip-label">
+                    <span class="ip-req" if:true={informarFactura}>*</span>
+                    Comprobante
+                </span>
                 <div class="ip-upload-row">
                     <lightning-file-upload
                         class="ip-file-upload"
@@ -140,6 +148,17 @@
                         </lightning-layout-item>
                     </template>
                 </lightning-record-edit-form>
+
+                <template if:true={informarFactura}>
+                    <div class="info-pago-banner" role="note">
+                        <lightning-icon
+                            icon-name="utility:info"
+                            alternative-text="Información"
+                            size="small"
+                        ></lightning-icon>
+                        <span>{informarPagoTooltip}</span>
+                    </div>
+                </template>
 
                 <lightning-file-upload
                     label="Comprobante"

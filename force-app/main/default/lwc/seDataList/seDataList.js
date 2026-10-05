@@ -27,6 +27,10 @@ export default class SeDataList extends LightningElement {
     @api mobileActionVariant = 'primary';
     /** Oculta el CTA inferior en cards mobile (ej. Movimientos HT). */
     @api hideMobileAction = false;
+    /** Acción secundaria por fila (ej. "Informar pago"); emite rowaction con action "secondary". */
+    @api secondaryActionLabel = '';
+    /** Campo booleano por fila que habilita la acción secundaria. */
+    @api secondaryActionField = '';
     /** Rows per page. 0 = show all, no pager (default). */
     @api pageSize = 0;
     @api loading = false;
@@ -113,6 +117,10 @@ export default class SeDataList extends LightningElement {
             } else if (mobileVariant === 'link') {
                 mobileActionClass = 'lic-more lic-more--link';
             }
+            const showSecondary =
+                Boolean(this.secondaryActionLabel) &&
+                Boolean(this.secondaryActionField) &&
+                Boolean(record[this.secondaryActionField]);
 
             return {
                 key,
@@ -125,6 +133,7 @@ export default class SeDataList extends LightningElement {
                 disabledMessage,
                 mobileActionLabel,
                 mobileActionClass,
+                showSecondary,
                 cells: columns.map((col, index) => {
                     const type = col.type || 'text';
                     const isAmount = type === 'amount';
@@ -219,11 +228,18 @@ export default class SeDataList extends LightningElement {
     }
 
     handleOpen(event) {
-        const key = event.currentTarget.dataset.key;
+        this.dispatchRowAction('open', event.currentTarget.dataset.key);
+    }
+
+    handleSecondary(event) {
+        this.dispatchRowAction('secondary', event.currentTarget.dataset.key);
+    }
+
+    dispatchRowAction(action, key) {
         const row = this._records.find((record) => String(record[this.keyField] ?? '') === key);
         this.dispatchEvent(
             new CustomEvent('rowaction', {
-                detail: { action: 'open', row, key }
+                detail: { action, row, key }
             })
         );
     }

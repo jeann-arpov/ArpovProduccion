@@ -12,6 +12,13 @@
 
         <c-se-filter-pills slot="toolbar" items={statusPills} onselect={handlePill}></c-se-filter-pills>
 
+        <template if:true={hasPagoInformado}>
+            <div class="mf-notice" role="note">
+                <span class="mf-notice-icon" aria-hidden="true">i</span>
+                <span>{pagoInformadoTooltip}</span>
+            </div>
+        </template>
+
         <template if:true={showCultivoResumen}>
             <c-se-cultivo-resumen
                 cultivos={cultivoOptions}
@@ -31,10 +38,12 @@
                     badge-tone-field="statusTone"
                     key-field="uniqueId"
                     action-label="Ver"
-                    mobile-action-label="Ver factura (PDF) →"
+                    mobile-action-label="Ver documentos →"
                     mobile-action-variant="link"
                     empty-text="No hay facturas para mostrar."
                     action-disabled-field="actionDisabled"
+                    secondary-action-label="Informar pago"
+                    secondary-action-field="canInformarPago"
                     page-size={pageSize}
                     loading={loading}
                     onrowaction={handleRowAction}
@@ -52,10 +61,12 @@
                 badge-tone-field="statusTone"
                 key-field="uniqueId"
                 action-label="Ver"
-                mobile-action-label="Ver factura (PDF) →"
+                mobile-action-label="Ver documentos →"
                 mobile-action-variant="link"
                 empty-text="No hay facturas para mostrar."
                 action-disabled-field="actionDisabled"
+                secondary-action-label="Informar pago"
+                secondary-action-field="canInformarPago"
                 page-size={pageSize}
                 loading={loading}
                 onrowaction={handleRowAction}
@@ -63,5 +74,52 @@
         </template>
     </c-se-list-page>
 
+    <template if:true={showDocumentos}>
+        <div class="mf-scrim" onclick={closeDocumentos}>
+            <section
+                class="mf-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mf-docs-title"
+                onclick={stopPropagation}
+            >
+                <button type="button" class="mf-close" onclick={closeDocumentos} aria-label="Cerrar">✕</button>
+                <h2 id="mf-docs-title" class="mf-title">Documentos</h2>
+                <div class="mf-rule" aria-hidden="true"></div>
+
+                <ul class="mf-docs">
+                    <template if:true={documentosFactura}>
+                        <li class="mf-doc">
+                            <button type="button" class="mf-doc-link" onclick={handleVerFacturaPdf}>
+                                Factura electrónica (PDF)
+                            </button>
+                        </li>
+                    </template>
+                    <template for:each={adjuntos} for:item="adjunto">
+                        <li key={adjunto.id} class="mf-doc">
+                            <a class="mf-doc-link" href={adjunto.url} target="_blank" rel="noopener noreferrer">
+                                {adjunto.title}
+                            </a>
+                        </li>
+                    </template>
+                </ul>
+
+                <template if:true={documentosLoading}>
+                    <div class="mf-docs-loading" role="status">
+                        <c-se-brand-loader></c-se-brand-loader>
+                    </div>
+                </template>
+                <template if:true={showDocumentosEmpty}>
+                    <p class="mf-empty">Sin documentos.</p>
+                </template>
+
+                <div class="mf-actions">
+                    <button type="button" class="mf-btn" onclick={closeDocumentos}>Cerrar</button>
+                </div>
+            </section>
+        </div>
+    </template>
+
     <c-pdf-reader></c-pdf-reader>
+    <c-informar-pago onpagoinformado={handlePagoInformado}></c-informar-pago>
 </template>
