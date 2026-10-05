@@ -156,19 +156,7 @@ public without sharing class HomeMulticultivo {
             mapHtSinConsumir.put((Id) ar.get('cultivoId'), total != null ? total : 0);
         }
 
-        Set<Id> cultivosConDeuda = new Set<Id>();
-        for (AggregateResult ar : [
-            SELECT Cultivo__c cultivoId
-            FROM Cuenta_Granaria__c
-            WHERE Productor__c = :productorId
-            AND Cultivo__c IN :mapCultivos.keySet()
-            AND Campania__c != null
-            AND Saldo_Cuenta__c < 0
-            AND PPH_Adherida__c = false
-            GROUP BY Cultivo__c
-        ]) {
-            cultivosConDeuda.add((Id) ar.get('cultivoId'));
-        }
+        Set<Id> cultivosConDeuda = getCultivosConDeuda(mapCultivos.keySet(), productorId);
 
         Map<Id, Campana_Agricola__c> campanaPorCultivo = getCampanaVigentePorCultivo(mapCultivos.keySet());
 
@@ -405,6 +393,60 @@ public without sharing class HomeMulticultivo {
         }
         Map<Id, Campana_Agricola__c> result = new Map<Id, Campana_Agricola__c>(proximas);
         result.putAll(iniciadas);
+        return result;
+    }
+
+    /**
+     * Cultivos con alguna campaña en negativo, con el mismo alcance que muestra Cuenta Granaria
+     * (CuentaGranaria.getCampanasConTotales: últimas 3 iniciadas) y sin las campañas en PPH.
+     */
+    @TestVisible
+    private static Set<Id> getCultivosConDeuda(Set<Id> cultivoIds, Id productorId) {
+        Set<Id> result = new Set<Id>();
+        if (cultivoIds == null || cultivoIds.isEmpty() || productorId == null) return result;
+
+        Map<Id, Integer> visiblesPorCultivo = new Map<Id, Integer>();
+        Set<Id> campanasVisibles = new Set<Id>();
+        for (Campana_Agricola__c camp : [
+            SELECT Id, Cultivo__c
+            FROM Campana_Agricola__c
+            WHERE Cultivo__c IN :cultivoIds
+            AND Fecha_de_Inicio__c != null
+            AND Fecha_de_Inicio__c <= TODAY
+            AND (Estado__c = 'Activa' OR Estado__c = 'Completa' OR Estado__c = 'En Preparación')
+            ORDER BY Fecha_de_Inicio__c DESC
+        ]) {
+            Integer n = visiblesPorCultivo.containsKey(camp.Cultivo__c) ? visiblesPorCultivo.get(camp.Cultivo__c) : 0;
+            if (n >= 3) continue;
+            visiblesPorCultivo.put(camp.Cultivo__c, n + 1);
+            campanasVisibles.add(camp.Id);
+        }
+        if (campanasVisibles.isEmpty()) return result;
+
+        Set<Id> campanasConPph = new Set<Id>();
+        for (Plan_de_Siembra__c plan : [
+            SELECT Parametro_PPH__r.Campana__c
+            FROM Plan_de_Siembra__c
+            WHERE Productor__c = :productorId
+            AND Estado__c = 'Adherido'
+            AND Parametro_PPH__r.Campana__c IN :campanasVisibles
+        ]) {
+            campanasConPph.add(plan.Parametro_PPH__r.Campana__c);
+        }
+
+        for (AggregateResult ar : [
+            SELECT Cultivo__c cultivoId
+            FROM Cuenta_Granaria__c
+            WHERE Productor__c = :productorId
+            AND Cultivo__c IN :cultivoIds
+            AND Campania__c IN :campanasVisibles
+            AND Campania__c NOT IN :campanasConPph
+            AND Saldo_Cuenta__c < 0
+            AND PPH_Adherida__c = false
+            GROUP BY Cultivo__c
+        ]) {
+            result.add((Id) ar.get('cultivoId'));
+        }
         return result;
     }
 

@@ -408,4 +408,60 @@ public class HomeMulticultivoTest {
         System.assertEquals('adherir', HomeMulticultivo.resolveVersion(soloRect, null, hoy));
         System.assertEquals('comprar', HomeMulticultivo.resolveVersion(soloRect, null, hoy.addDays(6)));
     }
+
+    @isTest
+    static void testCgDeudaMismoAlcanceQueCuentaGranaria() {
+        Test_TestUtils.disableFlows();
+        Date hoy = Date.today();
+
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('SOJA', 75, false);
+        cultivo.Sembra_Evolucion__c = true;
+        insert cultivo;
+        Account productor = Test_TestUtils.crearProductor();
+
+        Campana_Agricola__c camp23 = Test_TestUtils.crearCampanaAgricola('2023', cultivo, hoy.addYears(-3), hoy.addYears(-2), '2023 - SOJA', false);
+        Campana_Agricola__c camp24 = Test_TestUtils.crearCampanaAgricola('2024', cultivo, hoy.addYears(-2), hoy.addYears(-1), '2024 - SOJA', false);
+        Campana_Agricola__c camp25 = Test_TestUtils.crearCampanaAgricola('2025', cultivo, hoy.addYears(-1), hoy.addDays(30), '2025 - SOJA', false);
+        Campana_Agricola__c camp26 = Test_TestUtils.crearCampanaAgricola('2026', cultivo, hoy.addDays(-1), hoy.addYears(1), '2026 - SOJA', false);
+        camp23.Estado__c = 'Completa';
+        camp24.Estado__c = 'Completa';
+        camp25.Estado__c = 'Activa';
+        camp26.Estado__c = 'En Preparación';
+        insert new List<Campana_Agricola__c>{ camp23, camp24, camp25, camp26 };
+
+        Parametro_PPH__c param24 = new Parametro_PPH__c(Cultivo__c = cultivo.Id, Campana__c = camp24.Id);
+        insert param24;
+        insert new Plan_de_Siembra__c(
+            Productor__c = productor.Id,
+            Parametro_PPH__c = param24.Id,
+            Estado__c = 'Adherido',
+            Version__c = 'Original',
+            Name = 'Plan 24/25'
+        );
+
+        Set<Id> cultivos = new Set<Id>{ cultivo.Id };
+
+        // Negativo en campaña adherida a PPH (caso LIAG 24/25): CG la muestra como PPH, no es deuda.
+        insert new Cuenta_Granaria__c(
+            Productor__c = productor.Id, Cultivo__c = cultivo.Id, Campania__c = camp24.Id,
+            Tecnologia__c = 'Enlist E3/Conkesta E3', Es_Carga_Manual__c = true, Saldo_Cuenta__c = -808,
+            Clave_Unica__c = productor.Id + '|' + camp24.Id + '|Enlist'
+        );
+        // Negativo en campaña fuera de las 3 visibles en CG: tampoco cuenta.
+        insert new Cuenta_Granaria__c(
+            Productor__c = productor.Id, Cultivo__c = cultivo.Id, Campania__c = camp23.Id,
+            Tecnologia__c = 'Enlist E3/Conkesta E3', Es_Carga_Manual__c = true, Saldo_Cuenta__c = -50,
+            Clave_Unica__c = productor.Id + '|' + camp23.Id + '|Enlist'
+        );
+        System.assert(HomeMulticultivo.getCultivosConDeuda(cultivos, productor.Id).isEmpty(),
+            'Sin campañas negativas visibles en CG la Home muestra "en regla"');
+
+        insert new Cuenta_Granaria__c(
+            Productor__c = productor.Id, Cultivo__c = cultivo.Id, Campania__c = camp25.Id,
+            Tecnologia__c = 'Enlist E3/Conkesta E3', Es_Carga_Manual__c = true, Saldo_Cuenta__c = -20,
+            Clave_Unica__c = productor.Id + '|' + camp25.Id + '|Enlist'
+        );
+        System.assert(HomeMulticultivo.getCultivosConDeuda(cultivos, productor.Id).contains(cultivo.Id),
+            'Una campaña visible sin PPH en negativo dispara la alerta');
+    }
 }
