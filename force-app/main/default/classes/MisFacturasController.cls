@@ -58,7 +58,8 @@ public without sharing class MisFacturasController {
         ERPVS__Comprobante_Venta__r.ERPvs__Moneda__r.Name,
         ERPVS__Comprobante_Venta__r.ERPvs__Total__c,
         ERPvs__Importe_MO_x_Signo__c,
-        ERPVS__Comprobante_Venta__r.Oportunidad__r.StageName
+        ERPVS__Comprobante_Venta__r.Oportunidad__r.StageName,
+        ERPVS__Comprobante_Venta__r.Oportunidad__r.Pago_Informado__c
       FROM ERPvs__Vencimientos__c
       WHERE
         ERPvs__Cuenta__c = :CrearCompraController.getAccount().id
@@ -127,6 +128,7 @@ public without sharing class MisFacturasController {
         Compra_HT__r.Comercio__r.Name,
         Compra_HT__r.Cuenta_Productor__r.Name,
         StageName,
+        Pago_Informado__c,
         Cultivo__c,
         CUIT__c,
         Account.Name
