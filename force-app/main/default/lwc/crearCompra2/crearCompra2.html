@@ -477,10 +477,7 @@
                     <thead>
                       <tr>
                         <th>Variedad</th>
-                        <th>Tipo de HT</th>
-                        <th>Fecha conversión</th>
                         <th class="is-num">HT</th>
-                        <th class="is-num">USD / HT</th>
                         <th class="is-num">Subtotal</th>
                         <th>Estado</th>
                         <th>Licencia</th>
@@ -490,28 +487,30 @@
                       <template for:each={detalleLineas} for:item="line">
                         <tr key={line.id}>
                           <td class="is-name" data-label="Variedad">
-                            {line.name}
-                            <template if:true={line.biotech}>
-                              <span class="se-det-biotech">{line.biotech}</span>
-                            </template>
+                            <span class="se-det-var">{line.name}</span>
+                            <span class="se-det-meta">{line.meta}</span>
                           </td>
-                          <td class="is-muted" data-label="Tipo de HT">{line.tipo}</td>
-                          <td class="is-muted" data-label="Fecha conversión">{line.fecha}</td>
                           <td class="is-num" data-label="HT">{line.ht}</td>
-                          <td class="is-num" data-label="USD / HT">{line.unitPrice}</td>
-                          <td class="is-num is-strong" data-label="Subtotal">{line.subtotal}</td>
+                          <td class="is-num is-strong" data-label="Subtotal">
+                            <span class="se-det-amount">
+                              {line.subtotal}
+                              <span class="se-det-unit">USD {line.unitPrice} / HT</span>
+                            </span>
+                          </td>
                           <td data-label="Estado">
-                            <span class={line.estadoClass}>{line.estado}</span>
-                            <template if:true={line.hasFactura}>
-                              <button type="button" class="se-det-factura" data-id={line.id} onclick={handleDetalleFactura}>Ver factura</button>
-                            </template>
+                            <span class="se-det-cell">
+                              <c-se-badge label={line.estado} tone={line.estadoTone}></c-se-badge>
+                              <template if:true={line.hasFactura}>
+                                <button type="button" class="se-det-factura" data-id={line.id} onclick={handleDetalleFactura}>Ver factura</button>
+                              </template>
+                            </span>
                           </td>
                           <td data-label="Licencia">
                             <template if:true={line.licencia}>
-                              <span class="se-det-licencia is-ok">{line.licencia}</span>
+                              <c-se-badge label={line.licencia} tone="ok"></c-se-badge>
                             </template>
                             <template if:true={line.sinLicencia}>
-                              <span class="se-det-licencia is-warn">Sin licencia</span>
+                              <c-se-badge label="Sin licencia" tone="warn"></c-se-badge>
                             </template>
                           </td>
                         </tr>

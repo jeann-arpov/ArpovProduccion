@@ -38,6 +38,13 @@ import {
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
 const FECHA_INICIO_STINE_DEFAULT = '2026-09-21';
+const DETALLE_ESTADO_TONE = {
+    Facturable: 'ok',
+    Facturada: 'ok',
+    Pendiente: 'warn',
+    Anulada: 'danger',
+    Rechazada: 'danger'
+};
 const FECHA_FIN_STINE_DEFAULT = '2026-10-31';
 
 /** BASF/Credenz solo trae un <symbol> en el SVG (no se ve en <img>) y ACA no tiene SVG. */
@@ -1585,15 +1592,15 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 const unit = Number(rec.Precio_de_Lista__c) || 0;
                 const estado = rec.Estado__c === 'Creada' ? 'En Curso' : rec.Estado__c || '—';
                 const tipo = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c;
-                let estadoClass = 'se-det-estado';
-                if (estado === 'Facturable') estadoClass += ' is-ok';
-                else if (estado === 'Pendiente') estadoClass += ' is-warn';
+                const fecha = rec.Fecha_de_Activacion__c ? this.formatFechaCorta(rec.Fecha_de_Activacion__c) : '';
                 return {
                     id: item.id,
                     name: pbe?.label || rec.Producto__r?.Variedad2__r?.Name || rec.Producto__r?.Name || '—',
-                    biotech: rec.Producto__r?.Variedad2__r?.Biotecnologia__c || '',
-                    tipo: tipo ? `HT ${tipo}` : '—',
-                    fecha: this.formatFechaCorta(rec.Fecha_de_Activacion__c),
+                    meta: [
+                        rec.Producto__r?.Variedad2__r?.Biotecnologia__c,
+                        tipo ? `HT ${tipo}` : '',
+                        fecha ? `Conversión ${fecha}` : ''
+                    ].filter(Boolean).join(' · '),
                     ht: qty.toLocaleString('es-AR', { maximumFractionDigits: 0 }),
                     unitPrice: unit.toLocaleString('es-AR', {
                         minimumFractionDigits: 2,
@@ -1601,7 +1608,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     }),
                     subtotal: this.formatUsd(qty * unit),
                     estado,
-                    estadoClass,
+                    estadoTone: DETALLE_ESTADO_TONE[estado] || 'info',
                     licencia: rec.Licencia__r?.Name || null,
                     sinLicencia: !rec.Licencia__c && rec.Estado__c !== 'Creada',
                     hasFactura: !!item.factura

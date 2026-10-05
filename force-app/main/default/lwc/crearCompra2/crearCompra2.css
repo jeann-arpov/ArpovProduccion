@@ -3435,36 +3435,47 @@ a.c-tooltip {
     vertical-align: middle;
 }
 
-.se-det-biotech {
+@media (min-width: 761px) {
+    .se-det-table th,
+    .se-det-table td {
+        padding: 12px 10px;
+    }
+
+    .se-det-table th:first-child,
+    .se-det-table td:first-child {
+        padding-left: 16px;
+    }
+
+    .se-det-table th:last-child,
+    .se-det-table td:last-child {
+        padding-right: 16px;
+    }
+
+    .se-det-table th,
+    .se-det-table td:not(.is-name) {
+        white-space: nowrap;
+    }
+}
+
+.se-det-var {
+    display: block;
+    white-space: nowrap;
+}
+
+.se-det-meta,
+.se-det-unit {
     display: block;
     margin-top: 2px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     color: #6b7280;
 }
 
-.se-det-estado,
-.se-det-licencia {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-    background: #eef1f7;
-    color: #1c1c1c;
-}
-
-.se-det-estado.is-ok,
-.se-det-licencia.is-ok {
-    background: #ecfccb;
-    color: #3f6212;
-}
-
-.se-det-estado.is-warn,
-.se-det-licencia.is-warn {
-    background: #fef3c7;
-    color: #92400e;
+.se-det-cell {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
 }
 
 .se-det-factura {
@@ -3472,7 +3483,6 @@ a.c-tooltip {
     border: none;
     background: transparent;
     padding: 0;
-    margin-left: 8px;
     font: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -3555,6 +3565,10 @@ a.c-tooltip {
         text-align: left;
         font-size: 15px;
         padding-bottom: 8px;
+    }
+
+    .se-det-cell {
+        align-items: flex-end;
     }
 
     .se-det-table td:not(.is-name)::before {
