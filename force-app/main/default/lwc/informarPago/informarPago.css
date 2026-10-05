@@ -89,12 +89,12 @@ h3,
     gap: 10px;
     margin: 4px 0 14px;
     padding: 12px 14px;
-    background: #f7ffd9;
-    border: 1px solid #bfff00;
+    background: rgba(255, 169, 69, 0.18);
+    border: 1px solid #ffa945;
     border-radius: 10px;
     font-size: 13px;
     line-height: 1.45;
-    color: #1c1c1c;
+    color: #7a4400;
 }
 
 .ip-info-icon {
@@ -102,8 +102,8 @@ h3,
     width: 18px;
     height: 18px;
     border-radius: 999px;
-    background: #1c1c1c;
-    color: #bfff00;
+    background: #ffa945;
+    color: #1c1c1c;
     font-size: 11px;
     font-weight: 800;
     line-height: 18px;

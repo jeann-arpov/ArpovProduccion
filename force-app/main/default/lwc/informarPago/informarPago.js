@@ -10,6 +10,7 @@ import InformarPagoTooltip from '@salesforce/label/c.InformarPago_Tooltip';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {reduceErrors} from 'c/utils'
 import { NavigationMixin } from 'lightning/navigation';
+import { releaseModalLayer, restoreModalLayer } from 'c/seModalLayer';
 
 export default class InformarPago extends NavigationMixin(LightningElement) {
 
@@ -58,6 +59,20 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
 
     get showLegacyModal() {
         return this.showModal && this.isLegacyVariant;
+    }
+
+    renderedCallback() {
+        if (this.showSgModal && !this._modalLayer) {
+            this._modalLayer = releaseModalLayer(this.template.host);
+        } else if (!this.showSgModal && this._modalLayer) {
+            restoreModalLayer(this._modalLayer);
+            this._modalLayer = null;
+        }
+    }
+
+    disconnectedCallback() {
+        restoreModalLayer(this._modalLayer);
+        this._modalLayer = null;
     }
 
     get hasDocs() {
