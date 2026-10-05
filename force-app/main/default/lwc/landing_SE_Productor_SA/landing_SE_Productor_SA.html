@@ -263,6 +263,16 @@
         </div>
     </div>
         </div>
+        <template if:true={showScrollHint}>
+            <div class="home-scroll-hint">
+                <button type="button" class="home-scroll-hint-btn" onclick={handleScrollHint}>
+                    Más cultivos
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6"></path>
+                    </svg>
+                </button>
+            </div>
+        </template>
         <template if:true={loading}>
             <div class="home-veil" role="status" aria-busy="true" aria-label="Cargando">
                 <c-se-brand-loader></c-se-brand-loader>

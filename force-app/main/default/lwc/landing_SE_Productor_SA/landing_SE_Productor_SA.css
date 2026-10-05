@@ -670,6 +670,20 @@
     display: none !important;
 }
 
+.home-scroll-hint {
+    display: none;
+}
+
+@keyframes se-home-hint-nudge {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(3px);
+    }
+}
+
 @media (max-width: 767px) {
     .home {
         padding: 0 16px 28px;
@@ -802,5 +816,55 @@
 
     .home-subhead .home-pill {
         display: none;
+    }
+
+    .home-scroll-hint {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 150;
+        height: 104px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        box-sizing: border-box;
+        background: linear-gradient(
+            to bottom,
+            rgba(238, 241, 247, 0) 0%,
+            rgba(238, 241, 247, 0.85) 55%,
+            #eef1f7 100%
+        );
+        pointer-events: none;
+    }
+
+    .home-scroll-hint-btn {
+        pointer-events: auto;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 999px;
+        background: var(--negro);
+        color: #fff;
+        font-family: 'Roboto', Arial, sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(28, 28, 28, 0.18);
+        cursor: pointer;
+    }
+
+    .home-scroll-hint-btn svg {
+        color: var(--lima);
+        animation: se-home-hint-nudge 1.6s ease-in-out infinite;
+    }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+    .home-scroll-hint-btn svg {
+        animation: none;
     }
 }

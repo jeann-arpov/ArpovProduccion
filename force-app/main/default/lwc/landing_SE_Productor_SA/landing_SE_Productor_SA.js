@@ -27,6 +27,9 @@ const PPH_ESTADO_TONE = {
     Rechazado: 'danger'
 };
 const HOME_CANVAS_STYLE_ID = 'se-home-canvas-override';
+// Topbar fija mobile del portal (56px) + aire.
+const SCROLL_HINT_HEADER_PX = 72;
+const SCROLL_HINT_REVEAL_PX = 120;
 
 const HOME_CANVAS_CSS = `
 html.se-home,
@@ -98,6 +101,8 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
 
     firstName = '';
     loading = true;
+    showScrollHint = false;
+    _scrollHintHandler;
     iconSoja = `${resourcePortal}/resourcePortal/images/prd-soja.svg`;
     iconTrigo = `${resourcePortal}/resourcePortal/images/prd-trigo.svg`;
     iconCebada = `${resourcePortal}/resourcePortal/images/prd-cebada.svg`;
@@ -126,7 +131,21 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
         }
     }
 
+    renderedCallback() {
+        if (!this._scrollHintHandler) {
+            this._scrollHintHandler = () => this.updateScrollHint();
+            window.addEventListener('scroll', this._scrollHintHandler, { passive: true });
+            window.addEventListener('resize', this._scrollHintHandler, { passive: true });
+        }
+        this.updateScrollHint();
+    }
+
     disconnectedCallback() {
+        if (this._scrollHintHandler) {
+            window.removeEventListener('scroll', this._scrollHintHandler);
+            window.removeEventListener('resize', this._scrollHintHandler);
+            this._scrollHintHandler = null;
+        }
         document.documentElement.classList.remove('se-home');
         document.body.classList.remove('se-home');
         const styleEl = document.getElementById(HOME_CANVAS_STYLE_ID);
@@ -293,6 +312,30 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
 
     get filtersSheetClass() {
         return 'home-filters-sheet' + (this.filterOpen ? '' : ' is-hidden');
+    }
+
+    updateScrollHint() {
+        let show = false;
+        if (!this.loading && !this.filterOpen && window.innerWidth <= 767) {
+            const cards = this.template.querySelectorAll('.home-crop');
+            if (cards.length > 1) {
+                const lastTop = cards[cards.length - 1].getBoundingClientRect().top;
+                show = lastTop > window.innerHeight - SCROLL_HINT_REVEAL_PX;
+            }
+        }
+        if (show !== this.showScrollHint) this.showScrollHint = show;
+    }
+
+    handleScrollHint() {
+        const cards = this.template.querySelectorAll('.home-crop');
+        const next = Array.from(cards).find(
+            (el) => el.getBoundingClientRect().top > SCROLL_HINT_HEADER_PX + 8
+        );
+        if (!next) return;
+        window.scrollBy({
+            top: next.getBoundingClientRect().top - SCROLL_HINT_HEADER_PX,
+            behavior: 'smooth'
+        });
     }
 
     toggleFilters() {
