@@ -309,27 +309,37 @@ body.se-chrome.se-inner c-se-footer-contact {
   min-height: 0 !important;
 }
 
-/* Modal método de pago (crearCompra2): bloquear scroll del portal */
-html.se-pay-modal-open,
-body.se-pay-modal-open {
-  overflow: hidden !important;
-  height: 100% !important;
-}
-
-body.se-pay-modal-open #ServiceCommunityTemplate,
-body.se-pay-modal-open .siteforceServiceBody,
-body.se-pay-modal-open .cViewPanel.siteforceServiceBody,
-body.se-pay-modal-open .cCenterPanel,
-body.se-pay-modal-open [role="main"].cCenterPanel {
+/* Modales del portal (c/seModalLayer): bloquear scroll sin tocar alturas ni overflow de los
+   paneles; si no, el centro se achica al viewport y el footer salta sobre el contenido. */
+html.se-modal-open,
+body.se-modal-open {
   overflow: hidden !important;
 }
 
 /* Overlay de modales sobre header y footer (z-index 200): sin stacking context en el contenido */
-body.se-pay-modal-open .cCenterPanel,
-body.se-pay-modal-open [role="main"].cCenterPanel,
-body.se-pay-modal-open .cCenterPanel .siteforceContentArea,
-body.se-pay-modal-open .cCenterPanel .comm-page-content {
+body.se-modal-open .cCenterPanel,
+body.se-modal-open [role="main"].cCenterPanel,
+body.se-modal-open .cCenterPanel .siteforceContentArea,
+body.se-modal-open .cCenterPanel .comm-page-content {
   z-index: auto !important;
+}
+
+/* Fallback: si un contenedor del theme sigue atrapando el overlay, header y footer se oscurecen
+   con el mismo scrim del modal y no reciben clics. */
+body.se-chrome.se-inner.se-modal-open #footer.cFooterPanel,
+body.se-chrome.se-inner.se-modal-open .cFooterPanel,
+body.se-modal-open #footer.cFooterPanel,
+body.se-modal-open .cFooterPanel {
+  position: relative !important;
+}
+
+body.se-modal-open .cFooterPanel::after,
+body.se-modal-open c-header-componente-sembra-evolucion::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(28, 28, 28, 0.6);
 }
 
 /* Columnas vacías del one-col layout */

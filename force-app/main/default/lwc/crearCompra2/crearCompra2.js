@@ -35,7 +35,7 @@ import {
     buildHtCompraConfirmadaParams
 } from 'c/portalGa4Events';
 import { compraEstadoLabel, compraEstadoTone } from 'c/seCompraEstado';
-import { releaseModalLayer, restoreModalLayer } from 'c/seModalLayer';
+import { lockPortalModal, unlockPortalModal, fitFixedLayer } from 'c/seModalLayer';
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
@@ -116,7 +116,6 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     showTipoPagoSheet = false;
     selectedTipoPago = 'Contado';
     _payModalScrollLocked = false;
-    _payModalScrollY = 0;
     pendingFinalizar = false; // para reintentar
     pendingFinalizarPorExpediente = false;
     shouldMarkRevisarCompra = false;
@@ -1808,6 +1807,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             this.initialized = true;
         }
         this.syncPayModalScrollLock();
+        if (this._payModalScrollLocked) this.fitModalLayers();
     }
 
     syncPayModalScrollLock() {
@@ -1823,39 +1823,22 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     lockPayModalScroll() {
-        if (typeof window === 'undefined' || typeof document === 'undefined') {
-            return;
-        }
-        this._payModalScrollY =
-            window.scrollY || document.documentElement.scrollTop || 0;
-        document.documentElement.classList.add('se-pay-modal-open');
-        document.body.classList.add('se-pay-modal-open');
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${this._payModalScrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.width = '100%';
-        this._modalLayer = releaseModalLayer(this.template.host);
+        this._modalLock = lockPortalModal(this.template.host, () => this.fitModalLayers());
         this._payModalScrollLocked = true;
     }
 
     unlockPayModalScroll() {
-        if (typeof document === 'undefined') {
-            return;
-        }
-        restoreModalLayer(this._modalLayer);
-        this._modalLayer = null;
-        document.documentElement.classList.remove('se-pay-modal-open');
-        document.body.classList.remove('se-pay-modal-open');
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.width = '';
-        if (typeof window !== 'undefined') {
-            window.scrollTo(0, this._payModalScrollY || 0);
+        if (this._modalLock) {
+            unlockPortalModal(this._modalLock);
+            this._modalLock = null;
         }
         this._payModalScrollLocked = false;
+    }
+
+    fitModalLayers() {
+        this.template
+            .querySelectorAll('.se-pay-sheet-wrap, .se-result-wrap')
+            .forEach((el) => fitFixedLayer(el));
     }
 
     collectPromoLineData() {

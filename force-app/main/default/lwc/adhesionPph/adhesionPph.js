@@ -9,6 +9,8 @@ import rectificarAdhesion2 from "@salesforce/apex/AdhesionPPH.rectificarAdhesion
 import { reduceErrors } from "c/utils";
 import { trackGa4Event, trackErrorFuncional } from "c/portalGa4Events";
 import { PAGES, goToCommunityPage } from "c/seNav";
+import { lockPortalModal, unlockPortalModal, fitFixedLayer } from "c/seModalLayer";
+import recibidaLabel from "@salesforce/label/c.PPH_Mensaje_Recibida";
 
 const TOAST_MS = 8000;
 const TITULO_ADHESION = "Adhesión al Programa de Precertificación de Hectáreas (PPH)";
@@ -34,6 +36,7 @@ export default class AdhesionPph extends LightningElement {
   account;
   currentModal;
   plan;
+  recibidaLabel = recibidaLabel;
   doContinue = false;
   modalCallback;
   hiding = {};
@@ -55,10 +58,26 @@ export default class AdhesionPph extends LightningElement {
     }
   }
 
+  renderedCallback() {
+    if (this.showModal && !this._modalLock) {
+      this._modalLock = lockPortalModal(this.template.host, () => this.fitModalLayer());
+    } else if (!this.showModal && this._modalLock) {
+      unlockPortalModal(this._modalLock);
+      this._modalLock = null;
+    }
+    if (this._modalLock) this.fitModalLayer();
+  }
+
   disconnectedCallback() {
+    unlockPortalModal(this._modalLock);
+    this._modalLock = null;
     document.documentElement.classList.remove("se-inner");
     document.body.classList.remove("se-inner");
     clearTimeout(this.toastTimer);
+  }
+
+  fitModalLayer() {
+    fitFixedLayer(this.template.querySelector(".p-layer"));
   }
 
   async init() {
@@ -308,6 +327,10 @@ export default class AdhesionPph extends LightningElement {
   closeModal() {
     this.currentModal = null;
     this.modalCallback = null;
+    if (this._modalLock) {
+      unlockPortalModal(this._modalLock);
+      this._modalLock = null;
+    }
   }
 
   executeModal() {

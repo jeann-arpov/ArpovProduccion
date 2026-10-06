@@ -10,7 +10,7 @@ import InformarPagoTooltip from '@salesforce/label/c.InformarPago_Tooltip';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {reduceErrors} from 'c/utils'
 import { NavigationMixin } from 'lightning/navigation';
-import { releaseModalLayer, restoreModalLayer } from 'c/seModalLayer';
+import { lockPortalModal, unlockPortalModal, fitFixedLayer } from 'c/seModalLayer';
 
 export default class InformarPago extends NavigationMixin(LightningElement) {
 
@@ -62,17 +62,22 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     }
 
     renderedCallback() {
-        if (this.showSgModal && !this._modalLayer) {
-            this._modalLayer = releaseModalLayer(this.template.host);
-        } else if (!this.showSgModal && this._modalLayer) {
-            restoreModalLayer(this._modalLayer);
-            this._modalLayer = null;
+        if (this.showSgModal && !this._modalLock) {
+            this._modalLock = lockPortalModal(this.template.host, () => this.fitModalLayer());
+        } else if (!this.showSgModal && this._modalLock) {
+            unlockPortalModal(this._modalLock);
+            this._modalLock = null;
         }
+        if (this._modalLock) this.fitModalLayer();
     }
 
     disconnectedCallback() {
-        restoreModalLayer(this._modalLayer);
-        this._modalLayer = null;
+        unlockPortalModal(this._modalLock);
+        this._modalLock = null;
+    }
+
+    fitModalLayer() {
+        fitFixedLayer(this.template.querySelector('.ip-scrim'));
     }
 
     get hasDocs() {
