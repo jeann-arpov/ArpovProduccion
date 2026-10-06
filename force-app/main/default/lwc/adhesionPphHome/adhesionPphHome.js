@@ -1,8 +1,6 @@
 import { LightningElement } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import getLoadData from "@salesforce/apex/AdhesionPPHHome.getLoadData";
-import rectificarAdhesion from "@salesforce/apex/AdhesionPPH.rectificarAdhesion";
-import rectificarAdhesion2 from "@salesforce/apex/AdhesionPPH.rectificarAdhesion2";
 
 import { errorEvent } from "c/utils";
 import { trackGa4Event } from "c/portalGa4Events";
@@ -43,6 +41,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
           wParam.estadoWrapperClass = wParam.showRectificacionInfo
             ? "estado-tooltip"
             : "estado-wrapper";
+          wParam.canRectificar = this.getCanRectificar(wParam);
           wParam.disableAction = this.getDisableAction(wParam);
           this.parametros.push(wParam);
         });
@@ -74,6 +73,22 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
       }
     }
     return disable;
+  }
+
+  getCanRectificar(wParam) {
+    const estado = wParam.planSiembra?.Estado__c;
+    if (estado !== "Adherido" && estado !== "En Revisión") {
+      return false;
+    }
+    const hoy = new Date();
+    const inicio = wParam.parametro.Fecha_Inicio_Rectificacion_1__c;
+    const fin = wParam.parametro.Fecha_Fin_Rectificacion_1__c;
+    return (
+      inicio != null &&
+      fin != null &&
+      hoy >= new Date(inicio) &&
+      hoy <= new Date(fin)
+    );
   }
 
   getLocaleDateString(date) {
@@ -157,6 +172,11 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
       estadoClass = "vencido";
     }
     return estadoClass;
+  }
+
+  rectificar(event) {
+    const paramId = event.target.dataset.param;
+    this.redirectToParam(paramId);
   }
 
   redirectToParam(paramId) {

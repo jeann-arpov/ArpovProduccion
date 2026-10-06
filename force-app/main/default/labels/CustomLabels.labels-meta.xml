@@ -791,6 +791,15 @@
     >El plan debe encontrarse en estado en preparación o rectificado</value>
     </labels>
     <labels>
+        <fullName>PPH_Plan_Estado_No_Rectificable</fullName>
+        <categories>AdhesionPPH</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion PPH</shortDescription>
+        <value
+    >El plan de siembra no se encuentra en un estado que permita rectificar</value>
+    </labels>
+    <labels>
         <fullName>PPH_Establecimiento_Duplicado</fullName>
         <categories>AdhesionPPH</categories>
         <language>es</language>

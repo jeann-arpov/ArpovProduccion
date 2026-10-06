@@ -414,6 +414,16 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     return plan;
   }
 
+  private static void validateEstadoRectificable(Plan_de_siembra__c plan) {
+    Set<String> estadosPermitidos = new Set<String>{
+      'Adherido',
+      'En Revisión'
+    };
+    if (plan.Estado__c == null || !estadosPermitidos.contains(plan.Estado__c)) {
+      throw new AuraHandledException(Label.PPH_Plan_Estado_No_Rectificable);
+    }
+  }
+
   @AuraEnabled
   public static Id rectificarAdhesion(Id planId) {
     Plan_de_siembra__c plan = (Plan_de_siembra__c) Database.query(
@@ -424,6 +434,8 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
       FROM Parametro_PPH__c
       WHERE id = :plan.Parametro_PPH__c
     ];
+
+    validateEstadoRectificable(plan);
 
     if (parametro.Fecha_Inicio_Rectificacion_1__c < System.now() == false)
       throw new AuraHandledException(
@@ -453,6 +465,8 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
       FROM Parametro_PPH__c
       WHERE id = :plan.Parametro_PPH__c
     ];
+
+    validateEstadoRectificable(plan);
 
     if (parametro.Fecha_Inicio_Rectificacion_2__c < System.now() == false)
       throw new AuraHandledException(
