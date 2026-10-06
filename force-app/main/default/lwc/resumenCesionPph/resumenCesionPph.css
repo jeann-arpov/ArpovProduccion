@@ -121,11 +121,16 @@ h3,
     color: #6b7280;
 }
 
+.se-resumen-dest-copy {
+    min-width: 0;
+}
+
 .se-resumen-dest-name {
     margin: 0;
     font-size: 16px;
     font-weight: 800;
     line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
 .se-resumen-dest-cuit {

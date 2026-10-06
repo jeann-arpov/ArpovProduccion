@@ -10,7 +10,7 @@ import CONTACT_ID_FIELD from '@salesforce/schema/User.ContactId';
 import PROFILE_NAME_FIELD from '@salesforce/schema/User.Profile.Name';
 import ACCOUNT_NAME_FIELD from '@salesforce/schema/Contact.Account.Name';
 import COMERCIO_URL from '@salesforce/label/c.ComercioCommunityUrl';
-import { PAGES, goToCommunityPage, isPageActive, communityPageUrl } from 'c/seNav';
+import { PAGES, goToCommunityPage, isPageActive, communityPageUrl, pageTitle } from 'c/seNav';
 
 export default class HeaderComponenteSembraEvolucion extends NavigationMixin(LightningElement) {
     userId = USER_ID;
@@ -36,11 +36,25 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
 
     syncCurrentPath = () => {
         this.currentPath = window.location.pathname;
+        this.applyDocumentTitle();
         // eslint-disable-next-line @lwc/lwc/no-async-operation
         setTimeout(() => {
             this.currentPath = window.location.pathname;
+            this.applyDocumentTitle();
         }, 0);
+        // Aura reescribe el título con el de la página del Builder después de navegar.
+        [400, 1500].forEach((ms) => {
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            setTimeout(() => this.applyDocumentTitle(), ms);
+        });
     };
+
+    applyDocumentTitle() {
+        const title = pageTitle(window.location.pathname);
+        if (title && document.title !== title) {
+            document.title = title;
+        }
+    }
 
     @track navItems = [
         { id: 'home', label: 'Home', url: PAGES.home, hasSubmenu: false },

@@ -91,7 +91,7 @@ export default class ResumenCesionPph extends NavigationMixin(LightningElement) 
                     };
                 });
             dest.collapsed = this.collapsed[e.id] === true;
-            dest.canEdit = e.record.Estado__c == 'En Curso' || e.record.Estado__c == 'Pendiente de Validación';
+            dest.canEdit = e.record.Estado__c == 'En Curso' && this.info.cesion.Estado__c != 'Pendiente de Validación';
             dest.enCurso = e.record.Estado__c == 'En Curso';
             return dest;
         });

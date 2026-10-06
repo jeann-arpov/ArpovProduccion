@@ -60,10 +60,33 @@ export function isPageActive(page, pathname = window.location.pathname) {
     return segment === key || (PAGE_ALIASES[page] || []).includes(segment);
 }
 
+const SITE_TITLE = 'Sembrá Evolución';
+
+const PAGE_TITLES = {
+    [PAGES.home]: 'Inicio',
+    [PAGES.licencias]: 'Licencias',
+    [PAGES.movimientos]: 'Movimientos HT',
+    [PAGES.comprar]: 'Comprar HT',
+    [PAGES.misCompras]: 'Mis compras',
+    [PAGES.facturas]: 'Facturación',
+    [PAGES.pph]: 'Precertificación',
+    [PAGES.establecimientos]: 'Mis establecimientos',
+    [PAGES.granaria]: 'Cuenta Granaria',
+    [PAGES.cesiones]: 'Cesiones',
+    [PAGES.perfil]: 'Editar perfil'
+};
+
+/** Título de pestaña "<Pantalla> · Sembrá Evolución"; null si la página no está mapeada. */
+export function pageTitle(pathname = window.location.pathname) {
+    const page = Object.keys(PAGE_TITLES).find((key) => isPageActive(key, pathname));
+    return page === undefined ? null : `${PAGE_TITLES[page]} · ${SITE_TITLE}`;
+}
+
 export default {
     PAGES,
     communityHomeUrl,
     communityPageUrl,
     goToCommunityPage,
-    isPageActive
+    isPageActive,
+    pageTitle
 };

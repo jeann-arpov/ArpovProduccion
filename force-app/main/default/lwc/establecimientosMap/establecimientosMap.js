@@ -247,7 +247,7 @@ export default class EstablecimientosMap extends LightningElement {
             }
             this.saving = false;
             this.newOpen = false;
-            this.mensaje = result || 'Nuevo establecimiento creado con éxito';
+            this.mensaje = 'Nuevo establecimiento creado con éxito';
             this.successOpen = true;
             this.syncBodyLock();
             this.dispatchEvent(new CustomEvent('saved'));
