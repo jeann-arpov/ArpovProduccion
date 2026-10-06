@@ -64,7 +64,25 @@
                                             <a class="link" href={cell.mailtoHref}>{cell.value}</a>
                                         </template>
                                         <template if:true={cell.isBadge}>
-                                            <c-se-badge label={cell.value} tone={cell.badgeTone} show-dot></c-se-badge>
+                                            <span class="badge-cell">
+                                                <c-se-badge label={cell.value} tone={cell.badgeTone} show-dot></c-se-badge>
+                                                <template if:true={row.badgeHint}>
+                                                    <span
+                                                        class="tipwrap"
+                                                        tabindex="0"
+                                                        role="button"
+                                                        aria-label={row.badgeHint}
+                                                        data-hint={row.badgeHint}
+                                                        onmouseenter={handleHintShow}
+                                                        onfocus={handleHintShow}
+                                                        onclick={handleHintShow}
+                                                        onmouseleave={handleHintHide}
+                                                        onblur={handleHintHide}
+                                                    >
+                                                        <span class="info-i" aria-hidden="true">i</span>
+                                                    </span>
+                                                </template>
+                                            </span>
                                         </template>
                                         <template if:true={cell.isAction}>
                                             <template if:true={row.showSecondary}>
@@ -104,7 +122,25 @@
                     <article class="lic-card" key={row.mobileKey}>
                         <div class="lic-head">
                             <span class="lic-code">{row.title}</span>
-                            <c-se-badge label={row.badgeLabel} tone={row.badgeTone} show-dot></c-se-badge>
+                            <span class="badge-cell">
+                                <c-se-badge label={row.badgeLabel} tone={row.badgeTone} show-dot></c-se-badge>
+                                <template if:true={row.badgeHint}>
+                                    <span
+                                        class="tipwrap"
+                                        tabindex="0"
+                                        role="button"
+                                        aria-label={row.badgeHint}
+                                        data-hint={row.badgeHint}
+                                        onmouseenter={handleHintShow}
+                                        onfocus={handleHintShow}
+                                        onclick={handleHintShow}
+                                        onmouseleave={handleHintHide}
+                                        onblur={handleHintHide}
+                                    >
+                                        <span class="info-i" aria-hidden="true">i</span>
+                                    </span>
+                                </template>
+                            </span>
                         </div>
                         <div class="lic-grid">
                             <template for:each={row.fields} for:item="field">
@@ -146,6 +182,10 @@
                 onprevious={handlePrev}
                 onnext={handleNext}
             ></c-se-pager>
+        </template>
+
+        <template if:true={hintText}>
+            <span class="tip" role="tooltip" style={hintStyle}>{hintText}</span>
         </template>
     </div>
 </template>

@@ -12,13 +12,6 @@
 
         <c-se-filter-pills slot="toolbar" items={statusPills} onselect={handlePill}></c-se-filter-pills>
 
-        <template if:true={hasPagoInformado}>
-            <div class="mf-notice" role="note">
-                <span class="mf-notice-icon" aria-hidden="true">i</span>
-                <span>{pagoInformadoTooltip}</span>
-            </div>
-        </template>
-
         <template if:true={showCultivoResumen}>
             <c-se-cultivo-resumen
                 cultivos={cultivoOptions}
@@ -36,6 +29,7 @@
                     title-field="numero"
                     badge-field="statusLabel"
                     badge-tone-field="statusTone"
+                    badge-hint-field="statusHint"
                     key-field="uniqueId"
                     action-label="Ver"
                     mobile-action-label="Ver documentos →"
@@ -59,6 +53,7 @@
                 title-field="numero"
                 badge-field="statusLabel"
                 badge-tone-field="statusTone"
+                badge-hint-field="statusHint"
                 key-field="uniqueId"
                 action-label="Ver"
                 mobile-action-label="Ver documentos →"

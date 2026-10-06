@@ -770,10 +770,12 @@ h3,
 }
 
 .se-resumen-total-value {
+    min-width: 0;
     font-weight: 800;
     font-size: 22px;
     color: #bfff00;
     text-align: right;
+    overflow-wrap: anywhere;
 }
 
 .se-confirm-table-wrap {
@@ -901,11 +903,13 @@ h3,
 }
 
 .se-confirm-hero-total {
+    min-width: 0;
     font-weight: 800;
     font-size: 28px;
     line-height: 1.1;
     color: #bfff00;
     text-align: right;
+    overflow-wrap: anywhere;
 }
 
 .se-confirm-hero-list {
@@ -926,9 +930,11 @@ h3,
 }
 
 .se-confirm-hero-row dd {
+    min-width: 0;
     margin: 0;
     font-weight: 600;
     text-align: right;
+    overflow-wrap: anywhere;
 }
 
 .se-confirm-detail-title {
@@ -1441,6 +1447,7 @@ h3,
 }
 
 .se-resumen-row dt {
+    flex-shrink: 0;
     margin: 0;
     font-size: 13px;
     font-weight: 600;
@@ -1448,11 +1455,13 @@ h3,
 }
 
 .se-resumen-row dd {
+    min-width: 0;
     margin: 0;
     font-size: 14px;
     font-weight: 700;
     color: #fff;
     text-align: right;
+    overflow-wrap: anywhere;
 }
 
 .se-resumen-total {

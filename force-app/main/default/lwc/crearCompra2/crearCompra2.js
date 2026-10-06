@@ -41,6 +41,7 @@ import { lockPortalModal, unlockPortalModal, fitFixedLayer } from 'c/seModalLaye
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
 const FECHA_INICIO_STINE_DEFAULT = '2026-09-21';
 const FECHA_FIN_STINE_DEFAULT = '2026-10-31';
+const MAX_HT_POR_VARIEDAD = 999999;
 
 /** BASF/Credenz solo trae un <symbol> en el SVG (no se ve en <img>) y ACA no tiene SVG. */
 const SEMILLEROS_LOGO_JPG = ['77', '26'];
@@ -1348,7 +1349,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     setVariedadCantidad(id, rawValue) {
-        const next = Math.max(0, Math.floor(Number(rawValue) || 0));
+        const next = Math.min(MAX_HT_POR_VARIEDAD, Math.max(0, Math.floor(Number(rawValue) || 0)));
         this.variedadCantidades = { ...this.variedadCantidades, [id]: next };
     }
 

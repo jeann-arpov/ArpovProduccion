@@ -178,6 +178,9 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
                 vencimiento.conceptoLine = `${vencimiento.concepto} · ${vencimiento.cultivoLabel}`;
                 vencimiento.statusLabel = status.label;
                 vencimiento.statusTone = status.tone;
+                vencimiento.statusHint = vencimiento.pagoInformado === true && !isPagada(vencimiento.oppStage)
+                    ? this.pagoInformadoTooltip
+                    : '';
                 vencimiento.actionDisabled = vencimiento.disableVerFactura && !vencimiento.opportunityId;
                 vencimiento.bucket = status.bucket;
                 return vencimiento;
@@ -228,10 +231,6 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
         this.selectedCultivoId = event.detail?.value;
         this.applyFilters();
         this.loadCultivoSummary();
-    }
-
-    get hasPagoInformado() {
-        return this.vencimientos.some((row) => row.pagoInformado === true);
     }
 
     get hasAdjuntos() {

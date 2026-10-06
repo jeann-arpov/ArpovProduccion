@@ -6,7 +6,7 @@ import apexLoginWithPassword from '@salesforce/apex/RegisterCommunityController.
 import getUrlLogoSE from '@salesforce/apex/RegisterCommunityController.getUrlLogoSE';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import seLogoUrl from '@salesforce/resourceUrl/seLogoPngOscuro';
-import geneticaIconUrl from '@salesforce/resourceUrl/seIconGenetica';
+import geneticaIconUrl from '@salesforce/resourceUrl/seIconGeneticaBiotecnologia';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import sitePath from '@salesforce/community/basePath';
 import { reduceErrors, normalizeCuit, formatCuit } from 'c/utils';

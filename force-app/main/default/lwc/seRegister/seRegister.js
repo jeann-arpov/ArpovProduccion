@@ -5,7 +5,7 @@ import confirmUserCreation from '@salesforce/apex/RegisterCommunityController.co
 import doCreateUser from '@salesforce/apex/RegisterCommunityController.doCreateUser';
 import backgroundUrl from '@salesforce/resourceUrl/LoginSiembraEvolucion';
 import seLogoUrl from '@salesforce/resourceUrl/seLogoPngOscuro';
-import geneticaIconUrl from '@salesforce/resourceUrl/seIconGenetica';
+import geneticaIconUrl from '@salesforce/resourceUrl/seIconGeneticaBiotecnologia';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import sitePath from '@salesforce/community/basePath';
 import { reduceErrors, normalizeCuit, formatCuit } from 'c/utils';

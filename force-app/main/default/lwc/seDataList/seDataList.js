@@ -31,12 +31,21 @@ export default class SeDataList extends LightningElement {
     @api secondaryActionLabel = '';
     /** Campo booleano por fila que habilita la acción secundaria. */
     @api secondaryActionField = '';
+    /** Campo por fila con texto de ayuda; si tiene valor se muestra un (i) con tooltip junto al badge. */
+    @api badgeHintField = '';
     /** Rows per page. 0 = show all, no pager (default). */
     @api pageSize = 0;
     @api loading = false;
 
     _records = [];
     @track currentPage = 1;
+    hintText = '';
+    hintStyle = '';
+    _hideHintOnScroll = () => this.handleHintHide();
+
+    disconnectedCallback() {
+        window.removeEventListener('scroll', this._hideHintOnScroll, true);
+    }
 
     @api
     get records() {
@@ -128,6 +137,7 @@ export default class SeDataList extends LightningElement {
                 title: record[this.titleField],
                 badgeLabel: record[this.badgeField],
                 badgeTone: tone,
+                badgeHint: this.badgeHintField ? String(record[this.badgeHintField] || '').trim() : '',
                 actionDisabled,
                 showDisabledMessage,
                 disabledMessage,
@@ -225,6 +235,27 @@ export default class SeDataList extends LightningElement {
         if (this.currentPage * this.resolvedPageSize < this._records.length) {
             this.currentPage += 1;
         }
+    }
+
+    // El tooltip va con position: fixed porque .table-wrap recorta el overflow.
+    handleHintShow(event) {
+        const target = event.currentTarget;
+        const rect = target.getBoundingClientRect();
+        const tipWidth = Math.min(272, window.innerWidth * 0.7);
+        const center = rect.left + rect.width / 2;
+        const left = Math.max(8, Math.min(center - tipWidth / 2, window.innerWidth - tipWidth - 8));
+        const openUp = rect.bottom + 140 > window.innerHeight;
+        const vertical = openUp
+            ? `bottom:${Math.round(window.innerHeight - rect.top + 10)}px`
+            : `top:${Math.round(rect.bottom + 10)}px`;
+        this.hintStyle = `${vertical};left:${Math.round(left)}px;width:${Math.round(tipWidth)}px`;
+        this.hintText = target.dataset.hint || '';
+        window.addEventListener('scroll', this._hideHintOnScroll, true);
+    }
+
+    handleHintHide() {
+        this.hintText = '';
+        window.removeEventListener('scroll', this._hideHintOnScroll, true);
     }
 
     handleOpen(event) {
