@@ -29,12 +29,15 @@
                 </aside>
 
                 <section class="se-login-card se-login-card--register registration-form">
-                    <div class="se-login-card-body">
+                    <form class="se-login-card-body" onsubmit={handleSubmit} novalidate>
                         <template if:true={showLogo}>
                             <div class="se-login-logo-wrap">
                                 <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
                             </div>
                         </template>
+                        <p class="se-login-tagline se-mob-only">Donde tenés que estar.</p>
+
+                        <h1 class="se-login-title se-mob-only">Creá tu cuenta</h1>
 
                         <template if:true={message}>
                             <div class={messageBannerClass} role="alert">
@@ -51,7 +54,7 @@
                         </template>
 
                         <div class={cuitFieldClass}>
-                            <label class="se-fl-label" for="register-cuit">CUIT sin guiones (-)</label>
+                            <label class="se-fl-label" for="register-cuit">CUIT</label>
                             <input
                                 id="register-cuit"
                                 class="se-fl-input"
@@ -60,6 +63,7 @@
                                 inputmode="numeric"
                                 maxlength="13"
                                 value={cuitFormatted}
+                                aria-invalid={cuitInvalid}
                                 oninput={handleCuitInput}
                                 onblur={handleCuitBlur}
                                 onkeydown={handleCuitKeydown}
@@ -191,7 +195,7 @@
                                     type="button"
                                     class="se-password-toggle"
                                     onclick={togglePasswordVisibility}
-                                    aria-label="Mostrar contraseña"
+                                    aria-label={passwordToggleLabel}
                                 >
                                     <lightning-icon icon-name={passwordToggleIcon} size="x-small"></lightning-icon>
                                 </button>
@@ -225,7 +229,7 @@
                                     type="button"
                                     class="se-password-toggle"
                                     onclick={togglePasswordConfirmVisibility}
-                                    aria-label="Mostrar confirmación de contraseña"
+                                    aria-label={passwordConfirmToggleLabel}
                                 >
                                     <lightning-icon icon-name={passwordConfirmToggleIcon} size="x-small"></lightning-icon>
                                 </button>
@@ -236,21 +240,29 @@
                         </template>
 
                         <button
-                            type="button"
+                            type="submit"
                             class="se-btn se-btn-primary se-login-submit"
-                            onclick={register}
                             disabled={showSpinner}
                         >
                             Registrarse
                         </button>
+                    </form>
 
-                        <p class="se-login-register">
+                    <div class="se-login-card-foot se-desk-only">
+                        <p class="se-login-foot-text">
                             ¿Ya tenés cuenta?
                             <button type="button" class="se-login-link se-login-link--strong" onclick={goToLogin}>
-                                Logueate
+                                Ingresá
                             </button>
                         </p>
                     </div>
+
+                    <p class="se-login-register se-mob-only">
+                        ¿Ya tenés cuenta?
+                        <button type="button" class="se-login-link se-login-link--strong" onclick={goToLogin}>
+                            Hacé clic acá
+                        </button>
+                    </p>
                 </section>
             </div>
         </template>
@@ -258,7 +270,7 @@
         <template if:true={identifier}>
             <div class="se-login-shell se-login-shell--confirm">
                 <section class="se-login-card confirmation-form">
-                    <div class="se-login-card-body">
+                    <form class="se-login-card-body" onsubmit={handleSubmit} novalidate>
                         <template if:true={showLogo}>
                             <div class="se-login-logo-wrap">
                                 <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
@@ -293,16 +305,15 @@
                         </template>
 
                         <button
-                            type="button"
+                            type="submit"
                             class="se-btn se-btn-primary se-login-submit"
-                            onclick={confirm}
                             disabled={showSpinner}
                         >
                             Enviar
                         </button>
 
                         <button type="button" class="se-login-cancel" onclick={cancel}>Cancelar</button>
-                    </div>
+                    </form>
                 </section>
             </div>
         </template>

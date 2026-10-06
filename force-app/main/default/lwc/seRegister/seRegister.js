@@ -53,7 +53,7 @@ export default class SeRegister extends LightningElement {
     }
 
     get isProductorPortal() {
-        return this.sitePath.includes('PortalArPOV');
+        return true;
     }
 
     get isPortalArpov() {
@@ -119,6 +119,18 @@ export default class SeRegister extends LightningElement {
 
     get passwordConfirmToggleIcon() {
         return this.showPasswordConfirm ? 'utility:hide' : 'utility:preview';
+    }
+
+    get passwordToggleLabel() {
+        return this.showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña';
+    }
+
+    get passwordConfirmToggleLabel() {
+        return this.showPasswordConfirm ? 'Ocultar confirmación de contraseña' : 'Mostrar confirmación de contraseña';
+    }
+
+    get cuitInvalid() {
+        return Boolean(this.cuitError || this.fieldErrors.cuit);
     }
 
     get helpTooltipClass() {
@@ -371,6 +383,15 @@ export default class SeRegister extends LightningElement {
         }
         this.clearFieldError('code');
         return true;
+    }
+
+    handleSubmit(event) {
+        event?.preventDefault();
+        if (this.identifier) {
+            this.confirm();
+        } else {
+            this.register();
+        }
     }
 
     async register() {
