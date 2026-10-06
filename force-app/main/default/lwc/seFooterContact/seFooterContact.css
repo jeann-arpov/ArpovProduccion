@@ -57,6 +57,10 @@
 }
 
 .contact-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
   background-color: #bfff00;
   color: #1c1c1c;
   border: none;
@@ -119,20 +123,11 @@
   background: transparent;
 }
 
-.contact-button .icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin-right: 6px;
-  line-height: 0;
-}
-
-.contact-button .icon-svg {
-  background: transparent;
-  mix-blend-mode: multiply;
+.wa-icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  fill: #1c1c1c;
 }
 
 @media (max-width: 767px) {

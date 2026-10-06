@@ -213,7 +213,14 @@ export default class AdhesionPph extends LightningElement {
   get status() {
     if (!this.isResumen || !this.plan) return null;
     const conf = STATUS[this.plan.Estado__c] || STATUS["En Revisión"];
-    return { label: conf.label, className: `p-status p-status-${conf.tone}` };
+    const label = this.isRectificacion
+      ? conf.label.replace("solicitud de adhesión", "solicitud de rectificación")
+      : conf.label;
+    return { label, className: `p-status p-status-${conf.tone}` };
+  }
+
+  get isRectificacion() {
+    return this.plan?.Version__c === "Rectificado" || this.plan?.Estado__c === "Rectificado";
   }
 
   get showAddButton() {

@@ -1,10 +1,7 @@
 import { LightningElement, wire } from "lwc";
-import logows from "@salesforce/resourceUrl/logows";
 import getFooterCtaConfig from "@salesforce/apex/FooterContactController.getFooterCtaConfig";
 
 export default class SeFooterContact extends LightningElement {
-  iconContactenosUrl = logows;
-
   mostrarCta = false;
   textoCta = "¡Resolvé tu duda!";
   urlCta = "";

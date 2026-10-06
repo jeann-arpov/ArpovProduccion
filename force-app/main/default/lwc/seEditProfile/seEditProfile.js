@@ -135,10 +135,6 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
         return this.cuit || '—';
     }
 
-    get roleDisplay() {
-        return this.profileName || 'Productor';
-    }
-
     get oldPasswordType() {
         return this.showOldPassword ? 'text' : 'password';
     }
