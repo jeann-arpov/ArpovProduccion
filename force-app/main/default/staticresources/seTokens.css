@@ -311,9 +311,13 @@ body.se-chrome.se-inner c-se-footer-contact {
 
 /* Modales del portal (c/seModalLayer): bloquear scroll sin tocar alturas ni overflow de los
    paneles; si no, el centro se achica al viewport y el footer salta sobre el contenido. */
-html.se-modal-open,
-body.se-modal-open {
+/* Solo en html: overflow en el body lo vuelve scroll container y el header sticky se va. */
+html.se-modal-open {
   overflow: hidden !important;
+}
+
+html.se-modal-gutter {
+  scrollbar-gutter: stable !important;
 }
 
 /* Overlay de modales sobre header y footer (z-index 200): sin stacking context en el contenido */

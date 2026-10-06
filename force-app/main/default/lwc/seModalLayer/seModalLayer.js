@@ -74,24 +74,27 @@ export function fitFixedLayer(el) {
 }
 
 let lockCount = 0;
-let lockedScrollY = 0;
 
 /**
- * Bloquea el scroll del portal sin cambiar el layout: el footer queda al pie del documento
- * (no salta sobre el contenido) y seTokens lo oscurece mientras haya un modal abierto.
+ * Bloquea el scroll del portal sin cambiar el layout: sin position:fixed en el body (el header
+ * sticky no se va), con el lugar de la barra de scroll reservado (nada se corre) y el footer al
+ * pie del documento; seTokens lo oscurece mientras haya un modal abierto.
  */
 export function lockPortalModal(host, refit) {
     const state = { layer: releaseModalLayer(host), refit: null };
     if (typeof window === 'undefined' || typeof document === 'undefined') return state;
     if (lockCount === 0) {
-        lockedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+        // Al ocultar la barra de scroll el contenido gana ancho y se corre: se reserva su lugar.
+        const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+        if (scrollbar > 0) {
+            if (window.CSS && CSS.supports && CSS.supports('scrollbar-gutter', 'stable')) {
+                document.documentElement.classList.add('se-modal-gutter');
+            } else {
+                document.body.style.paddingRight = `${scrollbar}px`;
+            }
+        }
         document.documentElement.classList.add('se-modal-open');
         document.body.classList.add('se-modal-open');
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${lockedScrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.width = '100%';
     }
     lockCount += 1;
     if (typeof refit === 'function') {
@@ -107,13 +110,8 @@ export function unlockPortalModal(state) {
     if (state.refit) window.removeEventListener('resize', state.refit);
     lockCount = Math.max(0, lockCount - 1);
     if (lockCount === 0) {
-        document.documentElement.classList.remove('se-modal-open');
+        document.documentElement.classList.remove('se-modal-open', 'se-modal-gutter');
         document.body.classList.remove('se-modal-open');
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.width = '';
-        window.scrollTo(0, lockedScrollY || 0);
+        document.body.style.paddingRight = '';
     }
 }
