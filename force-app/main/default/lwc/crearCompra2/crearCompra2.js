@@ -2258,9 +2258,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     get duplicateCompraSubtext() {
         if (this.duplicateCompraName) {
-            return `Tenés la compra ${this.duplicateCompraName} en proceso para este semillero. Para no duplicar, continuá desde esa operación.`;
+            return `Tenés la compra ${this.duplicateCompraName} sin finalizar para este semillero y cultivo. Continuala desde el paso donde la dejaste.`;
         }
-        return 'Ya tenés una compra en proceso para este semillero. Para no duplicar, continuá desde esa operación.';
+        return 'Ya tenés una compra sin finalizar para este semillero y cultivo. Continuala desde el paso donde la dejaste.';
     }
 
     get hasDuplicateCompraLink() {
@@ -2353,7 +2353,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.handleResultVerMisCompras();
     }
 
-    handleResultDuplicateVerExistente() {
+    /** La compra Creada se abre en el asistente, que la retoma en el paso donde quedó. */
+    handleResultDuplicateContinuar() {
         const compraId = this.duplicateCompraId;
         const compraName = this.duplicateCompraName || '';
         this.resultModal = null;

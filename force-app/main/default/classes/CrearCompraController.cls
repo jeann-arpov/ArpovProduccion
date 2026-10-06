@@ -182,9 +182,10 @@ public without sharing class CrearCompraController {
         if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException('La compra no existe o no le pertenece');
     }
 
+    // Regla Comercial/Operaciones (06/10/2026): solo una orden Creada bloquea una nueva compra
+    // del mismo CUIT, semillero y cultivo; con cualquier otro estado la compra continúa.
     private static final Set<String> ESTADOS_COMPRA_EN_PROCESO = new Set<String>{
-        'Creada',
-        'Pendiente de Facturación'
+        'Creada'
     };
 
     @AuraEnabled

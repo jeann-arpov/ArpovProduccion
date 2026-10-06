@@ -309,6 +309,19 @@ public class CrearCompraControllerTest {
     }
 
     @IsTest
+    static void testFindCompraEnProceso_NoBloqueaSiNoEstaCreada() {
+        TestContext ctx = setupFullContext();
+        String obtentorId = [SELECT Id_Obtentor__c FROM Account WHERE Id = :ctx.obtentor.Id].Id_Obtentor__c;
+        update new Compra_HT__c(Id = ctx.compra.Id, Estado__c = 'Pendiente de Facturación');
+
+        Test.startTest();
+        Map<String, Object> existing = CrearCompraController.findCompraEnProceso(obtentorId, ctx.cultivo.Id);
+        Test.stopTest();
+
+        System.assertEquals(null, existing, 'Una compra Pendiente de Facturación no debe bloquear una nueva compra');
+    }
+
+    @IsTest
     static void testGetCampanasVigentes() {
         Cultivo__c cultivo = new Cultivo__c(Name = 'SOJA VIG', Tipo_de_Especie__c = 'SOJA', Densidad_de_Siembra__c = 75, Sembra_Evolucion__c = true);
         insert cultivo;

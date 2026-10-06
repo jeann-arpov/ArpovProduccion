@@ -98,6 +98,7 @@ export default class ComprasHtListProductor extends LightningElement {
         if (data) {
             this.comprasAll = data.map((c) => {
                 const estado = c.estado ? compraEstadoLabel(c.estado) : 'Sin estado';
+                const creada = c.estado === 'Creada';
                 return {
                     id: c.id,
                     name: c.compra,
@@ -113,7 +114,11 @@ export default class ComprasHtListProductor extends LightningElement {
                     marca: c.marca || c.semillero || c.obtentor || '',
                     estado,
                     statusLabel: estado,
-                    statusTone: compraEstadoTone(estado)
+                    statusTone: compraEstadoTone(estado),
+                    // Una compra Creada se retoma en el asistente desde la misma URL de detalle.
+                    actionLabel: creada ? 'Continuar compra' : 'Ver',
+                    mobileActionLabel: creada ? 'Continuar compra →' : 'Ver compra →',
+                    mobileActionVariant: creada ? 'primary' : 'link'
                 };
             });
 
