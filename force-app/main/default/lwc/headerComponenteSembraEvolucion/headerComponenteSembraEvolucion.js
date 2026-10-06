@@ -1,5 +1,5 @@
 import { LightningElement, track, wire } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import { loadStyle } from 'lightning/platformResourceLoader';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import MY_LOGO from '@salesforce/resourceUrl/seLogoPngBlanco';
@@ -26,6 +26,21 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
     openDrawerSection = null;
     tokensLoaded = false;
     perfilPage = PAGES.perfil;
+    currentPath = window.location.pathname;
+
+    // El header vive en el tema y no se re-renderiza en navegaciones internas de Aura.
+    @wire(CurrentPageReference)
+    wiredPageRef() {
+        this.syncCurrentPath();
+    }
+
+    syncCurrentPath = () => {
+        this.currentPath = window.location.pathname;
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        setTimeout(() => {
+            this.currentPath = window.location.pathname;
+        }, 0);
+    };
 
     @track navItems = [
         { id: 'home', label: 'Home', url: PAGES.home, hasSubmenu: false },
@@ -100,6 +115,7 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
         };
         window.addEventListener('keydown', this._onKeydown);
         window.addEventListener('pointerdown', this._onPointerDown);
+        window.addEventListener('popstate', this.syncCurrentPath);
         if (!this.tokensLoaded) {
             loadStyle(this, `${TOKENS}?v=home-canvas-20260914b`)
                 .then(() => {
@@ -115,15 +131,17 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
     disconnectedCallback() {
         window.removeEventListener('keydown', this._onKeydown);
         window.removeEventListener('pointerdown', this._onPointerDown);
+        window.removeEventListener('popstate', this.syncCurrentPath);
         document.body.classList.remove('se-drawer-open');
     }
 
     get navItemsView() {
+        const path = this.currentPath;
         return this.navItems.map((item) => {
             const open = this.openSubmenu === item.id;
             const active = item.hasSubmenu
-                ? item.submenu.some((sub) => isPageActive(sub.url))
-                : isPageActive(item.url);
+                ? item.submenu.some((sub) => isPageActive(sub.url, path))
+                : isPageActive(item.url, path);
             return {
                 ...item,
                 href: communityPageUrl(item.url),
@@ -143,8 +161,9 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
     }
 
     get drawerNavView() {
+        const path = this.currentPath;
         return this.drawerNav.map((item) => {
-            const childActive = item.hasSubmenu && item.submenu.some((sub) => isPageActive(sub.url));
+            const childActive = item.hasSubmenu && item.submenu.some((sub) => isPageActive(sub.url, path));
             const userToggled = this.openDrawerSection !== null;
             const open = item.hasSubmenu
                 ? userToggled
@@ -156,14 +175,14 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
                 href: communityPageUrl(item.url),
                 open,
                 itemClass: `d-item${item.hasSubmenu && open ? ' open' : ''}${
-                    !item.hasSubmenu && isPageActive(item.url) ? ' active' : ''
+                    !item.hasSubmenu && isPageActive(item.url, path) ? ' active' : ''
                 }`,
                 subClass: open ? 'd-sub is-open' : 'd-sub',
                 submenu: item.hasSubmenu
                     ? item.submenu.map((sub) => ({
                           ...sub,
                           href: communityPageUrl(sub.url),
-                          itemClass: isPageActive(sub.url) ? 'd-item active' : 'd-item'
+                          itemClass: isPageActive(sub.url, path) ? 'd-item active' : 'd-item'
                       }))
                     : undefined
             };

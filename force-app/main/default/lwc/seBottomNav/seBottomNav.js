@@ -1,4 +1,5 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, wire } from 'lwc';
+import { CurrentPageReference } from 'lightning/navigation';
 import { loadStyle } from 'lightning/platformResourceLoader';
 import TOKENS from '@salesforce/resourceUrl/seTokens';
 import { PAGES, goToCommunityPage, isPageActive } from 'c/seNav';
@@ -13,6 +14,7 @@ export default class SeBottomNav extends LightningElement {
     connectedCallback() {
         document.documentElement.classList.add('se-chrome');
         document.body.classList.add('se-chrome');
+        window.addEventListener('popstate', this.syncCurrentPath);
         if (!this.tokensLoaded) {
             loadStyle(this, TOKENS)
                 .then(() => {
@@ -25,20 +27,43 @@ export default class SeBottomNav extends LightningElement {
         }
     }
 
+    currentPath = window.location.pathname;
+
+    // Vive en el tema: no se re-renderiza en navegaciones internas de Aura.
+    @wire(CurrentPageReference)
+    wiredPageRef() {
+        this.syncCurrentPath();
+    }
+
+    syncCurrentPath = () => {
+        this.currentPath = window.location.pathname;
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        setTimeout(() => {
+            this.currentPath = window.location.pathname;
+        }, 0);
+    };
+
+    disconnectedCallback() {
+        window.removeEventListener('popstate', this.syncCurrentPath);
+    }
+
     get homeActive() {
-        return isPageActive(PAGES.home);
+        return isPageActive(PAGES.home, this.currentPath);
     }
 
     get licenciasActive() {
-        return isPageActive(PAGES.licencias);
+        return isPageActive(PAGES.licencias, this.currentPath);
     }
 
     get granariaActive() {
-        return isPageActive(PAGES.granaria);
+        return isPageActive(PAGES.granaria, this.currentPath);
     }
 
     get precertActive() {
-        return isPageActive(PAGES.pph);
+        return (
+            isPageActive(PAGES.pph, this.currentPath) ||
+            isPageActive(PAGES.establecimientos, this.currentPath)
+        );
     }
 
     get homeClass() {
@@ -58,7 +83,7 @@ export default class SeBottomNav extends LightningElement {
     }
 
     get fabClass() {
-        return isPageActive(PAGES.comprar) ? 'fab is-active' : 'fab';
+        return isPageActive(PAGES.comprar, this.currentPath) ? 'fab is-active' : 'fab';
     }
 
     cellClass(active) {

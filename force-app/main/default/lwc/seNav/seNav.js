@@ -36,12 +36,28 @@ export function goToCommunityPage(page) {
     window.open(communityPageUrl(page), '_self');
 }
 
-export function isPageActive(page) {
-    const path = (window.location.pathname || '').toLowerCase().replace(/\/+$/, '');
+/** Páginas internas que activan el mismo ítem del menú. */
+const PAGE_ALIASES = {
+    [PAGES.pph]: ['pre-certificacion', 'adhesion-pph'],
+    [PAGES.cesiones]: ['cesion-pph'],
+    [PAGES.misCompras]: ['compra-ht'],
+    [PAGES.facturas]: ['mis-facturas'],
+    [PAGES.licencias]: ['solicitar-licencia']
+};
+
+function pageSegment(pathname) {
+    const path = String(pathname || '').toLowerCase().replace(/\/+$/, '');
+    const idx = path.indexOf('/s/');
+    return idx >= 0 ? path.substring(idx + 3).split('/')[0] : '';
+}
+
+export function isPageActive(page, pathname = window.location.pathname) {
+    const segment = pageSegment(pathname);
     if (!page) {
-        return /\/s$/.test(path);
+        return segment === '';
     }
-    return path.includes(String(page).toLowerCase());
+    const key = String(page).toLowerCase();
+    return segment === key || (PAGE_ALIASES[page] || []).includes(segment);
 }
 
 export default {
