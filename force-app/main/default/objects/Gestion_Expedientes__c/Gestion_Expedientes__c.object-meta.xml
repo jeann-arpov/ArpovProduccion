@@ -153,13 +153,13 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
-    <label>Gestión Expedientes</label>
+    <label>Gestión</label>
     <nameField>
         <displayFormat>GE-{00000}</displayFormat>
         <label>Número de Gestión</label>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Gestiones Expedientes</pluralLabel>
+    <pluralLabel>Gestiones</pluralLabel>
     <searchLayouts></searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>

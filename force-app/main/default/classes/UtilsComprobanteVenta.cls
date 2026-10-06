@@ -591,14 +591,24 @@ public without sharing class UtilsComprobanteVenta {
     public static void setOportunidad(Set<Id> opIds) {
         
         if(!opIds.isEmpty()){
-            List<Opportunity> oportunidades = [SELECT Id, StageName, Saldo_a_Cobrar_Comprobante__c, Saldo_a_Gestionar__c 
-                                               FROM Opportunity WHERE ID IN :opIds and StageName <> 'Aplicada'];
+            List<Opportunity> oportunidades = [
+                SELECT Id, StageName, Saldo_a_Cobrar_Comprobante__c, Saldo_a_Gestionar__c
+                FROM Opportunity
+                WHERE Id IN :opIds
+                AND (
+                    StageName <> 'Aplicada'
+                    OR Saldo_a_Cobrar_Comprobante__c != 0
+                    OR Saldo_a_Gestionar__c != 0
+                )
+            ];
             for(Opportunity op : oportunidades){
                 op.StageName = 'Aplicada';
                 op.Saldo_a_Cobrar_Comprobante__c = 0;
                 op.Saldo_a_Gestionar__c = 0;
             }
-            update oportunidades;
+            if (!oportunidades.isEmpty()) {
+                update oportunidades;
+            }
         }
        
     }
@@ -922,17 +932,30 @@ public without sharing class UtilsComprobanteVenta {
         Set<Id> toCheckSiembra = new Set<Id>();
 
         for(ERPvs__Comprobante_Venta__c cv : records) {
-            Boolean contabilizada = cv.ERPvs__Contabilizar__c == true && oldRecords.get(cv.Id).ERPvs__Contabilizar__c == false && cv.Oportunidad__c != null &&
-            cv.ERPvs__Numero__c != null && cv.ERPvs__Numero__c != 0 && (oldRecords.get(cv.Id).ERPvs__Numero__c == null || oldRecords.get(cv.Id).ERPvs__Numero__c == 0);
+            ERPvs__Comprobante_Venta__c oldCv = oldRecords.get(cv.Id);
+            Boolean contabilizarFlip = cv.ERPvs__Contabilizar__c == true && oldCv.ERPvs__Contabilizar__c == false;
+            Boolean numeroAsignado = cv.ERPvs__Numero__c != null && cv.ERPvs__Numero__c != 0
+                && (oldCv.ERPvs__Numero__c == null || oldCv.ERPvs__Numero__c == 0);
+            Boolean tieneNumero = cv.ERPvs__Numero__c != null && cv.ERPvs__Numero__c != 0;
+            Boolean contabilizada = contabilizarFlip && cv.Oportunidad__c != null && numeroAsignado;
+            // NC/Negativa: Contabilizar y Número pueden llegar en updates distintos; no exigir ambos en el mismo DML
+            Boolean aplicarNcNegativa = cv.Oportunidad__c != null
+                && cv.Transaccion__c != null
+                && cv.Subestado_Transaccion__c == 'Negativa'
+                && cv.ERPvs__Contabilizar__c == true
+                && tieneNumero
+                && (contabilizarFlip || numeroAsignado);
 
-            if (contabilizada && cv.Transaccion__c != null && cv.Subestado_Transaccion__c == 'Negativa') {
-                opIds.add(cv.Oportunidad__c);    
-                movimientos.add(cvToMovimiento(cv, mapMonedas.containsKey(cv.ERPvs__Moneda__c) ? mapMonedas.get(cv.ERPvs__Moneda__c).ERPvs__Simbolo__c : null));
+            if (aplicarNcNegativa) {
+                opIds.add(cv.Oportunidad__c);
+                if (contabilizada) {
+                    movimientos.add(cvToMovimiento(cv, mapMonedas.containsKey(cv.ERPvs__Moneda__c) ? mapMonedas.get(cv.ERPvs__Moneda__c).ERPvs__Simbolo__c : null));
+                }
             } else if (contabilizada && cv.Transaccion__c == null && cv.Oportunidad__c != null && (cv.ERPvs__Tipo_comp__c == 'Factura' || (cv.ERPvs__Tipo_comp__c == 'Nota de Crédito' && cv.Tipo_Movimiento__c == 'Cantidad'))) {
                 toCheckSiembra.add(cv.id);
             }
 
-            Boolean addTransaction = !movimientosExistentes.contains(cv.Id) && cv.ERPvs__CAE__c != oldRecords.get(cv.Id).ERPvs__CAE__c && cv.ERPvs__CAE__c!=null && String.isNotEmpty(cv.Transaccion__c);
+            Boolean addTransaction = !movimientosExistentes.contains(cv.Id) && cv.ERPvs__CAE__c != oldCv.ERPvs__CAE__c && cv.ERPvs__CAE__c!=null && String.isNotEmpty(cv.Transaccion__c);
             if (addTransaction) idsTransacciones.add(cv.Transaccion__c);
         }
         

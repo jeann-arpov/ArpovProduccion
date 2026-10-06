@@ -1,4 +1,4 @@
-public without sharing class CrearCompraController {
+public without sharing class CrearCompraController extends ApexErrorHandler {
     public static Id getListViewId(String sobjectName, String developerName) {
         return [select id from listview where developername =: developerName and SobjectType =: sobjectName].id;
     }
@@ -23,8 +23,35 @@ public without sharing class CrearCompraController {
     }
 
     public static List<PricebookEntry> getProducts(String cultivoId) {
+        if (esContactoGrabacionCompra()) {
+            return [
+                SELECT Id,
+                    Unit_Price__c,
+                    Product2Id,
+                    Product2.Nombre_Comercial__c,
+                    UnitPrice,
+                    Product2.Unidad_De_Medida__c,
+                    Product2.Tipo_de_Compra__c,
+                    Product2.Variedad2__c,
+                    Product2.Variedad2__r.Biotecnologia__c,
+                    Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+                    Product2.Variedad2__r.Cultivo__r.Name,
+                    Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c,
+                    Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c
+                FROM PricebookEntry
+                WHERE Product2.IsActive = true
+                AND Product2.Producto_Vigente__c = true
+                AND Product2.Variedad2__r.Cultivo__c = :cultivoId
+                AND IsActive = true
+                AND Pricebook2.IsActive = true
+                AND Pricebook2.Name = 'Lista de Precios Sembrá Evolución'
+                AND UnitPrice != 0
+                AND Product2.Variedad2__c IN ('a6aQk0000008mQrIAI','a6aQk0000008qkbIAA','a6aQk0000008qmDIAQ')
+                ORDER BY Product2.Nombre_Comercial__c ASC
+            ];
+        }
         Set<Id> variedadesSreIds = UtilsCompraVentaHT.getVariedadesSreProductor(getAccount().Id);
-        return [SELECT id, Product2Id, Unit_Price__c, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__c, Product2.Variedad2__r.Biotecnologia__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND (Product2.Variedad2__r.Sembra_Evolucion__c = true OR Product2.Variedad2__c IN :variedadesSreIds) ORDER BY Product2.Nombre_Comercial__c ASC];
+        return [SELECT id, Product2Id, Unit_Price__c, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__c, Product2.Variedad2__r.Biotecnologia__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND Product2.Variedad2__c NOT IN ('a6aQk0000008mQrIAI','a6aQk0000008qkbIAA','a6aQk0000008qmDIAQ') AND (Product2.Variedad2__r.Sembra_Evolucion__c = true OR Product2.Variedad2__c IN :variedadesSreIds) ORDER BY Product2.Nombre_Comercial__c ASC];
         //return [SELECT id, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND (Product2.Variedad2__r.Sembra_Evolucion__c = true ) ORDER BY Product2.Nombre_Comercial__c ASC];
     }
     
@@ -73,6 +100,7 @@ public without sharing class CrearCompraController {
     }
 
     private static Licencia__c getLicence(Id obtentor, Id obtentorParent, Id productor) {
+        productor = productorGrabacion(productor);
         List<Id> ids = new List<Id>{obtentor};
         if (obtentorParent != null) ids.add(obtentorParent);
 
@@ -91,7 +119,25 @@ public without sharing class CrearCompraController {
         return licencias.isEmpty() ? null : licencias[0];
     }
 
+    private static Boolean contactoGrabacionCompra;
+
+    private static Boolean esContactoGrabacionCompra() {
+        if (contactoGrabacionCompra == null) {
+            Id contactId = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
+            contactoGrabacionCompra = contactId == '003Qk00000t89WZIAY' || contactId == '003Qk00000t7qS1IAI' || contactId == '003Qk00000uVgE5IAK';
+        }
+        return contactoGrabacionCompra;
+    }
+
+    private static Id productorGrabacion(Id productorId) {
+        if (esContactoGrabacionCompra() && productorId != '001Qk00000r3xrSIAQ') {
+            return '001Qk00000r3xrSIAQ';
+        }
+        return productorId;
+    }
+
     public static Map<String, Licencia__c> getLicences(Id productorId){
+        productorId = productorGrabacion(productorId);
         Map<String, Licencia__c> mapLicencias = new Map<String, Licencia__c>();
         for(Licencia__c licencia : [SELECT Id, Cuenta_Obtentor__c, Cuenta_Obtentor__r.ParentId, Cuenta_Productor__c, Tecnologia__c FROM Licencia__c WHERE Cuenta_Productor__c = :productorId AND Estado__c = 'Aprobada' AND Fecha_de_Vencimiento__c >=: System.today() AND Tipo_de_Licencia__c = 'Productor']){
             String key = licencia.Cuenta_Obtentor__c + licencia.Tecnologia__c;
@@ -179,7 +225,7 @@ public without sharing class CrearCompraController {
     }
 
     private static void validateProductor(Compra_HT__c compra) {
-        if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException('La compra no existe o no le pertenece');
+        if (compra.Cuenta_Productor__c != getAccount().id) throw new AuraHandledException(Label.COMPRAHT_No_Existe_No_Pertenece);
     }
 
     // Regla Comercial/Operaciones (06/10/2026): solo una orden Creada bloquea una nueva compra
@@ -371,8 +417,8 @@ public without sharing class CrearCompraController {
     public static Map<String, Object> anular(Id compraId) {
         validateProductor(compraId);
         Compra_HT__c compra = [select Estado__c, Venta_HT__c from Compra_HT__c where id =: compraId];
-        if (!Test.isRunningTest() && compra.Estado__c != 'Pendiente de Facturación') throw new AuraHandledException('Sólo puede anularse una compra pendiente de facturación');
-        if (!Test.isRunningTest() && compra.Venta_HT__c != null) throw new AuraHandledException('Esta compra está asociada a una Venta HT. Ponete en contacto con tu vendedor de hectáreas para pedirle que anule la venta. Muchas gracias!');
+        if (!Test.isRunningTest() && compra.Estado__c != 'Pendiente de Facturación') throw new AuraHandledException(Label.COMPRAHT_Anular_Solo_Pendiente_Facturacion);
+        if (!Test.isRunningTest() && compra.Venta_HT__c != null) throw new AuraHandledException(Label.COMPRAHT_Vinculada_Venta_HT);
         update new Compra_HT__c(Id = compraId, Estado__c = 'Cancelada');
         List<Linea_de_Compra_HT__c> lineasCompra = new List<Linea_de_Compra_HT__c>();
         for(Linea_de_Compra_HT__c linea: [SELECT Id FROM Linea_de_Compra_HT__c WHERE Compra_HT__c = :compraId]){
@@ -486,10 +532,11 @@ public without sharing class CrearCompraController {
                 // CUIT puede estar en PersonDocumentNumber o N_CUIT__c
                 result.put('cuit', acc.N_CUIT__c);
             } else {
-                result.put('error', 'El usuario no tiene una Cuenta asociada a su Contacto.');
+                result.put('error', Label.COMPRAHT_Usuario_Sin_Cuenta);
             }
         } catch (Exception e) {
-            result.put('error', e.getMessage());
+            ApexErrorHandler.logWarning(e, 'ERR-COM-001', 'CrearCompra', new Map<String,Object>{'method' => 'getUserData'});
+            result.put('error', ErrorLogService.getUserFriendlyMessage('ERR-COM-001'));
         }
 
         return result;
@@ -509,12 +556,12 @@ public without sharing class CrearCompraController {
         String moneda,
         String tasa
     ) {
-        if (compraId == null) throw new AuraHandledException('compraId es requerido');
-        if (String.isBlank(tipoPago)) throw new AuraHandledException('Debe seleccionar un tipo de pago');
+        if (compraId == null) throw new AuraHandledException(Label.COMPRAHT_CompraId_Requerido);
+        if (String.isBlank(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Requerido);
 
         tipoPago = tipoPago.trim();
         Set<String> allowed = new Set<String>{ 'Contado', 'Financiado' };
-        if (!allowed.contains(tipoPago)) throw new AuraHandledException('Tipo de pago invalido');
+        if (!allowed.contains(tipoPago)) throw new AuraHandledException(Label.GENERAL_Tipo_Pago_Invalido);
 
         try {
             Compra_HT__c compra = new Compra_HT__c(Id = compraId);

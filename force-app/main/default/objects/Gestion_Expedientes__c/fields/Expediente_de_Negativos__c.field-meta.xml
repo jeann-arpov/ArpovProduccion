@@ -4,7 +4,7 @@
     <deleteConstraint>SetNull</deleteConstraint>
     <label>Expediente de Negativos</label>
     <referenceTo>Expediente_de_Negativos__c</referenceTo>
-    <relationshipLabel>Gestiones Expedientes</relationshipLabel>
+    <relationshipLabel>Gestiones</relationshipLabel>
     <relationshipName>Gestiones_Expedientes</relationshipName>
     <required>false</required>
     <trackTrending>false</trackTrending>

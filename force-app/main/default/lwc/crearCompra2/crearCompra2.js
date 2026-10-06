@@ -1941,7 +1941,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 semillero: this.DataCompra.semilleroData?.semillero || {},
                 CuentaProductor: this.DataCompra.record.Cuenta_Productor__r?.Id,
                 tieneLicencia: poseeLicencia,
-                Variedades: variedades
+                Variedades: variedades,
+                tipoCompra: this.tipoCompraSeleccionado,
+                cultivoId: this.DataCompra.record.Cultivo__c
             });
 
             this.haveLicence = res.TieneLicencia;

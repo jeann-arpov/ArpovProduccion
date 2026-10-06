@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Mail de rechazo de adhesión PPH al productor</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>PPH Rechazado</name>
+    <subject>⚠️ No pudimos completar tu adhesión al PPH</subject>
+    <type>custom</type>
+    <uiType>Aloha</uiType>
+    <content>
+        <textContent><![CDATA[<div style="background-color:#FAFAFA;font-family:Helvetica,Arial,sans-serif;margin:0;padding:20px 0;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;background-color:#FFFFFF;">
+    <tr>
+      <td style="padding:0;">
+        <img src="https://mcusercontent.com/e5aa41c44e1b1ab5d65d4661b/images/7de9f5b7-78e6-3bd4-37a7-95e31454c0a5.png" alt="Sembrá Evolución" width="600" style="display:block;width:100%;max-width:600px;border:0;" />
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:24px 28px;color:#202020;font-size:15px;line-height:150%;text-align:justify;">
+        <p>Hola 👋 <strong>{!Plan_de_Siembra__c.Productor_Name__c}</strong></p>
+        <p><strong>⚠️ No pudimos completar tu adhesión al PPH</strong></p>
+        <p>En esta oportunidad, <strong>no pudimos completar la adhesión de tu {!Plan_de_Siembra__c.Name} al Programa de Precertificación de Hectáreas (PPH)</strong> porque existe una situación pendiente de regularizar correspondiente a campañas anteriores.</p>
+        <p>👉 <strong>Para poder avanzar con tu adhesión, es necesario regularizar previamente esta situación.</strong></p>
+        <p>Contactate con nuestro equipo por <strong>WhatsApp</strong> haciendo clic en el botón a continuación. Te ayudaremos a revisar tu situación y te indicaremos cómo continuar.</p>
+        <p style="text-align:center;padding:8px 0 16px;">
+          <a href="https://wa.link/vabnp5" target="_blank" style="background-color:#B6FF00;color:#002222;padding:14px 26px;border-radius:19px;text-decoration:none;font-weight:bold;font-size:14px;display:inline-block;">Contactar Mesa de Ayuda</a>
+        </p>
+        <p>Muchas gracias,<br/><strong>Equipo de Sembrá Evolución</strong></p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:16px 28px 24px;border-top:2px solid #222222;text-align:center;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+          <tr>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_Web_URL}" target="_blank"><img src="{!$Label.PPH_Social_Web_Icon}" alt="Website" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_Instagram_URL}" target="_blank"><img src="{!$Label.PPH_Social_Instagram_Icon}" alt="Instagram" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_WhatsApp_URL}" target="_blank"><img src="{!$Label.PPH_Social_WhatsApp_Icon}" alt="WhatsApp" width="24" height="24" style="display:block;border:0;" /></a></td>
+            <td style="padding:0 8px;"><a href="{!$Label.PPH_Social_YouTube_URL}" target="_blank"><img src="{!$Label.PPH_Social_YouTube_Icon}" alt="YouTube" width="24" height="24" style="display:block;border:0;" /></a></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</div>]]></textContent>
+    </content>
+</EmailTemplate>

@@ -15,6 +15,6 @@ public class SincronizarMbtExpedienteQueueable implements Queueable {
         if (toneladaIds.isEmpty()) {
             return;
         }
-        CuentaGranariaExpedienteService.sincronizarMbtDesdeToneladas(toneladaIds);
+        //CuentaGranariaExpedienteService.sincronizarMbtDesdeToneladas(toneladaIds);
     }
 }

@@ -1,22 +1,24 @@
-import { LightningElement, track, wire } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { LightningElement, track, wire } from "lwc";
+import { NavigationMixin } from "lightning/navigation";
 // import getCurrentUserData from '@salesforce/apex/UserControllerComunidad.getCurrentUserData';
-import getHTMetricasComercio from '@salesforce/apex/UserControllerComunidad.getHTMetricasComercio';
-import getLicenciasContadas from '@salesforce/apex/UserControllerComunidad.getLicenciasContadas';
-import generateTokenLic from '@salesforce/apex/CustomJWTSigner.CustomJWTSignerLicencias';
-import getUrl from '@salesforce/apex/SolicitarLicencia.getUrl';
-import getCalendarioUrl from '@salesforce/apex/UserControllerComunidad.getCalendarioUrl'
-import getBolsasObtentorCampaniaActiva from '@salesforce/apex/UserControllerComunidad.getBolsasObtentorCampaniaActiva';
-import getBolsasPrimeraMultiplicacionActual from '@salesforce/apex/UserControllerComunidad.getBolsasPrimeraMultiplicacionActual';
-import { getRecord } from 'lightning/uiRecordApi';
-import uId from '@salesforce/user/Id';
+import getHTMetricasComercio from "@salesforce/apex/UserControllerComunidad.getHTMetricasComercio";
+import getLicenciasContadas from "@salesforce/apex/UserControllerComunidad.getLicenciasContadas";
+import generateTokenLic from "@salesforce/apex/CustomJWTSigner.CustomJWTSignerLicencias";
+import getUrl from "@salesforce/apex/SolicitarLicencia.getUrl";
+import getCalendarioUrl from "@salesforce/apex/UserControllerComunidad.getCalendarioUrl";
+import getBolsasObtentorCampaniaActiva from "@salesforce/apex/UserControllerComunidad.getBolsasObtentorCampaniaActiva";
+import getBolsasPrimeraMultiplicacionActual from "@salesforce/apex/UserControllerComunidad.getBolsasPrimeraMultiplicacionActual";
+import { getRecord } from "lightning/uiRecordApi";
+import uId from "@salesforce/user/Id";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import singleNewLicenseRequestJWTSigner from '@salesforce/apex/CustomJWTSigner.singleNewLicenseRequestJWTSigner';
 import { redirectToSglWithToken } from 'c/utils';
 import { trackGa4Event } from 'c/portalGa4Events';
 
-export default class Landing_SE_Distribuidor_SA extends NavigationMixin(LightningElement) {
+export default class Landing_SE_Distribuidor_SA extends NavigationMixin(
+  LightningElement
+) {
     iconLicenciasUrl = `${resourcePortal}/resourcePortal/images/icon-licencias.svg`;
     iconVenderHTUrl = `${resourcePortal}/resourcePortal/images/icon-vender-ht.svg`;
     @track hectareasVendidas = 0;
@@ -58,7 +60,7 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
             this.hectareasVendidas = this.formatHT(data.htVendidas);
             this.hectareasPendientesDePago = this.formatHT(data.htPendientesDePago);
         } else if (error) {
-            console.error('Error al obtener métricas HT del comercio:', error);
+      console.error("Error al obtener métricas HT del comercio:", error);
             this.hectareasVendidas = 0;
             this.hectareasPendientesDePago = 0;
         }
@@ -75,7 +77,7 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
             this.licenciasAprobadas = data.aprobadas;
             this.licenciasEnProceso = data.enProceso;
         } else if (error) {
-            console.error('Error al obtener licencias', error);
+      console.error("Error al obtener licencias", error);
         }
     }
 
@@ -84,7 +86,7 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
         if (data) {
             this.currentContactId = data.fields.ContactId.value;
         } else if (error) {
-            console.error('Error al obtener ContactId:', error);
+      console.error("Error al obtener ContactId:", error);
         }
     }
 
@@ -93,35 +95,35 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
         if (data) {
             this.calendarioUrl = data;
         } else if (error) {
-            console.error('Error al obtener URL del calendario:', error);
+      console.error("Error al obtener URL del calendario:", error);
         }
     }
 
     @wire(getBolsasObtentorCampaniaActiva)
     wiredBolsas({ error, data }) {
         if (data !== undefined) {
-            console.log('Bolsas obtentor: ' + JSON.stringify(data) );
+      console.log("Bolsas obtentor: " + JSON.stringify(data));
             this.bolsasObtentor = data;
         } else if (error) {
-            console.error('Error al obtener bolsas:', error);
+      console.error("Error al obtener bolsas:", error);
         }
     }
 
     @wire(getBolsasPrimeraMultiplicacionActual)
     wiredBolsasPM({ error, data }) {
         if (data !== undefined) {
-            console.log('Bolsas licencias: ' + JSON.stringify(data) );
+      console.log("Bolsas licencias: " + JSON.stringify(data));
             this.bolsasPrimeraMultiplicacion = data;
         } else if (error) {
-            console.error('Error al obtener bolsas PM:', error);
+      console.error("Error al obtener bolsas PM:", error);
         }
     }
 
     handleCalendario() {
         if (this.calendarioUrl) {
-            window.open(this.calendarioUrl, '_blank');
+      window.open(this.calendarioUrl, "_blank");
         } else {
-            console.warn('No se encontró la URL del calendario.');
+      console.warn("No se encontró la URL del calendario.");
         }
     }
 
@@ -130,14 +132,14 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
         if (data) {
             this.url = data;
         } else if (error) {
-            console.error('Error al obtener la URL:', error);
+      console.error("Error al obtener la URL:", error);
         }
     }
 
     async handleSolicitarLicencia() {
         try {
             if (!this.currentContactId) {
-                console.warn('ContactId no disponible aún');
+        console.warn("ContactId no disponible aún");
                 return;
             }
             this.isLoading = true;
@@ -149,7 +151,7 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
 
             redirectToSglWithToken(this, `${this.url}/NewLicenseRequest`, token, window.location.href);
         } catch (error) {
-            console.error('Error en handleSolicitarLicencia:', error);
+      console.error("Error en handleSolicitarLicencia:", error);
         } finally {
             this.isLoading = false;
         }
@@ -157,48 +159,48 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
 
     handleVerLicenciasAprobadas() {
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+      type: "comm__namedPage",
             attributes: {
-                name: 'LicenciasListCustom__c'
+        name: "LicenciasListCustom__c"
             },
             state: {
-                estado: 'Aprobada'
+        estado: "Aprobada"
             }
         });
     }
 
     handleVerLicenciasEnProceso() {
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+      type: "comm__namedPage",
             attributes: {
-                name: 'LicenciasListCustom__c'
+        name: "LicenciasListCustom__c"
             },
             state: {
-                estado: 'En Proceso de Aprobación'
+        estado: "En Proceso de Aprobación"
             }
         });
     }
 
     handleVerHTVendidas() {
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+      type: "comm__namedPage",
             attributes: {
-                name: 'HTListCustom__c'
+        name: "HTListCustom__c"
             },
             state: {
-                estado: 'Pagada'
+        estado: "Pagada"
             }
         });
     }
 
     handleVerHTFacturadas() {
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+      type: "comm__namedPage",
             attributes: {
-                name: 'HTListCustom__c'
+        name: "HTListCustom__c"
             },
             state: {
-                estado: 'Facturada'
+        estado: "Facturada"
             }
         });
     }
@@ -207,51 +209,51 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(Lightnin
         console.log('Vender HT');
         trackGa4Event('ht_compra_iniciada', { portal: 'Comercio', accion: 'vender' });
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+      type: "comm__namedPage",
             attributes: {
-                name: 'FormularioNuevaVentaHT__c'
+        name: "FormularioNuevaVentaHT__c"
             },
             state: {
-                estado: ''
+        estado: ""
             }
         });
     }
 
     handleViewVendidas() {
-        console.log('Ver HT Vendidas');
+    console.log("Ver HT Vendidas");
     }
 
     handleViewFacturadas() {
-        console.log('Ver HT Facturadas');
+    console.log("Ver HT Facturadas");
     }
 
     handleCalendario() {
         if (this.calendarioUrl) {
-            window.open(this.calendarioUrl, '_blank');
+      window.open(this.calendarioUrl, "_blank");
         } else {
-            console.warn('No se encontró la URL del calendario.');
+      console.warn("No se encontró la URL del calendario.");
         }
     }
 
     handleVerbolsasObtentor() {
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+      type: "comm__namedPage",
             attributes: {
-                name: 'BolsasObtentorList__c'
+        name: "BolsasObtentorList__c"
             },
             state: {
-                estado: ''
+        estado: ""
             }
         });
     }
     handleVerbolsasPrimeraMultiplicacion() {
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+      type: "comm__namedPage",
             attributes: {
-                name: 'BolsasPrimeraMultiplicacionList__c'
+        name: "BolsasPrimeraMultiplicacionList__c"
             },
             state: {
-                estado: ''
+        estado: ""
             }
         });
     }

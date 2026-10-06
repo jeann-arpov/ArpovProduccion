@@ -25,7 +25,7 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
     }
 
     closeModal(event) {
-        this.dispatchEvent(new CustomEvent('close'));
+    this.dispatchEvent(new CustomEvent("close"));
     }
 
     get isDeleteConfirm() {
@@ -57,15 +57,18 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
     }
 
     get isAddDestinatarioConfirm(){
-        return this.currentModal == 'confirm-add-destinatario';
+    return this.currentModal == "confirm-add-destinatario";
     }
 
     get isConfirmEnviarSesion() {
-        return this.currentModal == "confirm-enviar-cesion" || this.isConfirmEnviarSesionWithoutLicenses;
+    return (
+      this.currentModal == "confirm-enviar-cesion" ||
+      this.isConfirmEnviarSesionWithoutLicenses
+    );
     }
 
     get isConfirmEnviarSesionWithoutLicenses() {
-        return this.currentModal == "confirm-enviar-cesion-without-licenses"
+    return this.currentModal == "confirm-enviar-cesion-without-licenses";
     }
 
     get isAdheridoCesion() {
@@ -77,15 +80,15 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
     }
 
     get isConfirmAnularCesion() {
-        return this.currentModal == 'confirm-anular-cesion';
+    return this.currentModal == "confirm-anular-cesion";
     }
 
     get isRegisterCuit() {
-        return this.currentModal.startsWith('register-cuit');
+    return this.currentModal.startsWith("register-cuit");
     }
 
     get isRecordatorioFirmante() {
-        return this.currentModal == 'recordatorio-firmante';
+    return this.currentModal == "recordatorio-firmante";
     }
 
     executeCallback() {
@@ -94,22 +97,28 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
 
     redirectInicio() {
         this[NavigationMixin.Navigate]({
-            type: 'standard__namedPage',
+      type: "standard__namedPage",
             attributes: {
-                pageName: 'home'
-            },
+        pageName: "home"
+      }
         });
     }
 
     get cls() {
-        return "slds-modal__container" + (this.isContinueConfirmResumen ? ' resumen' : '');
+    return (
+      "slds-modal__container" +
+      (this.isContinueConfirmResumen ? " resumen" : "")
+    );
     }
 
     async registerCuit(e) {
         this.loading = true;
 
         try {
-            const res = await registerCuit({email: this.template.querySelector('.email').value, cuit: this.cuit});
+      const res = await registerCuit({
+        email: this.template.querySelector(".email").value,
+        cuit: this.cuit
+      });
             this.callback(res);
         } catch (e) {
             this.onError(e);
@@ -119,7 +128,7 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
     }
 
     get cuit() {
-        return this.currentModal.split('-').pop();
+    return this.currentModal.split("-").pop();
     }
 
     onError(e) {

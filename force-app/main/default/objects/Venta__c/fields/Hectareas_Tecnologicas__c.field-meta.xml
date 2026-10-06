@@ -1,20 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Hectareas_Tecnologicas__c</fullName>
     <externalId>false</externalId>
-    <formula>IF( Producto__r.Variedad2__r.Sembra_Evolucion__c = true,
-    IF( TEXT(Producto__r.Categoria__c) = &apos;Original o Fundadora&apos;,
-         IF( (TEXT(Tipo_de_Venta__c) = &apos;Venta&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;DPD&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;DPO&apos;) || 
-             (TEXT(Tipo_de_Venta__c) = &apos;C&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;TDS&apos;), 
-              CEILING(Cantidad_Bolsas_40__c / Cultivo__r.Bolsas2HT_Original__c), 0.00),
-         IF( TEXT(Producto__r.Categoria__c) = &apos;Pre Básica&apos;, 
-              IF( (TEXT(Tipo_de_Venta__c) = &apos;Venta&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;DPD&apos;) || 
-                  (TEXT(Tipo_de_Venta__c) = &apos;DPO&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;C&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;TDS&apos;), 
-                   CEILING(Cantidad_Bolsas_40__c /  Cultivo__r.Bolsas2HT_Pre_Basica__c), 0.00),
-              IF( (TEXT(Tipo_de_Venta__c) = &apos;Venta&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;DPD&apos;) || 
-                  (TEXT(Tipo_de_Venta__c) = &apos;DPO&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;C&apos;) || (TEXT(Tipo_de_Venta__c) = &apos;TDS&apos;), 
-                   CEILING(Cantidad_Bolsas_40__c / Cultivo__r.Bolsas2HT__c), 0.00))),
-    0.00)</formula>
+    <formula>IF(
+  CASE(TEXT(Tipo_de_Venta__c),
+    &apos;Venta&apos;, 1,
+    &apos;DPD&apos;, 1,
+    &apos;DPO&apos;, 1,
+    &apos;C&apos;, 1,
+    &apos;TDS&apos;, 1,
+    0
+  ) = 1,
+  CASE(TEXT(Producto__r.Categoria__c),
+    &apos;Original o Fundadora&apos;, CEILING(Cantidad_Bolsas_40__c / Cultivo__r.Bolsas2HT_Original__c),
+    &apos;Pre Básica&apos;, CEILING(Cantidad_Bolsas_40__c / Cultivo__r.Bolsas2HT_Pre_Basica__c),
+    CEILING(Cantidad_Bolsas_40__c / Cultivo__r.Bolsas2HT__c)
+  ),
+  0.00
+)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Hectáreas Tecnológicas</label>
     <precision>18</precision>

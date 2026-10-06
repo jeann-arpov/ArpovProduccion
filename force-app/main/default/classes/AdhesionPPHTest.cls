@@ -43,4 +43,30 @@ public class AdhesionPPHTest {
 
         //AdhesionPPH.deleteEstablecimiento([select Establecimiento__c from Establecimiento_PPH__c where plan_de_siembra__r.Estado__c = 'Rectificado' limit 1].Establecimiento__c);
     }
+
+    @isTest
+    static void establecimientosDisponibles() {
+        Test_TestUtils.disableFlows();
+
+        Test_TestUtils.crearProductor();
+        Account productor = CrearCompraController.getAccount();
+
+        Establecimiento__c establecimiento = new Establecimiento__c(
+            Name = 'Campo Test',
+            Coordenadas__latitude__s = -34.4566543,
+            Coordenadas__longitude__s = -60.2355443,
+            Origen__c = 'Propio',
+            Productor__c = productor.Id
+        );
+        insert establecimiento;
+
+        List<AdhesionPPH.EstablecimientoOption> opciones = AdhesionPPH.listEstablecimientosDisponibles();
+        List<LookupSearchResult> resultados = AdhesionPPH.searchEstablecimientos('Campo');
+        Set<String> tecnologias = AdhesionPPH.tecnologiasEquivalentes('Enlist E3');
+        AdhesionPPH.tecnologiasEquivalentes('Conkesta E3');
+
+        System.assertNotEquals(null, opciones);
+        System.assertNotEquals(null, resultados);
+        System.assert(tecnologias.contains('Conkesta E3'));
+    }
 }

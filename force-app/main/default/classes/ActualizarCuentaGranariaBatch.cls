@@ -369,6 +369,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 SELECT Id, Name
                 FROM Account
                 WHERE IsDeleted = false
+                    AND ParentId = null
                     AND (RecordType.Name = 'Productor' OR RecordType.Name = 'Distribuidor'
                         OR RecordType.Name = 'Comercio')
                     AND Id IN :this.productoresIds
@@ -381,6 +382,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 SELECT Id, Name
                 FROM Account
                 WHERE IsDeleted = false
+                    AND ParentId = null
                     AND (RecordType.Name = 'Productor' OR RecordType.Name = 'Distribuidor'
                         OR RecordType.Name = 'Comercio')
                     AND Id = :this.productorId
@@ -392,6 +394,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             SELECT Id, Name
             FROM Account
             WHERE IsDeleted = false
+                AND ParentId = null
                 AND (RecordType.Name = 'Productor' OR RecordType.Name = 'Distribuidor'
                     OR RecordType.Name = 'Comercio')
         ]);
@@ -957,6 +960,20 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
         }
         Set<String> adhesionesVigentes = obtenerAdhesionesVigentes(productoresIdsParaAdhesion, cultivosIdsParaAdhesion, campanasValidas);
         System.debug('Adhesiones vigentes pre-cargadas: ' + adhesionesVigentes.size());
+
+        // Sucursales (ParentId / Cuenta principal != null): no generar expedientes
+        Set<Id> productoresSucursal = new Set<Id>();
+        if (!productoresIdsParaAdhesion.isEmpty()) {
+            for (Account cuentaSucursal : [
+                SELECT Id
+                FROM Account
+                WHERE Id IN :productoresIdsParaAdhesion
+                    AND ParentId != null
+            ]) {
+                productoresSucursal.add(cuentaSucursal.Id);
+            }
+        }
+        System.debug('Productores sucursal excluidos de expedientes: ' + productoresSucursal.size());
         
         // Solo se deben generar consumos para negativos en etapas cobrables/debitables/cedidas.
         // Si el negativo está en Aplicada, el saldo se muestra pero no dispara consumo.
@@ -1074,8 +1091,6 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
         List<Cuenta_Granaria__c> cuentasAActualizar = new List<Cuenta_Granaria__c>();
         // Expedientes de negativos que se insertan al final de FASE 3 (tras armar consumos en bucle).
         List<Expediente_de_Negativos__c> expedientesACrear = new List<Expediente_de_Negativos__c>();
-        /** CGs con expediente activo que requieren vincular TN/MBT aunque no se inserte expediente nuevo. */
-        Set<Id> cgsRequierenVinculacionExpediente = new Set<Id>();
         Set<String> productoresYCampanasProcessados = new Set<String>();
         
         // Pre-cargar TODOS los lotes HT en bulk (1 sola query)
@@ -1352,7 +1367,11 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
 
                     // Solo abrir expediente cuando el saldo queda por debajo de -3.
                     // "deficit" es positivo, por eso el umbral equivalente es > 3.
-                    if (HABILITAR_CREACION_EXPEDIENTES_NEGATIVOS && lotesHTPendientes == 0 && deficit > 3) {
+                    // No generar en sucursales (cuenta principal / ParentId != null).
+                    if (HABILITAR_CREACION_EXPEDIENTES_NEGATIVOS
+                        && lotesHTPendientes == 0
+                        && deficit > 3
+                        && !productoresSucursal.contains(Id.valueOf(prodId))) {
                         if (!cgTieneExpedienteActivo) {
                             Expediente_de_Negativos__c expediente = new Expediente_de_Negativos__c();
                             expediente.Campania__c = campId;
@@ -1377,14 +1396,15 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                                         ' | Campaña: ' + campId +
                                         ' | Productor: ' + prodId + ' | Faltante: ' + (-deficit));
                         } else if (cgRegularId != null) {
-                            cgsRequierenVinculacionExpediente.add(cgRegularId);
                             productoresYCampanasProcessados.add(claveRegular);
-                            System.debug('✓ Expediente activo existente - vincular TN/MBT en CG: ' + claveRegular);
+                            System.debug('✓ Expediente activo existente - CG: ' + claveRegular);
                         }
                     } else {
                         System.debug('⚠ No se crea expediente - lotes pendientes: ' + lotesHTPendientes +
                             ', expediente activo: ' + cgTieneExpedienteActivo +
-                            ', déficit restante: ' + deficit + ' (umbral > 3) para ' + claveRegular);
+                            ', déficit restante: ' + deficit + ' (umbral > 3)' +
+                            ', sucursal: ' + productoresSucursal.contains(Id.valueOf(prodId)) +
+                            ' para ' + claveRegular);
                     }
                 }
             }
@@ -1416,7 +1436,6 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
         }
         
         // Insertar expedientes de negativos (ya tienen Cuenta_Granaria__c asignada)
-        Map<Id, Id> expedientePorCg = new Map<Id, Id>();
         if (!expedientesACrear.isEmpty()) {
             System.debug('Expedientes a crear: ' + expedientesACrear.size());
             List<Database.SaveResult> insertResults = Database.insert(expedientesACrear, false);
@@ -1424,10 +1443,6 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 Database.SaveResult sr = insertResults[i];
                 if (sr.isSuccess()) {
                     expedientesCreados++;
-                    Id cgId = expedientesACrear[i].Cuenta_Granaria__c;
-                    if (cgId != null) {
-                        expedientePorCg.put(cgId, sr.getId());
-                    }
                 } else {
                     errores++;
                     for (Database.Error err : sr.getErrors()) {
@@ -1438,30 +1453,8 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             System.debug('📊 EXPEDIENTES CREADOS: ' + expedientesCreados);
         }
 
-        // Relacionar expediente EXP en toneladas y MBT de la CG (nuevos o ya activos).
-        // Si la TN ya tenía otro expediente (legacy sin CG), pasa a Expediente_de_Origen__c.
-        // No modifica TN ni MBT que ya tengan expediente PRI o SEC.
-        if (!cgsRequierenVinculacionExpediente.isEmpty()) {
-            for (Expediente_de_Negativos__c exp : [
-                SELECT Id, Cuenta_Granaria__c, CreatedDate
-                FROM Expediente_de_Negativos__c
-                WHERE Cuenta_Granaria__c IN :cgsRequierenVinculacionExpediente
-                    AND Cuenta_Granaria__c != null
-                    AND Estado_de_la_Etapa__c != 'Finalizado'
-                ORDER BY CreatedDate DESC
-            ]) {
-                if (!expedientePorCg.containsKey(exp.Cuenta_Granaria__c)) {
-                    expedientePorCg.put(exp.Cuenta_Granaria__c, exp.Id);
-                }
-            }
-        }
-        if (!expedientePorCg.isEmpty()) {
-            CuentaGranariaExpedienteService.VinculacionExpedienteResult vincResult =
-                CuentaGranariaExpedienteService.vincularToneladasYMovimientosPorCg(expedientePorCg);
-            System.debug('📊 TONELADAS ACTUALIZADAS CON EXPEDIENTE: ' + vincResult.toneladasActualizadas);
-            System.debug('📊 MOVIMIENTOS BOLSATECH ACTUALIZADOS CON EXPEDIENTE: ' + vincResult.movimientosActualizados);
-            errores += vincResult.errores;
-        }
+        // No reasignar toneladas ni MBT al crear el expediente.
+        // CuentaGranariaExpedienteService.vincularToneladasYMovimientosPorCg(expedientePorCg);
         
         System.debug('📊 RESUMEN COMPENSACIÓN - Consumos: ' + consumosCreados + ' | Expedientes: ' + expedientesCreados);
     }
@@ -1987,23 +1980,27 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 if (tn.Cultivo__c != null) cultivosIds.add(tn.Cultivo__c);
             }
             
-            // Excluir cuentas tipo Obtentor: no se les crea CG ni expedientes
+            // Excluir Obtentor y sucursales (ParentId / Cuenta principal != null):
+            // no se les crea CG ni expedientes
             if (!productoresIds.isEmpty()) {
-                Set<Id> obtentoresAExcluir = new Set<Id>();
-                for (Account cuentaObtentor : [
+                Set<Id> cuentasAExcluir = new Set<Id>();
+                for (Account cuenta : [
                     SELECT Id
                     FROM Account
                     WHERE Id IN :productoresIds
-                        AND RecordType.Name = 'Obtentor'
+                        AND (
+                            RecordType.Name = 'Obtentor'
+                            OR ParentId != null
+                        )
                 ]) {
-                    obtentoresAExcluir.add(cuentaObtentor.Id);
+                    cuentasAExcluir.add(cuenta.Id);
                 }
-                if (!obtentoresAExcluir.isEmpty()) {
-                    productoresIds.removeAll(obtentoresAExcluir);
-                    System.debug('Cuentas Obtentor excluidas del procesamiento: ' + obtentoresAExcluir.size());
+                if (!cuentasAExcluir.isEmpty()) {
+                    productoresIds.removeAll(cuentasAExcluir);
+                    System.debug('Cuentas Obtentor/sucursal excluidas del procesamiento: ' + cuentasAExcluir.size());
                 }
                 if (productoresIds.isEmpty()) {
-                    System.debug('No quedan productores válidos tras excluir Obtentor');
+                    System.debug('No quedan productores válidos tras excluir Obtentor/sucursales');
                     return;
                 }
             }
@@ -2585,11 +2582,8 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
     }
 
     /**
-     * One-shot: reprocesa relaciones de expedientes ya creados.
-     * - Asigna Expediente_de_Negativos__c en toneladas de la CG
-     * - Si la tonelada ya tenía otro expediente, lo mueve a Expediente_de_Origen__c
-     * - Actualiza Movimiento_BolsaTech__c.Expediente_de_Negativos__c
-     * - No modifica TN ni MBT que ya tengan expediente PRI o SEC
+     * One-shot: completa expediente en MBT sin expediente a partir de su tonelada.
+     * La reasignación masiva de TN/MBT al expediente activo de la CG está deshabilitada.
      *
      * Se recomienda ejecutar por tandas desde Execute Anonymous:
      *   ActualizarCuentaGranariaBatch.reprocesarRelacionesExpedienteNegativos(5000);
@@ -2635,17 +2629,18 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             return;
         }
 
-        CuentaGranariaExpedienteService.VinculacionExpedienteResult resultado =
-            CuentaGranariaExpedienteService.vincularToneladasYMovimientosPorCg(expedientePorCg);
-
+        // No reasignar toneladas ni MBT ya vinculados a un EXP.
+        // CuentaGranariaExpedienteService.VinculacionExpedienteResult resultado =
+        //     CuentaGranariaExpedienteService.vincularToneladasYMovimientosPorCg(expedientePorCg);
+	
+        /*
         CuentaGranariaExpedienteService.VinculacionExpedienteResult mbtDesdeTnId =
             CuentaGranariaExpedienteService.completarExpedienteMbtDesdeTnId(limite);
 
-        System.debug('reprocesarRelacionesExpedienteNegativos: toneladas actualizadas=' + resultado.toneladasActualizadas +
-                     ', movimientos actualizados=' + resultado.movimientosActualizados +
+        System.debug('reprocesarRelacionesExpedienteNegativos: vinculación por CG deshabilitada' +
                      ', MBT completados desde TN_Id=' + mbtDesdeTnId.movimientosActualizados +
-                     ', errores=' + (resultado.errores + mbtDesdeTnId.errores) +
-                     ', limite procesado=' + limite);
+                     ', errores=' + mbtDesdeTnId.errores +
+                     ', limite procesado=' + limite); */
     }
     
     /**

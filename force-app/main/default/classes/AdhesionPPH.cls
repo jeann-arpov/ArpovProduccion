@@ -1,11 +1,25 @@
 public without sharing class AdhesionPPH extends ApexErrorHandler {
-
     @AuraEnabled
     public static Map<String, Object> getLoadData(Id parametroId) {
-        Parametro_PPH__c param = parametroId != null ? [select name, Fecha_Inicio_Adhesion_PPH__c, Fecha_Fin_Adhesion_PPH__c from Parametro_PPH__c where id =: parametroId] : [select name, Fecha_Inicio_Adhesion_PPH__c, Fecha_Fin_Adhesion_PPH__c from Parametro_PPH__c limit 1];
+    Parametro_PPH__c param = parametroId != null
+      ? [
+          SELECT name, Fecha_Inicio_Adhesion_PPH__c, Fecha_Fin_Adhesion_PPH__c
+          FROM Parametro_PPH__c
+          WHERE id = :parametroId
+        ]
+      : [
+          SELECT name, Fecha_Inicio_Adhesion_PPH__c, Fecha_Fin_Adhesion_PPH__c
+          FROM Parametro_PPH__c
+          LIMIT 1
+        ];
 
         Account acc = CrearCompraController.getAccount();
-        List<Plan_de_siembra__c> planes = [select Estado__c from Plan_de_siembra__c where Productor__c =: acc.Id and parametro_pph__c =: param.id order by createddate desc];
+    List<Plan_de_siembra__c> planes = [
+      SELECT Estado__c
+      FROM Plan_de_siembra__c
+      WHERE Productor__c = :acc.Id AND parametro_pph__c = :param.id
+      ORDER BY createddate DESC
+    ];
         Plan_de_siembra__c plan;
 
         for (Plan_de_siembra__c p: planes) {
@@ -28,8 +42,10 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
 
                 insert plan;
             } else {
-                if (planes.isEmpty()) validateInPeriodoAdhesion(param, 'Original');
-                else plan = planes[0];
+        if (planes.isEmpty())
+          validateInPeriodoAdhesion(param, 'Original');
+        else
+          plan = planes[0];
             }
         }
         System.debug(plan);
@@ -38,50 +54,110 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     }
 
     private static Boolean isInPeriodoAdhesion(Parametro_PPH__c param) {
-        return param.Fecha_Inicio_Adhesion_PPH__c <= System.today() && param.Fecha_Fin_Adhesion_PPH__c >= System.today();
+    return param.Fecha_Inicio_Adhesion_PPH__c <= System.today() &&
+      param.Fecha_Fin_Adhesion_PPH__c >= System.today();
     }
 
     @AuraEnabled
     public static Boolean hasHT() {
-        return [select id from Hectareas_Tecnologicas__c where Productor__c =: CrearCompraController.getAccount().id and Origen__c not in ('Semilla Original', 'Semilla Pre Básica') limit 1].size() > 0;
+    return [
+        SELECT id
+        FROM Hectareas_Tecnologicas__c
+        WHERE
+          Productor__c = :CrearCompraController.getAccount().id
+          AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica')
+        LIMIT 1
+      ]
+      .size() > 0;
     }
 
     public static Set<String> tecnologiasEquivalentes(String biotecnologia) {
         Set<String> tecnologias = new Set<String>{biotecnologia};
 
-        if (biotecnologia == 'Enlist E3') tecnologias.add('Conkesta E3');
-        if (biotecnologia == 'Conkesta E3') tecnologias.add('Enlist E3');
+    if (biotecnologia == 'Enlist E3')
+      tecnologias.add('Conkesta E3');
+    if (biotecnologia == 'Conkesta E3')
+      tecnologias.add('Enlist E3');
 
         return tecnologias;
     }
 
     //Al adherir queda todo el credito - debito en 0, se "reserva" incluso lo que no usas. Tengo que incluir todas las variedades por aca
-    private static Map<Id, Stock> getStockPorVariedad(Id productor, String biotecnologia, String cultivo) {
+  private static Map<Id, Stock> getStockPorVariedad(
+    Id productor,
+    String biotecnologia,
+    String cultivo
+  ) {
         Map<Id, Stock> variedadesTotals = new Map<Id, Stock>();
 
-        for (AggregateResult res: [select sum(Credito__c) credito, sum(Debito__c) debito, Variedad__c variedad from Hectareas_Tecnologicas__c where Productor__c =: productor and Cultivo__c =: cultivo and variedad__c != null and ht_vigente__c = true and Origen__c not in ('Semilla Original', 'Semilla Pre Básica') group by Variedad__c]) {
+    for (AggregateResult res : [
+      SELECT
+        sum(Credito__c) credito,
+        sum(Debito__c) debito,
+        Variedad__c variedad
+      FROM Hectareas_Tecnologicas__c
+      WHERE
+        Productor__c = :productor
+        AND Cultivo__c = :cultivo
+        AND variedad__c != NULL
+        AND ht_vigente__c = TRUE
+        AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica')
+      GROUP BY Variedad__c
+    ]) {
             variedadesTotals.put((Id) res.get('variedad'), new Stock(res)); 
         }
 
         return variedadesTotals;
     }
 
-    private static Stock getStockGlobal(Id productor, String biotecnologia, String cultivo) {
-        return new Stock([select sum(Credito__c) credito, sum(Debito__c) debito from Hectareas_Tecnologicas__c where Productor__c =: productor and Cultivo__c =: cultivo and variedad__c = null and ht_vigente__c = true and Origen__c not in ('Semilla Original', 'Semilla Pre Básica')]);
+  private static Stock getStockGlobal(
+    Id productor,
+    String biotecnologia,
+    String cultivo
+  ) {
+    return new Stock(
+      [
+        SELECT sum(Credito__c) credito, sum(Debito__c) debito
+        FROM Hectareas_Tecnologicas__c
+        WHERE
+          Productor__c = :productor
+          AND Cultivo__c = :cultivo
+          AND variedad__c = NULL
+          AND ht_vigente__c = TRUE
+          AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica')
+      ]
+    );
     }
 
     private static Stock getStockGlobal(Parametro_PPH__c pph) {
-        return getStockGlobal(CrearCompraController.getAccount().id, pph.BioTecnologia__c, pph.Cultivo__c);
+    return getStockGlobal(
+      CrearCompraController.getAccount().id,
+      pph.BioTecnologia__c,
+      pph.Cultivo__c
+    );
     }
 
     private static Map<Id, Stock> getStockPorVariedad(Parametro_PPH__c pph) {
-        return getStockPorVariedad(CrearCompraController.getAccount().id, pph.BioTecnologia__c, pph.Cultivo__c);
+    return getStockPorVariedad(
+      CrearCompraController.getAccount().id,
+      pph.BioTecnologia__c,
+      pph.Cultivo__c
+    );
     }
 
     //tengo que ver si hay una linea que se pasa del stock total que hay y bajarlo
     //llena ademas en stockVariedades el campo pph que indica cuanto habia de esa variedad en las lineas (si habia mas que el total, se aplica el fix si es updateRecords)
-    private static void validateStock(Map<Id, Stock> stockVariedades, Plan_de_Siembra__c plan, Boolean updateRecords) {
-        List<Linea_PPH__C> lineas = [select Variedad__r.Name, Cantidad_Declarada__c from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_Siembra__c =: plan.id order by Cantidad_Declarada__c desc];
+  private static void validateStock(
+    Map<Id, Stock> stockVariedades,
+    Plan_de_Siembra__c plan,
+    Boolean updateRecords
+  ) {
+    List<Linea_PPH__C> lineas = [
+      SELECT Variedad__r.Name, Cantidad_Declarada__c
+      FROM Linea_PPH__c
+      WHERE Establecimiento_PPH__r.Plan_de_Siembra__c = :plan.id
+      ORDER BY Cantidad_Declarada__c DESC
+    ];
 
         //no deberia pasar que exita una linea de variedad que no esta en hts pero por bugs pasó que hay con RR1 por ej
         for (Linea_PPH__C linea: lineas) {
@@ -90,7 +166,8 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             }
 
             stockVariedades.get(linea.Variedad__c).pph = 0;
-            stockVariedades.get(linea.Variedad__c).variedadName = linea.Variedad__r.Name;
+      stockVariedades.get(linea.Variedad__c)
+        .variedadName = linea.Variedad__r.Name;
         }
 
         List<Linea_PPH__c> toUpdate = new  List<Linea_PPH__c>();
@@ -117,7 +194,9 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         Set<Id> ids = new Set<Id>();
 
         if (firstLoad) {
-            Plan_de_Siembra__c plan = [select Parametro_PPH__r.Fecha_Inicio_Rectificacion_1__c, 
+      Plan_de_Siembra__c plan = [
+        SELECT
+          Parametro_PPH__r.Fecha_Inicio_Rectificacion_1__c,
                                                 Parametro_PPH__r.Fecha_Inicio_Rectificacion_2__c, 
                                                 Parametro_PPH__r.Fecha_Fin_Rectificacion_1__c, 
                                                 Parametro_PPH__r.Fecha_Fin_Rectificacion_2__c, 
@@ -136,11 +215,15 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
                                                 Version__c,
                                                 Name,
                                                 Tiene_Hts_Pendientes__c
-                                        from Plan_de_siembra__c where id =: planId][0];
+        FROM Plan_de_siembra__c
+        WHERE id = :planId
+      ][0];
 
             validateHtsPendientes(plan);
 
-            Map<Id, Stock> stockPorVariedad = getStockPorVariedad(plan.Parametro_PPH__r);
+      Map<Id, Stock> stockPorVariedad = getStockPorVariedad(
+        plan.Parametro_PPH__r
+      );
             
             data.put('plan', plan);
             data.put('account', CrearCompraController.getAccount());
@@ -149,8 +232,14 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             data.put('isInPeriodoAdhesion', isInPeriodoAdhesion(((Plan_de_siembra__c) data.get('plan')).Parametro_PPH__r));
             data.put('stockGlobal', getStockGlobal(plan.Parametro_PPH__r));
 
-            if (plan.Estado__c == 'En Preparación' || plan.Estado__c == 'Rectificado') {
-                data.put('validation', validateStockAndGetError(stockPorVariedad, plan, true));
+      if (
+        plan.Estado__c == 'En Preparación' ||
+        plan.Estado__c == 'Rectificado'
+      ) {
+        data.put(
+          'validation',
+          validateStockAndGetError(stockPorVariedad, plan, true)
+        );
             }
 
             data.put('saldoPph', getSaldoPph(plan.Id));
@@ -197,7 +286,14 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     //para que el número en rojo del resumen PPH muestre siempre lo mismo, se devuelve la suma de saldos PPH para el plan de siembra y se muestra en los planes adheridos
     private static Integer getSaldoPph(Id planId){
         Integer saldoPph = 0;
-        for(AggregateResult ag : [SELECT sum(Cantidad__c) cantidad FROM Hectareas_Tecnologicas__c WHERE Origen__c = 'PPH' AND Saldo_PPH__c = true AND Plan_de_Siembra__c = :planId]){
+    for (AggregateResult ag : [
+      SELECT sum(Cantidad__c) cantidad
+      FROM Hectareas_Tecnologicas__c
+      WHERE
+        Origen__c = 'PPH'
+        AND Saldo_PPH__c = TRUE
+        AND Plan_de_Siembra__c = :planId
+    ]) {
             saldoPph += number(ag.get('cantidad'));
         }
 
@@ -205,19 +301,40 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     }
 
     private static void validateHtsPendientes(Plan_de_Siembra__c plan){
-        plan.Tiene_Hts_Pendientes__c = [SELECT COUNT() FROM Hectareas_Tecnologicas__c WHERE Productor__c = :CrearCompraController.getAccount().Id AND Etapa__c = 'Pendiente'] > 0;
+    plan.Tiene_Hts_Pendientes__c =
+      [
+        SELECT COUNT()
+        FROM Hectareas_Tecnologicas__c
+        WHERE
+          Productor__c = :CrearCompraController.getAccount().Id
+          AND Etapa__c = 'Pendiente'
+      ] > 0;
         update plan;
     }
 
     @AuraEnabled
     public static void deleteEstablecimiento(Id id) {
-        Establecimiento_PPH__c establecimiento = [select Id from Establecimiento_PPH__c where Establecimiento__c =: id and Plan_de_siembra__r.Estado__c in ('En Preparación', 'Rectificado') and Establecimiento__r.productor__c =: CrearCompraController.getAccount().id];
+    Establecimiento_PPH__c establecimiento = [
+      SELECT Id
+      FROM Establecimiento_PPH__c
+      WHERE
+        Establecimiento__c = :id
+        AND Plan_de_siembra__r.Estado__c IN ('En Preparación', 'Rectificado')
+        AND Establecimiento__r.productor__c = :CrearCompraController.getAccount()
+          .id
+    ];
         delete establecimiento;
     }
 
     @AuraEnabled
     public static void acceptTerms(Id planId) {
-        Plan_de_siembra__c plan = [select id from Plan_de_siembra__c where id =: planId and Productor__c =: CrearCompraController.getAccount().id];
+    Plan_de_siembra__c plan = [
+      SELECT id
+      FROM Plan_de_siembra__c
+      WHERE
+        id = :planId
+        AND Productor__c = :CrearCompraController.getAccount().id
+    ];
         plan.Terminos_y_Condiciones__c = true;
         update plan;
     } 
@@ -229,8 +346,16 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             'Cancelada' => Hectareas_Tecnologicas__c.Fecha_de_Cancelacion__c
         };
 
-        for (Hectareas_Tecnologicas__c ht: Database.query(Utils.selectByName('Hectareas_Tecnologicas__c', 'where Plan_de_Siembra__c =: planId'))) {
-            if (ht.Origen__c != 'PPH') { // si es la compra original (compra ht o compra semilla) le desvinculo el plan
+    for (
+      Hectareas_Tecnologicas__c ht : Database.query(
+        Utils.selectByName(
+          'Hectareas_Tecnologicas__c',
+          'where Plan_de_Siembra__c =: planId'
+        )
+      )
+    ) {
+      if (ht.Origen__c != 'PPH') {
+        // si es la compra original (compra ht o compra semilla) le desvinculo el plan
                 ht.Plan_de_Siembra__c = nuevoPlan;
                 toUpsert.add(ht);
             } else {
@@ -247,7 +372,9 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
 
                 inversa.Etapa__c = nuevaEtapa;
                 inversa.Signo__c *= -1;
-                inversa.Tipo_de_Movimiento__c = ht.Tipo_de_Movimiento__c == 'D' ? 'C' : 'D';
+        inversa.Tipo_de_Movimiento__c = ht.Tipo_de_Movimiento__c == 'D'
+          ? 'C'
+          : 'D';
                 inversa.HT_Original__c = ht.id;
 
                 toUpsert.add(inversa);
@@ -257,8 +384,12 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         upsert toUpsert;
     }
 
-    private static Plan_de_Siembra__c rectificarAdhesion(Plan_de_siembra__c plan, String parametroName, String version) {
-        Account acc = [select N_CUIT__c from account where id =: plan.Productor__c];
+  private static Plan_de_Siembra__c rectificarAdhesion(
+    Plan_de_siembra__c plan,
+    String parametroName,
+    String version
+  ) {
+    Account acc = [SELECT N_CUIT__c FROM account WHERE id = :plan.Productor__c];
         Id planId = plan.id;
 
         plan.Estado__c = 'Rectificado';
@@ -274,48 +405,102 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
 
         update plan;
 
-        delete ([SELECT Id FROM Hectareas_Tecnologicas__c WHERE Plan_de_Siembra__c =: planId AND Origen__c = 'PPH']);
+    delete ([
+      SELECT Id
+      FROM Hectareas_Tecnologicas__c
+      WHERE Plan_de_Siembra__c = :planId AND Origen__c = 'PPH'
+    ]);
 
         return plan;
     }
 
     @AuraEnabled
     public static Id rectificarAdhesion(Id planId) {
-        Plan_de_siembra__c plan = (Plan_de_siembra__c) Database.query(Utils.selectByName('Plan_de_siembra__c', ' where id =: planId'))[0];
-        Parametro_PPH__c parametro = [select Name, Fecha_Inicio_Rectificacion_1__c, Fecha_Fin_Rectificacion_1__c from Parametro_PPH__c where id =: plan.Parametro_PPH__c];
+    Plan_de_siembra__c plan = (Plan_de_siembra__c) Database.query(
+      Utils.selectByName('Plan_de_siembra__c', ' where id =: planId')
+    )[0];
+    Parametro_PPH__c parametro = [
+      SELECT Name, Fecha_Inicio_Rectificacion_1__c, Fecha_Fin_Rectificacion_1__c
+      FROM Parametro_PPH__c
+      WHERE id = :plan.Parametro_PPH__c
+    ];
         
-        if (parametro.Fecha_Inicio_Rectificacion_1__c < System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_No_Comenzado);
-        if (parametro.Fecha_Fin_Rectificacion_1__c > System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_Finalizado);
+    if (parametro.Fecha_Inicio_Rectificacion_1__c < System.now() == false)
+      throw new AuraHandledException(
+        Label.PPH_Periodo_Rectificacion_No_Comenzado
+      );
+    if (parametro.Fecha_Fin_Rectificacion_1__c > System.now() == false)
+      throw new AuraHandledException(
+        Label.PPH_Periodo_Rectificacion_Finalizado
+      );
 
         Decimal nroRectificacion = plan.Numero_de_Rectificacion__c ?? 0;
-        return rectificarAdhesion(plan, parametro.Name, 'Rectificación ' +(nroRectificacion + 1)).id;
+    return rectificarAdhesion(
+        plan,
+        parametro.Name,
+        'Rectificación ' + (nroRectificacion + 1)
+      )
+      .id;
     }
 
     @AuraEnabled
     public static Id rectificarAdhesion2(Id planId) {
-        Plan_de_siembra__c plan = (Plan_de_siembra__c) Database.query(Utils.selectByName('Plan_de_siembra__c', ' where id =: planId'))[0];
-        Parametro_PPH__c parametro = [select Name, Fecha_Inicio_Rectificacion_2__c, Fecha_Fin_Rectificacion_2__c from Parametro_PPH__c where id =: plan.Parametro_PPH__c];
+    Plan_de_siembra__c plan = (Plan_de_siembra__c) Database.query(
+      Utils.selectByName('Plan_de_siembra__c', ' where id =: planId')
+    )[0];
+    Parametro_PPH__c parametro = [
+      SELECT Name, Fecha_Inicio_Rectificacion_2__c, Fecha_Fin_Rectificacion_2__c
+      FROM Parametro_PPH__c
+      WHERE id = :plan.Parametro_PPH__c
+    ];
         
-        if (parametro.Fecha_Inicio_Rectificacion_2__c < System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_No_Comenzado);
-        if (parametro.Fecha_Fin_Rectificacion_2__c > System.now() == false) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_Finalizado);
+    if (parametro.Fecha_Inicio_Rectificacion_2__c < System.now() == false)
+      throw new AuraHandledException(
+        Label.PPH_Periodo_Rectificacion_No_Comenzado
+      );
+    if (parametro.Fecha_Fin_Rectificacion_2__c > System.now() == false)
+      throw new AuraHandledException(
+        Label.PPH_Periodo_Rectificacion_Finalizado
+      );
         
         return rectificarAdhesion(plan, parametro.Name, 'Rectificación 2').id;
     }
 
-    private static void validateInPeriodoAdhesion(Parametro_PPH__c param, String version) {
+  private static void validateInPeriodoAdhesion(
+    Parametro_PPH__c param,
+    String version
+  ) {
         if (version == 'Original') {
-            if (param.Fecha_Inicio_Adhesion_PPH__c > System.now()) throw new AuraHandledException(Label.PPH_Periodo_Adhesion_No_Comenzado);
-            if (param.Fecha_Fin_Adhesion_PPH__c < System.now()) throw new AuraHandledException(Label.PPH_Periodo_Adhesion_Finalizado);
+      if (param.Fecha_Inicio_Adhesion_PPH__c > System.now())
+        throw new AuraHandledException(Label.PPH_Periodo_Adhesion_No_Comenzado);
+      if (param.Fecha_Fin_Adhesion_PPH__c < System.now())
+        throw new AuraHandledException(Label.PPH_Periodo_Adhesion_Finalizado);
         } else if (version == 'Rectificación 1') {
-            if (param.Fecha_Inicio_Rectificacion_1__c > System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_1_No_Comenzado);
-            if (param.Fecha_Fin_Rectificacion_1__c < System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_1_Finalizado);
+      if (param.Fecha_Inicio_Rectificacion_1__c > System.now())
+        throw new AuraHandledException(
+          Label.PPH_Periodo_Rectificacion_1_No_Comenzado
+        );
+      if (param.Fecha_Fin_Rectificacion_1__c < System.now())
+        throw new AuraHandledException(
+          Label.PPH_Periodo_Rectificacion_1_Finalizado
+        );
         }  else if (version == 'Rectificación 2') {
-            if (param.Fecha_Inicio_Rectificacion_2__c > System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_2_No_Comenzado);
-            if (param.Fecha_Fin_Rectificacion_2__c < System.now()) throw new AuraHandledException(Label.PPH_Periodo_Rectificacion_2_Finalizado);
+      if (param.Fecha_Inicio_Rectificacion_2__c > System.now())
+        throw new AuraHandledException(
+          Label.PPH_Periodo_Rectificacion_2_No_Comenzado
+        );
+      if (param.Fecha_Fin_Rectificacion_2__c < System.now())
+        throw new AuraHandledException(
+          Label.PPH_Periodo_Rectificacion_2_Finalizado
+        );
         }
     }
 
-    private static String validateStockAndGetError(Map<Id, Stock> stockPorVariedad, Plan_de_siembra__c plan, Boolean updateRecords) {
+  private static String validateStockAndGetError(
+    Map<Id, Stock> stockPorVariedad,
+    Plan_de_siembra__c plan,
+    Boolean updateRecords
+  ) {
         String error = '';
 
         validateStock(stockPorVariedad, plan, updateRecords);
@@ -324,7 +509,14 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             Stock stock = stockPorVariedad.get(variedad);
 
             if (stock.total < stock.pph) {
-                error += 'Hay ' + stock.total + ' de stock disponible de la variedad ' +  stock.variedadName + ' pero el formulario usa ' + stock.pph + '\n';
+        error +=
+          'Hay ' +
+          stock.total +
+          ' de stock disponible de la variedad ' +
+          stock.variedadName +
+          ' pero el formulario usa ' +
+          stock.pph +
+          '\n';
             }
         }
 
@@ -337,21 +529,53 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
 
     @AuraEnabled
     public static void sendAdhesion(Id planId) {
-        Plan_de_siembra__c plan = [select Estado__c, Version__c, Parametro_PPH__c from Plan_de_siembra__c where id =: planId and Productor__c =: CrearCompraController.getAccount().id];
+    Plan_de_siembra__c plan = [
+      SELECT Estado__c, Version__c, Parametro_PPH__c
+      FROM Plan_de_siembra__c
+      WHERE
+        id = :planId
+        AND Productor__c = :CrearCompraController.getAccount().id
+    ];
         Parametro_PPH__c parametro = [
-            SELECT Fecha_Inicio_Rectificacion_1__c, Fecha_Inicio_Rectificacion_2__c, Fecha_Fin_Rectificacion_1__c, Fecha_Fin_Rectificacion_2__c, Fecha_Inicio_Adhesion_PPH__c, Fecha_Fin_Adhesion_PPH__c, 
-                Biotecnologia__c, Cultivo__r.HT2Kilos__c, Cultivo__r.Fecha_Vencimiento_de_Tonelada__c, Campana__c 
+      SELECT
+        Fecha_Inicio_Rectificacion_1__c,
+        Fecha_Inicio_Rectificacion_2__c,
+        Fecha_Fin_Rectificacion_1__c,
+        Fecha_Fin_Rectificacion_2__c,
+        Fecha_Inicio_Adhesion_PPH__c,
+        Fecha_Fin_Adhesion_PPH__c,
+        Biotecnologia__c,
+        Cultivo__r.HT2Kilos__c,
+        Cultivo__r.Fecha_Vencimiento_de_Tonelada__c,
+        Campana__c
             FROM Parametro_PPH__c 
             WHERE id =: plan.Parametro_PPH__c
         ];
 
         try {
             validateInPeriodoAdhesion(parametro, plan.Version__c);
-            if ([select id from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_siembra__c =: planId and Cantidad_Declarada__c > 0 limit 1].isEmpty()) throw new AuraHandledException(Label.PPH_Adhesion_Sin_Hectareas_SE);
-            if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado') throw new AuraHandledException(Label.PPH_Plan_Estado_Invalido);
+      if (
+        [
+            SELECT id
+            FROM Linea_PPH__c
+            WHERE
+              Establecimiento_PPH__r.Plan_de_siembra__c = :planId
+              AND Cantidad_Declarada__c > 0
+            LIMIT 1
+          ]
+          .isEmpty()
+      )
+        throw new AuraHandledException(Label.PPH_Adhesion_Sin_Hectareas_SE);
+      if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado')
+        throw new AuraHandledException(Label.PPH_Plan_Estado_Invalido);
 
-            String error = validateStockAndGetError(getStockPorVariedad(parametro), plan, false);
-            if (String.isBlank(error) == false) throw new AuraHandledException(error);
+      String error = validateStockAndGetError(
+        getStockPorVariedad(parametro),
+        plan,
+        false
+      );
+      if (String.isBlank(error) == false)
+        throw new AuraHandledException(error);
         } catch (Exception e) {
             throw handleException(e, 'ERR-ADH-001', 'AdhesionPPH', planId);
         }
@@ -389,9 +613,19 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
 
         List<Hectareas_Tecnologicas__c> htsToUpsert = new List<Hectareas_Tecnologicas__c>();
             
-        Date fechaFinHT = getFechaFinHT(parametro.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c);
+    Date fechaFinHT = getFechaFinHT(
+      parametro.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c
+    );
 
-        for (Linea_PPH__c linea: [select Establecimiento_PPH__c, Cantidad_Declarada__c, Variedad__c, Variedad__r.Biotecnologia__c from Linea_PPH__c where Establecimiento_PPH__r.Plan_de_siembra__c =: planId]) {
+    for (Linea_PPH__c linea : [
+      SELECT
+        Establecimiento_PPH__c,
+        Cantidad_Declarada__c,
+        Variedad__c,
+        Variedad__r.Biotecnologia__c
+      FROM Linea_PPH__c
+      WHERE Establecimiento_PPH__r.Plan_de_siembra__c = :planId
+    ]) {
             Hectareas_Tecnologicas__c ht = new Hectareas_Tecnologicas__c();
 
             ht.Biotecnologia__c = linea.Variedad__r.Biotecnologia__c;
@@ -409,7 +643,9 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             ht.Tipo_de_Movimiento__c = 'D';
             ht.Variedad__c = linea.Variedad__c;
             ht.Establecimiento_PPH__c = linea.Establecimiento_PPH__c; 
-            ht.Valor_Conversion__c = Test.isRunningTest() ? 3 : parametro.Cultivo__r.HT2Kilos__c;     
+      ht.Valor_Conversion__c = Test.isRunningTest()
+        ? 3
+        : parametro.Cultivo__r.HT2Kilos__c;
             ht.Fecha_Inicio__c = Date.today();
             ht.Fecha_Fin__c = fechaFinHT;
             ht.Campania__c = parametro.Campana__c;
@@ -439,8 +675,13 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             Nota: Se creará esta HT negativa siempre que el saldo de la variedad sea > 0.
         */
 
-        Map<Id, Integer> disponiblesPorVariedad = calculateDisponiblesByVariedad(parametro, plan);
-        Map<Id, String> biotecnologiaPorVariedad = getBiotecPorVariedad(disponiblesPorVariedad.keySet());
+    Map<Id, Integer> disponiblesPorVariedad = calculateDisponiblesByVariedad(
+      parametro,
+      plan
+    );
+    Map<Id, String> biotecnologiaPorVariedad = getBiotecPorVariedad(
+      disponiblesPorVariedad.keySet()
+    );
 
         for (Id variedadId: disponiblesPorVariedad.keySet()) {
             Hectareas_Tecnologicas__c ht = new Hectareas_Tecnologicas__c();
@@ -459,15 +700,29 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             ht.Tipo_de_Movimiento__c = 'D';
             ht.Variedad__c = variedadId;
             ht.Saldo_PPH__c = true;
-            ht.Valor_Conversion__c = Test.isRunningTest() ? 3 : parametro.Cultivo__r.HT2Kilos__c; 
+      ht.Valor_Conversion__c = Test.isRunningTest()
+        ? 3
+        : parametro.Cultivo__r.HT2Kilos__c;
             ht.Fecha_Inicio__c = Date.today();
             ht.Fecha_Fin__c = fechaFinHT; 
             ht.Campania__c = parametro.Campana__c;
 
-            if (ht.Cantidad__c > 0) htsToUpsert.add(ht);
+      if (ht.Cantidad__c > 0)
+        htsToUpsert.add(ht);
         }
 
-        for (Hectareas_Tecnologicas__c ht: [select id from Hectareas_Tecnologicas__c where Plan_de_Siembra__c =: null and Productor__c =: CrearCompraController.getAccount().id and Cultivo__c =: parametro.Cultivo__c and createddate >=: Date.newInstance(2022, 1, 1) and Origen__c not in ('Semilla Original', 'Semilla Pre Básica') AND HT_Vigente__c = true AND HT_Tardia__c = false]) {
+    for (Hectareas_Tecnologicas__c ht : [
+      SELECT id
+      FROM Hectareas_Tecnologicas__c
+      WHERE
+        Plan_de_Siembra__c = :null
+        AND Productor__c = :CrearCompraController.getAccount().id
+        AND Cultivo__c = :parametro.Cultivo__c
+        AND createddate >= :Date.newInstance(2022, 1, 1)
+        AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica')
+        AND HT_Vigente__c = TRUE
+        AND HT_Tardia__c = FALSE
+    ]) {
             ht.Plan_de_Siembra__c = plan.id;
             htsToUpsert.add(ht);
         }
@@ -475,10 +730,24 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         upsert htsToUpsert;
 
         List<Tonelada__c> tnsToUpdate = new List<Tonelada__c>();
-        Date fechaFinTN = getFechaFinTN(parametro.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c);
+    Date fechaFinTN = getFechaFinTN(
+      parametro.Cultivo__r.Fecha_Vencimiento_de_Tonelada__c
+    );
 
-        for(Tonelada__c tonelada : [SELECT Id, Fecha_Inicio__c FROM Tonelada__c WHERE Productor__c = :CrearCompraController.getAccount().Id AND Cultivo__c = :parametro.Cultivo__c AND HT_Id__r.Plan_de_Siembra__c = :plan.id]){
-            tnsToUpdate.add(new Tonelada__c(Id = tonelada.Id, Fecha_Fin__c = tonelada.Fecha_Inicio__c.addYears(1)));
+    for (Tonelada__c tonelada : [
+      SELECT Id, Fecha_Inicio__c
+      FROM Tonelada__c
+      WHERE
+        Productor__c = :CrearCompraController.getAccount().Id
+        AND Cultivo__c = :parametro.Cultivo__c
+        AND HT_Id__r.Plan_de_Siembra__c = :plan.id
+    ]) {
+      tnsToUpdate.add(
+        new Tonelada__c(
+          Id = tonelada.Id,
+          Fecha_Fin__c = tonelada.Fecha_Inicio__c.addYears(1)
+        )
+      );
         }
 
         update tnsToUpdate;
@@ -486,7 +755,11 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
 
     private static Map<Id, String> getBiotecPorVariedad(Set<Id> variedadIds){
         Map<Id, String> biotecsPorVariedad = new Map<Id, String>();
-        for(Variedad__c var : [SELECT Id, Biotecnologia__c FROM Variedad__c WHERE Id IN :variedadIds]){
+    for (Variedad__c var : [
+      SELECT Id, Biotecnologia__c
+      FROM Variedad__c
+      WHERE Id IN :variedadIds
+    ]) {
             biotecsPorVariedad.put(var.Id, var.Biotecnologia__c);
         }
         return biotecsPorVariedad;
@@ -496,7 +769,10 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         Date hoy = Date.today();
         Date fechaFin = fechaVencimientoTN;
 
-        if(hoy >= Date.newInstance(hoy.year(), 4, 1) && hoy <= Date.newInstance(hoy.year(), 12, 31)){
+    if (
+      hoy >= Date.newInstance(hoy.year(), 4, 1) &&
+      hoy <= Date.newInstance(hoy.year(), 12, 31)
+    ) {
             fechaFin = fechaFin.addYears(1);
         }
 
@@ -507,7 +783,10 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         Date hoy = Date.today();
         Date fechaFin = fechaVencimientoTN.addYears(1);
 
-        if(hoy >= Date.newInstance(hoy.year(), 4, 1) && hoy <= Date.newInstance(hoy.year(), 12, 31)){
+    if (
+      hoy >= Date.newInstance(hoy.year(), 4, 1) &&
+      hoy <= Date.newInstance(hoy.year(), 12, 31)
+    ) {
             fechaFin = fechaFin.addYears(1);
         }
 
@@ -518,24 +797,35 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         return val == null ? 0 : Integer.valueOf(val);
     }
 
-    private static Map<Id, Integer> calculateDisponiblesByVariedad(Parametro_PPH__c parametro, Plan_de_Siembra__c plan) {
+  private static Map<Id, Integer> calculateDisponiblesByVariedad(
+    Parametro_PPH__c parametro,
+    Plan_de_Siembra__c plan
+  ) {
         Map<Id, Stock> stockVariedades = getStockPorVariedad(parametro);
         validateStock(stockVariedades, plan, false);
 
         Map<Id, Integer> disponibles = new Map<Id, Integer>();
 
         for(Id variedad: stockVariedades.keySet()) {
-            disponibles.put(variedad, stockVariedades.get(variedad).total - stockVariedades.get(variedad).pph);
+      disponibles.put(
+        variedad,
+        stockVariedades.get(variedad).total - stockVariedades.get(variedad).pph
+      );
         }
 
         return disponibles;
     }
 
-
-    private static Integer calculateDisponibles(Parametro_PPH__c parametro, Plan_de_Siembra__c plan) {
+  private static Integer calculateDisponibles(
+    Parametro_PPH__c parametro,
+    Plan_de_Siembra__c plan
+  ) {
         Integer total = 0;
 
-        for (Integer cantidad: calculateDisponiblesByVariedad(parametro, plan).values()) {
+    for (
+      Integer cantidad : calculateDisponiblesByVariedad(parametro, plan)
+        .values()
+    ) {
             total += cantidad;
         }
 
@@ -545,7 +835,13 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     @AuraEnabled
     public static Map<String, Object> save(String js, Id planId) {
         Data data = (Data) JSON.deserialize(js, Data.class);
-        Plan_de_siembra__c plan = [select id, Parametro_PPH__c from Plan_de_siembra__c where id =: planId and Productor__c =: CrearCompraController.getAccount().id];
+    Plan_de_siembra__c plan = [
+      SELECT id, Parametro_PPH__c
+      FROM Plan_de_siembra__c
+      WHERE
+        id = :planId
+        AND Productor__c = :CrearCompraController.getAccount().id
+    ];
 
         List<Establecimiento__c> establecimientos = new List<Establecimiento__c>();
         List<Establecimiento_PPH__c> establecimientosPPH = new List<Establecimiento_PPH__c>();
@@ -591,22 +887,47 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
 
         Map<String, Object> dt = loadData(false, plan.id);
 
-        plan.HT_Disponible__c = calculateDisponibles([select Biotecnologia__c, Cultivo__c from Parametro_PPH__C where id =: plan.Parametro_PPH__c], plan);
+    plan.HT_Disponible__c = calculateDisponibles(
+      [
+        SELECT Biotecnologia__c, Cultivo__c
+        FROM Parametro_PPH__C
+        WHERE id = :plan.Parametro_PPH__c
+      ],
+      plan
+    );
         update plan;
 
         return dt;
     }
 
     @AuraEnabled(cacheable=true)
-    public static List<LookupSearchResult> searchEstablecimientos(String searchTerm){
-        List<Establecimiento__c> establecimientos = [SELECT Id, Name, Coordenadas__latitude__s, Coordenadas__longitude__s FROM Establecimiento__c WHERE Name LIKE: '%' + searchTerm + '%' AND Productor__c = :CrearCompraController.getAccount().Id AND Origen__c = 'Propio' AND Vigente__c = true];
+  public static List<LookupSearchResult> searchEstablecimientos(
+    String searchTerm
+  ) {
+    List<Establecimiento__c> establecimientos = [
+      SELECT Id, Name, Coordenadas__latitude__s, Coordenadas__longitude__s
+      FROM Establecimiento__c
+      WHERE
+        Name LIKE :'%' + searchTerm + '%'
+        AND Productor__c = :CrearCompraController.getAccount().Id
+        AND Origen__c = 'Propio'
+        AND Vigente__c = TRUE
+    ];
 
         List<LookupSearchResult> results = new List<LookupSearchResult>();
 
         String icon = 'standard:address';
 
         for (Establecimiento__c establecimiento : establecimientos) {
-            results.add(new LookupSearchResult(establecimiento.Id, 'Establecimiento__c', icon, establecimiento.Name, 'Establecimiento'));
+      results.add(
+        new LookupSearchResult(
+          establecimiento.Id,
+          'Establecimiento__c',
+          icon,
+          establecimiento.Name,
+          'Establecimiento'
+        )
+      );
             results[results.size() - 1].record = establecimiento;
         }
 
@@ -678,9 +999,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         Variedad variedad = new Variedad();
         variedad.cantidad = 3;
 
-        est.variedades = new Map<Id, Variedad> {
-            variedadId => variedad
-        };
+    est.variedades = new Map<Id, Variedad>{ variedadId => variedad };
 
         data.establecimientos = new List<Establecimiento>{est};
 
@@ -746,10 +1065,14 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     }
 
     public class Stock {
-        @AuraEnabled public Integer debito;
-        @AuraEnabled public Integer credito;
-        @AuraEnabled public Integer total;
-        @AuraEnabled public Integer pph = 0;
+    @AuraEnabled
+    public Integer debito;
+    @AuraEnabled
+    public Integer credito;
+    @AuraEnabled
+    public Integer total;
+    @AuraEnabled
+    public Integer pph = 0;
         String variedadName;
 
         Stock(AggregateResult res) {

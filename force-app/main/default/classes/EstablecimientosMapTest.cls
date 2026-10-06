@@ -35,7 +35,14 @@ public class EstablecimientosMapTest {
     static void testGetAccountId() {
         Account acc = Test_TestUtils.crearProductor();
 
-        Profile communityProfile = [SELECT Id FROM Profile WHERE Name = 'Customer Community Login User' LIMIT 1];
+        // Los nombres de perfil cambian entre orgs (idioma / licencias): se toma cualquier perfil de portal.
+        Profile communityProfile = [
+            SELECT Id
+            FROM Profile
+            WHERE UserType IN ('CspLitePortal', 'CustomerSuccess', 'PowerCustomerSuccess')
+            ORDER BY Name
+            LIMIT 1
+        ];
 
         Contact contact = new Contact(
             FirstName = 'Juan',
@@ -45,8 +52,6 @@ public class EstablecimientosMapTest {
         );
 
         insert contact;
-
-        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
 
         User communityUser = new User(
             Username = 'juan.perez+' + System.currentTimeMillis() + '@example.com',
