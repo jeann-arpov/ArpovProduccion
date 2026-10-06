@@ -8,6 +8,7 @@ import getProfileInfo from '@salesforce/apex/editProfileController.getUserInfo';
 import UpdateUser from '@salesforce/apex/editProfileController.editUser';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 const SUCCESS_PASSWORD_MSG = 'Success: Your password has been changed successfully.';
 
@@ -39,7 +40,12 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
         document.body.classList.add('se-inner');
     }
 
+    renderedCallback() {
+        syncPortalModal(this, this.modal || this.modalpass, '.modal-backdrop');
+    }
+
     disconnectedCallback() {
+        releasePortalModal(this);
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
     }

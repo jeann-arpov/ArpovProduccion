@@ -104,6 +104,34 @@ export function lockPortalModal(host, refit) {
     return state;
 }
 
+function fitLayers(cmp, selector) {
+    if (!selector) return;
+    cmp.template.querySelectorAll(selector).forEach((el) => fitFixedLayer(el));
+}
+
+/**
+ * Para llamar desde renderedCallback: bloquea/desbloquea según isOpen y ajusta al viewport los
+ * overlays que matchean selector (position:fixed; inset:0).
+ */
+export function syncPortalModal(cmp, isOpen, selector) {
+    if (!cmp) return;
+    if (isOpen && !cmp._seModalLock) {
+        cmp._seModalLock = lockPortalModal(cmp.template.host, () => fitLayers(cmp, selector));
+    } else if (!isOpen && cmp._seModalLock) {
+        unlockPortalModal(cmp._seModalLock);
+        cmp._seModalLock = null;
+    }
+    if (cmp._seModalLock) fitLayers(cmp, selector);
+}
+
+/** Para llamar desde disconnectedCallback. */
+export function releasePortalModal(cmp) {
+    if (cmp && cmp._seModalLock) {
+        unlockPortalModal(cmp._seModalLock);
+        cmp._seModalLock = null;
+    }
+}
+
 export function unlockPortalModal(state) {
     if (!state || typeof document === 'undefined') return;
     restoreModalLayer(state.layer);

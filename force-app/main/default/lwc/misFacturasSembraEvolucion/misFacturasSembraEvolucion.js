@@ -7,6 +7,7 @@ import { reduceErrors } from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { doRequest } from 'c/utils';
 import { trackGa4Event } from 'c/portalGa4Events';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 function pad(n) {
     return String(n).padStart(2, '0');
@@ -92,12 +93,14 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     }
 
     disconnectedCallback() {
+        releasePortalModal(this);
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
     }
 
     renderedCallback() {
         if (!this.initialized) this.init();
+        syncPortalModal(this, this.showDocumentos, '.mf-scrim');
     }
 
     get statusPills() {

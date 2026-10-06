@@ -3,6 +3,7 @@ import { NavigationMixin } from 'lightning/navigation';
 import getCesiones from '@salesforce/apex/misCesionesController.getCesiones';
 import { doRequest } from 'c/utils';
 import { trackGa4Event } from 'c/portalGa4Events';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 function pad(n) {
     return String(n).padStart(2, '0');
@@ -76,7 +77,13 @@ export default class MisCesiones extends NavigationMixin(LightningElement) {
         this.load();
     }
 
+    renderedCallback() {
+        // El sheet solo se muestra en mobile (< 768px).
+        syncPortalModal(this, this.showNewSheet && window.innerWidth < 768, '.se-new-sheet-wrap.is-open');
+    }
+
     disconnectedCallback() {
+        releasePortalModal(this);
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
     }

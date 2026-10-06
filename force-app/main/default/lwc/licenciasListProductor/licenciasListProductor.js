@@ -15,6 +15,7 @@ import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
 import { redirectToSglWithToken } from 'c/utils';
 import { trackGa4Event } from 'c/portalGa4Events';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 function licenseStatusTone(estadoVisual) {
     const s = (estadoVisual || '').toLowerCase();
@@ -134,7 +135,12 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
         document.body.classList.add('se-inner');
     }
 
+    renderedCallback() {
+        syncPortalModal(this, this.showModal || this.showReportModal, '.modal-backdrop, .slds-modal, .slds-backdrop');
+    }
+
     disconnectedCallback() {
+        releasePortalModal(this);
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
         if (this.searchTimeout) {

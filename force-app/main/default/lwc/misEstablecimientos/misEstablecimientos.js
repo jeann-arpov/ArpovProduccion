@@ -3,6 +3,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getEstablecimientos from '@salesforce/apex/misEstablecimientosController.getEstablecimientos';
 import updateEstablecimiento from '@salesforce/apex/misEstablecimientosController.updateEstablecimiento';
 import { doRequest, errorEvent, reduceErrors } from 'c/utils';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 const PAGE_SIZE = 10;
 const DETAIL_PARAM = 'establecimiento';
@@ -59,7 +60,7 @@ export default class MisEstablecimientos extends LightningElement {
     disconnectedCallback() {
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
-        document.body.classList.remove('se-drawer-open');
+        releasePortalModal(this);
         window.removeEventListener('popstate', this._popHandler);
     }
 
@@ -68,6 +69,7 @@ export default class MisEstablecimientos extends LightningElement {
             this._initialized = true;
             this.loadRows();
         }
+        this.syncBodyLock();
         if (this._focusField) {
             const el = this.template.querySelector(`[data-field="${this._focusField}"]`);
             if (el) {
@@ -283,7 +285,7 @@ export default class MisEstablecimientos extends LightningElement {
     }
 
     syncBodyLock() {
-        document.body.classList.toggle('se-drawer-open', this.editOpen);
+        syncPortalModal(this, this.editOpen, '.p-layer');
     }
 
     handleEditKeydown(event) {

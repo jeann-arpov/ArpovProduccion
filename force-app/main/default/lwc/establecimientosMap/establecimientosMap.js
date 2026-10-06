@@ -3,6 +3,7 @@ import getEstablecimientos from '@salesforce/apex/EstablecimientosMap.getEstable
 import getAccountId from '@salesforce/apex/EstablecimientosMap.getAccountId';
 import insertEstablecimiento from '@salesforce/apex/EstablecimientosMap.insertEstablecimiento';
 import { errorEvent, reduceErrors } from 'c/utils';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 const MAP_MOUNT_DELAY_MS = 320;
 const REQUIRED_MSG = 'Este campo es obligatorio';
@@ -38,9 +39,13 @@ export default class EstablecimientosMap extends LightningElement {
 
     _mapTimer;
 
+    renderedCallback() {
+        this.syncBodyLock();
+    }
+
     disconnectedCallback() {
         if (this._mapTimer) window.clearTimeout(this._mapTimer);
-        document.body.classList.remove('se-drawer-open');
+        releasePortalModal(this);
     }
 
     onError(e) {
@@ -49,7 +54,7 @@ export default class EstablecimientosMap extends LightningElement {
 
     syncBodyLock() {
         const open = this.mapOpen || this.newOpen || this.successOpen;
-        document.body.classList.toggle('se-drawer-open', open);
+        syncPortalModal(this, open, '.p-layer');
     }
 
     async ensureData(force = false) {

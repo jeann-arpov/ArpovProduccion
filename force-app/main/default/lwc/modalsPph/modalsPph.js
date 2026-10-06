@@ -2,6 +2,7 @@ import { LightningElement, api } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import registerCuit from '@salesforce/apex/CesionPPH.registerCuit';
 import {errorEvent} from 'c/utils';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 import recibidaLabel from '@salesforce/label/c.PPH_Mensaje_Recibida';
 
 export default class ModalsPph extends NavigationMixin(LightningElement) {
@@ -13,6 +14,14 @@ export default class ModalsPph extends NavigationMixin(LightningElement) {
 
     get showModal() {
         return this.currentModal != null;
+    }
+
+    renderedCallback() {
+        syncPortalModal(this, this.showModal, '.slds-modal, .slds-backdrop');
+    }
+
+    disconnectedCallback() {
+        releasePortalModal(this);
     }
 
     closeModal(event) {
