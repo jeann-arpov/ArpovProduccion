@@ -1,0 +1,38 @@
+<template>
+    <template lwc:if={isVisible}>
+        <section class="se-maint-overlay" onclick={handleOverlayClick}>
+            <div class="se-maint-modal" role="dialog" aria-modal="true" aria-labelledby="se-maint-title">
+                <header class="se-maint-head">
+                    <button type="button" class="se-maint-close" onclick={close} aria-label="Cerrar">
+                        <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Cerrar"></lightning-icon>
+                    </button>
+                    <span class="se-maint-pill">{pillText}</span>
+                    <h2 id="se-maint-title" class="se-maint-title">
+                        {headingText} <span class="se-maint-accent">{headingAccent}</span>
+                    </h2>
+                    <p class="se-maint-intro">{messageText}</p>
+                </header>
+
+                <div class="se-maint-body">
+                    <ul class="se-maint-list">
+                        <template for:each={items} for:item="item">
+                            <li key={item.key} class="se-maint-item">
+                                <span class="se-maint-item-icon" aria-hidden="true">
+                                    <lightning-icon icon-name={item.icon} size="x-small"></lightning-icon>
+                                </span>
+                                <span class="se-maint-item-text">
+                                    <strong class="se-maint-item-title">{item.heading}</strong>
+                                    <span class="se-maint-item-desc">{item.description}</span>
+                                </span>
+                            </li>
+                        </template>
+                    </ul>
+
+                    <p class="se-maint-note">{noteText}</p>
+
+                    <button type="button" class="se-maint-btn" onclick={close}>{buttonText}</button>
+                </div>
+            </div>
+        </section>
+    </template>
+</template>

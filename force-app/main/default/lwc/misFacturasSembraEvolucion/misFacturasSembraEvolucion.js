@@ -8,6 +8,9 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { doRequest } from 'c/utils';
 import { trackGa4Event } from 'c/portalGa4Events';
 import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import { ensureXlsxLoaded, downloadVentasWorkbook } from 'c/ventasInformadasExcelUtil';
+
+const EXPORT_HEADERS = ['Comprobante', 'Fecha', 'Concepto', 'Cultivo', 'Importe', 'Vencimiento', 'Estado'];
 
 function pad(n) {
     return String(n).padStart(2, '0');
@@ -107,26 +110,43 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     }
 
     get statusPills() {
+        const rows = this.rowsDelCultivo;
         return [
             {
                 id: 'todas',
                 label: 'Todas',
-                count: this.vencimientos.length,
+                count: rows.length,
                 selected: this.statusFilter === 'todas'
             },
             {
                 id: 'facturadas',
                 label: 'Facturadas',
-                count: this.vencimientos.filter((row) => row.bucket === 'facturadas').length,
+                count: rows.filter((row) => row.bucket === 'facturadas').length,
                 selected: this.statusFilter === 'facturadas'
             },
             {
                 id: 'pagadas',
                 label: 'Pagadas',
-                count: this.vencimientos.filter((row) => row.bucket === 'pagadas').length,
+                count: rows.filter((row) => row.bucket === 'pagadas').length,
                 selected: this.statusFilter === 'pagadas'
             }
         ];
+    }
+
+    get selectedCultivoName() {
+        if (!this.showCultivoResumen || !this.selectedCultivoId) return '';
+        const option = (this.cultivoOptions || []).find((o) => o.value === this.selectedCultivoId);
+        return option ? String(option.label || '').trim().toUpperCase() : '';
+    }
+
+    // Las facturas sin cultivo se muestran en todas las pestañas para no ocultarlas.
+    get rowsDelCultivo() {
+        const cultivo = this.selectedCultivoName;
+        if (!cultivo) return this.vencimientos;
+        return this.vencimientos.filter((row) => {
+            const rowCultivo = String(row.cultivo || '').trim().toUpperCase();
+            return !rowCultivo || rowCultivo === cultivo;
+        });
     }
 
     async init() {
@@ -163,8 +183,8 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
                 return vencimiento;
             });
 
-            this.applyFilters();
             await this.loadCultivoResumenOptions();
+            this.applyFilters();
         });
     }
 
@@ -206,6 +226,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
 
     handleCultivoResumenSelect(event) {
         this.selectedCultivoId = event.detail?.value;
+        this.applyFilters();
         this.loadCultivoSummary();
     }
 
@@ -227,7 +248,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     }
 
     applyFilters() {
-        let rows = [...this.vencimientos];
+        let rows = [...this.rowsDelCultivo];
         if (this.statusFilter !== 'todas') {
             rows = rows.filter((row) => row.bucket === this.statusFilter);
         }
@@ -293,21 +314,48 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
         event.stopPropagation();
     }
 
-    handleExport() {
-        const header = ['Comprobante', 'Fecha', 'Concepto', 'Cultivo', 'Importe', 'Vto', 'Estado'];
-        const lines = this.data.map((row) =>
-            [row.numero, row.fechaLabel, row.concepto, row.cultivoLabel, row.importeLabel, row.vtoLabel, row.statusLabel]
-                .map((value) => `"${String(value || '').replace(/"/g, '""')}"`)
-                .join(';')
-        );
-        const csv = `\uFEFF${[header.join(';'), ...lines].join('\n')}`;
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'facturas.csv';
-        link.click();
-        URL.revokeObjectURL(url);
+    async handleExport() {
+        const rows = this.data || [];
+        if (!rows.length) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Sin facturas',
+                    message: 'No hay facturas para exportar con el filtro actual.',
+                    variant: 'info'
+                })
+            );
+            return;
+        }
+
+        try {
+            await ensureXlsxLoaded(this);
+            const exportRows = rows.map((row) => ({
+                Comprobante: row.numero || '',
+                Fecha: row.fechaLabel || '',
+                Concepto: row.concepto || '',
+                Cultivo: row.cultivoLabel || '',
+                Importe: row.importeLabel || '',
+                Vencimiento: row.vtoLabel || '',
+                Estado: row.statusLabel || ''
+            }));
+            const dateSuffix = new Date().toISOString().split('T')[0];
+            const cultivoSuffix = this.selectedCultivoName ? `${this.selectedCultivoName.toLowerCase()}_` : '';
+            downloadVentasWorkbook(
+                `facturas_${cultivoSuffix}${this.statusFilter}_${dateSuffix}.xlsx`,
+                exportRows,
+                EXPORT_HEADERS,
+                'Facturas'
+            );
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Éxito',
+                    message: `Se exportaron ${rows.length} facturas.`,
+                    variant: 'success'
+                })
+            );
+        } catch (error) {
+            this.onError(error);
+        }
     }
 
     showPdf(vencimiento) {

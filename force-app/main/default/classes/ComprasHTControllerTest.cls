@@ -47,6 +47,25 @@ public class ComprasHTControllerTest {
     }
 
     @IsTest
+    static void testHectareaTecnologicaCampaniaPeriodo() {
+        Hectareas_Tecnologicas__c conCampania = new Hectareas_Tecnologicas__c(
+            Campania__r = new Campana_Agricola__c(Name = '2025 - SOJA', Ano__c = '2025'),
+            Cultivo__r = new Cultivo__c(Name = 'SOJA'),
+            Canal_de_Venta__r = new Account(Name = 'Comercio'),
+            Variedad__r = new Variedad__c(Name = 'Variedad', Obtentor_Comercializa__r = new Account(Name = 'Obtentor'))
+        );
+        Hectareas_Tecnologicas__c sinCampania = conCampania.clone();
+        sinCampania.Campania__r = null;
+
+        ComprasHTController.HectareaTecnologica row = new ComprasHTController.HectareaTecnologica(conCampania);
+        ComprasHTController.HectareaTecnologica rowSinCampania = new ComprasHTController.HectareaTecnologica(sinCampania);
+
+        System.assertEquals('2025', row.campaniaAno);
+        System.assertEquals('25/26', row.campaniaPeriodo, 'La campaña se muestra como año cruzado');
+        System.assertEquals(null, rowSinCampania.campaniaPeriodo);
+    }
+
+    @IsTest
     static void testGetHectareasTecnologicas_empty() {
         Test.startTest();
         List<ComprasHTController.HectareaTecnologica> hts =

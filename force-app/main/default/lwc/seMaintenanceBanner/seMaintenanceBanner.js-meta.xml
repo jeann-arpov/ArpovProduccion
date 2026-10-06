@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Popup Mantenimiento SE</masterLabel>
+    <description>Popup de aviso de mantenimiento para el login. No se muestra si la URL contiene "comercio" u "obtentor".</description>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="pillLabel" type="String" label="Etiqueta" default="Novedades" />
+            <property name="title" type="String" label="Título" default="Estamos renovando" />
+            <property name="titleAccent" type="String" label="Título (resaltado)" default="tu portal" />
+            <property name="message" type="String" label="Mensaje" default="Lo estamos haciendo más simple para que gestiones tus licencias, HT y Cuenta Granaria en menos pasos, desde la compu o el celular." />
+            <property name="note" type="String" label="Nota" default="Si no podés ingresar o algo no funciona como esperás, volvé a intentar en unos minutos." />
+            <property name="confirmLabel" type="String" label="Texto del botón" default="Entendido" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

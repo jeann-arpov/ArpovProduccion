@@ -1,5 +1,6 @@
 import { LightningElement, track, wire } from 'lwc';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import { refreshApex } from '@salesforce/apex';
 import USER_ID from '@salesforce/user/Id';
 import NAME_FIELD from '@salesforce/schema/User.Name';
 import PROFILE_NAME_FIELD from '@salesforce/schema/User.Profile.Name';
@@ -9,6 +10,7 @@ import UpdateUser from '@salesforce/apex/editProfileController.editUser';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
 import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import { getMobilePhoneError } from 'c/utils';
 
 const SUCCESS_PASSWORD_MSG = 'Success: Your password has been changed successfully.';
 
@@ -50,8 +52,12 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
         document.body.classList.remove('se-inner');
     }
 
+    wiredProfileResult;
+
     @wire(getProfileInfo)
-    wiredInfo({ error, data }) {
+    wiredInfo(result) {
+        this.wiredProfileResult = result;
+        const { error, data } = result;
         if (data && data[0]) {
             const row = data[0];
             this.fullName = row.Nombre_Completo__c || '';
@@ -103,6 +109,26 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
 
     get phoneDisplay() {
         return this.mobilePhone || '—';
+    }
+
+    get phoneError() {
+        return getMobilePhoneError(this.mobilePhone);
+    }
+
+    get phoneHasError() {
+        return !!this.phoneError;
+    }
+
+    get phoneInvalidAttr() {
+        return this.phoneHasError ? 'true' : 'false';
+    }
+
+    get phoneFieldClass() {
+        return 'field float' + (this.phoneHasError ? ' has-error' : '');
+    }
+
+    get updateDisabled() {
+        return this.isUpdating || this.phoneHasError;
     }
 
     get cuitDisplay() {
@@ -157,6 +183,7 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
     }
 
     openModal() {
+        if (this.phoneHasError) return;
         this.modal = true;
     }
 
@@ -178,10 +205,6 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
 
     stopPropagation(event) {
         event.stopPropagation();
-    }
-
-    validatePhoneNumber(phone) {
-        return /^\+549\d{10}$/.test(phone || '');
     }
 
     validatePasswordForm() {
@@ -214,23 +237,27 @@ export default class SeEditProfile extends NavigationMixin(LightningElement) {
     }
 
     handleUpdate() {
-        if (!this.validatePhoneNumber(this.mobilePhone)) {
-            this.showToast('Error', 'El celular debe iniciar con +549 seguido de 10 dígitos.', 'error');
+        if (this.phoneHasError) {
+            this.showToast('Error', this.phoneError, 'error');
             this.closeModal();
             return;
         }
 
         this.isUpdating = true;
-        UpdateUser({ Email: this.email, MobilePhone: this.mobilePhone })
+        UpdateUser({ Email: this.email, MobilePhone: this.mobilePhone.trim() })
             .then((result) => {
+                this.mobilePhone = result?.MobilePhone || this.mobilePhone;
+                this.email = result?.Email || this.email;
                 this.showToast('Éxito', 'Datos modificados de manera exitosa.', 'success');
-                this.mobilePhone = result.MobilePhone || result.mobilePhone;
-                this.email = result.Email;
                 this.closeModal();
                 this.mode = 'view';
+                refreshApex(this.wiredProfileResult).catch((refreshError) => {
+                    console.error('Error refreshing profile:', refreshError);
+                });
             })
-            .catch(() => {
-                this.showToast('Error', 'Ocurrió un error al actualizar los datos.', 'error');
+            .catch((error) => {
+                const message = error?.body?.message || 'Ocurrió un error al actualizar los datos.';
+                this.showToast('Error', message, 'error');
                 this.closeModal();
             })
             .finally(() => {

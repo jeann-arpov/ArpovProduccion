@@ -311,8 +311,9 @@ export default class CuentaGranariaNew extends LightningElement {
             });
         }
 
+        const flaggedIdx = sorted.findIndex((c) => c.esActual === true);
         const activaIdx = sorted.map((c) => c.estado).lastIndexOf('Activa');
-        const currentIdx = activaIdx >= 0 ? activaIdx : sorted.length - 1;
+        const currentIdx = flaggedIdx >= 0 ? flaggedIdx : activaIdx >= 0 ? activaIdx : sorted.length - 1;
 
         return sorted.map((c, idx) => {
             const isCurrent = idx === currentIdx;

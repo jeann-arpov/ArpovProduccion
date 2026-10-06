@@ -338,6 +338,37 @@ public class LicenciasControllerTest {
         }
     }
     
+    // Filtros multi-selección que envía el portal (estados[], tipos[], origenes[])
+    @IsTest
+    static void testGetLicenciasProductorFiltrosMultiples() {
+        Test.startTest();
+        Integer aprobadas = LicenciasController.getLicenciasProductor(1, 10, JSON.serialize(new Map<String, Object>{
+            'estados' => new List<String>{ 'Aprobada' }
+        })).totalRecords;
+        Integer comercioEnCursoORechazada = LicenciasController.getLicenciasProductor(1, 10, JSON.serialize(new Map<String, Object>{
+            'estados' => new List<String>{ 'En curso', 'Rechazada' },
+            'tipos' => new List<String>{ 'Comercio' }
+        })).totalRecords;
+        Integer productorAprobada = LicenciasController.getLicenciasProductor(1, 10, JSON.serialize(new Map<String, Object>{
+            'estados' => new List<String>{ 'Aprobada' },
+            'tipos' => new List<String>{ 'Productor' }
+        })).totalRecords;
+        Integer tecnologiaInexistente = LicenciasController.getLicenciasProductor(1, 10, JSON.serialize(new Map<String, Object>{
+            'origenes' => new List<String>{ 'Tecnología Inexistente' }
+        })).totalRecords;
+        Test.stopTest();
+
+        System.assertEquals([SELECT COUNT() FROM Licencia__c WHERE Estado__c = 'Aprobada'], aprobadas,
+            'El filtro de Estado debe aplicarse');
+        System.assertEquals([
+            SELECT COUNT() FROM Licencia__c
+            WHERE Tipo_de_Licencia__c = 'Comercio'
+            AND Estado__c IN ('Creada', 'A validar', 'Validada', 'Solicitada', 'Licencia Firmada', 'En Proceso de Aprobacion', 'Rechazada')
+        ], comercioEnCursoORechazada, 'Estados y Tipo deben combinarse');
+        System.assertEquals(0, productorAprobada, 'Sin coincidencias el total debe ser 0');
+        System.assertEquals(0, tecnologiaInexistente, 'El filtro de Tecnología debe aplicarse');
+    }
+
    // Test getLicenciasProductor with null filters
     @IsTest
     static void testGetLicenciasProductorWithNullFilters() {

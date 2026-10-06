@@ -144,7 +144,7 @@ public with sharing class ComprasHTController {
         for (Hectareas_Tecnologicas__c ht : [
             SELECT Canal_de_Venta__r.Name, Biotecnologia__c, Cultivo__c, Cultivo__r.Name, Name,
                    Credito__c, Debito__c, Fecha_de_la_Transaccion__c, Origen__c,
-                   Campania__c, Campania__r.Name,
+                   Campania__c, Campania__r.Name, Campania__r.Ano__c,
                    Variedad__r.Name, Numero_de_Comprobante__c,
                    Variedad__r.Obtentor_Comercializa__r.Name
             FROM Hectareas_Tecnologicas__c
@@ -256,6 +256,8 @@ public with sharing class ComprasHTController {
         @AuraEnabled public String cultivoId;
         @AuraEnabled public String campaniaId;
         @AuraEnabled public String campaniaLabel;
+        @AuraEnabled public String campaniaAno;
+        @AuraEnabled public String campaniaPeriodo;
         @AuraEnabled public String comercio;
         @AuraEnabled public String comercioId;
 
@@ -275,6 +277,8 @@ public with sharing class ComprasHTController {
             cultivoId = ht.Cultivo__c;
             campaniaId = ht.Campania__c;
             campaniaLabel = ht.Campania__r != null ? ht.Campania__r.Name : null;
+            campaniaAno = ht.Campania__r != null ? ht.Campania__r.Ano__c : null;
+            campaniaPeriodo = HomeMulticultivo.formatPeriod(campaniaAno);
             comercio = ht.Canal_de_Venta__r.Name;
             comercioId = ht.Canal_de_Venta__c;
         }

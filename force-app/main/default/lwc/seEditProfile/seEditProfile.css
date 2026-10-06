@@ -422,6 +422,20 @@ h3,
     color: #6b7280;
 }
 
+.field.float.has-error input,
+.field.float.has-error:focus-within input {
+    border-color: #c62828;
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15);
+}
+
+.field.float .field-error {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #c62828;
+}
+
 .pass-wrap {
     position: relative;
     display: grid;

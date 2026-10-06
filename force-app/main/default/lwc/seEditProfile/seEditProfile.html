@@ -98,7 +98,7 @@
                         <p class="value">{cuitDisplay}</p>
                     </div>
 
-                    <label class="field float">
+                    <label class={phoneFieldClass}>
                         <span class="flabel">Celular</span>
                         <input
                             type="tel"
@@ -106,8 +106,14 @@
                             oninput={handlePhone}
                             placeholder=" "
                             autocomplete="tel"
+                            inputmode="tel"
+                            aria-invalid={phoneInvalidAttr}
+                            aria-describedby="phone-hint"
                         />
-                        <span class="hint">Formato: +549 seguido de 10 dígitos</span>
+                        <span id="phone-hint" class="hint">Formato: +549 seguido de 10 dígitos</span>
+                        <template if:true={phoneHasError}>
+                            <span class="field-error" role="alert">{phoneError}</span>
+                        </template>
                     </label>
 
                     <label class="field float">
@@ -124,7 +130,7 @@
 
                 <footer class="panel-foot">
                     <button class="btn-ghost" type="button" onclick={goView} disabled={isUpdating}>Cancelar</button>
-                    <button class="btn-dark" type="button" onclick={openModal} disabled={isUpdating}>
+                    <button class="btn-dark" type="button" onclick={openModal} disabled={updateDisabled}>
                         Actualizar datos
                     </button>
                 </footer>

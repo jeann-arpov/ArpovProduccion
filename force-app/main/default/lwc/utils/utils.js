@@ -133,6 +133,32 @@ const formatCuit = (value) => {
     return digits.replace(/^(\d{2})(\d{8})(\d{1})$/, '$1-$2-$3');
 };
 
+function isSecuenciaConsecutiva(digits, step) {
+    for (let i = 1; i < digits.length; i++) {
+        if ((Number(digits[i - 1]) + step + 10) % 10 !== Number(digits[i])) return false;
+    }
+    return true;
+}
+
+/**
+ * Valida un celular argentino: +549 seguido de 10 dígitos, sin todos los dígitos iguales
+ * ni consecutivos (1234567890, 9876543210). Devuelve el mensaje de error o '' si es válido.
+ * Mantener alineado con editProfileController.getMobilePhoneError.
+ */
+function getMobilePhoneError(value) {
+    const phone = (value || '').trim();
+    if (!phone) return 'Ingresá tu número de celular.';
+    if (!/^\+549\d{10}$/.test(phone)) {
+        return 'El celular debe tener el formato +549 seguido de 10 dígitos, sin espacios ni guiones (ej. +5491123456789).';
+    }
+    const digits = phone.slice(4);
+    if (/^(\d)\1+$/.test(digits)) return 'El número no puede tener todos los dígitos iguales.';
+    if (isSecuenciaConsecutiva(digits, 1) || isSecuenciaConsecutiva(digits, -1)) {
+        return 'El número no puede ser una secuencia de dígitos consecutivos.';
+    }
+    return '';
+}
+
 /**
  * Redirige a SGL por GET con el token cifrado.
  * Misma pestaña: standard__webPage abre URLs externas en ventana nueva.
@@ -148,4 +174,4 @@ function redirectToSglWithToken(navContext, actionUrl, token, returnUrl) {
     window.open(url, '_self');
 }
 
-export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, redirectToSglWithToken}
+export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, redirectToSglWithToken, getMobilePhoneError}

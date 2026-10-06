@@ -59,15 +59,15 @@
                         </div>
                     </div>
                     <div class="filt-group">
-                        <p class="filt-label">Año</p>
-                        <template if:true={singleAnioHint}>
-                            <span class="filt-pill">{singleAnioLabel}</span>
-                            <p class="filt-hint">Único año disponible por ahora.</p>
+                        <p class="filt-label">Campaña</p>
+                        <template if:true={singleCampaniaHint}>
+                            <span class="filt-pill">{singleCampaniaLabel}</span>
+                            <p class="filt-hint">Única campaña disponible por ahora.</p>
                         </template>
-                        <template if:false={singleAnioHint}>
+                        <template if:false={singleCampaniaHint}>
                             <div class="filt-options">
-                                <template for:each={anioFilterItems} for:item="item">
-                                    <button key={item.value} type="button" class="filt-option" data-group="anio" data-value={item.value} onclick={handleFilterToggle}>
+                                <template for:each={campaniaFilterItems} for:item="item">
+                                    <button key={item.value} type="button" class="filt-option" data-group="campania" data-value={item.value} onclick={handleFilterToggle}>
                                         <span class={item.boxClass} aria-hidden="true"></span>
                                         <span>{item.label}</span>
                                     </button>
@@ -172,14 +172,14 @@
                     </template>
                 </div>
                 <div class="filt-group">
-                    <p class="filt-label">Año</p>
-                    <template if:true={singleAnioHint}>
-                        <span class="filt-pill">{singleAnioLabel}</span>
-                        <p class="filt-hint">Único año disponible por ahora.</p>
+                    <p class="filt-label">Campaña</p>
+                    <template if:true={singleCampaniaHint}>
+                        <span class="filt-pill">{singleCampaniaLabel}</span>
+                        <p class="filt-hint">Única campaña disponible por ahora.</p>
                     </template>
-                    <template if:false={singleAnioHint}>
-                        <template for:each={anioFilterItems} for:item="item">
-                            <button key={item.value} type="button" class="filt-option" data-group="anio" data-value={item.value} data-mobile="true" onclick={handleFilterToggle}>
+                    <template if:false={singleCampaniaHint}>
+                        <template for:each={campaniaFilterItems} for:item="item">
+                            <button key={item.value} type="button" class="filt-option" data-group="campania" data-value={item.value} data-mobile="true" onclick={handleFilterToggle}>
                                 <span class={item.boxClass} aria-hidden="true"></span>
                                 <span>{item.label}</span>
                             </button>

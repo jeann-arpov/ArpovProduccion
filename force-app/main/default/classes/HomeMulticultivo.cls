@@ -398,28 +398,16 @@ public without sharing class HomeMulticultivo {
 
     /**
      * Cultivos con alguna campaña en negativo, con el mismo alcance que muestra Cuenta Granaria
-     * (CuentaGranaria.getCampanasConTotales: últimas 3 iniciadas) y sin las campañas en PPH.
+     * (CuentaGranaria.getCampanasVisiblesPorCultivo: actual + 2 anteriores) y sin las campañas en PPH.
      */
     @TestVisible
     private static Set<Id> getCultivosConDeuda(Set<Id> cultivoIds, Id productorId) {
         Set<Id> result = new Set<Id>();
         if (cultivoIds == null || cultivoIds.isEmpty() || productorId == null) return result;
 
-        Map<Id, Integer> visiblesPorCultivo = new Map<Id, Integer>();
         Set<Id> campanasVisibles = new Set<Id>();
-        for (Campana_Agricola__c camp : [
-            SELECT Id, Cultivo__c
-            FROM Campana_Agricola__c
-            WHERE Cultivo__c IN :cultivoIds
-            AND Fecha_de_Inicio__c != null
-            AND Fecha_de_Inicio__c <= TODAY
-            AND (Estado__c = 'Activa' OR Estado__c = 'Completa' OR Estado__c = 'En Preparación')
-            ORDER BY Fecha_de_Inicio__c DESC
-        ]) {
-            Integer n = visiblesPorCultivo.containsKey(camp.Cultivo__c) ? visiblesPorCultivo.get(camp.Cultivo__c) : 0;
-            if (n >= 3) continue;
-            visiblesPorCultivo.put(camp.Cultivo__c, n + 1);
-            campanasVisibles.add(camp.Id);
+        for (List<Campana_Agricola__c> campanas : CuentaGranaria.getCampanasVisiblesPorCultivo(cultivoIds).values()) {
+            campanasVisibles.addAll(new Map<Id, Campana_Agricola__c>(campanas).keySet());
         }
         if (campanasVisibles.isEmpty()) return result;
 

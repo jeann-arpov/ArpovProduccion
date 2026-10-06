@@ -11,6 +11,63 @@ public without sharing class CuentaGranaria {
         @AuraEnabled public Decimal totalCompraHT;
         @AuraEnabled public Decimal saldoCuentaGranaria;
         @AuraEnabled public Boolean pphAdherida;
+        @AuraEnabled public Boolean esActual;
+    }
+
+    private static final Set<String> ESTADOS_VISIBLES = new Set<String>{ 'Activa', 'Completa', 'En Preparación' };
+    private static final Integer CAMPANAS_ANTERIORES_VISIBLES = 2;
+
+    /**
+     * Campañas que muestra Cuenta Granaria por cultivo: la actual primero y luego las 2 anteriores.
+     * La actual es la última cuya ventana Sembrá Evolución (Fecha_Fin_SE__c) ya cerró, mismo criterio
+     * con el que ObtenerCampana asigna las TNs que no son Compra Futura. Así la campaña nueva aparece
+     * según las fechas cargadas en cada cultivo (Soja: marzo; Trigo/Cebada: noviembre).
+     * Cultivos sin fechas SE usan Fecha_de_Inicio__c.
+     */
+    public static Map<Id, List<Campana_Agricola__c>> getCampanasVisiblesPorCultivo(Set<Id> cultivoIds) {
+        Map<Id, List<Campana_Agricola__c>> campanasPorCultivo = new Map<Id, List<Campana_Agricola__c>>();
+        Set<Id> cultivosConFechasSE = new Set<Id>();
+        for (Campana_Agricola__c c : [SELECT Id, Name, Ano__c, Estado__c, Cultivo__c, Cultivo__r.Name,
+                                             Fecha_de_Inicio__c, Fecha_Fin_SE__c
+                                      FROM   Campana_Agricola__c
+                                      WHERE  Cultivo__c IN :cultivoIds
+                                      AND    Estado__c IN :ESTADOS_VISIBLES
+                                      ORDER BY Ano__c DESC]) {
+            if (String.isBlank(c.Ano__c) || !c.Ano__c.isNumeric()) continue;
+            if (!campanasPorCultivo.containsKey(c.Cultivo__c)) {
+                campanasPorCultivo.put(c.Cultivo__c, new List<Campana_Agricola__c>());
+            }
+            campanasPorCultivo.get(c.Cultivo__c).add(c);
+            if (c.Fecha_Fin_SE__c != null) cultivosConFechasSE.add(c.Cultivo__c);
+        }
+
+        Date hoy = Date.today();
+        Map<Id, List<Campana_Agricola__c>> result = new Map<Id, List<Campana_Agricola__c>>();
+        for (Id cultivoId : campanasPorCultivo.keySet()) {
+            List<Campana_Agricola__c> campanas = campanasPorCultivo.get(cultivoId);
+            Boolean usaFechasSE = cultivosConFechasSE.contains(cultivoId);
+
+            Campana_Agricola__c actual;
+            Date fechaActual;
+            for (Campana_Agricola__c c : campanas) {
+                Date fecha = usaFechasSE ? c.Fecha_Fin_SE__c : c.Fecha_de_Inicio__c;
+                Boolean iniciada = fecha != null && (usaFechasSE ? fecha < hoy : fecha <= hoy);
+                if (iniciada && (fechaActual == null || fecha > fechaActual)) {
+                    actual = c;
+                    fechaActual = fecha;
+                }
+            }
+            if (actual == null) continue;
+
+            List<Campana_Agricola__c> visibles = new List<Campana_Agricola__c>{ actual };
+            Integer anoActual = Integer.valueOf(actual.Ano__c);
+            for (Campana_Agricola__c c : campanas) {
+                if (visibles.size() > CAMPANAS_ANTERIORES_VISIBLES) break;
+                if (Integer.valueOf(c.Ano__c) < anoActual) visibles.add(c);
+            }
+            result.put(cultivoId, visibles);
+        }
+        return result;
     }
 
     @AuraEnabled
@@ -31,21 +88,16 @@ public without sharing class CuentaGranaria {
         return planesSiembra;
     }
 
-    // Obtiene las últimas 3 campañas con el total de toneladas de cada una
+    // Obtiene las 3 campañas vigentes (actual + 2 anteriores) con el total de toneladas de cada una
     @AuraEnabled
     public static List<CampanaConTotales> getCampanasConTotales(String cultivoId, String tecnologias){
         List<String> values = tecnologias.split('/');
-        // 1. Obtenemos las últimas 3 campañas ordenadas por año desc
-        List<Campana_Agricola__c> campanas = [SELECT Id, Name, Ano__c, Estado__c, Cultivo__c, Cultivo__r.Name
-                                               FROM   Campana_Agricola__c
-                                               WHERE  Cultivo__c = :cultivoId
-                                               AND Fecha_de_Inicio__c != null
-                                               AND Fecha_de_Inicio__c <= TODAY
-                                               AND (Estado__c = 'Activa' OR Estado__c = 'Completa' OR Estado__c = 'En Preparación')
-                                               ORDER BY Fecha_de_Inicio__c DESC
-                                               LIMIT 3];
+        // 1. Campañas visibles del cultivo, la actual primero
+        Id cultivoIdValue = (Id) cultivoId;
+        List<Campana_Agricola__c> campanas = getCampanasVisiblesPorCultivo(new Set<Id>{ cultivoIdValue }).get(cultivoIdValue);
 
-        if (campanas.isEmpty()) return new List<CampanaConTotales>();
+        if (campanas == null || campanas.isEmpty()) return new List<CampanaConTotales>();
+        Id campanaActualId = campanas[0].Id;
 
         // 2. Obtenemos los IDs de las campañas
         Set<Id> campanaIds = new Set<Id>();
@@ -119,6 +171,7 @@ public without sharing class CuentaGranaria {
             cct.totalCompraHT = totalCompraHTDisponible;
             cct.saldoCuentaGranaria = saldosCuentaGranaria.containsKey(c.Id) ? saldosCuentaGranaria.get(c.Id) : 0;
             cct.pphAdherida = pphAdheridaPorCampana.containsKey(c.Id) ? pphAdheridaPorCampana.get(c.Id) : false;
+            cct.esActual = c.Id == campanaActualId;
             result.add(cct);
         }
 

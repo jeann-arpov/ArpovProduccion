@@ -1,5 +1,6 @@
 import { LightningElement, track, wire } from 'lwc';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import { refreshApex } from '@salesforce/apex';
 import USER_ID from '@salesforce/user/Id';
 import NAME_FIELD from '@salesforce/schema/User.Name';
 import doChangePassword from '@salesforce/apex/editProfileController.changeUserPassword';
@@ -7,6 +8,7 @@ import getProfileInfo from '@salesforce/apex/editProfileController.getUserInfo';
 import UpdateUser from '@salesforce/apex/editProfileController.editUser';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
+import { getMobilePhoneError } from 'c/utils';
 
 const SUCCESS_PASSWORD_MSG = 'Success: Your password has been changed successfully.';
 
@@ -33,13 +35,17 @@ export default class EditProfile extends NavigationMixin(LightningElement) {
     @track showNewPassword = false;
     @track showConfirmPassword = false;
 
+    wiredProfileResult;
+
     @wire(getProfileInfo)
-    wiredInfo({ error, data }) {
-        if (data) {
+    wiredInfo(result) {
+        this.wiredProfileResult = result;
+        const { error, data } = result;
+        if (data && data[0]) {
             this.fullName = data[0].Nombre_Completo__c;
             this.businessName = data[0].Razon_Social__c;
             this.documentId = data[0].Numero_de_Documento__c;
-            this.cuit = data[0].Account.N_CUIT__c;
+            this.cuit = data[0].Account ? data[0].Account.N_CUIT__c : '';
             this.email = data[0].Email;
             this.mobilePhone = data[0].MobilePhone;
         } else if (error) {
@@ -86,9 +92,21 @@ export default class EditProfile extends NavigationMixin(LightningElement) {
 
     handlePhone(event) {
         this.mobilePhone = event.target.value;
+        const input = event.target;
+        input.setCustomValidity(this.phoneError);
+        input.reportValidity();
+    }
+
+    get phoneError() {
+        return getMobilePhoneError(this.mobilePhone);
+    }
+
+    get updateDisabled() {
+        return this.isUpdating || !!this.phoneError;
     }
 
     openModal() {
+        if (this.phoneError) return;
         this.modal = true;
     }
 
@@ -112,10 +130,6 @@ export default class EditProfile extends NavigationMixin(LightningElement) {
 
     stopPropagation(event) {
         event.stopPropagation();
-    }
-
-    validatePhoneNumber(phone) {
-        return /^\+549\d{10}$/.test(phone);
     }
 
     validatePasswordForm() {
@@ -153,22 +167,26 @@ export default class EditProfile extends NavigationMixin(LightningElement) {
     }
 
     handleUpdate() {
-        if (!this.validatePhoneNumber(this.mobilePhone)) {
-            this.showToast('Error', 'El celular debe iniciar con +549 seguido de 10 dígitos.', 'error');
+        if (this.phoneError) {
+            this.showToast('Error', this.phoneError, 'error');
             this.closeModal();
             return;
         }
 
         this.isUpdating = true;
-        UpdateUser({ Email: this.email, MobilePhone: this.mobilePhone })
+        UpdateUser({ Email: this.email, MobilePhone: this.mobilePhone.trim() })
             .then((result) => {
+                this.mobilePhone = result?.MobilePhone || this.mobilePhone;
+                this.email = result?.Email || this.email;
                 this.showToast('Éxito', 'Datos modificados de manera exitosa.', 'success');
-                this.mobilePhone = result.mobilePhone;
-                this.email = result.Email;
                 this.closeModal();
+                refreshApex(this.wiredProfileResult).catch((refreshError) => {
+                    console.error('Error refreshing profile:', refreshError);
+                });
             })
-            .catch(() => {
-                this.showToast('Error', 'Ocurrió un error al actualizar los datos.', 'error');
+            .catch((error) => {
+                const message = error?.body?.message || 'Ocurrió un error al actualizar los datos.';
+                this.showToast('Error', message, 'error');
                 this.closeModal();
             })
             .finally(() => {
