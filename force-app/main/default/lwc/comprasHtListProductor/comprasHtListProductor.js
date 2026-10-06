@@ -1,4 +1,4 @@
-import { LightningElement, track, wire } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import getComprasHT from '@salesforce/apex/ComprasHTController.getComprasHT';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import { trackGa4Event } from 'c/portalGa4Events';
@@ -77,6 +77,7 @@ export default class ComprasHtListProductor extends LightningElement {
         document.documentElement.classList.add('se-inner');
         document.body.classList.add('se-inner');
         this.loadSessionFilters();
+        this.loadCompras();
     }
 
     disconnectedCallback() {
@@ -93,10 +94,10 @@ export default class ComprasHtListProductor extends LightningElement {
         this.variedadSeleccionada = sessionStorage.getItem(SESSION_KEYS.variedad) || 'todas';
     }
 
-    @wire(getComprasHT)
-    wiredCompras({ data, error }) {
-        if (data) {
-            this.comprasAll = data.map((c) => {
+    async loadCompras() {
+        try {
+            const data = await getComprasHT();
+            this.comprasAll = (data || []).map((c) => {
                 const estado = c.estado ? compraEstadoLabel(c.estado) : 'Sin estado';
                 const creada = c.estado === 'Creada';
                 return {
@@ -130,7 +131,7 @@ export default class ComprasHtListProductor extends LightningElement {
                 this._ga4ListadoTracked = true;
                 trackGa4Event('ht_listado_vista', { portal: 'Productor' });
             }
-        } else if (error) {
+        } catch (error) {
             this.loading = false;
             console.error('Error al cargar compras:', error);
         }
