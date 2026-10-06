@@ -78,6 +78,7 @@ function withChecked(options, selected) {
     return (options || []).map((opt) => ({
         ...opt,
         checked: selectedSet.has(opt.value),
+        ariaChecked: selectedSet.has(opt.value) ? 'true' : 'false',
         boxClass: 'filt-check' + (selectedSet.has(opt.value) ? ' filt-check-on' : '')
     }));
 }
@@ -210,17 +211,20 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
             return;
         }
 
+        const cultivoId = this.summaryCultivoId;
         this.summaryLoading = true;
         try {
-            const summary = await fetchCultivoSummary(this.summaryCultivoId);
+            const summary = await fetchCultivoSummary(cultivoId);
+            if (cultivoId !== this.summaryCultivoId) return;
             this.summaryRows = summary.rows;
             this.summaryTotal = summary.total;
         } catch (e) {
+            if (cultivoId !== this.summaryCultivoId) return;
             this.summaryRows = [];
             this.summaryTotal = 0;
             this.onError(e);
         } finally {
-            this.summaryLoading = false;
+            if (cultivoId === this.summaryCultivoId) this.summaryLoading = false;
         }
     }
 
@@ -229,11 +233,18 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
         return (this.cultivos || []).map((c) => c.value);
     }
 
-    handleCultivoResumenSelect(event) {
-        this.summaryCultivoId = event.detail?.value;
+    /** El filtro de cultivo es de selección única y siempre igual a la tab activa. */
+    selectCultivo(value) {
+        if (value && value !== this.summaryCultivoId) {
+            this.summaryCultivoId = value;
+            this.loadSummary();
+        }
         this.filterCultivoIds = this.tabCultivoIds();
         this.draftCultivoIds = [...this.filterCultivoIds];
-        this.loadSummary();
+    }
+
+    handleCultivoResumenSelect(event) {
+        this.selectCultivo(event.detail?.value);
         this.applyFilters();
     }
 
@@ -371,7 +382,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     }
 
     handleApplyFiltersSheet() {
-        this.filterCultivoIds = [...this.draftCultivoIds];
+        this.selectCultivo(this.draftCultivoIds[0]);
         this.filterAnios = [...this.draftAnios];
         this.filterBiotecnologias = [...this.draftBiotecnologias];
         this.filterOrigenes = [...this.draftOrigenes];
@@ -385,14 +396,14 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
         const isMobile = event.currentTarget.dataset.mobile === 'true';
 
         if (isMobile) {
-            if (group === 'cultivo') this.draftCultivoIds = toggleInList(this.draftCultivoIds, value);
+            if (group === 'cultivo') this.draftCultivoIds = [value];
             if (group === 'anio') this.draftAnios = toggleInList(this.draftAnios, value);
             if (group === 'biotecnologia') this.draftBiotecnologias = toggleInList(this.draftBiotecnologias, value);
             if (group === 'origen') this.draftOrigenes = toggleInList(this.draftOrigenes, value);
             return;
         }
 
-        if (group === 'cultivo') this.filterCultivoIds = toggleInList(this.filterCultivoIds, value);
+        if (group === 'cultivo') this.selectCultivo(value);
         if (group === 'anio') this.filterAnios = toggleInList(this.filterAnios, value);
         if (group === 'biotecnologia') this.filterBiotecnologias = toggleInList(this.filterBiotecnologias, value);
         if (group === 'origen') this.filterOrigenes = toggleInList(this.filterOrigenes, value);

@@ -49,9 +49,9 @@
                 <div class="filt-grid">
                     <div class="filt-group">
                         <p class="filt-label">Cultivo</p>
-                        <div class="filt-options">
+                        <div class="filt-options" role="radiogroup" aria-label="Cultivo">
                             <template for:each={cultivoFilterItems} for:item="item">
-                                <button key={item.value} type="button" class="filt-option" data-group="cultivo" data-value={item.value} onclick={handleFilterToggle}>
+                                <button key={item.value} type="button" class="filt-option" role="radio" aria-checked={item.ariaChecked} data-group="cultivo" data-value={item.value} onclick={handleFilterToggle}>
                                     <span class={item.boxClass} aria-hidden="true"></span>
                                     <span>{item.label}</span>
                                 </button>
@@ -162,10 +162,10 @@
             </div>
 
             <div class="filt-sheet-body">
-                <div class="filt-group">
+                <div class="filt-group" role="radiogroup" aria-label="Cultivo">
                     <p class="filt-label">Cultivo</p>
                     <template for:each={cultivoFilterItems} for:item="item">
-                        <button key={item.value} type="button" class="filt-option" data-group="cultivo" data-value={item.value} data-mobile="true" onclick={handleFilterToggle}>
+                        <button key={item.value} type="button" class="filt-option" role="radio" aria-checked={item.ariaChecked} data-group="cultivo" data-value={item.value} data-mobile="true" onclick={handleFilterToggle}>
                             <span class={item.boxClass} aria-hidden="true"></span>
                             <span>{item.label}</span>
                         </button>
