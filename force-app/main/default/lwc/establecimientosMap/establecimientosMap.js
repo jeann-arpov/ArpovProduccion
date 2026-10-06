@@ -8,6 +8,15 @@ import { coordenadasError } from 'c/seGeo';
 
 const MAP_MOUNT_DELAY_MS = 320;
 const REQUIRED_MSG = 'Este campo es obligatorio';
+// Gota con la punta en (0,0): ancla del marcador sobre la coordenada
+const PIN_ICON = {
+    path: 'M0 0 L-10.6 -10.6 A15 15 0 1 1 10.6 -10.6 Z',
+    fillColor: '#1C1C1C',
+    fillOpacity: 1,
+    strokeColor: '#BFFF00',
+    strokeWeight: 3,
+    scale: 1
+};
 
 function formatCoord(value) {
     const n = Number(value);
@@ -69,6 +78,7 @@ export default class EstablecimientosMap extends LightningElement {
                 .map((est) => ({
                     value: est.Id,
                     title: est.Name,
+                    mapIcon: PIN_ICON,
                     location: {
                         Latitude: Number(est.Coordenadas__Latitude__s),
                         Longitude: Number(est.Coordenadas__Longitude__s)
@@ -135,6 +145,10 @@ export default class EstablecimientosMap extends LightningElement {
 
     handleMapMarkerSelect(event) {
         this.selectedMarker = event.target.selectedMarkerValue;
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        window.requestAnimationFrame(() => {
+            this.template.querySelector('.p-mk.is-on')?.scrollIntoView({ block: 'nearest' });
+        });
     }
 
     /* ---------- Nuevo establecimiento ---------- */
