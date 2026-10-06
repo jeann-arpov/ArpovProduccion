@@ -1127,18 +1127,11 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             this.hasPersistedVariedadLines &&
             this.data?.record?.Total_USD__c != null
         ) {
-            const total = Number(this.data.record.Total_USD__c);
-            return `USD ${total.toLocaleString('es-AR', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            })}`;
+            return this.formatUsd(this.data.record.Total_USD__c);
         }
         const total = this.selectedVariedadUsdTotal;
         if (!(total > 0)) return '—';
-        return `USD ${total.toLocaleString('es-AR', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        })}`;
+        return this.formatUsd(total);
     }
 
     get licensesHref() {
@@ -2012,21 +2005,13 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     get tipoPagoModalContado() {
         const total = this.tipoPagoTotalAmount;
         if (!(total > 0)) return 'USD —';
-        const contado = total * 0.93;
-        return `USD ${contado.toLocaleString('es-AR', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        })}`;
+        return this.formatUsd(total * 0.93);
     }
 
     get tipoPagoModalFinanciadoLabel() {
         const total = this.tipoPagoTotalAmount;
         if (!(total > 0)) return '3 × USD —';
-        const cuota = total / 3;
-        return `3 × USD ${cuota.toLocaleString('es-AR', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        })}`;
+        return `3 × ${this.formatUsd(total / 3)}`;
     }
 
     requiresTipoPago() {

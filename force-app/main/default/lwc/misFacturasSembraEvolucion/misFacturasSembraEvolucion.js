@@ -22,7 +22,10 @@ function formatDate(value) {
 
 function formatImporte(total, moneda) {
     if (total == null || total === '') return '';
-    const amount = Number(total).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+    const amount = Number(total).toLocaleString('es-AR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
     const prefix = moneda && String(moneda).toUpperCase().includes('ARS') ? 'ARS' : 'USD';
     return `${prefix} ${amount}`;
 }
