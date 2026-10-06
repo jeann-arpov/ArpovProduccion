@@ -2,6 +2,7 @@ import { LightningElement, api, track } from 'lwc';
 import searchEstablecimientos from '@salesforce/apex/AdhesionPPH.searchEstablecimientos';
 import { reduceErrors } from 'c/utils';
 import { PAGES, communityPageUrl } from 'c/seNav';
+import { coordenadasError } from 'c/seGeo';
 
 const MSG_REQUERIDO = 'Este campo es obligatorio';
 const MSG_SIN_CANTIDAD =
@@ -269,18 +270,15 @@ export default class EstablecimientoPph extends LightningElement {
 
     updateLocation(data, map) {
         map.hide();
-        if (this.validateCoordinates(data.longitude, data.latitude)) {
-            this.longitude = data.longitude;
-            this.latitude = data.latitude;
-            this.autosave();
-            this.dispatchEvent(new CustomEvent('pasoestablecimiento'));
-        } else {
-            this.notify('Las coordenadas deben ser negativas');
+        const error = coordenadasError(data.latitude, data.longitude);
+        if (error) {
+            this.notify(error);
+            return;
         }
-    }
-
-    validateCoordinates(longitude, latitude) {
-        return Math.sign(longitude) === -1 && Math.sign(latitude) === -1;
+        this.longitude = data.longitude;
+        this.latitude = data.latitude;
+        this.autosave();
+        this.dispatchEvent(new CustomEvent('pasoestablecimiento'));
     }
 
     changeCollapsed() {

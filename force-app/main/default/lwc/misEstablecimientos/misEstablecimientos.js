@@ -4,6 +4,7 @@ import getEstablecimientos from '@salesforce/apex/misEstablecimientosController.
 import updateEstablecimiento from '@salesforce/apex/misEstablecimientosController.updateEstablecimiento';
 import { doRequest, errorEvent, reduceErrors } from 'c/utils';
 import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import { latitudError, longitudError } from 'c/seGeo';
 
 const PAGE_SIZE = 10;
 const DETAIL_PARAM = 'establecimiento';
@@ -311,22 +312,21 @@ export default class MisEstablecimientos extends LightningElement {
         return this.editShowErrors && !this.editName.trim() ? REQUIRED_MSG : '';
     }
 
-    coordError(text, min, other) {
+    coordError(text, validate, other) {
         if (!this.editShowErrors) return '';
         const value = parseCoord(text);
         const otherValue = parseCoord(other);
         if (value == null) return otherValue == null ? '' : 'Completá latitud y longitud';
         if (Number.isNaN(value)) return 'Ingresá un número válido';
-        if (value >= 0 || value < min) return 'Las coordenadas deben ser negativas';
-        return '';
+        return validate(value);
     }
 
     get editLatError() {
-        return this.coordError(this.editLat, -90, this.editLng);
+        return this.coordError(this.editLat, latitudError, this.editLng);
     }
 
     get editLngError() {
-        return this.coordError(this.editLng, -180, this.editLat);
+        return this.coordError(this.editLng, longitudError, this.editLat);
     }
 
     get editNameClass() {

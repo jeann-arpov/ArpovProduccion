@@ -4,6 +4,7 @@ import getAccountId from '@salesforce/apex/EstablecimientosMap.getAccountId';
 import insertEstablecimiento from '@salesforce/apex/EstablecimientosMap.insertEstablecimiento';
 import { errorEvent, reduceErrors } from 'c/utils';
 import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import { coordenadasError } from 'c/seGeo';
 
 const MAP_MOUNT_DELAY_MS = 320;
 const REQUIRED_MSG = 'Este campo es obligatorio';
@@ -198,8 +199,9 @@ export default class EstablecimientosMap extends LightningElement {
             map.hide();
             const latitude = Number(data.latitude);
             const longitude = Number(data.longitude);
-            if (!(Math.sign(latitude) === -1 && Math.sign(longitude) === -1)) {
-                this.geoError = 'Las coordenadas deben ser negativas';
+            const error = coordenadasError(latitude, longitude);
+            if (error) {
+                this.geoError = error;
                 return;
             }
             this.geoError = '';
