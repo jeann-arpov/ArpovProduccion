@@ -10,6 +10,75 @@ public inherited sharing class UtilsCompraVentaHT {
         return options;
     }
 
+    /** Cultivos SE con las HT vigentes del productor (sin Semilla Original/Pre Básica ni PPH). */
+    public static List<Map<String, Object>> getCultivosConSaldo(Id productorId) {
+        List<Map<String, Object>> options = getCultivos();
+        if (productorId == null || options.isEmpty()) {
+            return options;
+        }
+
+        Set<Id> cultivoIds = new Set<Id>();
+        for (Map<String, Object> option : options) {
+            cultivoIds.add((Id) option.get('value'));
+        }
+
+        // Mismo criterio que las HT del Home y el total de Movimientos HT
+        Map<Id, Decimal> saldoByCultivo = new Map<Id, Decimal>();
+        for (AggregateResult ar : [
+            SELECT Cultivo__c cultivoId, SUM(Cantidad_con_Signo__c) total
+            FROM Hectareas_Tecnologicas__c
+            WHERE Productor__c = :productorId
+            AND Cultivo__c IN :cultivoIds
+            AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica', 'PPH')
+            AND HT_Vigente__c = true
+            GROUP BY Cultivo__c
+        ]) {
+            Decimal total = (Decimal) ar.get('total');
+            saldoByCultivo.put((Id) ar.get('cultivoId'), total != null ? total : 0);
+        }
+
+        for (Map<String, Object> option : options) {
+            Id cultivoId = (Id) option.get('value');
+            Decimal saldo = saldoByCultivo.containsKey(cultivoId) ? saldoByCultivo.get(cultivoId) : 0;
+            option.put('saldo', saldo);
+        }
+
+        return options;
+    }
+
+    /** Saldo total de cuenta granaria por cultivo (todas las subcuentas). */
+    public static List<Map<String, Object>> getCultivosConSaldoGranaria(Id productorId) {
+        List<Map<String, Object>> options = getCultivos();
+        if (productorId == null || options.isEmpty()) {
+            return options;
+        }
+
+        Set<Id> cultivoIds = new Set<Id>();
+        for (Map<String, Object> option : options) {
+            cultivoIds.add((Id) option.get('value'));
+        }
+
+        Map<Id, Decimal> saldoByCultivo = new Map<Id, Decimal>();
+        for (AggregateResult ar : [
+            SELECT Cultivo__c cultivoId, SUM(Saldo_Cuenta__c) total
+            FROM Cuenta_Granaria__c
+            WHERE Productor__c = :productorId
+            AND Cultivo__c IN :cultivoIds
+            GROUP BY Cultivo__c
+        ]) {
+            Decimal total = (Decimal) ar.get('total');
+            saldoByCultivo.put((Id) ar.get('cultivoId'), total != null ? total : 0);
+        }
+
+        for (Map<String, Object> option : options) {
+            Id cultivoId = (Id) option.get('value');
+            Decimal saldo = saldoByCultivo.containsKey(cultivoId) ? saldoByCultivo.get(cultivoId) : 0;
+            option.put('saldo', saldo);
+        }
+
+        return options;
+    }
+
     public static Set<Id> getVariedadesSreProductor(String productorId){
         Set<Id> variedadesSreIds = new Set<Id>();
         for(Variedad_SRE_por_Productor__c variedadSreProductor : [SELECT Variedad__c FROM Variedad_SRE_por_Productor__c WHERE Cuenta__c = :productorId]){

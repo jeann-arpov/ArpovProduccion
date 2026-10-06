@@ -1,0 +1,61 @@
+<template>
+    <section class={panelClass}>
+        <template if:true={isRadioVariant}>
+            <template if:true={eyebrow}>
+                <p class="se-eyebrow se-eyebrow-tight">{eyebrow}</p>
+            </template>
+        </template>
+        <h2 class="se-panel-title">{title}</h2>
+        <template if:true={subtitle}>
+            <p class="se-panel-sub">{subtitle}</p>
+        </template>
+
+        <template if:false={isEmpty}>
+            <div class="se-cultivo-grid" role="radiogroup" aria-label="Cultivo">
+                <template for:each={items} for:item="c">
+                    <button
+                        key={c.id}
+                        class={c.cssClass}
+                        type="button"
+                        role="radio"
+                        aria-checked={c.ariaChecked}
+                        aria-disabled={c.isDisabled}
+                        disabled={c.isDisabled}
+                        data-id={c.id}
+                        onclick={handleSelect}
+                    >
+                        <template if:true={isCesionVariant}>
+                            <span class="se-cultivo-main">
+                                <span class="se-cultivo-icon-wrap">
+                                    <img src={c.icono} alt="" class="se-cultivo-icon" />
+                                </span>
+                                <span class="se-cultivo-body se-cultivo-body--cesion">
+                                    <span class="se-cultivo-name">{c.nombre}</span>
+                                    <span class="se-cultivo-status">{c.statusLabel}</span>
+                                </span>
+                            </span>
+                            <span class="se-cultivo-ton">{c.toneladasLabel}</span>
+                        </template>
+
+                        <template if:true={isRadioVariant}>
+                            <span class="se-cultivo-icon-wrap">
+                                <img src={c.icono} alt="" class="se-cultivo-icon" />
+                            </span>
+                            <span class="se-cultivo-body">
+                                <span class="se-cultivo-name">{c.nombre}</span>
+                                <template if:true={showSaldo}>
+                                    <span class="se-cultivo-saldo">{c.saldoLabel}</span>
+                                </template>
+                            </span>
+                            <span class="se-cultivo-radio" aria-hidden="true"></span>
+                        </template>
+                    </button>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={isEmpty}>
+            <p class="se-empty-note">{emptyText}</p>
+        </template>
+    </section>
+</template>

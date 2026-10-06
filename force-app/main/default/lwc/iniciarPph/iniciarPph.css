@@ -1,21 +1,237 @@
 :host {
-    --slds-c-button-radius-border: 50px;
-    --pph-green: #C5FE00;
+    display: block;
+    font-family: "Roboto", Arial, sans-serif;
+    color: #1c1c1c;
+    background: #eef1f7;
 }
 
-lightning-button {
-    --slds-c-button-text-color: var(--pph-green);
-    --slds-c-button-color-background: #201C1C;
+h1,
+h2,
+h3,
+.se-panel-title {
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+}
+
+.se-pph-loading {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(238, 241, 247, 0.72);
+}
+
+.se-pph {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 32px 48px;
+    box-sizing: border-box;
+}
+
+.se-pph-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 48px;
+}
+
+.se-panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 26px 28px 28px;
+    box-shadow: 0 1px 3px rgba(28, 28, 28, 0.06);
+    box-sizing: border-box;
+}
+
+.se-panel-title {
+    margin: 0 0 16px;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #1c1c1c;
+}
+
+.se-pph-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    margin-top: 4px;
+}
+
+.se-pph-checks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+}
+
+.se-pph-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1c1c1c;
+}
+
+.se-pph-check-dot {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 999px;
+    background: #bfff00;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.se-pph-resumen {
+    background: #1c1c1c;
+    color: #fff;
+    border-radius: 16px;
+    padding: 24px 22px;
+    box-sizing: border-box;
+}
+
+.se-pph-resumen-eyebrow {
+    margin: 0 0 12px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #bfff00;
+}
+
+.se-pph-resumen-lead {
+    margin: 0 0 12px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #fff;
+}
+
+.se-pph-resumen-lead strong {
+    color: #bfff00;
     font-weight: 700;
 }
 
-.actions lightning-button {
-    --slds-c-button-neutral-color-background: black;
-    --slds-c-button-neutral-color-background-hover:black;
-    --slds-c-button-radius-border: 50px;
+.se-pph-resumen-note {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.iniciar {
-    --slds-c-button-spacing-block-start: 0.5rem;
-    --slds-c-button-spacing-block-end: 0.5rem;
+.se-pph-footer {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+}
+
+.se-btn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 12px 44px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+}
+
+.se-btn-primary {
+    background: #bfff00;
+    color: #1c1c1c;
+    border-color: #bfff00;
+}
+
+.se-btn-primary:hover {
+    background: #d4ff33;
+    border-color: #d4ff33;
+}
+
+.se-pph-tyc {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 16px;
+}
+
+.se-pph-tyc-link {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: #1c1c1c;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+    .se-pph {
+        padding: 16px 16px 24px;
+    }
+
+    .se-pph-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .se-panel {
+        padding: 20px 18px;
+    }
+
+    .se-panel-title {
+        font-size: 18px;
+    }
+
+    .se-pph-check {
+        font-size: 16px;
+    }
+
+    .se-pph-resumen {
+        padding: 24px 20px;
+    }
+
+    .se-pph-resumen-lead {
+        font-size: 16px;
+    }
+
+    .se-pph-resumen-note {
+        font-size: 14px;
+    }
+
+    .se-pph-footer {
+        margin-top: 24px;
+        align-items: stretch;
+    }
+
+    .se-pph-footer .se-btn {
+        width: 100%;
+        min-height: 56px;
+        font-size: 16px;
+    }
+
+    .se-pph-tyc-link {
+        font-size: 15px;
+    }
+
+    .se-pph-empty .se-btn {
+        width: 100%;
+    }
 }

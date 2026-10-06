@@ -1,0 +1,175 @@
+/* Estilo de lightning-combobox */
+.custom-combobox {
+    --slds-c-input-color-background: #1c1c1c;
+    --slds-c-input-color-border: #B5EC08;
+    --slds-c-input-color-text: #ffffff;
+    --slds-c-input-shadow-focus: 0 0 0 1px #B5EC08;
+    --slds-c-input-radius-border: 8px;
+    --slds-c-input-spacing-block-start: 0.5rem;
+    --slds-c-input-spacing-block-end: 0.5rem;
+    --slds-c-input-font-weight: 700;
+    --slds-c-input-line-height: 1.6;
+
+    font-size: 1.1rem;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 1rem;
+
+    position: relative;
+    z-index: 10;
+}
+
+/* combobox interno */
+.custom-combobox .slds-combobox__input {
+    background-color: #1c1c1c;
+    border: 2px solid #B5EC08;
+    color: white;
+    border-radius: 20px;
+    font-weight: 600;
+    padding-left: 1rem;
+}
+
+.custom-combobox .slds-combobox__input:focus {
+    box-shadow: 0 0 0 1px #B5EC08;
+    outline: none;
+}
+
+.custom-combobox .slds-form-element__label {
+    color: #ccc;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Dropdown del combobox */
+.custom-combobox .slds-listbox {
+    background-color: #1c1c1c;
+    border: 1px solid #B5EC08;
+    border-radius: 8px;
+    color: white;
+}
+
+.custom-combobox .slds-listbox__item:hover {
+    background-color: #2c2c2c;
+}
+
+.custom-combobox .slds-listbox__option {
+    color: white;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+/* Estilo principal */
+:host {
+    display: block;
+    background-color: #1c1c1c;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    padding: 1rem;
+    color: white;
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+}
+
+/* SVG íconos */
+svg {
+    fill: white;
+}
+
+/* Combobox */
+lightning-combobox {
+    --slds-c-input-shadow: none;
+    --slds-c-input-color-background: #fff;
+    --slds-c-input-color-border: #000;
+    --slds-c-input-radius-border: 20px;
+    padding: 4px 12px;
+    font-size: 0.9rem;
+}
+
+/* Botón Confirmar */
+.confirmar {
+    background-color: #00b894;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.confirmar:hover {
+    background-color: #009e7a;
+}
+
+/* Layout info visual cuando ya hay semilleroData */
+lightning-layout-item b {
+    color: white;
+    font-size: 0.95rem;
+}
+
+/* Tooltip y condiciones comerciales icon */
+button svg {
+    fill: white;
+    cursor: pointer;
+}
+
+/* --- Ajuste universal para lightning-combobox dropdown --- */
+/* Aplica a todos los dropdowns del combobox si no están encapsulados */
+
+.slds-listbox.slds-listbox_vertical {
+    background-color: #1c1c1c !important;
+    color: white !important;
+    border: 1px solid #B5EC08;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    z-index: 1001 !important;
+    position: absolute !important;
+}
+
+.slds-listbox__item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.slds-listbox__item:hover {
+    background-color: #2c2c2c;
+}
+
+.slds-listbox__option-text {
+    color: white !important;
+    font-weight: 500;
+}
+
+.final-button-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.final-button {
+    background-color: #B5EC08;
+    color: #1C1C1C;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.final-button:hover {
+    background-color: #A4D807;
+    transform: scale(1.05);
+}
+
+.final-button:disabled {
+    background-color: #666;
+    color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.5;
+}

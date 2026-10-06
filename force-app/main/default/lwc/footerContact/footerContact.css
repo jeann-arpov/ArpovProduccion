@@ -1,11 +1,19 @@
+:host {
+    display: block;
+    height: auto;
+    flex: 0 0 auto;
+}
+
 .footer {
     background-color: #000000;
     color: white;
-    padding: 20px 40px;
+    padding: var(--se-footer-pad, 20px 40px);
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: var(--se-footer-align, center);
+    flex-direction: var(--se-footer-dir, row);
     flex-wrap: wrap;
+    gap: var(--se-footer-gap, 0);
 }
 
 .info {
@@ -41,4 +49,28 @@
   width: 1.4rem;
   height: 1.4rem;
   vertical-align: middle;
+}
+
+@media (max-width: 767px) {
+    :host(.se-footer-pin) {
+        position: static;
+        width: 100%;
+        display: block;
+    }
+
+    .contact-button {
+        margin-top: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    :host(.se-footer-home) {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 270;
+        width: 100%;
+        display: block;
+    }
 }

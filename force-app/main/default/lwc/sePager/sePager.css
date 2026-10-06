@@ -1,0 +1,42 @@
+:host {
+    display: block;
+}
+
+.pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 0 28px;
+}
+
+.pager-btn {
+    appearance: none;
+    background: #fff;
+    color: #4a5261;
+    border: 1px solid #dde2eb;
+    border-radius: 999px;
+    padding: 8px 18px;
+    min-height: 36px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.pager-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.pager-page {
+    color: #1c1c1c;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@media (max-width: 767px) {
+    .pager {
+        padding: 16px 16px 24px;
+    }
+}

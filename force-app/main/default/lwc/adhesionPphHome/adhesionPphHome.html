@@ -1,46 +1,78 @@
 <template>
-    <template if:false={loaded}>
-        <div class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-        </div>
-    </template>
+    <c-se-list-page loading={loading}>
+        <c-se-page-header
+            slot="header"
+            eyebrow="Precertificación / Mis PPH"
+            eyebrow-mobile="Precertificación"
+            title="PPH"
+        ></c-se-page-header>
 
-    <div if:true={loaded}>
-        <p style="font-size: 24px" class="slds-m-bottom_x-large" >
-            <svg class="slds-m-right_small" width="14.763" height="17.954" >;
-                <use xlink:href={icons.file}></use>
-            </svg>
-            <b>PPH</b>
-        </p>
+        <div class="pph-stack">
+            <template for:each={groups} for:item="group">
+                <section key={group.id} class="pph-crop">
+                    <header class="pph-crop-h">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"></path><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5zM12 9c0-3-2-5-5-5 0 3 2 5 5 5zM12 14c0-3 2-5 5-5 0 3-2 5-5 5zM12 14c0-3-2-5-5-5 0 3 2 5 5 5z"></path></svg>
+                        <span>{group.name}</span>
+                    </header>
 
-        <div key={w.cultivo.Id} for:each={data} for:item="w" class="slds-box" style="margin:0.5rem;">
-            <div class="cultivo-title"><span style="margin-left:0.5rem;font-weight:600;">{w.cultivo.Name}</span></div>
-            <lightning-layout key={wParam.parametro.Id} for:each={w.parametros} for:item="wParam" horizontal-align="spread" style="margin:0.5rem;">
-                <lightning-layout-item size="3">
-                    <span style="font-weight:bold;vertical-align:-webkit-baseline-middle;">{wParam.parametro.Name}</span>    
-                </lightning-layout-item>
-                <lightning-layout-item size="3">
-                    <span style="font-family: 'Salesforce Sans';vertical-align:-webkit-baseline-middle;">{wParam.rangoAdhesion}</span> 
-                </lightning-layout-item>
-                <lightning-layout-item size="1">
-                    <lightning-icon if:true={wParam.contentDocumentId} style="cursor:pointer;" icon-name="utility:file" size="small" title="Ver Términos y Condiciones" onclick={showTerminos} data-id={wParam.parametro.Id}></lightning-icon>
-                </lightning-layout-item>
-                <lightning-layout-item size="2" style="text-align: -webkit-center;">
-                    <span class={wParam.estadoWrapperClass}>
-                        <div class={wParam.estadoClass} style="width: fit-content;">
-                            <span>{wParam.estadoLabel}</span>
-                        </div>
-                        <span if:true={wParam.showRectificacionInfo} class="estado-tooltip__tip" role="tooltip">
-                            <span class="estado-tooltip__body">{rectificacionTooltip}</span>
-                        </span>
-                    </span>
-                </lightning-layout-item>
-                <lightning-layout-item size="3" style="text-align: -webkit-center;">
-                    <lightning-button label={wParam.actionName} variant="brand" onclick={doAction} if:false={wParam.disableAction} data-param={wParam.parametro.Id} data-cultivo={w.cultivo.Id} style="min-width: 100px;"></lightning-button>
-                    <span if:true={wParam.disableAction} style="color:darkslategrey;font-weight:600;vertical-align:sub;">{wParam.disabledCause}</span>
-                </lightning-layout-item>
-            </lightning-layout>
+                    <template for:each={group.plans} for:item="plan">
+                        <article key={plan.id} class="pph-plan">
+                            <div class="pph-plan-info">
+                                <p class="pph-plan-name">{plan.title}</p>
+                                <p class="pph-meta">{plan.periodo}</p>
+                            </div>
+
+                            <div class="pph-plan-badge">
+                                <c-se-badge label={plan.statusLabel} tone={plan.badgeTone} show-dot></c-se-badge>
+                            </div>
+
+                            <div class="pph-actions">
+                                <template if:true={plan.hasTerminos}>
+                                    <button
+                                        type="button"
+                                        class="pph-icon-btn"
+                                        aria-label="Términos y Condiciones"
+                                        title="Términos y Condiciones"
+                                        data-id={plan.id}
+                                        onclick={showTerminos}
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 13h6M9 17h6"></path></svg>
+                                    </button>
+                                </template>
+                                <template if:false={plan.hasTerminos}>
+                                    <span class="pph-icon-spacer" aria-hidden="true"></span>
+                                </template>
+
+                                <template if:true={plan.actionDisabled}>
+                                    <span class="pph-closed">{plan.disabledCause}</span>
+                                </template>
+                                <template if:false={plan.actionDisabled}>
+                                    <div class="pph-btns">
+                                        <template if:true={plan.canRectificar}>
+                                            <button type="button" class="pph-btn pph-btn-primary" data-id={plan.id} onclick={handleRectificar}>
+                                                Rectificar
+                                            </button>
+                                        </template>
+                                        <button type="button" class={plan.btnClass} data-id={plan.id} onclick={handleAction}>
+                                            {plan.actionLabel}
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <template if:true={plan.showRectificacionInfo}>
+                                <p class="pph-hint" role="note">{rectificacionInfo}</p>
+                            </template>
+                        </article>
+                    </template>
+                </section>
+            </template>
+
+            <template if:true={isEmpty}>
+                <p class="pph-empty">No hay adhesiones para mostrar.</p>
+            </template>
         </div>
-        <c-pdf-reader></c-pdf-reader>
-    </div>
+    </c-se-list-page>
+
+    <c-pdf-reader></c-pdf-reader>
 </template>

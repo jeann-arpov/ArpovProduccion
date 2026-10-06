@@ -5,16 +5,22 @@ import createCase from '@salesforce/apex/InformarPagoController.createCase';
 import createCasePPH from '@salesforce/apex/InformarPagoController.createCasePPH';
 import deleteDocument from '@salesforce/apex/InformarPagoController.deleteDocument';
 import sendEmail from '@salesforce/apex/InformarPagoController.sendEmail';
+import informarPagoFactura from '@salesforce/apex/InformarPagoController.informarPagoFactura';
+import InformarPagoTooltip from '@salesforce/label/c.InformarPago_Tooltip';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {reduceErrors} from 'c/utils'
 import { NavigationMixin } from 'lightning/navigation';
+import { lockPortalModal, unlockPortalModal, fitFixedLayer } from 'c/seModalLayer';
 
 export default class InformarPago extends NavigationMixin(LightningElement) {
 
     subject = 'Informar Pago';
 
+    informarPagoTooltip = InformarPagoTooltip;
+
     showModal = false;
     title;
+    variant = 'legacy';
 
     fieldSetMembers = null;
     _extraFields = {}
@@ -22,13 +28,16 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     recordId;
     reason;
     accountId;
+    razonSocial;
+    numero;
+    informarFactura = false;
 
     contentVersionIds = [];
+    contentDocumentIds = [];
     docs = [];
 
     @wire(getFieldSetFieldsByFieldSetName,{objectApiName: 'Case', fieldSetName: 'Informar_Pago'})
     wiredGetFieldSetFieldsByFieldSetName({error,data}){
-        console.log(data,error);
         if(data){
             this.fieldSetMembers = data;
         }else if(error){
@@ -36,24 +45,80 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
         }
     }
 
+    get isSgVariant() {
+        return this.variant === 'sg';
+    }
+
+    get isLegacyVariant() {
+        return !this.isSgVariant;
+    }
+
+    get showSgModal() {
+        return this.showModal && this.isSgVariant;
+    }
+
+    get showLegacyModal() {
+        return this.showModal && this.isLegacyVariant;
+    }
+
+    renderedCallback() {
+        if (this.showSgModal && !this._modalLock) {
+            this._modalLock = lockPortalModal(this.template.host, () => this.fitModalLayer());
+        } else if (!this.showSgModal && this._modalLock) {
+            unlockPortalModal(this._modalLock);
+            this._modalLock = null;
+        }
+        if (this._modalLock) this.fitModalLayer();
+    }
+
+    disconnectedCallback() {
+        unlockPortalModal(this._modalLock);
+        this._modalLock = null;
+    }
+
+    fitModalLayer() {
+        fitFixedLayer(this.template.querySelector('.ip-scrim'));
+    }
+
+    get hasDocs() {
+        return (this.docs || []).length > 0;
+    }
+
+    get fields() {
+        return this.fieldSetMembers || [];
+    }
+
     @api
     show(data) {
         this._extraFields = {};
         this.subject = data.subject || ('CUIT: ' + data.cuit + ' - ' + data.comprobante + ' - Informar Pago');
-        console.log(this.subject);
         this._extraFields['Subject'] = this.subject;
         this._processing = true;
-        this.title = data.title
+        this.title = data.title;
+        this.variant = data.variant || 'legacy';
+        this.successMessage = data.successMessage;
         this.showModal = true;
         this.recordId = data.recordId;
         this.accountId = data.accountId;
+        this.razonSocial = data.razonSocial;
+        this.numero = data.numero;
+        this.informarFactura = data.informarFactura === true;
         this.contentVersionIds = [];
+        this.contentDocumentIds = [];
         this.docs = [];
     }
 
     @api
     hide() {
-        this.showModal = true;
+        this.showModal = false;
+    }
+
+    handleScrimClick() {
+        this.handleOnCloseModal();
+    }
+
+    stopPropagation(event) {
+        event.stopPropagation();
     }
 
     handleOnCloseModal() {
@@ -93,6 +158,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
                 VersionId: file.contentVersionId
             });
             this.contentVersionIds.push(file.contentVersionId);
+            this.contentDocumentIds.push(file.documentId);
         });
 
         this.docs = docs;
@@ -114,7 +180,36 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
             );    
         }
 
+        if (this.informarFactura && (!this.docs || this.docs.length === 0)) {
+            return this.dispatchEvent(
+                new ShowToastEvent({
+                    message: 'Debe cargar el archivo del comprobante.',
+                    variant: 'error'
+                })
+            );
+        }
+
         this._processing = true;
+
+        if (this.informarFactura && this.recordId) {
+            informarPagoFactura({
+                opportunityId: this.recordId,
+                contentDocumentIds: this.contentDocumentIds,
+                contentVersionIds: this.contentVersionIds,
+                comentarios: this._extraFields['Description'] || ''
+            })
+                .then(() => {
+                    this._processing = false;
+                    this.showSuccess();
+                    this.showModal = false;
+                    this.dispatchEvent(new CustomEvent('pagoinformado'));
+                })
+                .catch((error) => {
+                    this._processing = false;
+                    this.processError(error);
+                });
+            return;
+        }
 
         // calling apex class
 
@@ -162,9 +257,14 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     }
 
     showSuccess(){
+        const message =
+            this.successMessage ||
+            (this.isSgVariant
+                ? 'Tu reclamo se registró correctamente.'
+                : 'Información de pago registrada éxitosamente.');
         this.dispatchEvent(
             new ShowToastEvent({
-                message: 'Información de pago registrada éxitosamente.',
+                message,
                 variant: 'success'
             })
         );
@@ -206,6 +306,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
             let element = this.docs.find(doc => doc.Id == elementId);
             this.docs = this.docs.filter(doc => doc.Id !== elementId);
             this.contentVersionIds = this.contentVersionIds.filter(version => version !== element.VersionId);
+            this.contentDocumentIds = this.contentDocumentIds.filter(docId => docId !== elementId);
 
             const evt = new ShowToastEvent({
                 title:  '¡Documento eliminado!',
@@ -229,7 +330,7 @@ export default class InformarPago extends NavigationMixin(LightningElement) {
     }
 
     get acceptedFormats() {
-        return ['.pdf', '.png','.jpg','.jpeg'];
+        return ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx', '.xls', '.xlsx'];
     }
 
     get showSpinner(){

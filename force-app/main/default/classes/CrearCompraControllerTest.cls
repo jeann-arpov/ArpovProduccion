@@ -285,4 +285,58 @@ public class CrearCompraControllerTest {
         
         System.assertNotEquals(null, userData);
     }
+
+    @IsTest
+    static void testFindCompraEnProceso_NoCreaNueva() {
+        TestContext ctx = setupFullContext();
+        String obtentorId = [SELECT Id_Obtentor__c FROM Account WHERE Id = :ctx.obtentor.Id].Id_Obtentor__c;
+
+        Test.startTest();
+        Map<String, Object> existing = CrearCompraController.findCompraEnProceso(obtentorId, ctx.cultivo.Id);
+        System.assertEquals(ctx.compra.Id, existing.get('id'), 'Debe devolver la compra Creada del mismo semillero y cultivo');
+
+        String info = JSON.serialize(new Map<String, Object>{
+            'Id_Producto_de_Lista_de_Precio__c' => ctx.entry.id,
+            'Cantidad__c' => 1,
+            'Precio_de_Lista__c' => 10
+        });
+        Map<String, Object> saveResult = CrearCompraController.saveItem(null, info, ctx.cultivo.Id);
+        Test.stopTest();
+
+        System.assertEquals(true, saveResult.get('duplicate'), 'saveItem no debe crear otra compra si hay una en proceso');
+        System.assertEquals(ctx.compra.Id, saveResult.get('existingCompraId'));
+        System.assertEquals(1, [SELECT Count() FROM Compra_HT__c WHERE Obtentor__c = :ctx.obtentor.Id AND Cultivo__c = :ctx.cultivo.Id]);
+    }
+
+    @IsTest
+    static void testFindCompraEnProceso_NoBloqueaSiNoEstaCreada() {
+        TestContext ctx = setupFullContext();
+        String obtentorId = [SELECT Id_Obtentor__c FROM Account WHERE Id = :ctx.obtentor.Id].Id_Obtentor__c;
+        update new Compra_HT__c(Id = ctx.compra.Id, Estado__c = 'Pendiente de Facturación');
+
+        Test.startTest();
+        Map<String, Object> existing = CrearCompraController.findCompraEnProceso(obtentorId, ctx.cultivo.Id);
+        Test.stopTest();
+
+        System.assertEquals(null, existing, 'Una compra Pendiente de Facturación no debe bloquear una nueva compra');
+    }
+
+    @IsTest
+    static void testGetCampanasVigentes() {
+        Cultivo__c cultivo = new Cultivo__c(Name = 'SOJA VIG', Tipo_de_Especie__c = 'SOJA', Densidad_de_Siembra__c = 75, Sembra_Evolucion__c = true);
+        insert cultivo;
+        Campana_Agricola__c anterior = Test_TestUtils.crearCampanaAgricola('2025', cultivo, Date.today().addYears(-1), Date.today().addDays(-1), 'SOJA VIG 2025', false);
+        anterior.Estado__c = 'Activa';
+        Campana_Agricola__c vigente = Test_TestUtils.crearCampanaAgricola('2026', cultivo, Date.today().addDays(-1), Date.today().addYears(1), 'SOJA VIG 2026', false);
+        vigente.Estado__c = 'En Preparación';
+        Campana_Agricola__c futura = Test_TestUtils.crearCampanaAgricola('2027', cultivo, Date.today().addYears(1), Date.today().addYears(2), 'SOJA VIG 2027', false);
+        futura.Estado__c = 'En Preparación';
+        insert new List<Campana_Agricola__c>{ anterior, vigente, futura };
+
+        Test.startTest();
+        Map<Id, String> result = CrearCompraController.getCampanasVigentes();
+        Test.stopTest();
+
+        System.assertEquals('26/27', result.get(cultivo.Id), 'Debe tomar la campaña más reciente ya iniciada');
+    }
 }

@@ -1,5 +1,5 @@
 <template>
-    <div class="mainButton">
+    <div class="mainButton" if:false={hideButtons}>
         <lightning-button class="slds-m-right_x-small slds-m-top--medium" variant="brand" label="Descargar Plantilla Excel" title="Descargar Plantilla Excel" icon-position="right" icon-name="utility:download" onclick={downloadClick} ></lightning-button>
         <lightning-button class="slds-m-top--medium" variant="brand" label="Importar Establecimientos" onclick={openModal} ></lightning-button>
     </div>
@@ -24,6 +24,7 @@
             
             <div if:true={comenzado} class="centered">
                 <lightning-input label="Subir Excel" name="file uploader" accept={acceptedFormats} onchange={handleFilesChange} type="file" multiple></lightning-input>
+                <lightning-button if:true={hideButtons} class="slds-m-top_small" variant="base" label="Descargar plantilla Excel" icon-name="utility:download" onclick={downloadClick}></lightning-button>
             </div>
             
             <div if:true={confirmado} class="centered">

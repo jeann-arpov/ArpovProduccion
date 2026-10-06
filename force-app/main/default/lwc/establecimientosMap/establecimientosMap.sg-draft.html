@@ -1,0 +1,57 @@
+﻿<template>
+    <c-map onlocationselected={updateLocation}></c-map>
+
+    <c-modal>
+        <div slot="header">Ubicaciones de establecimientos</div>
+        <lightning-map map-markers={markers}></lightning-map>
+    </c-modal>
+
+    <template if:true={showNewSheet}>
+        <div class="se-sheet-backdrop" onclick={handleBackdropClick}></div>
+        <section class="se-sheet" role="dialog" aria-modal="true" aria-labelledby="se-sheet-title">
+            <header class="se-sheet-head">
+                <button type="button" class="se-sheet-back" onclick={closeNew} aria-label="Cerrar">
+                    <lightning-icon icon-name="utility:chevronleft" size="x-small"></lightning-icon>
+                </button>
+                <h2 id="se-sheet-title" class="se-sheet-title">Nuevo establecimiento</h2>
+                <span class="se-sheet-spacer"></span>
+            </header>
+
+            <div class="se-sheet-body">
+                <div class="se-map-chip-wrap">
+                    <button type="button" class="se-map-chip" onclick={showMap}>
+                        {mapCoodinates}
+                    </button>
+                    <p class="se-map-hint">Toc├í para elegir el punto en el mapa.</p>
+                </div>
+
+                <lightning-input
+                    label="Nombre del establecimiento"
+                    name="nombre"
+                    value={selectedName}
+                    onchange={handleNameChange}
+                    required
+                    placeholder="Ej: La Emilia"
+                ></lightning-input>
+            </div>
+
+            <footer class="se-sheet-foot">
+                <button type="button" class="se-btn se-btn-ghost" onclick={closeNew}>Cancelar</button>
+                <button type="button" class="se-btn se-btn-primary" onclick={handleSave} disabled={saveDisabled}>
+                    Guardar
+                </button>
+            </footer>
+        </section>
+    </template>
+
+    <template if:true={showSuccess}>
+        <div class="se-sheet-backdrop" onclick={closeSuccess}></div>
+        <section class="se-dialog" role="alertdialog">
+            <h3 class="se-dialog-title">Nuevo establecimiento</h3>
+            <p class="se-dialog-copy">{mensaje}</p>
+            <button type="button" class="se-btn se-btn-primary se-dialog-cta" onclick={closeSuccess}>
+                Aceptar ÔåÆ
+            </button>
+        </section>
+    </template>
+</template>

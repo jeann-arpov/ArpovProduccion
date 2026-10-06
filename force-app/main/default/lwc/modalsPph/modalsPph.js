@@ -1,127 +1,137 @@
-import { LightningElement, api } from "lwc";
-import { NavigationMixin } from "lightning/navigation";
-import registerCuit from "@salesforce/apex/CesionPPH.registerCuit";
-import { errorEvent } from "c/utils";
-import recibidaLabel from "@salesforce/label/c.PPH_Mensaje_Recibida";
+import { LightningElement, api } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
+import registerCuit from '@salesforce/apex/CesionPPH.registerCuit';
+import {errorEvent} from 'c/utils';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import recibidaLabel from '@salesforce/label/c.PPH_Mensaje_Recibida';
 
 export default class ModalsPph extends NavigationMixin(LightningElement) {
-  @api currentModal;
-  @api callback;
+    @api currentModal;
+    @api callback;
+    recibidaLabel = recibidaLabel;
 
-  loading = false;
+    loading = false;
 
-  get showModal() {
-    return this.currentModal != null;
-  }
+    get showModal() {
+        return this.currentModal != null;
+    }
 
-  closeModal(event) {
+    renderedCallback() {
+        syncPortalModal(this, this.showModal, '.slds-modal, .slds-backdrop');
+    }
+
+    disconnectedCallback() {
+        releasePortalModal(this);
+    }
+
+    closeModal(event) {
     this.dispatchEvent(new CustomEvent("close"));
-  }
+    }
 
-  get isDeleteConfirm() {
-    return this.currentModal == "confirm-delete";
-  }
+    get isDeleteConfirm() {
+        return this.currentModal == "confirm-delete";
+    }
 
-  get isContinueConfirm() {
-    return this.currentModal == "confirm-continue";
-  }
+    get isContinueConfirm() {
+        return this.currentModal == "confirm-continue";
+    }
 
-  get isContinueConfirmResumen() {
-    return this.currentModal == "confirm-continue-resumen";
-  }
+    get isContinueConfirmResumen() {
+        return this.currentModal == "confirm-continue-resumen";
+    }
 
-  get isContinueConfirmRectificar() {
-    return this.currentModal == "confirm-continue-rectificar";
-  }
+    get isContinueConfirmRectificar() {
+        return this.currentModal == "confirm-continue-rectificar";
+    }
 
-  get isAdherido() {
-    return this.currentModal == "adherido";
-  }
+    get isAdherido() {
+        return this.currentModal == "adherido";
+    }
 
-  get isEnRevision() {
-    return this.currentModal == "en-revision";
-  }
+    get isEnRevision() {
+        return this.currentModal == "en-revision";
+    }
 
-  get isDeleteDestinatarioConfirm() {
-    return this.currentModal == "confirm-delete-destinatario";
-  }
+    get isDeleteDestinatarioConfirm() {
+        return this.currentModal == "confirm-delete-destinatario";
+    }
 
-  get isAddDestinatarioConfirm() {
+    get isAddDestinatarioConfirm(){
     return this.currentModal == "confirm-add-destinatario";
-  }
+    }
 
-  get isConfirmEnviarSesion() {
+    get isConfirmEnviarSesion() {
     return (
       this.currentModal == "confirm-enviar-cesion" ||
       this.isConfirmEnviarSesionWithoutLicenses
     );
-  }
+    }
 
-  get isConfirmEnviarSesionWithoutLicenses() {
+    get isConfirmEnviarSesionWithoutLicenses() {
     return this.currentModal == "confirm-enviar-cesion-without-licenses";
-  }
+    }
 
-  get isAdheridoCesion() {
-    return this.currentModal == "adherido-cesion";
-  }
+    get isAdheridoCesion() {
+        return this.currentModal == "adherido-cesion";
+    }
 
-  get isConfirmEditCesion() {
-    return this.currentModal == "confirm-edit-cesion";
-  }
+    get isConfirmEditCesion() {
+        return this.currentModal == "confirm-edit-cesion";
+    }
 
-  get isConfirmAnularCesion() {
+    get isConfirmAnularCesion() {
     return this.currentModal == "confirm-anular-cesion";
-  }
+    }
 
-  get isRegisterCuit() {
+    get isRegisterCuit() {
     return this.currentModal.startsWith("register-cuit");
-  }
+    }
 
-  get isRecordatorioFirmante() {
+    get isRecordatorioFirmante() {
     return this.currentModal == "recordatorio-firmante";
-  }
+    }
 
-  executeCallback() {
-    this.callback();
-  }
+    executeCallback() {
+        this.callback();
+    }
 
-  redirectInicio() {
-    this[NavigationMixin.Navigate]({
+    redirectInicio() {
+        this[NavigationMixin.Navigate]({
       type: "standard__namedPage",
-      attributes: {
+            attributes: {
         pageName: "home"
       }
-    });
-  }
+        });
+    }
 
-  get cls() {
+    get cls() {
     return (
       "slds-modal__container" +
       (this.isContinueConfirmResumen ? " resumen" : "")
     );
-  }
+    }
 
-  async registerCuit(e) {
-    this.loading = true;
+    async registerCuit(e) {
+        this.loading = true;
 
-    try {
+        try {
       const res = await registerCuit({
         email: this.template.querySelector(".email").value,
         cuit: this.cuit
       });
-      this.callback(res);
-    } catch (e) {
-      this.onError(e);
+            this.callback(res);
+        } catch (e) {
+            this.onError(e);
+        }
+
+        this.loading = false;
     }
 
-    this.loading = false;
-  }
-
-  get cuit() {
+    get cuit() {
     return this.currentModal.split("-").pop();
-  }
+    }
 
-  onError(e) {
-    this.dispatchEvent(errorEvent(e));
-  }
+    onError(e) {
+        this.dispatchEvent(errorEvent(e));
+    }
 }

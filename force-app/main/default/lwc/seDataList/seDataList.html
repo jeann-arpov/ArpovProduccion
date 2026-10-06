@@ -1,0 +1,191 @@
+<template>
+    <div class="wrap">
+        <!-- Ghost table while loading (gets blurred by se-list-page) -->
+        <template if:true={loading}>
+            <div class="table-wrap desktop-only skeleton" aria-hidden="true">
+                <table class="dtable">
+                    <thead>
+                        <tr>
+                            <template for:each={headerCells} for:item="col">
+                                <th key={col.key} class={col.thClass}>{col.label}</th>
+                            </template>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={skeletonRows} for:item="row">
+                            <tr key={row.key}>
+                                <template for:each={row.cells} for:item="cell">
+                                    <td key={cell.key}><span class="bone"></span></td>
+                                </template>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="cards mobile-only skeleton" aria-hidden="true">
+                <template for:each={skeletonCards} for:item="card">
+                    <article class="lic-card" key={card.key}>
+                        <div class="lic-head">
+                            <span class="bone bone-title"></span>
+                            <span class="bone bone-badge"></span>
+                        </div>
+                        <div class="lic-grid">
+                            <span class="bone"></span>
+                            <span class="bone"></span>
+                            <span class="bone"></span>
+                            <span class="bone"></span>
+                        </div>
+                    </article>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={showList}>
+            <div class="table-wrap desktop-only">
+                <table class="dtable">
+                    <thead>
+                        <tr>
+                            <template for:each={headerCells} for:item="col">
+                                <th key={col.key} class={col.thClass}>{col.label}</th>
+                            </template>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={items} for:item="row">
+                            <tr key={row.key}>
+                                <template for:each={row.cells} for:item="cell">
+                                    <td key={cell.key} class={cell.tdClass}>
+                                        <template if:true={cell.isLink}>
+                                            <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                                                {cell.value}
+                                            </button>
+                                        </template>
+                                        <template if:true={cell.isMailto}>
+                                            <a class="link" href={cell.mailtoHref}>{cell.value}</a>
+                                        </template>
+                                        <template if:true={cell.isBadge}>
+                                            <span class="badge-cell">
+                                                <c-se-badge label={cell.value} tone={cell.badgeTone} show-dot></c-se-badge>
+                                                <template if:true={row.badgeHint}>
+                                                    <span
+                                                        class="tipwrap"
+                                                        tabindex="0"
+                                                        role="button"
+                                                        aria-label={row.badgeHint}
+                                                        data-hint={row.badgeHint}
+                                                        onmouseenter={handleHintShow}
+                                                        onfocus={handleHintShow}
+                                                        onclick={handleHintShow}
+                                                        onmouseleave={handleHintHide}
+                                                        onblur={handleHintHide}
+                                                    >
+                                                        <span class="info-i" aria-hidden="true">i</span>
+                                                    </span>
+                                                </template>
+                                            </span>
+                                        </template>
+                                        <template if:true={cell.isAction}>
+                                            <template if:true={row.showSecondary}>
+                                                <button class="link link--secondary" type="button" data-key={row.key} onclick={handleSecondary}>
+                                                    {secondaryActionLabel}
+                                                </button>
+                                            </template>
+                                            <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                                                {cell.actionLabel}
+                                            </button>
+                                        </template>
+                                        <template if:true={cell.isActionMessage}>
+                                            <span class="action-msg">{cell.actionMessage}</span>
+                                        </template>
+                                        <template if:true={cell.isAmount}>
+                                            <span class={cell.amountClass}>{cell.value}</span>
+                                        </template>
+                                        <template if:true={cell.isStrong}>
+                                            <span class={cell.strongClass}>{cell.value}</span>
+                                        </template>
+                                        <template if:true={cell.isAccent}>
+                                            <span class={cell.accentClass}>{cell.value}</span>
+                                        </template>
+                                        <template if:true={cell.isText}>
+                                            {cell.value}
+                                        </template>
+                                    </td>
+                                </template>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cards mobile-only">
+                <template for:each={items} for:item="row">
+                    <article class="lic-card" key={row.mobileKey}>
+                        <div class="lic-head">
+                            <span class="lic-code">{row.title}</span>
+                            <span class="badge-cell">
+                                <c-se-badge label={row.badgeLabel} tone={row.badgeTone} show-dot></c-se-badge>
+                                <template if:true={row.badgeHint}>
+                                    <span
+                                        class="tipwrap"
+                                        tabindex="0"
+                                        role="button"
+                                        aria-label={row.badgeHint}
+                                        data-hint={row.badgeHint}
+                                        onmouseenter={handleHintShow}
+                                        onfocus={handleHintShow}
+                                        onclick={handleHintShow}
+                                        onmouseleave={handleHintHide}
+                                        onblur={handleHintHide}
+                                    >
+                                        <span class="info-i" aria-hidden="true">i</span>
+                                    </span>
+                                </template>
+                            </span>
+                        </div>
+                        <div class="lic-grid">
+                            <template for:each={row.fields} for:item="field">
+                                <div class="kv" key={field.labelKey}>
+                                    <span class="k">{field.label}</span>
+                                    <span class={field.valueClass}>{field.value}</span>
+                                </div>
+                            </template>
+                        </div>
+                        <template if:false={hideMobileAction}>
+                            <template if:true={row.showDisabledMessage}>
+                                <p class="action-msg action-msg--mobile">{row.disabledMessage}</p>
+                            </template>
+                            <template if:false={row.showDisabledMessage}>
+                                <button class={row.mobileActionClass} type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
+                                    {row.mobileActionLabel}
+                                </button>
+                            </template>
+                        </template>
+                        <template if:true={row.showSecondary}>
+                            <button class="lic-more lic-more--ghost" type="button" data-key={row.key} onclick={handleSecondary}>
+                                {secondaryActionLabel}
+                            </button>
+                        </template>
+                    </article>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={isEmpty}>
+            <p class="empty">{emptyText}</p>
+        </template>
+
+        <template if:true={showPager}>
+            <c-se-pager
+                page={currentPage}
+                disable-prev={disablePrev}
+                disable-next={disableNext}
+                onprevious={handlePrev}
+                onnext={handleNext}
+            ></c-se-pager>
+        </template>
+
+        <template if:true={hintText}>
+            <span class="tip" role="tooltip" style={hintStyle}>{hintText}</span>
+        </template>
+    </div>
+</template>

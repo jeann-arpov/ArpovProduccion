@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>SE Cultivo Resumen</masterLabel>
+    <description>Tabs de cultivo + card oscura de resumen (Total por biotecnología). Uso en Licencias, Movimientos y Facturas.</description>
+</LightningComponentBundle>

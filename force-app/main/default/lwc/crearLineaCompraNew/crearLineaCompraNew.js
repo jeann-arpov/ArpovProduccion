@@ -18,6 +18,17 @@ export default class CrearLineaCompraNew extends LineaCompraVentaMixin(Lightning
         return this.preCampaign === 'Futura';
     }
 
+    get licenciaBadgeTitle() {
+        return this.record?.Licencia__c ? 'Licencia asignada' : 'Sin licencia asignada';
+    }
+
+    get licenciaContentClass() {
+        const base = 'licencia-content';
+        return this.record?.Licencia__c
+            ? `${base} licencia-content--assigned`
+            : `${base} licencia-content--missing`;
+    }
+
     variedadChange(event) {
         const selection = event.target.getSelection();
         this.variedad = selection.length ? selection[0].record.Id : null;

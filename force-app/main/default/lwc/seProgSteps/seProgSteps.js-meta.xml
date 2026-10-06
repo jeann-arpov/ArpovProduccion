@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>SE Progress Steps</masterLabel>
+    <description>Stepper Productor: barra verde en mobile + círculos/línea en desktop. Reutilizable (Compra HT, PPH, Cuenta Granaria, Cesiones).</description>
+</LightningComponentBundle>

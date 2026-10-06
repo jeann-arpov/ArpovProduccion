@@ -1345,7 +1345,7 @@
     </classAccesses>
     <classAccesses>
         <apexClass>LicenseReportService</apexClass>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>LicenseReportServiceTest</apexClass>

@@ -1,14 +1,39 @@
 <template>
-    <div style="font-size:22px;font-weight: 500">Términos y Condiciones</div>
-    <lightning-formatted-rich-text class="terminos" value={terminosYCondiciones} onscroll={scrollTerminos}></lightning-formatted-rich-text>
-    <lightning-layout horizontal-align="center" class="slds-m-top_medium">
-        <lightning-layout-item>
-            <lightning-input class="terms slds-m-bottom_small" disabled={saveDisabled} type="checkbox" label="Acepto términos y condiciones"></lightning-input>
-            <div class="slds-m-bottom_small" style="font-size: 9px;font-style: italic;">Leer términos y condiciones hasta el final para poder continuar</div>
-            <lightning-layout class="actions" horizontal-align="space">
-                <lightning-button label="Volver" onclick={cancel}></lightning-button>
-                <lightning-button class="green" disabled={saveDisabled} label="Aceptar" onclick={accept}></lightning-button>
-            </lightning-layout>
-        </lightning-layout-item>
-    </lightning-layout>
+    <section class="tc-card">
+        <div class="tc-doc" onscroll={scrollTerminos}>
+            <div class="tc-rich" lwc:dom="manual"></div>
+        </div>
+
+        <div class="tc-foot">
+            <div class="tc-accept">
+                <label class={checkRowClass}>
+                    <input
+                        type="checkbox"
+                        class="tc-native"
+                        disabled={checkboxDisabled}
+                        checked={accepted}
+                        onchange={handleCheckChange}
+                    />
+                    <span class={checkClass} aria-hidden="true">
+                        <template if:true={accepted}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+                        </template>
+                    </span>
+                    <span>Acepto términos y condiciones</span>
+                </label>
+                <template if:true={showError}>
+                    <p class="tc-err" role="alert">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+                        <span>Tenés que aceptar los términos y condiciones</span>
+                    </p>
+                </template>
+                <p class="tc-hint">Leé los términos y condiciones hasta el final para poder continuar</p>
+            </div>
+
+            <div class="tc-actions">
+                <button type="button" class="tc-btn tc-btn-ghost" onclick={cancel}>Volver</button>
+                <button type="button" class="tc-btn tc-btn-primary" onclick={accept}>Aceptar</button>
+            </div>
+        </div>
+    </section>
 </template>

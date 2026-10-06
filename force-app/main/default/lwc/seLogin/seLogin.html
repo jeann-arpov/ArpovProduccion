@@ -1,0 +1,220 @@
+<template>
+    <div class={rootClass} style={backgroundStyle}>
+        <div class="se-login-overlay se-desk-only" aria-hidden="true"></div>
+
+        <div class="se-login-deco se-desk-only" aria-hidden="true">
+            <div class="se-login-bars">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <img class="se-login-genetica" src={geneticaIconUrl} alt="" />
+        </div>
+
+        <template if:true={showSpinner}>
+            <div class="se-login-veil" role="status" aria-live="polite" aria-label="Cargando">
+                <c-se-brand-loader></c-se-brand-loader>
+            </div>
+        </template>
+
+        <template if:false={identifier}>
+            <div class="se-login-shell">
+                <aside class="se-login-hero se-desk-only" aria-hidden="true">
+                    <h1 class="se-login-hero-title">
+                        <span class="se-login-hero-line">Accedé siempre a lo </span><span class="se-login-hero-accent">último en genética y biotecnología.</span>
+                    </h1>
+                </aside>
+
+                <section class="se-login-card login-form">
+                    <form class="se-login-card-body" onsubmit={handleSubmit} novalidate>
+                        <template if:true={showLogo}>
+                            <div class="se-login-logo-wrap">
+                                <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
+                            </div>
+                        </template>
+                        <p class="se-login-tagline se-mob-only">Donde tenés que estar.</p>
+
+                        <h1 class="se-login-title se-mob-only">Ingresá a tu cuenta</h1>
+
+                        <template if:true={message}>
+                            <div class={messageBannerClass} role="alert">
+                                <template if:true={isErrorMessage}>
+                                    <lightning-icon
+                                        icon-name="utility:error"
+                                        size="x-small"
+                                        class="se-login-alert-icon"
+                                        alternative-text="Error"
+                                    ></lightning-icon>
+                                </template>
+                                <span>{message}</span>
+                            </div>
+                        </template>
+
+                        <div class={cuitFieldClass}>
+                            <label class="se-fl-label se-mob-only" for="login-cuit">CUIT</label>
+                            <label class="se-fl-label se-desk-only" for="login-cuit">CUIT</label>
+                            <input
+                                id="login-cuit"
+                                class="se-fl-input"
+                                type="text"
+                                name="cuit"
+                                autocomplete="username"
+                                inputmode="numeric"
+                                maxlength="13"
+                                value={cuitFormatted}
+                                aria-invalid={cuitInvalid}
+                                aria-describedby={cuitErrorId}
+                                oninput={handleCuitInput}
+                                onchange={handleCuitInput}
+                                onblur={handleCuitBlur}
+                                onkeydown={handleCuitKeydown}
+                                onfocus={handleFieldFocus}
+                                onkeypress={checkEnterKey}
+                            />
+                        </div>
+                        <template if:true={cuitError}>
+                            <p id="login-cuit-error" class="se-field-error">{cuitError}</p>
+                        </template>
+
+                        <div class={emailFieldClass}>
+                            <label class="se-fl-label se-mob-only" for="login-email">Usuario</label>
+                            <label class="se-fl-label se-desk-only" for="login-email">Email</label>
+                            <input
+                                id="login-email"
+                                class="se-fl-input"
+                                type="text"
+                                name="email"
+                                autocomplete="email"
+                                inputmode="email"
+                                value={email}
+                                oninput={handleEmailInput}
+                                onchange={handleEmailInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                                onkeypress={checkEnterKey}
+                            />
+                        </div>
+
+                        <template if:true={showPasswordField}>
+                            <div class={passwordFieldClass}>
+                                <label class="se-fl-label" for="login-password">Contraseña</label>
+                                <input
+                                    id="login-password"
+                                    class="se-fl-input se-fl-input--password"
+                                    type={passwordInputType}
+                                    name="password"
+                                    autocomplete="current-password"
+                                    value={password}
+                                    oninput={handlePasswordInput}
+                                    onchange={handlePasswordInput}
+                                    onfocus={handleFieldFocus}
+                                    onblur={handleFieldBlur}
+                                    onkeypress={checkEnterKey}
+                                />
+                                <button
+                                    type="button"
+                                    class="se-password-toggle"
+                                    onclick={togglePasswordVisibility}
+                                    aria-label={passwordToggleLabel}
+                                >
+                                    <lightning-icon icon-name={passwordToggleIcon} size="x-small"></lightning-icon>
+                                </button>
+                            </div>
+                        </template>
+
+                        <div class="se-login-forgot se-mob-only">
+                            <button type="button" class="se-login-link" onclick={forgotPassword}>
+                                ¿Olvidaste tu contraseña?
+                            </button>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="se-btn se-btn-primary se-login-submit"
+                            disabled={showSpinner}
+                            onclick={logLoginClick}
+                        >
+                            Ingresar
+                        </button>
+                    </form>
+
+                    <div class="se-login-card-foot se-desk-only">
+                        <p class="se-login-foot-text">
+                            No tenés cuenta?
+                            <button type="button" class="se-login-link se-login-link--strong" onclick={register}>
+                                Registrate
+                            </button>
+                        </p>
+                    </div>
+                    <div class="se-login-card-foot se-desk-only">
+                        <p class="se-login-foot-text">
+                            Olvidaste la contraseña?
+                            <button type="button" class="se-login-link se-login-link--strong" onclick={forgotPassword}>
+                                Hace click aquí
+                            </button>
+                        </p>
+                    </div>
+
+                    <p class="se-login-register se-mob-only">
+                        ¿No tenés cuenta?
+                        <button type="button" class="se-login-link se-login-link--strong" onclick={register}>
+                            Hacé clic acá
+                        </button>
+                    </p>
+                </section>
+            </div>
+        </template>
+
+        <template if:true={identifier}>
+            <div class="se-login-shell se-login-shell--confirm">
+                <section class="se-login-card confirmation-form">
+                    <form class="se-login-card-body" onsubmit={handleSubmit} novalidate>
+                        <template if:true={showLogo}>
+                            <div class="se-login-logo-wrap">
+                                <img class="se-login-logo" src={logoUrl} alt="Sembrá Evolución" />
+                            </div>
+                        </template>
+                        <h1 class="se-login-title">Verificá tu email</h1>
+                        <p class="se-login-sub">
+                            Ingresá el código de seguridad que enviamos a <strong>{email}</strong>.
+                        </p>
+
+                        <template if:true={message}>
+                            <div class={messageBannerClass} role="alert">{message}</div>
+                        </template>
+
+                        <div class={codeFieldClass}>
+                            <label class="se-fl-label" for="login-code">Código</label>
+                            <input
+                                id="login-code"
+                                class="se-fl-input"
+                                type="text"
+                                name="code"
+                                autocomplete="one-time-code"
+                                inputmode="numeric"
+                                value={code}
+                                oninput={handleCodeInput}
+                                onfocus={handleFieldFocus}
+                                onblur={handleFieldBlur}
+                                onkeypress={checkEnterKey}
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="se-btn se-btn-primary se-login-submit"
+                            disabled={showSpinner}
+                        >
+                            Enviar
+                        </button>
+
+                        <button type="button" class="se-login-cancel" onclick={cancel}>Cancelar</button>
+                    </form>
+                </section>
+            </div>
+        </template>
+    </div>
+</template>

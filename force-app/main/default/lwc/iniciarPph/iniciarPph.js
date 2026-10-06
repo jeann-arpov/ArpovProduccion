@@ -1,23 +1,63 @@
 import { LightningElement } from 'lwc';
-import SVG_ICONS from '@salesforce/resourceUrl/iconos_SE';
 import { NavigationMixin } from 'lightning/navigation';
 import hasHT from '@salesforce/apex/AdhesionPPH.hasHT';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import {reduceErrors} from 'c/utils';
+import { reduceErrors } from 'c/utils';
+
+const TYC_PPH_LINKS = [
+    {
+        id: 'soja',
+        label: 'Ver T&C Soja',
+        url: 'https://sembraevolucion.com.ar/wp-content/uploads/2026/10/Terminos-y-Condiciones_Soja_PPH_Campana_26_27.pdf'
+    },
+    {
+        id: 'trigo',
+        label: 'Ver T&C Trigo',
+        url: 'https://sembraevolucion.com.ar/wp-content/uploads/2026/10/Terminos-y-Condiciones_Trigo_PPH_Campana_26_27.pdf'
+    },
+    {
+        id: 'cebada',
+        label: 'Ver T&C Cebada',
+        url: 'https://sembraevolucion.com.ar/wp-content/uploads/2026/09/Terminos-y-Condiciones_Cebada_PPH_Campana_26_27.pdf'
+    }
+];
 
 export default class IniciarPph extends NavigationMixin(LightningElement) {
     initialized = false;
     loaded = false;
     hasHTs;
 
-    icons = {
-        'file': SVG_ICONS + '/iconos/venta/Icon-feather-file.svg#Icon_feather-file',
-        'arrow': SVG_ICONS + '/iconos/font-awesome/right-arrow.svg#right-arrow'
+    requisitos = [
+        { id: 'lic', label: 'Contar con licencia de uso vigente.' },
+        { id: 'ht', label: 'Tener HT acreditadas.' },
+        { id: 'cap', label: 'Indicar la capacidad productiva TOTAL por CUIT.' },
+        {
+            id: 'geo',
+            label:
+                'Georreferenciar todos los establecimientos donde sembrás (tanto variedades bajo Sembrá Evolución como las que no lo son).'
+        },
+        {
+            id: 'tyc',
+            label:
+                'Aceptar los términos y condiciones del Programa Precertificación de Hectáreas (PPH)'
+        }
+    ];
+
+    tycLinks = TYC_PPH_LINKS;
+
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    disconnectedCallback() {
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
     }
 
     async init() {
         this.initialized = true;
-        
+
         try {
             this.hasHTs = await hasHT();
             this.loaded = true;
@@ -30,30 +70,32 @@ export default class IniciarPph extends NavigationMixin(LightningElement) {
         if (!this.initialized) this.init();
     }
 
-    redirectAdhesion(e) {
+    redirectAdhesion() {
         this[NavigationMixin.Navigate]({
             type: 'comm__namedPage',
             attributes: {
-            pageName: 'pre-certificacion',
+                pageName: 'pre-certificacion'
             }
-        })
+        });
     }
 
-    redirectComprar(e) {
+    redirectComprar() {
         this[NavigationMixin.Navigate]({
             type: 'comm__namedPage',
             attributes: {
-                pageName: 'FormularioNuevaVentaHT',
+                pageName: 'FormularioNuevaVentaHT'
             }
-        })
+        });
     }
 
     onError(e) {
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Error',
-            message: reduceErrors(e).join('\n'),
-            variant: 'error',
-            mode: 'sticky'
-        }));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error',
+                message: reduceErrors(e).join('\n'),
+                variant: 'error',
+                mode: 'sticky'
+            })
+        );
     }
 }

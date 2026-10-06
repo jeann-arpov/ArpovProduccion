@@ -30,6 +30,10 @@ import { NavigationMixin } from "lightning/navigation";
 import basePath from "@salesforce/community/basePath";
 import icons from "c/icons";
 import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
+import {
+  trackGa4Event,
+  buildHtCompraConfirmadaParams
+} from "c/portalGa4Events";
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
@@ -175,7 +179,6 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
         return hoyStr >= inicio && hoyStr <= fin;
     }
-  }
 
 
   async evaluarEsStineFutura() {
@@ -239,16 +242,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
             this.notifyLineSaveStateChanged();
           }, 250);
         }
-        const popupKey = "htPopup_" + activeVentaId;
-        const popup = window.sessionStorage.getItem(popupKey);
-        if (popup === "licencia") {
-          this.isOpen2 = true;
-        } else if (popup === "origen") {
-          this.isOpen = true;
-        }
-        if (popup) {
-          window.sessionStorage.removeItem(popupKey);
-        }
+        // No reabrir pending licencia/origen en detalle: ya se mostró al confirmar.
+        window.sessionStorage.removeItem("htPopup_" + activeVentaId);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error cargando compra desde Apex", e);
@@ -670,6 +665,19 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
           this.setData(data);
           this.DataCompra = data;
 
+          trackGa4Event(
+            "ht_compra_confirmada",
+            buildHtCompraConfirmadaParams({
+              semilleros: this.semilleros,
+              semilleroId: this.semillero,
+              semilleroData: this.semilleroData,
+              cultivoNombre: this.cultivoNombre,
+              tipoCompraSeleccionado: this.tipoCompraSeleccionado,
+              data,
+              tipoPago: this.tipoPago
+            })
+          );
+
           if (this.puedeFacturar) {
             await this.facturar();
           }
@@ -838,6 +846,18 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
       this.setData(data);
       this.DataCompra = data;
+      trackGa4Event(
+        "ht_compra_confirmada",
+        buildHtCompraConfirmadaParams({
+          semilleros: this.semilleros,
+          semilleroId: this.semillero,
+          semilleroData: this.semilleroData,
+          cultivoNombre: this.cultivoNombre,
+          tipoCompraSeleccionado: this.tipoCompraSeleccionado,
+          data,
+          tipoPago: this.tipoPago
+        })
+      );
       this.currentModal = data.pendiente
         ? "Pendiente de Facturación"
         : "finalizada";

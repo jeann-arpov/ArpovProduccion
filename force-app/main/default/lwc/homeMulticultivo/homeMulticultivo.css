@@ -53,6 +53,19 @@
     margin-top:30px;
 }
 
+.estado-revision{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.estado-label{
+    font-size: x-large;
+    color: #eef1f7;
+}
+
 .icono-adherido{
     --sds-c-icon-color-background: #1c1c1c;
     --sds-c-icon-color-foreground: #bfff00;

@@ -7,7 +7,7 @@
         </template>
 
         <div class="linea-grid linea-grid-con-tipo">
-            <div class="celda celda-variedad">
+            <div class="celda celda-variedad" data-label="Variedad">
                 <lightning-combobox lwc:if={hasId} read-only class="variedad" variant="label-hidden" label="Variedad" value={variedad} options={variedades}></lightning-combobox>
                 <c-lookup lwc:else variant="label-hidden" required onselectionchange={variedadChange} onsearch={searchVariedades} label="Variedad" placeholder="Buscar variedad...">
                     <div slot="no-results">
@@ -16,15 +16,15 @@
                 </c-lookup>
             </div>
 
-            <div class="celda celda-tipo-ht">
+            <div class="celda celda-tipo-ht" data-label="Tipo de HT">
                 <span class="tipo-ht-badge">{preCampaign}</span>
             </div>
 
-            <div class="celda celda-fecha">
+            <div class="celda celda-fecha" data-label="Fecha conversión">
                 <lightning-formatted-date-time time-zone="UTC" value={record.Fecha_de_Activacion__c}></lightning-formatted-date-time>
             </div>
 
-            <div class="celda celda-cantidad">
+            <div class="celda celda-cantidad" data-label="Cantidad HT">
                 <input
                     type="number"
                     class="cantidad-input"
@@ -38,15 +38,15 @@
                 />
             </div>
 
-            <div class="celda celda-precio">
+            <div class="celda celda-precio" data-label="Precio unit. (USD)">
                 <span class="valor-numerico">{precioLista}</span>
             </div>
 
-            <div class="celda celda-total">
+            <div class="celda celda-total" data-label="Total (USD)">
                 <span class="valor-numerico">{precio}</span>
             </div>
 
-            <div class="celda celda-estado">
+            <div class="celda celda-estado" data-label="Estado">
                 <span class={estadoClass}>{estado}</span>
                 <button if:true={factura} type="button" onclick={openFactura} class="btn-factura" title="Ver factura">
                     <svg width="13" height="17">
@@ -55,15 +55,20 @@
                 </button>
             </div>
 
-            <div class="celda celda-licencia">
-                <span if:true={record.Licencia__c} class="licencia-name">{record.Licencia__r.Name}</span>
-                <div if:true={showEstadoLicencia} class="licencia-badge">
-                    <svg if:true={record.Licencia__c} width="19.91" height="19.91">
-                        <use xlink:href={iconsCompraVenta.valid}></use>
-                    </svg>
-                    <svg if:false={record.Licencia__c} width="19.91" height="19.91">
-                        <use xlink:href={iconsCompraVenta.invalid}></use>
-                    </svg>
+            <div class="celda celda-licencia" data-label="Licencia">
+                <div class={licenciaContentClass}>
+                    <span if:true={record.Licencia__c} class="licencia-name">{record.Licencia__r.Name}</span>
+                    <template if:false={record.Licencia__c}>
+                        <span if:true={showEstadoLicencia} class="licencia-empty">Sin licencia</span>
+                    </template>
+                    <span if:true={showEstadoLicencia} class="licencia-badge" title={licenciaBadgeTitle}>
+                        <svg if:true={record.Licencia__c} class="licencia-icon licencia-icon--valid" viewBox="0 0 20 20" aria-hidden="true">
+                            <use xlink:href={iconsCompraVenta.valid}></use>
+                        </svg>
+                        <svg if:false={record.Licencia__c} class="licencia-icon licencia-icon--invalid" viewBox="0 0 24 24" aria-hidden="true">
+                            <use xlink:href={iconsCompraVenta.invalid}></use>
+                        </svg>
+                    </span>
                 </div>
             </div>
 

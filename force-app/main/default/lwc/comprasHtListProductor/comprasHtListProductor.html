@@ -1,86 +1,124 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">COMPRAS / MIS COMPRAS</div>
-                <div class="title">Mis Compras HT</div>
-            </div>
+    <c-se-list-page loading={loading}>
+        <header slot="header" class="compras-header">
+            <div class="se-desk-only compras-header-desk">
+                <p class="eyebrow">Mis Compras / Compras HT</p>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                    <!-- Estado -->
-                    <select data-id="estadoSelect" onchange={handleFilterChange}>
-                        <template for:each={estados} for:item="item">
-                            <option key={item} value={item}>{item}</option>
-                        </template>
-                    </select>
+                <template lwc:if={showFilters}>
+                    <div class="compras-title-row">
+                        <h1 class="title">Mis Compras HT</h1>
+                        <div class="compras-actions">
+                            <c-se-select
+                                options={estadoSelectOptions}
+                                value={estadoSeleccionado}
+                                placeholder="Estado"
+                                onchange={handleEstadoChange}
+                            ></c-se-select>
+                            <c-se-select
+                                options={cultivoSelectOptions}
+                                value={cultivoSeleccionado}
+                                placeholder="Cultivo"
+                                onchange={handleCultivoChange}
+                            ></c-se-select>
+                            <c-se-select
+                                options={variedadSelectOptions}
+                                value={variedadSeleccionada}
+                                placeholder="Variedad"
+                                onchange={handleVariedadChange}
+                            ></c-se-select>
+                        </div>
+                    </div>
 
-                    <!-- Cultivo -->
-                    <select data-id="cultivoSelect" onchange={handleFilterChange}>
-                        <template for:each={cultivos} for:item="item">
-                            <option key={item} value={item}>{item}</option>
-                        </template>
-                    </select>
-
-                    <!-- Variedad -->
-                    <select data-id="variedadSelect" onchange={handleFilterChange}>
-                        <template for:each={variedades} for:item="item">
-                            <option key={item} value={item}>{item}</option>
-                        </template>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emisión • <br>
-                Filtrado por Todas las Compras HT • Se actualizó hace una hora
-            </div>
-
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">🔍</span>
-            </div>
-        </div>
-
-        <!-- Tabla -->
-        <table>
-            <thead>
-                <tr>
-                    <th>FECHA</th>
-                    <th>COMPRA HT</th>
-                    <th>TOTAL HT</th>
-                    <th>VARIEDADES</th>
-                    <th>CULTIVO</th>
-                    <th>ESTADO</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template for:each={pageSlice} for:item="compra">
-                    <tr key={compra.id}>
-                        <td>{compra.fecha}</td>
-                        <td>
-                            <a href="javascript:void(0);" onclick={navigateToCompra} data-id={compra.id} data-name={compra.name}>
-                                {compra.name}
-                            </a>
-                        </td>
-                        <td>{compra.totalHT}</td>
-                        <td>{compra.variedades}</td>
-                        <td>{compra.cultivo}</td>
-                        <td>{compra.estado}</td>
-                    </tr>
+                    <div class="compras-meta-row">
+                        <div class="compras-meta">
+                            <p class="compras-meta-line">
+                                <strong>{totalRegistros} elementos</strong>
+                                <span> (máximo {metaMaxElementos} elementos) · Ordenado por </span>
+                                <strong>Fecha de creación</strong>
+                            </p>
+                            <p class="compras-meta-line">
+                                <span>Filtrado por </span>
+                                <strong>{filtroResumen}</strong>
+                                <span> · Se actualizó hace una hora</span>
+                            </p>
+                        </div>
+                        <label class="compras-search">
+                            <span class="sr-only">Buscar</span>
+                            <input
+                                type="search"
+                                placeholder="Buscar..."
+                                value={searchTerm}
+                                oninput={handleSearchChange}
+                            />
+                            <span class="search-icon">
+                                <img src={iconSearchUrl} alt="" class="icon-svg" />
+                            </span>
+                        </label>
+                    </div>
                 </template>
-            </tbody>
-        </table>
 
-        <!-- Navegación -->
-        <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
-        </div>
-    </div>
+                <template lwc:else>
+                    <h1 class="title">Mis Compras HT</h1>
+                </template>
+            </div>
+
+            <div class="se-mob-only compras-header-mob">
+                <p class="eyebrow">Módulos · Mis Compras</p>
+                <h1 class="title">Todas mis Compras</h1>
+
+                <template lwc:if={showFilters}>
+                    <div class="compras-filters-scroll">
+                        <c-se-select
+                            inline
+                            options={estadoSelectOptions}
+                            value={estadoSeleccionado}
+                            placeholder="Estado"
+                            onchange={handleEstadoChange}
+                        ></c-se-select>
+                        <c-se-select
+                            inline
+                            options={cultivoSelectOptions}
+                            value={cultivoSeleccionado}
+                            placeholder="Cultivo"
+                            onchange={handleCultivoChange}
+                        ></c-se-select>
+                        <c-se-select
+                            inline
+                            options={variedadSelectOptions}
+                            value={variedadSeleccionada}
+                            placeholder="Variedad"
+                            onchange={handleVariedadChange}
+                        ></c-se-select>
+                    </div>
+                    <p class="compras-meta-mobile">
+                        <strong>{totalRegistros} elementos</strong>
+                        <span> · Ordenado por </span>
+                        <strong>Fecha de creación</strong>
+                        <br />
+                        <span>Se actualizó hace una hora</span>
+                    </p>
+                </template>
+            </div>
+        </header>
+
+        <c-se-data-list
+            records={filtered}
+            columns={columns}
+            mobile-fields={mobileFields}
+            title-field="name"
+            badge-field="statusLabel"
+            badge-tone-field="statusTone"
+            key-field="id"
+            action-label="Ver"
+            action-label-field="actionLabel"
+            mobile-action-label="Ver compra →"
+            mobile-action-label-field="mobileActionLabel"
+            mobile-action-variant="link"
+            mobile-action-variant-field="mobileActionVariant"
+            empty-text="No hay compras para mostrar."
+            page-size={pageSize}
+            loading={loading}
+            onrowaction={handleRowAction}
+        ></c-se-data-list>
+    </c-se-list-page>
 </template>

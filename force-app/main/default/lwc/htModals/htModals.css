@@ -48,6 +48,12 @@ button.black-border {
     margin: 0;
 }
 
+.modal-loader {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
 .modal-close {
     position: absolute;
     top: 14px;

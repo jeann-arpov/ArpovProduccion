@@ -34,8 +34,8 @@
                     </svg>
                     <h2>Por favor espere mientras se genera la facturación</h2>
                     <p>Recuerde que las HT serán acreditadas una vez efectuado el pago</p>
-                    <div style="position:relative">
-                        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                    <div class="modal-loader" role="status" aria-busy="true" aria-label="Generando facturación">
+                        <c-se-brand-loader></c-se-brand-loader>
                     </div>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                     <svg class="slds-m-bottom_medium" width="33" height="33">
                         <use xlink:href={icons.error}></use>
                     </svg>
-                    <h2>¿Está seguro que desea anular la compra?</h2>
+                    <h2>¿Estás seguro de que querés anular la compra?</h2>
                     <div class="slds-m-top_medium">
                         <button class="modal-start" type="submit" label="" onclick={anular}>Sí</button>
                         <button class="modal-start" type="submit" label="" onclick={closeModal}>No</button>

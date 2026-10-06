@@ -36,16 +36,13 @@
         </div>
       </div>
       <div class="info-adherido" if:true={tarjeta.isRevision}>
-        <div style="font-size: x-large; color: #f1c40f">
-          PPH
-          <lightning-icon
-            class="icono-adherido"
-            size="x-small"
-            icon-name="utility:clock"
-            alternative-text="en revisión"
-          ></lightning-icon>
+        <div class="estado-revision">
+          <span class="estado-label">PPH</span>
+          <c-se-badge label="En revisión" tone="warn" variant="dark"></c-se-badge>
         </div>
-        <div style="color: white">{enRevisionDetalle}</div>
+        <div style="color: white">
+          {enRevisionDetalle}
+        </div>
       </div>
       <div class="footer">
         <span onclick={redirectToCC} data-id={tarjeta.cultivo.Id}

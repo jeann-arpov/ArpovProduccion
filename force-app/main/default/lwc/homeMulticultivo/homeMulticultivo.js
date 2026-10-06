@@ -24,6 +24,7 @@ export default class HomeMulticultivo extends LightningElement {
       let data = await getLoadData();
       console.log(data);
       data = JSON.parse(JSON.stringify(data));
+      data = Array.isArray(data) ? data : data?.cultivos || [];
       data.forEach((t, i) => {
         t.isComprar = t.version == "comprar";
         t.isAdherir = t.version == "adherir";

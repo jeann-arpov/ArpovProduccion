@@ -1,0 +1,79 @@
+<template>
+    <div class={shellClass}>
+        <div class="se-mob-chrome">
+            <header class="se-mob-top">
+                <button type="button" class="se-mob-icon-btn" onclick={handleBack} aria-label="Volver">
+                    <span aria-hidden="true">←</span>
+                </button>
+                <span class="se-mob-top-title">
+                    <span class="se-mob-top-line">
+                        {title}
+                        <template if:true={titleBadge}>
+                            <span class="se-mob-top-sep" aria-hidden="true">·</span>
+                            <span class="se-mob-top-badge">{titleBadge}</span>
+                        </template>
+                    </span>
+                    <template if:true={subtitle}>
+                        <span class="se-mob-top-sub">{subtitle}</span>
+                    </template>
+                </span>
+                <button type="button" class="se-mob-icon-btn" onclick={handleClose} aria-label="Cerrar">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </header>
+
+            <div class="se-prog-host">
+                <c-se-prog-steps
+                    label-short={wizardProgressLabel}
+                    label-long={wizardProgressLabel}
+                    current-step={currentStep}
+                    step-labels={stepLabels}
+                    appearance="inline"
+                    onstepclick={handleDeskStepClick}
+                ></c-se-prog-steps>
+            </div>
+        </div>
+
+        <header class="se-wizard-desk-head se-desk-only">
+            <h1 class="se-wizard-desk-title">{deskTitle}</h1>
+            <template if:true={deskSubtitle}>
+                <p class="se-wizard-desk-sub">{deskSubtitle}</p>
+            </template>
+        </header>
+
+        <div class="se-wizard-layout">
+            <div class={mainClass}>
+                <slot></slot>
+            </div>
+            <aside class="se-wizard-aside se-desk-only" aria-label="Resumen del trámite">
+                <slot name="aside"></slot>
+            </aside>
+        </div>
+
+        <template if:true={showFooter}>
+            <footer class={footerClass}>
+                <template if:true={isStatusFooter}>
+                    <div class="se-mob-footer-copy">
+                        <span class="se-mob-footer-step">{resolvedFooterStepLabel}</span>
+                        <span class="se-mob-footer-status">{footerStatus}</span>
+                    </div>
+                    <button
+                        type="button"
+                        class="se-btn se-btn-primary se-mob-footer-btn"
+                        disabled={continueDisabled}
+                        onclick={handleContinue}
+                    >{continueLabel}</button>
+                </template>
+                <template if:true={isDualFooter}>
+                    <button type="button" class="se-btn se-btn-ghost se-mob-footer-cancel" onclick={handleCancel}>{cancelLabel}</button>
+                    <button
+                        type="button"
+                        class="se-btn se-btn-primary se-mob-footer-btn"
+                        disabled={continueDisabled}
+                        onclick={handleContinue}
+                    >{continueLabel}</button>
+                </template>
+            </footer>
+        </template>
+    </div>
+</template>

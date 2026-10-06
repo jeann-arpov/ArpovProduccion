@@ -1,113 +1,220 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">LICENCIAS / MIS LICENCIAS</div>
-                <div class="title">Mis Licencias</div>
-            </div>
+    <c-se-list-page loading={isLoading}>
+        <header slot="header" class="lic-header">
+            <div class="se-desk-only lic-header-desk">
+                <p class="eyebrow">Licencias / Mis Licencias</p>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                    <template lwc:if={renderFilters}>
-                         <select data-id="estadoSelect"
-                            onchange={handleEstadoChange}
-                            title="Filtrar por estado"
-                        >
-                            <option value="">Estado</option>      <!-- sin filtro -->
-                            <option value="En curso">En curso</option>
-                            <option value="Aprobada">Aprobada</option>
-                            <option value="Rechazada">Rechazada</option>
-                        </select>
-                        <select data-id="tipoSelect" onchange={handleTipoChange}>
-                            <option value="">Tipo</option>
-                            <template for:each={tipos} for:item="item">
-                                <option key={item} value={item}>{item}</option>
-                            </template>
-                        </select>
-                        <select data-id="origenSelect" onchange={handleOrigenChange}>
-                            <option value="">Tecnologia</option>
-                            <template for:each={origenes} for:item="item">
-                                <option key={item} value={item}>{item}</option>
-                            </template>
-                        </select>
-                    </template>
-                </div>
-                <button onclick={handleSolicitarLicencia} class="btn-solicitar">Solicitar Licencia</button>
-            </div>
-        </div>
+                <template lwc:if={renderFilters}>
+                    <div class="lic-title-row">
+                        <h1 class="title">Mis Licencias</h1>
+                        <div class="lic-actions">
+                            <button
+                                type="button"
+                                class="filt-toggle"
+                                aria-expanded={filtersPanelOpen}
+                                onclick={handleToggleFiltersPanel}
+                            >
+                                <svg class="filt-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                                    <path d="M3 6h18M6 12h12M10 18h4"></path>
+                                </svg>
+                                Filtros
+                                <template if:true={showFilterBadge}>
+                                    <span class="filt-badge">{activeFilterCount}</span>
+                                </template>
+                                <svg class={filterToggleChevronClass} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
+                            <button type="button" class="btn-solicitar" onclick={handleSolicitarLicencia}>
+                                Solicitar Licencia
+                            </button>
+                        </div>
+                    </div>
 
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de creación • <br>
-                Filtrado por Todas las ventas ht - Estado • Se actualizó hace una hora
-            </div>
-
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">
-                    <img src={iconSearchUrl} alt="Search" class="icon-svg" />
-                </span>
-            </div>
-        </div>
-
-        <!-- Tabla -->
-        <table>
-            <thead>
-                <tr>
-                    <th>FECHA</th>
-                    <th>CÓDIGO</th>
-                    <th>CUIT</th>
-                    <th>RAZÓN SOCIAL</th>
-                    <th>MARCA</th>
-                    <th>TECNOLOGIA</th>
-                    <th>ORIGEN</th>
-                    <th>ESTADO</th>
-                    <th>COMERCIO</th>
-                    <th>EMAIL</th>
-                    <th>TELÉFONO</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template for:each={decoratedLicencias} for:item="l">
-                    <tr key={l.id}>
-                        <td>{l.fecha}</td>
-                        <td>
-                            <!-- Enlace estilo link -->
-                            <a href="javascript:void(0)"
-                            class="compra-link"
-                            data-id={l.id}
-                            onclick={handleRowAction}>
-                                {l.name}
-                            </a>
-                        </td>
-                                <td>{l.cuit}</td>
-                        <td>{l.productor}</td>
-                        <td>{l.marca}</td>
-                        <td>{l.origen}</td>
-                        <td>{l.tipo}</td>
-                        <td>{l.estadoVisual}</td>
-                        <td>{l.comercio}</td>
-                        <td>{l.email}</td>
-                        <td>{l.telefono}</td>
-                    </tr>
+                    <div class="lic-meta-row">
+                        <div class="lic-meta">
+                            <p class="lic-meta-line">
+                                <strong>{totalRegistros} elementos</strong>
+                                <span> (máximo {metaMaxElementos} elementos) · Ordenado por </span>
+                                <strong>Fecha de creación</strong>
+                            </p>
+                            <p class="lic-meta-line">
+                                <span>Filtrado por </span>
+                                <strong>{filtroResumen}</strong>
+                            </p>
+                        </div>
+                        <label class="lic-search">
+                            <span class="sr-only">Buscar</span>
+                            <input
+                                type="search"
+                                placeholder="Buscar..."
+                                value={searchTerm}
+                                oninput={handleSearchChange}
+                            />
+                            <span class="search-icon">
+                                <img src={iconSearchUrl} alt="" class="icon-svg" />
+                            </span>
+                        </label>
+                    </div>
                 </template>
-            </tbody>
-        </table>
 
-        <!-- Navegación -->
-        <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
-        </div>
+                <template lwc:else>
+                    <h1 class="title">Mis Licencias</h1>
+                </template>
+            </div>
 
-        <!-- Botón Generar Reporte -->
-        <div class="boton-reporte">
-            <button class="btn-generar" onclick={openModal}>Generar Reporte</button>
-        </div>
-    </div>
+            <div class="se-mob-only lic-header-mob">
+                <p class="eyebrow">Módulos</p>
+                <h1 class="title">Licencias</h1>
+
+                <template lwc:if={renderFilters}>
+                    <div class="lic-mob-tools">
+                        <button
+                            type="button"
+                            class="filt-toggle"
+                            aria-expanded={filtersPanelOpen}
+                            onclick={handleToggleFiltersPanel}
+                        >
+                            Filtros
+                            <template if:true={showFilterBadge}>
+                                <span class="filt-badge">{activeFilterCount}</span>
+                            </template>
+                        </button>
+                        <button type="button" class="btn-solicitar btn-solicitar-mob" onclick={handleSolicitarLicencia}>
+                            + Solicitar Licencia
+                        </button>
+                    </div>
+                    <p class="lic-meta-mobile">
+                        <strong>{totalRegistros} elementos</strong>
+                        <span> · </span>
+                        <strong>{filtroResumen}</strong>
+                    </p>
+                </template>
+            </div>
+        </header>
+
+        <template if:true={filtersPanelOpen}>
+            <section slot="filters" class="filt-panel">
+                <div class="filt-panel-head">
+                    <span class="filt-panel-title">Filtros</span>
+                    <span class="filt-panel-hint">Aplican junto al cultivo activo en las tabs.</span>
+                    <button type="button" class="filt-link" onclick={handleClearFilters}>Limpiar</button>
+                    <button type="button" class="filt-close" onclick={handleCloseFiltersPanel}>Cerrar</button>
+                </div>
+                <div class="filt-grid">
+                    <div class="filt-group">
+                        <p class="filt-label">Estado</p>
+                        <div class="filt-options">
+                            <template for:each={estadoFilterItems} for:item="item">
+                                <button key={item.value} type="button" class="filt-option" data-group="estado" data-value={item.value} onclick={handleFilterToggle}>
+                                    <span class={item.boxClass} aria-hidden="true"></span>
+                                    <span>{item.label}</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="filt-group">
+                        <p class="filt-label">Tipo</p>
+                        <div class="filt-options">
+                            <template for:each={tipoFilterItems} for:item="item">
+                                <button key={item.value} type="button" class="filt-option" data-group="tipo" data-value={item.value} onclick={handleFilterToggle}>
+                                    <span class={item.boxClass} aria-hidden="true"></span>
+                                    <span>{item.label}</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="filt-group">
+                        <p class="filt-label">Tecnología</p>
+                        <div class="filt-options">
+                            <template for:each={origenFilterItems} for:item="item">
+                                <button key={item.value} type="button" class="filt-option" data-group="origen" data-value={item.value} onclick={handleFilterToggle}>
+                                    <span class={item.boxClass} aria-hidden="true"></span>
+                                    <span>{item.label}</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </template>
+
+        <template if:true={renderList}>
+            <template if:true={showCultivoResumen}>
+            <c-se-cultivo-resumen
+                cultivos={cultivoOptions}
+                selected={selectedCultivoId}
+                hide-summary
+                hide-summary-on-mobile
+                onselect={handleCultivoResumenSelect}
+            >
+                <div class="lic-list-panel">
+                    <c-se-data-list
+                        records={decoratedLicencias}
+                        columns={columns}
+                        mobile-fields={mobileFields}
+                        title-field="name"
+                        badge-field="statusLabel"
+                        badge-tone-field="statusTone"
+                        key-field="id"
+                        action-label="Ver"
+                        mobile-action-label="Ver detalle →"
+                        mobile-action-variant="link"
+                        empty-text="No hay licencias para mostrar."
+                        page-size={listPageSize}
+                        loading={isLoading}
+                        onrowaction={handleRowAction}
+                    ></c-se-data-list>
+
+                    <c-se-pager
+                        page={currentPage}
+                        disable-prev={disablePrev}
+                        disable-next={disableNext}
+                        onprevious={handlePrev}
+                        onnext={handleNext}
+                    ></c-se-pager>
+
+                    <div class="boton-reporte">
+                        <button type="button" class="btn-generar" onclick={openModal}>Generar Reporte</button>
+                    </div>
+                </div>
+            </c-se-cultivo-resumen>
+        </template>
+
+        <template if:false={showCultivoResumen}>
+            <div class="lic-list-panel">
+                <c-se-data-list
+                    records={decoratedLicencias}
+                    columns={columns}
+                    mobile-fields={mobileFields}
+                    title-field="name"
+                    badge-field="statusLabel"
+                    badge-tone-field="statusTone"
+                    key-field="id"
+                    action-label="Ver"
+                    mobile-action-label="Ver detalle →"
+                    mobile-action-variant="link"
+                    empty-text="No hay licencias para mostrar."
+                    page-size={listPageSize}
+                    loading={isLoading}
+                    onrowaction={handleRowAction}
+                ></c-se-data-list>
+
+                <c-se-pager
+                    page={currentPage}
+                    disable-prev={disablePrev}
+                    disable-next={disableNext}
+                    onprevious={handlePrev}
+                    onnext={handleNext}
+                ></c-se-pager>
+
+                <div class="boton-reporte">
+                    <button type="button" class="btn-generar" onclick={openModal}>Generar Reporte</button>
+                </div>
+            </div>
+        </template>
+        </template>
+    </c-se-list-page>
 
     <template if:true={showModal}>
         <div class="modal-backdrop">
@@ -142,10 +249,7 @@
                 <div class="slds-modal__content slds-p-around_medium">
                     <template if:true={isReportLoading}>
                         <div class="slds-align_absolute-center slds-p-vertical_large">
-                            <lightning-spinner
-                                alternative-text="Cargando reporte..."
-                                size="medium">
-                            </lightning-spinner>
+                            <c-se-brand-loader></c-se-brand-loader>
                             <p class="slds-text-align_center slds-m-top_small">
                                 Generando reporte de licencias...
                             </p>
@@ -207,11 +311,5 @@
             </div>
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
-
-    <template if:true={isLoading}>
-        <div class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-        </div>
     </template>
 </template>

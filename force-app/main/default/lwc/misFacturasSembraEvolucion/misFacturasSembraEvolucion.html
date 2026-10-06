@@ -1,76 +1,120 @@
 <template>
-    <div class="ventas-container">
-        <!-- TOP BAR con título + filtros y botón -->
-        <div class="ventas-top-bar">
-            <div class="ventas-header">
-                <div class="breadcrumbs">FACTURACION</div>
-                <div class="title">Todas las Facturas</div>
-            </div>
+    <c-se-list-page loading={loading}>
+        <c-se-page-header
+            slot="header"
+            eyebrow="MIS COMPRAS"
+            eyebrow-mobile="MÓDULOS · MIS COMPRAS"
+            title="Todas las facturas"
+            subtitle="Facturas de Compra HT, Precertificación y servicios asociados."
+            action-label="Exportar"
+            onaction={handleExport}
+        ></c-se-page-header>
 
-            <div class="acciones-derecha">
-                <div class="filtros-container">
-                
-                    <select data-id="cultivosSelect" onchange={handleCultivoSelect}>
-                        <option value="">Cultivo</option>
-                        <template for:each={cultivos} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                    <select onchange={handleMarcaSelect}>
-                        <option value="">Marca</option>
-                        <template for:each={marcas} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                    <select onchange={handleEstadoSelect}>
-                        <option value="">Estado</option>
-                        <template for:each={estados} for:item="item">
-                            <option key={item} value={item.value}>{item.value}</option>
-                        </template>
-                    </select>
-                </div>
-            </div>
-        </div>
+        <c-se-filter-pills slot="toolbar" items={statusPills} onselect={handlePill}></c-se-filter-pills>
 
-        <!-- Info + buscador -->
-        <div class="info-busqueda">
-            <div class="ventas-info">
-                {totalRegistros} elementos (máximo 200 elementos) • Ordenado por Fecha de emision • <br>
-                Filtrado por Todas las facturas • Se actualizó hace una hora
-            </div>
+        <template if:true={showCultivoResumen}>
+            <c-se-cultivo-resumen
+                cultivos={cultivoOptions}
+                selected={selectedCultivoId}
+                rows={cultivoSummaryRows}
+                total-value={cultivoSummaryTotal}
+                loading={cultivoSummaryLoading}
+                hide-summary-on-mobile
+                onselect={handleCultivoResumenSelect}
+            >
+                <c-se-data-list
+                    records={data}
+                    columns={columns}
+                    mobile-fields={mobileFields}
+                    title-field="numero"
+                    badge-field="statusLabel"
+                    badge-tone-field="statusTone"
+                    badge-hint-field="statusHint"
+                    key-field="uniqueId"
+                    action-label="Ver"
+                    mobile-action-label="Ver documentos →"
+                    mobile-action-variant="link"
+                    empty-text="No hay facturas para mostrar."
+                    action-disabled-field="actionDisabled"
+                    secondary-action-label="Informar pago"
+                    secondary-action-field="canInformarPago"
+                    page-size={pageSize}
+                    loading={loading}
+                    onrowaction={handleRowAction}
+                ></c-se-data-list>
+            </c-se-cultivo-resumen>
+        </template>
 
-            <div class="ventas-search">
-                <input type="text" oninput={handleSearchChange} placeholder="Buscar..." />
-                <span class="search-icon">🔍</span>
-            </div>
-        </div>
-
-        <!-- Tabla -->
-         <lightning-datatable
-                key-field="uniqueId"
-                class="dataTable"
-                data={data}
+        <template if:false={showCultivoResumen}>
+            <c-se-data-list
+                records={data}
                 columns={columns}
+                mobile-fields={mobileFields}
+                title-field="numero"
+                badge-field="statusLabel"
+                badge-tone-field="statusTone"
+                badge-hint-field="statusHint"
+                key-field="uniqueId"
+                action-label="Ver"
+                mobile-action-label="Ver documentos →"
+                mobile-action-variant="link"
+                empty-text="No hay facturas para mostrar."
+                action-disabled-field="actionDisabled"
+                secondary-action-label="Informar pago"
+                secondary-action-field="canInformarPago"
+                page-size={pageSize}
+                loading={loading}
                 onrowaction={handleRowAction}
-                onsort={handleOnSort}
-                sorted-by={sortBy}
-                sorted-direction={sortDirection}
-                column-widths-mode="auto"
-                resize-column-disabled
-                hide-checkbox-column>
-            </lightning-datatable>
+            ></c-se-data-list>
+        </template>
+    </c-se-list-page>
 
-            <div class="paginacion">
-            <button onclick={handlePrev} disabled={disablePrev}>Anterior</button>
-            <span>Página {currentPage}</span>
-            <button onclick={handleNext} disabled={disableNext}>Siguiente</button>
-        </div> 
-        
-         <!-- Modal -->
+    <template if:true={showDocumentos}>
+        <div class="mf-scrim" onclick={closeDocumentos}>
+            <section
+                class="mf-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mf-docs-title"
+                onclick={stopPropagation}
+            >
+                <button type="button" class="mf-close" onclick={closeDocumentos} aria-label="Cerrar">✕</button>
+                <h2 id="mf-docs-title" class="mf-title">Documentos</h2>
+                <div class="mf-rule" aria-hidden="true"></div>
+
+                <ul class="mf-docs">
+                    <template if:true={documentosFactura}>
+                        <li class="mf-doc">
+                            <button type="button" class="mf-doc-link" onclick={handleVerFacturaPdf}>
+                                Factura electrónica (PDF)
+                            </button>
+                        </li>
+                    </template>
+                    <template for:each={adjuntos} for:item="adjunto">
+                        <li key={adjunto.id} class="mf-doc">
+                            <a class="mf-doc-link" href={adjunto.url} target="_blank" rel="noopener noreferrer">
+                                {adjunto.title}
+                            </a>
+                        </li>
+                    </template>
+                </ul>
+
+                <template if:true={documentosLoading}>
+                    <div class="mf-docs-loading" role="status">
+                        <c-se-brand-loader></c-se-brand-loader>
+                    </div>
+                </template>
+                <template if:true={showDocumentosEmpty}>
+                    <p class="mf-empty">Sin documentos.</p>
+                </template>
+
+                <div class="mf-actions">
+                    <button type="button" class="mf-btn" onclick={closeDocumentos}>Cerrar</button>
+                </div>
+            </section>
+        </div>
+    </template>
+
     <c-pdf-reader></c-pdf-reader>
-
-    <!-- Informar Pago -->
-    <c-informar-pago></c-informar-pago>
-
-    </div>
+    <c-informar-pago onpagoinformado={handlePagoInformado}></c-informar-pago>
 </template>

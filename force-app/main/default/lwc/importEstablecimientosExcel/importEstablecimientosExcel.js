@@ -1,4 +1,4 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import doImport from '@salesforce/apex/ImportEstablecimientosExcel.doImport';
 import xlsx from '@salesforce/resourceUrl/XLSX';
@@ -9,6 +9,8 @@ import { reduceErrors } from 'c/utils';
 const MAX_FILE_SIZE = 1500000;
 
 export default class ImportEstablecimientosExcel extends LightningElement {
+
+    @api hideButtons = false;
 
     file;
     fileName;
@@ -119,6 +121,16 @@ export default class ImportEstablecimientosExcel extends LightningElement {
 
     openModal() {
         this.template.querySelector('c-modal').show();
+    }
+
+    @api
+    open() {
+        this.openModal();
+    }
+
+    @api
+    downloadPlantilla() {
+        this.downloadClick();
     }
 
     get header(){

@@ -1,0 +1,70 @@
+:host {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 99px;
+    background: currentColor;
+    flex-shrink: 0;
+}
+
+.badge--ok {
+    background: rgba(191, 255, 0, 0.2);
+    color: #4d6b00;
+    border-color: #bfff00;
+}
+
+.badge--warn {
+    background: rgba(255, 169, 69, 0.18);
+    color: #7a4400;
+    border-color: #ffa945;
+}
+
+.badge--danger {
+    background: rgba(214, 69, 69, 0.14);
+    color: #8a2222;
+    border-color: #d64545;
+}
+
+.badge--info {
+    background: #eef1f7;
+    color: #1c1c1c;
+    border-color: #dde2eb;
+}
+
+.badge--dark.badge--ok {
+    background: transparent;
+    color: #bfff00;
+    border-color: #bfff00;
+}
+
+.badge--dark.badge--warn {
+    background: #ffa945;
+    color: #1c1c1c;
+    border-color: #ffa945;
+}
+
+.badge--dark.badge--danger {
+    background: #d64545;
+    color: #fff;
+    border-color: #d64545;
+}

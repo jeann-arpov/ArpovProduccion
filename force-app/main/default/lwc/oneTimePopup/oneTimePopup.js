@@ -1,5 +1,6 @@
 import { api, LightningElement } from 'lwc';
 import userId from '@salesforce/user/Id';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 export default class OneTimePopup extends LightningElement {
     @api storageKey = 'one_time_popup_default_v1';
@@ -46,6 +47,14 @@ export default class OneTimePopup extends LightningElement {
             closeOnOverlay: this.closeOnOverlay
         });
         this.initializeVisibility();
+    }
+
+    renderedCallback() {
+        syncPortalModal(this, this.isVisible, '.popup-overlay');
+    }
+
+    disconnectedCallback() {
+        releasePortalModal(this);
     }
 
     get listItems() {

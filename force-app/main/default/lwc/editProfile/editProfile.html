@@ -34,6 +34,7 @@
                     <label class="field-label" for="mobile-input">Celular</label>
                     <lightning-input
                         id="mobile-input"
+                        type="tel"
                         value={mobilePhone}
                         onchange={handlePhone}
                         variant="label-hidden"
@@ -57,7 +58,7 @@
             </div>
 
             <footer class="card-footer">
-                <button class="btn-custom" type="button" onclick={openModal} disabled={isUpdating}>
+                <button class="btn-custom" type="button" onclick={openModal} disabled={updateDisabled}>
                     Actualizar datos
                 </button>
             </footer>

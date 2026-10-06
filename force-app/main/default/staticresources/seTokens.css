@@ -1,0 +1,704 @@
+/* Tokens Sembrá Evolución. Cargar desde headerComponenteSembraEvolucion / seBottomNav.
+   También corrige CSS del theme de Experience Cloud que hoy es desktop-only. */
+:root {
+  --se-lima: #bfff00;
+  --se-black: #1c1c1c;
+  --se-ink: #181819;
+  --se-white: #ffffff;
+  --se-muted: #6b7280;
+  --se-orange: #ffa945;
+  --se-danger: #d64545;
+  --se-radius: 12px;
+  --se-radius-pill: 25px;
+  --se-touch: 44px;
+  --se-topbar-m: 56px;
+  --se-topbar-d: 72px;
+  --se-bottom: 72px;
+  --se-content-max: 70rem;
+  --se-font: "Roboto", Arial, sans-serif;
+  --se-font-display: "Montserrat", "Roboto", Arial, sans-serif;
+}
+
+html.se-chrome,
+body.se-chrome {
+  font-family: var(--se-font);
+  --dxp-c-section-columns-max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  html.se-chrome,
+  body.se-chrome {
+    --dxp-c-section-columns-max-width: 1170px;
+  }
+
+  /* El header del theme trae padding/min-height y agranda la franja del usuario. */
+  .se-chrome .comm-page-header,
+  .se-chrome .comm-content-header,
+  .se-chrome .forceCommunityThemeHeader,
+  .se-chrome .themeHeader,
+  .se-chrome .lwr-header,
+  .se-chrome [data-region="header"],
+  .se-chrome header.comm-header {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    background: transparent !important;
+  }
+
+  .se-chrome [data-region="header"] .slds-col,
+  .se-chrome .comm-page-header .slds-col,
+  .se-chrome .comm-page-header .cb-section_column,
+  .se-chrome .comm-page-header .dxp-column {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+
+  .se-chrome c-header-componente-sembra-evolucion {
+    display: block;
+    line-height: 1;
+  }
+
+}
+
+/* El theme de Community estira el pie a 100vh: el contacto queda arriba y el resto es hueco negro. */
+.se-chrome c-footer-contact,
+.se-chrome c-se-footer-contact {
+  display: block;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  align-self: stretch;
+  background: transparent;
+}
+
+.se-chrome .comm-page-footer,
+.se-chrome .siteforceThemeFooter,
+.se-chrome .forceCommunityThemeFooter,
+.se-chrome [data-region="footer"],
+.se-chrome .lwr-footer,
+.se-chrome footer {
+  min-height: 0 !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.se-chrome c-se-bottom-nav {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+@media (max-width: 767px) {
+  html.se-chrome,
+  body.se-chrome {
+    padding-bottom: calc(var(--se-bottom) + env(safe-area-inset-bottom, 0px)) !important;
+    --se-footer-pad: 12px 16px 14px;
+    --se-footer-dir: column;
+    --se-footer-align: flex-start;
+    --se-footer-gap: 10px;
+  }
+
+  /* Mobile: el contacto va al final del contenido, no pegado a la pantalla. */
+  .se-chrome c-footer-contact,
+  .se-chrome c-se-footer-contact {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: auto;
+    width: 100% !important;
+    max-width: none !important;
+    display: block !important;
+    height: auto !important;
+  }
+
+  .se-chrome .comm-page-content,
+  .se-chrome .lwr-main,
+  .se-chrome main {
+    padding-bottom: 8px;
+  }
+}
+
+body.se-drawer-open {
+  overflow: hidden;
+}
+
+/* —— Home v3: canvas claro LSG (#eef1f7), sin imagen del theme —— */
+html.se-chrome.se-home {
+  height: auto !important;
+  min-height: 100% !important;
+  background: #eef1f7 !important;
+  background-image: none !important;
+}
+
+body.se-chrome.se-home {
+  min-height: 100% !important;
+  min-height: 100dvh !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: auto !important;
+  background: #eef1f7 !important;
+  background-image: none !important;
+  background-size: auto !important;
+  background-attachment: scroll !important;
+}
+
+body.se-chrome.se-home #ServiceCommunityTemplate,
+body.se-chrome.se-home .siteforceServiceBody,
+body.se-chrome.se-home .cViewPanel.siteforceServiceBody,
+body.se-chrome.se-home .cCenterPanel,
+body.se-chrome.se-home [role="main"].cCenterPanel,
+body.se-chrome.se-home .cCenterPanel .comm-page-content,
+body.se-chrome.se-home .cCenterPanel [data-region="content"],
+body.se-chrome.se-home .cCenterPanel .siteforceContentArea,
+body.se-chrome.se-home .cCenterPanel .lwr-main,
+body.se-chrome.se-home .cCenterPanel main,
+html.se-chrome.se-home .comm-page-content,
+html.se-chrome.se-home .lwr-main,
+html.se-chrome.se-home main,
+html.se-chrome.se-home [data-region="content"] {
+  background: #eef1f7 !important;
+  background-image: none !important;
+  background-size: auto !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  float: none !important;
+  box-sizing: border-box !important;
+}
+
+body.se-chrome.se-home .cCenterPanel::before,
+body.se-chrome.se-home .cCenterPanel::after,
+body.se-chrome.se-home .siteforceServiceBody::before,
+body.se-chrome.se-home .siteforceServiceBody::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+body.se-chrome.se-home .forceCommunitySection,
+body.se-chrome.se-home .cb-section,
+body.se-chrome.se-home .cb-section_column,
+body.se-chrome.se-home .forceCommunityThemeHeroBase,
+body.se-chrome.se-home .themeBackgroundImage,
+body.se-chrome.se-home .comm-page-home {
+  background: #eef1f7 none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+html.se-chrome.se-home c-footer-contact,
+html.se-chrome.se-home c-se-footer-contact,
+body.se-chrome.se-home c-footer-contact,
+body.se-chrome.se-home c-se-footer-contact {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: auto;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+}
+
+/* —— Inner pages: empujar footer ——
+   DOM: body > #ServiceCommunityTemplate.siteforceServiceBody
+        > [customHeader] + .cCenterPanel + .cFooterPanel
+   La clase real es siteforceServiceBody (NO siteforceBody). */
+html.se-chrome.se-inner {
+  height: 100% !important;
+  background: #f3f4f6 !important;
+}
+
+body.se-chrome.se-inner {
+  min-height: 100% !important;
+  min-height: 100dvh !important;
+  margin: 0 !important;
+  background: #f3f4f6 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.se-chrome.se-inner #ServiceCommunityTemplate,
+body.se-chrome.se-inner .siteforceServiceBody,
+body.se-chrome.se-inner .cViewPanel.siteforceServiceBody {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 100% !important;
+  min-height: 100dvh !important;
+  width: 100% !important;
+  background: #f3f4f6 !important;
+  box-sizing: border-box !important;
+}
+
+/* Header theme: no crece */
+body.se-chrome.se-inner [data-region-name="customHeader"],
+body.se-chrome.se-inner .comm-page-header,
+body.se-chrome.se-inner [data-region="header"] {
+  flex: 0 0 auto !important;
+}
+
+/* Main: absorbe espacio y empuja el footer */
+body.se-chrome.se-inner .cCenterPanel,
+body.se-chrome.se-inner [role="main"].cCenterPanel {
+  flex: 1 1 auto !important;
+  float: none !important;
+  margin: 0 !important;
+  margin-left: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  background: #f3f4f6 !important;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+
+body.se-chrome.se-inner .cCenterPanel .comm-page-content,
+body.se-chrome.se-inner .cCenterPanel [data-region="content"],
+body.se-chrome.se-inner .cCenterPanel .siteforceContentArea,
+body.se-chrome.se-inner .cCenterPanel .lwr-main,
+body.se-chrome.se-inner .cCenterPanel main {
+  background: #f3f4f6 !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Footer panel: al final; fondo negro evita franja blanca bajo el contacto */
+body.se-chrome.se-inner .cFooterPanel,
+body.se-chrome.se-inner #footer.cFooterPanel,
+body.se-chrome.se-inner [role="contentinfo"].cFooterPanel {
+  position: static !important;
+  flex: 0 0 auto !important;
+  margin-top: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  height: auto !important;
+  background: #1C1C1C !important;
+  border: none !important;
+  box-shadow: none !important;
+  float: none !important;
+  padding: 0 !important;
+}
+
+body.se-chrome.se-inner .cFooterPanel c-footer-contact,
+body.se-chrome.se-inner .cFooterPanel c-se-footer-contact,
+body.se-chrome.se-inner c-footer-contact,
+body.se-chrome.se-inner c-se-footer-contact {
+  position: static !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: auto !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Modales del portal (c/seModalLayer): bloquear scroll sin tocar alturas ni overflow de los
+   paneles; si no, el centro se achica al viewport y el footer salta sobre el contenido. */
+/* Solo en html: overflow en el body lo vuelve scroll container y el header sticky se va. */
+html.se-modal-open {
+  overflow: hidden !important;
+}
+
+html.se-modal-gutter {
+  scrollbar-gutter: stable !important;
+}
+
+/* Overlay de modales sobre header y footer (z-index 200): sin stacking context en el contenido */
+body.se-modal-open .cCenterPanel,
+body.se-modal-open [role="main"].cCenterPanel,
+body.se-modal-open .cCenterPanel .siteforceContentArea,
+body.se-modal-open .cCenterPanel .comm-page-content {
+  z-index: auto !important;
+}
+
+/* Fallback: si un contenedor del theme sigue atrapando el overlay, header y footer se oscurecen
+   con el mismo scrim del modal y no reciben clics. */
+body.se-chrome.se-inner.se-modal-open #footer.cFooterPanel,
+body.se-chrome.se-inner.se-modal-open .cFooterPanel,
+body.se-modal-open #footer.cFooterPanel,
+body.se-modal-open .cFooterPanel {
+  position: relative !important;
+}
+
+body.se-modal-open .cFooterPanel::after,
+body.se-modal-open c-header-componente-sembra-evolucion::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(28, 28, 28, 0.6);
+}
+
+/* Columnas vacías del one-col layout */
+body.se-chrome .comm-content-header.comm-layout-column,
+body.se-chrome .comm-content-footer.comm-layout-column,
+body.se-chrome .slds-col--padded.comm-content-header,
+body.se-chrome .slds-col--padded.comm-content-footer {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: none !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 767px) {
+  /* Inner list/detail pages: full-bleed content pero BottomNav visible (como Home). */
+  body.se-chrome.se-inner:not(.se-inner-wizard) {
+    padding-bottom: calc(var(--se-bottom) + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Wizards (compra HT, cesión): footer propio → ocultar BottomNav del theme. */
+  body.se-chrome.se-inner.se-inner-wizard {
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  body.se-chrome.se-inner.se-inner-wizard c-se-bottom-nav,
+  body.se-chrome.se-inner.se-inner-wizard .cFooterPanel c-se-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+  }
+
+  body.se-chrome.se-inner.se-inner-wizard .cCurtainContainer {
+    flex: 0 0 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.se-chrome.se-inner.se-inner-wizard .cFooterPanel,
+  body.se-chrome.se-inner.se-inner-wizard #footer.cFooterPanel {
+    background: transparent !important;
+    padding: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.se-chrome.se-inner .cCenterPanel .comm-page-content,
+  body.se-chrome.se-inner .cCenterPanel [data-region="content"],
+  body.se-chrome.se-inner .cCenterPanel .siteforceContentArea,
+  body.se-chrome.se-inner .cCenterPanel .lwr-main,
+  body.se-chrome.se-inner .cCenterPanel main,
+  body.se-chrome.se-inner .cb-section,
+  body.se-chrome.se-inner .cb-section_column,
+  body.se-chrome.se-inner .dxp-column,
+  body.se-chrome.se-inner .comm-layout-column,
+  body.se-chrome.se-inner .slds-col--padded {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+  }
+
+  body.se-chrome.se-inner .slds-card,
+  body.se-chrome.se-inner c-crear-compra2 {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  body.se-chrome.se-inner {
+    overflow-x: clip;
+  }
+}
+
+/* Desktop: bottom nav / curtain no dejan hueco bajo el contacto */
+@media (min-width: 768px) {
+  body.se-chrome.se-inner {
+    padding-bottom: 0 !important;
+  }
+
+  body.se-chrome.se-inner #ServiceCommunityTemplate,
+  body.se-chrome.se-inner .siteforceServiceBody {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 100dvh !important;
+  }
+
+  body.se-chrome.se-inner .cCenterPanel,
+  body.se-chrome.se-inner [role="main"].cCenterPanel {
+    float: none !important;
+    margin: 0 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+  }
+
+  body.se-chrome.se-inner c-se-bottom-nav,
+  body.se-chrome.se-inner .cFooterPanel c-se-bottom-nav {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.se-chrome.se-inner .cCurtainContainer {
+    flex: 0 0 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.se-chrome.se-inner .cFooterPanel,
+  body.se-chrome.se-inner #footer.cFooterPanel {
+    background: #1C1C1C !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-top: auto !important;
+  }
+
+  /* Compra HT: la página de registro la deja en una columna angosta; ocupa todo el ancho. */
+  body.se-chrome.se-inner :is(.comm-layout-column, .slds-col, [class*="slds-size"], .cb-section_column, .dxp-column):has(c-crear-compra2) {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  body.se-chrome.se-inner :is(.slds-grid, .cb-section_row, .comm-layout-row):has(> :is(.comm-layout-column, .slds-col, [class*="slds-size"], .cb-section_column, .dxp-column) c-crear-compra2)
+    > :is(.comm-layout-column, .slds-col, [class*="slds-size"], .cb-section_column, .dxp-column):not(:has(c-crear-compra2)) {
+    display: none !important;
+  }
+
+  body.se-chrome.se-inner c-crear-compra2 {
+    display: block;
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+.se-chrome .myAccount,
+.se-chrome .slds-icon-utility-down {
+  display: none;
+}
+
+.se-chrome .profileName {
+  color: var(--se-lima) !important;
+}
+
+.se-chrome .forceListViewPicker {
+  pointer-events: none;
+}
+
+/* Theme actual: .slds-card { width: 70rem } — en phone debe fluir. */
+.se-chrome .slds-card {
+  border: none !important;
+  width: 100% !important;
+  max-width: var(--se-content-max);
+  box-sizing: border-box;
+}
+
+.se-chrome .comm-navigation .comm-navigation__list .slds-list__item .slds-is-active,
+.se-chrome .comm-navigation .comm-navigation__list :hover {
+  background-color: #2d2d2d;
+  border-radius: var(--se-radius-pill);
+  color: var(--se-lima);
+}
+
+.se-chrome input,
+.se-chrome .slds-input,
+.se-chrome .fix-slds-input_faux {
+  border-radius: 20px !important;
+  min-height: var(--se-touch);
+  height: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.se-chrome .slds-button_brand {
+  border-radius: var(--se-radius-pill);
+  min-height: var(--se-touch);
+}
+
+.se-chrome .slds-button_icon-border {
+  border: none;
+}
+
+.se-chrome lightning-primitive-icon {
+  color: var(--se-lima);
+}
+
+.se-chrome .icono {
+  background-color: var(--se-black) !important;
+  border-radius: var(--se-radius-pill) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  height: 20px !important;
+  width: 20px !important;
+}
+
+.se-chrome .date-inputs .slds-input-has-icon .slds-input__icon {
+  position: absolute;
+  top: 8px !important;
+}
+
+/* No copiar button { height: 40px } del theme: achica FAB, hamburger y bottom nav. */
+
+/* Tokens de botones nativos (hoy viven en Head Markup). Se dejan iguales. */
+.slds-button--neutral,
+.forceActionLink {
+  --lwc-brandAccessible: rgb(118, 113, 107);
+}
+
+.slds-button_neutral {
+  --lwc-colorTextBrand: rgb(118, 113, 107);
+  --lwc-brandAccessible: rgb(118, 113, 107);
+  --lwc-brandAccessibleActive: rgb(118, 113, 107);
+}
+
+/* Head Markup: .cCenterPanel { float:left; margin-left: 6rem }. En phone se anula. */
+.salesforceIdentityLoginBody2 .cCenterPanel {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .salesforceIdentityLoginBody2 .cCenterPanel {
+    float: none !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Login / registro guest: componentes SG reemplazan layout del theme. */
+html.se-login-guest,
+body.se-login-guest,
+html.se-register-guest,
+body.se-register-guest {
+  overflow: hidden;
+  --dxp-c-section-columns-max-width: 100%;
+}
+
+body.se-login-guest .cCenterPanel,
+body.se-login-guest [role="main"].cCenterPanel,
+body.se-register-guest .cCenterPanel,
+body.se-register-guest [role="main"].cCenterPanel {
+  float: none !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+  position: static !important;
+  background: transparent !important;
+}
+
+/* Theme login: .cCenterPanel::before crea una banda que intercepta clicks. */
+body.se-login-guest .salesforceIdentityLoginBody2 .cCenterPanel::before,
+body.se-login-guest .cCenterPanel::before,
+body.se-register-guest .salesforceIdentityLoginBody2 .cCenterPanel::before,
+body.se-register-guest .cCenterPanel::before {
+  display: none !important;
+  content: none !important;
+  pointer-events: none !important;
+}
+
+body.se-login-guest .cCenterPanel > *,
+body.se-register-guest .cCenterPanel > * {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+body.se-login-guest .comm-page-content,
+body.se-login-guest [data-region="content"],
+body.se-login-guest .siteforceContentArea,
+body.se-login-guest .lwr-main,
+body.se-login-guest main,
+body.se-login-guest .cb-section,
+body.se-login-guest .cb-section_column,
+body.se-login-guest .dxp-column,
+body.se-login-guest .comm-layout-column,
+body.se-login-guest .slds-col--padded,
+body.se-register-guest .comm-page-content,
+body.se-register-guest [data-region="content"],
+body.se-register-guest .siteforceContentArea,
+body.se-register-guest .lwr-main,
+body.se-register-guest main,
+body.se-register-guest .cb-section,
+body.se-register-guest .cb-section_column,
+body.se-register-guest .dxp-column,
+body.se-register-guest .comm-layout-column,
+body.se-register-guest .slds-col--padded {
+  max-width: none !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+body.se-login-guest .comm-page-header,
+body.se-login-guest [data-region="header"],
+body.se-login-guest .comm-page-footer,
+body.se-login-guest [data-region="footer"],
+body.se-login-guest c-header-componente-sembra-evolucion,
+body.se-login-guest c-se-bottom-nav,
+body.se-login-guest c-footer-contact,
+body.se-login-guest c-se-footer-contact,
+body.se-register-guest .comm-page-header,
+body.se-register-guest [data-region="header"],
+body.se-register-guest .comm-page-footer,
+body.se-register-guest [data-region="footer"],
+body.se-register-guest c-header-componente-sembra-evolucion,
+body.se-register-guest c-se-bottom-nav,
+body.se-register-guest c-footer-contact,
+body.se-register-guest c-se-footer-contact {
+  display: none !important;
+}
+
+body.se-login-guest .cb-section_column:not(:has(c-se-login)),
+body.se-login-guest .dxp-block:not(:has(c-se-login)),
+body.se-register-guest .cb-section_column:not(:has(c-se-register)),
+body.se-register-guest .dxp-block:not(:has(c-se-register)),
+body.se-login-guest .comm-content-header,
+body.se-register-guest .comm-content-header,
+body.se-login-guest .rich-text-editor-output,
+body.se-register-guest .rich-text-editor-output,
+body.se-login-guest .dxp-text-body,
+body.se-register-guest .dxp-text-body {
+  display: none !important;
+}
+
+body.se-login-guest c-se-login,
+body.se-register-guest c-se-register {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: auto;
+}

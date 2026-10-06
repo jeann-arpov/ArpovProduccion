@@ -1,0 +1,91 @@
+:host {
+    display: block;
+    font-family: "Roboto", Arial, sans-serif;
+    color: #1c1c1c;
+    background: #f3f4f6;
+    padding: 28px 32px 0;
+    box-sizing: border-box;
+    min-height: 50vh;
+}
+
+.page {
+    position: relative;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.content.is-loading {
+    filter: blur(7px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.veil {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(243, 244, 246, 0.6);
+}
+
+/* Halo lima suave detrás del logo */
+.veil::before {
+    content: "";
+    position: absolute;
+    width: 148px;
+    height: 148px;
+    max-width: 52vw;
+    max-height: 52vw;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(191, 255, 0, 0.28) 0%,
+        rgba(191, 255, 0, 0.1) 42%,
+        transparent 70%
+    );
+    animation: se-logo-glow 2.4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes se-logo-glow {
+    0%,
+    100% {
+        transform: scale(0.92);
+        opacity: 0.55;
+    }
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+}
+
+:host ::slotted([slot="filters"]) {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 5;
+}
+
+@media (max-width: 767px) {
+    :host {
+        padding: 16px 0 0;
+        background: #f3f4f6;
+    }
+
+    .page {
+        padding: 0;
+    }
+
+    .list-slot {
+        padding: 8px 16px 0;
+    }
+
+    :host ::slotted([slot="filters"]),
+    :host ::slotted([slot="toolbar"]) {
+        padding: 8px 16px 4px;
+        margin-bottom: 8px;
+    }
+}

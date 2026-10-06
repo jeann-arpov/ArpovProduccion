@@ -1,101 +1,152 @@
 <template>
-  <div onclick={loadingClick}>
-    <template if:true={loading}>
-      <div class="exampleHolder">
-        <lightning-spinner
-          alternative-text="Loading"
-          size="medium"
-        ></lightning-spinner>
-      </div>
+    <c-se-list-page loading={loading}>
+        <div slot="header" class="p-head">
+            <div class="p-head-copy">
+                <p class="eyebrow">Precertificación / Adhesión PPH</p>
+                <h1 class="p-title">{pageTitle}</h1>
+                <template if:true={pageSubtitle}>
+                    <p class="p-sub">{pageSubtitle}</p>
+                </template>
+            </div>
+            <template if:true={showHelpButton}>
+                <button type="button" class="p-help-btn" onclick={handleOnInformarPagoClick}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"></path></svg>
+                    No veo mis HTs
+                </button>
+            </template>
+            <template if:true={status}>
+                <span class={status.className}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+                    {status.label}
+                </span>
+            </template>
+        </div>
+
+        <div class="p-body">
+            <template if:true={plan}>
+                <div class={formClass}>
+                    <div class="p-stack">
+                        <template for:each={establecimientos} for:item="establecimiento">
+                            <c-establecimiento-pph
+                                key={establecimiento.id}
+                                cultivo={cultivoRecord}
+                                total-ht={totalHtCultivo}
+                                info={establecimiento}
+                                hiding={hiding}
+                                onupdatecantidad={updateCantidad}
+                                onshowmap={showMap}
+                                onremove={remove}
+                                onautosave={autosave}
+                                onnotify={handleNotify}
+                                onestablecimientochange={changeEstablecimiento}
+                                onpasoestablecimiento={handlePasoEstablecimiento}
+                                onpasohectareasnose={handlePasoHectareasNoSE}
+                            ></c-establecimiento-pph>
+                        </template>
+                    </div>
+
+                    <div class="p-dfoot">
+                        <template if:true={showAddButton}>
+                            <button type="button" class="p-add" onclick={handleAddRow}>
+                                <span class="plus" aria-hidden="true">+</span>Agregar establecimiento
+                            </button>
+                        </template>
+                        <div class="p-cta-bar">
+                            <template if:true={isAdhesion}>
+                                <button type="button" class="btn continue" onclick={continuar}>Continuar</button>
+                            </template>
+                            <template if:true={isEdit}>
+                                <button type="button" class="btn continue" onclick={backToResumen}>Volver al resumen</button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <template if:true={isTerminosYCondiciones}>
+                    <c-terminos-y-condiciones
+                        cultivo={cultivo}
+                        grandes-cuentas={grandesCuentas}
+                        campaña={campaña}
+                        oncancel={cancelTerms}
+                        onaccept={acceptTerms}
+                    ></c-terminos-y-condiciones>
+                </template>
+
+                <template if:true={isResumen}>
+                    <c-resumen-pph
+                        info={data}
+                        onedit={edit}
+                        onenviar={enviarConfirm}
+                        onrectificar={rectificarConfirm}
+                    ></c-resumen-pph>
+                </template>
+            </template>
+        </div>
+    </c-se-list-page>
+
+    <template if:true={toast}>
+        <div class={toast.className} role="alert">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
+            <div class="p-toast-txt">
+                <b>{toast.title}</b>
+                <span>{toast.message}</span>
+            </div>
+            <button type="button" class="p-toast-x" aria-label="Cerrar" onclick={closeToast}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+        </div>
     </template>
 
-    <h1 class="slds-m-bottom_large">
-      Adhesión al Programa de Precertificación de Hectáreas (PPH) - {paramName}
-    </h1>
-    <div class={adhesionClass}>
-      <div class="slds-m-bottom_small">
-        <lightning-button
-          label="No veo mis HTs"
-          onclick={handleOnInformarPagoClick}
-        ></lightning-button>
-      </div>
-      <template for:each={establecimientos} for:item="establecimiento">
-        <c-establecimiento-pph
-          cultivo={plan.Parametro_PPH__r.Cultivo__r}
-          class="slds-m-bottom_large"
-          key={establecimiento.id}
-          info={establecimiento}
-          hiding={hiding}
-          grandes-cuentas={grandesCuentas}
-          onupdatecantidad={updateCantidad}
-          onshowmap={showMap}
-          onremove={remove}
-          onautosave={autosave}
-          onestablecimientochange={changeEstablecimiento}
-          onpasoestablecimiento={handlePasoEstablecimiento}
-          onpasohectareasnose={handlePasoHectareasNoSE}
-        ></c-establecimiento-pph>
-      </template>
-      <button
-        type="button"
-        onclick={addRow}
-        class="slds-button slds-m-left_large add-establecimiento"
-      >
-        <lightning-button-icon
-          class="slds-m-right_small"
-          icon-name="utility:add"
-          alternative-text="Agregar Establecimiento"
-          title="Agregar Establecimiento"
-        ></lightning-button-icon>
-        <b>Agregar Establecimiento</b>
-      </button>
-      <lightning-layout
-        class="slds-m-vertical_medium"
-        horizontal-align="center"
-      >
-        <lightning-layout-item class="actions">
-          <lightning-button
-            if:true={isAdhesion}
-            class="slds-m-left_small continue black"
-            label="Continuar"
-            onclick={continuar}
-          ></lightning-button>
-          <lightning-button
-            class="slds-m-left_small"
-            if:true={isEdit}
-            label="Volver al resumen"
-            onclick={backToResumen}
-          ></lightning-button>
-        </lightning-layout-item>
-      </lightning-layout>
-    </div>
+    <template if:true={showModal}>
+        <div class="p-layer">
+            <div class="p-scrim"></div>
+            <div class="p-dmodal" role="dialog" aria-modal="true">
+                <template if:true={isContinueConfirm}>
+                    <span class="p-confirm-ic warn" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>
+                    </span>
+                    <p class="p-msg">Recordá que tenés que declarar también las hectáreas que no están por SE</p>
+                    <div class="p-mfoot">
+                        <button type="button" class="btn ghost" onclick={closeModal}>Volver</button>
+                        <button type="button" class="btn" onclick={executeModal}>Aceptar y continuar</button>
+                    </div>
+                </template>
 
-    <div if:true={isTerminosYCondiciones}>
-      <c-terminos-y-condiciones
-        cultivo={cultivo}
-        grandes-cuentas={grandesCuentas}
-        campaña={campaña}
-        oncancel={cancelTerms}
-        onaccept={acceptTerms}
-      ></c-terminos-y-condiciones>
-    </div>
+                <template if:true={isEnRevision}>
+                    <span class="p-confirm-ic" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
+                    </span>
+                    <p class="p-msg">{recibidaLabel}</p>
+                    <div class="p-mfoot single">
+                        <button type="button" class="btn" onclick={goHome}>Volver al inicio</button>
+                    </div>
+                </template>
 
-    <div if:true={isResumen}>
-      <c-resumen-pph
-        info={data}
-        onedit={edit}
-        onenviar={enviarConfirm}
-        onrectificar={rectificarConfirm}
-      ></c-resumen-pph>
-    </div>
+                <template if:true={isDeleteConfirm}>
+                    <span class="p-confirm-ic warn" aria-hidden="true">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"></path></svg>
+                    </span>
+                    <p class="p-msg">¿Estás seguro de que querés eliminar este establecimiento?</p>
+                    <div class="p-mfoot">
+                        <button type="button" class="btn ghost" onclick={closeModal}>No</button>
+                        <button type="button" class="btn" onclick={executeModal}>Sí, eliminar</button>
+                    </div>
+                </template>
 
-    <c-map onlocationselected={updateLocation}></c-map>
-    <c-modals-pph
-      callback={modalCallback}
-      current-modal={currentModal}
-      onclose={closeModal}
-    ></c-modals-pph>
+                <template if:true={isRectificarConfirm}>
+                    <span class="p-confirm-ic warn" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>
+                    </span>
+                    <p class="p-msg">¿Estás seguro de que querés rectificar el plan?</p>
+                    <div class="p-mfoot">
+                        <button type="button" class="btn ghost" onclick={closeModal}>No</button>
+                        <button type="button" class="btn" onclick={executeModal}>Sí, rectificar</button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
 
+    <c-map></c-map>
     <c-informar-pago></c-informar-pago>
-  </div>
 </template>

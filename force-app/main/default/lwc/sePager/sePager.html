@@ -1,0 +1,7 @@
+<template>
+    <nav class="pager" aria-label="Paginación">
+        <button class="pager-btn" type="button" onclick={handlePrev} disabled={disablePrev}>Anterior</button>
+        <span class="pager-page">{pageLabel}</span>
+        <button class="pager-btn" type="button" onclick={handleNext} disabled={disableNext}>Siguiente</button>
+    </nav>
+</template>

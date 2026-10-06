@@ -1,17 +1,217 @@
-.terminos {
-    white-space: pre-wrap;
-    max-height: 500px;
+:host {
     display: block;
-    overflow-y: scroll;
+    font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #1c1c1c;
 }
 
-.actions lightning-button {
-    --slds-c-button-text-color: black;
-    --slds-c-button-radius-border: 50px;
-    --slds-c-button-neutral-color-border: black;
+.tc-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(28, 28, 28, 0.06), 0 4px 12px rgba(28, 28, 28, 0.06);
+    padding: 16px;
 }
 
-lightning-button.green {
-    --slds-c-button-neutral-color-background: var(--pph-green);
-    --slds-c-button-neutral-color-background-hover: var(--pph-green);
+.tc-doc {
+    height: 52vh;
+    min-height: 300px;
+    max-height: 560px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dde2eb;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 20px;
+    color: #1c1c1c;
+    box-sizing: border-box;
+}
+
+.tc-rich {
+    display: block;
+    white-space: normal;
+}
+
+.tc-rich p {
+    margin: 0 0 8px;
+}
+
+.tc-rich ol,
+.tc-rich ul {
+    margin: 0 0 8px;
+    padding-left: 20px;
+}
+
+.tc-rich ol {
+    list-style: decimal;
+}
+
+.tc-rich ul {
+    list-style: disc;
+}
+
+.tc-rich li {
+    margin: 0 0 4px;
+}
+
+.tc-rich b,
+.tc-rich strong {
+    font-weight: 700;
+}
+
+.tc-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.tc-checkrow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tc-checkrow.is-disabled {
+    color: #8892a3;
+    cursor: not-allowed;
+}
+
+.tc-native {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0;
+    opacity: 0;
+    cursor: inherit;
+}
+
+.tc-check {
+    width: 24px;
+    height: 24px;
+    flex: none;
+    border-radius: 6px;
+    border: 1.5px solid #1c1c1c;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #1c1c1c;
+    box-sizing: border-box;
+}
+
+.tc-checkrow.is-disabled .tc-check {
+    border-color: #c3cad6;
+    background: #f7f9fc;
+}
+
+.tc-check.on {
+    background: #bfff00;
+    border-color: #1c1c1c;
+}
+
+.tc-check.err {
+    border-color: #d64545;
+    background: rgba(214, 69, 69, 0.06);
+}
+
+.tc-native:focus-visible + .tc-check {
+    box-shadow: 0 0 0 3px rgba(191, 255, 0, 0.35);
+}
+
+.tc-err {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 4px 36px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    color: #b83232;
+}
+
+.tc-hint {
+    margin: 2px 0 0 36px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #4a5261;
+}
+
+.tc-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.tc-btn {
+    flex: 1;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tc-btn-primary {
+    background: #bfff00;
+    color: #1c1c1c;
+    border: none;
+}
+
+.tc-btn-primary:hover {
+    background: #a8e600;
+}
+
+.tc-btn-ghost {
+    background: #fff;
+    color: #1c1c1c;
+    border: 1.5px solid #1c1c1c;
+}
+
+.tc-btn-ghost:hover {
+    background: #eef1f7;
+}
+
+@media (min-width: 768px) {
+    .tc-card {
+        padding: 20px;
+    }
+
+    .tc-doc {
+        height: 430px;
+        max-height: none;
+        padding: 24px 28px;
+        font-size: 14px;
+        line-height: 22px;
+    }
+
+    .tc-foot {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        margin-top: 18px;
+    }
+
+    .tc-btn {
+        flex: none;
+    }
+
+    .tc-btn-ghost {
+        min-width: 120px;
+    }
+
+    .tc-btn-primary {
+        min-width: 160px;
+    }
 }

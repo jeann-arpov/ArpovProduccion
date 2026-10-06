@@ -1,357 +1,395 @@
 import { LightningElement, track, api } from 'lwc';
 import getVencimientos from '@salesforce/apex/MisFacturasController.getVencimientos';
-//import getPaymentLink from '@salesforce/apex/AgroPagoAuraController_V2.getPaymentLink';
-import getAgroPago from '@salesforce/apex/AgroPagoAuraController.getAgroPago';
-import {reduceErrors, normalizeCuit} from 'c/utils';
+import getAdjuntosPago from '@salesforce/apex/MisFacturasController.getAdjuntosPago';
+import PagoInformadoTooltip from '@salesforce/label/c.PagoInformado_Tooltip';
+import { fetchCultivoOptions, fetchCultivoSummary } from 'c/cultivoResumenService';
+import { reduceErrors } from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-//import basePath from '@salesforce/community/basePath';
 import { doRequest } from 'c/utils';
-import icons from 'c/icons';
+import { trackGa4Event } from 'c/portalGa4Events';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import { ensureXlsxLoaded, downloadVentasWorkbook } from 'c/ventasInformadasExcelUtil';
 
-const COLUMNS = [
-     {label: 'CUIT', fieldName: 'cuit', fixedWidth: 100, hideDefaultActions: true},
-    {label: 'NOMBRE CUENTA', fieldName: 'cuentaName', fixedWidth: 200, hideDefaultActions: true},
-    {label: 'CULTIVO', fieldName: 'cultivo', fixedWidth: 100, hideDefaultActions: true},
-    {label: 'NRO COMPROBANTE', fieldName: 'numero', fixedWidth: 180, hideDefaultActions: true},
-    {label: 'MARCA', fieldName: 'obtentorMarca', fixedWidth: 100, hideDefaultActions: true},
-   // {label: 'Comercio', fieldName: 'comercio', hideDefaultActions: true},
-    {label: 'FECHA EMISION', fieldName: 'fecha', type: 'date', fixedWidth: 150, sortable: true, hideDefaultActions: true},
-    {label: 'IMPORTE (USD)', fieldName: 'total', type: 'currency', fixedWidth: 120, sortable: true, hideDefaultActions: true},
-    {label: 'FECHA VENCIMIENTO', fieldName: 'fechaVencimiento', type: 'date', fixedWidth: 150, sortable: true, hideDefaultActions: true},
-    //{label: 'Saldo USD', fieldName: 'saldo', type: 'currency', sortable: true, hideDefaultActions: true},
-    //{label: 'SALDO ARS', fieldName: 'saldoArs', type: 'currency', sortable: true, fixedWidth: 100, hideDefaultActions: true},
-    {label: 'ESTADO', fieldName: 'oppStage', fixedWidth: 150, hideDefaultActions: true },
-    {type: 'button-icon', typeAttributes: {alternativeText: 'Ver Factura', iconName: 'utility:file' , fixedWidth: 100, name: 'Ver', class:{fieldName:'iconoClass'}, title: 'Ver', disabled: {fieldName: 'disableVerFactura'}}},
-    // {type: 'button', typeAttributes: {label: 'Pagar', name: 'Pagar', title: 'Pagar', disabled: {fieldName: 'disablePagar'}}},
-    {type: 'button', typeAttributes: {label: 'Informar Pago', name: 'Informar Pago', variant: 'brand', title: 'Informar Pago', fixedWidth: 100, disabled: {fieldName: 'disableInfPago'}}}
-];
+const EXPORT_HEADERS = ['Comprobante', 'Fecha', 'Concepto', 'Cultivo', 'Importe', 'Vencimiento', 'Estado'];
+
+function pad(n) {
+    return String(n).padStart(2, '0');
+}
+
+function formatDate(value) {
+    if (!value) return '';
+    const dt = new Date(value);
+    if (Number.isNaN(dt.getTime())) return '';
+    return `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${String(dt.getFullYear()).slice(-2)}`;
+}
+
+function formatImporte(total, moneda) {
+    if (total == null || total === '') return '';
+    const amount = Number(total).toLocaleString('es-AR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    const prefix = moneda && String(moneda).toUpperCase().includes('ARS') ? 'ARS' : 'USD';
+    return `${prefix} ${amount}`;
+}
+
+const STAGES_INFORMAR_PAGO = ['Facturada', 'Pedido de Facturacion'];
+
+function isPagada(stage) {
+    return /pagad/i.test(stage || '');
+}
+
+function resolveStatus(row) {
+    if (isPagada(row.oppStage)) {
+        return { label: 'Pagada', tone: 'ok', bucket: 'pagadas' };
+    }
+    if (row.pagoInformado === true) {
+        return { label: 'Pago informado', tone: 'info', bucket: 'facturadas' };
+    }
+    const due = row.fechaVencimiento ? new Date(row.fechaVencimiento) : null;
+    const overdue = due && !Number.isNaN(due.getTime()) && due < new Date();
+    if (overdue) {
+        return { label: 'Vencida', tone: 'danger', bucket: 'facturadas' };
+    }
+    return { label: 'Facturada', tone: 'warn', bucket: 'facturadas' };
+}
 
 export default class MisFacturasSembraEvolucion extends LightningElement {
     @api type;
 
     @track vencimientos = [];
-    columns = COLUMNS;
-    cultivos;
-    cultivo = 'Todos';
-    marca = 'Todas';
-    estado = 'Todos';
-
-    @track sortBy = 'fecha';
-    @track sortDirection = 'desc';
-    @track searchTerm = '';
-    @track totalRegistros = 0;
-    @track selectedCultivo = '';
-    @track selectedMarca = '';
-    @track selectedEstado = '';
-
-    pageSize = 200;
-    @track currentPage = 1;
-    @track filteredFacturas = [];
     @track data = [];
-
-
-    icons = {
-        seed: icons.pph.seed
-    };
-    
-    agropago;
-    vencimientoPagar;
-
+    @track loading = true;
+    @track cultivoOptions = [];
+    @track cultivoSummaryRows = [];
+    @track selectedCultivoId;
+    @track cultivoSummaryTotal = 0;
+    @track cultivoSummaryLoading = false;
+    @track showCultivoResumen = false;
+    @track adjuntos = [];
+    @track showDocumentos = false;
+    @track documentosLoading = false;
+    documentosFactura;
+    pagoInformadoTooltip = PagoInformadoTooltip;
+    statusFilter = 'todas';
+    pageSize = 200;
     initialized = false;
-    loading = false;
+
+    columns = [
+        { label: 'Comprobante', fieldName: 'numero', type: 'link' },
+        { label: 'Fecha', fieldName: 'fechaLabel' },
+        { label: 'Concepto', fieldName: 'concepto' },
+        { label: 'Cultivo', fieldName: 'cultivoLabel' },
+        { label: 'Importe', fieldName: 'importeLabel' },
+        { label: 'Vto.', fieldName: 'vtoLabel' },
+        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
+        { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver' }
+    ];
+
+    mobileFields = [
+        { label: 'Fecha', fieldName: 'fechaLabel' },
+        { label: 'Concepto', fieldName: 'conceptoLine' },
+        { label: 'Importe', fieldName: 'importeLabel' },
+        { label: 'Vto.', fieldName: 'vtoLabel' }
+    ];
+
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    disconnectedCallback() {
+        releasePortalModal(this);
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+    }
+
+    renderedCallback() {
+        if (!this.initialized) this.init();
+        syncPortalModal(this, this.showDocumentos, '.mf-scrim');
+    }
+
+    get statusPills() {
+        const rows = this.rowsDelCultivo;
+        return [
+            {
+                id: 'todas',
+                label: 'Todas',
+                count: rows.length,
+                selected: this.statusFilter === 'todas'
+            },
+            {
+                id: 'facturadas',
+                label: 'Facturadas',
+                count: rows.filter((row) => row.bucket === 'facturadas').length,
+                selected: this.statusFilter === 'facturadas'
+            },
+            {
+                id: 'pagadas',
+                label: 'Pagadas',
+                count: rows.filter((row) => row.bucket === 'pagadas').length,
+                selected: this.statusFilter === 'pagadas'
+            }
+        ];
+    }
+
+    get selectedCultivoName() {
+        if (!this.showCultivoResumen || !this.selectedCultivoId) return '';
+        const option = (this.cultivoOptions || []).find((o) => o.value === this.selectedCultivoId);
+        return option ? String(option.label || '').trim().toUpperCase() : '';
+    }
+
+    // Las facturas sin cultivo se muestran en todas las pestañas para no ocultarlas.
+    get rowsDelCultivo() {
+        const cultivo = this.selectedCultivoName;
+        if (!cultivo) return this.vencimientos;
+        return this.vencimientos.filter((row) => {
+            const rowCultivo = String(row.cultivo || '').trim().toUpperCase();
+            return !rowCultivo || rowCultivo === cultivo;
+        });
+    }
 
     async init() {
         this.initialized = true;
 
-        await doRequest.call(this, async _ => {
-            this.agropago = await getAgroPago();
-            const vencimientos = await getVencimientos({type: this.type});
+        await doRequest.call(this, async () => {
+            const vencimientos = await getVencimientos({ type: this.type || 'Productor' });
+            const isProductor = (this.type || 'Productor') === 'Productor';
 
-            let idx = 0;
-            for(let vencimiento of vencimientos){
-                 console.log(vencimiento);
-                // vencimiento.disablePagar = !vencimiento.id || !this.isProductor;
-                vencimiento.disableInfPago = (!vencimiento.id || !this.isProductor) && !(vencimiento.oppStage == 'Facturada' || vencimiento.oppStage == 'Pedido de Facturacion');
-                if(vencimiento.file == null && vencimiento.facturaPVId) vencimiento.file = {id: vencimiento.facturaPVId};
+            this.vencimientos = (vencimientos || []).map((vencimiento, idx) => {
+                vencimiento.canInformarPago =
+                    vencimiento.pagoInformado !== true &&
+                    ((Boolean(vencimiento.id) && isProductor) ||
+                        STAGES_INFORMAR_PAGO.includes(vencimiento.oppStage));
+                if (vencimiento.file == null && vencimiento.facturaPVId) {
+                    vencimiento.file = { id: vencimiento.facturaPVId };
+                }
+                if (vencimiento.id == null) vencimiento.id = vencimiento.numero;
                 vencimiento.disableVerFactura = !vencimiento.file;
-                vencimiento.iconoClass = !vencimiento.file ? 'icono-disabled' : 'icono';
-                if(vencimiento.id == null) vencimiento.id = vencimiento.numero;
-                vencimiento.uniqueId = idx;
-                idx++;
-            }
-            
-            this.vencimientos = vencimientos;
+                vencimiento.uniqueId = String(idx);
+                vencimiento.mobileKey = `m-${idx}`;
 
-            const cultivos = [{label: 'Cultivo: Todos', value: 'Todos'}];
+                const status = resolveStatus(vencimiento);
+                vencimiento.fechaLabel = formatDate(vencimiento.fecha);
+                vencimiento.vtoLabel = formatDate(vencimiento.fechaVencimiento);
+                vencimiento.importeLabel = formatImporte(vencimiento.total, vencimiento.moneda);
+                vencimiento.cultivoLabel = vencimiento.cultivo || '—';
+                vencimiento.concepto = vencimiento.comercio || vencimiento.productor ? 'Compra HT' : 'Precertificación PPH';
+                vencimiento.conceptoLine = `${vencimiento.concepto} · ${vencimiento.cultivoLabel}`;
+                vencimiento.statusLabel = status.label;
+                vencimiento.statusTone = status.tone;
+                vencimiento.statusHint = vencimiento.pagoInformado === true && !isPagada(vencimiento.oppStage)
+                    ? this.pagoInformadoTooltip
+                    : '';
+                vencimiento.actionDisabled = vencimiento.disableVerFactura && !vencimiento.opportunityId;
+                vencimiento.bucket = status.bucket;
+                return vencimiento;
+            });
 
-            for(let vencimiento of this.vencimientos){
-                if(!cultivos.some(o => o.value == vencimiento.cultivo)) cultivos.push({label: `Cultivo: ${vencimiento.cultivo}`, value: vencimiento.cultivo});
-            }
-
-            this.cultivos = cultivos;
-
+            await this.loadCultivoResumenOptions();
             this.applyFilters();
         });
     }
 
-    get isProductor() {
-        return this.type == "Productor";
-    }
+    async loadCultivoResumenOptions() {
+        try {
+            const { options, defaultId } = await fetchCultivoOptions();
+            this.cultivoOptions = options;
+            this.showCultivoResumen = options.length > 0;
 
-    byFechaVencimiento(a, b){
-        if(a.fechaVencimiento > b.fechaVencimiento) return 1;
-        if(a.fechaVencimiento < b.fechaVencimiento) return -1;
-        return 0;
-    }
-    
-    
-    renderedCallback() {
-        if (!this.initialized) this.init();
-    }
-
-
-    onError(e) {
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Error',
-            message: reduceErrors(e).join('\n'),
-            variant: 'error',
-            mode: 'sticky'
-        }));
-    }
-
-    //reemplazando vencimientos por data, podemos hacer que los totales sean dinámicos según que facturas se esten visualizando
-    get totalAdeudado() {
-        return this.vencimientos.reduce((tot, cur) => tot + (cur.saldo || 0), 0);
-    }
-
-    get totales(){
-        const totales = [];
-        const porCultivo = {};
-
-        for(const vencimiento of this.vencimientos){
-            const key = vencimiento.cultivo;
-            porCultivo[key] = porCultivo[key] || {key, value: 0};
-            porCultivo[key].value += (vencimiento.saldo || 0);
-        }
-
-        for(const cultivo in porCultivo){
-            totales.push({cultivo: cultivo, label: `Adeudado ${cultivo} USD`, value: porCultivo[cultivo].value});
-        }
-
-        console.log('totales: ', totales);
-
-        return totales;
-    }
-
-    handleOnInformarPagoClick(vencimiento){
-        //const vencimiento = this.vencimientos.find((ven) => ven.id == event.target.dataset.id);
-
-        this.template.querySelector('c-informar-pago').show({
-            title:'Informar Pago',
-            recordId:vencimiento.opportunityId,
-            cuit: vencimiento.cuit,
-            comprobante: vencimiento.numero
-        });
-    }
-
-    handleOnPayClickConfirm(vencimiento){
-        this.vencimientoPagar = vencimiento
-        console.log(this.vencimientoPagar);
-
-        this.template.querySelector('c-modal').show();
-    }
-
-    handleOnSort(event){
-        this.sortBy = event.detail.fieldName;
-        this.sortDirection = event.detail.sortDirection;
-        this.sortData();
-    }
-
-    applySort(list) {
-        const sorted = [...list];
-        const isReverse = this.sortDirection === 'asc' ? 1 : -1;
-        sorted.sort((x, y) => {
-            const a = x[this.sortBy] ?? '';
-            const b = y[this.sortBy] ?? '';
-            return isReverse * ((a > b) - (b > a));
-        });
-        return sorted;
-    }
-
-    sortData() {
-        this.filteredFacturas = this.applySort(this.filteredFacturas);
-        this.updatePage();
-    }
-
-    handleRowAction(event){
-        const action = event.detail.action;
-        const row = event.detail.row;
-        switch (action.name) {
-            case 'Ver':
-                this.showPdf(row);
-                break;
-            case 'Pagar':
-                this.handleOnPayClickConfirm(row);
-                break;
-            case 'Informar Pago':
-                this.handleOnInformarPagoClick(row);
-                break;
-            default:
-                break;
+            if (options.length && !this.selectedCultivoId) {
+                this.selectedCultivoId = defaultId;
+                await this.loadCultivoSummary();
+            }
+        } catch (error) {
+            this.cultivoOptions = [];
+            this.showCultivoResumen = false;
         }
     }
 
-    handleCultivoSelect(event){
-        this.cultivo = event.target.value;
-        this.selectedCultivo = event.target.value;
+    async loadCultivoSummary() {
+        if (!this.selectedCultivoId) {
+            this.cultivoSummaryRows = [];
+            this.cultivoSummaryTotal = 0;
+            return;
+        }
+
+        this.cultivoSummaryLoading = true;
+        try {
+            const summary = await fetchCultivoSummary(this.selectedCultivoId);
+            this.cultivoSummaryRows = summary.rows;
+            this.cultivoSummaryTotal = summary.total;
+        } catch (error) {
+            this.cultivoSummaryRows = [];
+            this.cultivoSummaryTotal = 0;
+        } finally {
+            this.cultivoSummaryLoading = false;
+        }
+    }
+
+    handleCultivoResumenSelect(event) {
+        this.selectedCultivoId = event.detail?.value;
+        this.applyFilters();
+        this.loadCultivoSummary();
+    }
+
+    get hasAdjuntos() {
+        return this.adjuntos.length > 0;
+    }
+
+    get showDocumentosEmpty() {
+        return !this.documentosLoading && !this.documentosFactura && !this.hasAdjuntos;
+    }
+
+    handlePill(event) {
+        this.statusFilter = event.detail.id;
         this.applyFilters();
     }
 
-    handleMarcaSelect(event){
-        this.marca = event.target.value;
-        this.selectedMarca = event.target.value;
-        this.applyFilters();
-    }
-
-    handleEstadoSelect(event){
-        this.estado = event.target.value;
-        this.selectedEstado = event.target.value;
-        this.applyFilters();
-    }
-
-    closeModal(){
-        this.template.querySelector('c-modal').hide();
-    }
-
-    // Aplicar filtros y búsqueda
-    
     applyFilters() {
-        let filtered = [...this.vencimientos];
-
-        if (this.selectedCultivo && this.selectedCultivo !== 'Todos') {
-            filtered = filtered.filter(l => l.cultivo === this.selectedCultivo);
+        let rows = [...this.rowsDelCultivo];
+        if (this.statusFilter !== 'todas') {
+            rows = rows.filter((row) => row.bucket === this.statusFilter);
         }
-        if (this.selectedMarca && this.selectedMarca !== 'Todas') {
-            filtered = filtered.filter(l => l.obtentorMarca === this.selectedMarca);
+        this.data = rows;
+    }
+
+    handleRowAction(event) {
+        const row = event.detail.row;
+        if (!row) return;
+        if (event.detail.action === 'secondary') {
+            this.handleInformarPago(row);
+            return;
         }
-        if (this.selectedEstado && this.selectedEstado !== 'Todos') {
-            filtered = filtered.filter(l => l.oppStage === this.selectedEstado);
-        }
-
-        if (this.searchTerm) {
-            const term = this.searchTerm.toLowerCase();
-            const searchKeyNorm = normalizeCuit(term);
-            filtered = filtered.filter(l =>
-                (l.cultivo && l.cultivo.toLowerCase().includes(term)) ||
-                (l.obtentorMarca && l.obtentorMarca.toLowerCase().includes(term)) ||
-                (searchKeyNorm && l.cuit && l.cuit.toLowerCase().includes(searchKeyNorm))
-            );
-        }
-
-        this.filteredFacturas = this.applySort(filtered);
-        this.totalRegistros = this.filteredFacturas.length;
-        this.currentPage = 1;
-        this.updatePage();
+        this.openDocumentos(row);
     }
 
-    updatePage() {
-        const start = (this.currentPage - 1) * this.pageSize;
-        const end = start + this.pageSize;
-        this.data = this.filteredFacturas.slice(start, end);
-    }
-
-    get disablePrev() {
-        return this.currentPage <= 1;
-    }
-
-    get disableNext() {
-        return this.currentPage >= Math.ceil(this.filteredFacturas.length / this.pageSize);
-    }
-
-    handlePrev() {
-        if (!this.disablePrev) {
-            this.currentPage--;
-            this.updatePage();
-        }
-    }
-
-    handleNext() {
-        if (!this.disableNext) {
-            this.currentPage++;
-            this.updatePage();
-        }
-    }
-
-    handleSearchChange(event) {
-        this.searchTerm = event.target.value;
-        this.applyFilters();
-    }
-
-    // async handleOnPayClick(){
-    //     this.closeModal();
-
-    //     const url = this.vencimientoPagar.linkDePago || await this.getNewPaymentLink(this.vencimientoPagar);
-
-    //     if(url) window.open(url, '_self');
-    // }
-
-    // async getNewPaymentLink(vencimiento){
-    //     let paymentLink;
-
-    //     const urlRedirect = `https://${location.host}${basePath}/agropago-redirect`;
-        
-    //     await doRequest.call(this, async _ => {
-    //         const result = await getPaymentLink({recordId: vencimiento.id, urlRedirect: urlRedirect});
-    //         console.log(result);
-    //         if(result.url){
-    //             paymentLink = result.url;
-    //         }else{
-    //             this.onError(new Error(`Error ${result.code}: ${result.message}`));
-    //         }
-    //     });
-
-    //     return paymentLink;
-    // }
-
-    showPdf(vencimiento){
-        //const vencimiento = this.vencimientos.find((ven) => ven.id == event.target.dataset.id);
-
-        this.template.querySelector('c-pdf-reader').show({
-            documentId:vencimiento.file.id,
-            title:'Factura Eléctronica'
+    handleInformarPago(vencimiento) {
+        this.template.querySelector('c-informar-pago')?.show({
+            title: 'Informar Pago',
+            recordId: vencimiento.opportunityId,
+            cuit: vencimiento.cuit,
+            comprobante: vencimiento.numero,
+            razonSocial: vencimiento.cuentaName,
+            numero: vencimiento.numero,
+            informarFactura: true,
+            variant: 'sg',
+            successMessage: 'Información de pago registrada exitosamente.'
         });
     }
 
-    onPaymentApproved(event) {
+    handlePagoInformado() {
         this.init();
     }
 
-    // get totalAPagar(){
-    //     return this.vencimientoPagar.saldoArs / (1 - (this.agropago.Comision__c || 0) / 100);
-    // }
-
-    // get comision(){
-    //     return this.totalAPagar - this.vencimientoPagar.saldoArs;
-    // }
-
-    get marcas(){
-        const options = [{label: 'Marca: Todas', value: 'Todas'}];
-        const vencimientos = !this.cultivo || this.cultivo == 'Todos' ? this.vencimientos : this.vencimientos.filter(v => v.cultivo == this.cultivo);
-        for(let vencimiento of vencimientos){
-            if(!options.some(m => m.value == vencimiento.obtentorMarca)){
-                options.push({label: `Marca: ${vencimiento.obtentorMarca}`, value: vencimiento.obtentorMarca});
-            }
+    async openDocumentos(vencimiento) {
+        this.documentosFactura = vencimiento.file ? vencimiento : null;
+        this.adjuntos = [];
+        this.showDocumentos = true;
+        if (!vencimiento.opportunityId) return;
+        this.documentosLoading = true;
+        try {
+            this.adjuntos = (await getAdjuntosPago({ opportunityId: vencimiento.opportunityId })) || [];
+        } catch (error) {
+            this.onError(error);
+        } finally {
+            this.documentosLoading = false;
         }
-        return options;
     }
 
-    get estados(){
-        const options = [{label: 'Estado: Todos', value: 'Todos'}];
-        for(let vencimiento of this.vencimientos){
-            if(vencimiento.oppStage && !options.some(o => o.value == vencimiento.oppStage)){
-                options.push({label: `Estado: ${vencimiento.oppStage}`, value: vencimiento.oppStage});
-            }
+    handleVerFacturaPdf() {
+        const factura = this.documentosFactura;
+        this.closeDocumentos();
+        if (factura) this.showPdf(factura);
+    }
+
+    closeDocumentos() {
+        this.showDocumentos = false;
+        this.adjuntos = [];
+        this.documentosFactura = null;
+    }
+
+    stopPropagation(event) {
+        event.stopPropagation();
+    }
+
+    async handleExport() {
+        const rows = this.data || [];
+        if (!rows.length) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Sin facturas',
+                    message: 'No hay facturas para exportar con el filtro actual.',
+                    variant: 'info'
+                })
+            );
+            return;
         }
-        return options;
+
+        try {
+            await ensureXlsxLoaded(this);
+            const exportRows = rows.map((row) => ({
+                Comprobante: row.numero || '',
+                Fecha: row.fechaLabel || '',
+                Concepto: row.concepto || '',
+                Cultivo: row.cultivoLabel || '',
+                Importe: row.importeLabel || '',
+                Vencimiento: row.vtoLabel || '',
+                Estado: row.statusLabel || ''
+            }));
+            const dateSuffix = new Date().toISOString().split('T')[0];
+            const cultivoSuffix = this.selectedCultivoName ? `${this.selectedCultivoName.toLowerCase()}_` : '';
+            downloadVentasWorkbook(
+                `facturas_${cultivoSuffix}${this.statusFilter}_${dateSuffix}.xlsx`,
+                exportRows,
+                EXPORT_HEADERS,
+                'Facturas'
+            );
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Éxito',
+                    message: `Se exportaron ${rows.length} facturas.`,
+                    variant: 'success'
+                })
+            );
+        } catch (error) {
+            this.onError(error);
+        }
+    }
+
+    showPdf(vencimiento) {
+        if (!vencimiento.file) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Sin archivo',
+                    message: 'Esta factura no tiene un PDF disponible.',
+                    variant: 'info'
+                })
+            );
+            return;
+        }
+
+        if (this.type === 'Comercio') {
+            trackGa4Event('factura_vista', {
+                portal: 'Comercio',
+                origen: 'mis_facturas'
+            });
+        }
+
+        this.template.querySelector('c-pdf-reader').show({
+            documentId: vencimiento.file.id,
+            title: 'Factura Eléctronica'
+        });
+    }
+
+    onError(e) {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error',
+                message: reduceErrors(e).join('\n'),
+                variant: 'error',
+                mode: 'sticky'
+            })
+        );
     }
 }

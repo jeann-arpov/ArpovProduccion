@@ -1,0 +1,315 @@
+import { LightningElement, track, wire } from 'lwc';
+import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import { refreshApex } from '@salesforce/apex';
+import USER_ID from '@salesforce/user/Id';
+import NAME_FIELD from '@salesforce/schema/User.Name';
+import PROFILE_NAME_FIELD from '@salesforce/schema/User.Profile.Name';
+import doChangePassword from '@salesforce/apex/editProfileController.changeUserPassword';
+import getProfileInfo from '@salesforce/apex/editProfileController.getUserInfo';
+import UpdateUser from '@salesforce/apex/editProfileController.editUser';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { NavigationMixin } from 'lightning/navigation';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import { getMobilePhoneError } from 'c/utils';
+
+const SUCCESS_PASSWORD_MSG = 'Success: Your password has been changed successfully.';
+
+export default class SeEditProfile extends NavigationMixin(LightningElement) {
+    userId = USER_ID;
+    userName;
+    profileName;
+    oldPassword = '';
+    newPassword = '';
+    newPasswordConfirm = '';
+
+    @track mode = 'view';
+    @track fullName;
+    @track businessName;
+    @track documentId;
+    @track cuit;
+    @track mobilePhone = '';
+    @track email = '';
+    @track modal = false;
+    @track modalpass = false;
+    @track isUpdating = false;
+    @track isChangingPassword = false;
+    @track showOldPassword = false;
+    @track showNewPassword = false;
+    @track showConfirmPassword = false;
+
+    connectedCallback() {
+        document.documentElement.classList.add('se-inner');
+        document.body.classList.add('se-inner');
+    }
+
+    renderedCallback() {
+        syncPortalModal(this, this.modal || this.modalpass, '.modal-backdrop');
+    }
+
+    disconnectedCallback() {
+        releasePortalModal(this);
+        document.documentElement.classList.remove('se-inner');
+        document.body.classList.remove('se-inner');
+    }
+
+    wiredProfileResult;
+
+    @wire(getProfileInfo)
+    wiredInfo(result) {
+        this.wiredProfileResult = result;
+        const { error, data } = result;
+        if (data && data[0]) {
+            const row = data[0];
+            this.fullName = row.Nombre_Completo__c || '';
+            this.businessName = row.Razon_Social__c || '';
+            this.documentId = row.Numero_de_Documento__c || '';
+            this.cuit = row.Account && row.Account.N_CUIT__c ? row.Account.N_CUIT__c : '';
+            this.email = row.Email || '';
+            this.mobilePhone = row.MobilePhone || '';
+        } else if (error) {
+            console.error('Error loading profile:', error);
+        }
+    }
+
+    @wire(getRecord, { recordId: USER_ID, fields: [NAME_FIELD, PROFILE_NAME_FIELD] })
+    userDetails({ error, data }) {
+        if (data) {
+            this.userName = getFieldValue(data, NAME_FIELD);
+            this.profileName = getFieldValue(data, PROFILE_NAME_FIELD);
+        } else if (error) {
+            console.error('Error fetching user details:', error);
+        }
+    }
+
+    get isView() {
+        return this.mode === 'view';
+    }
+    get isEdit() {
+        return this.mode === 'edit';
+    }
+    get isPassword() {
+        return this.mode === 'password';
+    }
+
+    get displayName() {
+        return this.fullName || this.userName || 'Usuario';
+    }
+
+    get initials() {
+        const name = (this.displayName || '').trim();
+        if (!name) return '?';
+        const parts = name.split(/\s+/).filter(Boolean);
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    get emailDisplay() {
+        return this.email || '—';
+    }
+
+    get phoneDisplay() {
+        return this.mobilePhone || '—';
+    }
+
+    get phoneError() {
+        return getMobilePhoneError(this.mobilePhone);
+    }
+
+    get phoneHasError() {
+        return !!this.phoneError;
+    }
+
+    get phoneInvalidAttr() {
+        return this.phoneHasError ? 'true' : 'false';
+    }
+
+    get phoneFieldClass() {
+        return 'field float' + (this.phoneHasError ? ' has-error' : '');
+    }
+
+    get updateDisabled() {
+        return this.isUpdating || this.phoneHasError;
+    }
+
+    get cuitDisplay() {
+        return this.cuit || '—';
+    }
+
+    get oldPasswordType() {
+        return this.showOldPassword ? 'text' : 'password';
+    }
+    get newPasswordType() {
+        return this.showNewPassword ? 'text' : 'password';
+    }
+    get confirmPasswordType() {
+        return this.showConfirmPassword ? 'text' : 'password';
+    }
+
+    goView = () => {
+        this.mode = 'view';
+        this.clearPasswordFields();
+    };
+
+    goEdit = () => {
+        this.mode = 'edit';
+    };
+
+    goPassword = () => {
+        this.mode = 'password';
+    };
+
+    handleNotifications = () => {
+        this.showToast('Notificaciones', 'Próximamente vas a poder gestionar tus notificaciones acá.', 'info');
+    };
+
+    handleLogout = () => {
+        const path = window.location.pathname || '';
+        const siteBase = path.includes('/s/') ? path.split('/s/')[0] : '';
+        const loginUrl = `${window.location.origin}${siteBase}/s/login`;
+        const logoutUrl = `${window.location.origin}/secur/logout.jsp?retUrl=${encodeURIComponent(loginUrl)}`;
+        window.open(logoutUrl, '_self');
+    };
+
+    handleEmail(event) {
+        this.email = event.target.value;
+    }
+
+    handlePhone(event) {
+        this.mobilePhone = event.target.value;
+    }
+
+    openModal() {
+        if (this.phoneHasError) return;
+        this.modal = true;
+    }
+
+    openModalPass() {
+        if (!this.validatePasswordForm()) return;
+        this.modalpass = true;
+    }
+
+    closeModal() {
+        this.modal = false;
+        this.modalpass = false;
+    }
+
+    handleBackdropClick() {
+        if (!this.isUpdating && !this.isChangingPassword) {
+            this.closeModal();
+        }
+    }
+
+    stopPropagation(event) {
+        event.stopPropagation();
+    }
+
+    validatePasswordForm() {
+        if (!this.oldPassword?.trim()) {
+            this.showToast('Datos incompletos', 'Ingresá tu contraseña actual.', 'warning');
+            return false;
+        }
+        if (!this.newPassword?.trim()) {
+            this.showToast('Datos incompletos', 'Ingresá la nueva contraseña.', 'warning');
+            return false;
+        }
+        if (!this.newPasswordConfirm?.trim()) {
+            this.showToast('Datos incompletos', 'Confirmá la nueva contraseña.', 'warning');
+            return false;
+        }
+        if (this.newPassword !== this.newPasswordConfirm) {
+            this.showToast('Error', 'Las contraseñas no coinciden.', 'error');
+            return false;
+        }
+        return true;
+    }
+
+    clearPasswordFields() {
+        this.oldPassword = '';
+        this.newPassword = '';
+        this.newPasswordConfirm = '';
+        this.showOldPassword = false;
+        this.showNewPassword = false;
+        this.showConfirmPassword = false;
+    }
+
+    handleUpdate() {
+        if (this.phoneHasError) {
+            this.showToast('Error', this.phoneError, 'error');
+            this.closeModal();
+            return;
+        }
+
+        this.isUpdating = true;
+        UpdateUser({ Email: this.email, MobilePhone: this.mobilePhone.trim() })
+            .then((result) => {
+                this.mobilePhone = result?.MobilePhone || this.mobilePhone;
+                this.email = result?.Email || this.email;
+                this.showToast('Éxito', 'Datos modificados de manera exitosa.', 'success');
+                this.closeModal();
+                this.mode = 'view';
+                refreshApex(this.wiredProfileResult).catch((refreshError) => {
+                    console.error('Error refreshing profile:', refreshError);
+                });
+            })
+            .catch((error) => {
+                const message = error?.body?.message || 'Ocurrió un error al actualizar los datos.';
+                this.showToast('Error', message, 'error');
+                this.closeModal();
+            })
+            .finally(() => {
+                this.isUpdating = false;
+            });
+    }
+
+    handleChange(event) {
+        const value = event.target.value;
+        const fieldId = event.target.dataset.id;
+        if (fieldId === 'oldPassword') this.oldPassword = value;
+        else if (fieldId === 'newPassword') this.newPassword = value;
+        else if (fieldId === 'newPasswordConfirm') this.newPasswordConfirm = value;
+    }
+
+    handleChangePassword() {
+        if (!this.validatePasswordForm()) {
+            this.closeModal();
+            return;
+        }
+
+        this.isChangingPassword = true;
+        doChangePassword({
+            oldPassword: this.oldPassword,
+            newPassword: this.newPassword,
+            verifyNewPassword: this.newPasswordConfirm
+        })
+            .then((result) => {
+                if (result === SUCCESS_PASSWORD_MSG) {
+                    this.showToast('Éxito', 'La contraseña se modificó con éxito.', 'success');
+                    this.clearPasswordFields();
+                    this.closeModal();
+                    this.mode = 'view';
+                } else {
+                    this.showToast('Error', result, 'error');
+                    this.closeModal();
+                }
+            })
+            .catch((error) => {
+                const message = error?.body?.message || 'Ocurrió un error al cambiar la contraseña.';
+                this.showToast('Error', message, 'error');
+                this.closeModal();
+            })
+            .finally(() => {
+                this.isChangingPassword = false;
+            });
+    }
+
+    togglePasswordVisibility(event) {
+        const field = event.currentTarget.dataset.field;
+        if (field === 'oldPassword') this.showOldPassword = !this.showOldPassword;
+        else if (field === 'newPassword') this.showNewPassword = !this.showNewPassword;
+        else if (field === 'newPasswordConfirm') this.showConfirmPassword = !this.showConfirmPassword;
+    }
+
+    showToast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
+    }
+}

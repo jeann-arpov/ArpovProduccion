@@ -1,0 +1,64 @@
+:host {
+    display: inline-block;
+    line-height: 0;
+}
+
+.logo-load {
+    position: relative;
+    width: 112px;
+    max-width: 40vw;
+    animation: se-logo-float 2.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.logo-load__gray,
+.logo-load__color {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.logo-load__gray {
+    filter: grayscale(1) opacity(0.42);
+}
+
+.logo-load__color {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Empieza sin color; se revela de abajo hacia arriba */
+    clip-path: inset(100% 0 0 0);
+    animation: se-logo-colorize 2.4s ease-in-out infinite;
+}
+
+@keyframes se-logo-colorize {
+    0% {
+        clip-path: inset(100% 0 0 0);
+    }
+    55% {
+        clip-path: inset(0 0 0 0);
+    }
+    78% {
+        clip-path: inset(0 0 0 0);
+    }
+    100% {
+        clip-path: inset(100% 0 0 0);
+    }
+}
+
+@keyframes se-logo-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@media (max-width: 767px) {
+    .logo-load {
+        width: 96px;
+    }
+}

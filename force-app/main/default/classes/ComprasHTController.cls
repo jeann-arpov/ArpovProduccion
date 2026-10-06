@@ -9,7 +9,7 @@ public with sharing class ComprasHTController {
 
         Id accountId = (u.ContactId != null) ? u.Contact.AccountId : null;
 
-        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException(Label.GENERAL_Usuario_Sin_Cuenta);}
+        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException('Usuario no tiene una cuenta asociada');}
 
         // Compras dummy si es test
         List<Compra_HT__c> compras = Test.isRunningTest()
@@ -25,7 +25,10 @@ public with sharing class ComprasHTController {
               }
             : [SELECT Id, Name, Estado__c, Cuenta_Productor__r.Name, Comercio__r.Name,
                        CUIT_Productor__c, CUIT_Comercio__c, Total_HT__c, Total_USD__c,
-                       Variedades__c, Cultivo__r.Name, CreatedDate
+                       Variedades__c, Cultivo__r.Name, CreatedDate,
+                       Obtentor__r.Name,
+                       (SELECT Producto__r.Nombre_Comercial__c, Variedad__c
+                        FROM Lineas_de_Compra_HT__r ORDER BY CreatedDate ASC)
                FROM Compra_HT__c
                //WHERE Cuenta_Productor__c = :accountId
                ORDER BY CreatedDate DESC];
@@ -39,7 +42,11 @@ public with sharing class ComprasHTController {
             row.put('productor', c.Cuenta_Productor__r != null ? c.Cuenta_Productor__r.Name : '');
             row.put('comercio', c.Comercio__r != null ? c.Comercio__r.Name : '');
             row.put('cultivo', c.Cultivo__r != null ? c.Cultivo__r.Name : '');
-            row.put('variedades', c.Variedades__c);
+            row.put('variedades', getVariedadesComerciales(c));
+            String obtentorName = c.Obtentor__r != null ? c.Obtentor__r.Name : '';
+            row.put('obtentor', obtentorName);
+            row.put('semillero', obtentorName);
+            row.put('marca', obtentorName);
             row.put('totalHt', String.valueOf(c.Total_HT__c));
             row.put('totalUsd', String.valueOf(c.Total_USD__c));
             row.put('fecha', String.valueOf(c.CreatedDate));
@@ -47,6 +54,24 @@ public with sharing class ComprasHTController {
         }
 
         return result;
+    }
+
+    /** Nombre comercial del catálogo (ej. DM46E21 SE) por línea, sin repetir; si no hay líneas, el texto guardado en la compra. */
+    @TestVisible
+    private static String getVariedadesComerciales(Compra_HT__c c) {
+        List<String> nombres = new List<String>();
+        List<Linea_de_Compra_HT__c> lineas = c.getSObjects('Lineas_de_Compra_HT__r');
+        if (lineas != null) {
+            for (Linea_de_Compra_HT__c l : lineas) {
+                String nombre = l.Producto__r != null && String.isNotBlank(l.Producto__r.Nombre_Comercial__c)
+                    ? l.Producto__r.Nombre_Comercial__c
+                    : l.Variedad__c;
+                if (String.isNotBlank(nombre) && !nombres.contains(nombre)) {
+                    nombres.add(nombre);
+                }
+            }
+        }
+        return nombres.isEmpty() ? c.Variedades__c : String.join(nombres, '; ');
     }
 
     @AuraEnabled(cacheable=true)
@@ -57,7 +82,7 @@ public with sharing class ComprasHTController {
 
         Id accountId = (u.ContactId != null) ? u.Contact.AccountId : null;
 
-        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException(Label.GENERAL_Usuario_Sin_Cuenta);}
+        if (accountId == null && !Test.isRunningTest()) {throw new AuraHandledException('Usuario no tiene una cuenta asociada');}
 
         List<Compra_HT__c> compras = Test.isRunningTest()
             ? new List<Compra_HT__c>{
@@ -111,24 +136,20 @@ public with sharing class ComprasHTController {
         return new List<String>(estados);
     } 
 
-    // 🚨 Dejar igual
+    // 🚨 Dejar igual (filtros/consulta); productor vía Contact.Account como en el resto del portal
     @AuraEnabled
     public static List<HectareaTecnologica> getHectareasTecnologicas(String cultivoId) {
-        Id userId = UserInfo.getUserId();
-
-        // 🔹 Usuario dummy si es test
-        User u = Test.isRunningTest()
-            ? new User()
-            : [SELECT AccountId FROM User WHERE Id = :userId LIMIT 1];
+        Id productorId = Test.isRunningTest() ? null : CrearCompraController.getAccount().Id;
         List<HectareaTecnologica> result = new List<HectareaTecnologica>();
         for (Hectareas_Tecnologicas__c ht : [
-            SELECT Canal_de_Venta__r.Name, Biotecnologia__c, Cultivo__r.Name, Name,
+            SELECT Canal_de_Venta__r.Name, Biotecnologia__c, Cultivo__c, Cultivo__r.Name, Name,
                    Credito__c, Debito__c, Fecha_de_la_Transaccion__c, Origen__c,
+                   Campania__c, Campania__r.Name, Campania__r.Ano__c,
                    Variedad__r.Name, Numero_de_Comprobante__c,
                    Variedad__r.Obtentor_Comercializa__r.Name
             FROM Hectareas_Tecnologicas__c
             WHERE Cultivo__c = :cultivoId
-            AND Productor__c = :u.AccountId
+            AND Productor__c = :productorId
               AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica', 'PPH')
             AND HT_Vigente__c = true
             ORDER BY Name DESC
@@ -136,6 +157,87 @@ public with sharing class ComprasHTController {
             result.add(new HectareaTecnologica(ht));
         }
         return result;
+    }
+
+    @AuraEnabled
+    public static ResumenBiotecnologia getResumenBiotecnologiaPorCultivo(String cultivoId) {
+        ResumenBiotecnologia resumen = new ResumenBiotecnologia();
+        resumen.rows = new List<ResumenRow>();
+        resumen.total = 0;
+
+        if (Test.isRunningTest()) {
+            return resumen;
+        }
+
+        Id productorId = CrearCompraController.getAccount().Id;
+        Map<String, Decimal> buckets = new Map<String, Decimal>();
+
+        for (AggregateResult ar : [
+            SELECT Biotecnologia__c bio, SUM(Cantidad_con_Signo__c) saldo
+            FROM Hectareas_Tecnologicas__c
+            WHERE Cultivo__c = :cultivoId
+            AND Productor__c = :productorId
+            AND Origen__c NOT IN ('Semilla Original', 'Semilla Pre Básica', 'PPH')
+            AND HT_Vigente__c = true
+            GROUP BY Biotecnologia__c
+            ORDER BY Biotecnologia__c ASC NULLS LAST
+        ]) {
+            String raw = (String) ar.get('bio');
+            String label = mapBiotecnologiaLabel(raw);
+            Decimal saldo = (Decimal) ar.get('saldo');
+            if (saldo == null) {
+                saldo = 0;
+            }
+            Decimal prev = buckets.containsKey(label) ? buckets.get(label) : 0;
+            buckets.put(label, prev + saldo);
+            resumen.total += saldo;
+        }
+
+        List<ResumenRow> rows = new List<ResumenRow>();
+        List<String> labels = new List<String>(buckets.keySet());
+        labels.sort();
+        for (String label : labels) {
+            rows.add(new ResumenRow(label, buckets.get(label)));
+        }
+        resumen.rows = rows;
+        return resumen;
+    }
+
+    @TestVisible
+    private static String mapBiotecnologiaLabel(String raw) {
+        if (String.isBlank(raw)) {
+            return 'Sin biotecnología';
+        }
+        String n = raw.trim().toLowerCase();
+        if (
+            n == 'rr1' ||
+            n == 'rr2 - bt' ||
+            n == 'rr2-bt' ||
+            n == 'bgrr' ||
+            n.contains('convencional') ||
+            n.contains('aporte')
+        ) {
+            return 'Aporte Genético';
+        }
+        if (n.contains('enlist') || n.contains('conkesta')) {
+            return 'Enlist / Conkesta';
+        }
+        return raw;
+    }
+
+    public class ResumenBiotecnologia {
+        @AuraEnabled public List<ResumenRow> rows;
+        @AuraEnabled public Decimal total;
+    }
+
+    public class ResumenRow {
+        @AuraEnabled public String label;
+        @AuraEnabled public Decimal value;
+
+        public ResumenRow(String label, Decimal value) {
+            this.label = label;
+            this.value = value;
+        }
     }
 
     public class HectareaTecnologica {
@@ -152,6 +254,10 @@ public with sharing class ComprasHTController {
         @AuraEnabled public String biotecnologia;
         @AuraEnabled public String cultivo;
         @AuraEnabled public String cultivoId;
+        @AuraEnabled public String campaniaId;
+        @AuraEnabled public String campaniaLabel;
+        @AuraEnabled public String campaniaAno;
+        @AuraEnabled public String campaniaPeriodo;
         @AuraEnabled public String comercio;
         @AuraEnabled public String comercioId;
 
@@ -169,6 +275,10 @@ public with sharing class ComprasHTController {
             biotecnologia = ht.Biotecnologia__c;
             cultivo = ht.Cultivo__r.Name;
             cultivoId = ht.Cultivo__c;
+            campaniaId = ht.Campania__c;
+            campaniaLabel = ht.Campania__r != null ? ht.Campania__r.Name : null;
+            campaniaAno = ht.Campania__r != null ? ht.Campania__r.Ano__c : null;
+            campaniaPeriodo = HomeMulticultivo.formatPeriod(campaniaAno);
             comercio = ht.Canal_de_Venta__r.Name;
             comercioId = ht.Canal_de_Venta__c;
         }

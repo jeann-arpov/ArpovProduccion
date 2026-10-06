@@ -1,275 +1,589 @@
 <template>
-  <div class="body" style="cursor: auto !important;">
+  <div class={bodyShellClass} style="cursor: auto !important;">
     <!-- Header -->
     <div class={bloqueCompraClass}>
-      <lightning-layout vertical-align="center" class="slds-m-bottom_medium">
-        <lightning-layout-item flexibility="auto">
-          <h1 style="font-size: 1.2rem">Compra de Hectárea Tecnológica</h1>
-        </lightning-layout-item>
-        <button type="button" onclick={redirectMisFacturas} class="btn-acceso slds-m-right_small">
-          <svg class="slds-m-right_x-small" width="13" height="17">
-            <use xlink:href={icons.facturas}></use>
-          </svg>
-          Ver facturas
+      <div class={buyClass}>
+        <div class="se-mob-chrome">
+          <header class="se-mob-top">
+            <button type="button" class="se-mob-icon-btn" onclick={handleMobBack} aria-label="Volver">
+              <span aria-hidden="true">←</span>
+            </button>
+            <span class="se-mob-top-title">Comprar HT</span>
+            <button type="button" class="se-mob-icon-btn" onclick={handleMobClose} aria-label="Cerrar">
+              <span aria-hidden="true">×</span>
         </button>
+          </header>
 
-        <button type="button" onclick={redirectMisLicencias} class="btn-acceso">
-          <svg class="slds-m-right_x-small" width="14" height="17">
-            <use xlink:href={icons.licencias}></use>
-          </svg>
-          Ver licencias
+          <div class="se-prog" aria-label="Progreso de compra">
+            <div class="se-prog-row">
+              <span class="se-prog-label-short">{wizardProgressLabel}</span>
+              <span class="se-prog-label-long">{progressLabel}</span>
+              <span>{progressPctLabel}</span>
+            </div>
+            <div class="se-prog-bar" aria-hidden="true">
+              <span class="se-prog-bar-fill" style={progressBarStyle}></span>
+            </div>
+            <div class="se-mob-steps" aria-hidden="true">
+              <template for:each={mobWizardSteps} for:item="s">
+                <span key={s.key} class={s.className}>{s.label}</span>
+              </template>
+            </div>
+            <div class="se-prog-steps se-desk-only">
+              <template for:each={wizardSteps} for:item="s">
+                <div key={s.key} class={s.wrapClass}>
+                  <button
+                    class={s.btnClass}
+                    type="button"
+                    data-step={s.num}
+                    disabled={s.disabled}
+                    onclick={handleWizardStepClick}
+                    aria-current={s.ariaCurrent}
+                  >
+                    <span class={s.circleClass}>{s.circleText}</span>
+                    <span class={s.labelClass}>{s.label}</span>
         </button>
-      </lightning-layout>
-  
-      <!-- Spinner -->
-      <template if:true={isLoading}>
-        <div class="exampleHolder">
-          <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-        </div>
-      </template>
-  
-      <!-- Pasos -->
-      <div class="container">
-  
-        <!-- Paso 1: Cultivo -->
-        <div class={step1Class}>
-          <div class="step-header" data-step="1" onclick={handleStepClick}>
-            <div class="step-circle">1</div>
-            <div class="step-label">Seleccionar Cultivo</div>
+                  <template if:true={s.showLine}>
+                    <span class="se-prog-line" aria-hidden="true"></span>
+                  </template>
+                </div>
+              </template>
+            </div>
           </div>
+        </div>
+
+        <header class="se-buy-head se-desk-only">
+          <h1 class="se-title">Comprar Hectáreas Tecnológicas</h1>
+        </header>
+
+        <div class="se-buy-layout">
+          <div class={buyMainClass}>
+            <!-- Paso 1: Cultivo (SG 2g1-desk / 2g1-mob) -->
           <template if:true={isStep1Active}>
-              <div class="step-content">
+              <section class="se-panel se-panel-step1">
+                <p class="se-eyebrow se-eyebrow-tight">{campaignLabel}</p>
+                <h2 class="se-panel-title se-panel-title-solo">Elegí el cultivo</h2>
+                <div class="se-cultivo-grid" role="radiogroup" aria-label="Cultivo">
                   <template for:each={decoratedCultivos} for:item="c">
-                      <div key={c.nombre}
+                    <button
+                      key={c.id}
                           class={c.cssClass}
+                      type="button"
+                      role="radio"
+                      aria-checked={c.ariaChecked}
                           data-nombre={c.nombre}
                           data-id={c.id}
-                          onclick={handleSelectCultivo}>
-                          <div class="cultivo-card">
-                              <img src={c.icono} alt="" class="cultivo-icon" />
-                          </div>
-                          <div class="cultivo-divider"></div>
-                          <div class="cultivo-label">{c.nombre}</div>
-                      </div>
+                      onclick={handleSelectCultivo}
+                    >
+                      <span class="se-cultivo-icon-wrap">
+                        <img src={c.icono} alt="" class="se-cultivo-icon" />
+                      </span>
+                      <span class="se-cultivo-body">
+                        <span class="se-cultivo-name">{c.nombre}</span>
+                        <span class="se-cultivo-saldo">{c.saldoLabel}</span>
+                      </span>
+                      <span class="se-cultivo-radio" aria-hidden="true"></span>
+                    </button>
                   </template>
               </div>
+                <div class="se-panel-actions se-desk-only">
+                  <button type="button" class="se-btn se-btn-ghost" onclick={handleCancelarPaso1}>Cancelar</button>
+                  <button
+                    type="button"
+                    class="se-btn se-btn-primary"
+                    disabled={continuarPaso1Disabled}
+                    onclick={handleContinuarPaso1}
+                  >Continuar →</button>
+                </div>
+              </section>
           </template>
   
-        </div>
-        <!-- Paso 2: Tipo de HT -->
-        <div class={step2Class}>
-            <div class="step-header" data-step="2" onclick={handleStepClick}>
-              <div class="step-circle">2</div>
-              <div class="step-label">Seleccionar Tipo de HT</div>
-            </div>
+            <!-- Paso 2: Tipo de HT (SG 2g2-desk) -->
             <template if:true={isStep2Active}>
-              <div class="step-content">
+              <section class="se-panel">
+                <p class="se-eyebrow se-eyebrow-tight">{tipoStepEyebrow}</p>
+                <h2 class="se-panel-title">Tipo de HT</h2>
+                <p class="se-panel-sub">Elegí cómo se acreditan las toneladas tecnológicas.</p>
+                <div class="se-tipo-grid" role="radiogroup" aria-label="Tipo de HT">
                   <template for:each={decoratedTiposCompra} for:item="tc">
-                      <div key={tc.value}
+                    <button
+                      key={tc.value}
                            class={tc.cssClass}
+                      type="button"
+                      role="radio"
+                      aria-checked={tc.ariaChecked}
                            data-tipo={tc.value}
-                           onclick={handleSelectTipoCompra}>
-                          <div class="tipo-card-title">{tc.label}</div>
-                          <div class="tipo-card-desc">{tc.description}</div>
+                      onclick={handleSelectTipoCompra}
+                    >
+                      <span class="se-tipo-radio" aria-hidden="true"></span>
+                      <div class="se-tipo-head">
+                        <span class="se-tipo-badge">HT</span>
+                        <span class="se-tipo-title">{tc.label}</span>
                       </div>
+                      <p class="se-tipo-desc">{tc.description}</p>
+                      <template if:true={tc.recomendado}>
+                        <span class="se-tipo-pill">Recomendado</span>
+                      </template>
+                    </button>
+                  </template>
+                </div>
+                <div class="se-panel-actions se-panel-actions-spread se-desk-only">
+                  <button type="button" class="se-btn se-btn-ghost" onclick={handleVolverPaso2}>← Volver</button>
+                  <button
+                    type="button"
+                    class="se-btn se-btn-primary"
+                    disabled={continuarPaso2Disabled}
+                    onclick={handleContinuarPaso2}
+                  >Continuar →</button>
+                </div>
+              </section>
+            </template>
+
+            <!-- Paso 3: Marca (SG 2g3-desk) -->
+            <template if:true={isStep3Active}>
+              <section class="se-panel se-panel-step3">
+                <div class="se-panel-intro">
+                  <p class="se-eyebrow se-eyebrow-tight">{marcaStepEyebrow}</p>
+                  <h2 class="se-panel-title se-panel-title-solo">Elegí la marca</h2>
+
+                  <div class="se-marca-search">
+                    <span class="se-marca-search-icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="M20 20l-4-4"></path>
+                      </svg>
+                    </span>
+                    <input
+                      type="search"
+                      class="se-marca-search-input"
+                      placeholder="Buscar semillero"
+                      value={marcaSearch}
+                      oninput={handleMarcaSearch}
+                      aria-label="Buscar semillero"
+                    />
+                  </div>
+                </div>
+
+                <div class="se-marca-scroll">
+                  <div class="se-marca-grid" role="radiogroup" aria-label="Marca">
+                    <template for:each={decoratedMarcas} for:item="m">
+                      <button
+                        key={m.id}
+                        class={m.cssClass}
+                        type="button"
+                        role="radio"
+                        aria-checked={m.ariaChecked}
+                        data-id={m.id}
+                        onclick={handleSelectMarca}
+                      >
+                        <span class={m.badgeClass}>
+                          <template if:true={m.logo}>
+                            <img src={m.logo} alt="" class="se-marca-logo" data-id={m.id} onerror={handleMarcaLogoError} />
+                          </template>
+                          <template if:false={m.logo}>{m.initials}</template>
+                        </span>
+                        <span class="se-marca-name">{m.label}</span>
+                        <span class="se-marca-radio" aria-hidden="true"></span>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+
+                <div class="se-panel-actions se-panel-actions-spread se-desk-only">
+                  <button type="button" class="se-btn se-btn-ghost" onclick={handleVolverPaso3}>← Volver</button>
+                  <button
+                    type="button"
+                    class="se-btn se-btn-primary"
+                    disabled={continuarPaso3Disabled}
+                    onclick={handleContinuarPaso3}
+                  >Continuar →</button>
+                </div>
+              </section>
+            </template>
+
+            <!-- Paso 4: Variedad (SG 2g4-desk) -->
+            <template if:true={isStep4Active}>
+              <section class="se-panel">
+                <p class="se-eyebrow se-eyebrow-tight">{variedadStepEyebrow}</p>
+                <h2 class="se-panel-title">Elegí variedades</h2>
+                <p class="se-panel-sub">Podés seleccionar más de una. El total se calcula en el resumen.</p>
+
+                <template if:true={showVariedadSearch}>
+                  <div class="se-marca-search se-var-search">
+                    <span class="se-marca-search-icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <path d="M20 20l-4-4"></path>
+                      </svg>
+                    </span>
+                    <input
+                      type="search"
+                      class="se-marca-search-input"
+                      placeholder="Buscar variedad"
+                      value={variedadSearch}
+                      oninput={handleVariedadSearch}
+                      aria-label="Buscar variedad"
+                    />
+                  </div>
+                </template>
+
+                <div class="se-var-grid">
+                  <template for:each={decoratedVariedadesPaso4} for:item="v">
+                    <article key={v.id} class={v.cssClass}>
+                      <div class="se-var-head">
+                        <div>
+                          <div class="se-var-name">{v.name}</div>
+                          <template if:true={v.category}>
+                            <div class="se-var-cat">{v.category}</div>
+                          </template>
+                        </div>
+                        <c-se-badge class="se-var-badge" label={v.badgeLabel} tone={v.badgeTone}></c-se-badge>
+                      </div>
+
+                        <div class="se-var-row">
+                          <div class="se-var-price">
+                            <template if:true={v.showSubtotal}>{v.priceLabel}</template>
+                          </div>
+                          <div class="se-var-qty" role="group" aria-label="Cantidad HT">
+                            <button
+                              type="button"
+                              class="se-var-qty-btn"
+                              data-id={v.id}
+                              data-delta="-1"
+                              onclick={handleVariedadQty}
+                              disabled={v.minusDisabled}
+                              aria-label="Restar 1 HT"
+                            >−</button>
+                            <input
+                              type="number"
+                              class="se-var-qty-input"
+                              data-id={v.id}
+                              value={v.qty}
+                              min="0"
+                              max="999999"
+                              step="1"
+                              inputmode="numeric"
+                              onchange={handleVariedadQtyInput}
+                              onblur={handleVariedadQtyInput}
+                              aria-label="Cantidad HT"
+                            />
+                            <button
+                              type="button"
+                              class="se-var-qty-btn se-var-qty-btn-plus"
+                              data-id={v.id}
+                              data-delta="1"
+                              onclick={handleVariedadQty}
+                              aria-label="Sumar 1 HT"
+                            >+</button>
+                          </div>
+                        </div>
+                        <template if:true={v.showSubtotal}>
+                          <div class="se-var-subtotal">
+                            <span>Subtotal</span>
+                            <strong>{v.subtotalLabel}</strong>
+                          </div>
+                        </template>
+
+                      <template if:false={v.hasLicencia}>
+                        <p class="se-var-locked">
+                          Podés comprarla igual: la compra queda pendiente hasta que gestiones la licencia en <a href={licensesHref}>Licencias</a>.
+                        </p>
+                      </template>
+                    </article>
                   </template>
               </div>
+
+                <div class="se-panel-actions se-panel-actions-spread se-desk-only">
+                  <button type="button" class="se-btn se-btn-ghost" onclick={handleVolverPaso4}>← Volver</button>
+                  <button
+                    type="button"
+                    class="se-btn se-btn-primary"
+                    disabled={continuarPaso4Disabled}
+                    onclick={handleContinuarPaso4}
+                  >Continuar →</button>
+                </div>
+              </section>
             </template>
+
+            <!-- Paso 5: Confirmar (SG 2g5-desk / 2g5-mob) -->
+            <template if:true={isStep5Active}>
+              <section class="se-panel se-panel-step5">
+                <p class="se-eyebrow se-eyebrow-tight">Último paso</p>
+                <h2 class="se-panel-title">Confirmá tu compra</h2>
+
+                <div class="se-confirm-mob">
+                  <div class="se-confirm-hero">
+                    <div class="se-confirm-hero-top">
+                      <span class="se-confirm-hero-label">Total Neto</span>
+                      <span class="se-confirm-hero-total">{resumenTotal}</span>
+                    </div>
+                    <dl class="se-confirm-hero-list">
+                      <div class="se-confirm-hero-row">
+                        <dt>Cultivo</dt>
+                        <dd>{resumenCultivo}</dd>
+                      </div>
+                      <div class="se-confirm-hero-row">
+                        <dt>Tipo</dt>
+                        <dd>{resumenTipo}</dd>
+                      </div>
+                      <div class="se-confirm-hero-row">
+                        <dt>Marca</dt>
+                        <dd>{resumenMarca}</dd>
+                      </div>
+                      <div class="se-confirm-hero-row">
+                        <dt>Variedades</dt>
+                        <dd>{resumenVariedades}</dd>
+                      </div>
+                      <div class="se-confirm-hero-row">
+                        <dt>HT</dt>
+                        <dd>{resumenHt}</dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <h3 class="se-confirm-detail-title">Detalle</h3>
+                  <div class="se-confirm-detail">
+                    <template for:each={confirmacionLineas} for:item="line">
+                      <div key={line.id} class="se-confirm-detail-row">
+                        <span class="se-confirm-detail-name">
+                          <strong>{line.name}</strong> · {line.ht} HT
+                        </span>
+                        <span class="se-confirm-detail-price">{line.subtotal}</span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <div class="se-confirm-desk se-desk-only">
+                  <div class="se-confirm-table-wrap">
+                    <table class="se-confirm-table">
+                      <thead>
+                        <tr>
+                          <th>Variedad</th>
+                          <th>Biotecnología</th>
+                          <th class="is-num">HT</th>
+                          <th class="is-num">USD / HT</th>
+                          <th class="is-num">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <template for:each={confirmacionLineas} for:item="line">
+                          <tr key={line.id}>
+                            <td class="is-name">{line.name}</td>
+                            <td class="is-muted">{line.category}</td>
+                            <td class="is-num">{line.ht}</td>
+                            <td class="is-num">{line.unitPrice}</td>
+                            <td class="is-num is-strong">{line.subtotal}</td>
+                          </tr>
+                        </template>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="se-confirm-billing">
+                    <strong>Datos de facturación:</strong> {facturacionLabel}
+                  </div>
         </div>
 
-        <!-- Paso 3: Marca -->
-        <div class={step3Class}>
-          <div class="step-header" data-step="3" onclick={handleStepClick}>
-            <div class="step-circle">3</div>
-            <div class="step-label">Seleccionar Marca</div>
+                <div class="se-panel-actions se-panel-actions-spread se-desk-only">
+                  <button type="button" class="se-btn se-btn-ghost" onclick={handleVolverPaso5}>← Volver</button>
+                  <button
+                    type="button"
+                    class="se-btn se-btn-primary"
+                    disabled={confirmarCompraDisabled}
+                    onclick={handleConfirmarCompra}
+                  >
+                    <template if:true={finalizandoOperacion}>Confirmando...</template>
+                    <template if:false={finalizandoOperacion}>Confirmar compra</template>
+                  </button>
+                </div>
+              </section>
+            </template>
           </div>
-          <template if:true={isStep3Active}>
-            <div class="step-content vertical">
-              <c-semillero-data-new placeholder="3) Seleccionar marca"
-                                missing-confirm-data={missingConfirmData}
-                                semilleros={filteredSemilleros}
-                                semillero-data={semilleroData}
-                                onopencondicionescomerciales={openCondicionesComerciales}
-                                onsemilleroselected={semilleroSelected}
-                                onconfirm={confirm}
-                                onsemilleroselectedejecuto={semilleroSelectedEjecuto}
-                                onredirectmislicencias={redirectMisLicencias}>
-              </c-semillero-data-new>
+
+          <aside class="se-resumen se-desk-only" aria-label="Resumen de compra">
+            <p class="se-resumen-eyebrow">Resumen</p>
+            <h2 class="se-resumen-title">Compra de HT</h2>
+            <dl class="se-resumen-list">
+              <div class="se-resumen-row">
+                <dt>Cultivo</dt>
+                <dd>{resumenCultivo}</dd>
+              </div>
+              <div class="se-resumen-row">
+                <dt>Tipo</dt>
+                <dd>{resumenTipo}</dd>
+              </div>
+              <div class="se-resumen-row">
+                <dt>Marca</dt>
+                <dd>{resumenMarca}</dd>
+              </div>
+              <div class="se-resumen-row">
+                <dt>Variedades</dt>
+                <dd>{resumenVariedades}</dd>
+              </div>
+              <div class="se-resumen-row">
+                <dt>HT</dt>
+                <dd>{resumenHt}</dd>
+              </div>
+            </dl>
+            <div class="se-resumen-total">
+              <span class="se-resumen-total-label">Total Neto</span>
+              <span class="se-resumen-total-value">{resumenTotal}</span>
             </div>
-          </template>
+          </aside>
         </div>
+
+        <template if:true={showMobWizardFooter}>
+          <footer class={mobFooterClass}>
+            <div class="se-mob-footer-copy">
+              <span class="se-mob-footer-step">{mobFooterStepLabel}</span>
+              <strong class="se-mob-footer-status">{mobFooterStatus}</strong>
+            </div>
+            <button
+              type="button"
+              class="se-btn se-btn-primary se-mob-footer-btn"
+              disabled={mobFooterContinuarDisabled}
+              onclick={handleMobContinuar}
+            >{mobFooterContinuarLabel}</button>
+          </footer>
+        </template>
       </div>
     </div>
 
       
     <div class={bloqueResumenClass}>
       <template if:true={showResumen}>
-        <!-- Header con logo y datos del productor -->
-        <div class="step-content vertical" style="display: none;">
-            <c-semillero-data-new data-id="semilleroComponent" placeholder="Seleccionar marca" 
-                            disabled={productorMissing} 
-                            missing-confirm-data={missingConfirmData} 
-                            semilleros={semilleros} 
-                            semillero-data={semilleroData} 
-                            onopencondicionescomerciales={openCondicionesComerciales} 
-                            onsemilleroselected={semilleroSelected} 
-                            onsemilleroiconready={handleSemilleroIconReady} 
-                            onconfirm={confirm} 
-                            onredirectmislicencias={redirectMisLicencias}>
-            </c-semillero-data-new>
-        </div>
-        <div class="venta-header">
-            <lightning-layout-item class="logo-container" style="width: 210px" padding="horizontal-small">
-                <svg width="200" height="100">
-                    <use xlink:href={semilleroIcono}></use>
-                </svg>
-            </lightning-layout-item>
-            <div class="info-box">
-                <div class="info-card">
-                    <label>CULTIVO</label>
-                    <div>{cultivoNombre}</div>
-                </div>
-                <div class="info-card">
-                    <label>PRODUCTOR</label>
-                    <div>{productorNombre}</div>
-                </div>
-                <div class="info-card">
-                    <label>CUIT NRO.</label>
-                    <div>{cuit}</div>
-                </div>
-            </div>
-            <div class="boton-comercial">
-                <button class="btn-comercial" onclick={openCondicionesComerciales}>
-                    <span>
-                        <img src={iconCondicionesHTUrl} alt="Condiciones" class="icon-svg" />
-                    </span> CONDICIONES COMERCIALES</button>
-            </div>
-        </div>
+        <div class="se-buy se-det">
+          <header class="se-buy-head">
+            <p class="se-eyebrow se-eyebrow-tight">Mis Compras · {detalleFecha}</p>
+            <h1 class="se-title">Detalle de la compra</h1>
+          </header>
 
-        <!-- Card de variedades -->
-        <div class="variedades-card">
-            <!-- Header de tabla -->
-            <div class="variedades">
-                <div class="tabla-grid tabla-grid-header tabla-grid-con-tipo">
-                    <div class="col-header">
-                        <span if:false={finalizada}>Seleccioná </span>Variedad
-                    </div>
-                    <div class="col-header">Tipo de HT</div>
-                    <div class="col-header">Fecha Conversión</div>
-                    <div class="col-header">Cantidad HT</div>
-                    <div class="col-header">Precio Unit. (USD)</div>
-                    <div class="col-header">Total (USD)</div>
-                    <div class="col-header">Estado</div>
-                    <div class="col-header">Licencia</div>
-                    <div class="col-header"></div>
+          <div class="se-buy-layout">
+            <div class="se-buy-main">
+              <section class="se-panel">
+                <div class="se-det-panel-head">
+                  <div class="se-det-panel-copy">
+                    <p class="se-eyebrow se-eyebrow-tight">{resumenCultivo} · {resumenMarca}</p>
+                    <h2 class="se-panel-title">Variedades</h2>
+                  </div>
+                  <template if:true={detalleMarcaLogo}>
+                    <span class="se-det-marca-logo">
+                      <img src={detalleMarcaLogo} alt={resumenMarca} data-id={semillero} onerror={handleMarcaLogoError} />
+                    </span>
+                  </template>
                 </div>
 
-                <template if:true={guardandoLineas}>
-                    <div class="guardando-lineas-panel">
-                        <span class="btn-spinner" aria-hidden="true"></span>
-                        <span>Guardando variedades...</span>
-                    </div>
-                </template>
-                <template if:false={guardandoLineas}>
-                    <template for:each={items} for:item="item" for:index="index">
-                        <div key={item.id} class="linea-variedad">
-                            <c-crear-linea-compra-new
-                                record={item.record}
-                                batch-saving={guardandoLineas}
-                                onloadingchange={handleLoadingChange}
-                                factura={item.factura}
-                                index={item.id}
-                                price-book-entries={variedades}
-                                semillero-id={semillero}
-                                ondelete={removeRow}
-                                cultivo-seleccionado={cultivoNombre}
-                                tipo-compra-seleccionado={tipoCompraSeleccionado}
-                                onrecord={updateRecord}
-                                onsave={saveRow}
-                                oncantidadchange={handleCantidadChange}
-                                ontipohtchange={handleTipoHtChange}
-                                onpromolinechange={handlePromoLineChange}
-                                onopenmodal={openModal}
-                                onopenfactura={openFactura}>
-                            </c-crear-linea-compra-new>
-                        </div>
+                <div class="se-confirm-table-wrap se-det-table-wrap">
+                  <table class="se-confirm-table se-det-table">
+                    <thead>
+                      <tr>
+                        <th>Variedad</th>
+                        <th class="is-num">HT</th>
+                        <th class="is-num">Subtotal</th>
+                        <th>Estado</th>
+                        <th>Licencia</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <template for:each={detalleLineas} for:item="line">
+                        <tr key={line.id}>
+                          <td class="is-name" data-label="Variedad">
+                            <span class="se-det-var">{line.name}</span>
+                            <span class="se-det-meta">{line.meta}</span>
+                          </td>
+                          <td class="is-num" data-label="HT">{line.ht}</td>
+                          <td class="is-num is-strong" data-label="Subtotal">
+                            <span class="se-det-amount">
+                              {line.subtotal}
+                              <span class="se-det-unit">USD {line.unitPrice} / HT</span>
+                            </span>
+                          </td>
+                          <td data-label="Estado">
+                            <span class="se-det-cell">
+                              <c-se-badge label={line.estado} tone={line.estadoTone}></c-se-badge>
+                              <template if:true={line.hasFactura}>
+                                <button type="button" class="se-det-factura" data-id={line.id} onclick={handleDetalleFactura}>Ver factura</button>
+                              </template>
+                            </span>
+                          </td>
+                          <td data-label="Licencia">
+                            <template if:true={line.licencia}>
+                              <c-se-badge label={line.licencia} tone="ok"></c-se-badge>
+                            </template>
+                            <template if:true={line.sinLicencia}>
+                              <c-se-badge label="Sin licencia" tone="warn"></c-se-badge>
+                            </template>
+                          </td>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="se-confirm-billing">
+                  <strong>Datos de facturación:</strong> {facturacionLabel}
+                </div>
+
+                <div class="se-panel-actions se-panel-actions-spread se-det-actions">
+                  <button type="button" class="se-btn se-btn-ghost" onclick={close}>{closeLabel}</button>
+                  <div class="se-det-actions-right">
+                    <template if:true={puedeAnular}>
+                      <button type="button" class="se-btn se-btn-ghost" onclick={showAnularConfirm}>Anular</button>
                     </template>
-                </template>
-            </div>
-            
-
-            <!-- Sección de agregar nueva variedad -->
-            <template if:false={guardandoLineas}>
-            <div class="acciones-variedad">
-                <button type="button" onclick={addRow} class="add-variedad">
-                    <span class="plus-sign">+</span> Agregar Variedad
-                </button>
-            </div>
-            </template>
-
-            <!-- Totales -->
-            <template if:true={data.record}>
-                <div class="totales-bar">
-                    <div class="totales-resumen">
-                        <div class="totales-label">TOTALES</div>
-                        <div class="totales-valores">
-                            <div class="total-item">
-                                <span class="total-number">{data.record.Total_HT__c}</span>
-                                <span class="total-unit">HT</span>
-                            </div>
-                            <div class="total-item">
-                                <span class="total-number">{data.record.Total_USD__c}</span>
-                                <span class="total-unit">USD</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button if:true={mostrarFinalizarCompra} type="button" class="action-btn finalizar-btn" onclick={finalizar} disabled={finalizarDeshabilitado}>
-                        <template if:true={finalizandoOperacion}>
-                            <span class="btn-spinner" aria-hidden="true"></span>
-                            <span>Finalizando...</span>
-                        </template>
-                        <template if:false={finalizandoOperacion}>
-                            <span>Finalizar Compra</span>
-                            <span class="btn-arrow" aria-hidden="true">➞</span>
-                        </template>
-                    </button>
+                    <template if:true={puedeFacturar}>
+                      <button type="button" class="se-btn se-btn-ghost" onclick={facturar}>Facturar</button>
+                    </template>
+                    <template if:true={puedeRealizarNueva}>
+                      <button type="button" class="se-btn se-btn-primary" onclick={redirectToNew}>Nueva compra</button>
+                    </template>
+                  </div>
                 </div>
-            </template>
+              </section>
+            </div>
 
-            <template if:true={mostrarContinuar}>
-                <div class="totales-bar totales-bar-actions">
-                    <button type="button" class="action-btn continuar-btn" onclick={continuar} disabled={guardandoLineas}>
-                        <template if:true={guardandoLineas}>
-                            <span class="btn-spinner" aria-hidden="true"></span>
-                            <span>Guardando...</span>
-                        </template>
-                        <template if:false={guardandoLineas}>
-                            <span>Continuar</span>
-                            <span class="btn-arrow" aria-hidden="true">➞</span>
-                        </template>
-                    </button>
+            <aside class="se-resumen" aria-label="Resumen de la compra">
+              <p class="se-resumen-eyebrow">Resumen</p>
+              <h2 class="se-resumen-title">Compra de HT</h2>
+              <dl class="se-resumen-list">
+                <div class="se-resumen-row">
+                  <dt>Estado</dt>
+                  <dd>{detalleEstado}</dd>
                 </div>
-            </template>
+                <div class="se-resumen-row">
+                  <dt>Cultivo</dt>
+                  <dd>{resumenCultivo}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>Marca</dt>
+                  <dd>{resumenMarca}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>Productor</dt>
+                  <dd>{productorNombre}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>CUIT</dt>
+                  <dd>{cuit}</dd>
+                </div>
+                <div class="se-resumen-row">
+                  <dt>HT</dt>
+                  <dd>{detalleTotalHt}</dd>
+                </div>
+              </dl>
+              <div class="se-resumen-total">
+                <span class="se-resumen-total-label">Total</span>
+                <span class="se-resumen-total-value">{detalleTotalUsd}</span>
+              </div>
+            </aside>
+          </div>
         </div>
       </template>
     </div>
-    
-    <lightning-layout class="slds-m-top_large footer" horizontal-align="center">
-        <lightning-layout-item>
-            <template if:false={created}>
-                <lightning-button onclick={close} variant="brand" class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label={closeLabel}></lightning-button>
-                
-                <lightning-button if:true={puedeAnular} variant="brand" onclick={showAnularConfirm} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Anular"></lightning-button>
-                <lightning-button if:true={puedeFacturar} variant="brand" onclick={facturar} class="slds-m-top_medium slds-m-left--medium facturar" type="submit" label="Facturar"></lightning-button>
-                <lightning-button if:true={puedeRealizarNueva} variant="brand" onclick={redirectToNew} class="slds-m-top_medium slds-m-left--medium new circle" type="submit" label="Nueva Venta"></lightning-button>
-            </template>
-        </lightning-layout-item>
-    </lightning-layout>     
 
     <!-- Spinner global -->
     <template if:true={isLoading}>
-        <div class="exampleHolder">
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        <div class="se-brand-loading" role="status" aria-live="polite" aria-label="Procesando">
+            <c-se-brand-loader></c-se-brand-loader>
         </div>
     </template>
 
@@ -294,171 +608,366 @@
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
-
-    <!-- Modal 1: origen -->
-  <template if:true={isOpen}>
-    <section
-      role="dialog"
-      tabindex="-1"
-      aria-modal="true"
-      aria-labelledby="modal-heading"
-      class="slds-modal slds-fade-in-open"
-      onkeydown={handleKeydown}
-    >
-      <div class="slds-modal__container">
-
-        <!-- Header -->
-        <header class="slds-modal__header slds-p-around_medium">
-          <div class="header-row">
-            <img src={iconVenderHTUrl} style="max-width: 6%;" />
-            <h2 id="modal-heading" class="slds-text-heading_medium slds-m-left_small">Compra/Venta pendiente</h2>
-
-            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse close-circle" title="Cerrar" onclick={closeModal}>
-              <lightning-icon icon-name="utility:close" alternative-text="Cerrar" size="small"></lightning-icon>
-              <span class="slds-assistive-text">Cerrar</span>
-            </button>
+<!--
+    <template if:true={isModalOpen}>
+      <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+          <div class="slds-modal__container">
+              <header class="slds-modal__header">
+                  <h2 class="slds-text-heading_medium">¡Atención!</h2>
+              </header>
+              <div class="slds-modal__content slds-p-around_medium">
+                  Este precio es válido solo para pago contado dentro del plazo definido.
+                  Si no se cancela en término, la condición se pierde y la operación se revierte.
+              </div>
+              <footer class="slds-modal__footer">
+                  <lightning-button variant="neutral" label="Cerrar" onclick={closeModal}></lightning-button>
+              </footer>
           </div>
-        </header>
-
-        <!-- Body -->
-        <div class="slds-modal__content slds-p-around_medium" id="modal-content">
-          <p class="texto" style="text-align:center;">
-            Tu <b>compra/venta de HT</b> queda pendiente porque <b>no encontramos compras o tenencia anterior</b> de semilla fiscalizada de la variedad que estás sembrando.
-          </p>
-
-          <p class="texto" style="text-align:center;">
-            Recordá que es necesario haber comprado previamente semilla fiscalizada de esa misma variedad y tener <b>licencia de uso firmada.</b>
-          </p>
-
-          <p class="texto" style="text-align:center;">
-            En cuanto envíes tu factura de compra, vas a poder finalizar la operación.
-          </p>
-
-          <p class="texto" style="text-align:center;">
-            Nuestro equipo de <b>Mesa de Ayuda</b> se va a contactar con vos para acompañarte en el proceso.
-          </p>
-
-          <p class="texto" style="text-align:center;">
-           Si querés resolverlo ahora, hacé clic en WhatsApp y te asistimos en el momento.
-          </p>
-
-          <center>
-            <div class="slds-m-top_small">
-              <a
-                class="slds-button whatsapp-button"
-                href="https://api.whatsapp.com/send/?phone=5491131172022&text=Hola%2C+quiero+informaci%C3%B3n+sobre+mi+venta&type=phone_number&app_absent=0"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Contactar por Whatsapp
-              </a>
-            </div>
-
-            <p class="slds-m-top_small">
-              o escribinos a
-              <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
-            </p>
-          </center>
-        </div>
-      </div>
-    </section>
-
-    <!-- Backdrop -->
-    <div class="slds-backdrop slds-backdrop_open"></div>
-  </template>
-
-  
-  <!-- Modal 2: Licencias -->
-  <template if:true={isOpen2}>
-    <section
-      role="dialog"
-      tabindex="-1"
-      aria-modal="true"
-      aria-labelledby="modal-heading-2"
-      class="slds-modal slds-fade-in-open"
-      onkeydown={handleKeydown}
-    >
-      <div class="slds-modal__container">
-
-        <!-- Header -->
-        <header class="slds-modal__header slds-p-around_medium">
-          <div class="header-row">
-            <img src={iconVenderHTUrl} style="max-width: 6%;" />
-            <h2 id="modal-heading-2" class="slds-text-heading_medium slds-m-left_small">Compra/Venta pendiente</h2>
-
-            <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse close-circle" title="Cerrar" onclick={closeModal}>
-              <lightning-icon icon-name="utility:close" alternative-text="Cerrar" size="small"></lightning-icon>
-              <span class="slds-assistive-text">Cerrar</span>
-            </button>
-          </div>
-        </header>
-
-        <!-- Body -->
-        <div class="slds-modal__content slds-p-around_medium" id="modal-content-2">
-          <p class="texto" style="text-align:center;">
-            Tu <b>compra/venta de HT</b> queda pendiente porque el <b>CUIT</b> no cuenta con <b>licencia de uso firmada</b>. Recordá que, para comprar o vender HT, este es un <b>requisito indispensable</b>.
-          </p>
-
-          <p class="texto" style="text-align:center;">
-            Nuestro equipo de <b>Mesa de Ayuda</b> se va a contactar con vos para acompañarte en el proceso.
-          </p>
-
-          <p class="texto" style="text-align:center;">
-            Si querés resolverlo ahora:
-          </p>
-
-          <center>
-          <div class="slds-m-top_small">
-            <a
-              class="slds-button whatsapp-button"
-              href="https://api.whatsapp.com/send/?phone=5491131172022&text=Hola%2C+quiero+informaci%C3%B3n+sobre+mi+venta&type=phone_number&app_absent=0"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Contactar por Whatsapp
-            </a>
-          </div>
-
-          <p class="slds-m-top_small">
-            o escribinos a
-            <a href="mailto:info@sembrarevolucion.com.ar" class="email-link">info@sembrarevolucion.com.ar</a>
-          </p>
-
-          <div class="slds-m-top_small">
-            <a
-              class="slds-button license-outline"
-              href={licensesHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Ir a Consulta de Licencias"
-            >
-              Ir a Consulta de Licencia →
-            </a>
-          </div>
-          </center>
-        </div>
-      </div>
-    </section>
-
-    <!-- Backdrop -->
-    <div class="slds-backdrop slds-backdrop_open"></div>
-  </template>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>-->
 
     <c-pdf-reader></c-pdf-reader>
-    <c-ht-modals 
+
+    <c-ht-modals
         is-open-payment-modal={isOpenPaymentModal}
         modal-items={modalItems}
-        current-modal={currentModal} 
-        community={community} 
-        es-punto-venta={obtentorEsPuntoDeVenta} 
-        promo-message={htFuturaPromoMessage} 
-        promo-variant={htFuturaPromoVariant} 
-        onclose={closeModal} 
+        current-modal={currentModal}
+        community={community}
+        es-punto-venta={obtentorEsPuntoDeVenta}
+        promo-message={htFuturaPromoMessage}
+        promo-variant={htFuturaPromoVariant}
+        onclose={closeModal}
         onclosemodal={handleClosePaymentStine}
         onconfirmpayment={handleConfirmPaymentStine}
-        onredirect={redirect} 
-        onanular={anular} 
-        ontipopagoselected={handleTipoPagoSelected}>
-    </c-ht-modals>
+        onredirect={redirect}
+        onanular={anular}
+        ontipopagoselected={handleTipoPagoSelected}
+    ></c-ht-modals>
+
+    <template if:true={showTipoPagoSheet}>
+      <div class="se-pay-sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="se-pay-sheet-title">
+        <button type="button" class="se-pay-scrim" onclick={handleTipoPagoCancel} aria-label="Cerrar"></button>
+        <div class="se-pay-sheet">
+          <div class="se-pay-sheet-handle se-pay-mob-only" aria-hidden="true"></div>
+
+          <div class="se-pay-sheet-header">
+            <div class="se-pay-sheet-intro">
+              <p class="se-pay-sheet-eyebrow">{tipoPagoModalEyebrow}</p>
+              <h2 id="se-pay-sheet-title" class="se-pay-sheet-title">Elegí el método de pago</h2>
+              <p class="se-pay-sheet-sub se-pay-sub-mob">
+                Beneficio activo. Podés pagar de contado con descuento o financiar sin interés.
+              </p>
+              <p class="se-pay-sheet-sub se-pay-sub-desk">
+                Beneficio activo. Pagá de contado con descuento o financiá sin interés.
+              </p>
+            </div>
+            <button type="button" class="se-pay-sheet-close" onclick={handleTipoPagoCancel} aria-label="Cerrar">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+
+          <div class="se-pay-sheet-options">
+            <label class={tipoPagoContadoCardClass}>
+              <input
+                type="radio"
+                name="tipo-pago-compra"
+                value="Contado"
+                checked={isTipoPagoContadoSelected}
+                onchange={handleTipoPagoOption}
+              />
+              <span class="se-pay-card-head">
+                <span class="se-pay-card-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M3 7h18v10H3z"></path>
+                    <path d="M7 12h4"></path>
+                    <path d="M15 12h2"></path>
+                  </svg>
+                </span>
+                <span class="se-pay-card-title">Pago contado</span>
+                <span class="se-pay-card-pill">−7%</span>
+              </span>
+              <span class="se-pay-card-desc">Descuento del 7%. Débito inmediato en Cuenta Granaria.</span>
+              <span class="se-pay-card-amount">{tipoPagoModalContado}</span>
+            </label>
+
+            <label class={tipoPagoFinanciadoCardClass}>
+              <input
+                type="radio"
+                name="tipo-pago-compra"
+                value="Financiado"
+                checked={isTipoPagoFinanciadoSelected}
+                onchange={handleTipoPagoOption}
+              />
+              <span class="se-pay-card-head">
+                <span class="se-pay-card-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M6 4h10l2 4v12H6z"></path>
+                    <path d="M6 8h12"></path>
+                  </svg>
+                </span>
+                <span class="se-pay-card-title">
+                  <span class="se-pay-title-fin-mob">Financiado en 3 cuotas</span>
+                  <span class="se-pay-title-fin-desk">Financiado 3 cuotas</span>
+                </span>
+                <span class="se-pay-card-note">Sin interés</span>
+              </span>
+              <span class="se-pay-card-desc">3 cuotas iguales debitadas de Cuenta Granaria.</span>
+              <span class="se-pay-card-amount">{tipoPagoModalFinanciadoLabel}</span>
+            </label>
+          </div>
+
+          <div class="se-pay-sheet-actions">
+            <button type="button" class="se-pay-btn se-pay-btn-ghost" onclick={handleTipoPagoCancel}>Cancelar</button>
+            <button type="button" class="se-pay-btn se-pay-btn-primary" onclick={handleTipoPagoConfirm}>Confirmar pago</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template if:true={showResultModal}>
+      <div class="se-result-wrap" role="dialog" aria-modal="true" aria-label={resultModalAriaLabel}>
+        <button type="button" class="se-result-scrim" onclick={handleResultScrimClick} aria-label="Cerrar"></button>
+        <div class="se-result-card">
+          <div class="se-result-lime-bar" aria-hidden="true"></div>
+          <button
+            type="button"
+            class="se-result-close se-result-desk-only"
+            onclick={handleResultClose}
+            aria-label="Cerrar"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+
+          <template if:true={isResultCelebration}>
+            <div class="se-result-icon se-result-icon--success" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12l5 5L20 7"></path>
+              </svg>
+            </div>
+            <h2 id="se-result-title" class="se-result-title">¡Compra exitosa!</h2>
+            <p class="se-result-sub">{resultSuccessSubtext}</p>
+            <div class="se-result-summary">
+              <div class="se-result-summary-mob">
+                <div class="se-result-row">
+                  <span class="se-result-k">Cultivo</span>
+                  <span class="se-result-v">{cultivoNombre}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Marca</span>
+                  <span class="se-result-v">{resumenMarca}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Variedad</span>
+                  <span class="se-result-v">{resultVariedadesLabel}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Tipo de HT</span>
+                  <span class="se-result-v">{resumenTipo}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Cantidad HT</span>
+                  <span class="se-result-v">{resumenHt}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Licencia</span>
+                  <span class="se-result-v">{resumenLicencia}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Estado</span>
+                  <span class="se-result-v">{detalleEstado}</span>
+                </div>
+                <div class="se-result-row">
+                  <span class="se-result-k">Total</span>
+                  <span class="se-result-v se-result-total">{resumenTotal}</span>
+                </div>
+              </div>
+              <div class="se-result-summary-desk">
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Cultivo</div>
+                  <div class="se-result-v">{cultivoNombre}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Marca</div>
+                  <div class="se-result-v">{resumenMarca}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Variedad</div>
+                  <div class="se-result-v">{resultVariedadesLabel}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Tipo de HT</div>
+                  <div class="se-result-v">{resumenTipo}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Licencia</div>
+                  <div class="se-result-v">{resumenLicencia}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Estado</div>
+                  <div class="se-result-v">{detalleEstado}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Cantidad HT</div>
+                  <div class="se-result-v">{resumenHt}</div>
+                </div>
+                <div class="se-result-grid-item">
+                  <div class="se-result-k">Total</div>
+                  <div class="se-result-v se-result-total">{resumenTotal}</div>
+                </div>
+              </div>
+            </div>
+            <div class="se-result-actions se-result-actions--success">
+              <button type="button" class="se-result-btn se-result-btn-ghost se-result-desk-first" onclick={handleResultVolverInicio}>
+                Volver al inicio
+              </button>
+              <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultVerMisCompras}>
+                Ver mis compras →
+              </button>
+            </div>
+          </template>
+
+          <template if:true={isResultPendingPayment}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">Compra pendiente de pago</h2>
+            <p class="se-result-sub">Tu orden {resultOrdenRef} quedó registrada. Completá el pago para avanzar con la facturación.</p>
+            <ul class="se-result-bullets">
+              <li>Estado: <strong>{detalleEstado}</strong></li>
+              <li>Total: <strong>{resumenTotal}</strong></li>
+              <li>Método: <strong>{tipoPago}</strong></li>
+              <li>Marca: <strong>{resumenMarca}</strong></li>
+            </ul>
+            <div class="se-result-actions se-result-actions--stack">
+              <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultVerMisCompras}>
+                Ver mis compras →
+              </button>
+              <button type="button" class="se-result-btn se-result-btn-ghost" onclick={handleResultVolverInicio}>
+                Volver al inicio
+              </button>
+              <button type="button" class="se-result-btn se-result-btn-danger" onclick={handleResultAnularOrden}>
+                Anular orden
+              </button>
+            </div>
+          </template>
+
+          <template if:true={isResultPendingLicencia}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">Compra pendiente</h2>
+            <p class="se-result-sub">
+              Tu compra de HT queda pendiente porque el <strong>CUIT</strong> no cuenta con <strong>licencia de uso firmada</strong>.
+              Recordá que, para comprar HT, este es un requisito indispensable.
+            </p>
+            <p class="se-result-sub">Nuestro equipo de <strong>Mesa de Ayuda</strong> se va a contactar con vos para acompañarte en el proceso.</p>
+            <div class="se-result-links">
+              <a class="se-result-btn se-result-btn-primary se-result-link-btn" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+                Contactar por WhatsApp
+              </a>
+              <p class="se-result-meta">
+                o escribinos a&nbsp;<a href="mailto:info@sembraevolucion.com.ar">info@sembraevolucion.com.ar</a>
+              </p>
+              <a class="se-result-btn se-result-btn-ghost se-result-link-btn" href={licensesHref}>
+                Ir a mis licencias →
+              </a>
+            </div>
+            <div class="se-result-actions">
+              <button type="button" class="se-result-btn se-result-btn-ghost" onclick={handleResultPendingEntendido}>
+                Entendido
+              </button>
+            </div>
+          </template>
+
+          <template if:true={isResultPendingOrigen}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">Compra pendiente</h2>
+            <p class="se-result-sub">
+              Tu compra de HT queda pendiente porque <strong>no encontramos compras o tenencia anterior</strong> de semilla fiscalizada de la variedad que estás sembrando.
+            </p>
+            <p class="se-result-sub">
+              Recordá que es necesario haber comprado previamente semilla fiscalizada de esa misma variedad y tener <strong>licencia de uso firmada</strong>.
+            </p>
+            <p class="se-result-sub">En cuanto envíes tu factura de compra, vas a poder finalizar la operación.</p>
+            <div class="se-result-links">
+              <a class="se-result-btn se-result-btn-primary se-result-link-btn" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+                Contactar por WhatsApp
+              </a>
+              <p class="se-result-meta">
+                o escribinos a&nbsp;<a href="mailto:info@sembraevolucion.com.ar">info@sembraevolucion.com.ar</a>
+              </p>
+            </div>
+            <div class="se-result-actions">
+              <button type="button" class="se-result-btn se-result-btn-ghost" onclick={handleResultPendingEntendido}>
+                Entendido
+              </button>
+            </div>
+          </template>
+
+          <template if:true={isResultDuplicate}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">Ya existe una compra en proceso</h2>
+            <p class="se-result-sub">{duplicateCompraSubtext}</p>
+            <div class="se-result-actions se-result-actions--success">
+              <template if:true={hasDuplicateCompraLink}>
+                <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultDuplicateContinuar}>
+                  Continuar compra
+                </button>
+              </template>
+              <button type="button" class="se-result-btn se-result-btn-ghost" onclick={handleResultDuplicateVerCompras}>
+                Ir a mis compras
+              </button>
+            </div>
+          </template>
+
+          <template if:true={isResultExpediente}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">Importante</h2>
+            <p class="se-result-sub">
+              La compra de HT disponible solo puede aplicarse a situaciones previas a la entrega de grano.
+              Si se intenta utilizar esa HT para regularizar un saldo negativo, el caso será derivado al semillero para su análisis y aprobación.
+            </p>
+            <div class="se-result-actions">
+              <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultExpedienteEntendido}>
+                Entendido
+              </button>
+            </div>
+          </template>
+
+          <template if:true={isResultPromo}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">{resultPromoTitle}</h2>
+            <p class="se-result-sub">{htFuturaPromoMessage}</p>
+            <div class="se-result-actions">
+              <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultPromoEntendido}>
+                Entendido
+            </button>
+          </div>
+          </template>
+
+          <template if:true={isResultAnular}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">¿Anular la compra?</h2>
+            <p class="se-result-sub">Esta acción no se puede deshacer. La compra quedará anulada.</p>
+            <div class="se-result-actions se-result-actions--success">
+              <button type="button" class="se-result-btn se-result-btn-ghost" onclick={handleResultAnularCancel}>
+                No, volver
+              </button>
+              <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultAnularConfirm}>
+                Sí, anular
+              </button>
+          </div>
+          </template>
+
+          <template if:true={isResultVigencia}>
+            <div class="se-result-icon se-result-icon--warn" aria-hidden="true">!</div>
+            <h2 class="se-result-title">Importante</h2>
+            <p class="se-result-sub">{vigenciaText}</p>
+            <div class="se-result-actions">
+              <button type="button" class="se-result-btn se-result-btn-primary" onclick={handleResultVigenciaContinuar}>
+                Continuar
+              </button>
+          </div>
+          </template>
+        </div>
+      </div>
+  </template>
   </div>
 </template>

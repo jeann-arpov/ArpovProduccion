@@ -1,0 +1,256 @@
+<template>
+    <div class="page">
+        <!-- VIEW: hub Style Guide 4f -->
+        <template if:true={isView}>
+            <div class="hub">
+                <div class="hero">
+                    <div class="avatar" aria-hidden="true">{initials}</div>
+                    <div class="hero-copy">
+                        <p class="name">{displayName}</p>
+                        <p class="company">{businessName}</p>
+                    </div>
+                    <button class="btn-lime btn-lime-desktop" type="button" onclick={goEdit}>
+                        <svg class="btn-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                        </svg>
+                        Editar perfil
+                    </button>
+                </div>
+
+                <button class="btn-lime btn-lime-mobile" type="button" onclick={goEdit}>
+                    <svg class="btn-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                    </svg>
+                    Editar perfil
+                </button>
+
+                <div class="hub-body">
+                    <dl class="info">
+                        <div class="info-row">
+                            <dt>Email</dt>
+                            <dd>{emailDisplay}</dd>
+                        </div>
+                        <div class="info-row">
+                            <dt>Teléfono</dt>
+                            <dd>{phoneDisplay}</dd>
+                        </div>
+                        <div class="info-row">
+                            <dt>CUIT</dt>
+                            <dd>{cuitDisplay}</dd>
+                        </div>
+                    </dl>
+
+                    <nav class="actions" aria-label="Cuenta">
+                        <button class="action" type="button" onclick={goPassword}>
+                            <span>Cambiar contraseña</span>
+                            <span class="chev" aria-hidden="true"></span>
+                        </button>
+                        <button class="action" type="button" onclick={handleNotifications}>
+                            <span>Notificaciones</span>
+                            <span class="chev" aria-hidden="true"></span>
+                        </button>
+                        <button class="action action-danger" type="button" onclick={handleLogout}>
+                            <span>Cerrar sesión</span>
+                            <svg class="logout-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </template>
+
+        <!-- EDIT: contacto -->
+        <template if:true={isEdit}>
+            <header class="head">
+                <button class="back" type="button" onclick={goView}>← Volver</button>
+                <p class="eyebrow">CUENTA</p>
+                <h1 class="title">Editar perfil</h1>
+                <p class="subtitle">Actualizá celular y email. El resto de los datos son de solo lectura.</p>
+            </header>
+
+            <section class="panel" aria-labelledby="edit-title">
+                <h2 id="edit-title" class="panel-title">Datos de contacto</h2>
+
+                <div class="grid">
+                    <div class="field readonly">
+                        <span class="label">Nombre completo</span>
+                        <p class="value">{fullName}</p>
+                    </div>
+                    <div class="field readonly">
+                        <span class="label">Razón social</span>
+                        <p class="value">{businessName}</p>
+                    </div>
+                    <div class="field readonly">
+                        <span class="label">Nro. de documento</span>
+                        <p class="value">{documentId}</p>
+                    </div>
+                    <div class="field readonly">
+                        <span class="label">CUIT</span>
+                        <p class="value">{cuitDisplay}</p>
+                    </div>
+
+                    <label class={phoneFieldClass}>
+                        <span class="flabel">Celular</span>
+                        <input
+                            type="tel"
+                            value={mobilePhone}
+                            oninput={handlePhone}
+                            placeholder=" "
+                            autocomplete="tel"
+                            inputmode="tel"
+                            aria-invalid={phoneInvalidAttr}
+                            aria-describedby="phone-hint"
+                        />
+                        <span id="phone-hint" class="hint">Formato: +549 seguido de 10 dígitos</span>
+                        <template if:true={phoneHasError}>
+                            <span class="field-error" role="alert">{phoneError}</span>
+                        </template>
+                    </label>
+
+                    <label class="field float">
+                        <span class="flabel">Email</span>
+                        <input
+                            type="email"
+                            value={email}
+                            oninput={handleEmail}
+                            placeholder=" "
+                            autocomplete="email"
+                        />
+                    </label>
+                </div>
+
+                <footer class="panel-foot">
+                    <button class="btn-ghost" type="button" onclick={goView} disabled={isUpdating}>Cancelar</button>
+                    <button class="btn-dark" type="button" onclick={openModal} disabled={updateDisabled}>
+                        Actualizar datos
+                    </button>
+                </footer>
+            </section>
+        </template>
+
+        <!-- PASSWORD -->
+        <template if:true={isPassword}>
+            <header class="head">
+                <button class="back" type="button" onclick={goView}>← Volver</button>
+                <p class="eyebrow">CUENTA</p>
+                <h1 class="title">Cambiar contraseña</h1>
+                <p class="subtitle">Ingresá tu contraseña actual y la nueva.</p>
+            </header>
+
+            <section class="panel" aria-labelledby="pass-title">
+                <h2 id="pass-title" class="panel-title">Seguridad</h2>
+
+                <div class="grid grid-pass">
+                    <label class="field float">
+                        <span class="flabel">Contraseña actual</span>
+                        <div class="pass-wrap">
+                            <input
+                                type={oldPasswordType}
+                                data-id="oldPassword"
+                                value={oldPassword}
+                                oninput={handleChange}
+                                placeholder=" "
+                                autocomplete="current-password"
+                            />
+                            <button class="eye" type="button" data-field="oldPassword" onclick={togglePasswordVisibility} aria-label="Mostrar u ocultar">
+                                <template if:true={showOldPassword}>Ocultar</template>
+                                <template if:false={showOldPassword}>Ver</template>
+                            </button>
+                        </div>
+                    </label>
+
+                    <label class="field float">
+                        <span class="flabel">Nueva contraseña</span>
+                        <div class="pass-wrap">
+                            <input
+                                type={newPasswordType}
+                                data-id="newPassword"
+                                value={newPassword}
+                                oninput={handleChange}
+                                placeholder=" "
+                                autocomplete="new-password"
+                            />
+                            <button class="eye" type="button" data-field="newPassword" onclick={togglePasswordVisibility} aria-label="Mostrar u ocultar">
+                                <template if:true={showNewPassword}>Ocultar</template>
+                                <template if:false={showNewPassword}>Ver</template>
+                            </button>
+                        </div>
+                    </label>
+
+                    <label class="field float">
+                        <span class="flabel">Confirmar nueva contraseña</span>
+                        <div class="pass-wrap">
+                            <input
+                                type={confirmPasswordType}
+                                data-id="newPasswordConfirm"
+                                value={newPasswordConfirm}
+                                oninput={handleChange}
+                                placeholder=" "
+                                autocomplete="new-password"
+                            />
+                            <button class="eye" type="button" data-field="newPasswordConfirm" onclick={togglePasswordVisibility} aria-label="Mostrar u ocultar">
+                                <template if:true={showConfirmPassword}>Ocultar</template>
+                                <template if:false={showConfirmPassword}>Ver</template>
+                            </button>
+                        </div>
+                    </label>
+                </div>
+
+                <footer class="panel-foot">
+                    <button class="btn-ghost" type="button" onclick={goView} disabled={isChangingPassword}>Cancelar</button>
+                    <button class="btn-dark" type="button" onclick={openModalPass} disabled={isChangingPassword}>
+                        Modificar contraseña
+                    </button>
+                </footer>
+            </section>
+        </template>
+    </div>
+
+    <template if:true={modal}>
+        <section class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-update-title" onclick={handleBackdropClick}>
+            <div class="modal" onclick={stopPropagation}>
+                <header class="modal-header">
+                    <h3 id="modal-update-title" class="modal-title">Actualización de datos</h3>
+                    <button type="button" class="close-button" onclick={closeModal} aria-label="Cerrar" disabled={isUpdating}>×</button>
+                </header>
+                <div class="modal-body">
+                    <p>¿Confirmás la actualización de celular y email?</p>
+                    <p class="note">Si cambiaste el email, recibirás un correo con un enlace para confirmar el cambio.</p>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn-ghost" onclick={closeModal} disabled={isUpdating}>Cancelar</button>
+                    <button type="button" class="btn-dark" onclick={handleUpdate} disabled={isUpdating}>
+                        <template if:true={isUpdating}>Guardando…</template>
+                        <template if:false={isUpdating}>Confirmar</template>
+                    </button>
+                </footer>
+            </div>
+        </section>
+    </template>
+
+    <template if:true={modalpass}>
+        <section class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-pass-title" onclick={handleBackdropClick}>
+            <div class="modal" onclick={stopPropagation}>
+                <header class="modal-header">
+                    <h3 id="modal-pass-title" class="modal-title">Cambio de contraseña</h3>
+                    <button type="button" class="close-button" onclick={closeModal} aria-label="Cerrar" disabled={isChangingPassword}>×</button>
+                </header>
+                <div class="modal-body">
+                    <p>¿Confirmás el cambio de contraseña? Esta acción no se puede deshacer desde aquí.</p>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn-ghost" onclick={closeModal} disabled={isChangingPassword}>Cancelar</button>
+                    <button type="button" class="btn-dark" onclick={handleChangePassword} disabled={isChangingPassword}>
+                        <template if:true={isChangingPassword}>Procesando…</template>
+                        <template if:false={isChangingPassword}>Confirmar</template>
+                    </button>
+                </footer>
+            </div>
+        </section>
+    </template>
+</template>
