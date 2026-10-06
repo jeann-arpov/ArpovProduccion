@@ -10,7 +10,7 @@ const REQUIRED_MSG = 'Este campo es obligatorio';
 
 function formatCoord(value) {
     const n = Number(value);
-    return Number.isFinite(n) ? String(n) : '';
+    return Number.isFinite(n) ? n.toFixed(6) : '';
 }
 
 export default class EstablecimientosMap extends LightningElement {

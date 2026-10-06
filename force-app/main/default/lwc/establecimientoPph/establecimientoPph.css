@@ -372,10 +372,15 @@
     flex: none;
 }
 
+.p-geo span {
+    white-space: nowrap;
+}
+
 .p-geo .v {
     margin-left: auto;
     font-family: 'Montserrat', 'Roboto', Arial, sans-serif;
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
 }
 
 .p-geo.filled {

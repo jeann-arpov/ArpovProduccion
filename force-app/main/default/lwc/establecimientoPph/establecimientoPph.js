@@ -99,7 +99,7 @@ export default class EstablecimientoPph extends LightningElement {
 
     get mapCoordinates() {
         if (!this.hasCoordinates) return '';
-        return Number(this.latitude).toFixed(2) + ', ' + Number(this.longitude).toFixed(2);
+        return Number(this.latitude).toFixed(6) + ', ' + Number(this.longitude).toFixed(6);
     }
 
     get geoClass() {
