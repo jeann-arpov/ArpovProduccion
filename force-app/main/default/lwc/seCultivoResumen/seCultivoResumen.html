@@ -19,6 +19,7 @@
         </template>
 
         <div class="layout">
+            <template if:true={showSaldo}>
             <div class={saldoClass}>
                 <h3 class="saldo-title">{summaryTitle}</h3>
 
@@ -53,6 +54,7 @@
                     </template>
                 </template>
             </div>
+            </template>
 
             <div class="after-saldo">
                 <slot name="afterSaldo"></slot>

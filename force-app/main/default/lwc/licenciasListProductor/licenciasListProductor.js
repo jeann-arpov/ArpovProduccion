@@ -5,7 +5,7 @@ import getEstadosLicencia from '@salesforce/apex/LicenciasController.getEstadosL
 import getOrigenesLicencia from '@salesforce/apex/LicenciasController.getOrigenesLicenciaProductor';
 import getTiposLicencia from '@salesforce/apex/LicenciasController.getTiposLicencia';
 import getLicensesReport from '@salesforce/apex/LicenseReportService.getLicensesReport';
-import { fetchCultivoOptions, fetchCultivoSummary } from 'c/cultivoResumenService';
+import { fetchCultivoOptions } from 'c/cultivoResumenService';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import getUrl from '@salesforce/apex/SolicitarLicencia.getUrl';
 import singleNewLicenseRequestJWTSigner from '@salesforce/apex/CustomJWTSigner.singleNewLicenseRequestJWTSigner';
@@ -56,10 +56,7 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     @track isLoading = true;
     @track renderFilters = false;
     @track cultivoOptions = [];
-    @track cultivoSummaryRows = [];
     @track selectedCultivoId;
-    @track cultivoSummaryTotal = 0;
-    @track cultivoSummaryLoading = false;
     @track showCultivoResumen = false;
     initialized = false;
 
@@ -236,7 +233,6 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
 
             if (options.length && !this.selectedCultivoId) {
                 this.selectedCultivoId = defaultId;
-                await this.loadCultivoSummary();
             }
         } catch (error) {
             console.error('Error cargando cultivos para resumen:', error);
@@ -244,31 +240,9 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
         }
     }
 
-    async loadCultivoSummary() {
-        if (!this.selectedCultivoId) {
-            this.cultivoSummaryRows = [];
-            this.cultivoSummaryTotal = 0;
-            return;
-        }
-
-        this.cultivoSummaryLoading = true;
-        try {
-            const summary = await fetchCultivoSummary(this.selectedCultivoId);
-            this.cultivoSummaryRows = summary.rows;
-            this.cultivoSummaryTotal = summary.total;
-        } catch (error) {
-            console.error('Error cargando resumen por cultivo:', error);
-            this.cultivoSummaryRows = [];
-            this.cultivoSummaryTotal = 0;
-        } finally {
-            this.cultivoSummaryLoading = false;
-        }
-    }
-
     handleCultivoResumenSelect(event) {
         this.selectedCultivoId = event.detail?.value;
         this.currentPage = 1;
-        this.loadCultivoSummary();
         this.loadLicencias();
     }
 

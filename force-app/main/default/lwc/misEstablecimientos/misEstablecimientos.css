@@ -295,6 +295,21 @@
     width: 100%;
 }
 
+.p-back {
+    margin-top: 16px;
+}
+
+.p-back .btn {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .p-back .btn {
+        width: auto;
+        min-width: 160px;
+    }
+}
+
 .p-info {
     margin-top: 16px;
     padding: 16px;

@@ -25,9 +25,15 @@ export default class SeCultivoResumen extends LightningElement {
     @api emptyText = 'Sin datos para este cultivo.';
     /** En mobile oculta tabs + card de saldo (ej. Licencias 2c). */
     @api hideSummaryOnMobile = false;
+    /** Oculta la card de saldo en todos los anchos; el contenido ocupa el ancho completo (ej. Licencias). */
+    @api hideSummary = false;
 
     get resumenClass() {
-        return 'resumen' + (this.hideSummaryOnMobile ? ' resumen-compact-mobile' : '');
+        return 'resumen' + (this.hideSummaryOnMobile ? ' resumen-compact-mobile' : '') + (this.hideSummary ? ' resumen-no-saldo' : '');
+    }
+
+    get showSaldo() {
+        return !this.hideSummary;
     }
 
     get tabItems() {

@@ -211,6 +211,7 @@ export default class MisEstablecimientos extends LightningElement {
         this.selectedId = undefined;
         this.editOpen = false;
         this.syncBodyLock();
+        window.scrollTo(0, 0);
     }
 
     handleNewEstablecimiento() {
