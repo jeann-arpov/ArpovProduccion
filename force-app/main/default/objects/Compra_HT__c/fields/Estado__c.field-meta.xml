@@ -42,6 +42,7 @@
             <value>
                 <fullName>Pedido de Facturación</fullName>
                 <default>false</default>
+                <isActive>false</isActive>
                 <label>Pedido de Facturación</label>
             </value>
             <value>
