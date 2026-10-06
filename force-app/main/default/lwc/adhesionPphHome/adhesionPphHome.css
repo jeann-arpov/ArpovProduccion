@@ -113,6 +113,25 @@
     cursor: pointer;
 }
 
+.pph-btns {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+}
+
+.pph-hint {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--pph-orange);
+    background: rgba(255, 169, 69, 0.18);
+    color: #7a4400;
+    font-size: 13px;
+    line-height: 18px;
+}
+
 .pph-btn {
     flex: 1;
     min-height: 44px;
@@ -216,6 +235,11 @@
         display: block;
         width: 44px;
         flex: none;
+    }
+
+    .pph-btns {
+        flex-direction: column;
+        gap: 6px;
     }
 
     .pph-closed {

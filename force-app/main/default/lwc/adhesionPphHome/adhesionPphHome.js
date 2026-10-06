@@ -24,6 +24,9 @@ const ESTADO_TONE = {
 export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     @track groups = [];
 
+    rectificacionInfo =
+        'Tenés una rectificación de PPH sin finalizar. Ingresá, completá tu plan de siembra y aceptá los términos y condiciones.';
+
     loading = true;
     initialized = false;
 
@@ -72,6 +75,8 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         const actionName = this.getActionName(estado);
         const actionDisabled = this.getDisableAction(wParam, estado, actionName);
 
+        const canRectificar = this.getCanRectificar(wParam, estado);
+
         return {
             id: wParam.parametro.Id,
             title: wParam.parametro.Name,
@@ -80,7 +85,9 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             badgeTone: ESTADO_TONE[estado] || 'info',
             actionName,
             actionLabel: actionName,
-            btnClass: actionName === 'Ver' ? 'pph-btn pph-btn-ghost' : 'pph-btn pph-btn-primary',
+            btnClass: actionName === 'Ver' || canRectificar ? 'pph-btn pph-btn-ghost' : 'pph-btn pph-btn-primary',
+            canRectificar,
+            showRectificacionInfo: estado === 'Rectificado',
             actionDisabled,
             disabledCause: wParam.disabledCause,
             contentDocumentId: wParam.contentDocumentId,
@@ -114,6 +121,16 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         return false;
     }
 
+    getCanRectificar(wParam, estado) {
+        if (estado !== 'Adherido' && estado !== 'En Revisión') return false;
+        const inicio = this.parseLocalDate(wParam.parametro.Fecha_Inicio_Rectificacion_1__c);
+        const fin = this.parseLocalDate(wParam.parametro.Fecha_Fin_Rectificacion_1__c);
+        if (!inicio || !fin) return false;
+        fin.setHours(23, 59, 59, 999);
+        const hoy = new Date();
+        return hoy >= inicio && hoy <= fin;
+    }
+
     parseLocalDate(value) {
         if (!value) return null;
         const [y, m, d] = String(value).substring(0, 10).split('-').map(Number);
@@ -141,6 +158,12 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
         if (plan.actionName === 'Adherir' || plan.actionName === 'Continuar') {
             trackGa4Event('pph_declaracion_iniciada');
         }
+        this.redirectToParam(plan.id);
+    }
+
+    handleRectificar(event) {
+        const plan = this.findPlan(event.currentTarget.dataset.id);
+        if (!plan?.canRectificar) return;
         this.redirectToParam(plan.id);
     }
 

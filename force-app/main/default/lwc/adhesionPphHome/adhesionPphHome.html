@@ -47,11 +47,22 @@
                                     <span class="pph-closed">{plan.disabledCause}</span>
                                 </template>
                                 <template if:false={plan.actionDisabled}>
-                                    <button type="button" class={plan.btnClass} data-id={plan.id} onclick={handleAction}>
-                                        {plan.actionLabel}
-                                    </button>
+                                    <div class="pph-btns">
+                                        <template if:true={plan.canRectificar}>
+                                            <button type="button" class="pph-btn pph-btn-primary" data-id={plan.id} onclick={handleRectificar}>
+                                                Rectificar
+                                            </button>
+                                        </template>
+                                        <button type="button" class={plan.btnClass} data-id={plan.id} onclick={handleAction}>
+                                            {plan.actionLabel}
+                                        </button>
+                                    </div>
                                 </template>
                             </div>
+
+                            <template if:true={plan.showRectificacionInfo}>
+                                <p class="pph-hint" role="note">{rectificacionInfo}</p>
+                            </template>
                         </article>
                     </template>
                 </section>
