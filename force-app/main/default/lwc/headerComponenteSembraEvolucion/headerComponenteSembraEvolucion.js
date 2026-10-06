@@ -317,7 +317,7 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
         const path = window.location.pathname || '';
         const siteBase = path.includes('/s/') ? path.split('/s/')[0] : '';
         const loginUrl = `${window.location.origin}${siteBase}/s/login`;
-        const logoutUrl = `${window.location.origin}/secur/logout.jsp?retUrl=${encodeURIComponent(loginUrl)}`;
+        const logoutUrl = `${window.location.origin}${siteBase}/secur/logout.jsp?retUrl=${encodeURIComponent(loginUrl)}`;
         window.open(logoutUrl, '_self');
     };
 }
