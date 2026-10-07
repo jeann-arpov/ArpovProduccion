@@ -1,4 +1,5 @@
 import { LightningElement, api } from 'lwc';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 export default class PdfReader extends LightningElement {
     
@@ -14,6 +15,14 @@ export default class PdfReader extends LightningElement {
 
     get showLegacyModal() {
         return this.showPdf && this.variant !== 'sg';
+    }
+
+    renderedCallback() {
+        syncPortalModal(this, this.showSgModal, '.sg-layer');
+    }
+
+    disconnectedCallback() {
+        releasePortalModal(this);
     }
 
     handleOnLoadPDF() {

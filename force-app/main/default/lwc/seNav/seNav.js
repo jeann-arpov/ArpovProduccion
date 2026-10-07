@@ -39,7 +39,7 @@ export function goToCommunityPage(page) {
 /** Páginas internas que activan el mismo ítem del menú. */
 const PAGE_ALIASES = {
     [PAGES.pph]: ['pre-certificacion', 'adhesion-pph'],
-    [PAGES.cesiones]: ['cesion-pph'],
+    [PAGES.cesiones]: ['cesion-pph', 'cesion-ht'],
     [PAGES.misCompras]: ['compra-ht'],
     [PAGES.facturas]: ['mis-facturas'],
     [PAGES.licencias]: ['solicitar-licencia']

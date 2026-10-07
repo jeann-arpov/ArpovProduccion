@@ -140,7 +140,7 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
 
     formatDate(value) {
         const date = this.parseLocalDate(value);
-        return date ? date.toLocaleDateString('es-AR') : '—';
+        return date ? date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
     }
 
     findPlan(id) {

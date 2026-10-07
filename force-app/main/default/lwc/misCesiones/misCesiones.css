@@ -84,9 +84,12 @@
     z-index: 9000;
 }
 
+/* El theme fija button { height: 40px }: sin alto/ancho explícitos el scrim no cubre la vista. */
 .se-new-sheet-scrim {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
     border: none;
     background: rgba(0, 0, 0, 0.45);
     cursor: pointer;

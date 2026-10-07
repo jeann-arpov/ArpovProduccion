@@ -100,6 +100,10 @@ export function lockPortalModal(host, refit) {
     if (typeof refit === 'function') {
         state.refit = () => refit();
         window.addEventListener('resize', state.refit, { passive: true });
+        // Si la página se mueve con el modal abierto (scroll programático, contenido que termina de
+        // cargar), el overlay ajustado con un containing block del theme queda corrido.
+        window.addEventListener('scroll', state.refit, { passive: true, capture: true });
+        state.frame = window.requestAnimationFrame(state.refit);
     }
     return state;
 }
@@ -135,7 +139,11 @@ export function releasePortalModal(cmp) {
 export function unlockPortalModal(state) {
     if (!state || typeof document === 'undefined') return;
     restoreModalLayer(state.layer);
-    if (state.refit) window.removeEventListener('resize', state.refit);
+    if (state.refit) {
+        window.removeEventListener('resize', state.refit);
+        window.removeEventListener('scroll', state.refit, { capture: true });
+        window.cancelAnimationFrame(state.frame);
+    }
     lockCount = Math.max(0, lockCount - 1);
     if (lockCount === 0) {
         document.documentElement.classList.remove('se-modal-open', 'se-modal-gutter');
