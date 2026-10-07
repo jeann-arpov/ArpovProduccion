@@ -109,6 +109,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     marcaSearch = '';
     variedadSearch = '';
     @track variedadCantidades = {};
+    variedadQtyAvisos = {};
     @track _lineasListasFlag = false;
     @track guardandoLineas = false;
     @track finalizandoOperacion = false;
@@ -1256,6 +1257,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         if (blocked) return;
         if (this.semilleroCantidades !== this.semillero) {
             this.variedadCantidades = {};
+            this.variedadQtyAvisos = {};
         }
         this.semilleroCantidades = this.semillero;
         this.variedadSearch = '';
@@ -1328,6 +1330,12 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     hasLicencia,
                     showSubtotal: qty > 0,
                     minusDisabled: qty <= 0,
+                    plusDisabled: qty >= MAX_HT_POR_VARIEDAD,
+                    qtyAviso:
+                        this.variedadQtyAvisos?.[id] ||
+                        (qty >= MAX_HT_POR_VARIEDAD
+                            ? `El máximo por variedad es ${MAX_HT_POR_VARIEDAD.toLocaleString('es-AR')} HT.`
+                            : ''),
                     priceLabel: `${this.formatUsd(unitPrice)} / HT`,
                     subtotalLabel: this.formatUsd(subtotal),
                     badgeLabel: hasLicencia ? 'Con Licencia' : 'Sin Licencia',
@@ -1349,8 +1357,16 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     setVariedadCantidad(id, rawValue) {
-        const next = Math.min(MAX_HT_POR_VARIEDAD, Math.max(0, Math.floor(Number(rawValue) || 0)));
+        const raw = Number(rawValue) || 0;
+        const next = Math.min(MAX_HT_POR_VARIEDAD, Math.max(0, Math.floor(raw)));
+        let aviso = '';
+        if (raw > MAX_HT_POR_VARIEDAD) {
+            aviso = `El máximo por variedad es ${MAX_HT_POR_VARIEDAD.toLocaleString('es-AR')} HT.`;
+        } else if (raw > 0 && raw !== next) {
+            aviso = `Solo se compran HT enteras: se tomó ${next.toLocaleString('es-AR')} HT.`;
+        }
         this.variedadCantidades = { ...this.variedadCantidades, [id]: next };
+        this.variedadQtyAvisos = { ...this.variedadQtyAvisos, [id]: aviso };
     }
 
     handleVariedadQty(event) {
@@ -1533,6 +1549,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             }
         });
         this.variedadCantidades = map;
+        this.variedadQtyAvisos = {};
     }
 
     retomarCompraEnCurso() {
