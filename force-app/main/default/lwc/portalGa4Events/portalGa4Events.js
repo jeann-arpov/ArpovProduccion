@@ -34,7 +34,11 @@ export function resolveSemilleroLabel(semilleros, semilleroId, semilleroData) {
     if (fromData) {
         return fromData;
     }
-    const opt = (semilleros || []).find((s) => s.value === semilleroId);
+    // Las listas de licencias mandan la marca ya resuelta como texto.
+    if (!Array.isArray(semilleros)) {
+        return semilleros || semilleroId || '';
+    }
+    const opt = semilleros.find((s) => s.value === semilleroId);
     return opt?.label || semilleroId || '';
 }
 
@@ -51,6 +55,7 @@ export function resolveCantidadHt(data) {
 export function buildHtCompraConfirmadaParams({
     semilleros,
     semilleroId,
+    subsistema,
     semilleroData,
     cultivoNombre,
     tipoCompraSeleccionado,
@@ -62,7 +67,8 @@ export function buildHtCompraConfirmadaParams({
         cultivo: cultivoNombre || '',
         tipo_ht: tipoCompraSeleccionado || '',
         cantidad_ht: resolveCantidadHt(data),
-        forma_pago: tipoPago || ''
+        forma_pago: tipoPago || '',
+        subsistema: subsistema || ''
     };
 }
 
