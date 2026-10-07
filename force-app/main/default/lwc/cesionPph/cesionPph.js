@@ -558,7 +558,12 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
 
     get deskPageTitle() {
         if (this.isResumen) return this.mobPageTitle;
-        return `Cesión de toneladas — ${this.pageTipoCesion || this.tipoCesion || 'Productor'}`;
+        return `Cesión de toneladas — ${this.tipoCesionLabel || 'Productor'}`;
+    }
+
+    get tipoCesionLabel() {
+        const tipo = this.pageTipoCesion || this.tipoCesion;
+        return tipo === 'Explotacion Conjunta' ? 'Explotación Conjunta' : tipo;
     }
 
     get deskPageSubtitle() {
@@ -567,7 +572,7 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     }
 
     get deskResumenTipo() {
-        return this.pageTipoCesion || this.tipoCesion || '—';
+        return this.tipoCesionLabel || '—';
     }
 
     get deskResumenCultivo() {

@@ -16,6 +16,12 @@ function formatDate(value) {
     return `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${dt.getFullYear()}`;
 }
 
+const TIPO_CESION_LABEL = { 'Explotacion Conjunta': 'Explotación Conjunta' };
+
+function tipoLabel(tipo) {
+    return TIPO_CESION_LABEL[tipo] || tipo;
+}
+
 function statusTone(estado) {
     const s = (estado || '').toLowerCase();
     if (/valid|finaliz|confirm/.test(s)) return 'ok';
@@ -57,7 +63,7 @@ export default class MisCesiones extends NavigationMixin(LightningElement) {
         { label: 'Cesión', fieldName: 'name', type: 'link' },
         { label: 'Cedente', fieldName: 'cedente' },
         { label: 'Cultivo', fieldName: 'cultivo' },
-        { label: 'Tipo', fieldName: 'tipo' },
+        { label: 'Tipo', fieldName: 'tipoLabel' },
         { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
         { label: 'Variedades', fieldName: 'variedades' },
         { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver' }
@@ -67,7 +73,7 @@ export default class MisCesiones extends NavigationMixin(LightningElement) {
         { label: 'Fecha', fieldName: 'fechaLabel' },
         { label: 'Cultivo', fieldName: 'cultivo' },
         { label: 'Cedente', fieldName: 'cedente' },
-        { label: 'Tipo', fieldName: 'tipo' },
+        { label: 'Tipo', fieldName: 'tipoLabel' },
         { label: 'Variedades', fieldName: 'variedades' }
     ];
 
@@ -111,6 +117,7 @@ export default class MisCesiones extends NavigationMixin(LightningElement) {
                         cedente: row.Cuenta_Cedente__r?.Name || '',
                         cultivo: row.Cultivo__r?.Name || '',
                         tipo: row.Tipo_de_Cesion__c || '',
+                        tipoLabel: tipoLabel(row.Tipo_de_Cesion__c || ''),
                         variedades: row.Variedades__c || '',
                         estado,
                         statusLabel: estado,
@@ -195,7 +202,7 @@ export default class MisCesiones extends NavigationMixin(LightningElement) {
             { value: 'todas', label: 'Todos los tipos' },
             ...Object.keys(tipoCounts)
                 .sort((a, b) => a.localeCompare(b, 'es'))
-                .map((t) => ({ value: t, label: t }))
+                .map((t) => ({ value: t, label: tipoLabel(t) }))
         ];
 
         let rows = [...this.rowsAll];

@@ -23,9 +23,10 @@ const OBTENTOR_SHORT = {
 
 function fmtDate(value) {
     if (!value) return '';
-    const d = new Date(value);
+    const ymd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
+    const d = ymd ? new Date(Number(ymd[1]), Number(ymd[2]) - 1, Number(ymd[3])) : new Date(value);
     if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('es-AR');
+    return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 function fmtDateTime(value) {
