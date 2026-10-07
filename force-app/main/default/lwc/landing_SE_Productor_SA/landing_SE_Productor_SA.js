@@ -3,6 +3,7 @@ import getLoadData from '@salesforce/apex/HomeMulticultivo.getLoadData';
 import { NavigationMixin } from 'lightning/navigation';
 import { trackGa4Event } from 'c/portalGa4Events';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 import enRevisionDetalle from '@salesforce/label/c.PPH_Estado_En_Revision_Detalle';
 
 const NUMBER_FMT = new Intl.NumberFormat('es-AR', {
@@ -138,9 +139,11 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
             window.addEventListener('resize', this._scrollHintHandler, { passive: true });
         }
         this.updateScrollHint();
+        syncPortalModal(this, this.filterOpen && window.innerWidth <= 767, '.home-filters-sheet:not(.is-hidden)');
     }
 
     disconnectedCallback() {
+        releasePortalModal(this);
         if (this._scrollHintHandler) {
             window.removeEventListener('scroll', this._scrollHintHandler);
             window.removeEventListener('resize', this._scrollHintHandler);

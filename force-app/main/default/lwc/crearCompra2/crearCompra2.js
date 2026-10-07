@@ -1805,7 +1805,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     syncPayModalScrollLock() {
-        const shouldLock = this.hasOverlayModal;
+        const shouldLock = this.hasOverlayModal || this.currentModal != null;
         if (shouldLock === this._payModalScrollLocked) {
             return;
         }

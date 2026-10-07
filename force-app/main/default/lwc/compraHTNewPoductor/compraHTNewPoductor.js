@@ -6,6 +6,7 @@ import { reduceErrors } from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 const NONE_KEY = '__none__';
 
@@ -194,6 +195,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     }
 
     disconnectedCallback() {
+        releasePortalModal(this);
         document.documentElement.classList.remove('se-inner');
         document.body.classList.remove('se-inner');
     }
@@ -271,6 +273,7 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
         if (!this.initialized) {
             this.init();
         }
+        syncPortalModal(this, this.filtersSheetOpen, '.filt-sheet-wrap');
     }
 
     decorateRow(row, index) {

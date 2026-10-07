@@ -1,4 +1,5 @@
 import { LightningElement, api } from 'lwc';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 export default class Map extends LightningElement {
     @api latitude;
@@ -12,8 +13,13 @@ export default class Map extends LightningElement {
         window.addEventListener('message', this.messageHandler);
     }
 
+    renderedCallback() {
+        syncPortalModal(this, this.isOpen, '.sg-layer');
+    }
+
     disconnectedCallback() {
         window.removeEventListener('message', this.messageHandler);
+        releasePortalModal(this);
     }
 
     handleVFResponse(message) {
