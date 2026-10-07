@@ -375,6 +375,12 @@
     color: var(--se-muted, #6b7280);
 }
 
+/* El compilador de LWC elimina el espacio entre el texto y el botón. */
+.se-login-foot-text .se-login-link,
+.se-login-register .se-login-link {
+    margin-left: 0.3em;
+}
+
 .se-login-cancel {
     appearance: none;
     border: none;
