@@ -5,7 +5,6 @@ import getEstadosLicencia from '@salesforce/apex/LicenciasController.getEstadosL
 import getOrigenesLicencia from '@salesforce/apex/LicenciasController.getOrigenesLicenciaProductor';
 import getTiposLicencia from '@salesforce/apex/LicenciasController.getTiposLicencia';
 import getLicensesReport from '@salesforce/apex/LicenseReportService.getLicensesReport';
-import { fetchCultivoOptions } from 'c/cultivoResumenService';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import getUrl from '@salesforce/apex/SolicitarLicencia.getUrl';
 import singleNewLicenseRequestJWTSigner from '@salesforce/apex/CustomJWTSigner.singleNewLicenseRequestJWTSigner';
@@ -55,9 +54,6 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     };
     @track isLoading = true;
     @track renderFilters = false;
-    @track cultivoOptions = [];
-    @track selectedCultivoId;
-    @track showCultivoResumen = false;
     initialized = false;
 
     // Configuración de paginación
@@ -182,12 +178,8 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
             await this.loadFilters();
             this.loadSessionFilters();
 
-            await Promise.all([
-                this.loadLicencias({ manageLoading: false }),
-                this.loadCultivoResumenOptions()
-            ]);
+            await this.loadLicencias({ manageLoading: false });
 
-            this.showCultivoResumen = this.cultivoOptions.length > 0;
             this.renderFilters = true;
         } catch (error) {
             console.error('Error cargando datos iniciales:', error);
@@ -224,26 +216,6 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
             this.origenes = [];
             this.tipos = [];
         }
-    }
-
-    async loadCultivoResumenOptions() {
-        try {
-            const { options, defaultId } = await fetchCultivoOptions();
-            this.cultivoOptions = options;
-
-            if (options.length && !this.selectedCultivoId) {
-                this.selectedCultivoId = defaultId;
-            }
-        } catch (error) {
-            console.error('Error cargando cultivos para resumen:', error);
-            this.cultivoOptions = [];
-        }
-    }
-
-    handleCultivoResumenSelect(event) {
-        this.selectedCultivoId = event.detail?.value;
-        this.currentPage = 1;
-        this.loadLicencias();
     }
 
     loadSessionFilters() {
@@ -300,7 +272,6 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
             }
             if (this.selectedCarta) filters.carta = this.selectedCarta;
             if (this.searchTerm) filters.searchTerm = this.searchTerm;
-            if (this.selectedCultivoId) filters.cultivoId = this.selectedCultivoId;
 
             this.currentFilters = filters;
 

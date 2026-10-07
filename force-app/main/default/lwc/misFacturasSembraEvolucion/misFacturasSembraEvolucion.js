@@ -2,7 +2,6 @@ import { LightningElement, track, api } from 'lwc';
 import getVencimientos from '@salesforce/apex/MisFacturasController.getVencimientos';
 import getAdjuntosPago from '@salesforce/apex/MisFacturasController.getAdjuntosPago';
 import PagoInformadoTooltip from '@salesforce/label/c.PagoInformado_Tooltip';
-import { fetchCultivoOptions, fetchCultivoSummary } from 'c/cultivoResumenService';
 import { reduceErrors } from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { doRequest } from 'c/utils';
@@ -60,12 +59,6 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     @track vencimientos = [];
     @track data = [];
     @track loading = true;
-    @track cultivoOptions = [];
-    @track cultivoSummaryRows = [];
-    @track selectedCultivoId;
-    @track cultivoSummaryTotal = 0;
-    @track cultivoSummaryLoading = false;
-    @track showCultivoResumen = false;
     @track adjuntos = [];
     @track showDocumentos = false;
     @track documentosLoading = false;
@@ -110,7 +103,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     }
 
     get statusPills() {
-        const rows = this.rowsDelCultivo;
+        const rows = this.vencimientos;
         return [
             {
                 id: 'todas',
@@ -131,22 +124,6 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
                 selected: this.statusFilter === 'pagadas'
             }
         ];
-    }
-
-    get selectedCultivoName() {
-        if (!this.showCultivoResumen || !this.selectedCultivoId) return '';
-        const option = (this.cultivoOptions || []).find((o) => o.value === this.selectedCultivoId);
-        return option ? String(option.label || '').trim().toUpperCase() : '';
-    }
-
-    // Las facturas sin cultivo se muestran en todas las pestañas para no ocultarlas.
-    get rowsDelCultivo() {
-        const cultivo = this.selectedCultivoName;
-        if (!cultivo) return this.vencimientos;
-        return this.vencimientos.filter((row) => {
-            const rowCultivo = String(row.cultivo || '').trim().toUpperCase();
-            return !rowCultivo || rowCultivo === cultivo;
-        });
     }
 
     async init() {
@@ -186,51 +163,8 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
                 return vencimiento;
             });
 
-            await this.loadCultivoResumenOptions();
             this.applyFilters();
         });
-    }
-
-    async loadCultivoResumenOptions() {
-        try {
-            const { options, defaultId } = await fetchCultivoOptions();
-            this.cultivoOptions = options;
-            this.showCultivoResumen = options.length > 0;
-
-            if (options.length && !this.selectedCultivoId) {
-                this.selectedCultivoId = defaultId;
-                await this.loadCultivoSummary();
-            }
-        } catch (error) {
-            this.cultivoOptions = [];
-            this.showCultivoResumen = false;
-        }
-    }
-
-    async loadCultivoSummary() {
-        if (!this.selectedCultivoId) {
-            this.cultivoSummaryRows = [];
-            this.cultivoSummaryTotal = 0;
-            return;
-        }
-
-        this.cultivoSummaryLoading = true;
-        try {
-            const summary = await fetchCultivoSummary(this.selectedCultivoId);
-            this.cultivoSummaryRows = summary.rows;
-            this.cultivoSummaryTotal = summary.total;
-        } catch (error) {
-            this.cultivoSummaryRows = [];
-            this.cultivoSummaryTotal = 0;
-        } finally {
-            this.cultivoSummaryLoading = false;
-        }
-    }
-
-    handleCultivoResumenSelect(event) {
-        this.selectedCultivoId = event.detail?.value;
-        this.applyFilters();
-        this.loadCultivoSummary();
     }
 
     get hasAdjuntos() {
@@ -247,7 +181,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
     }
 
     applyFilters() {
-        let rows = [...this.rowsDelCultivo];
+        let rows = [...this.vencimientos];
         if (this.statusFilter !== 'todas') {
             rows = rows.filter((row) => row.bucket === this.statusFilter);
         }
@@ -338,9 +272,8 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
                 Estado: row.statusLabel || ''
             }));
             const dateSuffix = new Date().toISOString().split('T')[0];
-            const cultivoSuffix = this.selectedCultivoName ? `${this.selectedCultivoName.toLowerCase()}_` : '';
             downloadVentasWorkbook(
-                `facturas_${cultivoSuffix}${this.statusFilter}_${dateSuffix}.xlsx`,
+                `facturas_${this.statusFilter}_${dateSuffix}.xlsx`,
                 exportRows,
                 EXPORT_HEADERS,
                 'Facturas'

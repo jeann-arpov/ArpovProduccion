@@ -97,7 +97,6 @@
             <section slot="filters" class="filt-panel">
                 <div class="filt-panel-head">
                     <span class="filt-panel-title">Filtros</span>
-                    <span class="filt-panel-hint">Aplican junto al cultivo activo en las tabs.</span>
                     <button type="button" class="filt-link" onclick={handleClearFilters}>Limpiar</button>
                     <button type="button" class="filt-close" onclick={handleCloseFiltersPanel}>Cerrar</button>
                 </div>
@@ -140,48 +139,6 @@
         </template>
 
         <template if:true={renderList}>
-            <template if:true={showCultivoResumen}>
-            <c-se-cultivo-resumen
-                cultivos={cultivoOptions}
-                selected={selectedCultivoId}
-                hide-summary
-                hide-summary-on-mobile
-                onselect={handleCultivoResumenSelect}
-            >
-                <div class="lic-list-panel">
-                    <c-se-data-list
-                        records={decoratedLicencias}
-                        columns={columns}
-                        mobile-fields={mobileFields}
-                        title-field="name"
-                        badge-field="statusLabel"
-                        badge-tone-field="statusTone"
-                        key-field="id"
-                        action-label="Ver"
-                        mobile-action-label="Ver detalle →"
-                        mobile-action-variant="link"
-                        empty-text="No hay licencias para mostrar."
-                        page-size={listPageSize}
-                        loading={isLoading}
-                        onrowaction={handleRowAction}
-                    ></c-se-data-list>
-
-                    <c-se-pager
-                        page={currentPage}
-                        disable-prev={disablePrev}
-                        disable-next={disableNext}
-                        onprevious={handlePrev}
-                        onnext={handleNext}
-                    ></c-se-pager>
-
-                    <div class="boton-reporte">
-                        <button type="button" class="btn-generar" onclick={openModal}>Generar Reporte</button>
-                    </div>
-                </div>
-            </c-se-cultivo-resumen>
-        </template>
-
-        <template if:false={showCultivoResumen}>
             <div class="lic-list-panel">
                 <c-se-data-list
                     records={decoratedLicencias}
@@ -212,7 +169,6 @@
                     <button type="button" class="btn-generar" onclick={openModal}>Generar Reporte</button>
                 </div>
             </div>
-        </template>
         </template>
     </c-se-list-page>
 
