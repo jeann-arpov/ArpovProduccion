@@ -818,17 +818,18 @@
         display: none;
     }
 
+    /* Por encima de la barra inferior fija (seBottomNav: 72px + safe area, z-index 280). */
     .home-scroll-hint {
         position: fixed;
         left: 0;
         right: 0;
-        bottom: 0;
+        bottom: calc(72px + env(safe-area-inset-bottom, 0px));
         z-index: 150;
-        height: 104px;
+        height: 88px;
         display: flex;
         align-items: flex-end;
         justify-content: center;
-        padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        padding-bottom: 12px;
         box-sizing: border-box;
         background: linear-gradient(
             to bottom,
