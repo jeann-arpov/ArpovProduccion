@@ -273,6 +273,15 @@
     background: #a8e600;
 }
 
+.btn.ghost {
+    background: #fff;
+    border: 1px solid #1c1c1c;
+}
+
+.btn.ghost:hover {
+    background: #f3f4f6;
+}
+
 @media (max-width: 767px) {
     .p-dfoot .btn {
         flex: 1;
