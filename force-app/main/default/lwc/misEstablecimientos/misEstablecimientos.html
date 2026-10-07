@@ -203,11 +203,12 @@
                                 id="est-edit-name"
                                 class={editNameClass}
                                 type="text"
-                                maxlength="80"
                                 data-field="name"
                                 value={editName}
                                 oninput={handleEditInput}
+                                aria-describedby="est-edit-name-count"
                             />
+                            <p id="est-edit-name-count" class={editNameCountClass}>{editNameCount}</p>
                             <template if:true={editNameError}>
                                 <p class="p-err">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>
@@ -285,7 +286,6 @@
 
                 <footer class="p-mfoot">
                     <button type="button" class="btn ghost" onclick={closeEdit} disabled={saving}>Cancelar</button>
-                    <button type="button" class="btn ghost" onclick={handleSaveAndNew} disabled={saving}>Guardar y nuevo</button>
                     <button type="button" class="btn btn-main" onclick={handleSave} disabled={saving}>{saveLabel}</button>
                 </footer>
             </section>
