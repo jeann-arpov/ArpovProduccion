@@ -44,8 +44,7 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
 
     @track totalRegistros = 0;
     @track showModal = false;
-    @track showReportModal = false;
-    @track isReportLoading = false;
+    @track reportStep = 'confirm';
     @track reportResponse = {
         success: false,
     message: "",
@@ -129,7 +128,7 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     }
 
     renderedCallback() {
-        syncPortalModal(this, this.showModal || this.showReportModal, '.modal-backdrop, .slds-modal, .slds-backdrop');
+        syncPortalModal(this, this.showModal, '.modal-backdrop');
     }
 
     disconnectedCallback() {
@@ -532,11 +531,22 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     // ========== MÉTODOS DE MODAL ==========
 
     openModal() {
+        this.reportStep = 'confirm';
         this.showModal = true;
     }
 
     closeModal() {
+        if (this.isReportLoading) return;
         this.showModal = false;
+        this.reportStep = 'confirm';
+    }
+
+    handleReportBackdrop() {
+        this.closeModal();
+    }
+
+    stopPropagation(event) {
+        event.stopPropagation();
     }
 
     // ========== HANDLERS DE ACCIONES ==========
@@ -628,8 +638,6 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
             contactId: this.currentContactId
         });
 
-        this.showModal = false;
-
         try {
             await this.callReportService();
         } catch (error) {
@@ -720,9 +728,11 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
             data: null,
             statusCode: null
         };
-        this.isReportLoading = true;
-        this.showReportModal = true;
-        this.showModal = false;
+        if (this.sinLicenciasParaReporte) {
+            this.reportStep = 'empty';
+            return;
+        }
+        this.reportStep = 'loading';
 
     console.log("[LicenciasListProductor - Reporte] Iniciando solicitud", {
             userId: this.currentUserId,
@@ -770,31 +780,47 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
                 statusCode: error?.statusCode ?? null
             };
         } finally {
-            this.isReportLoading = false;
+            this.reportStep = this.reportResponse.success ? 'success' : 'error';
         }
-    }
-
-    handleCloseReportModal() {
-        this.showReportModal = false;
-        this.showModal = false;
     }
 
     handleRetryReport() {
         this.callReportService();
     }
 
-    get formattedReportData() {
-        if (this.reportResponse.data) {
-            try {
-                return JSON.stringify(this.reportResponse.data, null, 2);
-            } catch (e) {
-                return String(this.reportResponse.data);
-            }
+    get sinLicenciasParaReporte() {
+        return (
+            !this.isLoading &&
+            this.totalRegistros === 0 &&
+            this.activeFilterCount === 0 &&
+            !(this.searchTerm || '').trim()
+        );
+    }
+
+    get isReportConfirm() {
+        return this.reportStep === 'confirm';
+    }
+
+    get isReportLoading() {
+        return this.reportStep === 'loading';
+    }
+
+    get isReportSuccess() {
+        return this.reportStep === 'success';
+    }
+
+    get isReportError() {
+        return this.reportStep === 'error' || this.reportStep === 'empty';
+    }
+
+    get reportErrorMessage() {
+        if (this.reportStep === 'empty') {
+            return 'Todavía no tenés licencias para incluir en el reporte.';
         }
-    return "";
+        return 'No pudimos generar el reporte en este momento. Intentá de nuevo en unos minutos.';
     }
 
     get showRetryButton() {
-        return !this.isReportLoading && !this.reportResponse.success;
+        return this.reportStep === 'error';
     }
 }
