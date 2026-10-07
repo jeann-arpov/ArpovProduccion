@@ -241,7 +241,7 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     
             if (this.destinatarios.length == 0) this.addRow();
     
-            if (this.isEnCurso == false && this.hasDestinatarioEnCurso == false) setTimeout(_ => this.step = "resumen", 0);
+            if (this.isSoloLectura) setTimeout(_ => this.step = "resumen", 0);
 
             this.syncWizardStep();
             this.syncWizardDestReady();
@@ -780,6 +780,10 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     }
 
     handleResumenBack() {
+        if (this.isSoloLectura) {
+            goToCommunityPage(PAGES.cesiones);
+            return;
+        }
         this.step = 'cesion';
         this.wizardStep = 3;
     }
@@ -801,6 +805,12 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
 
     get hasDestinatarioEnCurso() {
         return this.destinatarios.find(d => d.record?.Estado__c == 'En Curso') != null;
+    }
+
+    /** Solo se edita En Curso/Borrador, o una Parcialmente Validada con destinatarios devueltos a En Curso. */
+    get isSoloLectura() {
+        if (this.isEnCurso) return false;
+        return !(this.cesion.Estado__c == 'Parcialmente Validada' && this.hasDestinatarioEnCurso);
     }
 
     editConfirm(e) {

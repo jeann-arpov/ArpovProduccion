@@ -2,6 +2,8 @@ import { LightningElement, api, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { goToCommunityPage, PAGES } from 'c/seNav';
 
+const CESION_EDITABLE = ['En Curso', 'Borrador', 'Parcialmente Validada'];
+
 const mapTecnologias = {
     'RR1': 'RR',
     'RR2 - BT': 'RR',
@@ -91,7 +93,7 @@ export default class ResumenCesionPph extends NavigationMixin(LightningElement) 
                     };
                 });
             dest.collapsed = this.collapsed[e.id] === true;
-            dest.canEdit = e.record.Estado__c == 'En Curso' && this.info.cesion.Estado__c != 'Pendiente de Validación';
+            dest.canEdit = e.record.Estado__c == 'En Curso' && CESION_EDITABLE.includes(this.info.cesion.Estado__c);
             dest.enCurso = e.record.Estado__c == 'En Curso';
             return dest;
         });
