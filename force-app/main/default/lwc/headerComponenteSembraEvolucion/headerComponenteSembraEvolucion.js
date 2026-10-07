@@ -130,6 +130,7 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
         window.addEventListener('keydown', this._onKeydown);
         window.addEventListener('pointerdown', this._onPointerDown);
         window.addEventListener('popstate', this.syncCurrentPath);
+        this.observeDocumentTitle();
         if (!this.tokensLoaded) {
             loadStyle(this, `${TOKENS}?v=home-canvas-20260914b`)
                 .then(() => {
@@ -146,7 +147,24 @@ export default class HeaderComponenteSembraEvolucion extends NavigationMixin(Lig
         window.removeEventListener('keydown', this._onKeydown);
         window.removeEventListener('pointerdown', this._onPointerDown);
         window.removeEventListener('popstate', this.syncCurrentPath);
+        if (this._titleObserver) {
+            this._titleObserver.disconnect();
+            this._titleObserver = null;
+        }
         document.body.classList.remove('se-drawer-open');
+    }
+
+    // Las páginas con registro (adhesión PPH, detalle de cesión) reescriben el título cuando
+    // terminan de cargar, después de los reintentos de syncCurrentPath.
+    observeDocumentTitle() {
+        if (this._titleObserver || typeof MutationObserver === 'undefined') return;
+        try {
+            if (!document.head) return;
+            this._titleObserver = new MutationObserver(() => this.applyDocumentTitle());
+            this._titleObserver.observe(document.head, { childList: true, characterData: true, subtree: true });
+        } catch (e) {
+            this._titleObserver = null;
+        }
     }
 
     get navItemsView() {
