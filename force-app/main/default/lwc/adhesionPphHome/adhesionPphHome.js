@@ -123,8 +123,12 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
 
     getCanRectificar(wParam, estado) {
         if (estado !== 'Adherido' && estado !== 'En Revisión') return false;
-        const inicio = this.parseLocalDate(wParam.parametro.Fecha_Inicio_Rectificacion_1__c);
-        const fin = this.parseLocalDate(wParam.parametro.Fecha_Fin_Rectificacion_1__c);
+        return this.isInRectificacion(wParam.parametro, 1) || this.isInRectificacion(wParam.parametro, 2);
+    }
+
+    isInRectificacion(parametro, n) {
+        const inicio = this.parseLocalDate(parametro[`Fecha_Inicio_Rectificacion_${n}__c`]);
+        const fin = this.parseLocalDate(parametro[`Fecha_Fin_Rectificacion_${n}__c`]);
         if (!inicio || !fin) return false;
         fin.setHours(23, 59, 59, 999);
         const hoy = new Date();
@@ -164,17 +168,17 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     handleRectificar(event) {
         const plan = this.findPlan(event.currentTarget.dataset.id);
         if (!plan?.canRectificar) return;
-        this.redirectToParam(plan.id);
+        this.redirectToParam(plan.id, true);
     }
 
-    redirectToParam(paramId) {
+    redirectToParam(paramId, rectificar = false) {
         this[NavigationMixin.GenerateUrl]({
             type: 'comm__namedPage',
             attributes: {
                 pageName: 'adhesion-pph'
             }
         }).then((url) => {
-            window.open(`${url}?recordId=${paramId}`, '_self');
+            window.open(`${url}?recordId=${paramId}${rectificar ? '&rectificar=1' : ''}`, '_self');
         });
     }
 
