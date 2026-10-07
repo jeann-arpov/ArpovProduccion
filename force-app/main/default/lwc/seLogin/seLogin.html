@@ -49,7 +49,7 @@
                                         alternative-text="Error"
                                     ></lightning-icon>
                                 </template>
-                                <span>{message}</span>
+                                <lightning-formatted-rich-text class="se-login-alert-text" value={messageText}></lightning-formatted-rich-text>
                             </div>
                         </template>
 
@@ -183,7 +183,9 @@
                         </p>
 
                         <template if:true={message}>
-                            <div class={messageBannerClass} role="alert">{message}</div>
+                            <div class={messageBannerClass} role="alert">
+                                <lightning-formatted-rich-text class="se-login-alert-text" value={messageText}></lightning-formatted-rich-text>
+                            </div>
                         </template>
 
                         <div class={codeFieldClass}>

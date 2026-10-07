@@ -375,6 +375,11 @@ export default class SeLogin extends LightningElement {
         this.clearMessage();
     }
 
+    /** Los errores de RegisterCommunityController traen HTML (link a WhatsApp): se muestra como rich text saneado. */
+    get messageText() {
+        return Array.isArray(this.message) ? this.message.join(' ') : String(this.message || '');
+    }
+
     showMessage(variant, message) {
         this.messageVariant = variant;
         this.message = reduceErrors(message);
