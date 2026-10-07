@@ -1016,9 +1016,12 @@ h3,
     color: #1c1c1c;
 }
 
+/* El theme fija button { height: 40px }: sin alto/ancho explícitos el scrim no cubre la vista. */
 .se-pay-scrim {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
     border: none;
     padding: 0;
     margin: 0;
@@ -3081,6 +3084,8 @@ a.c-tooltip {
 .se-result-scrim {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
     border: none;
     padding: 0;
     margin: 0;

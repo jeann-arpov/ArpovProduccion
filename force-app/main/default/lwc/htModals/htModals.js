@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import SVG_ICONS from '@salesforce/resourceUrl/iconos_SE';
 import { NavigationMixin } from 'lightning/navigation';
+import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
 // Matriz completa de datos del Excel Financiado_HT
 const FINANCIADO_MATRIX = [
@@ -97,6 +98,14 @@ export default class HtModals extends NavigationMixin(LightningElement) {
 
     connectedCallback() {
         this.loadEntidadesBancarias();
+    }
+
+    renderedCallback() {
+        syncPortalModal(this, this.showModal, '.modal-backdrop, .slds-modal, .slds-backdrop');
+    }
+
+    disconnectedCallback() {
+        releasePortalModal(this);
     }
 
     // Carga inicial de entidades bancarias únicas
