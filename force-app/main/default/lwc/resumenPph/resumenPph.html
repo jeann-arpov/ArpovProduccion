@@ -81,14 +81,13 @@
         </template>
     </div>
 
-    <template if:true={showActions}>
-        <div class="p-dfoot">
-            <template if:true={canEdit}>
-                <button type="button" class="btn" onclick={enviar}>Enviar</button>
-            </template>
-            <template if:true={canRectificar}>
-                <button type="button" class="btn" onclick={rectificar}>Rectificar</button>
-            </template>
-        </div>
-    </template>
+    <div class="p-dfoot">
+        <button type="button" class="btn ghost" onclick={volver}>Volver a Mis PPH</button>
+        <template if:true={canEdit}>
+            <button type="button" class="btn" onclick={enviar}>Enviar</button>
+        </template>
+        <template if:true={canRectificar}>
+            <button type="button" class="btn" onclick={rectificar}>Rectificar</button>
+        </template>
+    </div>
 </template>

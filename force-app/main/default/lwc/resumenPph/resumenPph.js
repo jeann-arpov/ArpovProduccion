@@ -1,5 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 
+const ESTADOS_CON_SALDO_PPH = ['En Revisión', 'Adherido', 'Vencido'];
+
 const fmt = (n) => new Intl.NumberFormat('es-AR').format(Number(n) || 0);
 
 const sumVariedades = (est) =>
@@ -45,10 +47,13 @@ export default class ResumenPph extends LightningElement {
     }
 
     get creditoDisponible() {
-        if (this.info?.plan?.Estado__c === 'Adherido') {
-            return this.info.saldoPph;
+        const estado = this.info?.plan?.Estado__c;
+        // Al enviar, lo no precertificado se reserva como HT Saldo PPH y el stock neto del cultivo queda en 0.
+        if (ESTADOS_CON_SALDO_PPH.includes(estado)) {
+            return Number(this.info.saldoPph) || 0;
         }
-        return this.info.total - (this.info.plan.Estado__c === 'Cancelado' ? 0 : this.totalSembradoSE);
+        const disponible = (Number(this.info?.total) || 0) - (estado === 'Cancelado' ? 0 : this.totalSembradoSE);
+        return Math.max(0, disponible);
     }
 
     get totalSembradoLabel() {
@@ -108,10 +113,6 @@ export default class ResumenPph extends LightningElement {
         return this.isWithinWindow(params, 1) || this.isWithinWindow(params, 2);
     }
 
-    get showActions() {
-        return this.canEdit || this.canRectificar;
-    }
-
     isWithinWindow(params, n) {
         const start = params[`Fecha_Inicio_Rectificacion_${n}__c`];
         const end = params[`Fecha_Fin_Rectificacion_${n}__c`];
@@ -136,5 +137,9 @@ export default class ResumenPph extends LightningElement {
 
     rectificar() {
         this.dispatchEvent(new CustomEvent('rectificar'));
+    }
+
+    volver() {
+        this.dispatchEvent(new CustomEvent('volver'));
     }
 }

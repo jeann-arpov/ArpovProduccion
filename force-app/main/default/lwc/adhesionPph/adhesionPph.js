@@ -651,6 +651,10 @@ export default class AdhesionPph extends LightningElement {
     goToCommunityPage(PAGES.home);
   }
 
+  goMisPph() {
+    goToCommunityPage(PAGES.pph);
+  }
+
   scrollTop() {
     try {
       window.scrollTo({ top: 0, behavior: "smooth" });
