@@ -464,4 +464,44 @@ public class HomeMulticultivoTest {
         System.assert(HomeMulticultivo.getCultivosConDeuda(cultivos, productor.Id).contains(cultivo.Id),
             'Una campaña visible sin PPH en negativo dispara la alerta');
     }
+
+    @isTest
+    static void testCgDeudaPorToneladasSinCuentaGranaria() {
+        Test_TestUtils.disableFlows();
+        Date hoy = Date.today();
+
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('SOJA', 75, false);
+        cultivo.Sembra_Evolucion__c = true;
+        insert cultivo;
+        Account productor = Test_TestUtils.crearProductor();
+
+        Campana_Agricola__c camp24 = Test_TestUtils.crearCampanaAgricola('2024', cultivo, hoy.addYears(-2), hoy.addYears(-1), '2024 - SOJA', false);
+        Campana_Agricola__c camp25 = Test_TestUtils.crearCampanaAgricola('2025', cultivo, hoy.addYears(-1), hoy.addDays(30), '2025 - SOJA', false);
+        camp24.Estado__c = 'Completa';
+        camp25.Estado__c = 'Activa';
+        insert new List<Campana_Agricola__c>{ camp24, camp25 };
+
+        Set<Id> cultivos = new Set<Id>{ cultivo.Id };
+        System.assert(HomeMulticultivo.getCultivosConDeuda(cultivos, productor.Id).isEmpty(),
+            'Sin toneladas ni Cuenta Granaria la Home muestra "en regla"');
+
+        // Caso LAMAS 24/25: la tarjeta de CG suma -2 t de Enlist aunque no haya registro de Cuenta Granaria.
+        insert new Tonelada__c(
+            Productor__c = productor.Id,
+            Cultivo__c = cultivo.Id,
+            Campania__c = camp24.Id,
+            Biotecnologia__c = 'Enlist E3',
+            Cantidad__c = 2,
+            Signo__c = -1,
+            Fecha_Inicio__c = hoy.addDays(-5),
+            Fecha_Fin__c = hoy.addYears(1),
+            Etapa__c = 'Cobrada',
+            Origen__c = 'Compra SF'
+        );
+
+        Map<String, Decimal> totales = CuentaGranaria.getTotalesPorCampanaYPlataforma(productor.Id, new Set<Id>{ camp24.Id });
+        System.assertEquals(-2, totales.get(camp24.Id + '|Enlist E3/Conkesta E3'), 'Total por plataforma igual al de la tarjeta');
+        System.assert(HomeMulticultivo.getCultivosConDeuda(cultivos, productor.Id).contains(cultivo.Id),
+            'Una campaña visible con toneladas en negativo dispara la alerta');
+    }
 }

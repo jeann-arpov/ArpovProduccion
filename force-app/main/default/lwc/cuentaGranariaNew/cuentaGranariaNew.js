@@ -327,15 +327,17 @@ export default class CuentaGranariaNew extends LightningElement {
             const showPPH = hasAdhesion;
             const displayToneladas = Number(c.totalToneladas ?? c.saldoCuentaGranaria ?? 0) || 0;
             const isSelected = this.campanaSeleccionada === c.id;
-            // Regla de negocio (prod): solo la campaña actual admite Ingresar;
-            // si esa campaña está adherida a PPH, el CTA queda deshabilitado.
-            const ingresarDisabled = !isCurrent || showPPH;
+            const isNegativa = !showPPH && displayToneladas < 0;
+            // Regla de negocio (prod): solo la campaña actual admite Ingresar, salvo una pasada en
+            // negativo (para ver qué regularizar); si la campaña está adherida a PPH, queda deshabilitado.
+            const ingresarDisabled = showPPH || (!isCurrent && !isNegativa);
 
             return {
                 ...c,
                 period: this.getCampanaPeriod(c.ano),
                 displayName: this.cultivoName,
                 displayToneladas,
+                figClass: 'cg-camp-fig' + (isNegativa ? ' is-neg' : ''),
                 cssClass: 'cg-camp-card' + (isSelected ? ' is-selected' : ''),
                 btnClass:
                     'cg-btn cg-btn-block' +

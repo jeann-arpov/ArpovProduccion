@@ -406,8 +406,12 @@ public without sharing class HomeMulticultivo {
         if (cultivoIds == null || cultivoIds.isEmpty() || productorId == null) return result;
 
         Set<Id> campanasVisibles = new Set<Id>();
+        Map<Id, Id> cultivoPorCampana = new Map<Id, Id>();
         for (List<Campana_Agricola__c> campanas : CuentaGranaria.getCampanasVisiblesPorCultivo(cultivoIds).values()) {
-            campanasVisibles.addAll(new Map<Id, Campana_Agricola__c>(campanas).keySet());
+            for (Campana_Agricola__c c : campanas) {
+                campanasVisibles.add(c.Id);
+                cultivoPorCampana.put(c.Id, c.Cultivo__c);
+            }
         }
         if (campanasVisibles.isEmpty()) return result;
 
@@ -434,6 +438,27 @@ public without sharing class HomeMulticultivo {
             GROUP BY Cultivo__c
         ]) {
             result.add((Id) ar.get('cultivoId'));
+        }
+
+        // La tarjeta de campaña de CG muestra la suma de toneladas por plataforma, que puede ser
+        // negativa aunque no exista (o no esté al día) el registro de Cuenta Granaria.
+        Set<Id> campanasSinPph = campanasVisibles.clone();
+        campanasSinPph.removeAll(campanasConPph);
+        Set<String> plataformasConPph = new Set<String>();
+        for (Cuenta_Granaria__c cg : [
+            SELECT Campania__c, Tecnologia__c
+            FROM Cuenta_Granaria__c
+            WHERE Productor__c = :productorId
+            AND Campania__c IN :campanasSinPph
+            AND PPH_Adherida__c = true
+        ]) {
+            plataformasConPph.add(cg.Campania__c + '|' + cg.Tecnologia__c);
+        }
+        Map<String, Decimal> totales = CuentaGranaria.getTotalesPorCampanaYPlataforma(productorId, campanasSinPph);
+        for (String key : totales.keySet()) {
+            if (totales.get(key) >= 0 || plataformasConPph.contains(key)) continue;
+            Id cultivoId = cultivoPorCampana.get((Id) key.substringBefore('|'));
+            if (cultivoId != null) result.add(cultivoId);
         }
         return result;
     }
