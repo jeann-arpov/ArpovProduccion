@@ -146,7 +146,7 @@ public with sharing class ErrorLogService {
 
   private static void insertLog(ErrorLog__c entry) {
     try {
-      insert entry;
+      Database.insert(entry, AccessLevel.SYSTEM_MODE);
     } catch (Exception e) {
       System.debug(
         LoggingLevel.ERROR,
@@ -158,7 +158,10 @@ public with sharing class ErrorLogService {
   @future
   private static void logAsync(String logJson) {
     try {
-      insert (ErrorLog__c) JSON.deserialize(logJson, ErrorLog__c.class);
+      Database.insert(
+        (ErrorLog__c) JSON.deserialize(logJson, ErrorLog__c.class),
+        AccessLevel.SYSTEM_MODE
+      );
     } catch (Exception e) {
       System.debug(
         LoggingLevel.ERROR,
