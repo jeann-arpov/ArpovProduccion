@@ -753,8 +753,20 @@ h3,
 }
 
 .se-var-subtotal strong {
+    min-width: 0;
     color: #1c1c1c;
     font-weight: 800;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.se-var-qty-aviso {
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #b45309;
+    text-align: right;
 }
 
 .se-var-locked {
@@ -895,6 +907,7 @@ h3,
 }
 
 .se-confirm-hero-label {
+    flex-shrink: 0;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.14em;
@@ -1478,6 +1491,7 @@ h3,
 }
 
 .se-resumen-total-label {
+    flex-shrink: 0;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.1em;
@@ -1938,6 +1952,7 @@ h3,
 
     .se-mob-footer-copy {
         display: flex;
+        flex: 1 1 auto;
         flex-direction: column;
         gap: 2px;
         min-width: 0;
@@ -1956,6 +1971,7 @@ h3,
         font-weight: 800;
         color: #bfff00;
         line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
     .se-mob-footer-btn {
@@ -1971,7 +1987,7 @@ h3,
     }
 
     .se-mob-footer--confirm .se-mob-footer-status {
-        font-size: 20px;
+        font-size: clamp(16px, 5vw, 20px);
         line-height: 1.15;
     }
 

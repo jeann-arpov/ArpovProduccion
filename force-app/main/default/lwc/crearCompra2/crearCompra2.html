@@ -272,10 +272,14 @@
                               data-id={v.id}
                               data-delta="1"
                               onclick={handleVariedadQty}
+                              disabled={v.plusDisabled}
                               aria-label="Sumar 1 HT"
                             >+</button>
                           </div>
                         </div>
+                        <template if:true={v.qtyAviso}>
+                          <p class="se-var-qty-aviso" role="alert">{v.qtyAviso}</p>
+                        </template>
                         <template if:true={v.showSubtotal}>
                           <div class="se-var-subtotal">
                             <span>Subtotal</span>
