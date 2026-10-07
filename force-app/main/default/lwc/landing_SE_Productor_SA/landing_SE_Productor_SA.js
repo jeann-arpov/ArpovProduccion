@@ -30,7 +30,7 @@ const PPH_ESTADO_TONE = {
 const HOME_CANVAS_STYLE_ID = 'se-home-canvas-override';
 // Topbar fija mobile del portal (56px) + aire.
 const SCROLL_HINT_HEADER_PX = 72;
-const SCROLL_HINT_REVEAL_PX = 120;
+const SCROLL_HINT_REVEAL_PX = 192;
 
 const HOME_CANVAS_CSS = `
 html.se-home,

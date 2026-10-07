@@ -117,7 +117,10 @@
                     <span class="p-confirm-ic" aria-hidden="true">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg>
                     </span>
-                    <p class="p-msg">{recibidaLabel}</p>
+                    <p class="p-msg p-msg-title">{recibidaTitle}</p>
+                    <template if:true={recibidaBody}>
+                        <p class="p-msg-body">{recibidaBody}</p>
+                    </template>
                     <div class="p-mfoot single">
                         <button type="button" class="btn" onclick={goHome}>Volver al inicio</button>
                     </div>
