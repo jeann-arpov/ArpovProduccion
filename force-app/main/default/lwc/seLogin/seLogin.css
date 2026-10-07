@@ -420,6 +420,13 @@
     margin-left: 0.3em;
 }
 
+.se-login-alert-text {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .se-login-cancel {
     appearance: none;
     border: none;

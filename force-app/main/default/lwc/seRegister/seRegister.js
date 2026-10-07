@@ -303,7 +303,20 @@ export default class SeRegister extends LightningElement {
         this.helpVisible = !this.helpVisible;
     }
 
+    /** El autocompletado del navegador puede llenar campos sin disparar input: se toma lo que se ve. */
+    syncFormState() {
+        const fields = ['cuit', 'dni', 'firstName', 'lastName', 'telefono', 'email', 'password', 'passwordConfirm'];
+        for (const name of fields) {
+            const input = this.template.querySelector(`input[name="${name}"]`);
+            if (!input) continue;
+            if (name === 'cuit') this.cuit = normalizeCuit(input.value);
+            else if (name === 'password' || name === 'passwordConfirm') this[name] = input.value;
+            else this[name] = (input.value || '').trim();
+        }
+    }
+
     validateRegisterForm() {
+        this.syncFormState();
         let valid = true;
         this.cuitError = '';
         this.fieldErrors = {};
@@ -454,6 +467,11 @@ export default class SeRegister extends LightningElement {
         this.identifier = '';
         this.code = '';
         this.clearMessage();
+    }
+
+    /** Los errores de RegisterCommunityController traen HTML (link a WhatsApp): se muestra como rich text saneado. */
+    get messageText() {
+        return Array.isArray(this.message) ? this.message.join(' ') : String(this.message || '');
     }
 
     showMessage(variant, message) {
