@@ -279,13 +279,15 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
     decorateRow(row, index) {
         const hasDebito = row.debito != null && row.debito !== '' && Number(row.debito) !== 0;
         const hasCredito = row.credito != null && row.credito !== '' && Number(row.credito) !== 0;
+        const biotecnologia = row.biotecnologiaLabel || row.biotecnologia;
 
         return {
             ...row,
             id: row.id || `row-${index}`,
+            biotecnologia,
             campaniaKey: row.campaniaAno || NONE_KEY,
             campaniaDisplay: row.campaniaPeriodo || '—',
-            biotecnologiaKey: row.biotecnologia ? row.biotecnologia : NONE_KEY,
+            biotecnologiaKey: biotecnologia ? biotecnologia : NONE_KEY,
             origenKey: row.origen ? row.origen : NONE_KEY,
             fechaLabel: formatDate(row.fechaTransaccion),
             debitoDisplay: formatAmount(row.debito),
@@ -429,15 +431,29 @@ export default class CompraHTNewProductor extends NavigationMixin(LightningEleme
             filtered = filtered.filter((row) => origenSet.has(row.origenKey));
         }
 
-        if (this.searchTerm) {
-            filtered = filtered.filter(
-                (row) =>
-                    (row.cultivo && row.cultivo.toLowerCase().includes(this.searchTerm)) ||
-                    (row.biotecnologia && row.biotecnologia.toLowerCase().includes(this.searchTerm)) ||
-                    (row.campaniaPeriodo && row.campaniaPeriodo.includes(this.searchTerm)) ||
-                    (row.comercio && row.comercio.toLowerCase().includes(this.searchTerm)) ||
-                    (row.origen && row.origen.toLowerCase().includes(this.searchTerm))
-            );
+        const term = (this.searchTerm || '').trim();
+        if (term) {
+            // "1200" también encuentra "+1.200".
+            const digits = /^[\d.]+$/.test(term) ? term.replace(/\./g, '') : '';
+            filtered = filtered.filter((row) => {
+                const texts = [
+                    row.cultivo,
+                    row.biotecnologia,
+                    row.campaniaDisplay,
+                    row.comercio,
+                    row.origen,
+                    row.fechaLabel,
+                    row.debitoDisplay,
+                    row.creditoDisplay
+                ];
+                if (texts.some((t) => t && String(t).toLowerCase().includes(term))) return true;
+                return (
+                    !!digits &&
+                    [row.debitoDisplay, row.creditoDisplay].some(
+                        (t) => t && String(t).replace(/\./g, '').includes(digits)
+                    )
+                );
+            });
         }
 
         this.filteredRows = filtered;

@@ -381,7 +381,14 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
         const id = event.currentTarget.dataset.id;
         const crop = this.crops.find((c) => c.id === id);
         if (!crop) return;
-        if (crop.isAdherir || !crop.isAdherido) {
+        if (crop.isAdherir) {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__webPage',
+                attributes: { url: '/iniciar-pph?recordId=' + crop.paramId }
+            });
+            return;
+        }
+        if (!crop.isAdherido) {
             this[NavigationMixin.Navigate]({
                 type: 'standard__webPage',
                 attributes: { url: '/adhesion-pph?recordId=' + crop.paramId }
@@ -394,10 +401,13 @@ export default class Landing_SE_Productor_SA extends NavigationMixin(LightningEl
         });
     }
 
-    goMovimientos() {
+    goMovimientos(event) {
+        const cultivoId = event?.currentTarget?.dataset?.id;
         this[NavigationMixin.Navigate]({
             type: 'standard__webPage',
-            attributes: { url: '/movimientos-ht' }
+            attributes: {
+                url: '/movimientos-ht' + (cultivoId ? '?cultivoId=' + encodeURIComponent(cultivoId) : '')
+            }
         });
     }
 

@@ -172,6 +172,9 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
     }
 
     redirectToParam(paramId, rectificar = false) {
+        if (this.loading) return;
+        // La recarga completa del paso a paso tarda varios segundos: loader inmediato y sin doble clic.
+        this.loading = true;
         this[NavigationMixin.GenerateUrl]({
             type: 'comm__namedPage',
             attributes: {
@@ -179,6 +182,9 @@ export default class AdhesionPphHome extends NavigationMixin(LightningElement) {
             }
         }).then((url) => {
             window.open(`${url}?recordId=${paramId}${rectificar ? '&rectificar=1' : ''}`, '_self');
+        }).catch((error) => {
+            this.loading = false;
+            this.onError(error);
         });
     }
 

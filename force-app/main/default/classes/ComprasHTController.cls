@@ -252,6 +252,7 @@ public with sharing class ComprasHTController {
         @AuraEnabled public String obtentor;
         @AuraEnabled public String obtentorId;
         @AuraEnabled public String biotecnologia;
+        @AuraEnabled public String biotecnologiaLabel;
         @AuraEnabled public String cultivo;
         @AuraEnabled public String cultivoId;
         @AuraEnabled public String campaniaId;
@@ -273,6 +274,7 @@ public with sharing class ComprasHTController {
             obtentor = ht.Variedad__r.Obtentor_Comercializa__r.Name;
             obtentorId = ht.Variedad__r.Obtentor_Comercializa__c;
             biotecnologia = ht.Biotecnologia__c;
+            biotecnologiaLabel = mapBiotecnologiaLabel(ht.Biotecnologia__c);
             cultivo = ht.Cultivo__r.Name;
             cultivoId = ht.Cultivo__c;
             campaniaId = ht.Campania__c;

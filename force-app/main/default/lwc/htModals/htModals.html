@@ -195,12 +195,20 @@
             <div class="slds-modal__container custom-modal-container">
                 
                 <div class="slds-modal__content slds-p-around_large custom-modal-body">
+                    <template if:true={isSg}>
+                        <button type="button" class="custom-close-button" onclick={handleClose} aria-label="Cerrar">✕</button>
+                    </template>
                     
                     <!-- Header/Subtítulo -->
                     <p class="brand-subtitle">STINE · FUTURA 26/27</p>
                     <h2 class="modal-title">Elegí la forma de pago</h2>
                     <p class="modal-description">
-                        El precio es el mismo en las dos opciones. Cambia quién factura y cómo se abona.
+                        <template if:true={isSg}>
+                            Pagando de contado tenés 5% de descuento sobre el precio de lista, aplicado en la factura. Financiado mantiene el precio de lista.
+                        </template>
+                        <template if:false={isSg}>
+                            El precio es el mismo en las dos opciones. Cambia quién factura y cómo se abona.
+                        </template>
                     </p>
 
                     <!-- Resumen por Variedad -->

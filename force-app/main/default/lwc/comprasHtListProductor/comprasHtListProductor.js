@@ -30,7 +30,8 @@ function splitVariedades(value) {
 }
 
 const STATUS_ORDER = ['Pagada', 'Facturada', 'Vencida', 'Cancelada', 'Pendiente de facturación'];
-const PAGE_SIZE = 200;
+const PAGE_SIZE = 10;
+const MAX_ELEMENTOS = 200;
 const SESSION_KEYS = {
     estado: 'selectedEstadoComprasProductor',
     cultivo: 'selectedCultivoComprasProductor',
@@ -142,7 +143,7 @@ export default class ComprasHtListProductor extends LightningElement {
     }
 
     get metaMaxElementos() {
-        return PAGE_SIZE;
+        return MAX_ELEMENTOS;
     }
 
     get filtroResumen() {
