@@ -7,7 +7,7 @@ export const PAGES = {
     comprar: 'FormularioNuevaVentaHT',
     misCompras: 'comprahtlistproductor',
     facturas: 'facturacion',
-    pph: 'iniciar-pph',
+    pph: 'pre-certificacion',
     establecimientos: 'misestablecimientos',
     granaria: 'cuentagranarianew',
     cesiones: 'miscesiones',
@@ -38,7 +38,7 @@ export function goToCommunityPage(page) {
 
 /** Páginas internas que activan el mismo ítem del menú. */
 const PAGE_ALIASES = {
-    [PAGES.pph]: ['pre-certificacion', 'adhesion-pph'],
+    [PAGES.pph]: ['iniciar-pph', 'adhesion-pph'],
     [PAGES.cesiones]: ['cesion-pph', 'cesion-ht'],
     [PAGES.misCompras]: ['compra-ht'],
     [PAGES.facturas]: ['mis-facturas'],

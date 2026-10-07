@@ -48,23 +48,69 @@
                 border-color: #1c1c1c;
                 box-shadow: 0 0 0 3px rgba(191, 255, 0, 0.6);
             }
+
+            #geo-alert {
+                display: none;
+                position: absolute;
+                left: 50%;
+                bottom: 24px;
+                transform: translateX(-50%);
+                z-index: 6;
+                max-width: calc(100% - 32px);
+                box-sizing: border-box;
+                padding: 10px 16px;
+                border-radius: 12px;
+                background: #1c1c1c;
+                color: #fff;
+                font-family: "Roboto", Arial, sans-serif;
+                font-size: 14px;
+                line-height: 1.35;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            }
+
+            #geo-alert.is-on {
+                display: block;
+            }
         </style>
     </head>
 
     <body>
         <input id="pac-input" type="text" placeholder="Ingresá el lugar" autocomplete="off" />
         <div id="map"></div>
+        <div id="geo-alert" role="alert"></div>
         <script>
-            var latitud = '{!$CurrentPage.parameters.latitud}';
-            var longitud = '{!$CurrentPage.parameters.longitud}';
+            var latitud = '{!JSENCODE($CurrentPage.parameters.latitud)}';
+            var longitud = '{!JSENCODE($CurrentPage.parameters.longitud)}';
+        </script>
+        <script>
+            //<![CDATA[
+            // Mismo recuadro que c/seGeo: la validación final se repite en el LWC.
+            var AR = { south: -55.1, north: -21.8, west: -73.6, east: -53.6 };
+            var OUTSIDE_MSG = 'El punto está fuera de Argentina. Elegí la ubicación del lote dentro del país.';
+            var alertTimer;
 
+            function showAlert(text) {
+                var el = document.getElementById('geo-alert');
+                el.textContent = text;
+                el.className = 'is-on';
+                clearTimeout(alertTimer);
+                alertTimer = setTimeout(function () { el.className = ''; }, 4000);
+            }
+
+            function insideBox(p) {
+                return p.lat >= AR.south && p.lat <= AR.north && p.lng >= AR.west && p.lng <= AR.east;
+            }
 
             /*** Method to Fire Event to LWC ***/
             var map;
+            var clickMarker;
             function initMap() {
                 var geocoder = new google.maps.Geocoder();
 
-                center = { lat: parseFloat(latitud), lng: parseFloat(longitud) };
+                var lat0 = parseFloat(latitud);
+                var lng0 = parseFloat(longitud);
+                center = { lat: isNaN(lat0) ? -34.603722 : lat0, lng: isNaN(lng0) ? -58.381592 : lng0 };
 
                 const defaultBounds = {
                     north: center.lat + 1,
@@ -78,16 +124,42 @@
                     zoom: 8,
                     mapTypeId: google.maps.MapTypeId.HYBRID,
                     mapTypeControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM },
+                    zoomControl: true,
+                    zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+                    streetViewControl: false,
+                    restriction: {
+                        latLngBounds: { south: AR.south - 3, north: AR.north + 3, west: AR.west - 5, east: AR.east + 5 },
+                        strictBounds: false
+                    },
                     gestureHandling: "greedy",
 
                 });
                 google.maps.event.addListener(map, 'click', function (event) {
 
-                    position = event.latLng.toJSON();
-                    console.log(position);
-
-                    window.parent.postMessage(position, location.href);
-                    //https://developers.google.com/maps/documentation/javascript/examples/geocoding-reverse
+                    var position = event.latLng.toJSON();
+                    if (!insideBox(position)) {
+                        showAlert(OUTSIDE_MSG);
+                        return;
+                    }
+                    // El recuadro incluye zonas limítrofes (Chile, Uruguay, mar): se confirma el país con el geocoder.
+                    geocoder.geocode({ location: position }, function (results, status) {
+                        if (status === 'OK' || status === 'ZERO_RESULTS') {
+                            var country = '';
+                            (results || []).some(function (r) {
+                                return (r.address_components || []).some(function (c) {
+                                    if (c.types.indexOf('country') !== -1) { country = c.short_name; return true; }
+                                    return false;
+                                });
+                            });
+                            if (country !== 'AR' && country !== 'FK') {
+                                showAlert(OUTSIDE_MSG);
+                                return;
+                            }
+                        }
+                        if (clickMarker) clickMarker.setMap(null);
+                        clickMarker = new google.maps.Marker({ position: position, map: map });
+                        window.parent.postMessage(position, location.href);
+                    });
                 });
 
                 const input = document.getElementById("pac-input");
@@ -123,7 +195,7 @@
                     //marker.setPosition(place.geometry.location);
                 });
             }
-
+            //]]>
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key={!$Setup.Google_Keys__c.Api_Key__c}&libraries=places&callback=initMap&region=AR"
             async="true" defer="true"></script>

@@ -74,6 +74,8 @@ export default class HtModals extends NavigationMixin(LightningElement) {
     @api showFacturaRegaliaEnlistMsg;
     @api promoMessage;
     @api promoVariant = 'success';
+    /** 'sg' = portal Productor rediseñado; el resto de los portales mantiene el modal original. */
+    @api variant;
     
     @track selectedPayment = 'Contado';
     
@@ -292,7 +294,11 @@ export default class HtModals extends NavigationMixin(LightningElement) {
     }
 
     get showClose() {
-        return this.canClose && !this.showTipoPago;
+        return this.canClose && !this.showTipoPago && !(this.isSg && this.showFormaPagoStine);
+    }
+
+    get isSg() {
+        return this.variant === 'sg';
     }
 
     // Eventos y acciones del Modal

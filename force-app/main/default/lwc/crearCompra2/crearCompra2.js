@@ -740,7 +740,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             this.setData(data);
             this.resultModal = null;
             this.currentModal = null;
-            this.redirectPendientesFacturacion();
+            this.handleResultVerMisCompras();
         });
     }
 
@@ -1056,6 +1056,11 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             default:
                 return this.iconTrigoHTUrl;
         }
+    }
+
+    /** Carga inicial y llamadas de requestWrap (productos, marca, anular…): sin overlay la pantalla parece congelada. */
+    get showBrandLoading() {
+        return this.isLoading || this.request;
     }
 
     get continuarPaso1Disabled() {
@@ -1585,6 +1590,61 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         return this.formatUsd(this.data?.record?.Total_USD__c);
     }
 
+    get detalleTipoPago() {
+        const linea = (this.items || []).find((item) => item.record?.Tipo_de_Pago__c);
+        return linea ? linea.record.Tipo_de_Pago__c : null;
+    }
+
+    get detalleFormaPago() {
+        const tipo = this.detalleTipoPago;
+        if (tipo !== 'Financiado') return tipo;
+        const rec = this.data?.record || {};
+        const partes = [
+            rec.Entidad_Bancaria__c,
+            rec.Moneda__c,
+            rec.Plazo_maximo__c,
+            rec.TNA__c ? `TNA ${rec.TNA__c}` : null
+        ].filter(Boolean);
+        return partes.length ? `Financiado · ${partes.join(' · ')}` : 'Financiado';
+    }
+
+    get detalleSubtotalLista() {
+        return (this.items || [])
+            .filter((item) => item.record?.Id)
+            .reduce(
+                (acc, item) =>
+                    acc + (Number(item.record.Cantidad__c) || 0) * (Number(item.record.Precio_de_Lista__c) || 0),
+                0
+            );
+    }
+
+    /** Total_USD__c ya trae el descuento de Contado; la diferencia con el precio de lista es el descuento. */
+    get detalleDescuento() {
+        const total = Number(this.data?.record?.Total_USD__c);
+        if (Number.isNaN(total) || !this.data?.record?.Total_USD__c) return 0;
+        const diff = Math.round((this.detalleSubtotalLista - total) * 100) / 100;
+        return diff > 0 ? diff : 0;
+    }
+
+    get showDetalleDescuento() {
+        return this.detalleDescuento > 0;
+    }
+
+    get detalleSubtotalUsd() {
+        return this.formatUsd(this.detalleSubtotalLista);
+    }
+
+    get detalleDescuentoUsd() {
+        return `− ${this.formatUsd(this.detalleDescuento)}`;
+    }
+
+    get detalleDescuentoLabel() {
+        const subtotal = this.detalleSubtotalLista;
+        const pct = subtotal > 0 ? Math.round((this.detalleDescuento / subtotal) * 100) : 0;
+        const base = this.detalleTipoPago === 'Contado' ? 'Descuento contado' : 'Descuento';
+        return pct > 0 ? `${base} (${pct}%)` : base;
+    }
+
     get detalleLineas() {
         const pbes = Object.values(this.variedadesByObtentor || {}).flat();
         return (this.items || [])
@@ -1816,6 +1876,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
             this.init();
         } else if (!this.initialized) {
             this.initialized = true;
+            this.request = false;
         }
         this.syncPayModalScrollLock();
         if (this._payModalScrollLocked) this.fitModalLayers();

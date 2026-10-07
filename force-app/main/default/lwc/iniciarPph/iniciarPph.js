@@ -71,6 +71,15 @@ export default class IniciarPph extends NavigationMixin(LightningElement) {
     }
 
     redirectAdhesion() {
+        // Desde "Adherí a PPH" del Home llega el parámetro del cultivo: sigue al paso a paso.
+        const recordId = new URL(window.location.href).searchParams.get('recordId');
+        if (recordId) {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__webPage',
+                attributes: { url: '/adhesion-pph?recordId=' + encodeURIComponent(recordId) }
+            });
+            return;
+        }
         this[NavigationMixin.Navigate]({
             type: 'comm__namedPage',
             attributes: {

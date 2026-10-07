@@ -173,7 +173,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     }
 
     private static Compra_HT__c getCompraData(Id compraId){
-        return [select Obtentor__c, Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c, Tipo_de_Pago__c, Tipo_de_Compra__c, Licencia__c, Licencia__r.Name, Producto__r.Name, Producto__r.Tipo_de_Compra__c, Producto__r.Variedad2__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
+        return [select Obtentor__c, Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, Entidad_Bancaria__c, Plazo_maximo__c, Moneda__c, TNA__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c, Tipo_de_Pago__c, Tipo_de_Compra__c, Licencia__c, Licencia__r.Name, Producto__r.Name, Producto__r.Tipo_de_Compra__c, Producto__r.Variedad2__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
     }
 
     private static Opportunity getOpp(Id compraId) {

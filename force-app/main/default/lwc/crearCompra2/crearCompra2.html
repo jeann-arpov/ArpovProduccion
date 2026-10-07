@@ -526,6 +526,9 @@
 
                 <div class="se-confirm-billing">
                   <strong>Datos de facturación:</strong> {facturacionLabel}
+                  <template if:true={detalleFormaPago}>
+                    <br /><strong>Forma de pago:</strong> {detalleFormaPago}
+                  </template>
                 </div>
 
                 <div class="se-panel-actions se-panel-actions-spread se-det-actions">
@@ -573,6 +576,22 @@
                   <dt>HT</dt>
                   <dd>{detalleTotalHt}</dd>
                 </div>
+                <template if:true={detalleFormaPago}>
+                  <div class="se-resumen-row">
+                    <dt>Forma de pago</dt>
+                    <dd>{detalleFormaPago}</dd>
+                  </div>
+                </template>
+                <template if:true={showDetalleDescuento}>
+                  <div class="se-resumen-row">
+                    <dt>Subtotal</dt>
+                    <dd>{detalleSubtotalUsd}</dd>
+                  </div>
+                  <div class="se-resumen-row">
+                    <dt>{detalleDescuentoLabel}</dt>
+                    <dd>{detalleDescuentoUsd}</dd>
+                  </div>
+                </template>
               </dl>
               <div class="se-resumen-total">
                 <span class="se-resumen-total-label">Total</span>
@@ -585,7 +604,7 @@
     </div>
 
     <!-- Spinner global -->
-    <template if:true={isLoading}>
+    <template if:true={showBrandLoading}>
         <div class="se-brand-loading" role="status" aria-live="polite" aria-label="Procesando">
             <c-se-brand-loader></c-se-brand-loader>
         </div>
@@ -641,6 +660,7 @@
         es-punto-venta={obtentorEsPuntoDeVenta}
         promo-message={htFuturaPromoMessage}
         promo-variant={htFuturaPromoVariant}
+        variant="sg"
         onclose={closeModal}
         onclosemodal={handleClosePaymentStine}
         onconfirmpayment={handleConfirmPaymentStine}
