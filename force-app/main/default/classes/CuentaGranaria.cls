@@ -178,48 +178,6 @@ public without sharing class CuentaGranaria {
         return result;
     }
 
-    // Plataformas que elige el productor en Cuenta Granaria (biotecnologías separadas por '/').
-    public static final List<String> PLATAFORMAS = new List<String>{ 'Enlist E3/Conkesta E3', 'RR1/RR2 - BT/Convencional' };
-
-    /**
-     * Toneladas por campaña y plataforma (clave campanaId|plataforma), con los mismos filtros
-     * que la tarjeta de campaña de getCampanasConTotales: mantener ambas consultas alineadas.
-     */
-    public static Map<String, Decimal> getTotalesPorCampanaYPlataforma(Id productorId, Set<Id> campanaIds) {
-        Map<String, Decimal> totales = new Map<String, Decimal>();
-        if (productorId == null || campanaIds == null || campanaIds.isEmpty()) return totales;
-
-        Map<String, String> plataformaPorBiotecnologia = new Map<String, String>();
-        for (String plataforma : PLATAFORMAS) {
-            for (String biotecnologia : plataforma.split('/')) {
-                plataformaPorBiotecnologia.put(biotecnologia.toLowerCase(), plataforma);
-            }
-        }
-        List<String> biotecnologias = new List<String>();
-        for (String plataforma : PLATAFORMAS) biotecnologias.addAll(plataforma.split('/'));
-
-        for (AggregateResult ar : [SELECT Campania__c campId, Biotecnologia__c bio, SUM(Cantidad_con_Signo__c) total
-                                    FROM   Tonelada__c
-                                    WHERE  Productor__c = :productorId
-                                    AND    Campania__c IN :campanaIds
-                                    AND    Biotecnologia__c IN :biotecnologias
-                                    AND    Fecha_Inicio__c <= TODAY
-                                    AND    Etapa__c != 'Pendiente'
-                                    AND    Origen__c != 'Balance Anual'
-                                    AND    (Origen__c != 'Compra HT'
-                                           OR HT_Id__r.Linea_de_Compra_HT__r.Tipo_de_Compra__c != 'Disponible')
-                                    AND (Origen__c != 'Consumo' OR Signo__c != -1)
-                                    GROUP BY Campania__c, Biotecnologia__c]) {
-            String bio = (String) ar.get('bio');
-            String plataforma = bio == null ? null : plataformaPorBiotecnologia.get(bio.toLowerCase());
-            if (plataforma == null) continue;
-            String key = (Id) ar.get('campId') + '|' + plataforma;
-            Decimal total = (Decimal) ar.get('total');
-            totales.put(key, (totales.containsKey(key) ? totales.get(key) : 0) + (total == null ? 0 : total));
-        }
-        return totales;
-    }
-
     // Mantiene el método original por si se necesita solo la lista de campañas
     @AuraEnabled
     public static List<Campana_Agricola__c> getCampanas(String cultivoId){

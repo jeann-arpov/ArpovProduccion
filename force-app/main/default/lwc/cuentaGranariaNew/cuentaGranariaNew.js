@@ -325,7 +325,7 @@ export default class CuentaGranariaNew extends LightningElement {
             const isPrecampana = !isCurrent && c.estado === 'En Preparación';
             const hasAdhesion = campanasConAdhesion.has(c.id) || c.pphAdherida === true;
             const showPPH = hasAdhesion;
-            const displayToneladas = Number(c.totalToneladas ?? c.saldoCuentaGranaria ?? 0) || 0;
+            const displayToneladas = Number(c.saldoCuentaGranaria ?? 0) || 0;
             const isSelected = this.campanaSeleccionada === c.id;
             const isNegativa = !showPPH && displayToneladas < 0;
             // Regla de negocio (prod): solo la campaña actual admite Ingresar;
