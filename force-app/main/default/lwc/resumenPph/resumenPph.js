@@ -103,7 +103,8 @@ export default class ResumenPph extends LightningElement {
 
     get canRectificar() {
         const params = this.info?.plan?.Parametro_PPH__r;
-        if (!params || this.info?.plan?.Estado__c !== 'Adherido') return false;
+        const estado = this.info?.plan?.Estado__c;
+        if (!params || (estado !== 'Adherido' && estado !== 'En Revisión')) return false;
         return this.isWithinWindow(params, 1) || this.isWithinWindow(params, 2);
     }
 

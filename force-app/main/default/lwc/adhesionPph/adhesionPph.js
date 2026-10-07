@@ -86,6 +86,7 @@ export default class AdhesionPph extends LightningElement {
     try {
       const data = await getLoadData({ parametroId: this.parametro });
       this.loadData(data);
+      this.openRectificacionFromUrl();
       trackGa4Event("pph_declaracion_iniciada");
     } catch (e) {
       this.onError(e);
@@ -574,6 +575,18 @@ export default class AdhesionPph extends LightningElement {
   rectificarConfirm() {
     this.modalCallback = this.rectificar.bind(this);
     this.currentModal = "confirm-continue-rectificar";
+  }
+
+  // "Rectificar" de Mis PPH llega con ?rectificar=1; se quita de la URL para que recargar no reabra la confirmación.
+  openRectificacionFromUrl() {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("rectificar") !== "1") return;
+    url.searchParams.delete("rectificar");
+    window.history.replaceState(window.history.state, "", url.toString());
+    const estado = this.plan?.Estado__c;
+    if ((estado === "Adherido" || estado === "En Revisión") && this.rectificacionWindow > 0) {
+      this.rectificarConfirm();
+    }
   }
 
   async enviar() {
