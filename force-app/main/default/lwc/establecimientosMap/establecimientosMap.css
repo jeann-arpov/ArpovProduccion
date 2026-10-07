@@ -280,6 +280,19 @@
     flex: none;
 }
 
+.p-count-hint {
+    margin: 4px 0 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: #6b7280;
+    text-align: right;
+}
+
+.p-count-hint.over {
+    color: #b83232;
+    font-weight: 600;
+}
+
 .p-geo {
     width: 100%;
     min-height: 44px;

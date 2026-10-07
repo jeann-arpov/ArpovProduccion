@@ -138,6 +138,27 @@
     .se-desk-only {
         display: none !important;
     }
+
+    /* ::slotted de seListPage no aplica con sombra sintética: el margen lateral va acá. */
+    .ces-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 16px 4px;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+    }
+
+    .ces-filters c-se-select {
+        display: block;
+        width: 100%;
+    }
+
+    /* Espacio para el botón flotante "+": no tapa el CTA de la última tarjeta. */
+    c-se-data-list {
+        display: block;
+        padding-bottom: 88px;
+    }
 }
 
 @media (min-width: 768px) {

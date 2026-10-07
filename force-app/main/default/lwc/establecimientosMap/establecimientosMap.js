@@ -8,6 +8,8 @@ import { coordenadasError } from 'c/seGeo';
 
 const MAP_MOUNT_DELAY_MS = 320;
 const REQUIRED_MSG = 'Este campo es obligatorio';
+const NAME_MAX = 80;
+const NAME_TOO_LONG_MSG = `El nombre puede tener hasta ${NAME_MAX} caracteres`;
 // Gota con la punta en (0,0): ancla del marcador sobre la coordenada
 const PIN_ICON = {
     path: 'M0 0 L-10.6 -10.6 A15 15 0 1 1 10.6 -10.6 Z',
@@ -189,7 +191,16 @@ export default class EstablecimientosMap extends LightningElement {
     }
 
     get nameError() {
+        if (this.selectedName.trim().length > NAME_MAX) return NAME_TOO_LONG_MSG;
         return this.showErrors && !this.selectedName.trim() ? REQUIRED_MSG : '';
+    }
+
+    get nameCount() {
+        return `${this.selectedName.trim().length}/${NAME_MAX}`;
+    }
+
+    get nameCountClass() {
+        return `p-count-hint${this.selectedName.trim().length > NAME_MAX ? ' over' : ''}`;
     }
 
     get geoErrorMsg() {

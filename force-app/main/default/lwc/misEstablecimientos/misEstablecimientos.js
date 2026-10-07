@@ -9,6 +9,8 @@ import { latitudError, longitudError } from 'c/seGeo';
 const PAGE_SIZE = 10;
 const DETAIL_PARAM = 'establecimiento';
 const REQUIRED_MSG = 'Este campo es obligatorio';
+const NAME_MAX = 80;
+const NAME_TOO_LONG_MSG = `El nombre puede tener hasta ${NAME_MAX} caracteres`;
 
 function toNumber(value) {
     if (value == null || value === '') return null;
@@ -306,11 +308,20 @@ export default class MisEstablecimientos extends LightningElement {
     }
 
     get editTitle() {
-        return `Modificar ${this.selected?.name || 'establecimiento'}`;
+        return 'Modificar establecimiento';
     }
 
     get editNameError() {
+        if (this.editName.trim().length > NAME_MAX) return NAME_TOO_LONG_MSG;
         return this.editShowErrors && !this.editName.trim() ? REQUIRED_MSG : '';
+    }
+
+    get editNameCount() {
+        return `${this.editName.trim().length}/${NAME_MAX}`;
+    }
+
+    get editNameCountClass() {
+        return `p-count-hint${this.editName.trim().length > NAME_MAX ? ' over' : ''}`;
     }
 
     coordError(text, validate, other) {
@@ -354,15 +365,7 @@ export default class MisEstablecimientos extends LightningElement {
         return this.saving ? 'Guardando…' : 'Guardar';
     }
 
-    handleSave() {
-        this.save(false);
-    }
-
-    handleSaveAndNew() {
-        this.save(true);
-    }
-
-    async save(andNew) {
+    async handleSave() {
         this.editShowErrors = true;
         this.editSaveError = '';
         if (this.editNameError || this.editLatError || this.editLngError || this.saving) return;
@@ -387,7 +390,6 @@ export default class MisEstablecimientos extends LightningElement {
                 })
             );
             await this.loadRows();
-            if (andNew) this.handleNewEstablecimiento();
         } catch (e) {
             this.saving = false;
             this.editSaveError = reduceErrors(e).join('\n') || 'No se pudo guardar el establecimiento';
