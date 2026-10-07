@@ -173,99 +173,49 @@
     </c-se-list-page>
 
     <template if:true={showModal}>
-        <div class="modal-backdrop">
-            <div class="modal">
-                <button class="modal-close" onclick={closeModal}>✕</button>
-                <h2>Generar Reporte</h2>
-                <p>
-                    Se va a generar un reporte con todos los datos<br>
-                    de la tabla de licencias.<br>
-                    ¿Está seguro?
-                </p>
-                <button type="button" class="modal-start" onclick={handleCall}>Comenzar ➝</button>
-            </div>
-        </div>
-    </template>
-
-    <template if:true={showReportModal}>
-        <section role="dialog" tabindex="-1" aria-labelledby="report-modal-heading" aria-modal="true"
-                class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-                <header class="slds-modal__header">
-                    <h2 id="report-modal-heading" class="slds-modal__title slds-hyphenate">
-                        Reporte de Licencias
-                    </h2>
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
-                            title="Close" onclick={handleCloseReportModal}>
-                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
-                        <span class="slds-assistive-text">Close</span>
-                    </button>
+        <section class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="report-modal-title" onclick={handleReportBackdrop}>
+            <div class="modal" onclick={stopPropagation}>
+                <header class="modal-header">
+                    <h3 id="report-modal-title" class="modal-title">Generar reporte</h3>
+                    <button type="button" class="close-button" onclick={closeModal} aria-label="Cerrar" disabled={isReportLoading}>×</button>
                 </header>
-
-                <div class="slds-modal__content slds-p-around_medium">
+                <div class="modal-body">
+                    <template if:true={isReportConfirm}>
+                        <p>Vamos a generar un reporte con todos los datos de tu tabla de licencias.</p>
+                        <p>¿Querés continuar?</p>
+                    </template>
                     <template if:true={isReportLoading}>
-                        <div class="slds-align_absolute-center slds-p-vertical_large">
+                        <div class="report-loading">
                             <c-se-brand-loader></c-se-brand-loader>
-                            <p class="slds-text-align_center slds-m-top_small">
-                                Generando reporte de licencias...
-                            </p>
+                            <p>Generando el reporte…</p>
                         </div>
                     </template>
-                    <template if:false={isReportLoading}>
-                        <template if:true={reportResponse.success}>
-                            <lightning-card title="Reporte generado exitosamente" icon-name="utility:success">
-                            </lightning-card>
-                        </template>
-
-                        <template if:false={reportResponse.success}>
-                            <lightning-card title="Error en la Operación" icon-name="utility:error"
-                                style="max-width: 100%;overflow-x: auto;box-sizing: border-box;">
-                                <div class="slds-p-horizontal_small">
-                                    <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small">
-                                        <span class="slds-assistive-text">Error</span>
-                                        <h2>{reportResponse.message}</h2>
-
-                                        <template if:true={reportResponse.statusCode}>
-                                            <p class="slds-text-body_small slds-m-top_xx-small">
-                                                Código de Error: {reportResponse.statusCode}
-                                            </p>
-                                        </template>
-                                    </div>
-
-                                    <template if:true={reportResponse.data}>
-                                        <lightning-card title="Detalles del Error" icon-name="utility:warning">
-                                            <div class="slds-p-horizontal_small">
-                                                <div class="slds-box slds-box_xx-small slds-theme_default">
-                                                    <pre style="white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; font-size: 12px;">{formattedReportData}</pre>
-                                                </div>
-                                            </div>
-                                        </lightning-card>
-                                    </template>
-                                </div>
-                            </lightning-card>
-                        </template>
+                    <template if:true={isReportSuccess}>
+                        <p>El reporte se generó correctamente.</p>
+                    </template>
+                    <template if:true={isReportError}>
+                        <p class="report-error">{reportErrorMessage}</p>
                     </template>
                 </div>
-
-                <footer class="slds-modal__footer">
-                    <template if:true={showRetryButton}>
-                        <lightning-button
-                            label="Reintentar"
-                            onclick={handleRetryReport}
-                            variant="brand"
-                            disabled={isReportLoading}
-                            class="slds-m-right_small">
-                        </lightning-button>
+                <footer class="modal-footer">
+                    <template if:true={isReportConfirm}>
+                        <button type="button" class="btn-ghost" onclick={closeModal}>Cancelar</button>
+                        <button type="button" class="btn-dark" onclick={handleCall}>Generar</button>
                     </template>
-
-                    <lightning-button
-                        label="Cerrar"
-                        onclick={handleCloseReportModal}
-                        variant="neutral">
-                    </lightning-button>
+                    <template if:true={isReportLoading}>
+                        <button type="button" class="btn-ghost" disabled>Cancelar</button>
+                    </template>
+                    <template if:true={isReportSuccess}>
+                        <button type="button" class="btn-dark" onclick={closeModal}>Listo</button>
+                    </template>
+                    <template if:true={isReportError}>
+                        <button type="button" class="btn-ghost" onclick={closeModal}>Cerrar</button>
+                        <template if:true={showRetryButton}>
+                            <button type="button" class="btn-dark" onclick={handleRetryReport}>Reintentar</button>
+                        </template>
+                    </template>
                 </footer>
             </div>
         </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
 </template>
