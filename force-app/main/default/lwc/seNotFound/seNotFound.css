@@ -9,7 +9,8 @@
     overflow: hidden;
     display: flex;
     align-items: center;
-    min-height: 68vh;
+    min-height: calc(100vh - var(--nf-offset, 88px));
+    min-height: calc(100dvh - var(--nf-offset, 88px));
     padding: 56px 24px;
     background:
         radial-gradient(circle at 12% 18%, rgba(191, 255, 0, 0.18), transparent 38%),
@@ -414,7 +415,6 @@
 
 @media (max-width: 767px) {
     .nf {
-        min-height: 0;
         padding: 32px 16px calc(96px + env(safe-area-inset-bottom));
     }
 

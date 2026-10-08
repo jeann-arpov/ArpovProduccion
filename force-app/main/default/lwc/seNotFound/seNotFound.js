@@ -30,6 +30,37 @@ export default class SeNotFound extends LightningElement {
 
     disconnectedCallback() {
         this._connected = false;
+        if (this._onResize) {
+            window.removeEventListener('resize', this._onResize);
+            this._onResize = null;
+        }
+    }
+
+    renderedCallback() {
+        if (this._onResize) {
+            return;
+        }
+        this._onResize = () => this.fitToViewport();
+        window.addEventListener('resize', this._onResize);
+        this.fitToViewport();
+        // El header de la plantilla termina de pintar después del primer render.
+        [300, 1200].forEach((ms) => {
+            setTimeout(() => {
+                if (this._connected) {
+                    this.fitToViewport();
+                }
+            }, ms);
+        });
+    }
+
+    /** Ocupa desde debajo del header hasta el final de la pantalla, sin dejar ver el fondo del sitio. */
+    fitToViewport() {
+        const section = this.template.querySelector('.nf');
+        if (!section) {
+            return;
+        }
+        const top = Math.max(0, Math.round(section.getBoundingClientRect().top + window.scrollY));
+        section.style.setProperty('--nf-offset', `${top}px`);
     }
 
     handleBack() {
