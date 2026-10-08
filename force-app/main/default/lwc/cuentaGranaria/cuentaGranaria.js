@@ -1,10 +1,11 @@
 import { LightningElement } from 'lwc';
 import getAdhesion from '@salesforce/apex/CuentaGranaria.getAdhesion';
-import getToneladas from '@salesforce/apex/CuentaGranaria.getToneladas';
+import getToneladasByCampana from '@salesforce/apex/CuentaGranaria.getToneladasByCampana';
 import getLoadData from '@salesforce/apex/CuentaGranaria.getLoadData';
 import getDetalleBT from '@salesforce/apex/CuentaGranaria.getDetalleBT';
 import IMAGENES from '@salesforce/resourceUrl/CuentaGranariaIcons';
 import { doRequest, errorEvent, warningEvent } from 'c/utils';
+import { PAGES, communityPageUrl } from 'c/seNav';
 
 export default class CuentaGranaria extends LightningElement {
 
@@ -74,7 +75,7 @@ export default class CuentaGranaria extends LightningElement {
 
     getData(){
         doRequest.call(this, async _ => {
-            const results = await getToneladas({cultivoId: this.cultivo, tecnologias: this.biotecnologia});
+            const results = await getToneladasByCampana({cultivoId: this.cultivo, campanaId: null, tecnologias: this.biotecnologia});
             console.log(results);
 
             this.toneladas = results;
@@ -130,6 +131,14 @@ export default class CuentaGranaria extends LightningElement {
 
     onError(e){
         this.dispatchEvent(errorEvent(e));
+    }
+
+    /** Versión legacy: se redirige a la Cuenta Granaria nueva conservando los parámetros (cultivoId). */
+    connectedCallback(){
+        if(/preview|builder/i.test(window.location.hostname)) return;
+        this.initialized = true;
+        this.loading = true;
+        window.location.replace(communityPageUrl(PAGES.granaria) + window.location.search);
     }
 
     renderedCallback(){
