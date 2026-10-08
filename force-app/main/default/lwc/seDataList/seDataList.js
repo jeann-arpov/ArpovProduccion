@@ -33,6 +33,8 @@ export default class SeDataList extends LightningElement {
     @api secondaryActionField = '';
     /** Campo por fila con texto de ayuda; si tiene valor se muestra un (i) con tooltip junto al badge. */
     @api badgeHintField = '';
+    /** La columna de acciones toma solo el ancho de sus botones (sin hueco junto a la columna anterior). */
+    @api fitActions = false;
     /** Rows per page. 0 = show all, no pager (default). */
     @api pageSize = 0;
     @api loading = false;
@@ -89,7 +91,7 @@ export default class SeDataList extends LightningElement {
         return (this.columns || []).map((col, index) => ({
             key: `h-${index}`,
             label: col.label || '',
-            thClass: col.type === 'action' ? 'th-action' : ''
+            thClass: col.type === 'action' ? 'th-action' + (this.fitActions ? ' is-fit' : '') : ''
         }));
     }
 
@@ -177,9 +179,8 @@ export default class SeDataList extends LightningElement {
                         actionMessage: disabledMessage,
                         tdClass:
                             type === 'action'
-                                ? showDisabledMessage
-                                    ? 'td-action td-action--msg'
-                                    : 'td-action'
+                                ? (showDisabledMessage ? 'td-action td-action--msg' : 'td-action') +
+                                  (this.fitActions ? ' is-fit' : '')
                                 : ''
                     };
                 }),
