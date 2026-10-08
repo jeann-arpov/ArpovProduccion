@@ -52,6 +52,12 @@
     white-space: normal;
 }
 
+.th-action.is-fit,
+.td-action.is-fit {
+    width: 1%;
+    white-space: nowrap;
+}
+
 .action-msg {
     display: inline-block;
     max-width: 220px;
