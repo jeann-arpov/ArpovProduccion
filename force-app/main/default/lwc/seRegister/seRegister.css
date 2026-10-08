@@ -618,4 +618,26 @@
         padding-top: 48px;
         padding-bottom: 48px;
     }
+
+    /* Formulario de alta ~10% más bajo que el login: menos aire vertical y campos de 48px. */
+    .se-login-card--register .se-login-card-body {
+        padding: 28px 40px 24px;
+    }
+
+    .se-login-card--register .se-login-logo-wrap {
+        margin-bottom: 20px;
+    }
+
+    .se-login-card--register .se-fl-field {
+        margin-bottom: 15px;
+    }
+
+    .se-login-card--register .se-fl-input {
+        min-height: 48px;
+        padding: 14px 14px 12px;
+    }
+
+    .se-login-card--register .se-login-card-foot {
+        padding: 14px 40px;
+    }
 }
