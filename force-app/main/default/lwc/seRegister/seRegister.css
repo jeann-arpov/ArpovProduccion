@@ -101,9 +101,10 @@
     height: 78px;
 }
 
+/* Abajo a la izquierda: a la derecha queda debajo de la tarjeta, que crece con el formulario. */
 .se-login-genetica {
     position: absolute;
-    right: 28px;
+    left: 28px;
     bottom: 20px;
     width: 112px;
     height: 112px;
@@ -552,11 +553,6 @@
     padding-bottom: 32px;
 }
 
-.se-login-card--register .se-login-card-body {
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-}
-
 .se-fl-field--password-help .se-fl-input--password {
     padding-right: 84px;
 }
@@ -621,9 +617,5 @@
         align-items: center;
         padding-top: 48px;
         padding-bottom: 48px;
-    }
-
-    .se-login-card--register .se-login-card-body {
-        max-height: calc(100vh - 200px);
     }
 }
