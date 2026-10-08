@@ -1,4 +1,8 @@
 public without sharing class misEstablecimientosController {
+    @TestVisible
+    private static final String FUERA_DE_ARGENTINA =
+        'El punto está fuera de Argentina. Elegí la ubicación del lote dentro del país.';
+
     public class EstRow {
         @AuraEnabled public Id id;
         @AuraEnabled public String name;
@@ -47,6 +51,14 @@ public without sharing class misEstablecimientosController {
         Establecimiento__c est = found[0];
         Boolean coordsChanged =
             est.Coordenadas__Latitude__s != lat || est.Coordenadas__Longitude__s != lng;
+        // Misma regla que el mapa (GoogleMapIframe): el recuadro de c/seGeo incluye Uruguay, Chile y el mar.
+        // Si Nominatim no responde no se bloquea al productor; el recuadro ya se validó en el LWC.
+        if (coordsChanged && lat != null && lng != null) {
+            String country = EstablecimientosMap.countryCodeAt(lat, lng);
+            if (country != null && country != 'ar' && country != 'fk') {
+                throw new AuraHandledException(FUERA_DE_ARGENTINA);
+            }
+        }
         est.Name = name.trim();
         est.Coordenadas__Latitude__s = lat;
         est.Coordenadas__Longitude__s = lng;
