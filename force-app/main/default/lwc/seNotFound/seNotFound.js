@@ -2,6 +2,7 @@ import { LightningElement } from 'lwc';
 import { PAGES, communityHomeUrl, communityPageUrl } from 'c/seNav';
 
 const PAGE_TITLE = 'Página no encontrada · Sembrá Evolución';
+const PAGE_BG = '#f6f7f3';
 
 /** Página de error / 404 del portal Productor con el look & feel del rediseño. */
 export default class SeNotFound extends LightningElement {
@@ -18,6 +19,10 @@ export default class SeNotFound extends LightningElement {
 
     connectedCallback() {
         this._connected = true;
+        // El fondo del tema es oscuro; si queda espacio debajo de la plantilla, que no se vea negro.
+        this._prevBg = [document.documentElement.style.backgroundColor, document.body.style.backgroundColor];
+        document.documentElement.style.backgroundColor = PAGE_BG;
+        document.body.style.backgroundColor = PAGE_BG;
         // El sitio reescribe el título después de cargar la página.
         [0, 400, 1500].forEach((ms) => {
             setTimeout(() => {
@@ -30,6 +35,11 @@ export default class SeNotFound extends LightningElement {
 
     disconnectedCallback() {
         this._connected = false;
+        if (this._prevBg) {
+            document.documentElement.style.backgroundColor = this._prevBg[0];
+            document.body.style.backgroundColor = this._prevBg[1];
+            this._prevBg = null;
+        }
         if (this._onResize) {
             window.removeEventListener('resize', this._onResize);
             this._onResize = null;
@@ -59,8 +69,11 @@ export default class SeNotFound extends LightningElement {
         if (!section) {
             return;
         }
-        const top = Math.max(0, Math.round(section.getBoundingClientRect().top + window.scrollY));
-        section.style.setProperty('--nf-offset', `${top}px`);
+        const rect = section.getBoundingClientRect();
+        const top = rect.top + window.scrollY;
+        const below = document.documentElement.scrollHeight - (rect.bottom + window.scrollY);
+        const offset = Math.max(0, Math.round(top + Math.max(0, below)));
+        section.style.setProperty('--nf-offset', `${offset}px`);
     }
 
     handleBack() {
