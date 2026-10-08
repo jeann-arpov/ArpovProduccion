@@ -1,0 +1,69 @@
+<template>
+    <section class="nf">
+        <div class="nf-wrap">
+            <div class="nf-art" aria-hidden="true">
+                <svg class="nf-svg" viewBox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+                    <text class="nf-watermark" x="160" y="150" text-anchor="middle">404</text>
+
+                    <g class="nf-sun">
+                        <circle class="nf-sun-ring" cx="246" cy="62" r="26"></circle>
+                        <circle class="nf-sun-core" cx="246" cy="62" r="8"></circle>
+                    </g>
+
+                    <path class="nf-furrow nf-furrow-1" d="M-20 226 Q160 196 340 226"></path>
+                    <path class="nf-furrow nf-furrow-2" d="M-20 248 Q160 214 340 248"></path>
+                    <path class="nf-furrow nf-furrow-3" d="M-20 272 Q160 232 340 272"></path>
+
+                    <path class="nf-mound" d="M112 222 Q160 198 208 222 Z"></path>
+
+                    <g class="nf-sprout">
+                        <path class="nf-stem" d="M160 214 C160 192 157 172 162 132"></path>
+                        <path class="nf-leaf nf-leaf-l" d="M160 178 C140 174 126 162 122 146 C140 145 156 156 160 178 Z"></path>
+                        <path class="nf-leaf nf-leaf-r" d="M161 156 C178 148 194 134 198 116 C178 118 164 134 161 156 Z"></path>
+                    </g>
+
+                    <circle class="nf-seed nf-seed-1" cx="96" cy="196" r="3"></circle>
+                    <circle class="nf-seed nf-seed-2" cx="226" cy="190" r="2.5"></circle>
+                    <circle class="nf-seed nf-seed-3" cx="128" cy="206" r="2"></circle>
+                    <circle class="nf-seed nf-seed-4" cx="200" cy="208" r="2"></circle>
+                </svg>
+            </div>
+
+            <div class="nf-copy">
+                <span class="nf-pill nf-in nf-in-1">Error 404</span>
+                <h1 class="nf-title nf-in nf-in-2">
+                    Esta página <span class="nf-mark">no germinó</span>
+                </h1>
+                <p class="nf-text nf-in nf-in-3">
+                    Puede que el enlace esté mal escrito, que la página se haya movido o que ya no exista.
+                    Te ayudamos a volver al camino.
+                </p>
+
+                <div class="nf-actions nf-in nf-in-4">
+                    <a class="nf-btn nf-btn-primary" href={homeUrl}>
+                        <lightning-icon icon-name="utility:home" size="x-small" class="nf-btn-icon"></lightning-icon>
+                        Ir al inicio
+                    </a>
+                    <button type="button" class="nf-btn nf-btn-ghost" onclick={handleBack}>
+                        <lightning-icon icon-name="utility:back" size="x-small" class="nf-btn-icon"></lightning-icon>
+                        Volver atrás
+                    </button>
+                </div>
+
+                <div class="nf-quick nf-in nf-in-5">
+                    <p class="nf-quick-label">Accesos rápidos</p>
+                    <ul class="nf-quick-list">
+                        <template for:each={quickLinks} for:item="link">
+                            <li key={link.key}>
+                                <a class="nf-chip" href={link.url}>
+                                    <lightning-icon icon-name={link.icon} size="xx-small" class="nf-chip-icon"></lightning-icon>
+                                    {link.label}
+                                </a>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>
