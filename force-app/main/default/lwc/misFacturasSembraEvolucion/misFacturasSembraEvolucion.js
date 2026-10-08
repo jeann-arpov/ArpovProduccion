@@ -75,7 +75,7 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
         { label: 'Cultivo', fieldName: 'cultivoLabel' },
         { label: 'Importe', fieldName: 'importeLabel' },
         { label: 'Vto.', fieldName: 'vtoLabel' },
-        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
+        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone', align: 'center' },
         { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver' }
     ];
 

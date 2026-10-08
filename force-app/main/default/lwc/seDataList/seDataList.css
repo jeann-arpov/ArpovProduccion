@@ -58,6 +58,11 @@
     white-space: nowrap;
 }
 
+.dtable th.is-center,
+.dtable td.is-center {
+    text-align: center;
+}
+
 .action-msg {
     display: inline-block;
     max-width: 220px;

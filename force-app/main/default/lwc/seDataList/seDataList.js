@@ -91,7 +91,9 @@ export default class SeDataList extends LightningElement {
         return (this.columns || []).map((col, index) => ({
             key: `h-${index}`,
             label: col.label || '',
-            thClass: col.type === 'action' ? 'th-action' + (this.fitActions ? ' is-fit' : '') : ''
+            thClass:
+                (col.type === 'action' ? 'th-action' + (this.fitActions ? ' is-fit' : '') : '') +
+                (col.align === 'center' ? ' is-center' : '')
         }));
     }
 
@@ -178,10 +180,10 @@ export default class SeDataList extends LightningElement {
                         actionLabel: rowActionLabel || col.actionLabel || this.actionLabel,
                         actionMessage: disabledMessage,
                         tdClass:
-                            type === 'action'
+                            (type === 'action'
                                 ? (showDisabledMessage ? 'td-action td-action--msg' : 'td-action') +
                                   (this.fitActions ? ' is-fit' : '')
-                                : ''
+                                : '') + (col.align === 'center' ? ' is-center' : '')
                     };
                 }),
                 fields: mobileFields
