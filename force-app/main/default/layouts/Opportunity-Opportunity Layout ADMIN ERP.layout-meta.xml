@@ -298,6 +298,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>
+                <field>Importe_Total_Comprobantes_Venta_ARS__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
                 <field>Saldo_a_Cobrar_ARS__c</field>
             </layoutItems>
         </layoutColumns>

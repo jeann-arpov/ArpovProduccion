@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Importe_Total_Comprobantes_Venta_ARS__c</fullName>
+    <description>Suma del campo Total ARS de todos los Comprobantes Venta asociados a la Oportunidad (Facturas, Notas de Débito y Notas de Crédito, estas últimas con signo negativo). Lo mantiene actualizado el trigger tg_ERPvs_Comprobante_Venta.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Suma del Total ARS de todos los Comprobantes Venta asociados a la Oportunidad.</inlineHelpText>
+    <label>Importe Total Comprobantes Venta ARS</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

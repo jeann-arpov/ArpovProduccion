@@ -86,6 +86,11 @@
         <field>Opportunity.Total_Comprobante_ARS__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.Importe_Total_Comprobantes_Venta_ARS__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Visualizar Reportes SE</label>
     <license>Salesforce</license>

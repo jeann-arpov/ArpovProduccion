@@ -8565,6 +8565,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Opportunity.Importe_Total_Comprobantes_Venta_ARS__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Orden_Intragrupo__c.Deuda_Total_Cobranzas__c</field>
         <readable>true</readable>
     </fieldPermissions>

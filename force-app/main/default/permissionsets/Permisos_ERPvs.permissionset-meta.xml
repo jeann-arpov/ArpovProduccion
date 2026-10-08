@@ -10371,6 +10371,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.Importe_Total_Comprobantes_Venta_ARS__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Opportunity.Total_Comprobante__c</field>
         <readable>true</readable>

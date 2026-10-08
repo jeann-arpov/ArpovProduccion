@@ -970,6 +970,61 @@ public without sharing class UtilsComprobanteVenta {
         if(!opIds.isEmpty()) UtilsComprobanteVenta.setOportunidad(opIds);
     }
 
+    /**
+    * @description Recalcula Opportunity.Importe_Total_Comprobantes_Venta_ARS__c de las oportunidades afectadas
+    * por el alta, baja, recuperación o cambio de Total ARS / Oportunidad de los comprobantes.
+    * @param records Trigger.new (Trigger.old en delete)
+    * @param oldRecords Trigger.oldMap en update; null en el resto de los eventos
+    */
+    public static void actualizarImporteTotalOportunidades(List<ERPvs__Comprobante_Venta__c> records, Map<Id, ERPvs__Comprobante_Venta__c> oldRecords) {
+        Set<Id> oppIds = new Set<Id>();
+
+        for (ERPvs__Comprobante_Venta__c cv : records) {
+            ERPvs__Comprobante_Venta__c oldCv = oldRecords != null ? oldRecords.get(cv.Id) : null;
+            if (oldCv != null && cv.Total_ARS__c == oldCv.Total_ARS__c && cv.Oportunidad__c == oldCv.Oportunidad__c) {
+                continue;
+            }
+            if (cv.Oportunidad__c != null) oppIds.add(cv.Oportunidad__c);
+            if (oldCv != null && oldCv.Oportunidad__c != null) oppIds.add(oldCv.Oportunidad__c);
+        }
+
+        actualizarImporteTotalComprobantesVenta(oppIds);
+    }
+
+    /**
+    * @description Setea en cada oportunidad la suma del Total ARS de todos sus Comprobantes Venta.
+    * Solo actualiza las oportunidades cuyo valor cambió.
+    */
+    public static void actualizarImporteTotalComprobantesVenta(Set<Id> oppIds) {
+        if (oppIds == null || oppIds.isEmpty()) return;
+
+        Map<Id, Decimal> totales = new Map<Id, Decimal>();
+        for (AggregateResult ar : [SELECT Oportunidad__c opp, SUM(Total_ARS__c) total
+                                   FROM ERPvs__Comprobante_Venta__c
+                                   WHERE Oportunidad__c IN :oppIds
+                                   GROUP BY Oportunidad__c]) {
+            totales.put((Id) ar.get('opp'), (Decimal) ar.get('total'));
+        }
+
+        List<Opportunity> toUpdate = new List<Opportunity>();
+        for (Opportunity opp : [SELECT Id, Importe_Total_Comprobantes_Venta_ARS__c FROM Opportunity WHERE Id IN :oppIds]) {
+            Decimal total = totales.get(opp.Id) ?? 0;
+            if (opp.Importe_Total_Comprobantes_Venta_ARS__c != total) {
+                toUpdate.add(new Opportunity(Id = opp.Id, Importe_Total_Comprobantes_Venta_ARS__c = total));
+            }
+        }
+
+        if (toUpdate.isEmpty()) return;
+
+        // allOrNone = false: una validación de la Oportunidad no debe bloquear la operación sobre el comprobante
+        List<Database.SaveResult> results = Database.update(toUpdate, false);
+        for (Integer i = 0; i < results.size(); i++) {
+            if (!results[i].isSuccess()) {
+                System.debug(LoggingLevel.ERROR, 'No se pudo actualizar Importe_Total_Comprobantes_Venta_ARS__c en ' + toUpdate[i].Id + ': ' + results[i].getErrors());
+            }
+        }
+    }
+
     @testVisible
     private static void checkSiembra(Set<Id> toCheckSiembra, Map<Id, ERPvs__Comprobante_Venta__c> records) {
         if (toCheckSiembra.isEmpty()) return;
