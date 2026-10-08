@@ -220,21 +220,33 @@ public without sharing class EstablecimientosMap {
         return s;
     }
 
-    private static GeoAddress reverseGeocode(Decimal latitude, Decimal longitude) {
-        HttpRequest req = new HttpRequest();
-        req.setMethod('GET');
-        req.setEndpoint(
-            'https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&zoom=14' +
-                '&lat=' +
-                String.valueOf(latitude) +
-                '&lon=' +
-                String.valueOf(longitude)
-        );
-        req.setHeader('User-Agent', 'SembraEvolucion-Salesforce/1.0 (establecimientos; contacto portal)');
-        req.setHeader('Accept-Language', 'es');
-        req.setTimeout(10000);
+    /**
+     * Código de país (minúsculas, ej. 'ar') del punto según Nominatim.
+     * '' si el punto no tiene dirección (mar, río); null si el servicio no respondió.
+     */
+    public static String countryCodeAt(Decimal latitude, Decimal longitude) {
+        if (latitude == null || longitude == null) {
+            return null;
+        }
+        try {
+            HttpResponse res = reverseGeocodeResponse(latitude, longitude);
+            if (res.getStatusCode() < 200 || res.getStatusCode() >= 300) {
+                return null;
+            }
+            Map<String, Object> root = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+            if (root == null || !(root.get('address') instanceof Map<String, Object>)) {
+                return '';
+            }
+            String code = str(((Map<String, Object>) root.get('address')).get('country_code'));
+            return String.isBlank(code) ? '' : code.toLowerCase();
+        } catch (Exception e) {
+            System.debug(LoggingLevel.WARN, 'Reverse geocode (país) falló: ' + e.getMessage());
+            return null;
+        }
+    }
 
-        HttpResponse res = new Http().send(req);
+    private static GeoAddress reverseGeocode(Decimal latitude, Decimal longitude) {
+        HttpResponse res = reverseGeocodeResponse(latitude, longitude);
         if (res.getStatusCode() < 200 || res.getStatusCode() >= 300) {
             return null;
         }
@@ -265,6 +277,22 @@ public without sharing class EstablecimientosMap {
             geo.suburb = str(address.get('quarter'));
         }
         return geo;
+    }
+
+    private static HttpResponse reverseGeocodeResponse(Decimal latitude, Decimal longitude) {
+        HttpRequest req = new HttpRequest();
+        req.setMethod('GET');
+        req.setEndpoint(
+            'https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&zoom=14' +
+                '&lat=' +
+                String.valueOf(latitude) +
+                '&lon=' +
+                String.valueOf(longitude)
+        );
+        req.setHeader('User-Agent', 'SembraEvolucion-Salesforce/1.0 (establecimientos; contacto portal)');
+        req.setHeader('Accept-Language', 'es');
+        req.setTimeout(10000);
+        return new Http().send(req);
     }
 
     private static String str(Object value) {
