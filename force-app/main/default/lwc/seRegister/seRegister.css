@@ -101,10 +101,9 @@
     height: 78px;
 }
 
-/* Abajo a la izquierda: a la derecha queda debajo de la tarjeta, que crece con el formulario. */
 .se-login-genetica {
     position: absolute;
-    left: 28px;
+    right: 28px;
     bottom: 20px;
     width: 112px;
     height: 112px;
