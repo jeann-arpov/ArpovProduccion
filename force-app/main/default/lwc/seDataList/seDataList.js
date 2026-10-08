@@ -182,7 +182,8 @@ export default class SeDataList extends LightningElement {
                         tdClass:
                             (type === 'action'
                                 ? (showDisabledMessage ? 'td-action td-action--msg' : 'td-action') +
-                                  (this.fitActions ? ' is-fit' : '')
+                                  (this.fitActions ? ' is-fit' : '') +
+                                  (this.fitActions && !showSecondary ? ' is-solo' : '')
                                 : '') + (col.align === 'center' ? ' is-center' : '')
                     };
                 }),
