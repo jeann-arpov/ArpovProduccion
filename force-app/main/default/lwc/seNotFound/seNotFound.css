@@ -415,7 +415,7 @@
 
 @media (max-width: 767px) {
     .nf {
-        padding: 32px 16px calc(96px + env(safe-area-inset-bottom));
+        padding: 32px 16px calc(32px + env(safe-area-inset-bottom));
     }
 
     .nf-art {

@@ -20,9 +20,18 @@ export default class SeNotFound extends LightningElement {
     connectedCallback() {
         this._connected = true;
         // El fondo del tema es oscuro; si queda espacio debajo de la plantilla, que no se vea negro.
-        this._prevBg = [document.documentElement.style.backgroundColor, document.body.style.backgroundColor];
-        document.documentElement.style.backgroundColor = PAGE_BG;
-        document.body.style.backgroundColor = PAGE_BG;
+        // En mobile seTokens reserva espacio para la Bottom Nav, que esta página no tiene.
+        this._prevStyles = [document.documentElement, document.body].map((el) => ({
+            el,
+            bg: el.style.getPropertyValue('background-color'),
+            bgPriority: el.style.getPropertyPriority('background-color'),
+            pb: el.style.getPropertyValue('padding-bottom'),
+            pbPriority: el.style.getPropertyPriority('padding-bottom')
+        }));
+        this._prevStyles.forEach(({ el }) => {
+            el.style.setProperty('background-color', PAGE_BG);
+            el.style.setProperty('padding-bottom', '0px', 'important');
+        });
         // El sitio reescribe el título después de cargar la página.
         [0, 400, 1500].forEach((ms) => {
             setTimeout(() => {
@@ -35,10 +44,12 @@ export default class SeNotFound extends LightningElement {
 
     disconnectedCallback() {
         this._connected = false;
-        if (this._prevBg) {
-            document.documentElement.style.backgroundColor = this._prevBg[0];
-            document.body.style.backgroundColor = this._prevBg[1];
-            this._prevBg = null;
+        if (this._prevStyles) {
+            this._prevStyles.forEach(({ el, bg, bgPriority, pb, pbPriority }) => {
+                el.style.setProperty('background-color', bg, bgPriority);
+                el.style.setProperty('padding-bottom', pb, pbPriority);
+            });
+            this._prevStyles = null;
         }
         if (this._onResize) {
             window.removeEventListener('resize', this._onResize);
