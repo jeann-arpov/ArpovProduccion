@@ -70,11 +70,11 @@ export default class MisFacturasSembraEvolucion extends LightningElement {
 
     columns = [
         { label: 'Comprobante', fieldName: 'numero', type: 'link' },
-        { label: 'Fecha', fieldName: 'fechaLabel' },
-        { label: 'Concepto', fieldName: 'concepto' },
-        { label: 'Cultivo', fieldName: 'cultivoLabel' },
-        { label: 'Importe', fieldName: 'importeLabel' },
-        { label: 'Vto.', fieldName: 'vtoLabel' },
+        { label: 'Fecha', fieldName: 'fechaLabel', align: 'center' },
+        { label: 'Concepto', fieldName: 'concepto', align: 'center' },
+        { label: 'Cultivo', fieldName: 'cultivoLabel', align: 'center' },
+        { label: 'Importe', fieldName: 'importeLabel', align: 'center' },
+        { label: 'Vto.', fieldName: 'vtoLabel', align: 'center' },
         { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone', align: 'center' },
         { label: '', fieldName: 'action', type: 'action', actionLabel: 'Ver' }
     ];

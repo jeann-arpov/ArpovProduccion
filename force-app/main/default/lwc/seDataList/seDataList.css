@@ -59,7 +59,8 @@
 }
 
 .dtable th.is-center,
-.dtable td.is-center {
+.dtable td.is-center,
+.td-action.is-fit.is-solo {
     text-align: center;
 }
 
