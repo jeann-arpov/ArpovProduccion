@@ -786,6 +786,7 @@
         <fields>Quantity</fields>
         <fields>ListPrice</fields>
         <fields>UnitPrice</fields>
+        <fields>Discount</fields>
         <fields>Tipo_de_Cambio__c</fields>
         <fields>TotalPrice</fields>
         <fields>Estado__c</fields>

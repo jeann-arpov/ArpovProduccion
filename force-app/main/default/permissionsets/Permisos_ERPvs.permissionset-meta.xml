@@ -3037,10 +3037,6 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>ERPvs__ResumenComisionesController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>ERPvs__ResumenPedidoController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -4466,10 +4462,6 @@
     </classAccesses>
     <classAccesses>
         <apexClass>ERPvs__Test_RestApiProductos</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>ERPvs__Test_ResumenComisionesController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
