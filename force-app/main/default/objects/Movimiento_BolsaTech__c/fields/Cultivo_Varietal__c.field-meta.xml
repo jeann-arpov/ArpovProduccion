@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cultivo_Varietal__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >Indica si el movimiento BolsaTech corresponde a un cultivo varietal (trigo) en lugar de binario (soja).</description>
+    <label>Cultivo Varietal</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

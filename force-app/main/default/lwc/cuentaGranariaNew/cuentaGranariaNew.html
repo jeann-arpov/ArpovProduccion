@@ -1,327 +1,474 @@
 <!-- sldsValidatorIgnore -->
 <template>
-    <div class="cg-root">
-        <template if:true={loading}>
-            <div class="cg-spinner" role="status" aria-busy="true" aria-label="Cargando">
-                <c-se-brand-loader></c-se-brand-loader>
-            </div>
+  <div class="cg-root">
+    <template if:true={loading}>
+      <div
+        class="cg-spinner"
+        role="status"
+        aria-busy="true"
+        aria-label="Cargando"
+      >
+        <c-se-brand-loader></c-se-brand-loader>
+      </div>
+    </template>
+
+    <!-- Stepper compartido (seProgSteps): barra lima mobile + círculos/línea desktop -->
+    <c-se-prog-steps
+      label-short={wizardProgressLabel}
+      label-long={progressEyebrow}
+      current-step={step}
+      step-labels={wizardStepLabelList}
+      mob-step-labels={wizardStepLabels}
+      appearance="panel"
+      onstepclick={handleProgStepClick}
+    ></c-se-prog-steps>
+
+    <!-- Paso 1: Cultivo -->
+    <section class="cg-panel" if:true={isStep1Active}>
+      <p class="cg-panel-sub">
+        Solo se listan los cultivos con sub-cuenta granaria activa.
+      </p>
+      <div class="cg-cultivo-grid" role="radiogroup" aria-label="Cultivo">
+        <template for:each={decoratedCultivos} for:item="c">
+          <button
+            key={c.id}
+            type="button"
+            class={c.cssClass}
+            role="radio"
+            aria-checked={c.ariaChecked}
+            data-nombre={c.nombre}
+            data-id={c.id}
+            onclick={handleSelectCultivo}
+          >
+            <span class="cg-cultivo-radio" aria-hidden="true"></span>
+            <span class="cg-cultivo-icon-wrap" if:true={c.icono}>
+              <img src={c.icono} alt="" class="cg-cultivo-icon" />
+            </span>
+            <span class="cg-cultivo-name">{c.nombreUpper}</span>
+          </button>
         </template>
+      </div>
+      <div class="cg-panel-actions cg-panel-actions--end">
+        <button
+          type="button"
+          class="cg-btn cg-btn-primary"
+          disabled={continuarPaso1Disabled}
+          onclick={handleContinuarPaso1}
+        >
+          Continuar →
+        </button>
+      </div>
+    </section>
 
-        <!-- Stepper compartido (seProgSteps): barra lima mobile + círculos/línea desktop -->
-        <c-se-prog-steps
-            label-short={wizardProgressLabel}
-            label-long={progressEyebrow}
-            current-step={step}
-            step-labels={wizardStepLabelList}
-            mob-step-labels={wizardStepLabels}
-            appearance="panel"
-            onstepclick={handleProgStepClick}
-        ></c-se-prog-steps>
-
-        <!-- Paso 1: Cultivo -->
-        <section class="cg-panel" if:true={isStep1Active}>
-            <p class="cg-panel-sub">Solo se listan los cultivos con sub-cuenta granaria activa.</p>
-            <div class="cg-cultivo-grid" role="radiogroup" aria-label="Cultivo">
-                <template for:each={decoratedCultivos} for:item="c">
-                    <button
-                        key={c.id}
-                        type="button"
-                        class={c.cssClass}
-                        role="radio"
-                        aria-checked={c.ariaChecked}
-                        data-nombre={c.nombre}
-                        data-id={c.id}
-                        onclick={handleSelectCultivo}
-                    >
-                        <span class="cg-cultivo-radio" aria-hidden="true"></span>
-                        <span class="cg-cultivo-icon-wrap" if:true={c.icono}>
-                            <img src={c.icono} alt="" class="cg-cultivo-icon" />
-                        </span>
-                        <span class="cg-cultivo-name">{c.nombreUpper}</span>
-                    </button>
-                </template>
-            </div>
-            <div class="cg-panel-actions cg-panel-actions--end">
-                <button
-                    type="button"
-                    class="cg-btn cg-btn-primary"
-                    disabled={continuarPaso1Disabled}
-                    onclick={handleContinuarPaso1}
-                >Continuar →</button>
-            </div>
-        </section>
-
-        <!-- Paso 2: Plataforma -->
-        <section class="cg-panel" if:true={showStep2Panel}>
-            <p class="cg-panel-sub">Las plataformas disponibles dependen del cultivo elegido.</p>
-            <div class="cg-plat-grid" role="radiogroup" aria-label="Plataforma">
-                <template for:each={decoratedPlataformas} for:item="p">
-                    <button
-                        key={p.value}
-                        type="button"
-                        class={p.cssClass}
-                        role="radio"
-                        aria-checked={p.ariaChecked}
-                        data-value={p.value}
-                        onclick={handlePickPlataforma}
-                    >
-                        <span class="cg-plat-lbl">{p.label}</span>
-                        <span class="cg-plat-radio" aria-hidden="true"></span>
-                    </button>
-                </template>
-            </div>
-            <div class="cg-panel-actions">
-                <button type="button" class="cg-btn cg-btn-ghost" onclick={handleBackToPaso1}>Volver</button>
-                <button
-                    type="button"
-                    class="cg-btn cg-btn-primary"
-                    disabled={continuarPaso2Disabled}
-                    onclick={handleContinuarPaso2}
-                >Continuar →</button>
-            </div>
-        </section>
-
-        <!-- Paso 3: Campaña -->
-        <section class="cg-panel" if:true={showStep3Panel}>
-            <div class="cg-camp-layout">
-                <div class="cg-camp-grid">
-                    <template for:each={decoratedCampanas} for:item="camp" for:index="index">
-                        <article key={camp.id} class={camp.cssClass}>
-                            <div class="cg-camp-info">
-                                <div class="cg-camp-crop">
-                                    <span>{camp.displayName}</span>
-                                    <span class="cg-tipwrap" tabindex="0">
-                                        <span class="cg-info-i" aria-hidden="true">i</span>
-                                        <span class="cg-tip" role="tooltip">
-                                            <b>{camp.tipTitle}</b>
-                                            {camp.tipBody}
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="cg-camp-year">{camp.period}</div>
-                            </div>
-
-                            <div class="cg-camp-figwrap" if:false={camp.showPPH}>
-                                <div class={camp.figClass}>
-                                    <lightning-formatted-number
-                                        value={camp.displayToneladas}
-                                        locale="es-AR"
-                                        format-style="decimal"
-                                        minimum-fraction-digits="0"
-                                        maximum-fraction-digits="0"
-                                    ></lightning-formatted-number>
-                                </div>
-                                <div class="cg-camp-unit">toneladas</div>
-                            </div>
-
-                            <div class="cg-camp-figwrap" if:true={camp.showPPH}>
-                                <img src={pphRibbonUrl} alt="PPH" class="cg-pph-ribbon" />
-                            </div>
-
-                            <button
-                                type="button"
-                                class={camp.btnClass}
-                                data-id={camp.id}
-                                data-index={index}
-                                onclick={handleSelectCampana}
-                                disabled={camp.ingresarDisabled}
-                            >Ingresar</button>
-                        </article>
-                    </template>
-                </div>
-
-                <aside class="cg-camp-side" if:true={showHTInfo}>
-                    <div class="cg-ht-panel">
-                        <div class="cg-ht-row">
-                            <span class="cg-ht-lbl">HT disponibles sin consumir</span>
-                            <span class="cg-ht-val">
-                                <lightning-formatted-number
-                                    value={htDisponibles}
-                                    locale="es-AR"
-                                    format-style="decimal"
-                                    minimum-fraction-digits="0"
-                                    maximum-fraction-digits="0"
-                                ></lightning-formatted-number>
-                            </span>
-                        </div>
-                        <div class="cg-ht-div" aria-hidden="true"></div>
-                        <div class="cg-ht-row cg-ht-row--muted">
-                            <span class="cg-ht-lbl">Equivalente en toneladas</span>
-                            <span class="cg-ht-val">
-                                <lightning-formatted-number
-                                    value={equivalenteToneladas}
-                                    locale="es-AR"
-                                    format-style="decimal"
-                                    minimum-fraction-digits="0"
-                                    maximum-fraction-digits="0"
-                                ></lightning-formatted-number>
-                            </span>
-                        </div>
-                    </div>
-                    <button type="button" class="cg-btn cg-btn-primary cg-btn-block" onclick={handleComprarHT}>
-                        Comprar HT →
-                    </button>
-                    <p class="cg-footer-note">
-                        Ante cualquier duda al respecto contactanos a {mesaAyudaEmail} o vía Whatsapp al +54 9 11 3117 2022.
-                    </p>
-                </aside>
-            </div>
-            <div class="cg-panel-actions">
-                <button type="button" class="cg-btn cg-btn-ghost" onclick={handleBackToPaso2}>Volver</button>
-            </div>
-        </section>
-
-        <!-- Resumen de toneladas -->
-        <template if:true={totales}>
-            <section class="cg-resumen">
-                <header class="cg-resumen-head">
-                    <div>
-                        <h2 class="cg-resumen-title">Resumen de toneladas · {cultivoNameDisplay} {campanaSeleccionadaPeriod}</h2>
-                    </div>
-                </header>
-
-                <div class="cg-res-layout">
-                <div class="cg-alertas">
-                    <div class={regularizarCardClass}>
-                        <span class="cg-reg-lbl">
-                            Toneladas a regularizar
-                            <span class="cg-tipwrap" tabindex="0" aria-label="Más información sobre toneladas a regularizar">
-                                <span class="cg-info-i" aria-hidden="true">i</span>
-                                <span class="cg-tip" role="tooltip">
-                                    <b>Toneladas a regularizar</b>
-                                    Es el saldo negativo de la campaña: entregaste más toneladas de las que tenés acreditadas. Comprá HT para regularizarlo.
-                                </span>
-                            </span>
-                        </span>
-                        <span class="cg-reg-val">
-                            <lightning-formatted-number
-                                value={totalToneladasRegularizar}
-                                locale="es-AR"
-                                format-style="decimal"
-                                minimum-fraction-digits="0"
-                                maximum-fraction-digits="0"
-                            ></lightning-formatted-number>
-                        </span>
-                    </div>
-                    <p class="cg-alerta-note" if:true={needsRegularizar}>Comprá HT para cubrir la entrega.</p>
-                    <p class="cg-alerta-note" if:false={needsRegularizar}>No hay toneladas pendientes de regularizar en esta campaña.</p>
-                    <div class="cg-alerta" if:true={showInfoRegaliaEnlist}>
-                        <span class="cg-alerta-label">Regalía Enlist a pagar</span>
-                        <span class="cg-alerta-value">
-                            <lightning-formatted-number
-                                value={totalRegaliaEnlistPendientes}
-                                locale="es-AR"
-                                format-style="decimal"
-                                minimum-fraction-digits="0"
-                                maximum-fraction-digits="0"
-                            ></lightning-formatted-number>&nbsp;tn
-                        </span>
-                        <span class="cg-alerta-hint">licenciasenlist@corteva.com</span>
-                    </div>
-                </div>
-
-                <!-- Desktop table -->
-                <div class="cg-table-wrap se-desk-only">
-                    <table class="cg-table">
-                        <thead>
-                            <tr>
-                                <th>Originado por</th>
-                                <th class="cg-cell-r">Toneladas vigentes</th>
-                                <th>Descargar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template for:each={resumenRows} for:item="row">
-                                <tr key={row.key} class={row.rowClass}>
-                                    <td>{row.label}</td>
-                                    <td class="cg-cell-r">
-                                        <lightning-formatted-number
-                                            value={row.value}
-                                            locale="es-AR"
-                                            format-style="decimal"
-                                            minimum-fraction-digits="0"
-                                            maximum-fraction-digits="0"
-                                        ></lightning-formatted-number>
-                                    </td>
-                                    <td>
-                                        <button
-                                            if:true={row.canDownload}
-                                            type="button"
-                                            class="cg-dl"
-                                            data-name={row.origen}
-                                            onclick={descargarDetalle}
-                                            title="Descargar detalle"
-                                        >
-                                            ↓
-                                        </button>
-                                    </td>
-                                </tr>
-                            </template>
-                            <tr class="cg-table-total">
-                                <td>Total toneladas</td>
-                                <td class="cg-cell-r">
-                                    <lightning-formatted-number
-                                        value={totalTodo}
-                                        locale="es-AR"
-                                        format-style="decimal"
-                                        minimum-fraction-digits="0"
-                                        maximum-fraction-digits="0"
-                                    ></lightning-formatted-number>
-                                </td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                </div>
-
-                <!-- Mobile card list -->
-                <div class="cg-mobile-list se-mob-only">
-                    <template for:each={resumenRows} for:item="row">
-                        <article key={row.key} class={row.cardClass}>
-                            <div class="cg-mcard-head">
-                                <span class="cg-mcard-title">{row.label}</span>
-                                <button
-                                    if:true={row.canDownload}
-                                    type="button"
-                                    class="cg-btn-icon"
-                                    data-name={row.origen}
-                                    onclick={descargarDetalle}
-                                    title="Descargar detalle"
-                                >
-                                    <lightning-icon icon-name="utility:download" size="x-small"></lightning-icon>
-                                </button>
-                            </div>
-                            <div class="cg-mcard-grid">
-                                <span class="cg-mcard-k">Toneladas vigentes</span>
-                                <span class="cg-mcard-v">
-                                    <lightning-formatted-number
-                                        value={row.value}
-                                        locale="es-AR"
-                                        format-style="decimal"
-                                        minimum-fraction-digits="0"
-                                        maximum-fraction-digits="0"
-                                    ></lightning-formatted-number>
-                                </span>
-                            </div>
-                        </article>
-                    </template>
-                    <article class="cg-mcard cg-mcard-total">
-                        <div class="cg-mcard-grid">
-                            <span class="cg-mcard-k">Total toneladas</span>
-                            <span class="cg-mcard-v">
-                                <lightning-formatted-number
-                                    value={totalTodo}
-                                    locale="es-AR"
-                                    format-style="decimal"
-                                    minimum-fraction-digits="0"
-                                    maximum-fraction-digits="0"
-                                ></lightning-formatted-number>
-                            </span>
-                        </div>
-                    </article>
-                </div>
-            </section>
+    <!-- Paso 2: Plataforma -->
+    <section class="cg-panel" if:true={showStep2Panel}>
+      <p class="cg-panel-sub">
+        Las plataformas disponibles dependen del cultivo elegido.
+      </p>
+      <div class="cg-plat-grid" role="radiogroup" aria-label="Plataforma">
+        <template for:each={decoratedPlataformas} for:item="p">
+          <button
+            key={p.value}
+            type="button"
+            class={p.cssClass}
+            role="radio"
+            aria-checked={p.ariaChecked}
+            data-value={p.value}
+            onclick={handlePickPlataforma}
+          >
+            <span class="cg-plat-lbl">{p.label}</span>
+            <span class="cg-plat-radio" aria-hidden="true"></span>
+          </button>
         </template>
-    </div>
+      </div>
+      <div class="cg-panel-actions">
+        <button
+          type="button"
+          class="cg-btn cg-btn-ghost"
+          onclick={handleBackToPaso1}
+        >
+          Volver
+        </button>
+        <button
+          type="button"
+          class="cg-btn cg-btn-primary"
+          disabled={continuarPaso2Disabled}
+          onclick={handleContinuarPaso2}
+        >
+          Continuar →
+        </button>
+      </div>
+    </section>
+
+    <!-- Paso 3: Campaña -->
+    <section class="cg-panel" if:true={showStep3Panel}>
+      <div class="cg-camp-layout">
+        <div class="cg-camp-grid">
+          <template
+            for:each={decoratedCampanas}
+            for:item="camp"
+            for:index="index"
+          >
+            <article key={camp.id} class={camp.cssClass}>
+              <div class="cg-camp-info">
+                <div class="cg-camp-crop">
+                  <span>{camp.displayName}</span>
+                  <span class="cg-tipwrap" tabindex="0">
+                    <span class="cg-info-i" aria-hidden="true">i</span>
+                    <span class="cg-tip" role="tooltip">
+                      <b>{camp.tipTitle}</b>
+                      {camp.tipBody}
+                    </span>
+                  </span>
+                </div>
+                <div class="cg-camp-year">{camp.period}</div>
+              </div>
+
+              <div class="cg-camp-figwrap" if:false={camp.showPPH}>
+                <div class={camp.figClass}>
+                  <lightning-formatted-number
+                    value={camp.displayToneladas}
+                    locale="es-AR"
+                    format-style="decimal"
+                    minimum-fraction-digits="0"
+                    maximum-fraction-digits="0"
+                  ></lightning-formatted-number>
+                </div>
+                <div class="cg-camp-unit">toneladas</div>
+              </div>
+
+              <div class="cg-camp-figwrap" if:true={camp.showPPH}>
+                <img src={pphRibbonUrl} alt="PPH" class="cg-pph-ribbon" />
+              </div>
+
+              <button
+                type="button"
+                class={camp.btnClass}
+                data-id={camp.id}
+                data-index={index}
+                onclick={handleSelectCampana}
+                disabled={camp.ingresarDisabled}
+              >
+                Ingresar
+              </button>
+            </article>
+          </template>
+        </div>
+
+        <aside class="cg-camp-side" if:true={showHTInfo}>
+          <div class="cg-ht-panel">
+            <div class="cg-ht-row">
+              <span class="cg-ht-lbl">HT disponibles sin consumir</span>
+              <span class="cg-ht-val">
+                <lightning-formatted-number
+                  value={htDisponibles}
+                  locale="es-AR"
+                  format-style="decimal"
+                  minimum-fraction-digits="0"
+                  maximum-fraction-digits="0"
+                ></lightning-formatted-number>
+              </span>
+            </div>
+            <div class="cg-ht-div" aria-hidden="true"></div>
+            <div class="cg-ht-row cg-ht-row--muted">
+              <span class="cg-ht-lbl">Equivalente en toneladas</span>
+              <span class="cg-ht-val">
+                <lightning-formatted-number
+                  value={equivalenteToneladas}
+                  locale="es-AR"
+                  format-style="decimal"
+                  minimum-fraction-digits="0"
+                  maximum-fraction-digits="0"
+                ></lightning-formatted-number>
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="cg-btn cg-btn-primary cg-btn-block"
+            onclick={handleComprarHT}
+          >
+            Comprar HT →
+          </button>
+          <p class="cg-footer-note">
+            Ante cualquier duda al respecto contactanos a {mesaAyudaEmail} o vía
+            Whatsapp al +54 9 11 3117 2022.
+          </p>
+        </aside>
+      </div>
+      <div class="cg-panel-actions">
+        <button
+          type="button"
+          class="cg-btn cg-btn-ghost"
+          onclick={handleBackToPaso2}
+        >
+          Volver
+        </button>
+      </div>
+    </section>
+
+    <!-- Resumen de toneladas -->
+    <template if:true={totales}>
+      <section class="cg-resumen">
+        <header class="cg-resumen-head">
+          <div>
+            <h2 class="cg-resumen-title">
+              Resumen de toneladas · {cultivoNameDisplay}
+              {campanaSeleccionadaPeriod}
+            </h2>
+          </div>
+        </header>
+
+        <div class="cg-res-layout">
+          <div class="cg-alertas">
+            <div class={regularizarCardClass}>
+              <span class="cg-reg-lbl">
+                Toneladas a regularizar
+                <span
+                  class="cg-tipwrap"
+                  tabindex="0"
+                  aria-label="Más información sobre toneladas a regularizar"
+                >
+                  <span class="cg-info-i" aria-hidden="true">i</span>
+                  <span class="cg-tip" role="tooltip">
+                    <b>Toneladas a regularizar</b>
+                    Es el saldo negativo de la campaña: entregaste más toneladas
+                    de las que tenés acreditadas. Comprá HT para regularizarlo.
+                  </span>
+                </span>
+              </span>
+              <span class="cg-reg-val">
+                <lightning-formatted-number
+                  value={totalToneladasRegularizar}
+                  locale="es-AR"
+                  format-style="decimal"
+                  minimum-fraction-digits="0"
+                  maximum-fraction-digits="0"
+                ></lightning-formatted-number>
+              </span>
+            </div>
+            <p class="cg-alerta-note" if:true={needsRegularizar}>
+              Comprá HT para cubrir la entrega.
+            </p>
+            <p class="cg-alerta-note" if:false={needsRegularizar}>
+              No hay toneladas pendientes de regularizar en esta campaña.
+            </p>
+            <div class="cg-alerta" if:true={showInfoRegaliaEnlist}>
+              <span class="cg-alerta-label">Regalía Enlist a pagar</span>
+              <span class="cg-alerta-value">
+                <lightning-formatted-number
+                  value={totalRegaliaEnlistPendientes}
+                  locale="es-AR"
+                  format-style="decimal"
+                  minimum-fraction-digits="0"
+                  maximum-fraction-digits="0"
+                ></lightning-formatted-number
+                >&nbsp;tn
+              </span>
+              <span class="cg-alerta-hint">licenciasenlist@corteva.com</span>
+            </div>
+          </div>
+
+          <!-- Desktop table -->
+          <div class="cg-table-wrap se-desk-only">
+            <table class="cg-table">
+              <thead>
+                <tr>
+                  <th>Originado por</th>
+                  <th class="cg-cell-r">Toneladas vigentes</th>
+                  <th>Descargar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={resumenRows} for:item="row">
+                  <tr key={row.key} class={row.rowClass}>
+                    <td>{row.label}</td>
+                    <td class="cg-cell-r">
+                      <lightning-formatted-number
+                        value={row.value}
+                        locale="es-AR"
+                        format-style="decimal"
+                        minimum-fraction-digits="0"
+                        maximum-fraction-digits="0"
+                      ></lightning-formatted-number>
+                    </td>
+                    <td>
+                      <button
+                        if:true={row.canDownload}
+                        type="button"
+                        class="cg-dl"
+                        data-name={row.origen}
+                        onclick={descargarDetalle}
+                        title="Descargar detalle"
+                      >
+                        ↓
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+                <tr class="cg-table-total">
+                  <td>Total toneladas</td>
+                  <td class="cg-cell-r">
+                    <lightning-formatted-number
+                      value={totalTodo}
+                      locale="es-AR"
+                      format-style="decimal"
+                      minimum-fraction-digits="0"
+                      maximum-fraction-digits="0"
+                    ></lightning-formatted-number>
+                  </td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mobile card list -->
+        <div class="cg-mobile-list se-mob-only">
+          <template for:each={resumenRows} for:item="row">
+            <article key={row.key} class={row.cardClass}>
+              <div class="cg-mcard-head">
+                <span class="cg-mcard-title">{row.label}</span>
+                <button
+                  if:true={row.canDownload}
+                  type="button"
+                  class="cg-btn-icon"
+                  data-name={row.origen}
+                  onclick={descargarDetalle}
+                  title="Descargar detalle"
+                >
+                  <lightning-icon
+                    icon-name="utility:download"
+                    size="x-small"
+                  ></lightning-icon>
+                </button>
+              </div>
+              <div class="cg-mcard-grid">
+                <span class="cg-mcard-k">Toneladas vigentes</span>
+                <span class="cg-mcard-v">
+                  <lightning-formatted-number
+                    value={row.value}
+                    locale="es-AR"
+                    format-style="decimal"
+                    minimum-fraction-digits="0"
+                    maximum-fraction-digits="0"
+                  ></lightning-formatted-number>
+                </span>
+              </div>
+            </article>
+          </template>
+          <article class="cg-mcard cg-mcard-total">
+            <div class="cg-mcard-grid">
+              <span class="cg-mcard-k">Total toneladas</span>
+              <span class="cg-mcard-v">
+                <lightning-formatted-number
+                  value={totalTodo}
+                  locale="es-AR"
+                  format-style="decimal"
+                  minimum-fraction-digits="0"
+                  maximum-fraction-digits="0"
+                ></lightning-formatted-number>
+              </span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </template>
+
+    <!-- Varietal (trigo): Semillero + Variedad + Resumen -->
+    <template if:true={showVarietal}>
+      <section class="cg-panel cg-varietal">
+        <h2 class="cg-resumen-title">
+          Cuenta varietal · {cultivoNameDisplay} {campanaSeleccionadaPeriod}
+        </h2>
+        <p class="cg-panel-sub">
+          Elegí el semillero para ver el saldo de cada variedad.
+        </p>
+
+        <div class="cg-plat-grid" role="radiogroup" aria-label="Semillero">
+          <template for:each={decoratedSemilleros} for:item="s">
+            <button
+              key={s.nombre}
+              type="button"
+              class={s.cssClass}
+              role="radio"
+              aria-checked={s.ariaChecked}
+              data-nombre={s.nombre}
+              onclick={handleSelectSemillero}
+            >
+              <span class="cg-plat-lbl">{s.nombre}</span>
+              <span class="cg-plat-radio" aria-hidden="true"></span>
+            </button>
+          </template>
+        </div>
+
+        <template if:true={semilleroSeleccionado}>
+          <div class="cg-var-grid">
+            <template for:each={variedadesFiltradas} for:item="v">
+              <article key={v.variedadId} class="cg-var-card">
+                <span class="cg-var-name">{v.variedadNombre}</span>
+                <span class={v.saldoClass}>
+                  <lightning-formatted-number
+                    value={v.saldo}
+                    locale="es-AR"
+                    format-style="decimal"
+                    minimum-fraction-digits="0"
+                    maximum-fraction-digits="3"
+                  ></lightning-formatted-number
+                  >&nbsp;tn
+                </span>
+              </article>
+            </template>
+          </div>
+
+          <div class="cg-table-wrap se-desk-only cg-varietal-table">
+            <table class="cg-table">
+              <thead>
+                <tr>
+                  <th>Variedad</th>
+                  <th>Semillero</th>
+                  <th class="cg-cell-r">Crédito</th>
+                  <th class="cg-cell-r">Débito</th>
+                  <th class="cg-cell-r">Saldo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={variedadesFiltradas} for:item="v">
+                  <tr key={v.variedadId}>
+                    <td>{v.variedadNombre}</td>
+                    <td>{v.semilleroNombre}</td>
+                    <td class="cg-cell-r">
+                      <lightning-formatted-number
+                        value={v.credito}
+                        locale="es-AR"
+                        format-style="decimal"
+                        maximum-fraction-digits="3"
+                      ></lightning-formatted-number>
+                    </td>
+                    <td class="cg-cell-r">
+                      <lightning-formatted-number
+                        value={v.debito}
+                        locale="es-AR"
+                        format-style="decimal"
+                        maximum-fraction-digits="3"
+                      ></lightning-formatted-number>
+                    </td>
+                    <td class="cg-cell-r">
+                      <lightning-formatted-number
+                        value={v.saldo}
+                        locale="es-AR"
+                        format-style="decimal"
+                        maximum-fraction-digits="3"
+                      ></lightning-formatted-number>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </section>
+    </template>
+  </div>
 </template>

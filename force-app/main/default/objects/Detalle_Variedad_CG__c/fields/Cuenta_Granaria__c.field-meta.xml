@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_Granaria__c</fullName>
+    <description
+  >Cuenta Granaria consolidada a la que pertenece la sub-cuenta varietal.</description>
+    <inlineHelpText>Cuenta Granaria padre (consolidada).</inlineHelpText>
+    <label>Cuenta Granaria</label>
+    <referenceTo>Cuenta_Granaria__c</referenceTo>
+    <relationshipLabel>Detalles Varietales</relationshipLabel>
+    <relationshipName>Detalles_Varietales</relationshipName>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>true</writeRequiresMasterRead>
+</CustomField>
