@@ -265,6 +265,45 @@
     padding: 0 6px;
 }
 
+/* Autocompletado del navegador: el valor puede aparecer sin evento input, así que la etiqueta flota por CSS.
+   Reglas separadas: si un navegador no entiende un selector, descarta la regla entera. */
+.se-fl-field:has(.se-fl-input:-webkit-autofill) .se-fl-label {
+    top: 0;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--se-black, #1c1c1c);
+    background: #fff;
+    padding: 0 6px;
+}
+
+.se-fl-field:has(.se-fl-input:autofill) .se-fl-label {
+    top: 0;
+    left: 12px;
+    transform: translateY(-50%);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--se-black, #1c1c1c);
+    background: #fff;
+    padding: 0 6px;
+}
+
+/* Fondo blanco en vez del celeste del autocompletado. */
+.se-fl-input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset;
+    -webkit-text-fill-color: var(--se-black, #1c1c1c);
+    border-color: var(--se-black, #1c1c1c);
+}
+
+.se-fl-field.is-focus .se-fl-input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset, 0 0 0 3px rgba(191, 255, 0, 0.5);
+}
+
 .se-fl-field.has-error .se-fl-label {
     color: var(--se-danger, #d64545);
 }
@@ -373,6 +412,19 @@
     text-align: center;
     font-size: 13px;
     color: var(--se-muted, #6b7280);
+}
+
+/* El compilador de LWC elimina el espacio entre el texto y el botón. */
+.se-login-foot-text .se-login-link,
+.se-login-register .se-login-link {
+    margin-left: 0.3em;
+}
+
+.se-login-alert-text {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .se-login-cancel {
@@ -500,11 +552,6 @@
     padding-bottom: 32px;
 }
 
-.se-login-card--register .se-login-card-body {
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-}
-
 .se-fl-field--password-help .se-fl-input--password {
     padding-right: 84px;
 }
@@ -571,7 +618,25 @@
         padding-bottom: 48px;
     }
 
+    /* Formulario de alta ~10% más bajo que el login: menos aire vertical y campos de 48px. */
     .se-login-card--register .se-login-card-body {
-        max-height: calc(100vh - 200px);
+        padding: 28px 40px 24px;
+    }
+
+    .se-login-card--register .se-login-logo-wrap {
+        margin-bottom: 20px;
+    }
+
+    .se-login-card--register .se-fl-field {
+        margin-bottom: 15px;
+    }
+
+    .se-login-card--register .se-fl-input {
+        min-height: 48px;
+        padding: 14px 14px 12px;
+    }
+
+    .se-login-card--register .se-login-card-foot {
+        padding: 14px 40px;
     }
 }

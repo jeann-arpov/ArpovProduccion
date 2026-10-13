@@ -52,6 +52,18 @@
     white-space: normal;
 }
 
+.th-action.is-fit,
+.td-action.is-fit {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.dtable th.is-center,
+.dtable td.is-center,
+.td-action.is-fit.is-solo {
+    text-align: center;
+}
+
 .action-msg {
     display: inline-block;
     max-width: 220px;

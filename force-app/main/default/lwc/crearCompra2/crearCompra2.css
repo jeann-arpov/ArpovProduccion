@@ -781,13 +781,19 @@ h3,
     font-weight: 700;
 }
 
+/* El importe nunca se parte: si no entra junto al label baja a su propio renglón. */
 .se-resumen-total-value {
     min-width: 0;
+    margin-left: auto;
     font-weight: 800;
     font-size: 22px;
     color: #bfff00;
     text-align: right;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+}
+
+.se-resumen-total-value.is-long {
+    font-size: 19px;
 }
 
 .se-confirm-table-wrap {
@@ -899,6 +905,7 @@ h3,
 
 .se-confirm-hero-top {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
     gap: 12px;
@@ -917,12 +924,17 @@ h3,
 
 .se-confirm-hero-total {
     min-width: 0;
+    margin-left: auto;
     font-weight: 800;
     font-size: 28px;
     line-height: 1.1;
     color: #bfff00;
     text-align: right;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+}
+
+.se-confirm-hero-total.is-long {
+    font-size: 22px;
 }
 
 .se-confirm-hero-list {
@@ -1482,6 +1494,7 @@ h3,
 
 .se-resumen-total {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
@@ -1989,6 +2002,12 @@ h3,
     .se-mob-footer--confirm .se-mob-footer-status {
         font-size: clamp(16px, 5vw, 20px);
         line-height: 1.15;
+        white-space: nowrap;
+        overflow-wrap: normal;
+    }
+
+    .se-mob-footer--confirm.is-long .se-mob-footer-status {
+        font-size: 15px;
     }
 
     .se-mob-footer--confirm .se-mob-footer-btn {

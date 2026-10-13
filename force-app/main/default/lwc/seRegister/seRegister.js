@@ -11,6 +11,7 @@ import sitePath from '@salesforce/community/basePath';
 import { reduceErrors, normalizeCuit, formatCuit } from 'c/utils';
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+const REGISTER_TITLE = 'Registrarme · Sembrá Evolución';
 
 export default class SeRegister extends LightningElement {
     sitePath = sitePath;
@@ -39,15 +40,24 @@ export default class SeRegister extends LightningElement {
     geneticaIconUrl = geneticaIconUrl;
 
     connectedCallback() {
+        this._connected = true;
         document.documentElement.classList.add('se-chrome', 'se-register-guest');
         document.body.classList.add('se-chrome', 'se-register-guest');
         loadStyle(this, TOKENS).catch((error) => {
             // eslint-disable-next-line no-console
             console.error('seTokens', error);
         });
+        // Aura reescribe el título con el nombre técnico de la página del Builder después de cargar.
+        [0, 400, 1500].forEach((ms) => {
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            setTimeout(() => {
+                if (this._connected && document.title !== REGISTER_TITLE) document.title = REGISTER_TITLE;
+            }, ms);
+        });
     }
 
     disconnectedCallback() {
+        this._connected = false;
         document.documentElement.classList.remove('se-chrome', 'se-register-guest');
         document.body.classList.remove('se-chrome', 'se-register-guest');
     }
@@ -303,7 +313,20 @@ export default class SeRegister extends LightningElement {
         this.helpVisible = !this.helpVisible;
     }
 
+    /** El autocompletado del navegador puede llenar campos sin disparar input: se toma lo que se ve. */
+    syncFormState() {
+        const fields = ['cuit', 'dni', 'firstName', 'lastName', 'telefono', 'email', 'password', 'passwordConfirm'];
+        for (const name of fields) {
+            const input = this.template.querySelector(`input[name="${name}"]`);
+            if (!input) continue;
+            if (name === 'cuit') this.cuit = normalizeCuit(input.value);
+            else if (name === 'password' || name === 'passwordConfirm') this[name] = input.value;
+            else this[name] = (input.value || '').trim();
+        }
+    }
+
     validateRegisterForm() {
+        this.syncFormState();
         let valid = true;
         this.cuitError = '';
         this.fieldErrors = {};
@@ -454,6 +477,11 @@ export default class SeRegister extends LightningElement {
         this.identifier = '';
         this.code = '';
         this.clearMessage();
+    }
+
+    /** Los errores de RegisterCommunityController traen HTML (link a WhatsApp): se muestra como rich text saneado. */
+    get messageText() {
+        return Array.isArray(this.message) ? this.message.join(' ') : String(this.message || '');
     }
 
     showMessage(variant, message) {

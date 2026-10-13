@@ -251,6 +251,16 @@ export default class AdhesionPph extends LightningElement {
     );
   }
 
+  get recibidaTitle() {
+    const i = this.recibidaLabel.indexOf(". ");
+    return i > 0 ? this.recibidaLabel.slice(0, i + 1) : this.recibidaLabel;
+  }
+
+  get recibidaBody() {
+    const i = this.recibidaLabel.indexOf(". ");
+    return i > 0 ? this.recibidaLabel.slice(i + 2).trim() : "";
+  }
+
   get grandesCuentas() {
     return this.account?.Grandes_Cuentas__c === true;
   }

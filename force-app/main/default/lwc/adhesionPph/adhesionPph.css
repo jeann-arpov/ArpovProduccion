@@ -317,6 +317,19 @@
     margin: 0 0 20px;
 }
 
+.p-msg-title {
+    margin-bottom: 8px;
+}
+
+.p-msg-body {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: #4b5563;
+    margin: 0 0 20px;
+}
+
 .p-mfoot {
     display: flex;
     flex-direction: column-reverse;

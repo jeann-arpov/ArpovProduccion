@@ -395,6 +395,10 @@
         z-index: 20;
     }
 
+    .lic-header-mob .title {
+        margin-bottom: 12px;
+    }
+
     .lic-meta-mobile {
         margin: 0 0 8px;
         font-size: 11px;

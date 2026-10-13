@@ -834,8 +834,26 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
     get mobFooterClass() {
         return (
-            'se-mob-footer' + (this.step === 5 ? ' se-mob-footer--confirm' : '')
+            'se-mob-footer' +
+            (this.step === 5 ? ' se-mob-footer--confirm' : '') +
+            (this.step === 5 && this.resumenTotalLong ? ' is-long' : '')
         );
+    }
+
+    get resumenTotalLong() {
+        return String(this.resumenTotal || '').length > 14;
+    }
+
+    get resumenTotalValueClass() {
+        return 'se-resumen-total-value' + (this.resumenTotalLong ? ' is-long' : '');
+    }
+
+    get detalleTotalValueClass() {
+        return 'se-resumen-total-value' + (String(this.detalleTotalUsd || '').length > 14 ? ' is-long' : '');
+    }
+
+    get confirmHeroTotalClass() {
+        return 'se-confirm-hero-total' + (this.resumenTotalLong ? ' is-long' : '');
     }
 
     get mobFooterStepLabel() {

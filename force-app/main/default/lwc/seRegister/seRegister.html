@@ -49,7 +49,7 @@
                                         alternative-text="Error"
                                     ></lightning-icon>
                                 </template>
-                                <span>{message}</span>
+                                <lightning-formatted-rich-text class="se-login-alert-text" value={messageText}></lightning-formatted-rich-text>
                             </div>
                         </template>
 
@@ -60,6 +60,7 @@
                                 class="se-fl-input"
                                 type="text"
                                 name="cuit"
+                                autocomplete="off"
                                 inputmode="numeric"
                                 maxlength="13"
                                 value={cuitFormatted}
@@ -84,6 +85,7 @@
                                 class="se-fl-input"
                                 type="text"
                                 name="dni"
+                                autocomplete="off"
                                 inputmode="numeric"
                                 value={dni}
                                 oninput={handleTextInput}
@@ -282,7 +284,9 @@
                         </p>
 
                         <template if:true={message}>
-                            <div class={messageBannerClass} role="alert">{message}</div>
+                            <div class={messageBannerClass} role="alert">
+                                <lightning-formatted-rich-text class="se-login-alert-text" value={messageText}></lightning-formatted-rich-text>
+                            </div>
                         </template>
 
                         <div class={codeFieldClass}>

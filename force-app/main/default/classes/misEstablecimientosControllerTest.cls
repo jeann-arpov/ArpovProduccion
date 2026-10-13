@@ -1,6 +1,27 @@
 @isTest
 private class misEstablecimientosControllerTest {
 
+    private class NominatimMock implements HttpCalloutMock {
+        private final Integer status;
+        private final String body;
+
+        NominatimMock(Integer status, String body) {
+            this.status = status;
+            this.body = body;
+        }
+
+        public HttpResponse respond(HttpRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setStatusCode(status);
+            res.setBody(body);
+            return res;
+        }
+    }
+
+    private static NominatimMock paisMock(String countryCode) {
+        return new NominatimMock(200, '{"address":{"country_code":"' + countryCode + '"}}');
+    }
+
     private static User crearUsuarioComunidad(Account acc) {
         Profile communityProfile = [SELECT Id FROM Profile WHERE Name = 'Customer Community Login User' LIMIT 1];
 
@@ -145,6 +166,7 @@ private class misEstablecimientosControllerTest {
         );
         insert est;
 
+        Test.setMock(HttpCalloutMock.class, paisMock('ar'));
         System.runAs(communityUser) {
             Test.startTest();
             misEstablecimientosController.updateEstablecimiento(est.Id, ' Las rosas 2 ', -35.5, -62.25, false);
@@ -202,5 +224,70 @@ private class misEstablecimientosControllerTest {
         }
         System.assert(sinNombre, 'Debe exigir el nombre');
         System.assert(noEncontrado, 'Debe fallar si el establecimiento no existe para el productor');
+    }
+
+    private static Establecimiento__c crearEstablecimiento(Account acc) {
+        Establecimiento__c est = new Establecimiento__c(
+            Name = 'QA Establecimiento',
+            Productor__c = acc.Id,
+            Coordenadas__Latitude__s = -34.8475,
+            Coordenadas__Longitude__s = -59.3484
+        );
+        insert est;
+        return est;
+    }
+
+    private static String intentarModificar(User u, Id estId, Decimal lat, Decimal lng) {
+        String error;
+        System.runAs(u) {
+            Test.startTest();
+            try {
+                misEstablecimientosController.updateEstablecimiento(estId, 'QA Establecimiento', lat, lng, true);
+            } catch (AuraHandledException e) {
+                error = e.getMessage();
+            }
+            Test.stopTest();
+        }
+        return error;
+    }
+
+    @isTest
+    static void testUpdateRechazaUruguay() {
+        Account acc = Test_TestUtils.crearProductor();
+        User communityUser = crearUsuarioComunidad(acc);
+        Establecimiento__c est = crearEstablecimiento(acc);
+
+        Test.setMock(HttpCalloutMock.class, paisMock('uy'));
+        String error = intentarModificar(communityUser, est.Id, -34.4626, -57.84);
+
+        System.assertNotEquals(null, error, 'Colonia (Uruguay) no debe guardarse');
+        Establecimiento__c actual = [SELECT Coordenadas__Latitude__s FROM Establecimiento__c WHERE Id = :est.Id];
+        System.assertEquals(-34.8475, actual.Coordenadas__Latitude__s, 'Las coordenadas no deben cambiar');
+    }
+
+    @isTest
+    static void testUpdateRechazaMar() {
+        Account acc = Test_TestUtils.crearProductor();
+        User communityUser = crearUsuarioComunidad(acc);
+        Establecimiento__c est = crearEstablecimiento(acc);
+
+        Test.setMock(HttpCalloutMock.class, new NominatimMock(200, '{"error":"Unable to geocode"}'));
+        String error = intentarModificar(communityUser, est.Id, -35.2, -56.9);
+
+        System.assertNotEquals(null, error, 'Un punto en el agua no debe guardarse');
+    }
+
+    @isTest
+    static void testUpdateSinServicioNoBloquea() {
+        Account acc = Test_TestUtils.crearProductor();
+        User communityUser = crearUsuarioComunidad(acc);
+        Establecimiento__c est = crearEstablecimiento(acc);
+
+        Test.setMock(HttpCalloutMock.class, new NominatimMock(503, ''));
+        String error = intentarModificar(communityUser, est.Id, -35.5, -62.25);
+
+        System.assertEquals(null, error, 'Si Nominatim no responde se guarda igual');
+        Establecimiento__c actual = [SELECT Coordenadas__Latitude__s FROM Establecimiento__c WHERE Id = :est.Id];
+        System.assertEquals(-35.5, actual.Coordenadas__Latitude__s);
     }
 }

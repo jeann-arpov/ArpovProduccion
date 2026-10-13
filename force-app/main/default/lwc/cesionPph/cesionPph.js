@@ -239,7 +239,7 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     
             this.destinatarios = destinatarios;
     
-            if (this.destinatarios.length == 0) this.addRow();
+            if (this.destinatarios.length == 0 && !this.isSoloLectura) this.addRow();
     
             if (this.isSoloLectura) setTimeout(_ => this.step = "resumen", 0);
 
