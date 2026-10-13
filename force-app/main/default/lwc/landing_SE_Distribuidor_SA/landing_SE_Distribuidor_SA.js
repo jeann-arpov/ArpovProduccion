@@ -13,6 +13,8 @@ import uId from "@salesforce/user/Id";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
 import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
 import singleNewLicenseRequestJWTSigner from "@salesforce/apex/CustomJWTSigner.singleNewLicenseRequestJWTSigner";
+import { redirectToSglWithToken } from "c/utils";
+import { trackGa4Event } from "c/portalGa4Events";
 
 export default class Landing_SE_Distribuidor_SA extends NavigationMixin(
   LightningElement
@@ -147,14 +149,11 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(
         contactId: this.currentContactId
       });
 
-      this[NavigationMixin.Navigate](
-        {
-          type: "standard__webPage",
-          attributes: {
-            url: `${this.url}/NewLicenseRequest?token=${encodeURIComponent(token)}&url=${encodeURIComponent(window.location.href)}`
-          }
-        },
-        true // reemplaza la pestaña actual en el historial
+      redirectToSglWithToken(
+        this,
+        `${this.url}/NewLicenseRequest`,
+        token,
+        window.location.href
       );
     } catch (error) {
       console.error("Error en handleSolicitarLicencia:", error);
@@ -213,6 +212,10 @@ export default class Landing_SE_Distribuidor_SA extends NavigationMixin(
 
   handleVenderHT() {
     console.log("Vender HT");
+    trackGa4Event("ht_compra_iniciada", {
+      portal: "Comercio",
+      accion: "vender"
+    });
     this[NavigationMixin.Navigate]({
       type: "comm__namedPage",
       attributes: {

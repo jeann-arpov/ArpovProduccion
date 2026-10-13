@@ -1,34 +1,57 @@
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api } from "lwc";
+import { syncPortalModal, releasePortalModal } from "c/seModalLayer";
 
 export default class PdfReader extends LightningElement {
-    
-    showPdf = false;
-    documentId; 
-    title;
+  showPdf = false;
+  documentId;
+  title;
+  variant;
+  barLabel;
 
-    handleOnLoadPDF() {
-        console.log('PDF Loaded!')
-    }
+  get showSgModal() {
+    return this.showPdf && this.variant === "sg";
+  }
 
-    @api
-    show(data) {
-        this.title = data.title
-        this.showPdf = true;
-        this.documentId = data.documentId;
-    }
+  get showLegacyModal() {
+    return this.showPdf && this.variant !== "sg";
+  }
 
-    @api
-    hide() {
-        this.showPdf = true;
-        this.documentId = null;
-    }
+  renderedCallback() {
+    syncPortalModal(this, this.showSgModal, ".sg-layer");
+  }
 
-    handleOnCloseModal() {
-        this.showPdf = false;
-    }
+  disconnectedCallback() {
+    releasePortalModal(this);
+  }
 
-    get pdfUrl(){
-        return window.location.href.split('/s/')[0] + '/apex/viewPDF?documentId=' + this.documentId;
-    }
+  handleOnLoadPDF() {
+    console.log("PDF Loaded!");
+  }
 
+  @api
+  show(data) {
+    this.title = data.title;
+    this.variant = data.variant;
+    this.barLabel = data.barLabel || data.title;
+    this.showPdf = true;
+    this.documentId = data.documentId;
+  }
+
+  @api
+  hide() {
+    this.showPdf = false;
+    this.documentId = null;
+  }
+
+  handleOnCloseModal() {
+    this.showPdf = false;
+  }
+
+  get pdfUrl() {
+    return (
+      window.location.href.split("/s/")[0] +
+      "/apex/viewPDF?documentId=" +
+      this.documentId
+    );
+  }
 }

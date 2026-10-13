@@ -9,6 +9,11 @@ import rectificarAdhesion2 from "@salesforce/apex/AdhesionPPH.rectificarAdhesion
 import { reduceErrors } from "c/utils";
 import { trackGa4Event, trackErrorFuncional } from "c/portalGa4Events";
 import { PAGES, goToCommunityPage } from "c/seNav";
+import {
+  lockPortalModal,
+  unlockPortalModal,
+  fitFixedLayer
+} from "c/seModalLayer";
 import recibidaLabel from "@salesforce/label/c.PPH_Mensaje_Recibida";
 
 const TOAST_MS = 8000;
@@ -70,10 +75,28 @@ export default class AdhesionPph extends LightningElement {
     }
   }
 
+  renderedCallback() {
+    if (this.showModal && !this._modalLock) {
+      this._modalLock = lockPortalModal(this.template.host, () =>
+        this.fitModalLayer()
+      );
+    } else if (!this.showModal && this._modalLock) {
+      unlockPortalModal(this._modalLock);
+      this._modalLock = null;
+    }
+    if (this._modalLock) this.fitModalLayer();
+  }
+
   disconnectedCallback() {
+    unlockPortalModal(this._modalLock);
+    this._modalLock = null;
     document.documentElement.classList.remove("se-inner");
     document.body.classList.remove("se-inner");
     clearTimeout(this.toastTimer);
+  }
+
+  fitModalLayer() {
+    fitFixedLayer(this.template.querySelector(".p-layer"));
   }
 
   async init() {
@@ -82,6 +105,7 @@ export default class AdhesionPph extends LightningElement {
     try {
       const data = await getLoadData({ parametroId: this.parametro });
       this.loadData(data);
+      this.openRectificacionFromUrl();
       trackGa4Event("pph_declaracion_iniciada");
     } catch (e) {
       this.onError(e);
@@ -220,7 +244,20 @@ export default class AdhesionPph extends LightningElement {
   get status() {
     if (!this.isResumen || !this.plan) return null;
     const conf = STATUS[this.plan.Estado__c] || STATUS["En Revisión"];
-    return { label: conf.label, className: `p-status p-status-${conf.tone}` };
+    const label = this.isRectificacion
+      ? conf.label.replace(
+          "solicitud de adhesión",
+          "solicitud de rectificación"
+        )
+      : conf.label;
+    return { label, className: `p-status p-status-${conf.tone}` };
+  }
+
+  get isRectificacion() {
+    return (
+      this.plan?.Version__c === "Rectificado" ||
+      this.plan?.Estado__c === "Rectificado"
+    );
   }
 
   get showAddButton() {
@@ -248,6 +285,16 @@ export default class AdhesionPph extends LightningElement {
       this.variedades.reduce((acc, v) => acc + (v.totals?.total || 0), 0) +
       (this.htsGlobales?.total || 0)
     );
+  }
+
+  get recibidaTitle() {
+    const i = this.recibidaLabel.indexOf(". ");
+    return i > 0 ? this.recibidaLabel.slice(0, i + 1) : this.recibidaLabel;
+  }
+
+  get recibidaBody() {
+    const i = this.recibidaLabel.indexOf(". ");
+    return i > 0 ? this.recibidaLabel.slice(i + 2).trim() : "";
   }
 
   get grandesCuentas() {
@@ -334,6 +381,10 @@ export default class AdhesionPph extends LightningElement {
   closeModal() {
     this.currentModal = null;
     this.modalCallback = null;
+    if (this._modalLock) {
+      unlockPortalModal(this._modalLock);
+      this._modalLock = null;
+    }
   }
 
   executeModal() {
@@ -582,6 +633,21 @@ export default class AdhesionPph extends LightningElement {
     this.currentModal = "confirm-continue-rectificar";
   }
 
+  // "Rectificar" de Mis PPH llega con ?rectificar=1; se quita de la URL para que recargar no reabra la confirmación.
+  openRectificacionFromUrl() {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("rectificar") !== "1") return;
+    url.searchParams.delete("rectificar");
+    window.history.replaceState(window.history.state, "", url.toString());
+    const estado = this.plan?.Estado__c;
+    if (
+      (estado === "Adherido" || estado === "En Revisión") &&
+      this.rectificacionWindow > 0
+    ) {
+      this.rectificarConfirm();
+    }
+  }
+
   async enviar() {
     let enviado = false;
     await this.doRequest(async () => {
@@ -647,6 +713,10 @@ export default class AdhesionPph extends LightningElement {
 
   goHome() {
     goToCommunityPage(PAGES.home);
+  }
+
+  goMisPph() {
+    goToCommunityPage(PAGES.pph);
   }
 
   scrollTop() {

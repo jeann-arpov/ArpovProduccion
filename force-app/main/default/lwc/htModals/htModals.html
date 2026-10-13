@@ -1,345 +1,500 @@
 <template>
   <!-- Muestra el modal cuando isOpen = true -->
-  <section if:true={showModal} class="modal-overlay" role="dialog" aria-modal="true">
+  <section
+    if:true={showModal}
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+  >
     <div class="modal-card">
       <!-- Botón cerrar -->
-       <template if:true={showClose}>
-         <button class="modal-close" onclick={closeModal} aria-label="Cerrar">✕</button>
-        </template>
+      <template if:true={showClose}>
+        <button class="modal-close" onclick={closeModal} aria-label="Cerrar">
+          ✕
+        </button>
+      </template>
 
-        <!-- FINALIZADA -->
-        <template if:true={showFinalizada}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <h2 class="modal-title">{finalizadaText}</h2>
-                    <p class="modal-text">{finalizadaSubText}</p>
-                    <p class="modal-remember">
-                        Recuerde que las HT serán acreditadas una vez efectuado el pago
-                    </p>
-                    <button class="modal-start" onclick={redirectMisLicencias}>
-                        {licenciasLabel} ➝
-                    </button>
-                </div>
-            </div>
-        </template>
-
-        <!-- FACTURANDO -->
-        <template if:true={showFacturando}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="33" height="33">
-                        <use xlink:href={icons.error}></use>
-                    </svg>
-                    <h2>Por favor espere mientras se genera la facturación</h2>
-                    <p>Recuerde que las HT serán acreditadas una vez efectuado el pago</p>
-                    <div style="position:relative">
-                        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- FACTURADO -->
-        <template if:true={showFacturado}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="13.464" height="17.954">
-                        <use xlink:href={icons.facturas}></use>
-                    </svg>
-                    <h2>FACTURACIÓN GENERADA CORRECTAMENTE</h2>
-                    <p>Recuerde que las HT serán acreditadas una vez efectuado el pago</p>
-                    <div class="slds-m-top_large">
-                        <button type="button" onclick={redirectMisFacturas} class="modal-start">
-                            <svg class="slds-m-right_small" width="13.464" height="17.954">
-                                <use xlink:href={icons.facturas}></use>
-                            </svg>
-                            Ver facturas
-                        </button>
-                        <button type="button" onclick={redirectMisLicencias} class="modal-start">
-                            <svg class="slds-m-right_small" width="14.763" height="17.954">
-                                <use xlink:href={icons.licencias}></use>
-                            </svg>
-                            Ver licencias
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </template>
-        <!-- VIGENCIA -->
-        <template if:true={showVigencia}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="33" height="33">
-                        <use xlink:href={icons.error}></use>
-                    </svg>
-                    <h2>IMPORTANTE:</h2>
-                    <p>{vigenciaText}</p>
-                    <button type="button" onclick={closeModal} class="modal-start">Continuar</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- ANULAR CONFIRM -->
-        <template if:true={showAnularConfirm}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="33" height="33">
-                        <use xlink:href={icons.error}></use>
-                    </svg>
-                    <h2>¿Está seguro que desea anular la compra?</h2>
-                    <div class="slds-m-top_medium">
-                        <button class="modal-start" type="submit" label="" onclick={anular}>Sí</button>
-                        <button class="modal-start" type="submit" label="" onclick={closeModal}>No</button>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <template if:true={isDuplicateCompra}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="33" height="33">
-                        <use xlink:href={icons.error}></use>
-                    </svg>
-                    <h2>Ya existe una compra en proceso</h2>
-                    <p>Por favor, revisá tus operaciones previas en "Mis compras" antes de continuar.</p>
-                    <div class="slds-m-top_medium">
-                        <button class="modal-start" type="submit" label="" onclick={redirectCompras}>Ir a mis compras</button>
-                        <button class="modal-start" type="submit" label="" onclick={closeModal}>Continuar</button>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- DUPLICATE VENTA -->
-        <template if:true={isDuplicateVenta}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="33" height="33">
-                        <use xlink:href={icons.error}></use>
-                    </svg>
-                    <h2>Ya existe una venta en proceso</h2>
-                    <p>Por favor, revisá tus operaciones previas en "Mis ventas" antes de continuar.</p>
-                    <div class="slds-m-top_medium">
-                        <button class="modal-start" type="submit" label="" onclick={redirectVentas}>Ir a mis ventas</button>
-                        <button class="modal-start" type="submit" label="" onclick={closeModal}>Continuar</button>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- TIPO DE PAGO (no cerrable) -->
-        <template if:true={showTipoPago}>
+      <!-- FINALIZADA -->
+      <template if:true={showFinalizada}>
         <div class="modal-backdrop">
-            <div class="modal" onclick={stopPropagation} onkeydown={handleKeydownNoEsc} tabindex="0">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <h2 class="modal-title">{finalizadaText}</h2>
+            <p class="modal-text">{finalizadaSubText}</p>
+            <p class="modal-remember">
+              Recuerde que las HT serán acreditadas una vez efectuado el pago
+            </p>
+            <button class="modal-start" onclick={redirectMisLicencias}>
+              {licenciasLabel} ➝
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- FACTURANDO -->
+      <template if:true={showFacturando}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
             <svg class="slds-m-bottom_medium" width="33" height="33">
-                <use xlink:href={icons.error}></use>
+              <use xlink:href={icons.error}></use>
+            </svg>
+            <h2>Por favor espere mientras se genera la facturación</h2>
+            <p>
+              Recuerde que las HT serán acreditadas una vez efectuado el pago
+            </p>
+            <div
+              class="modal-loader"
+              role="status"
+              aria-busy="true"
+              aria-label="Generando facturación"
+            >
+              <c-se-brand-loader></c-se-brand-loader>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- FACTURADO -->
+      <template if:true={showFacturado}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <svg class="slds-m-bottom_medium" width="13.464" height="17.954">
+              <use xlink:href={icons.facturas}></use>
+            </svg>
+            <h2>FACTURACIÓN GENERADA CORRECTAMENTE</h2>
+            <p>
+              Recuerde que las HT serán acreditadas una vez efectuado el pago
+            </p>
+            <div class="slds-m-top_large">
+              <button
+                type="button"
+                onclick={redirectMisFacturas}
+                class="modal-start"
+              >
+                <svg class="slds-m-right_small" width="13.464" height="17.954">
+                  <use xlink:href={icons.facturas}></use>
+                </svg>
+                Ver facturas
+              </button>
+              <button
+                type="button"
+                onclick={redirectMisLicencias}
+                class="modal-start"
+              >
+                <svg class="slds-m-right_small" width="14.763" height="17.954">
+                  <use xlink:href={icons.licencias}></use>
+                </svg>
+                Ver licencias
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+      <!-- VIGENCIA -->
+      <template if:true={showVigencia}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <svg class="slds-m-bottom_medium" width="33" height="33">
+              <use xlink:href={icons.error}></use>
+            </svg>
+            <h2>IMPORTANTE:</h2>
+            <p>{vigenciaText}</p>
+            <button type="button" onclick={closeModal} class="modal-start">
+              Continuar
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- ANULAR CONFIRM -->
+      <template if:true={showAnularConfirm}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <svg class="slds-m-bottom_medium" width="33" height="33">
+              <use xlink:href={icons.error}></use>
+            </svg>
+            <h2>¿Estás seguro de que querés anular la compra?</h2>
+            <div class="slds-m-top_medium">
+              <button
+                class="modal-start"
+                type="submit"
+                label=""
+                onclick={anular}
+              >
+                Sí
+              </button>
+              <button
+                class="modal-start"
+                type="submit"
+                label=""
+                onclick={closeModal}
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template if:true={isDuplicateCompra}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <svg class="slds-m-bottom_medium" width="33" height="33">
+              <use xlink:href={icons.error}></use>
+            </svg>
+            <h2>Ya existe una compra en proceso</h2>
+            <p>
+              Por favor, revisá tus operaciones previas en "Mis compras" antes
+              de continuar.
+            </p>
+            <div class="slds-m-top_medium">
+              <button
+                class="modal-start"
+                type="submit"
+                label=""
+                onclick={redirectCompras}
+              >
+                Ir a mis compras
+              </button>
+              <button
+                class="modal-start"
+                type="submit"
+                label=""
+                onclick={closeModal}
+              >
+                Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- DUPLICATE VENTA -->
+      <template if:true={isDuplicateVenta}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <svg class="slds-m-bottom_medium" width="33" height="33">
+              <use xlink:href={icons.error}></use>
+            </svg>
+            <h2>Ya existe una venta en proceso</h2>
+            <p>
+              Por favor, revisá tus operaciones previas en "Mis ventas" antes de
+              continuar.
+            </p>
+            <div class="slds-m-top_medium">
+              <button
+                class="modal-start"
+                type="submit"
+                label=""
+                onclick={redirectVentas}
+              >
+                Ir a mis ventas
+              </button>
+              <button
+                class="modal-start"
+                type="submit"
+                label=""
+                onclick={closeModal}
+              >
+                Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- TIPO DE PAGO (no cerrable) -->
+      <template if:true={showTipoPago}>
+        <div class="modal-backdrop">
+          <div
+            class="modal"
+            onclick={stopPropagation}
+            onkeydown={handleKeydownNoEsc}
+            tabindex="0"
+          >
+            <svg class="slds-m-bottom_medium" width="33" height="33">
+              <use xlink:href={icons.error}></use>
             </svg>
 
             <h2>¿Cómo vas a pagar?</h2>
             <p>Elegí alguna de las opciones para poder continuar.</p>
 
-            <div class="slds-m-top_medium" style="display:flex; gap:12px; justify-content:center;">
-                <button class="modal-start" onclick={selectContado}>Contado</button>
-                <button class="modal-start" onclick={selectFinanciado}>Plataformas/Tarjetas</button>
+            <div
+              class="slds-m-top_medium"
+              style="display: flex; gap: 12px; justify-content: center"
+            >
+              <button class="modal-start" onclick={selectContado}>
+                Contado
+              </button>
+              <button class="modal-start" onclick={selectFinanciado}>
+                Plataformas/Tarjetas
+              </button>
             </div>
-            </div>
+          </div>
         </div>
-        </template>
+      </template>
 
-        <template if:true={showExpedienteDisponibleAlert}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="33" height="33">
-                        <use xlink:href={icons.error}></use>
-                    </svg>
-                    <h2>Importante</h2>
-                    <p>
-                        La compra de HT disponible solo puede aplicarse a situaciones previas a la entrega de grano.
-                        <br/><br/>
-                        Si se intenta utilizar esa HT para regularizar un saldo negativo, el caso será derivado al semillero para su análisis y aprobación.
+      <template if:true={showExpedienteDisponibleAlert}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <svg class="slds-m-bottom_medium" width="33" height="33">
+              <use xlink:href={icons.error}></use>
+            </svg>
+            <h2>Importante</h2>
+            <p>
+              La compra de HT disponible solo puede aplicarse a situaciones
+              previas a la entrega de grano.
+              <br /><br />
+              Si se intenta utilizar esa HT para regularizar un saldo negativo,
+              el caso será derivado al semillero para su análisis y aprobación.
+            </p>
+            <div class="slds-m-top_medium">
+              <button class="modal-start" type="button" onclick={closeModal}>
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template if:true={showHtFuturaPromo}>
+        <div class="modal-backdrop">
+          <div class="modal">
+            <button class="modal-close" onclick={closeModal}>✕</button>
+            <svg class="slds-m-bottom_medium" width="33" height="33">
+              <use xlink:href={icons.error}></use>
+            </svg>
+            <h2>{htFuturaPromoTitle}</h2>
+            <p>{promoMessage}</p>
+            <div class="slds-m-top_medium">
+              <button class="modal-start" type="button" onclick={closeModal}>
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template if:true={showFormaPagoStine}>
+        <section
+          role="dialog"
+          tabindex="-1"
+          class="slds-modal slds-fade-in-open slds-modal_small"
+        >
+          <div class="slds-modal__container custom-modal-container">
+            <div
+              class="slds-modal__content slds-p-around_large custom-modal-body"
+            >
+              <template if:true={isSg}>
+                <button
+                  type="button"
+                  class="custom-close-button"
+                  onclick={handleClose}
+                  aria-label="Cerrar"
+                >
+                  ✕
+                </button>
+              </template>
+
+              <!-- Header/Subtítulo -->
+              <p class="brand-subtitle">STINE · FUTURA 26/27</p>
+              <h2 class="modal-title">Elegí la forma de pago</h2>
+              <p class="modal-description">
+                <template if:true={isSg}>
+                  Pagando de contado tenés 5% de descuento sobre el precio de
+                  lista, aplicado en la factura. Financiado mantiene el precio
+                  de lista.
+                </template>
+                <template if:false={isSg}>
+                  El precio es el mismo en las dos opciones. Cambia quién
+                  factura y cómo se abona.
+                </template>
+              </p>
+
+              <!-- Resumen por Variedad -->
+              <div class="summary-list slds-m-vertical_medium">
+                <template for:each={modalItems} for:item="item">
+                  <div
+                    key={item.id}
+                    class="summary-card slds-grid slds-grid_vertical-align-center slds-p-around_small slds-m-bottom_x-small"
+                  >
+                    <div class="slds-col slds-size_3-of-12">
+                      <span class="label">Variedad</span>
+                      <span class="value">{item.variedad}</span>
+                    </div>
+                    <div class="slds-col slds-size_2-of-12">
+                      <span class="label">HT</span>
+                      <span class="value">{item.ht}</span>
+                    </div>
+                    <div class="slds-col slds-size_3-of-12">
+                      <span class="label">Precio unit.</span>
+                      <span class="value">USD {item.precioUnitario}</span>
+                    </div>
+                    <div class="slds-col slds-size_4-of-12 text-right">
+                      <span class="label">Total</span>
+                      <span class="value">USD {item.total}</span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Selección Forma de Pago -->
+              <div class="payment-options slds-grid slds-gutters">
+                <!-- Opción Contado -->
+                <div class="slds-col slds-size_1-of-2">
+                  <label class={contadoCardClass}>
+                    <div class="slds-grid slds-grid_align-spread">
+                      <div class="slds-grid slds-grid_vertical-align-center">
+                        <lightning-icon
+                          icon-name="utility:moneybag"
+                          size="x-small"
+                          class="slds-m-right_x-small"
+                        ></lightning-icon>
+                        <span class="option-title">Contado</span>
+                        <span class="badge-discount slds-m-left_x-small"
+                          >5% OFF</span
+                        >
+                      </div>
+                      <input
+                        type="radio"
+                        name="paymentOption"
+                        value="Contado"
+                        checked={isContado}
+                        onchange={handlePaymentChange}
+                      />
+                    </div>
+                    <p class="option-desc slds-m-top_x-small">
+                      Factura Sembrá Evolución. Descuento aplicado en la
+                      facturación, sin gestión adicional.
                     </p>
-                    <div class="slds-m-top_medium">
-                        <button class="modal-start" type="button" onclick={closeModal}>Entendido</button>
-                    </div>
+                  </label>
                 </div>
-            </div>
-        </template>
 
-        <template if:true={showHtFuturaPromo}>
-            <div class="modal-backdrop">
-                <div class="modal">
-                    <button class="modal-close" onclick={closeModal}>✕</button>
-                    <svg class="slds-m-bottom_medium" width="33" height="33">
-                        <use xlink:href={icons.error}></use>
-                    </svg>
-                    <h2>{htFuturaPromoTitle}</h2>
-                    <p>{promoMessage}</p>
-                    <div class="slds-m-top_medium">
-                        <button class="modal-start" type="button" onclick={closeModal}>Entendido</button>
+                <!-- Opción Financiado -->
+                <div class="slds-col slds-size_1-of-2">
+                  <label class={financiadoCardClass}>
+                    <div class="slds-grid slds-grid_align-spread">
+                      <div class="slds-grid slds-grid_vertical-align-center">
+                        <lightning-icon
+                          icon-name="utility:form"
+                          size="x-small"
+                          class="slds-m-right_x-small"
+                        ></lightning-icon>
+                        <span class="option-title">Financiado</span>
+                      </div>
+                      <input
+                        type="radio"
+                        name="paymentOption"
+                        value="Financiado"
+                        checked={isFinanciado}
+                        onchange={handlePaymentChange}
+                      />
                     </div>
-                </div>
-            </div>
-        </template>
-
-    <template if:true={showFormaPagoStine}>
-        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
-            <div class="slds-modal__container custom-modal-container">
-                
-                <div class="slds-modal__content slds-p-around_large custom-modal-body">
-                    
-                    <!-- Header/Subtítulo -->
-                    <p class="brand-subtitle">STINE · FUTURA 26/27</p>
-                    <h2 class="modal-title">Elegí la forma de pago</h2>
-                    <p class="modal-description">
-                        El precio es el mismo en las dos opciones. Cambia quién factura y cómo se abona.
+                    <p class="option-desc slds-m-top_x-small">
+                      Elegí la entidad bancaria o el plazo: el otro campo se
+                      ajusta solo a las combinaciones válidas.
                     </p>
-
-                    <!-- Resumen por Variedad -->
-                    <div class="summary-list slds-m-vertical_medium">
-                        <template for:each={modalItems} for:item="item">
-                            <div key={item.id} class="summary-card slds-grid slds-grid_vertical-align-center slds-p-around_small slds-m-bottom_x-small">
-                                <div class="slds-col slds-size_3-of-12">
-                                    <span class="label">Variedad</span>
-                                    <span class="value">{item.variedad}</span>
-                                </div>
-                                <div class="slds-col slds-size_2-of-12">
-                                    <span class="label">HT</span>
-                                    <span class="value">{item.ht}</span>
-                                </div>
-                                <div class="slds-col slds-size_3-of-12">
-                                    <span class="label">Precio unit.</span>
-                                    <span class="value">USD {item.precioUnitario}</span>
-                                </div>
-                                <div class="slds-col slds-size_4-of-12 text-right">
-                                    <span class="label">Total</span>
-                                    <span class="value">USD {item.total}</span>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Selección Forma de Pago -->
-                    <div class="payment-options slds-grid slds-gutters">
-                        
-                        <!-- Opción Contado -->
-                        <div class="slds-col slds-size_1-of-2">
-                            <label class={contadoCardClass}>
-                                <div class="slds-grid slds-grid_align-spread">
-                                    <div class="slds-grid slds-grid_vertical-align-center">
-                                        <lightning-icon icon-name="utility:moneybag" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                        <span class="option-title">Contado</span>
-                                        <span class="badge-discount slds-m-left_x-small">5% OFF</span>
-                                    </div>
-                                    <input type="radio" name="paymentOption" value="Contado" checked={isContado} onchange={handlePaymentChange}/>
-                                </div>
-                                <p class="option-desc slds-m-top_x-small">
-                                    Factura Sembrá Evolución. Descuento aplicado en la facturación, sin gestión adicional.
-                                </p>
-                            </label>
-                        </div>
-
-                        <!-- Opción Financiado -->
-                        <div class="slds-col slds-size_1-of-2">
-                            <label class={financiadoCardClass}>
-                                <div class="slds-grid slds-grid_align-spread">
-                                    <div class="slds-grid slds-grid_vertical-align-center">
-                                        <lightning-icon icon-name="utility:form" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                        <span class="option-title">Financiado</span>
-                                    </div>
-                                    <input type="radio" name="paymentOption" value="Financiado" checked={isFinanciado} onchange={handlePaymentChange}/>
-                                </div>
-                                <p class="option-desc slds-m-top_x-small">
-                                    Elegí la entidad bancaria o el plazo: el otro campo se ajusta solo a las combinaciones válidas.
-                                </p>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Dos Picklists (Entidad bancaria y Plazo) - Solo si es Financiado -->
-                   <!-- PICKLISTS DEPENDIENTES (Solo visible en Financiado) -->
-                        <template if:true={isFinanciado}>
-                            <div class="slds-grid slds-gutters slds-m-top_large">
-                                <!-- 1. Entidad Bancaria -->
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-combobox
-                                        name="entidadBancaria"
-                                        label="Entidad bancaria"
-                                        value={entidadBancaria}
-                                        placeholder="Seleccioná una entidad"
-                                        options={entidadBancariaOptions}
-                                        onchange={handleEntidadChange}
-                                        required>
-                                    </lightning-combobox>
-                                </div>
-
-                                <!-- 2. Moneda -->
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-combobox
-                                        name="moneda"
-                                        label="Moneda"
-                                        value={moneda}
-                                        placeholder={placeholderMoneda}
-                                        options={monedaOptions}
-                                        onchange={handleChangeMoneda}
-                                        disabled={isMonedaDisabled}
-                                        required>
-                                    </lightning-combobox>
-                                </div>
-                            </div>
-
-                            <div class="slds-grid slds-gutters slds-m-top_medium">
-                                <!-- 3. Plazo -->
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-combobox
-                                        name="plazo"
-                                        label="Plazo"
-                                        value={plazo}
-                                        placeholder={placeholderPlazo}
-                                        options={plazoOptions}
-                                        onchange={handlePlazoChange}
-                                        disabled={isPlazoDisabled}
-                                        required>
-                                    </lightning-combobox>
-                                </div>
-
-                                <!-- 4. Tasa (TNA) -->
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-combobox
-                                        name="tasa"
-                                        label="Tasa (TNA)"
-                                        value={tasa}
-                                        placeholder={placeholderTasa}
-                                        options={tnaOptions}
-                                        onchange={handleChangeTasa}
-                                        disabled={isTasaDisabled}
-                                        required>
-                                    </lightning-combobox>
-                                </div>
-                            </div>
-
-                    </template>
-
-                    <!-- Acciones del Modal -->
-                    <div class="modal-actions slds-m-top_large slds-grid slds-grid_align-end">
-                        <lightning-button label="Cancelar" variant="neutral" onclick={handleClose} class="slds-m-right_small btn-cancel"></lightning-button>
-                        <lightning-button label="Continuar →" variant="brand" disabled={isContinueDisabled} onclick={handleContinue} class="btn-continue"></lightning-button>
-                    </div>
-
+                  </label>
                 </div>
+              </div>
+
+              <!-- Dos Picklists (Entidad bancaria y Plazo) - Solo si es Financiado -->
+              <!-- PICKLISTS DEPENDIENTES (Solo visible en Financiado) -->
+              <template if:true={isFinanciado}>
+                <div class="slds-grid slds-gutters slds-m-top_large">
+                  <!-- 1. Entidad Bancaria -->
+                  <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox
+                      name="entidadBancaria"
+                      label="Entidad bancaria"
+                      value={entidadBancaria}
+                      placeholder="Seleccioná una entidad"
+                      options={entidadBancariaOptions}
+                      onchange={handleEntidadChange}
+                      required
+                    >
+                    </lightning-combobox>
+                  </div>
+
+                  <!-- 2. Moneda -->
+                  <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox
+                      name="moneda"
+                      label="Moneda"
+                      value={moneda}
+                      placeholder={placeholderMoneda}
+                      options={monedaOptions}
+                      onchange={handleChangeMoneda}
+                      disabled={isMonedaDisabled}
+                      required
+                    >
+                    </lightning-combobox>
+                  </div>
+                </div>
+
+                <div class="slds-grid slds-gutters slds-m-top_medium">
+                  <!-- 3. Plazo -->
+                  <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox
+                      name="plazo"
+                      label="Plazo"
+                      value={plazo}
+                      placeholder={placeholderPlazo}
+                      options={plazoOptions}
+                      onchange={handlePlazoChange}
+                      disabled={isPlazoDisabled}
+                      required
+                    >
+                    </lightning-combobox>
+                  </div>
+
+                  <!-- 4. Tasa (TNA) -->
+                  <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox
+                      name="tasa"
+                      label="Tasa (TNA)"
+                      value={tasa}
+                      placeholder={placeholderTasa}
+                      options={tnaOptions}
+                      onchange={handleChangeTasa}
+                      disabled={isTasaDisabled}
+                      required
+                    >
+                    </lightning-combobox>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Acciones del Modal -->
+              <div
+                class="modal-actions slds-m-top_large slds-grid slds-grid_align-end"
+              >
+                <lightning-button
+                  label="Cancelar"
+                  variant="neutral"
+                  onclick={handleClose}
+                  class="slds-m-right_small btn-cancel"
+                ></lightning-button>
+                <lightning-button
+                  label="Continuar →"
+                  variant="brand"
+                  disabled={isContinueDisabled}
+                  onclick={handleContinue}
+                  class="btn-continue"
+                ></lightning-button>
+              </div>
             </div>
+          </div>
         </section>
         <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
-
+      </template>
     </div>
   </section>
 </template>

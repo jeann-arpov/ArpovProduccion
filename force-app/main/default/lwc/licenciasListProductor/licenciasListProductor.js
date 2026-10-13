@@ -12,11 +12,20 @@ import singleLicenseJWTSigner from "@salesforce/apex/CustomJWTSigner.singleLicen
 import uId from "@salesforce/user/Id";
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
+import { redirectToSglWithToken } from "c/utils";
 import {
   trackGa4Event,
-  resolveSemilleroLabel,
   buildHtCompraConfirmadaParams
 } from "c/portalGa4Events";
+import { syncPortalModal, releasePortalModal } from "c/seModalLayer";
+
+function licenseStatusTone(estadoVisual) {
+  const s = (estadoVisual || "").toLowerCase();
+  if (/aprob/.test(s)) return "ok";
+  if (/rechaz/.test(s)) return "danger";
+  if (/curso/.test(s)) return "warn";
+  return "info";
+}
 
 export default class LicenciasListProductor extends NavigationMixin(
   LightningElement
@@ -33,11 +42,14 @@ export default class LicenciasListProductor extends NavigationMixin(
   @track selectedTipo = "";
   @track searchTerm = "";
   @track selectedCarta = "";
+  @track filterEstados = [];
+  @track filterTipos = [];
+  @track filterOrigenes = [];
+  @track filtersPanelOpen = false;
 
   @track totalRegistros = 0;
   @track showModal = false;
-  @track showReportModal = false;
-  @track isReportLoading = false;
+  @track reportStep = "confirm";
   @track reportResponse = {
     success: false,
     message: "",
@@ -46,11 +58,47 @@ export default class LicenciasListProductor extends NavigationMixin(
   };
   @track isLoading = true;
   @track renderFilters = false;
+  initialized = false;
 
   // Configuración de paginación
   pageSize = 50;
+  listPageSize = 0;
   currentPage = 1;
   totalPages = 1;
+
+  columns = [
+    { label: "Fecha", fieldName: "fecha" },
+    { label: "Código", fieldName: "name", type: "link" },
+    { label: "CUIT", fieldName: "cuit" },
+    { label: "Razón social", fieldName: "productor" },
+    { label: "Marca", fieldName: "marca" },
+    { label: "Tecnología", fieldName: "origen" },
+    { label: "Origen", fieldName: "tipo" },
+    {
+      label: "Estado",
+      fieldName: "statusLabel",
+      type: "badge",
+      toneField: "statusTone"
+    },
+    { label: "Comercio", fieldName: "comercio" },
+    { label: "Email", fieldName: "emailDisplay", type: "mailto" },
+    { label: "Teléfono", fieldName: "telefonoDisplay" }
+  ];
+
+  mobileFields = [
+    { label: "Fecha", fieldName: "fecha" },
+    { label: "CUIT", fieldName: "cuit" },
+    { label: "Razón social", fieldName: "productor" },
+    { label: "Marca", fieldName: "marca" },
+    { label: "Tecnología", fieldName: "origen" },
+    { label: "Origen", fieldName: "tipo" },
+    { label: "Comercio", fieldName: "comercio" },
+    {
+      label: "Email",
+      fieldName: "emailDisplay",
+      valueClassField: "emailValueClass"
+    }
+  ];
 
   // URLs y IDs
   url;
@@ -88,6 +136,24 @@ export default class LicenciasListProductor extends NavigationMixin(
     Rechazada: ["Rechazada"]
   };
 
+  connectedCallback() {
+    document.documentElement.classList.add("se-inner");
+    document.body.classList.add("se-inner");
+  }
+
+  renderedCallback() {
+    syncPortalModal(this, this.showModal, ".modal-backdrop");
+  }
+
+  disconnectedCallback() {
+    releasePortalModal(this);
+    document.documentElement.classList.remove("se-inner");
+    document.body.classList.remove("se-inner");
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+  }
+
   @wire(getUrl, {})
   wiredGetUrl({ error, data }) {
     if (data) {
@@ -115,25 +181,22 @@ export default class LicenciasListProductor extends NavigationMixin(
   }
 
   async loadInitialData() {
+    if (this.initialized) {
+      return;
+    }
+    this.initialized = true;
     this.isLoading = true;
-    console.log("Cargando datos iniciales...");
 
     try {
-      // Cargar filtros
       await this.loadFilters();
-
-      // Cargar filtros guardados en sesión
       this.loadSessionFilters();
 
-      // Cargar licencias con los filtros aplicados
-      await this.loadLicencias();
+      await this.loadLicencias({ manageLoading: false });
 
-      // Habilitar renderizado de filtros
       this.renderFilters = true;
-      this.isLoading = false;
-      console.log("Datos cargados exitosamente");
     } catch (error) {
       console.error("Error cargando datos iniciales:", error);
+    } finally {
       this.isLoading = false;
     }
   }
@@ -178,14 +241,17 @@ export default class LicenciasListProductor extends NavigationMixin(
 
     if (estado) {
       this.selectedEstado = estado;
+      this.filterEstados = estado ? [estado] : [];
       console.log("Estado de sesión:", estado);
     }
     if (origen) {
       this.selectedOrigen = origen;
+      this.filterOrigenes = origen ? [origen] : [];
       console.log("Origen de sesión:", origen);
     }
     if (tipo) {
       this.selectedTipo = tipo;
+      this.filterTipos = tipo ? [tipo] : [];
       console.log("Tipo de sesión:", tipo);
     }
     if (carta) {
@@ -194,85 +260,227 @@ export default class LicenciasListProductor extends NavigationMixin(
     }
   }
 
-  async loadLicencias() {
-    this.isLoading = true;
-    console.log("Cargando licencias, página:", this.currentPage);
-
-    // Construir objeto de filtros
-    const filters = {};
-    if (this.selectedEstado) filters.estado = this.selectedEstado;
-    if (this.selectedOrigen) filters.origen = this.selectedOrigen;
-    if (this.selectedTipo) filters.tipo = this.selectedTipo;
-    if (this.selectedCarta) filters.carta = this.selectedCarta;
-    if (this.searchTerm) filters.searchTerm = this.searchTerm;
-
-    // Guardar filtros actuales
-    this.currentFilters = filters;
-
-    console.log("Filtros aplicados:", filters);
+  async loadLicencias(options = {}) {
+    const { manageLoading = true } = options;
+    if (manageLoading) {
+      this.isLoading = true;
+    }
 
     try {
-      // Llamar al método Apex con paginación y filtros
+      const filters = {};
+      if (this.filterEstados?.length) {
+        filters.estados = [...this.filterEstados];
+      } else if (this.selectedEstado) {
+        filters.estado = this.selectedEstado;
+      }
+      if (this.filterOrigenes?.length) {
+        filters.origenes = [...this.filterOrigenes];
+      } else if (this.selectedOrigen) {
+        filters.origen = this.selectedOrigen;
+      }
+      if (this.filterTipos?.length) {
+        filters.tipos = [...this.filterTipos];
+      } else if (this.selectedTipo) {
+        filters.tipo = this.selectedTipo;
+      }
+      if (this.selectedCarta) filters.carta = this.selectedCarta;
+      if (this.searchTerm) filters.searchTerm = this.searchTerm;
+
+      this.currentFilters = filters;
+
       const result = await getLicencias({
         pageNumber: this.currentPage,
         pageSize: this.pageSize,
         filtersJSON: JSON.stringify(filters)
       });
 
-      console.log("Resultado recibido:", {
-        licenciasCount: result.licencias ? result.licencias.length : 0,
-        totalRecords: result.totalRecords,
-        totalPages: result.totalPages
-      });
-
-      // Actualizar datos del componente
       this.licencias = result.licencias || [];
       this.totalRegistros = result.totalRecords || 0;
       this.totalPages = result.totalPages || 1;
-
-      console.log("Licencias cargadas:", this.licencias.length);
     } catch (error) {
       console.error("Error loading licenses:", error);
       this.licencias = [];
       this.totalRegistros = 0;
       this.totalPages = 1;
     } finally {
-      this.isLoading = false;
+      if (manageLoading) {
+        this.isLoading = false;
+      }
     }
   }
 
   // ========== HANDLERS DE FILTROS ==========
 
+  get metaMaxElementos() {
+    return 200;
+  }
+
+  get renderList() {
+    return this.renderFilters;
+  }
+
+  get filtroResumen() {
+    const partes = [];
+    if (this.filterEstados?.length) partes.push(...this.filterEstados);
+    else if (this.selectedEstado) partes.push(this.selectedEstado);
+    if (this.filterTipos?.length) partes.push(...this.filterTipos);
+    else if (this.selectedTipo) partes.push(this.selectedTipo);
+    if (this.filterOrigenes?.length) partes.push(...this.filterOrigenes);
+    else if (this.selectedOrigen) partes.push(this.selectedOrigen);
+    if (this.searchTerm) partes.push(`"${this.searchTerm}"`);
+    return partes.length ? partes.join(" · ") : "Todas las licencias";
+  }
+
+  get activeFilterCount() {
+    return (
+      (this.filterEstados?.length || 0) +
+      (this.filterTipos?.length || 0) +
+      (this.filterOrigenes?.length || 0)
+    );
+  }
+
+  get showFilterBadge() {
+    return this.activeFilterCount > 0;
+  }
+
+  get filterToggleChevronClass() {
+    return this.filtersPanelOpen ? "filt-chevron is-open" : "filt-chevron";
+  }
+
+  get estadoFilterItems() {
+    return this.withChecked(
+      [
+        { value: "En curso", label: "En curso" },
+        { value: "Aprobada", label: "Aprobada" },
+        { value: "Rechazada", label: "Rechazada" }
+      ],
+      this.filterEstados
+    );
+  }
+
+  get tipoFilterItems() {
+    return this.withChecked(
+      (this.tipos || []).map((item) => ({ value: item, label: item })),
+      this.filterTipos
+    );
+  }
+
+  get origenFilterItems() {
+    return this.withChecked(
+      (this.origenes || []).map((item) => ({ value: item, label: item })),
+      this.filterOrigenes
+    );
+  }
+
+  withChecked(items, selected) {
+    const set = new Set(selected || []);
+    return (items || []).map((item) => ({
+      ...item,
+      boxClass: set.has(item.value) ? "filt-check filt-check-on" : "filt-check"
+    }));
+  }
+
+  toggleInList(list, value) {
+    const next = [...(list || [])];
+    const idx = next.indexOf(value);
+    if (idx >= 0) next.splice(idx, 1);
+    else next.push(value);
+    return next;
+  }
+
+  handleToggleFiltersPanel() {
+    this.filtersPanelOpen = !this.filtersPanelOpen;
+  }
+
+  handleCloseFiltersPanel() {
+    this.filtersPanelOpen = false;
+  }
+
+  handleClearFilters() {
+    this.filterEstados = [];
+    this.filterTipos = [];
+    this.filterOrigenes = [];
+    this.selectedEstado = "";
+    this.selectedTipo = "";
+    this.selectedOrigen = "";
+    sessionStorage.removeItem("selectedBucketProductor");
+    sessionStorage.removeItem("selectedOrigenProductor");
+    sessionStorage.removeItem("selectedTipoProductor");
+    this.currentPage = 1;
+    this.loadLicencias();
+  }
+
+  handleFilterToggle(event) {
+    const group = event.currentTarget?.dataset?.group;
+    const value = event.currentTarget?.dataset?.value;
+    if (!group || !value) return;
+    if (group === "estado") {
+      this.filterEstados = this.toggleInList(this.filterEstados, value);
+      this.selectedEstado = this.filterEstados[0] || "";
+      sessionStorage.setItem("selectedBucketProductor", this.selectedEstado);
+    } else if (group === "tipo") {
+      this.filterTipos = this.toggleInList(this.filterTipos, value);
+      this.selectedTipo = this.filterTipos[0] || "";
+      sessionStorage.setItem("selectedTipoProductor", this.selectedTipo);
+    } else if (group === "origen") {
+      this.filterOrigenes = this.toggleInList(this.filterOrigenes, value);
+      this.selectedOrigen = this.filterOrigenes[0] || "";
+      sessionStorage.setItem("selectedOrigenProductor", this.selectedOrigen);
+    }
+    this.currentPage = 1;
+    this.applyFiltersWithDebounce();
+  }
+
+  get estadoOptions() {
+    return [
+      { value: "", label: "Estado" },
+      { value: "En curso", label: "En curso" },
+      { value: "Aprobada", label: "Aprobada" },
+      { value: "Rechazada", label: "Rechazada" }
+    ];
+  }
+
+  get tipoOptions() {
+    return [
+      { value: "", label: "Tipo" },
+      ...(this.tipos || []).map((item) => ({ value: item, label: item }))
+    ];
+  }
+
+  get origenOptions() {
+    return [
+      { value: "", label: "Tecnología" },
+      ...(this.origenes || []).map((item) => ({ value: item, label: item }))
+    ];
+  }
+
   handleEstadoChange(event) {
-    this.selectedEstado = event.target.value;
-    console.log("Estado cambiado a:", this.selectedEstado);
+    this.selectedEstado = event.detail.value || "";
     sessionStorage.setItem("selectedBucketProductor", this.selectedEstado);
     this.applyFiltersWithDebounce();
   }
 
   handleOrigenChange(event) {
-    this.selectedOrigen = event.target.value;
-    console.log("Origen cambiado a:", this.selectedOrigen);
+    this.selectedOrigen = event.detail.value || "";
     sessionStorage.setItem("selectedOrigenProductor", this.selectedOrigen);
     this.applyFiltersWithDebounce();
   }
 
   handleTipoChange(event) {
-    this.selectedTipo = event.target.value;
-    console.log("Tipo cambiado a:", this.selectedTipo);
+    this.selectedTipo = event.detail.value || "";
     sessionStorage.setItem("selectedTipoProductor", this.selectedTipo);
     this.applyFiltersWithDebounce();
   }
 
   handleCartaChange(event) {
-    this.selectedCarta = event.target.value;
+    this.selectedCarta = event.detail?.value || event.target.value;
     console.log("Carta cambiada a:", this.selectedCarta);
     sessionStorage.setItem("cartaOptionProductor", this.selectedCarta);
     this.applyFiltersWithDebounce();
   }
 
   handleSearchChange(event) {
-    this.searchTerm = event.target.value;
+    this.searchTerm = event.detail?.value ?? event.target?.value ?? "";
     console.log("Término de búsqueda:", this.searchTerm);
     this.applyFiltersWithDebounce();
   }
@@ -318,78 +526,75 @@ export default class LicenciasListProductor extends NavigationMixin(
   // ========== GETTERS PARA DATOS ==========
 
   get decoratedLicencias() {
-    return (this.licencias || []).map((l) => ({
-      ...l,
-      estadoVisual: this.ESTADO_MAP[l.estado] || l.estado
-    }));
-  }
-
-  get hayLicencias() {
-    return this.decoratedLicencias && this.decoratedLicencias.length > 0;
-  }
-
-  get noHayLicencias() {
-    return !this.hayLicencias && !this.isLoading;
+    return (this.licencias || []).map((l) => {
+      const estadoVisual = this.ESTADO_MAP[l.estado] || l.estado;
+      const email = (l.email || "").trim();
+      const telefono = (l.telefono || "").trim();
+      return {
+        ...l,
+        estadoVisual,
+        statusLabel: estadoVisual,
+        statusTone: licenseStatusTone(estadoVisual),
+        emailDisplay: email || "—",
+        telefonoDisplay: telefono || "—",
+        emailValueClass: email ? "email-link" : ""
+      };
+    });
   }
 
   // ========== MÉTODOS DE MODAL ==========
 
   openModal() {
+    this.reportStep = "confirm";
     this.showModal = true;
   }
 
   closeModal() {
+    if (this.isReportLoading) return;
     this.showModal = false;
+    this.reportStep = "confirm";
+  }
+
+  handleReportBackdrop() {
+    this.closeModal();
+  }
+
+  stopPropagation(event) {
+    event.stopPropagation();
   }
 
   // ========== HANDLERS DE ACCIONES ==========
 
   handleRowAction(event) {
-    const licenseId = event.currentTarget.dataset.id;
-    console.log("Acción en fila, ID:", licenseId);
-    // 1. Buscar la licencia seleccionada dentro del arreglo
-    const licenciaSeleccionada = this.licencias.find(
-      (lic) => lic.id === licenseId || lic.Id === licenseId
-    );
+    const row = event.detail?.row;
+    const licenseId = row?.id || event.currentTarget?.dataset?.id;
+    if (!licenseId) return;
 
-    // 2. Verificar que exista y enviar el evento GA4
-    if (licenciaSeleccionada) {
-      console.log("Marca:", licenciaSeleccionada.marca);
-      console.log("Origen:", licenciaSeleccionada.origen);
-
+    const licencia =
+      row ||
+      (this.licencias || []).find(
+        (lic) => lic.id === licenseId || lic.Id === licenseId
+      );
+    if (licencia) {
       trackGa4Event(
         "licencia_vista",
         buildHtCompraConfirmadaParams({
-          semilleros: licenciaSeleccionada.marca,
-          subsistema: licenciaSeleccionada.origen
+          semilleros: licencia.marca,
+          subsistema: licencia.origen
         })
       );
-    } else {
-      console.warn("No se encontró la licencia con ID:", licenseId);
     }
 
+    console.log("Acción en fila, ID:", licenseId);
     this.isLoading = true;
 
     singleLicenseJWTSigner({
       userId: this.currentUserId,
       contactId: this.currentContactId,
-      licenseId: licenseId
+      licenseId
     })
       .then((response) => {
-        this[NavigationMixin.Navigate](
-          {
-            type: "standard__webPage",
-            attributes: {
-              url:
-                this.url +
-                "?token=" +
-                encodeURIComponent(response) +
-                "&url=" +
-                encodeURIComponent(window.location.href)
-            }
-          },
-          true
-        );
+        redirectToSglWithToken(this, this.url, response, window.location.href);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -400,7 +605,6 @@ export default class LicenciasListProductor extends NavigationMixin(
   handleSolicitarLicencia() {
     console.log("Solicitando nueva licencia");
     this.isLoading = true;
-
     trackGa4Event("licencia_firma_iniciada", buildHtCompraConfirmadaParams({}));
 
     singleNewLicenseRequestJWTSigner({
@@ -408,20 +612,11 @@ export default class LicenciasListProductor extends NavigationMixin(
       contactId: this.currentContactId
     })
       .then((response) => {
-        this[NavigationMixin.Navigate](
-          {
-            type: "standard__webPage",
-            attributes: {
-              url:
-                this.url +
-                "/NewLicenseRequest" +
-                "?token=" +
-                encodeURIComponent(response) +
-                "&url=" +
-                encodeURIComponent(window.location.href)
-            }
-          },
-          true
+        redirectToSglWithToken(
+          this,
+          this.url + "/NewLicenseRequest",
+          response,
+          window.location.href
         );
       })
       .catch((error) => {
@@ -431,37 +626,6 @@ export default class LicenciasListProductor extends NavigationMixin(
   }
 
   // ========== LIFECYCLE HOOKS ==========
-
-  renderedCallback() {
-    if (
-      this.renderFilters &&
-      (this.selectedEstado ||
-        this.selectedOrigen ||
-        this.selectedTipo ||
-        this.selectedCarta)
-    ) {
-      this.updateFilterSelects();
-    }
-  }
-
-  updateFilterSelects() {
-    setTimeout(() => {
-      const selects = {
-        estadoSelect: this.selectedEstado,
-        origenSelect: this.selectedOrigen,
-        tipoSelect: this.selectedTipo,
-        cartaSelect: this.selectedCarta
-      };
-
-      Object.keys(selects).forEach((selector) => {
-        const element = this.template.querySelector(`[data-id="${selector}"]`);
-        if (element && selects[selector]) {
-          element.value = selects[selector];
-          console.log(`Select ${selector} actualizado a:`, selects[selector]);
-        }
-      });
-    }, 100);
-  }
 
   @wire(CurrentPageReference)
   getStateParameters(currentPageReference) {
@@ -496,8 +660,6 @@ export default class LicenciasListProductor extends NavigationMixin(
       userId: this.currentUserId,
       contactId: this.currentContactId
     });
-
-    this.showModal = false;
 
     try {
       await this.callReportService();
@@ -589,9 +751,11 @@ export default class LicenciasListProductor extends NavigationMixin(
       data: null,
       statusCode: null
     };
-    this.isReportLoading = true;
-    this.showReportModal = true;
-    this.showModal = false;
+    if (this.sinLicenciasParaReporte) {
+      this.reportStep = "empty";
+      return;
+    }
+    this.reportStep = "loading";
 
     console.log("[LicenciasListProductor - Reporte] Iniciando solicitud", {
       userId: this.currentUserId,
@@ -619,6 +783,10 @@ export default class LicenciasListProductor extends NavigationMixin(
           message: this.reportResponse.message,
           statusCode: this.reportResponse.statusCode
         });
+        trackGa4Event("reporte_generado", {
+          modulo: "Licencias",
+          tipo_reporte: "licencias_productor"
+        });
       } else {
         this.logReportError(
           "Error en respuesta del servicio",
@@ -635,31 +803,47 @@ export default class LicenciasListProductor extends NavigationMixin(
         statusCode: error?.statusCode ?? null
       };
     } finally {
-      this.isReportLoading = false;
+      this.reportStep = this.reportResponse.success ? "success" : "error";
     }
-  }
-
-  handleCloseReportModal() {
-    this.showReportModal = false;
-    this.showModal = false;
   }
 
   handleRetryReport() {
     this.callReportService();
   }
 
-  get formattedReportData() {
-    if (this.reportResponse.data) {
-      try {
-        return JSON.stringify(this.reportResponse.data, null, 2);
-      } catch (e) {
-        return String(this.reportResponse.data);
-      }
+  get sinLicenciasParaReporte() {
+    return (
+      !this.isLoading &&
+      this.totalRegistros === 0 &&
+      this.activeFilterCount === 0 &&
+      !(this.searchTerm || "").trim()
+    );
+  }
+
+  get isReportConfirm() {
+    return this.reportStep === "confirm";
+  }
+
+  get isReportLoading() {
+    return this.reportStep === "loading";
+  }
+
+  get isReportSuccess() {
+    return this.reportStep === "success";
+  }
+
+  get isReportError() {
+    return this.reportStep === "error" || this.reportStep === "empty";
+  }
+
+  get reportErrorMessage() {
+    if (this.reportStep === "empty") {
+      return "Todavía no tenés licencias para incluir en el reporte.";
     }
-    return "";
+    return "No pudimos generar el reporte en este momento. Intentá de nuevo en unos minutos.";
   }
 
   get showRetryButton() {
-    return !this.isReportLoading && !this.reportResponse.success;
+    return this.reportStep === "error";
   }
 }

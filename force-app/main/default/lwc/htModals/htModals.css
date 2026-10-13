@@ -1,199 +1,206 @@
 button.black-border {
-    border: 1px solid black;
-    padding: 0px 5px;
+  border: 1px solid black;
+  padding: 0px 5px;
 }
 
 .circle {
-    border-radius: 50px;
-    --slds-c-button-radius-border: 50px;
+  border-radius: 50px;
+  --slds-c-button-radius-border: 50px;
 }
 
-
 .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
 
 .modal {
-    background-color: white;
-    border-radius: 16px;
-    padding: 24px 28px;
-    width: 360px;
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
-    position: relative;
-    font-family: inherit;
-    animation: fadeIn 0.2s ease-in-out;
-    margin-bottom: 40px;
+  background-color: white;
+  border-radius: 16px;
+  padding: 24px 28px;
+  width: 360px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+  position: relative;
+  font-family: inherit;
+  animation: fadeIn 0.2s ease-in-out;
+  margin-bottom: 40px;
 }
 
 .modal h2 {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
 }
 
 .modal p {
-    font-size: 13px;
-    color: #444;
-    line-height: 1.4;
-    margin: 0;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.modal-loader {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .modal-close {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #000;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #000;
 }
 
 .modal-start {
-    margin-top: 80px; /* este espacio es lo que faltaba */
-    background-color: white;
-    border: 2px solid #B3DC00;
-    border-radius: 20px;
-    padding: 8px 24px;
-    font-size: 14px;
-    font-weight: 600;
-    color: black;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: background-color 0.2s;
+  margin-top: 80px; /* este espacio es lo que faltaba */
+  background-color: white;
+  border: 2px solid #b3dc00;
+  border-radius: 20px;
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
 }
 
 .modal-start:hover {
-    background-color: #f1f9e3;
+  background-color: #f1f9e3;
 }
 
-
-
 .btn-comercial {
-    background: white;
-    border: 2px solid #B5EC08;
-    border-radius: 30px;
-    padding: 0.5rem 1.2rem;
-    font-weight: bold;
-    color: #1c1c1c;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-right: 10px;
+  background: white;
+  border: 2px solid #b5ec08;
+  border-radius: 30px;
+  padding: 0.5rem 1.2rem;
+  font-weight: bold;
+  color: #1c1c1c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 10px;
 }
 
 .btn-comercial:hover {
-    background-color: #B5EC08;
-    color: black;
+  background-color: #b5ec08;
+  color: black;
 }
 
 .custom-modal-container {
-    position: relative;
-    max-width: 650px !important;
+  position: relative;
+  max-width: 650px !important;
 }
 
 .custom-close-button {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    border-radius: 50%;
-    border: none;
-    background: #f3f4f6;
-    padding: 6px;
-    cursor: pointer;
-    z-index: 10;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  line-height: 1;
+  font-size: 14px;
+  color: #1c1c1c;
+  cursor: pointer;
+  z-index: 10;
 }
 
 .brand-subtitle {
-    color: #e65100;
-    font-weight: 700;
-    font-size: 0.75rem;
-    letter-spacing: 0.5px;
+  color: #e65100;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
 }
 
 .modal-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #111827;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
 }
 
 .modal-description {
-    color: #4b5563;
-    font-size: 0.875rem;
+  color: #4b5563;
+  font-size: 0.875rem;
 }
 
 /* Tarjeta de Resumen por Variedad */
 .summary-card {
-    background-color: #f3f4f6;
-    border-radius: 12px;
+  background-color: #f3f4f6;
+  border-radius: 12px;
 }
 
 .summary-card .label {
-    display: block;
-    font-size: 0.75rem;
-    color: #6b7280;
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
 .summary-card .value {
-    font-weight: 700;
-    color: #111827;
+  font-weight: 700;
+  color: #111827;
 }
 
 /* Radio Cards para Selección de Pago */
 .payment-card {
-    display: block;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 16px;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+  display: block;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
 .payment-card.selected {
-    border-color: #84cc16;
-    background-color: #f7fee7;
+  border-color: #84cc16;
+  background-color: #f7fee7;
 }
 
 .option-title {
-    font-weight: 800;
-    font-size: 1rem;
-    color: #111827;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #111827;
 }
 
 .badge-discount {
-    background-color: #84cc16;
-    color: #000;
-    font-weight: 700;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 10px;
+  background-color: #84cc16;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
 }
 
 .option-desc {
-    font-size: 0.8rem;
-    color: #4b5563;
+  font-size: 0.8rem;
+  color: #4b5563;
 }
 
 .text-required {
-    color: #dc2626;
+  color: #dc2626;
 }
 
 .warning-box {
-    color: #d97706;
-    font-size: 0.75rem;
+  color: #d97706;
+  font-size: 0.75rem;
 }
 
 .warning-icon {
-    --slds-c-icon-color-foreground: #d97706;
+  --slds-c-icon-color-foreground: #d97706;
 }

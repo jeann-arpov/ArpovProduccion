@@ -1,20 +1,30 @@
+.pph-modal-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(243, 244, 246, 0.72);
+}
+
 .black-border {
-    --slds-c-button-neutral-color-border: black;
+  --slds-c-button-neutral-color-border: black;
 }
 
 .circle {
-    border-radius: 50px;
-    --slds-c-button-radius-border: 50px;
+  border-radius: 50px;
+  --slds-c-button-radius-border: 50px;
 }
 
 .success {
-    --slds-c-icon-color-background: var(--pph-green);
+  --slds-c-icon-color-background: var(--pph-green);
 }
 
 .slds-modal__container {
-    width: 380px;
+  width: 380px;
 }
 
 .slds-modal__container.resumen {
-    width: 480px;
+  width: 480px;
 }

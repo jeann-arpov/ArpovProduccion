@@ -203,9 +203,13 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
           Parametro_PPH__r.Fecha_Inicio_Adhesion_PPH__c,
           Parametro_PPH__r.Fecha_Fin_Adhesion_PPH__c,
           Parametro_PPH__r.Cultivo__r.Name,
+          Parametro_PPH__r.Cultivo__r.HT2Kilos__c,
           Parametro_PPH__r.Biotecnologia__c,
+          Parametro_PPH__r.Campana__c,
+          Parametro_PPH__r.Campana__r.Name,
           Parametro_PPH__r.Name,
           Fecha_de_Adhesion__c,
+          Fecha_de_Rechazo__c,
           Estado__c,
           Terminos_y_Condiciones__c,
           Version__c,
@@ -227,7 +231,10 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
       data.put(
         'variedades',
         [
-          SELECT Name, Obtentor_Comercializa__r.Id_Obtentor__c
+          SELECT
+            Name,
+            Obtentor_Comercializa__r.Id_Obtentor__c,
+            Obtentor_Comercializa__r.Name
           FROM variedad__c
           WHERE id IN :stockPorVariedad.keySet()
         ]
@@ -251,6 +258,16 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
       }
 
       data.put('saldoPph', getSaldoPph(plan.Id));
+
+      for (ContentDocumentLink link : [
+        SELECT ContentDocumentId
+        FROM ContentDocumentLink
+        WHERE LinkedEntityId = :planId
+        ORDER BY SystemModstamp DESC
+        LIMIT 1
+      ]) {
+        data.put('certificadoDocumentId', link.ContentDocumentId);
+      }
     }
 
     data.put(
@@ -260,6 +277,8 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
           Establecimiento__r.Coordenadas__latitude__s,
           Establecimiento__r.Coordenadas__longitude__s,
           Establecimiento__r.Name,
+          Establecimiento__r.Provincia__c,
+          Establecimiento__r.Localidad__r.Name,
           Name,
           Cantidad_Variedad_No_SE__c,
           (
@@ -267,6 +286,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
               Variedad__c,
               Variedad__r.Name,
               Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
+              Variedad__r.Obtentor_Comercializa__r.Name,
               Cantidad_Declarada__c
             FROM Lineas_PPH__r
           )
@@ -565,6 +585,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
       FROM Parametro_PPH__c
       WHERE id = :plan.Parametro_PPH__c
     ];
+
     try {
       validateInPeriodoAdhesion(parametro, plan.Version__c);
       if (
@@ -876,6 +897,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     }
 
     upsert establecimientos;
+    EstablecimientoLocalidadQueueable.enqueue(establecimientos);
 
     for (Establecimiento est : data.establecimientos) {
       if (est.establecimientoPPH.Id == null) {
@@ -946,6 +968,66 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     results.sort();
 
     return results;
+  }
+
+  /**
+   * Lista establecimientos del productor disponibles para adhesión PPH
+   * (mismos filtros que searchEstablecimientos: Propio + Vigente).
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<EstablecimientoOption> listEstablecimientosDisponibles() {
+    Id accountId = CrearCompraController.getAccount().Id;
+    List<EstablecimientoOption> options = new List<EstablecimientoOption>();
+
+    for (Establecimiento__c e : [
+      SELECT
+        Id,
+        Name,
+        Coordenadas__Latitude__s,
+        Coordenadas__Longitude__s,
+        Provincia__c,
+        Localidad__r.Name
+      FROM Establecimiento__c
+      WHERE
+        Productor__c = :accountId
+        AND Origen__c = 'Propio'
+        AND Vigente__c = TRUE
+      ORDER BY Name ASC
+      LIMIT 200
+    ]) {
+      EstablecimientoOption opt = new EstablecimientoOption();
+      opt.id = e.Id;
+      opt.name = e.Name;
+      opt.lat = e.Coordenadas__Latitude__s;
+      opt.lng = e.Coordenadas__Longitude__s;
+      String loc = e.Localidad__r != null ? e.Localidad__r.Name : null;
+      String prov = e.Provincia__c;
+      if (String.isNotBlank(loc) && String.isNotBlank(prov)) {
+        opt.locationLabel = loc + ', ' + prov;
+      } else if (String.isNotBlank(loc)) {
+        opt.locationLabel = loc;
+      } else if (String.isNotBlank(prov)) {
+        opt.locationLabel = prov;
+      } else {
+        opt.locationLabel = 'Sin ubicación registrada';
+      }
+      options.add(opt);
+    }
+
+    return options;
+  }
+
+  public class EstablecimientoOption {
+    @AuraEnabled
+    public Id id;
+    @AuraEnabled
+    public String name;
+    @AuraEnabled
+    public String locationLabel;
+    @AuraEnabled
+    public Decimal lat;
+    @AuraEnabled
+    public Decimal lng;
   }
 
   @TestVisible

@@ -7,11 +7,18 @@ import save from "@salesforce/apex/CesionPPH.save";
 import backToEnCurso from "@salesforce/apex/CesionPPH.backToEnCurso";
 import anular from "@salesforce/apex/CesionPPH.anular";
 import deleteFile from "@salesforce/apex/CesionPPH.deleteFile";
+import uploadContratoFile from "@salesforce/apex/CesionPPH.uploadContratoFile";
 import getNewCesionData from "@salesforce/apex/CesionPPH.getNewCesionData";
 
 import { errorEvent } from "c/utils";
-import { trackGa4Event } from "c/portalGa4Events";
 import icons from "c/icons";
+import { trackGa4Event } from "c/portalGa4Events";
+import { goToCommunityPage, PAGES } from "c/seNav";
+
+/** Cap destinatarios per cesión; raise when multi-destinatario is enabled. */
+const MAX_DESTINATARIOS = 1;
+const WIZARD_STEPS = 3;
+const WIZARD_STEP_LABELS = ["Cultivo", "Destinatario", "Toneladas"];
 
 function validateCuit(cuit) {
   if (cuit.length !== 11) {
@@ -44,13 +51,21 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
 
   loading = true;
   step = "cesion";
+  wizardStep = 1;
+  wizardDestReady = false;
+  wizardToneladasValid = false;
+  wizardToneladasTotal = 0;
   initialized = false;
   counter = 1;
   cesion;
-  accounts;
+  accounts = {};
   hiding = {};
   licenses;
   files = [];
+  contratoUploading = false;
+  contratoUploadName = "";
+  contratoUploadPct = 0;
+  _contratoUploadTimer;
   doContinue = false;
   cultivos;
   cultivo;
@@ -60,11 +75,25 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
   currentModal;
   modalCallback;
 
+  connectedCallback() {
+    document.documentElement.classList.add("se-inner", "se-inner-wizard");
+    document.body.classList.add("se-inner", "se-inner-wizard");
+  }
+
+  disconnectedCallback() {
+    this._stopContratoProgress();
+    document.documentElement.classList.remove("se-inner", "se-inner-wizard");
+    document.body.classList.remove("se-inner", "se-inner-wizard");
+  }
+
   async init() {
     this.initialized = true;
 
     try {
-      const data = await getLoadData({ cesionId: this.pageRecordId });
+      const data = await getLoadData({
+        cesionId: this.pageRecordId,
+        tipoCesion: this.pageTipoCesion
+      });
       this.loadData(data);
       console.log(data);
     } catch (e) {
@@ -114,12 +143,52 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     if (this.initialized == false) {
       this.init();
     }
+    this.syncBodyClasses();
+  }
+
+  syncBodyClasses() {
+    const html = document.documentElement;
+    const body = document.body;
+    if (this.isResumen || this.isCultivo || this.isCesion || this.isEdit) {
+      html.classList.add("se-inner", "se-inner-wizard");
+      body.classList.add("se-inner", "se-inner-wizard");
+    }
+  }
+
+  buildDestinatarioPayload(dest) {
+    const account =
+      dest.account || this.accounts?.[dest.record?.Destinatario__c];
+    const variedades = {};
+
+    for (const linea of dest.lineas || []) {
+      const cantidad = Number(linea.record?.Cantidad__c) || 0;
+      if (cantidad > 0 || linea.record?.Id) {
+        const variedad = linea.variedad;
+        const obtentorId = variedad?.Obtentor_Comercializa__r?.Id_Obtentor__c;
+        variedades[linea.id] = {
+          id: linea.record?.Id,
+          cantidad,
+          variedad,
+          license: linea.record?.Licencia__c,
+          icono: icons.semilleros[obtentorId]
+        };
+      }
+    }
+
+    return {
+      destinatarioId: account?.id || dest.record?.Destinatario__c,
+      variedades,
+      id: dest.record?.Id,
+      record: dest.record,
+      destinatarioRecord: account?.record
+    };
   }
 
   loadData(data) {
     if (data.cultivos) {
       this.cultivos = data.cultivos;
       this.step = "cultivo";
+      this.wizardStep = 1;
     } else {
       if (data.cesion) {
         this.variedades = data.variedades;
@@ -129,7 +198,12 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
           (v) => (v.totals = { stock: data.stock[v.Id] })
         );
 
-        this.accounts = Object.fromEntries(data.accounts.map((a) => [a.id, a]));
+        if (data.accounts?.length) {
+          this.accounts = {
+            ...(this.accounts || {}),
+            ...Object.fromEntries(data.accounts.map((a) => [a.id, a]))
+          };
+        }
         this.files = data.files;
       }
 
@@ -185,21 +259,59 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
 
       this.destinatarios = destinatarios;
 
-      if (this.destinatarios.length == 0) this.addRow();
+      if (this.destinatarios.length == 0 && !this.isSoloLectura) this.addRow();
 
-      if (this.isEnCurso == false && this.hasDestinatarioEnCurso == false)
-        setTimeout((_) => (this.step = "resumen"), 0);
+      if (this.isSoloLectura) setTimeout((_) => (this.step = "resumen"), 0);
+
+      this.syncWizardStep();
+      this.syncWizardDestReady();
     }
     console.log("variedades:", this.variedades);
   }
 
+  syncWizardStep() {
+    if (this.isCultivo) {
+      this.wizardStep = 1;
+      return;
+    }
+    if (!(this.isCesion || this.isEdit)) {
+      return;
+    }
+    // Autosave tras elegir destinatario: no saltar de paso en medio del wizard mobile.
+    if (this.wizardStep === 2 || this.wizardStep === 3) {
+      return;
+    }
+    const first = this.destinatarios[0];
+    const hasDest = !!(first?.account || first?.record?.Destinatario__c);
+    if (!hasDest) {
+      this.wizardStep = 2;
+      return;
+    }
+    this.wizardStep = this.hasContrato ? 3 : 2;
+  }
+
   addRow() {
+    if (this.destinatarios.length >= MAX_DESTINATARIOS) return;
     if (this.destinatarios.length > 0) {
       this.modalCallback = this.confirmAddRow.bind(this);
       this.currentModal = "confirm-add-destinatario";
     } else {
       this.confirmAddRow();
     }
+  }
+
+  get showAddDestinatario() {
+    return this.destinatarios.length < MAX_DESTINATARIOS;
+  }
+
+  get allowRemoveDestinatario() {
+    return MAX_DESTINATARIOS > 1 && this.destinatarios.length > 1;
+  }
+
+  get destinatarioPhase() {
+    if (this.wizardStep === 2) return "destinatario";
+    if (this.wizardStep === 3) return "toneladas";
+    return "all";
   }
 
   confirmAddRow() {
@@ -243,6 +355,12 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
   }
 
   async startCesion() {
+    if (this.cesion?.Id) {
+      this.step = "cesion";
+      this.wizardStep = 2;
+      return;
+    }
+
     await this.doRequest(async (_) => {
       const data = await getNewCesionData({
         cultivoId: this.cultivo,
@@ -251,15 +369,304 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
       console.log(data);
       this.loadData(data);
       this.step = "cesion";
+      this.wizardStep = 2;
     });
+  }
+
+  handleCultivoGridSelect(event) {
+    this.cultivo = event.detail.value;
+  }
+
+  get wizardStepLabels() {
+    return WIZARD_STEP_LABELS;
+  }
+
+  get wizardStepsTotal() {
+    return WIZARD_STEPS;
+  }
+
+  get selectedCultivoSaldo() {
+    const found = (this.cultivos || []).find(
+      (c) => String(c.value) === String(this.cultivo)
+    );
+    const saldo = found?.saldo;
+    const n = Number(saldo);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  syncWizardDestReady() {
+    const first = this.destinatarios[0];
+    this.wizardDestReady = !!(first?.account || first?.record?.Destinatario__c);
+  }
+
+  handleDestSelectionChange(event) {
+    this.wizardDestReady = event.detail.hasSelection;
+  }
+
+  handleToneladasChange(event) {
+    this.wizardToneladasValid = event.detail.valid;
+    this.wizardToneladasTotal = event.detail.total || 0;
+  }
+
+  formatTonLabel(n) {
+    return Number(n).toLocaleString("es-AR", { maximumFractionDigits: 0 });
+  }
+
+  /** Wizard vs desktop legacy: siempre el bloque del wizard activo. */
+  getDestinatarioComponents() {
+    if (this.isResumen) {
+      return this.template.querySelectorAll("c-destinatario-pph");
+    }
+    return this.template.querySelectorAll("c-destinatario-pph.se-dest-block");
+  }
+
+  getPrimaryDestinatarioComponent() {
+    return this.getDestinatarioComponents()[0] || null;
+  }
+
+  get hasContrato() {
+    return (this.files || []).length > 0;
+  }
+
+  get primaryContrato() {
+    return this.hasContrato ? this.files[0] : null;
+  }
+
+  get contratoTitle() {
+    return (
+      this.primaryContrato?.ContentDocument?.Title || "Seleccioná el contrato"
+    );
+  }
+
+  get contratoSubtitle() {
+    if (!this.hasContrato) return "Subí el PDF del convenio de cesión";
+    const ext = this.primaryContrato?.ContentDocument?.extension;
+    return ext ? `${ext} · Contrato adjunto` : "Contrato adjunto";
+  }
+
+  get mobTitleBadge() {
+    if (this.isWizardStep2 || this.isWizardStep3) return this.cultivoPillLabel;
+    return "";
+  }
+
+  get cultivoPillLabel() {
+    if (this.cesion?.Cultivo__r?.Name) return this.cesion.Cultivo__r.Name;
+    const found = (this.cultivos || []).find((c) => c.value === this.cultivo);
+    return found?.label || "";
+  }
+
+  get isWizardStep1() {
+    return this.wizardStep === 1 && !this.isResumen;
+  }
+
+  get isWizardStep2() {
+    return (this.isCesion || this.isEdit) && this.wizardStep === 2;
+  }
+
+  get isWizardStep3() {
+    return (this.isCesion || this.isEdit) && this.wizardStep === 3;
+  }
+
+  get showMobWizardFooter() {
+    if (typeof window === "undefined") {
+      return (
+        !this.isResumen && (this.isCultivo || this.isCesion || this.isEdit)
+      );
+    }
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    return (
+      isMobile &&
+      !this.isResumen &&
+      (this.isCultivo || this.isCesion || this.isEdit)
+    );
+  }
+
+  get mobFooterStatus() {
+    switch (this.wizardStep) {
+      case 1:
+        return this.cultivoPillLabel
+          ? `${this.cultivoPillLabel} seleccionado`
+          : "Elegí un cultivo";
+      case 2:
+        return (
+          this.destinatarios[0]?.account?.title ||
+          this.destinatarios[0]?.account?.record?.Name ||
+          "Ingresá el CUIT destinatario"
+        );
+      case 3:
+        return this.wizardToneladasValid
+          ? `${this.formatTonLabel(this.wizardToneladasTotal)} t a ceder`
+          : "Ingresá las toneladas";
+      default:
+        return "";
+    }
+  }
+
+  get contratoUploadBarStyle() {
+    return `width: ${this.contratoUploadPct}%`;
+  }
+
+  get mobFooterContinuarDisabled() {
+    if (this.loading || this.contratoUploading) return true;
+    if (this.wizardStep === 1)
+      return !this.cultivo || this.selectedCultivoSaldo <= 0;
+    if (this.wizardStep === 2)
+      return !this.wizardDestReady || !this.hasContrato;
+    if (this.wizardStep === 3) return !this.wizardToneladasValid;
+    return false;
+  }
+
+  get mobFooterVariant() {
+    return "dual";
+  }
+
+  get mobCancelLabel() {
+    return this.wizardStep === 1 ? "Cancelar" : "Atrás";
+  }
+
+  get mobFooterContinuarLabel() {
+    return this.wizardStep === 3 ? "Ceder toneladas" : "Continuar →";
+  }
+
+  async handleMobContinuar() {
+    if (this.wizardStep === 1) {
+      await this.startCesion();
+      return;
+    }
+    if (this.wizardStep === 2) {
+      if (!this.validateWizardStep(2)) return;
+      const destComp = this.getPrimaryDestinatarioComponent();
+      const account = destComp?.getAccount?.();
+      const destData = destComp?.getData?.();
+      await this.save();
+      if (this.destinatarios[0]) {
+        const current = this.destinatarios[0];
+        this.destinatarios = [
+          {
+            ...current,
+            account: account || current.account,
+            record: destData?.destinatarioId
+              ? { ...current.record, Destinatario__c: destData.destinatarioId }
+              : current.record
+          },
+          ...this.destinatarios.slice(1)
+        ];
+      }
+      this.wizardToneladasValid = false;
+      this.wizardToneladasTotal = 0;
+      this.wizardStep = 3;
+      return;
+    }
+    if (this.wizardStep === 3) {
+      if (!this.validateWizardStep(3)) return;
+      await this.save();
+      if (!this.isValid(true, true)) return;
+      this.step = "resumen";
+      return;
+    }
+  }
+
+  validateWizardStep(step) {
+    try {
+      const dest = this.getPrimaryDestinatarioComponent();
+      if (!dest) return false;
+      if (step === 2) {
+        if (!this.hasContrato) {
+          this.onError("Debe subir al menos un contrato para continuar");
+          return false;
+        }
+        return dest.validate(false);
+      }
+      if (step === 3) return dest.validate(true);
+      return true;
+    } catch (e) {
+      this.onError(e);
+      return false;
+    }
+  }
+
+  handleMobBack() {
+    if (this.wizardStep > 1 && (this.isCesion || this.isEdit)) {
+      this.wizardStep -= 1;
+      return;
+    }
+    goToCommunityPage(PAGES.cesiones);
+  }
+
+  handleMobClose() {
+    goToCommunityPage(PAGES.cesiones);
+  }
+
+  handleMobCancel() {
+    if (this.wizardStep === 1) {
+      this.handleMobClose();
+      return;
+    }
+    this.handleMobBack();
+  }
+
+  get mobPageTitle() {
+    if (this.isResumen) return "Resumen de tu solicitud";
+    return "Cesión de Toneladas";
+  }
+
+  get deskPageTitle() {
+    if (this.isResumen) return this.mobPageTitle;
+    return `Cesión de toneladas — ${this.tipoCesionLabel || "Productor"}`;
+  }
+
+  get tipoCesionLabel() {
+    const tipo = this.pageTipoCesion || this.tipoCesion;
+    return tipo === "Explotacion Conjunta" ? "Explotación Conjunta" : tipo;
+  }
+
+  get deskPageSubtitle() {
+    if (this.isResumen) return "";
+    return "Completá los pasos para iniciar la cesión.";
+  }
+
+  get deskResumenTipo() {
+    return this.tipoCesionLabel || "—";
+  }
+
+  get deskResumenCultivo() {
+    return this.cultivoPillLabel || "—";
+  }
+
+  get deskResumenDestinatario() {
+    const dest = this.destinatarios[0];
+    return dest?.account?.title || dest?.account?.record?.Name || "—";
+  }
+
+  get showDeskResumenDestinatario() {
+    return this.wizardStep >= 2;
+  }
+
+  get showDeskResumenContrato() {
+    return this.wizardStep >= 2 && this.hasContrato;
+  }
+
+  get showDeskResumenToneladas() {
+    return this.wizardStep >= 3 && this.wizardToneladasValid;
+  }
+
+  get deskResumenToneladas() {
+    return `${this.formatTonLabel(this.wizardToneladasTotal)} t`;
+  }
+
+  handleWizardStepClick(event) {
+    const clicked = Number(event.detail?.step);
+    if (!clicked || clicked >= this.wizardStep) return;
+    this.wizardStep = clicked;
+  }
+
+  get mobPageSubtitle() {
+    if (this.isWizardStep1) return "Elegí el cultivo";
+    return "";
   }
 
   get tipoCesion() {
     return this.cesion?.tipoCesion;
-  }
-
-  get sinCultivosDisponibles() {
-    return this.isCultivo && this.cultivos.length == 0;
   }
 
   removeDestinatario(destinatario) {
@@ -320,9 +727,7 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     let valid = true;
 
     try {
-      for (const destinatario of this.template.querySelectorAll(
-        "c-destinatario-pph"
-      )) {
+      for (const destinatario of this.getDestinatarioComponents()) {
         if (!destinatario.validate(isContinue)) valid = false;
       }
     } catch (e) {
@@ -367,20 +772,104 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
       tnsBolsatech: this.tnsBolsatech
     };
 
-    for (const destinatario of this.template.querySelectorAll(
-      "c-destinatario-pph"
-    )) {
-      const dest = destinatario.getData();
-      data.destinatarios.push(dest);
-      if (dest.destinatarioId)
-        this.accounts[dest.destinatarioId] = destinatario.getAccount(); //se resetea el componente, me guardo en el map la info de la account para no tener que traer en cada load
+    const components = this.isResumen
+      ? []
+      : Array.from(this.getDestinatarioComponents());
+
+    if (components.length > 0) {
+      for (const destinatario of components) {
+        const dest = destinatario.getData();
+        data.destinatarios.push(dest);
+        if (dest.destinatarioId) {
+          if (!this.accounts) this.accounts = {};
+          this.accounts[dest.destinatarioId] = destinatario.getAccount();
+        }
+      }
+    } else {
+      for (const dest of this.destinatarios || []) {
+        if (this.hiding[dest.id]) continue;
+        data.destinatarios.push(this.buildDestinatarioPayload(dest));
+      }
     }
 
-    data.stock = this.variedades
-      .map((v) => v.totals.stock)
+    data.stock = (this.variedades || [])
+      .map((v) => v.totals?.stock || 0)
       .reduce((a, b) => a + b, 0);
-    console.log(data);
     return data;
+  }
+
+  get resumenCanEnviar() {
+    return (this.destinatarios || []).some(
+      (d) => d.record?.Estado__c === "En Curso"
+    );
+  }
+
+  get resumenEnviarDisabled() {
+    return !this.resumenCanEnviar;
+  }
+
+  /** Una cesión ya enviada (Pendiente de Validación, Validada…) no se vuelve a enviar. */
+  get resumenShowEnviar() {
+    return this.isEnCurso;
+  }
+
+  get resumenFooterVariant() {
+    return this.resumenShowEnviar ? "dual" : "status";
+  }
+
+  get resumenContinueLabel() {
+    return this.resumenShowEnviar ? "Enviar cesión" : "Volver a mis cesiones";
+  }
+
+  get resumenContinueDisabled() {
+    return this.resumenShowEnviar ? this.resumenEnviarDisabled : false;
+  }
+
+  get resumenGuardarLabel() {
+    return this.resumenShowEnviar ? "Guardar" : "Volver a mis cesiones";
+  }
+
+  handleResumenContinue() {
+    if (this.resumenShowEnviar) this.handleResumenEnviar();
+    else this.handleResumenGuardar();
+  }
+
+  get showResumenMobFooter() {
+    if (typeof window === "undefined") return true;
+    return window.matchMedia("(max-width: 767px)").matches;
+  }
+
+  get resumenFooterStatus() {
+    const total = (this.destinatarios || []).reduce((sum, dest) => {
+      return (
+        sum +
+        (dest.lineas || []).reduce(
+          (lineSum, linea) =>
+            lineSum + (Number(linea.record?.Cantidad__c) || 0),
+          0
+        )
+      );
+    }, 0);
+    return total > 0
+      ? `${this.formatTonLabel(total)} t cedidas`
+      : "Revisá el resumen";
+  }
+
+  handleResumenGuardar() {
+    goToCommunityPage(PAGES.cesiones);
+  }
+
+  handleResumenBack() {
+    if (this.isSoloLectura) {
+      goToCommunityPage(PAGES.cesiones);
+      return;
+    }
+    this.step = "cesion";
+    this.wizardStep = 3;
+  }
+
+  handleResumenEnviar() {
+    this.template.querySelector("c-resumen-cesion-pph")?.requestEnviar();
   }
 
   continuar(e) {
@@ -390,12 +879,24 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
   }
 
   get isEnCurso() {
-    return this.cesion.Estado__c == "En Curso";
+    // Borrador se edita igual que En Curso; solo se oculta del listado hasta el primer save.
+    return (
+      this.cesion.Estado__c == "En Curso" || this.cesion.Estado__c == "Borrador"
+    );
   }
 
   get hasDestinatarioEnCurso() {
     return (
       this.destinatarios.find((d) => d.record?.Estado__c == "En Curso") != null
+    );
+  }
+
+  /** Solo se edita En Curso/Borrador, o una Parcialmente Validada con destinatarios devueltos a En Curso. */
+  get isSoloLectura() {
+    if (this.isEnCurso) return false;
+    return !(
+      this.cesion.Estado__c == "Parcialmente Validada" &&
+      this.hasDestinatarioEnCurso
     );
   }
 
@@ -483,11 +984,15 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
 
   trackCesionConfirmada() {
     const cultivo = this.cesion?.Cultivo__r?.Name;
-    const cantidad_ht = this.variedades.reduce(
+    const cantidad_ht = (this.variedades || []).reduce(
       (acc, v) => acc + (v.totals?.current || 0),
       0
     );
-    trackGa4Event("cesion_confirmada", { cultivo, cantidad_ht });
+    trackGa4Event("cesion_confirmada", {
+      modulo: "Cesiones",
+      cultivo,
+      cantidad_ht
+    });
   }
 
   get title() {
@@ -562,6 +1067,100 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         }
       }))
     );
+  }
+
+  handleContratoPick() {
+    this.template.querySelector(".se-file-input")?.click();
+  }
+
+  async handleContratoFileChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file || !this.cesion?.Id) {
+      return;
+    }
+
+    const maxBytes = 10 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      this.onError("El archivo no puede superar 10 MB.");
+      return;
+    }
+
+    this.contratoUploading = true;
+    this.contratoUploadName = file.name;
+    this.contratoUploadPct = 12;
+    this._startContratoProgress();
+
+    try {
+      if (this.hasContrato) {
+        const previous = this.files[0];
+        await deleteFile({
+          fileId: previous.ContentDocument.Id,
+          cesionId: this.cesion.Id
+        });
+      }
+
+      const base64Data = await this._readFileAsBase64(file);
+      this.contratoUploadPct = 55;
+
+      const uploaded = await uploadContratoFile({
+        cesionId: this.cesion.Id,
+        fileName: file.name,
+        base64Data
+      });
+
+      this.contratoUploadPct = 100;
+      this.files = [
+        {
+          ContentDocument: {
+            Id: uploaded.documentId,
+            Title: uploaded.title,
+            extension: uploaded.extension
+          }
+        }
+      ];
+    } catch (e) {
+      this.onError(e);
+    } finally {
+      this._stopContratoProgress();
+      this.contratoUploading = false;
+      this.contratoUploadName = "";
+      this.contratoUploadPct = 0;
+    }
+  }
+
+  _readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const marker = "base64,";
+        const idx = reader.result.indexOf(marker);
+        resolve(
+          idx >= 0
+            ? reader.result.substring(idx + marker.length)
+            : reader.result
+        );
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  _startContratoProgress() {
+    this._stopContratoProgress();
+    this._contratoUploadTimer = setInterval(() => {
+      if (this.contratoUploadPct < 88) {
+        this.contratoUploadPct += 4;
+      }
+    }, 180);
+  }
+
+  _stopContratoProgress() {
+    if (this._contratoUploadTimer) {
+      clearInterval(this._contratoUploadTimer);
+      this._contratoUploadTimer = null;
+    }
   }
 
   handleFilePreview(e) {

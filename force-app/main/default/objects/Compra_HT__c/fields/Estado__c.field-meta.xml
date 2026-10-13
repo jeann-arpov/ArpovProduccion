@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Estado__c</fullName>
     <label>Estado</label>
@@ -42,6 +42,7 @@
             <value>
                 <fullName>Pedido de Facturación</fullName>
                 <default>false</default>
+                <isActive>false</isActive>
                 <label>Pedido de Facturación</label>
             </value>
             <value>

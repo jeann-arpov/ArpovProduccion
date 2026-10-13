@@ -30,6 +30,10 @@ import { NavigationMixin } from "lightning/navigation";
 import basePath from "@salesforce/community/basePath";
 import icons from "c/icons";
 import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
+import {
+  trackGa4Event,
+  buildHtCompraConfirmadaParams
+} from "c/portalGa4Events";
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
@@ -102,7 +106,6 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
   icons = icons.compraVenta;
 
-
   get currentVentaId() {
     if (this.recordId) {
       return this.recordId;
@@ -126,83 +129,98 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
   get esVentaHtFutura() {
     const esHT = this.tipoVenta && this.tipoVenta.toUpperCase() === "HT";
-    const esFutura = this.campana && this.campana.toUpperCase().includes("FUTURA");
+    const esFutura =
+      this.campana && this.campana.toUpperCase().includes("FUTURA");
     return esHT && esFutura;
   }
 
   get esMarcaStine() {
     if (this.marca && this.marca.toUpperCase() === "STINE") return true;
-    const semilleroSeleccionado = this.semilleros?.find(s => s.value === this.semillero);
-    return semilleroSeleccionado?.label?.toUpperCase().includes("STINE") || false;
+    const semilleroSeleccionado = this.semilleros?.find(
+      (s) => s.value === this.semillero
+    );
+    return (
+      semilleroSeleccionado?.label?.toUpperCase().includes("STINE") || false
+    );
   }
 
   get fechaInicioEfectiva() {
-        // 1. Prioriza lo configurado en la Comunidad
-        if (this.fechaInicioStine) return this.fechaInicioStine;
-        // 2. Si es undefined (venga de donde venga el usuario), usa el respaldo guardado en sesión
-        const guardado = sessionStorage.getItem('stine_fechaInicio');
-        if (guardado) return guardado;
-        // 3. Si no hay nada, usa la constante por defecto
-        return FECHA_INICIO_STINE_DEFAULT;
-    }
-
-    get fechaFinEfectiva() {
-        if (this.fechaFinStine) return this.fechaFinStine;
-        const guardado = sessionStorage.getItem('stine_fechaFin');
-        if (guardado) return guardado;
-        return FECHA_FIN_STINE_DEFAULT;
-    }
-
-    estaEnRangoFechasStine() {
-        const inicio = this.fechaInicioEfectiva;
-        const fin = this.fechaFinEfectiva;
-
-        // Si por alguna razón no hay fechas, no bloquea ni muestra modal
-        if (!inicio || !fin) {
-            return false;
-        }
-
-        // Si la Comunidad envió valores válidos en esta vista, actualizamos el almacenamiento local
-        if (this.fechaInicioStine) sessionStorage.setItem('stine_fechaInicio', this.fechaInicioStine);
-        if (this.fechaFinStine) sessionStorage.setItem('stine_fechaFin', this.fechaFinStine);
-
-        // Obtenemos la fecha de hoy local en formato YYYY-MM-DD
-        const hoy = new Date();
-        const year = hoy.getFullYear();
-        const month = String(hoy.getMonth() + 1).padStart(2, '0');
-        const day = String(hoy.getDate()).padStart(2, '0');
-        const hoyStr = `${year}-${month}-${day}`;
-
-        return hoyStr >= inicio && hoyStr <= fin;
-    }
+    // 1. Prioriza lo configurado en la Comunidad
+    if (this.fechaInicioStine) return this.fechaInicioStine;
+    // 2. Si es undefined (venga de donde venga el usuario), usa el respaldo guardado en sesión
+    const guardado = sessionStorage.getItem("stine_fechaInicio");
+    if (guardado) return guardado;
+    // 3. Si no hay nada, usa la constante por defecto
+    return FECHA_INICIO_STINE_DEFAULT;
   }
 
+  get fechaFinEfectiva() {
+    if (this.fechaFinStine) return this.fechaFinStine;
+    const guardado = sessionStorage.getItem("stine_fechaFin");
+    if (guardado) return guardado;
+    return FECHA_FIN_STINE_DEFAULT;
+  }
+
+  estaEnRangoFechasStine() {
+    const inicio = this.fechaInicioEfectiva;
+    const fin = this.fechaFinEfectiva;
+
+    // Si por alguna razón no hay fechas, no bloquea ni muestra modal
+    if (!inicio || !fin) {
+      return false;
+    }
+
+    // Si la Comunidad envió valores válidos en esta vista, actualizamos el almacenamiento local
+    if (this.fechaInicioStine)
+      sessionStorage.setItem("stine_fechaInicio", this.fechaInicioStine);
+    if (this.fechaFinStine)
+      sessionStorage.setItem("stine_fechaFin", this.fechaFinStine);
+
+    // Obtenemos la fecha de hoy local en formato YYYY-MM-DD
+    const hoy = new Date();
+    const year = hoy.getFullYear();
+    const month = String(hoy.getMonth() + 1).padStart(2, "0");
+    const day = String(hoy.getDate()).padStart(2, "0");
+    const hoyStr = `${year}-${month}-${day}`;
+
+    return hoyStr >= inicio && hoyStr <= fin;
+  }
 
   async evaluarEsStineFutura() {
     console.log("--- [DEBUG] Ejecutando evaluarEsStineFutura ---");
-    console.log("this.DataCompra:", JSON.parse(JSON.stringify(this.DataCompra || {})));
+    console.log(
+      "this.DataCompra:",
+      JSON.parse(JSON.stringify(this.DataCompra || {}))
+    );
 
     if (!this.estaEnRangoFechasStine()) {
-      console.log("--- [DEBUG] Fuera de rango de fechas configurado para Stine. Se omite modal y persistencia. ---");
+      console.log(
+        "--- [DEBUG] Fuera de rango de fechas configurado para Stine. Se omite modal y persistencia. ---"
+      );
       return false;
     }
 
     const lineas = [
       ...(this.DataCompra?.record?.Lineas_de_Venta_HT__r || []),
       ...(this.data?.record?.Lineas_de_Venta_HT__r || []),
-      ...(this.items || []).map(i => i.record || i)
+      ...(this.items || []).map((i) => i.record || i)
     ];
     console.log("Líneas recopiladas:", JSON.parse(JSON.stringify(lineas)));
 
     let tieneStineFuturaEnLineas = false;
 
     for (const rec of lineas) {
-      const obtentor = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || "";
-      const tipoCompra = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || "";
+      const obtentor =
+        rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || "";
+      const tipoCompra =
+        rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || "";
 
-      console.log(`Analizando línea -> Obtentor: "${obtentor}", TipoCompra: "${tipoCompra}"`);
+      console.log(
+        `Analizando línea -> Obtentor: "${obtentor}", TipoCompra: "${tipoCompra}"`
+      );
 
-      const esObtentorStineExacto = obtentor === "M.S. TECHNOLOGIES ARGENTINA S.R.L.";
+      const esObtentorStineExacto =
+        obtentor === "M.S. TECHNOLOGIES ARGENTINA S.R.L.";
       const esTipoFutura = tipoCompra === "Futura" || this.Futura;
 
       if (esObtentorStineExacto && esTipoFutura) {
@@ -211,7 +229,10 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       }
     }
 
-    console.log("--- [DEBUG] Resultado final evaluarEsStineFutura:", tieneStineFuturaEnLineas);
+    console.log(
+      "--- [DEBUG] Resultado final evaluarEsStineFutura:",
+      tieneStineFuturaEnLineas
+    );
     return tieneStineFuturaEnLineas;
   }
 
@@ -239,16 +260,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
             this.notifyLineSaveStateChanged();
           }, 250);
         }
-        const popupKey = "htPopup_" + activeVentaId;
-        const popup = window.sessionStorage.getItem(popupKey);
-        if (popup === "licencia") {
-          this.isOpen2 = true;
-        } else if (popup === "origen") {
-          this.isOpen = true;
-        }
-        if (popup) {
-          window.sessionStorage.removeItem(popupKey);
-        }
+        // No reabrir pending licencia/origen en detalle: ya se mostró al confirmar.
+        window.sessionStorage.removeItem("htPopup_" + activeVentaId);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error cargando compra desde Apex", e);
@@ -586,7 +599,9 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
           await this.saveAllPendingLines();
         } catch (e) {
           this.isLoading = false;
-          return this.onError("Error al guardar las líneas: " + (e.message || e));
+          return this.onError(
+            "Error al guardar las líneas: " + (e.message || e)
+          );
         } finally {
           this.isLoading = false;
         }
@@ -669,6 +684,19 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
           this.setData(data);
           this.DataCompra = data;
+
+          trackGa4Event(
+            "ht_compra_confirmada",
+            buildHtCompraConfirmadaParams({
+              semilleros: this.semilleros,
+              semilleroId: this.semillero,
+              semilleroData: this.semilleroData,
+              cultivoNombre: this.cultivoNombre,
+              tipoCompraSeleccionado: this.tipoCompraSeleccionado,
+              data,
+              tipoPago: this.tipoPago
+            })
+          );
 
           if (this.puedeFacturar) {
             await this.facturar();
@@ -761,16 +789,18 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
   }
 
   async handleConfirmPaymentStine(event) {
-    const { formaPago, observaciones, entidadBancaria, plazo, moneda, tasa } = event.detail;
+    const { formaPago, observaciones, entidadBancaria, plazo, moneda, tasa } =
+      event.detail;
 
     this.tipoPagoStineSeleccionado = formaPago;
     this.observacionesStine = observaciones;
     this.tipoPago = formaPago;
-    
+
     // Captura extra
-    this.entidadBancariaStine = formaPago === "Financiado" ? entidadBancaria : null;
+    this.entidadBancariaStine =
+      formaPago === "Financiado" ? entidadBancaria : null;
     this.plazoStine = formaPago === "Financiado" ? plazo : null;
-    this.monedaStine = formaPago === "Financiado" ? moneda : null; 
+    this.monedaStine = formaPago === "Financiado" ? moneda : null;
     this.tasaStine = formaPago === "Financiado" ? tasa : null;
 
     this.isLoading = true;
@@ -785,18 +815,25 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       });
 
       if (observaciones && observaciones.trim() !== "") {
-        await saveObvservations({ recordId: this.recordId, obs: observaciones });
+        await saveObvservations({
+          recordId: this.recordId,
+          obs: observaciones
+        });
       }
     } catch (e) {
-    // Imprimir el objeto de error para inspección
-    console.error("Detalle del error en Apex/JS:", JSON.parse(JSON.stringify(e)));
-    
-    // Extraer el mensaje devuelto por Apex
-    const errorMessage = e.body?.message || e.message || "Error al guardar datos de pago";
-    this.onError("Error al guardar datos de pago: " + errorMessage);
-    this.isLoading = false;
-    return;
-  }
+      // Imprimir el objeto de error para inspección
+      console.error(
+        "Detalle del error en Apex/JS:",
+        JSON.parse(JSON.stringify(e))
+      );
+
+      // Extraer el mensaje devuelto por Apex
+      const errorMessage =
+        e.body?.message || e.message || "Error al guardar datos de pago";
+      this.onError("Error al guardar datos de pago: " + errorMessage);
+      this.isLoading = false;
+      return;
+    }
 
     this.isLoading = false;
     this.currentModal = null;
@@ -838,6 +875,18 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
       this.setData(data);
       this.DataCompra = data;
+      trackGa4Event(
+        "ht_compra_confirmada",
+        buildHtCompraConfirmadaParams({
+          semilleros: this.semilleros,
+          semilleroId: this.semillero,
+          semilleroData: this.semilleroData,
+          cultivoNombre: this.cultivoNombre,
+          tipoCompraSeleccionado: this.tipoCompraSeleccionado,
+          data,
+          tipoPago: this.tipoPago
+        })
+      );
       this.currentModal = data.pendiente
         ? "Pendiente de Facturación"
         : "finalizada";

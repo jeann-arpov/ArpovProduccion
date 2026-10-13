@@ -1,5 +1,6 @@
-import { LightningElement, api, track } from "lwc";
+import { LightningElement, api, track, wire } from "lwc";
 import getDataApex from "@salesforce/apex/CrearCompraController.getData";
+import getCampanasVigentes from "@salesforce/apex/CrearCompraController.getCampanasVigentes";
 import finalizarCompra from "@salesforce/apex/CrearCompraController.finalizarCompra";
 import anular from "@salesforce/apex/CrearCompraController.anular";
 import getSemilleroData from "@salesforce/apex/CrearCompraController.getSemilleroData";
@@ -7,11 +8,16 @@ import getProductsData from "@salesforce/apex/CrearCompraController.getProductsD
 import canFinish from "@salesforce/apex/CrearVentaController.canFinish";
 import getUserAccountData from "@salesforce/apex/CrearCompraController.getUserAccountData";
 import updateTipoPago from "@salesforce/apex/CrearCompraController.updateTipoPago";
+import saveItem from "@salesforce/apex/CrearCompraController.saveItem";
+import deleteItem from "@salesforce/apex/CrearCompraController.deleteItem";
+import findCompraEnProceso from "@salesforce/apex/CrearCompraController.findCompraEnProceso";
 import verificarExpedienteEnHTDisponible from "@salesforce/apex/ExpedientesController.verificarExpedienteEnHTDisponible";
 import { CompraVentaMixin } from "c/utilsHTNew";
 import { NavigationMixin } from "lightning/navigation";
 import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
 import basePath from "@salesforce/community/basePath";
+import icons from "c/icons";
+import { PAGES, communityPageUrl } from "c/seNav";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import {
   isHtFuturaPromoScreen,
@@ -23,13 +29,58 @@ import {
   sumHtFuturaPromoEligibleQuantity,
   MSG_PROMO_ACTIVA
 } from "c/htCondicionPromocionalGdm";
+import {
+  trackGa4Event,
+  resolveSemilleroLabel,
+  buildHtCompraConfirmadaParams
+} from "c/portalGa4Events";
+import { compraEstadoLabel, compraEstadoTone } from "c/seCompraEstado";
+import {
+  lockPortalModal,
+  unlockPortalModal,
+  fitFixedLayer
+} from "c/seModalLayer";
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
 const FECHA_INICIO_STINE_DEFAULT = "2026-09-21";
 const FECHA_FIN_STINE_DEFAULT = "2026-10-31";
+const MAX_HT_POR_VARIEDAD = 999999;
+
+/** BASF/Credenz solo trae un <symbol> en el SVG (no se ve en <img>) y ACA no tiene SVG. */
+const SEMILLEROS_LOGO_JPG = ["77", "26"];
+
+function semilleroLogoUrl(idObtentor) {
+  if (SEMILLEROS_LOGO_JPG.includes(idObtentor)) {
+    return icons.marcas?.[idObtentor] || null;
+  }
+  const sprite = icons.semilleros?.[idObtentor];
+  return sprite ? sprite.split("#")[0] : null;
+}
+
+/** Mapeo variedad → tecnología de licencia (CesionPPH.getMapBiotecnologias). */
+const MAP_TECNOLOGIAS_LICENCIA = {
+  RR1: "RR",
+  "RR2 - BT": "RR",
+  BGRR: "RR",
+  Convencional: "RR",
+  "Enlist E3": "Enlist",
+  "Conkesta E3": "Enlist"
+};
 
 export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
+  /** Fechas Stine configurables en Experience Builder. */
+  @api fechaInicioStine;
+  @api fechaFinStine;
+
+  tipoPagoStineSeleccionado = null;
+  @track entidadBancariaStine = null;
+  @track plazoStine = null;
+  @track monedaStine = null;
+  @track tasaStine = null;
+  @track isOpenPaymentModal = false;
+  @track modalItems = [];
+
   showFacturaRegaliaEnlistMsg;
   iconCebadaUrl = `${resourcePortal}/resourcePortal/images/prd-cebada.svg`;
   iconSojaHTUrl = `${resourcePortal}/resourcePortal/images/prd-soja.svg`;
@@ -37,41 +88,43 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   iconCondicionesHTUrl = `${resourcePortal}/resourcePortal/images/icon-condiciones.svg`;
   productor;
   showResumen = false;
+  legacyResumenMode = false;
+  /** Compra "En Curso" abierta desde Mis Compras: el cultivo ya quedó fijado en la compra. */
+  compraRetomada = false;
+  /** Marca a la que pertenecen las cantidades de variedadCantidades (se conservan al volver de paso). */
+  semilleroCantidades = null;
   semilleroIcono = false;
   showFileUploadModal = false;
-  isLoading = false;
+  isLoading = false; // ✅ Nuevo estado para spinner
   showFinanciamientoColumn = false;
   isModalOpen = false;
   @track DataCompra;
-  isOpen = false;
-  isOpen2 = false;
+  /** success | pending-payment | pending-licencia | pending-origen | duplicate | expediente | promo | anular | vigencia */
+  resultModal = null;
+  duplicateCompraId;
+  duplicateCompraName;
   haveLicence;
   haveOrigenLegal;
-  @track Blanqueo;
+  Blanqueo;
   esFutura = false;
   Futura;
   tipoCompraSeleccionado = null;
+  cultivoSeleccionadoId = null;
+  marcaSearch = "";
+  variedadSearch = "";
+  @track variedadCantidades = {};
+  variedadQtyAvisos = {};
   @track _lineasListasFlag = false;
   @track guardandoLineas = false;
   @track finalizandoOperacion = false;
-  @track isOpenPaymentModal = false;
-  @track modalItems = [];
-
-  // Configuración comunidad Stine
-  @api fechaInicioStine;
-  @api fechaFinStine;
 
   tipoPago = null; // 'Contado' | 'Financiado'
+  showTipoPagoSheet = false;
+  selectedTipoPago = "Contado";
+  _payModalScrollLocked = false;
   pendingFinalizar = false; // para reintentar
   pendingFinalizarPorExpediente = false;
   shouldMarkRevisarCompra = false;
-
-  // Banderas guardado Stine Modal
-  tipoPagoStineSeleccionado = null;
-  @track entidadBancariaStine = null;
-  @track plazoStine = null;
-  @track monedaStine = null;
-  @track tasaStine = null;
 
   htFuturaPromoMessage = null;
   htFuturaPromoVariant = "success";
@@ -79,11 +132,16 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   htFuturaPromoCelebrationShown = false;
 
   get bloqueCompraClass() {
-    return this.showResumen ? "oculto" : "visible";
+    return this.legacyResumenMode ? "oculto" : "visible";
   }
 
   get bloqueResumenClass() {
-    return this.showResumen ? "visible" : "oculto";
+    return this.legacyResumenMode ? "visible" : "oculto";
+  }
+
+  /** Footer legado solo al editar una compra existente. */
+  get showLegacyFooter() {
+    return this.legacyResumenMode;
   }
 
   get headerClass() {
@@ -98,95 +156,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     return seleccionado ? seleccionado.label : "";
   }
 
-  get esVentaHtFutura() {
-    const esHT = this.tipoVenta && this.tipoVenta.toUpperCase() === "HT";
-    const esFutura = this.campana && this.campana.toUpperCase().includes("FUTURA");
-    return esHT && esFutura;
-  }
-
-  get esMarcaStine() {
-    if (this.marca && this.marca.toUpperCase() === "STINE") return true;
-    const semilleroSeleccionado = this.semilleros?.find(s => s.value === this.semillero);
-    return semilleroSeleccionado?.label?.toUpperCase().includes("STINE") || false;
-  }
-
-  get fechaInicioEfectiva() {
-        // 1. Prioriza lo configurado en la Comunidad
-        if (this.fechaInicioStine) return this.fechaInicioStine;
-        // 2. Si es undefined (venga de donde venga el usuario), usa el respaldo guardado en sesión
-        const guardado = sessionStorage.getItem('stine_fechaInicio');
-        if (guardado) return guardado;
-        // 3. Si no hay nada, usa la constante por defecto
-        return FECHA_INICIO_STINE_DEFAULT;
-    }
-
-    get fechaFinEfectiva() {
-        if (this.fechaFinStine) return this.fechaFinStine;
-        const guardado = sessionStorage.getItem('stine_fechaFin');
-        if (guardado) return guardado;
-        return FECHA_FIN_STINE_DEFAULT;
-    }
-
-   estaEnRangoFechasStine() {
-        const inicio = this.fechaInicioEfectiva;
-        const fin = this.fechaFinEfectiva;
-
-        // Si por alguna razón no hay fechas, no bloquea ni muestra modal
-        if (!inicio || !fin) {
-            return false;
-        }
-
-        // Si la Comunidad envió valores válidos en esta vista, actualizamos el almacenamiento local
-        if (this.fechaInicioStine) sessionStorage.setItem('stine_fechaInicio', this.fechaInicioStine);
-        if (this.fechaFinStine) sessionStorage.setItem('stine_fechaFin', this.fechaFinStine);
-
-        // Obtenemos la fecha de hoy local en formato YYYY-MM-DD
-        const hoy = new Date();
-        const year = hoy.getFullYear();
-        const month = String(hoy.getMonth() + 1).padStart(2, '0');
-        const day = String(hoy.getDate()).padStart(2, '0');
-        const hoyStr = `${year}-${month}-${day}`;
-
-        return hoyStr >= inicio && hoyStr <= fin;
-    }
-
-  async evaluarEsStineFutura() {
-    console.log("--- [DEBUG] Ejecutando evaluarEsStineFutura ---");
-
-    if (!await this.estaEnRangoFechasStine()) {
-      console.log("--- [DEBUG] Fuera de rango de fechas configurado para Stine. Se omite modal y persistencia. ---");
-      return false;
-    }
-
-    const lineas = [
-      ...(this.DataCompra?.record?.Lineas_de_Compra_HT__r || []),
-      ...(this.data?.record?.Lineas_de_Compra_HT__r || []),
-      ...(this.items || []).map(i => i.record || i)
-    ];
-    console.log("Líneas recopiladas:", JSON.parse(JSON.stringify(lineas)));
-
-    let tieneStineFuturaEnLineas = false;
-
-    for (const rec of lineas) {
-      const obtentor = rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || "";
-      const tipoCompra = rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || "";
-
-      console.log(`Analizando línea -> Obtentor: "${obtentor}", TipoCompra: "${tipoCompra}"`);
-
-      const esObtentorStineExacto = obtentor === "M.S. TECHNOLOGIES ARGENTINA S.R.L.";
-      const esTipoFutura = tipoCompra === "Futura" || this.Futura;
-
-      if (esObtentorStineExacto && esTipoFutura) {
-        tieneStineFuturaEnLineas = true;
-        break;
-      }
-    }
-
-    console.log("--- [DEBUG] Resultado final evaluarEsStineFutura:", tieneStineFuturaEnLineas);
-    return tieneStineFuturaEnLineas;
-  }
-
   async connectedCallback() {
+    document.documentElement.classList.add("se-inner", "se-inner-wizard");
+    document.body.classList.add("se-inner", "se-inner-wizard");
     try {
       const data = await getUserAccountData();
       this.productor = {
@@ -195,6 +167,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       };
 
       if (this.pageRecordId) {
+        this.legacyResumenMode = true;
         this.step = 3;
         this.showResumen = true;
         this.isLoading = true;
@@ -208,50 +181,47 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
           this.setData(compraData);
           await this.finish();
           await this.validarExpedienteDisponible(false);
+          if (this.puedeEditar) {
+            this.retomarCompraEnCurso();
+          }
           setTimeout(() => {
             this.syncPromoQualificationState();
             this.refreshAllLinePromoPrices();
             this.notifyLineSaveStateChanged();
           }, 250);
+          // No reabrir pending-licencia/origen en detalle: ya se mostró al confirmar la compra.
           if (typeof window !== "undefined") {
-            const popupKey = "htPopup_" + this.pageRecordId;
-            const popup = window.sessionStorage.getItem(popupKey);
-            if (popup === "licencia") {
-              this.isOpen2 = true;
-            } else if (popup === "origen") {
-              this.isOpen = true;
-            }
-            if (popup) {
-              window.sessionStorage.removeItem(popupKey);
-            }
+            window.sessionStorage.removeItem("htPopup_" + this.pageRecordId);
           }
         } catch (e) {
+          // eslint-disable-next-line no-console
           console.error("Error cargando compra desde Apex", e);
         } finally {
           this.isLoading = false;
         }
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error obteniendo la cuenta del usuario:", error);
     }
   }
 
   handleOpenModal(event) {
+    console.log("Evento recibido del hijo:", event.detail);
     this.isModalOpen = true;
   }
 
   openModal(event) {
-    this.isModalOpen = true;
+    console.log("Evento openmodal recibido del hijo:", event.detail);
+    this.isModalOpen = true; // 🔹 este abre el modal del padre
   }
 
   async closeModal() {
     const debeContinuarFinalizar =
-      this.currentModal === "expediente-disponible-alert" &&
-      this.pendingFinalizarPorExpediente;
+      this.resultModal === "expediente" && this.pendingFinalizarPorExpediente;
 
     this.isModalOpen = false;
-    this.isOpen = false;
-    this.isOpen2 = false;
+    this.resultModal = null;
     this.currentModal = null;
 
     if (debeContinuarFinalizar) {
@@ -261,12 +231,17 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
   }
 
+  showAnularConfirm() {
+    this.resultModal = "anular";
+  }
+
   // ====== DATA ======
   getData(isFirstLoad) {
     return getDataApex({ compraId: this.recordId, isFirstLoad });
   }
 
   handleSemilleroIconReady(event) {
+    console.log("que valor llegó a semilleroIcono", event.detail);
     this.semilleroIcono = event.detail;
     if (event.detail == null) {
       this.step = 3;
@@ -286,6 +261,10 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.tipoCompraSeleccionado = pbe.Product2.Tipo_de_Compra__c;
         this.Futura = this.tipoCompraSeleccionado === "Futura";
       }
+    }
+    if (data?.record?.Estado__c === "Caducado") {
+      this.resultModal = "vigencia";
+      this.currentModal = null;
     }
   }
 
@@ -320,6 +299,157 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     return "Compra";
   }
 
+  get esMarcaStine() {
+    if (this.marca && this.marca.toUpperCase() === "STINE") return true;
+    const semilleroSeleccionado = this.semilleros?.find(
+      (s) => s.value === this.semillero
+    );
+    return (
+      semilleroSeleccionado?.label?.toUpperCase().includes("STINE") || false
+    );
+  }
+
+  get fechaInicioEfectiva() {
+    if (this.fechaInicioStine) return this.fechaInicioStine;
+    const guardado = sessionStorage.getItem("stine_fechaInicio");
+    if (guardado) return guardado;
+    return FECHA_INICIO_STINE_DEFAULT;
+  }
+
+  get fechaFinEfectiva() {
+    if (this.fechaFinStine) return this.fechaFinStine;
+    const guardado = sessionStorage.getItem("stine_fechaFin");
+    if (guardado) return guardado;
+    return FECHA_FIN_STINE_DEFAULT;
+  }
+
+  estaEnRangoFechasStine() {
+    const inicio = this.fechaInicioEfectiva;
+    const fin = this.fechaFinEfectiva;
+    if (!inicio || !fin) return false;
+    if (this.fechaInicioStine)
+      sessionStorage.setItem("stine_fechaInicio", this.fechaInicioStine);
+    if (this.fechaFinStine)
+      sessionStorage.setItem("stine_fechaFin", this.fechaFinStine);
+    const hoy = new Date();
+    const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+    return hoyStr >= inicio && hoyStr <= fin;
+  }
+
+  async evaluarEsStineFutura() {
+    if (!this.estaEnRangoFechasStine()) return false;
+
+    const lineas = [
+      ...(this.DataCompra?.record?.Lineas_de_Compra_HT__r || []),
+      ...(this.data?.record?.Lineas_de_Compra_HT__r || []),
+      ...(this.items || []).map((i) => i.record || i)
+    ];
+
+    const STINE_NAME = "M.S. TECHNOLOGIES ARGENTINA S.R.L.";
+    const STINE_ID_OBTENTOR = "24";
+    const idObtentor =
+      this.semillero ||
+      this.semilleroData?.semillero?.Id_Obtentor__c ||
+      this.DataCompra?.semilleroData?.semillero?.Id_Obtentor__c;
+    const esStineSeleccionado =
+      idObtentor === STINE_ID_OBTENTOR || this.esMarcaStine;
+
+    for (const rec of lineas) {
+      const obtentorName =
+        rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__r?.Name || "";
+      const obtentorId =
+        rec.Producto__r?.Variedad2__r?.Obtentor_Comercializa__c || "";
+      const tipoCompra =
+        rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c || "";
+      const esObtentorStineExacto =
+        obtentorName === STINE_NAME || (esStineSeleccionado && !!obtentorId);
+      const esTipoFutura = tipoCompra === "Futura" || this.Futura === true;
+      if (esObtentorStineExacto && esTipoFutura) return true;
+    }
+
+    // Fallback: compra armada como Stine Futura aunque las líneas aún no traigan Name
+    if (this.esMarcaStine && this.Futura === true && lineas.length > 0)
+      return true;
+    return false;
+  }
+
+  prepararModalItems() {
+    const lineas =
+      this.DataCompra?.record?.Lineas_de_Compra_HT__r ||
+      this.data?.record?.Lineas_de_Compra_HT__r ||
+      [];
+    if (lineas.length) {
+      this.modalItems = lineas.map((rec, index) => {
+        let variedadNombre =
+          rec.Producto__r?.Variedad2__r?.Name ||
+          rec.Producto__r?.Name ||
+          `Variedad ${index + 1}`;
+        const cantidad = parseFloat(rec.Cantidad__c) || 0;
+        const precio =
+          parseFloat(rec.Precio_Unitario__c) ||
+          parseFloat(rec.Precio_de_Lista__c) ||
+          0;
+        return {
+          id: rec.Id || `linea-${index}`,
+          variedad: variedadNombre,
+          ht: cantidad,
+          precioUnitario: this.formatCurrency(precio),
+          total: this.formatCurrency(precio * cantidad)
+        };
+      });
+    } else {
+      this.modalItems = [];
+    }
+  }
+
+  formatCurrency(val) {
+    if (isNaN(val)) return "0,00";
+    return parseFloat(val).toLocaleString("es-AR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  async handleConfirmPaymentStine(event) {
+    const { formaPago, entidadBancaria, plazo, moneda, tasa } =
+      event.detail || {};
+    this.tipoPagoStineSeleccionado = formaPago;
+    this.tipoPago = formaPago;
+    this.entidadBancariaStine =
+      formaPago === "Financiado" ? entidadBancaria : null;
+    this.plazoStine = formaPago === "Financiado" ? plazo : null;
+    this.monedaStine = formaPago === "Financiado" ? moneda : null;
+    this.tasaStine = formaPago === "Financiado" ? tasa : null;
+
+    const activeRecordId = this.recordId || this.pageRecordId;
+    this.isLoading = true;
+    try {
+      await updateTipoPago({
+        compraId: activeRecordId,
+        tipoPago: formaPago,
+        entidadBancaria: this.entidadBancariaStine,
+        plazo: this.plazoStine,
+        moneda: this.monedaStine,
+        tasa: this.tasaStine
+      });
+    } catch (e) {
+      const errorMsg = e.body?.message || e.message || String(e);
+      this.onError("Error al guardar datos de pago: " + errorMsg);
+      this.isLoading = false;
+      return;
+    }
+    this.isLoading = false;
+    this.currentModal = null;
+    this.pendingFinalizar = false;
+    await this.finalizar();
+  }
+
+  handleClosePaymentStine() {
+    this.currentModal = null;
+    this.pendingFinalizar = false;
+    this.finalizandoOperacion = false;
+  }
+
   // ====== LÍNEAS ======
   addRow(event) {
     this.addRowInternal(
@@ -335,6 +465,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     if (!this.puedeEditar || this.guardandoLineas) {
       return false;
     }
+    // eslint-disable-next-line no-unused-expressions
     this._lineasListasFlag;
     return this.tieneLineasPendientesDeGuardar;
   }
@@ -404,7 +535,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   }
 
   refreshAllLinePromoPrices() {
-    if (!this.showResumen) {
+    if (!this.legacyResumenMode && this.step < 5) {
       return;
     }
     const total = this.computeHtFuturaPromoCantidadTotal();
@@ -457,28 +588,27 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     this.finalizandoOperacion = true;
 
     try {
-      // Evaluamos directamente la función de Stine aquí
-      const esStineFutura = await this.evaluarEsStineFutura();
-
-      if (esStineFutura && !this.tipoPagoStineSeleccionado) {
-        try {
-          this.isLoading = true;
+      try {
+        this.isLoading = true;
+        if (this.legacyResumenMode) {
           await this.saveAllPendingLines();
-        } catch (e) {
-          this.isLoading = false;
-          return this.onError("Error al guardar las líneas: " + (e.message || e));
-        } finally {
-          this.isLoading = false;
+        } else {
+          await this.persistSelectedVariedades();
         }
+      } catch (e) {
+        this.isLoading = false;
+        return this.onError("Error al guardar las líneas: " + (e.message || e));
+      }
+      this.isLoading = false;
 
+      // ===== Gate Stine Futura (main) =====
+      const esStineFutura = await this.evaluarEsStineFutura();
+      if (esStineFutura && !this.tipoPagoStineSeleccionado) {
         this.prepararModalItems();
-
         this.pendingFinalizar = true;
         this.currentModal = "forma-pago-stine";
         return;
       }
-
-      // Si no es Stine Futura o está fuera del rango de fechas, reseteamos las variables
       if (!esStineFutura) {
         this.entidadBancariaStine = null;
         this.plazoStine = null;
@@ -486,19 +616,16 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.tasaStine = null;
       }
 
-      try {
-        this.isLoading = true;
-        await this.saveAllPendingLines();
-      } catch (e) {
-        this.isLoading = false;
-        return this.onError("Error al guardar las líneas: " + (e.message || e));
-      }
-      this.isLoading = false;
-
       // ===== Gate Tipo de Pago =====
+      console.log("[CrearCompra] finalizar() -> tipo de pago: ", this.tipoPago);
+      console.log(
+        "[CrearCompra] finalizar() -> tipo de pago:",
+        this.requiresTipoPago()
+      );
       if (this.requiresTipoPago() && !this.tipoPago) {
         this.pendingFinalizar = true;
-        this.currentModal = "tipo-pago";
+        this.selectedTipoPago = "Contado";
+        this.showTipoPagoSheet = true;
         return;
       }
 
@@ -524,104 +651,120 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
       // Ejecuta canFinish y setea flags de licencia / origen legal
       const guardar = await this.finish();
+      console.log(guardar);
 
       if (guardar === false) {
-        if (this.haveLicence === false || (this.haveLicence === false && this.haveOrigenLegal === false)) {
+        // =========================
+        // CASO 1: FALTA LICENCIA
+        // =========================
+        // Cuando NO hay licencia aprobada → mostrar pop de licencia
+        //   “Tu compra/venta de HT queda pendiente porque el CUIT no cuenta con la licencia…”
+        if (this.haveLicence === false) {
           await this.requestWrap(async () => {
             const data = await finalizarCompra({
               compraId: this.recordId,
-              checkDuplicates: this.recordId != this.lastDuplicateCheckId,
+              checkDuplicates: true,
               origen: this.haveOrigenLegal,
               blanqueo: this.Blanqueo === true,
-              marcarRevisarCompra,
-              entidadBancaria: this.entidadBancariaStine,
-              plazo: this.plazoStine,
-              moneda: this.monedaStine,
-              tasa: this.tasaStine
+              marcarRevisarCompra
             });
 
             if (data.duplicate) {
-              return this.notifyDuplicate();
+              return this.notifyDuplicate(data);
             }
 
+            // Refresca la venta y las líneas en pantalla
             this.setData(data);
             this.DataCompra = data;
-            this.currentModal = data.pendiente
-              ? "Pendiente de Facturación"
-              : "finalizada";
-            window.sessionStorage.setItem(
-              "htPopup_" + this.recordId,
-              "licencia"
-            );
-            this.isOpen2 = true;
+            this.trackHtCompraConfirmada(data);
+            this.resultModal = "pending-licencia";
           });
 
           return;
         }
 
+        // ==========================================
+        // CASO 2: TIENE LICENCIA PERO FALTA ORIGEN
+        // ==========================================
+        // Cuando hay licencia pero NO hay origen legal → pop de “no encontramos compras o tenencia…”
         if (this.haveOrigenLegal === false && this.haveLicence === true) {
           await this.requestWrap(async () => {
             const data = await finalizarCompra({
               compraId: this.recordId,
-              checkDuplicates: this.recordId != this.lastDuplicateCheckId,
+              checkDuplicates: true,
               origen: this.haveOrigenLegal,
               blanqueo: this.Blanqueo === true,
-              marcarRevisarCompra,
-              entidadBancaria: this.entidadBancariaStine,
-              plazo: this.plazoStine,
-              moneda: this.monedaStine,
-              tasa: this.tasaStine
+              marcarRevisarCompra
             });
 
             if (data.duplicate) {
-              return this.notifyDuplicate();
+              return this.notifyDuplicate(data);
             }
 
+            // Refresca la venta y las líneas en pantalla
             this.setData(data);
             this.DataCompra = data;
-            this.currentModal = data.pendiente
-              ? "Pendiente de Facturación"
-              : "finalizada";
-            window.sessionStorage.setItem("htPopup_" + this.recordId, "origen");
-            this.isOpen = true;
+            this.trackHtCompraConfirmada(data);
+            this.resultModal = "pending-origen";
           });
 
           return;
         }
-      } else if (guardar === true) {
+        // =========================
+        // CASO 4: FALTA LICENCIA Y ORIGEN LEGAL
+        // =========================
+        if (this.haveLicence == false && this.haveOrigenLegal == false) {
+          await this.requestWrap(async () => {
+            const data = await finalizarCompra({
+              compraId: this.recordId,
+              checkDuplicates: true,
+              origen: this.haveOrigenLegal,
+              blanqueo: this.Blanqueo === true,
+              marcarRevisarCompra
+            });
+
+            if (data.duplicate) {
+              return this.notifyDuplicate(data);
+            }
+
+            // Refresca la venta y las líneas en pantalla
+            this.setData(data);
+            this.DataCompra = data;
+            this.trackHtCompraConfirmada(data);
+            this.resultModal = "pending-licencia";
+          });
+
+          return;
+        }
+      }
+
+      // =========================
+      // CASO 3: TODO OK
+      // =========================
+      // Tiene licencia y tiene origen legal → venta normal
+      else if (guardar === true) {
         await this.requestWrap(async () => {
           const data = await finalizarCompra({
             compraId: this.recordId,
-            checkDuplicates: this.recordId != this.lastDuplicateCheckId,
+            checkDuplicates: true,
             origen: this.haveOrigenLegal,
             blanqueo: this.Blanqueo === true,
-            marcarRevisarCompra,
-            entidadBancaria: this.entidadBancariaStine,
-            plazo: this.plazoStine,
-            moneda: this.monedaStine,
-            tasa: this.tasaStine
+            marcarRevisarCompra
           });
 
           if (data.duplicate) {
-            return this.notifyDuplicate();
+            return this.notifyDuplicate(data);
           }
 
           this.setData(data);
           this.DataCompra = data;
+          this.trackHtCompraConfirmada(data);
 
           if (this.puedeFacturar) {
             await this.facturar();
           }
 
-          this.currentModal = data.pendiente
-            ? "Pendiente de Facturación"
-            : "finalizada";
-          this[NavigationMixin.Navigate]({
-            type: "standard__webPage",
-            attributes: {
-              url: `${basePath}/comprahtlistproductor`
-            }
-          });
+          this.resultModal = data.pendiente ? "pending-payment" : "success";
         });
       }
     } finally {
@@ -629,138 +772,30 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
   }
 
-  prepararModalItems() {
-    const lineasDOM = Array.from(
-      this.template.querySelectorAll("c-crear-linea-compra-new")
-    );
-
-    if (lineasDOM.length > 0) {
-      this.modalItems = lineasDOM.map((child, index) => {
-        const rec = child.record || {};
-        const productoId = rec.Producto__c;
-        let variedadNombre = "";
-
-        if (productoId && this.variedades) {
-          const prodEncontrado = this.variedades.find(
-            (v) => v.record?.Product2Id === productoId || v.value === productoId
-          );
-          if (prodEncontrado && prodEncontrado.label) {
-            variedadNombre = prodEncontrado.label;
-          }
-        }
-        if (!variedadNombre && rec.Producto__r?.Name) {
-          variedadNombre = rec.Producto__r.Name;
-        }
-        if (!variedadNombre) {
-          variedadNombre = "Variedad " + (index + 1);
-        }
-
-        const cantidad = parseFloat(rec.Cantidad__c) || 0;
-        const precio =
-          parseFloat(rec.Precio_Unitario__c) ||
-          parseFloat(rec.Precio_de_Lista__c) ||
-          0;
-        const totalCalculado = precio * cantidad;
-
-        return {
-          id: rec.Id || `linea-${index}`,
-          variedad: variedadNombre,
-          ht: cantidad,
-          precioUnitario: this.formatCurrency(precio),
-          total: this.formatCurrency(totalCalculado)
-        };
-      });
-    } else if (this.data?.record?.Lineas_de_Compra_HT__r) {
-      this.modalItems = this.data.record.Lineas_de_Compra_HT__r.map(
-        (item, index) => {
-          const precio =
-            parseFloat(item.Precio_Unitario__c) ||
-            parseFloat(item.Precio_de_Lista__c) ||
-            0;
-          const cantidad = parseFloat(item.Cantidad__c) || 0;
-          const totalCalculado = precio * cantidad;
-
-          return {
-            id: item.Id || `linea-${index}`,
-            variedad: item.Producto__r?.Name || "Variedad " + (index + 1),
-            ht: cantidad,
-            precioUnitario: this.formatCurrency(precio),
-            total: this.formatCurrency(totalCalculado)
-          };
-        }
-      );
-    } else {
-      this.modalItems = [];
-    }
-  }
-
-  async handleConfirmPaymentStine(event) {
-    const { formaPago, entidadBancaria, plazo, moneda, tasa } = event.detail;
-
-    this.tipoPagoStineSeleccionado = formaPago;
-    this.tipoPago = formaPago;
-
-    this.entidadBancariaStine = formaPago === "Financiado" ? entidadBancaria : null;
-    this.plazoStine = formaPago === "Financiado" ? plazo : null;
-    this.monedaStine = formaPago === "Financiado" ? moneda : null;
-    this.tasaStine = formaPago === "Financiado" ? tasa : null;
-
-    const activeRecordId = this.recordId || this.pageRecordId;
-
-    this.isLoading = true;
-    try {
-      await updateTipoPago({
-        compraId: activeRecordId,
-        tipoPago: formaPago,
-        entidadBancaria: this.entidadBancariaStine,
-        plazo: this.plazoStine,
-        moneda: this.monedaStine,
-        tasa: this.tasaStine
-      });
-    } catch (e) {
-      console.error("Error detallado en handleConfirmPaymentStine:", e);
-      const errorMsg = e.body?.message || e.message || (typeof e === 'object' ? JSON.stringify(e) : e);
-      this.onError("Error al guardar datos de pago: " + errorMsg);
-      this.isLoading = false;
-      return;
-    }
-
-    this.isLoading = false;
-    this.currentModal = null;
-    this.pendingFinalizar = false;
-
-    this.finalizar();
-  }
-
-  handleClosePaymentStine() {
-    this.currentModal = null;
-    this.pendingFinalizar = false;
-  }
-
-  formatCurrency(val) {
-    if (isNaN(val)) return "0,00";
-    return parseFloat(val).toLocaleString("es-AR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
-
-  notifyDuplicate() {
-    this.currentModal = "duplicate-compra";
+  notifyDuplicate(data) {
     this.lastDuplicateCheckId = this.recordId;
+    this.duplicateCompraId = data?.existingCompraId || data?.id || null;
+    this.duplicateCompraName = data?.existingCompraName || data?.name || "";
+    this.resultModal = "duplicate";
   }
 
   async anular(event) {
     await this.requestWrap(async () => {
       const data = await anular({ compraId: this.recordId });
       this.setData(data);
+      this.resultModal = null;
       this.currentModal = null;
-      this.redirectPendientesFacturacion();
+      this.handleResultVerMisCompras();
     });
   }
 
   // ====== DATOS COMPLEMENTARIOS ======
   getSemilleroData() {
+    console.log("Semillero data:", JSON.stringify(this.semillero));
+    console.log(
+      "Semillero data:",
+      JSON.stringify(getSemilleroData({ obtentorId: this.semillero }))
+    );
     return getSemilleroData({ obtentorId: this.semillero });
   }
 
@@ -769,11 +804,265 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       const products = await getProductsData({ cultivoId: this.cultivo });
       this.updateVariedades(products);
     });
+    if (!this.tipoCompraSeleccionado) {
+      const disponibles = this.tiposCompraDisponibles;
+      if (disponibles.includes("Futura")) {
+        this.tipoCompraSeleccionado = "Futura";
+        this.Futura = true;
+      } else if (disponibles.length === 1) {
+        this.tipoCompraSeleccionado = disponibles[0];
+        this.Futura = disponibles[0] === "Futura";
+      }
+    }
     this.step = 2;
   }
 
   // ====== STEPS ======
   step = 1;
+  campanasVigentes = {};
+
+  @wire(getCampanasVigentes)
+  wiredCampanasVigentes({ data }) {
+    if (data) this.campanasVigentes = data;
+  }
+
+  get campaignLabel() {
+    const map = this.campanasVigentes || {};
+    const periodoCultivo = this.cultivo ? map[this.cultivo] : null;
+    if (periodoCultivo) return `Campaña ${periodoCultivo}`;
+    const ids = (this.cultivos || []).map((c) => c.value);
+    const periodos = ids.length ? ids.map((id) => map[id]) : Object.values(map);
+    const distintos = [...new Set(periodos.filter(Boolean))];
+    return distintos.length === 1 ? `Campaña ${distintos[0]}` : "Campaña";
+  }
+
+  get uiStep() {
+    if (this.legacyResumenMode) return 5;
+    return this.step || 1;
+  }
+
+  get progressLabel() {
+    return `Comprar HT · Paso ${this.uiStep} de 5`;
+  }
+
+  get wizardProgressLabel() {
+    return `Paso ${this.uiStep} de 5`;
+  }
+
+  get progressPctLabel() {
+    return `${this.uiStep * 20}%`;
+  }
+
+  get progressBarStyle() {
+    return `width: ${this.uiStep * 20}%`;
+  }
+
+  get buyClass() {
+    let cls = "se-buy";
+    if (this.showMobWizardFooter) cls += " se-buy--mob-wizard";
+    if (this.hasOverlayModal) cls += " is-pay-modal-open";
+    return cls;
+  }
+
+  get bodyShellClass() {
+    return "body" + (this.hasOverlayModal ? " se-pay-backdrop-open" : "");
+  }
+
+  get hasOverlayModal() {
+    return this.showTipoPagoSheet || !!this.resultModal;
+  }
+
+  get buyMainClass() {
+    return (
+      "se-buy-main" +
+      (this.showMobWizardFooter ? " se-buy-main--mob-footer" : "")
+    );
+  }
+
+  get showMobWizardFooter() {
+    return !this.legacyResumenMode && this.step >= 1 && this.step <= 5;
+  }
+
+  get mobFooterClass() {
+    return (
+      "se-mob-footer" +
+      (this.step === 5 ? " se-mob-footer--confirm" : "") +
+      (this.step === 5 && this.resumenTotalLong ? " is-long" : "")
+    );
+  }
+
+  get resumenTotalLong() {
+    return String(this.resumenTotal || "").length > 14;
+  }
+
+  get resumenTotalValueClass() {
+    return "se-resumen-total-value" + (this.resumenTotalLong ? " is-long" : "");
+  }
+
+  get detalleTotalValueClass() {
+    return (
+      "se-resumen-total-value" +
+      (String(this.detalleTotalUsd || "").length > 14 ? " is-long" : "")
+    );
+  }
+
+  get confirmHeroTotalClass() {
+    return "se-confirm-hero-total" + (this.resumenTotalLong ? " is-long" : "");
+  }
+
+  get mobFooterStepLabel() {
+    return this.step === 5 ? "Total Neto" : this.wizardProgressLabel;
+  }
+
+  get mobFooterStatus() {
+    switch (this.step) {
+      case 1:
+        return this.paso1MobStatus;
+      case 2:
+        if (!this.tipoCompraSeleccionado) return "Elegí el tipo de HT";
+        return `${this.resumenTipo} seleccionado`;
+      case 3: {
+        const marca = this.resumenMarca;
+        if (!this.semillero || marca === "—") return "Elegí la marca";
+        return `${marca} seleccionada`;
+      }
+      case 4: {
+        const ht = this.selectedVariedadHtTotal;
+        if (!(ht > 0)) return "Elegí al menos una variedad";
+        const count = this.selectedVariedadCount;
+        const noun = count === 1 ? "variedad" : "variedades";
+        return `${count} ${noun} · ${ht.toLocaleString("es-AR", { maximumFractionDigits: 0 })} HT`;
+      }
+      case 5:
+        return this.resumenTotal !== "—"
+          ? this.resumenTotal
+          : "Revisá tu compra";
+      default:
+        return "";
+    }
+  }
+
+  get mobFooterContinuarDisabled() {
+    switch (this.step) {
+      case 1:
+        return this.continuarPaso1Disabled;
+      case 2:
+        return this.continuarPaso2Disabled;
+      case 3:
+        return this.continuarPaso3Disabled;
+      case 4:
+        return this.continuarPaso4Disabled;
+      case 5:
+        return this.confirmarCompraDisabled;
+      default:
+        return true;
+    }
+  }
+
+  get mobFooterContinuarLabel() {
+    if (this.step === 5) {
+      return this.finalizandoOperacion ? "Confirmando..." : "Confirmar";
+    }
+    return "Continuar →";
+  }
+
+  async handleMobContinuar() {
+    switch (this.step) {
+      case 1:
+        await this.handleContinuarPaso1();
+        break;
+      case 2:
+        this.handleContinuarPaso2();
+        break;
+      case 3:
+        await this.handleContinuarPaso3();
+        break;
+      case 4:
+        await this.handleContinuarPaso4();
+        break;
+      case 5:
+        await this.handleConfirmarCompra();
+        break;
+      default:
+        break;
+    }
+  }
+
+  get mobWizardSteps() {
+    const labels = ["Cultivo", "Tipo", "Marca", "Variedad", "Confirmar"];
+    const current = this.uiStep;
+    return labels.map((label, index) => ({
+      key: `mob-step-${index}`,
+      label,
+      className: "se-mob-step" + (index + 1 === current ? " is-active" : "")
+    }));
+  }
+
+  get paso1MobStatus() {
+    const nombre = this.cultivoNombre;
+    if (!nombre) return "Elegí un cultivo";
+    const lower = nombre.toLowerCase();
+    if (lower.endsWith("a")) return `${nombre} seleccionada`;
+    return `${nombre} seleccionado`;
+  }
+
+  handleMobBack() {
+    if (this.compraRetomada && this.step <= 2) {
+      this.close();
+      return;
+    }
+    if (this.step > 1 && !this.legacyResumenMode) {
+      this.step -= 1;
+      return;
+    }
+    this.close();
+  }
+
+  handleMobClose() {
+    this.close();
+  }
+
+  get wizardSteps() {
+    const current = this.uiStep;
+    const labels = ["Cultivo", "Tipo de HT", "Marca", "Variedad", "Confirmar"];
+    return labels.map((label, index) => {
+      const num = index + 1;
+      const isActive = num === current;
+      const isDone = num < current;
+      const disabled = num > current || (this.compraRetomada && num === 1);
+      return {
+        key: `wiz-${num}`,
+        num,
+        label,
+        disabled,
+        showLine: num < 5,
+        circleText: isDone ? "✓" : String(num),
+        ariaCurrent: isActive ? "step" : "false",
+        wrapClass: "se-prog-item" + (num === 5 ? " se-prog-item-last" : ""),
+        btnClass:
+          "se-prog-btn" +
+          (isActive ? " is-active" : "") +
+          (isDone ? " is-done" : ""),
+        circleClass:
+          "se-prog-circle" +
+          (isActive ? " is-active" : "") +
+          (isDone ? " is-done" : ""),
+        labelClass:
+          "se-prog-label" +
+          (isActive ? " is-active" : "") +
+          (isDone ? " is-done" : "")
+      };
+    });
+  }
+
+  handleWizardStepClick(event) {
+    const clicked = Number(event.currentTarget.dataset.step);
+    if (!clicked || clicked > this.uiStep || this.legacyResumenMode) return;
+    if (this.compraRetomada && clicked === 1) return;
+    if (clicked <= this.step) {
+      this.step = clicked;
+    }
+  }
 
   get step1Class() {
     return (
@@ -790,13 +1079,19 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   }
 
   get isStep1Active() {
-    return this.step === 1;
+    return this.step === 1 && !this.legacyResumenMode;
   }
   get isStep2Active() {
-    return this.step === 2;
+    return this.step === 2 && !this.legacyResumenMode;
   }
   get isStep3Active() {
-    return this.step === 3;
+    return this.step === 3 && !this.legacyResumenMode;
+  }
+  get isStep4Active() {
+    return this.step === 4 && !this.legacyResumenMode;
+  }
+  get isStep5Active() {
+    return this.step === 5 && !this.legacyResumenMode;
   }
 
   handleStepClick(event) {
@@ -808,15 +1103,32 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
   get decoratedCultivos() {
     return (this.cultivos || []).map((c) => {
-      const nombre = c.label;
+      const nombre = c.label || "";
       const id = c.value;
+      const selected =
+        this.cultivoSeleccionadoId === id ||
+        (!this.cultivoSeleccionadoId && this.cultivo === id);
+      const saldo =
+        c.saldo != null
+          ? c.saldo
+          : c.Saldo__c != null
+            ? c.Saldo__c
+            : c.saldoHt != null
+              ? c.saldoHt
+              : 0;
+      const n = Number(saldo);
+      const formatted = Number.isFinite(n)
+        ? n.toLocaleString("es-AR", { maximumFractionDigits: 0 })
+        : String(saldo);
+      const saldoLabel = `Saldo · ${formatted} HT`;
       return {
         ...c,
         nombre,
         id,
         icono: this.getIcon(nombre),
-        cssClass:
-          "item" + (this.cultivoSeleccionadoId === id ? " selected" : "")
+        saldoLabel,
+        ariaChecked: selected ? "true" : "false",
+        cssClass: "se-cultivo-tile" + (selected ? " is-selected" : "")
       };
     });
   }
@@ -830,28 +1142,690 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       case "cebada":
         return this.iconCebadaUrl;
       default:
-        return "";
+        return this.iconTrigoHTUrl;
     }
   }
 
-  async handleSelectCultivo(event) {
+  /** Carga inicial y llamadas de requestWrap (productos, marca, anular…): sin overlay la pantalla parece congelada. */
+  get showBrandLoading() {
+    return this.isLoading || this.request;
+  }
+
+  get continuarPaso1Disabled() {
+    return !(this.cultivoSeleccionadoId || this.cultivo);
+  }
+
+  get resumenCultivo() {
+    return this.cultivoNombre || "—";
+  }
+
+  get resumenTipo() {
+    if (this.tipoCompraSeleccionado === "Futura") return "HT Futura";
+    if (this.tipoCompraSeleccionado === "Disponible") return "HT Disponible";
+    return this.tipoCompraSeleccionado || "—";
+  }
+
+  get tipoStepEyebrow() {
+    const cultivo = this.cultivoNombre || "Cultivo";
+    return `${cultivo} · ${this.campaignLabel}`;
+  }
+
+  get continuarPaso2Disabled() {
+    return !this.tipoCompraSeleccionado;
+  }
+
+  get resumenMarca() {
+    const fromList = (this.semilleros || []).find(
+      (s) => s.value === this.semillero
+    );
+    if (fromList?.label) return fromList.label;
+    const label = resolveSemilleroLabel(
+      this.semilleros,
+      this.semillero,
+      this.semilleroData
+    );
+    return label || "—";
+  }
+
+  get hasPersistedVariedadLines() {
+    return (this.items || []).some(
+      (item) => Number(item.record?.Cantidad__c) > 0
+    );
+  }
+
+  get resumenVariedades() {
+    if (this.step >= 5) {
+      const n = this.confirmacionLineas.length;
+      return n > 0 ? String(n) : "—";
+    }
+    const count = this.selectedVariedadCount;
+    return count > 0 ? String(count) : "—";
+  }
+
+  get resumenHt() {
+    if (
+      this.step >= 5 &&
+      this.hasPersistedVariedadLines &&
+      this.data?.record?.Total_HT__c != null
+    ) {
+      return Number(this.data.record.Total_HT__c).toLocaleString("es-AR", {
+        maximumFractionDigits: 0
+      });
+    }
+    const ht = this.selectedVariedadHtTotal;
+    return ht > 0
+      ? ht.toLocaleString("es-AR", { maximumFractionDigits: 0 })
+      : "—";
+  }
+
+  get resumenTotal() {
+    if (
+      this.step >= 5 &&
+      this.hasPersistedVariedadLines &&
+      this.data?.record?.Total_USD__c != null
+    ) {
+      return this.formatUsd(this.data.record.Total_USD__c);
+    }
+    const total = this.selectedVariedadUsdTotal;
+    if (!(total > 0)) return "—";
+    return this.formatUsd(total);
+  }
+
+  get licensesHref() {
+    return communityPageUrl(PAGES.licencias);
+  }
+
+  get selectedVariedadCount() {
+    return this.decoratedVariedadesPaso4.filter((v) => v.qty > 0).length;
+  }
+
+  get selectedVariedadHtTotal() {
+    return this.decoratedVariedadesPaso4.reduce((sum, v) => sum + v.qty, 0);
+  }
+
+  get selectedVariedadUsdTotal() {
+    return this.decoratedVariedadesPaso4.reduce(
+      (sum, v) => sum + (v.qty > 0 ? v.qty * v.unitPrice : 0),
+      0
+    );
+  }
+
+  handleSelectCultivo(event) {
     const cultivoId = event.currentTarget?.dataset?.id;
     if (!cultivoId) return;
     this.cultivo = cultivoId;
     this.cultivoSeleccionadoId = cultivoId;
+  }
+
+  async handleContinuarPaso1() {
+    if (this.continuarPaso1Disabled) return;
     await this.getProductos();
+  }
+
+  handleCancelarPaso1() {
+    this.close();
   }
 
   async semilleroSelectedEjecuto(event) {
     this.semillero = event.detail;
+    await this.confirmMarcaAndContinue();
+  }
+
+  get marcaStepEyebrow() {
+    const cultivo = this.cultivoNombre || "Cultivo";
+    const tipo = this.resumenTipo !== "—" ? this.resumenTipo : "Tipo de HT";
+    return `${cultivo} · ${tipo}`;
+  }
+
+  get continuarPaso3Disabled() {
+    return !this.semillero;
+  }
+
+  get decoratedMarcas() {
+    const q = (this.marcaSearch || "").trim().toLowerCase();
+    return (this.filteredSemilleros || [])
+      .filter((s) => !q || (s.label || "").toLowerCase().includes(q))
+      .map((s) => {
+        const selected = this.semillero === s.value;
+        const letters = (s.label || "").replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g, "");
+        const initials = (letters.slice(0, 2) || "??").toUpperCase();
+        const logo = this.logosFallidos.includes(s.value)
+          ? null
+          : semilleroLogoUrl(s.value);
+        return {
+          id: s.value,
+          label: s.label,
+          initials,
+          logo,
+          badgeClass: "se-marca-badge" + (logo ? " has-logo" : ""),
+          ariaChecked: selected ? "true" : "false",
+          cssClass: "se-marca-tile" + (selected ? " is-selected" : "")
+        };
+      });
+  }
+
+  logosFallidos = [];
+
+  get detalleMarcaLogo() {
+    if (!this.semillero || this.logosFallidos.includes(this.semillero))
+      return null;
+    return semilleroLogoUrl(this.semillero);
+  }
+
+  handleMarcaLogoError(event) {
+    const id = event.currentTarget?.dataset?.id;
+    if (id && !this.logosFallidos.includes(id)) {
+      this.logosFallidos = [...this.logosFallidos, id];
+    }
+  }
+
+  handleMarcaSearch(event) {
+    this.marcaSearch = event.target.value || "";
+  }
+
+  handleSelectMarca(event) {
+    const id = event.currentTarget?.dataset?.id;
+    if (!id) return;
+    this.semillero = id;
+  }
+
+  handleVolverPaso3() {
+    this.step = 2;
+  }
+
+  async handleContinuarPaso3() {
+    if (!this.semillero) return;
+    await this.confirmMarcaAndContinue();
+  }
+
+  async confirmMarcaAndContinue() {
+    let blocked = false;
     await this.requestWrap(async () => {
       this.semilleroData = await this.getSemilleroData();
+      const existing = await findCompraEnProceso({
+        obtentorId: this.semillero,
+        cultivoId: this.cultivo
+      });
+      const existingId = existing?.id || existing?.existingCompraId;
+      if (existingId && existingId !== this.recordId) {
+        this.notifyDuplicate(existing);
+        blocked = true;
+      }
     });
-    this.showResumen = true;
-    setTimeout(() => {
+    if (blocked) return;
+    if (this.semilleroCantidades !== this.semillero) {
+      this.variedadCantidades = {};
+      this.variedadQtyAvisos = {};
+    }
+    this.semilleroCantidades = this.semillero;
+    this.variedadSearch = "";
+    this.step = 4;
+    trackGa4Event("ht_seleccion_semillero", {
+      semillero: resolveSemilleroLabel(
+        this.semilleros,
+        this.semillero,
+        this.semilleroData
+      )
+    });
+  }
+
+  get variedadStepEyebrow() {
+    const parts = [
+      this.cultivoNombre,
+      this.resumenMarca !== "—" ? this.resumenMarca : null,
+      this.resumenTipo !== "—" ? this.resumenTipo : null
+    ].filter(Boolean);
+    return parts.join(" · ");
+  }
+
+  get continuarPaso4Disabled() {
+    return this.selectedVariedadHtTotal <= 0;
+  }
+
+  formatUsd(value) {
+    const n = Number(value) || 0;
+    return `USD ${n.toLocaleString("es-AR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+  }
+
+  varietyHasLicencia(biotech) {
+    const tecnologia = MAP_TECNOLOGIAS_LICENCIA[biotech];
+    if (!tecnologia) return false;
+
+    const keys = this.semilleroData?.licenciasKeys;
+    if (!Array.isArray(keys) || keys.length === 0) return false;
+
+    const obtentorId = this.semilleroData?.semillero?.Id;
+    if (!obtentorId) return false;
+
+    const parentId = this.semilleroData?.semillero?.ParentId;
+    const key = `${obtentorId}${tecnologia}`;
+    const keyParent = parentId ? `${parentId}${tecnologia}` : null;
+    return (
+      keys.includes(key) || (keyParent != null && keys.includes(keyParent))
+    );
+  }
+
+  get showVariedadSearch() {
+    return (this.variedades || []).length > 8;
+  }
+
+  get decoratedVariedadesPaso4() {
+    const q = (this.variedadSearch || "").trim().toLowerCase();
+    return (this.variedades || [])
+      .map((entry) => {
+        const rec = entry.record || {};
+        const id = entry.value || rec.Id;
+        const unitPrice = Number(rec.Unit_Price__c ?? rec.UnitPrice ?? 0) || 0;
+        const qty = Number(this.variedadCantidades?.[id] || 0) || 0;
+        const biotech = rec.Product2?.Variedad2__r?.Biotecnologia__c || "";
+        const hasLicencia = this.varietyHasLicencia(biotech);
+        const subtotal = qty * unitPrice;
+        const name =
+          entry.label || rec.Product2?.Nombre_Comercial__c || "Variedad";
+        return {
+          id,
+          product2Id: rec.Product2Id || rec.Product2?.Id,
+          name,
+          category: biotech || "",
+          unitPrice,
+          qty,
+          hasLicencia,
+          showSubtotal: qty > 0,
+          minusDisabled: qty <= 0,
+          plusDisabled: qty >= MAX_HT_POR_VARIEDAD,
+          qtyAviso:
+            this.variedadQtyAvisos?.[id] ||
+            (qty >= MAX_HT_POR_VARIEDAD
+              ? `El máximo por variedad es ${MAX_HT_POR_VARIEDAD.toLocaleString("es-AR")} HT.`
+              : ""),
+          priceLabel: `${this.formatUsd(unitPrice)} / HT`,
+          subtotalLabel: this.formatUsd(subtotal),
+          badgeLabel: hasLicencia ? "Con Licencia" : "Sin Licencia",
+          badgeTone: hasLicencia ? "ok" : "warn",
+          cssClass: "se-var-card"
+        };
+      })
+      .filter((v) => {
+        if (!q) return true;
+        return (
+          (v.name && v.name.toLowerCase().includes(q)) ||
+          (v.category && v.category.toLowerCase().includes(q))
+        );
+      });
+  }
+
+  handleVariedadSearch(event) {
+    this.variedadSearch = event.target.value || "";
+  }
+
+  setVariedadCantidad(id, rawValue) {
+    const raw = Number(rawValue) || 0;
+    const next = Math.min(MAX_HT_POR_VARIEDAD, Math.max(0, Math.floor(raw)));
+    let aviso = "";
+    if (raw > MAX_HT_POR_VARIEDAD) {
+      aviso = `El máximo por variedad es ${MAX_HT_POR_VARIEDAD.toLocaleString("es-AR")} HT.`;
+    } else if (raw > 0 && raw !== next) {
+      aviso = `Solo se compran HT enteras: se tomó ${next.toLocaleString("es-AR")} HT.`;
+    }
+    this.variedadCantidades = { ...this.variedadCantidades, [id]: next };
+    this.variedadQtyAvisos = { ...this.variedadQtyAvisos, [id]: aviso };
+  }
+
+  handleVariedadQty(event) {
+    const id = event.currentTarget?.dataset?.id;
+    const delta = Number(event.currentTarget?.dataset?.delta || 0);
+    if (!id || !delta) return;
+    const current = Number(this.variedadCantidades?.[id] || 0) || 0;
+    this.setVariedadCantidad(id, current + delta);
+  }
+
+  handleVariedadQtyInput(event) {
+    const id = event.currentTarget?.dataset?.id;
+    if (!id) return;
+    this.setVariedadCantidad(id, event.currentTarget.value);
+    event.currentTarget.value = String(this.variedadCantidades[id] ?? 0);
+  }
+
+  handleVolverPaso4() {
+    this.step = 3;
+  }
+
+  handleContinuarPaso4() {
+    if (this.continuarPaso4Disabled) return;
+    this.step = 5;
+    Promise.resolve().then(() => {
       this.syncPromoQualificationState();
       this.refreshAllLinePromoPrices();
-    }, 250);
+    });
+  }
+
+  marcaDeProducto(pbeId) {
+    return Object.keys(this.variedadesByObtentor || {}).find((key) =>
+      (this.variedadesByObtentor[key] || []).some((v) => v.value === pbeId)
+    );
+  }
+
+  async descartarCompraDeOtraMarca() {
+    if (!this.recordId || !this.semillero) return;
+    const guardadas = (this.items || []).filter((item) => item.record?.Id);
+    const otraMarca = guardadas.some((item) => {
+      const marca = this.marcaDeProducto(
+        item.record.Id_Producto_de_Lista_de_Precio__c
+      );
+      return marca && marca !== this.semillero;
+    });
+    if (!otraMarca) return;
+    for (const item of guardadas) {
+      if (!item.record?.Id) continue;
+      const data = await deleteItem({
+        compraId: this.recordId,
+        itemId: item.record.Id
+      });
+      if (data) this.setData(data);
+    }
+    this.recordId = null;
+    this.data = {};
+    this.items = [];
+  }
+
+  async persistSelectedVariedades() {
+    const selected = this.decoratedVariedadesPaso4.filter((v) => v.qty > 0);
+    if (selected.length) await this.descartarCompraDeOtraMarca();
+    let lastData = null;
+    for (const v of selected) {
+      const existing = (this.items || []).find(
+        (item) => item.record?.Id_Producto_de_Lista_de_Precio__c === v.id
+      );
+      const linePayload = {
+        Id_Producto_de_Lista_de_Precio__c: v.id,
+        Cantidad__c: v.qty,
+        Precio_de_Lista__c: v.unitPrice,
+        Producto__c: v.product2Id
+      };
+      if (existing?.record?.Id) {
+        linePayload.Id = existing.record.Id;
+      }
+      lastData = await saveItem({
+        compraId: this.recordId,
+        itemJson: JSON.stringify(linePayload),
+        cultivo: this.cultivo
+      });
+      if (lastData?.duplicate) {
+        this.notifyDuplicate(lastData);
+        return;
+      }
+      if (lastData?.record?.Id) {
+        this.recordId = lastData.record.Id;
+      }
+    }
+    if (lastData) {
+      this.setData(lastData);
+    }
+
+    // deleteItem borra la compra entera si se elimina su única línea: solo limpiar con al menos una variedad elegida.
+    if (!selected.length || !this.recordId) return;
+    const selectedIds = new Set(selected.map((v) => v.id));
+    const stale = (this.items || []).filter(
+      (item) =>
+        item.record?.Id &&
+        !selectedIds.has(item.record.Id_Producto_de_Lista_de_Precio__c)
+    );
+    for (const item of stale) {
+      const data = await deleteItem({
+        compraId: this.recordId,
+        itemId: item.record.Id
+      });
+      if (data) this.setData(data);
+    }
+  }
+
+  get confirmacionLineas() {
+    const fromItems = (this.items || [])
+      .filter((item) => Number(item.record?.Cantidad__c) > 0)
+      .map((item) => {
+        const rec = item.record || {};
+        const pbe = (this.variedades || []).find(
+          (v) => v.value === rec.Id_Producto_de_Lista_de_Precio__c
+        );
+        const product = pbe?.record?.Product2;
+        const name =
+          product?.Nombre_Comercial__c ||
+          rec.Producto__r?.Nombre_Comercial__c ||
+          rec.Name ||
+          "—";
+        const biotech =
+          product?.Variedad2__r?.Biotecnologia__c ||
+          rec.Producto__r?.Variedad2__r?.Biotecnologia__c ||
+          "";
+        const qty = Number(rec.Cantidad__c) || 0;
+        const unit = Number(rec.Precio_de_Lista__c) || 0;
+        return {
+          id: item.id,
+          name,
+          category: biotech || "—",
+          ht: qty.toLocaleString("es-AR", { maximumFractionDigits: 0 }),
+          unitPrice: unit.toLocaleString("es-AR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }),
+          subtotal: this.formatUsd(qty * unit)
+        };
+      });
+
+    if (fromItems.length > 0 || this.legacyResumenMode) {
+      return fromItems;
+    }
+
+    return this.decoratedVariedadesPaso4
+      .filter((v) => v.qty > 0)
+      .map((v) => ({
+        id: v.id,
+        name: v.name,
+        category: v.category || "—",
+        ht: v.qty.toLocaleString("es-AR", { maximumFractionDigits: 0 }),
+        unitPrice: v.unitPrice.toLocaleString("es-AR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }),
+        subtotal: v.subtotalLabel
+      }));
+  }
+
+  get facturacionLabel() {
+    const parts = [
+      this.productorNombre,
+      this.cuit ? `CUIT ${this.cuit}` : null
+    ].filter(Boolean);
+    return parts.join(" · ") || "—";
+  }
+
+  get confirmarCompraDisabled() {
+    return this.finalizandoOperacion;
+  }
+
+  handleVolverPaso5() {
+    const hayCantidades = Object.values(this.variedadCantidades || {}).some(
+      (q) => Number(q) > 0
+    );
+    if (!hayCantidades) {
+      this.syncVariedadCantidadesFromItems();
+    }
+    this.variedadSearch = "";
+    this.step = 4;
+  }
+
+  syncVariedadCantidadesFromItems() {
+    const map = {};
+    (this.items || []).forEach((item) => {
+      const pbeId = item.record?.Id_Producto_de_Lista_de_Precio__c;
+      const qty = Number(item.record?.Cantidad__c) || 0;
+      if (pbeId && qty > 0) {
+        map[pbeId] = qty;
+      }
+    });
+    this.variedadCantidades = map;
+    this.variedadQtyAvisos = {};
+  }
+
+  retomarCompraEnCurso() {
+    this.compraRetomada = true;
+    this.legacyResumenMode = false;
+    this.showResumen = false;
+    this.syncVariedadCantidadesFromItems();
+    this.semilleroCantidades = this.semillero;
+    if (!this.tipoCompraSeleccionado) {
+      this.step = 2;
+    } else if (!this.semillero || !(this.variedades || []).length) {
+      this.step = 3;
+    } else {
+      this.step = 4;
+    }
+  }
+
+  // ====== DETALLE DE COMPRA FINALIZADA ======
+  get detalleEstado() {
+    return compraEstadoLabel(this.data?.record?.Estado__c);
+  }
+
+  get detalleFecha() {
+    return this.formatFechaCorta(this.data?.record?.CreatedDate);
+  }
+
+  get detalleTotalHt() {
+    const n = Number(this.data?.record?.Total_HT__c) || 0;
+    return n.toLocaleString("es-AR", { maximumFractionDigits: 0 });
+  }
+
+  get detalleTotalUsd() {
+    return this.formatUsd(this.data?.record?.Total_USD__c);
+  }
+
+  get detalleTipoPago() {
+    const linea = (this.items || []).find(
+      (item) => item.record?.Tipo_de_Pago__c
+    );
+    return linea ? linea.record.Tipo_de_Pago__c : null;
+  }
+
+  get detalleFormaPago() {
+    const tipo = this.detalleTipoPago;
+    if (tipo !== "Financiado") return tipo;
+    const rec = this.data?.record || {};
+    const partes = [
+      rec.Entidad_Bancaria__c,
+      rec.Moneda__c,
+      rec.Plazo_maximo__c,
+      rec.TNA__c ? `TNA ${rec.TNA__c}` : null
+    ].filter(Boolean);
+    return partes.length ? `Financiado · ${partes.join(" · ")}` : "Financiado";
+  }
+
+  get detalleSubtotalLista() {
+    return (this.items || [])
+      .filter((item) => item.record?.Id)
+      .reduce(
+        (acc, item) =>
+          acc +
+          (Number(item.record.Cantidad__c) || 0) *
+            (Number(item.record.Precio_de_Lista__c) || 0),
+        0
+      );
+  }
+
+  /** Total_USD__c ya trae el descuento de Contado; la diferencia con el precio de lista es el descuento. */
+  get detalleDescuento() {
+    const total = Number(this.data?.record?.Total_USD__c);
+    if (Number.isNaN(total) || !this.data?.record?.Total_USD__c) return 0;
+    const diff = Math.round((this.detalleSubtotalLista - total) * 100) / 100;
+    return diff > 0 ? diff : 0;
+  }
+
+  get showDetalleDescuento() {
+    return this.detalleDescuento > 0;
+  }
+
+  get detalleSubtotalUsd() {
+    return this.formatUsd(this.detalleSubtotalLista);
+  }
+
+  get detalleDescuentoUsd() {
+    return `− ${this.formatUsd(this.detalleDescuento)}`;
+  }
+
+  get detalleDescuentoLabel() {
+    const subtotal = this.detalleSubtotalLista;
+    const pct =
+      subtotal > 0 ? Math.round((this.detalleDescuento / subtotal) * 100) : 0;
+    const base =
+      this.detalleTipoPago === "Contado" ? "Descuento contado" : "Descuento";
+    return pct > 0 ? `${base} (${pct}%)` : base;
+  }
+
+  get detalleLineas() {
+    const pbes = Object.values(this.variedadesByObtentor || {}).flat();
+    return (this.items || [])
+      .filter((item) => item.record?.Id)
+      .map((item) => {
+        const rec = item.record;
+        const pbe = pbes.find(
+          (v) => v.value === rec.Id_Producto_de_Lista_de_Precio__c
+        );
+        const qty = Number(rec.Cantidad__c) || 0;
+        const unit = Number(rec.Precio_de_Lista__c) || 0;
+        const tipo =
+          rec.Tipo_de_Compra__c || rec.Producto__r?.Tipo_de_Compra__c;
+        const fecha = rec.Fecha_de_Activacion__c
+          ? this.formatFechaCorta(rec.Fecha_de_Activacion__c)
+          : "";
+        return {
+          id: item.id,
+          name:
+            pbe?.label ||
+            rec.Producto__r?.Variedad2__r?.Name ||
+            rec.Producto__r?.Name ||
+            "—",
+          meta: [
+            rec.Producto__r?.Variedad2__r?.Biotecnologia__c,
+            tipo ? `HT ${tipo}` : "",
+            fecha ? `Conversión ${fecha}` : ""
+          ]
+            .filter(Boolean)
+            .join(" · "),
+          ht: qty.toLocaleString("es-AR", { maximumFractionDigits: 0 }),
+          unitPrice: unit.toLocaleString("es-AR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }),
+          subtotal: this.formatUsd(qty * unit),
+          estado: compraEstadoLabel(rec.Estado__c),
+          estadoTone: compraEstadoTone(rec.Estado__c),
+          licencia: rec.Licencia__r?.Name || null,
+          sinLicencia: !rec.Licencia__c && rec.Estado__c !== "Creada",
+          hasFactura: !!item.factura
+        };
+      });
+  }
+
+  formatFechaCorta(value) {
+    if (!value) return "—";
+    const [y, m, d] = String(value).slice(0, 10).split("-");
+    return y && m && d ? `${d}/${m}/${y}` : "—";
+  }
+
+  handleDetalleFactura(event) {
+    const id = event.currentTarget?.dataset?.id;
+    const item = (this.items || []).find((i) => String(i.id) === String(id));
+    if (item?.factura) {
+      this.openFactura({ detail: item.factura });
+    }
+  }
+
+  async handleConfirmarCompra() {
+    if (this.confirmarCompraDisabled) return;
+    await this.finalizar();
   }
 
   get tiposCompraDisponibles() {
@@ -884,23 +1858,28 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         value: "Futura",
         label: "HT Futura",
         description:
-          "Se trata de las HT que son precertificables dentro de los plazos del programa y la conversión a toneladas se produce a partir de la entrega de grano."
+          "Precertificables dentro de los plazos del programa. La conversión a toneladas se produce a partir de la entrega de grano.",
+        recomendado: true
       },
       {
         value: "Disponible",
         label: "HT Disponible",
         description:
-          "Se trata de las HT que acreditan inmediatamente toneladas. Sólo se pueden adquirir antes de la entrega de grano. No son precertificables."
+          "Acreditan toneladas de inmediato. Sólo se adquieren antes de la entrega de grano. No son precertificables.",
+        recomendado: false
       }
     ];
-    return opciones
-      .filter((o) => disponibles.includes(o.value))
-      .map((o) => ({
+    const list = opciones.filter((o) => disponibles.includes(o.value));
+    // Si aún no hay productos cargados, mostrar ambas opciones del mock.
+    const source = list.length ? list : opciones;
+    return source.map((o) => {
+      const selected = this.tipoCompraSeleccionado === o.value;
+      return {
         ...o,
-        cssClass:
-          "tipo-card" +
-          (this.tipoCompraSeleccionado === o.value ? " selected" : "")
-      }));
+        ariaChecked: selected ? "true" : "false",
+        cssClass: "se-tipo-tile" + (selected ? " is-selected" : "")
+      };
+    });
   }
 
   handleSelectTipoCompra(event) {
@@ -908,6 +1887,19 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     if (!tipo) return;
     this.tipoCompraSeleccionado = tipo;
     this.Futura = tipo === "Futura";
+  }
+
+  handleVolverPaso2() {
+    if (this.compraRetomada) {
+      this.close();
+      return;
+    }
+    this.step = 1;
+  }
+
+  handleContinuarPaso2() {
+    if (!this.tipoCompraSeleccionado) return;
+    this.Futura = this.tipoCompraSeleccionado === "Futura";
     this.step = 3;
   }
 
@@ -918,6 +1910,14 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       (v) =>
         v.record?.Product2?.Tipo_de_Compra__c === this.tipoCompraSeleccionado
     );
+  }
+
+  openFileUpload() {
+    this.showFileUploadModal = true;
+  }
+
+  closeFileUpload() {
+    this.showFileUploadModal = false;
   }
 
   openFileUpload() {
@@ -973,9 +1973,14 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
   }
 
   handleTipoHtChange(event) {
+    console.log("llego aca el evento ", JSON.stringify(event.detail));
+    console.log("llego aca el evento ", JSON.stringify(event.detail.isFutura));
     const { isFutura } = event.detail;
     this.Futura = event.detail.isFutura;
+    console.log("isFutura extraído:", isFutura);
+    //Pre Campaña
     this.showFinanciamientoColumn = isFutura && this.cultivoNombre === "SOJA";
+    console.log("showFinanciamientoColumn:", this.showFinanciamientoColumn);
     this.syncPromoQualificationState();
     Promise.resolve().then(() => {
       this.refreshAllLinePromoPrices();
@@ -1001,6 +2006,53 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
 
   disconnectedCallback() {
     cancelHtFuturaPromoEval(this);
+    this.unlockPayModalScroll();
+    document.documentElement.classList.remove("se-inner", "se-inner-wizard");
+    document.body.classList.remove("se-inner", "se-inner-wizard");
+  }
+
+  renderedCallback() {
+    if (!this.initialized && !this.pageRecordId) {
+      this.init();
+    } else if (!this.initialized) {
+      this.initialized = true;
+      this.request = false;
+    }
+    this.syncPayModalScrollLock();
+    if (this._payModalScrollLocked) this.fitModalLayers();
+  }
+
+  syncPayModalScrollLock() {
+    const shouldLock = this.hasOverlayModal || this.currentModal != null;
+    if (shouldLock === this._payModalScrollLocked) {
+      return;
+    }
+    if (shouldLock) {
+      this.lockPayModalScroll();
+    } else {
+      this.unlockPayModalScroll();
+    }
+  }
+
+  lockPayModalScroll() {
+    this._modalLock = lockPortalModal(this.template.host, () =>
+      this.fitModalLayers()
+    );
+    this._payModalScrollLocked = true;
+  }
+
+  unlockPayModalScroll() {
+    if (this._modalLock) {
+      unlockPortalModal(this._modalLock);
+      this._modalLock = null;
+    }
+    this._payModalScrollLocked = false;
+  }
+
+  fitModalLayers() {
+    this.template
+      .querySelectorAll(".se-pay-sheet-wrap, .se-result-wrap")
+      .forEach((el) => fitFixedLayer(el));
   }
 
   collectPromoLineData() {
@@ -1072,8 +2124,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     this.htFuturaPromoMessage = null;
     this.htFuturaPromoPreviouslyQualified = false;
     this.htFuturaPromoCelebrationShown = false;
-    if (this.currentModal === "ht-futura-promo") {
-      this.currentModal = null;
+    if (this.resultModal === "promo") {
+      this.resultModal = null;
     }
   }
 
@@ -1083,17 +2135,21 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
       hasQualifying,
       hadQualifying: hadBefore,
       celebrationAlreadyShown: this.htFuturaPromoCelebrationShown,
-      currentModalIsPromo: this.currentModal === "ht-futura-promo"
+      currentModalIsPromo: this.resultModal === "promo"
     });
 
     if (ui.showCelebrationModal || ui.showLossModal) {
       this.htFuturaPromoMessage = ui.promoMessage;
       this.htFuturaPromoVariant = ui.promoVariant;
-      this.currentModal = "ht-futura-promo";
+      this.resultModal = "promo";
+      this.currentModal = null;
       if (ui.showCelebrationModal) {
         this.htFuturaPromoCelebrationShown = ui.celebrationAlreadyShown;
       }
     } else if (ui.dismissPromoModal) {
+      if (this.resultModal === "promo") {
+        this.resultModal = null;
+      }
       this.currentModal = null;
       this.htFuturaPromoMessage = null;
     }
@@ -1167,37 +2223,124 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     );
   }
 
-  requiresTipoPago() {
-    return (
-      ["03", "14", "85"].includes(this.semillero) &&
-      this.cultivoNombre === "SOJA"
+  trackHtCompraConfirmada(data) {
+    trackGa4Event(
+      "ht_compra_confirmada",
+      buildHtCompraConfirmadaParams({
+        semilleros: this.semilleros,
+        semilleroId: this.semillero,
+        semilleroData: this.semilleroData,
+        cultivoNombre: this.cultivoNombre,
+        tipoCompraSeleccionado: this.tipoCompraSeleccionado,
+        data,
+        tipoPago: this.tipoPago
+      })
     );
   }
 
-  async handleTipoPagoSelected(event) {
-    const value = event?.detail?.value; // 'Contado' | 'Financiado'
-    if (!value) return;
+  get tipoPagoTotalAmount() {
+    if (this.data?.record?.Total_USD__c != null) {
+      return Number(this.data.record.Total_USD__c) || 0;
+    }
+    return this.selectedVariedadUsdTotal;
+  }
 
-    this.tipoPago = value;
+  get tipoPagoModalEyebrow() {
+    const marca = this.resumenMarca;
+    if (marca && marca !== "—") {
+      return `${marca} · pre-campaña`;
+    }
+    return "Semillero GDM · pre-campaña";
+  }
+
+  get tipoPagoModalContado() {
+    const total = this.tipoPagoTotalAmount;
+    if (!(total > 0)) return "USD —";
+    return this.formatUsd(total * 0.93);
+  }
+
+  get tipoPagoModalFinanciadoLabel() {
+    const total = this.tipoPagoTotalAmount;
+    if (!(total > 0)) return "3 × USD —";
+    return `3 × ${this.formatUsd(total / 3)}`;
+  }
+
+  requiresTipoPago() {
+    // Solo Stine elige forma de pago (gate forma-pago-stine); el resto confirma la compra directo.
+    return false;
+  }
+
+  get tipoPagoContadoCardClass() {
+    return (
+      "se-pay-card" +
+      (this.selectedTipoPago === "Contado" ? " is-selected" : "")
+    );
+  }
+
+  get tipoPagoFinanciadoCardClass() {
+    return (
+      "se-pay-card" +
+      (this.selectedTipoPago === "Financiado" ? " is-selected" : "")
+    );
+  }
+
+  get isTipoPagoContadoSelected() {
+    return this.selectedTipoPago === "Contado";
+  }
+
+  get isTipoPagoFinanciadoSelected() {
+    return this.selectedTipoPago === "Financiado";
+  }
+
+  handleTipoPagoOption(event) {
+    const value = event.target?.value;
+    if (value === "Contado" || value === "Financiado") {
+      this.selectedTipoPago = value;
+    }
+  }
+
+  handleTipoPagoCancel() {
+    this.showTipoPagoSheet = false;
+    this.selectedTipoPago = "Contado";
+    this.pendingFinalizar = false;
+  }
+
+  async handleTipoPagoConfirm() {
+    await this.applyTipoPagoSelection(this.selectedTipoPago);
+  }
+
+  async handleTipoPagoSelected(event) {
+    const value = event?.detail?.value;
+    if (!value) return;
     this.entidadBancariaStine = null;
     this.plazoStine = null;
     this.monedaStine = null;
     this.tasaStine = null;
+    await this.applyTipoPagoSelection(value);
+  }
 
+  async applyTipoPagoSelection(value) {
+    if (value !== "Contado" && value !== "Financiado") return;
+
+    this.tipoPago = value;
+    trackGa4Event("ht_seleccion_financiamiento", { forma_pago: value });
+
+    this.isLoading = true;
     await this.requestWrap(async () => {
       const data = await updateTipoPago({
         compraId: this.recordId,
         tipoPago: value,
-        entidadBancaria: null,
-        plazo: null,
-        moneda: null,
-        tasa: null
+        entidadBancaria: this.entidadBancariaStine,
+        plazo: this.plazoStine,
+        moneda: this.monedaStine,
+        tasa: this.tasaStine
       });
       this.setData(data);
       this.DataCompra = data;
     });
+    this.isLoading = false;
 
-    this.currentModal = null;
+    this.showTipoPagoSheet = false;
 
     if (this.pendingFinalizar) {
       this.pendingFinalizar = false;
@@ -1217,18 +2360,311 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         compraVentaId: this.recordId,
         tipoOperacion: "compra"
       });
+      // eslint-disable-next-line no-console
+      console.log(
+        "[CrearCompra2] verificarExpedienteEnHTDisponible result:",
+        JSON.stringify(result)
+      );
       const tieneExpediente = Boolean(result?.tieneExpediente);
       if (tieneExpediente && mostrarModalSiTieneExpediente) {
-        this.currentModal = "expediente-disponible-alert";
+        this.resultModal = "expediente";
+        this.currentModal = null;
         return true;
       }
       return false;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(
         "Error validando expediente en HT disponible (compra):",
         error
       );
       return false;
     }
+  }
+
+  // —— Modales de resultado (SG 3d / 3d-desk / 3d-alt) ——
+
+  get showResultModal() {
+    return !!this.resultModal;
+  }
+
+  get isResultAnular() {
+    return this.resultModal === "anular";
+  }
+
+  get isResultVigencia() {
+    return this.resultModal === "vigencia";
+  }
+
+  get vigenciaText() {
+    return "Las compras tienen una vigencia de 48 hs iniciado el proceso. Una vez cumplidas, la operación caduca y deberás volver a iniciar el proceso.";
+  }
+
+  get isResultSuccess() {
+    return this.resultModal === "success";
+  }
+
+  get isResultPendingPayment() {
+    return this.resultModal === "pending-payment";
+  }
+
+  get isResultPendingLicencia() {
+    return this.resultModal === "pending-licencia";
+  }
+
+  get isResultPendingOrigen() {
+    return this.resultModal === "pending-origen";
+  }
+
+  get isResultDuplicate() {
+    return this.resultModal === "duplicate";
+  }
+
+  get isResultExpediente() {
+    return this.resultModal === "expediente";
+  }
+
+  get isResultPromo() {
+    return this.resultModal === "promo";
+  }
+
+  get isResultCelebration() {
+    return this.isResultSuccess;
+  }
+
+  get isResultWarn() {
+    return (
+      this.isResultPendingLicencia ||
+      this.isResultPendingOrigen ||
+      this.isResultDuplicate ||
+      this.isResultExpediente ||
+      (this.isResultPromo && this.htFuturaPromoVariant === "warning")
+    );
+  }
+
+  get isResultPendingState() {
+    return (
+      this.isResultPendingPayment ||
+      this.isResultPendingLicencia ||
+      this.isResultPendingOrigen
+    );
+  }
+
+  get resultScrimDismissible() {
+    return (
+      !this.isResultSuccess &&
+      !this.isResultPendingPayment &&
+      !this.isResultAnular &&
+      !this.isResultDuplicate
+    );
+  }
+
+  get resultModalAriaLabel() {
+    switch (this.resultModal) {
+      case "success":
+        return "¡Compra exitosa!";
+      case "pending-payment":
+        return "Compra pendiente de pago";
+      case "pending-licencia":
+      case "pending-origen":
+        return "Compra pendiente";
+      case "duplicate":
+        return "Ya existe una compra en proceso";
+      case "expediente":
+        return "Importante";
+      case "promo":
+        return this.resultPromoTitle;
+      case "anular":
+        return "Anular compra";
+      case "vigencia":
+        return "Importante";
+      default:
+        return "Resultado de la compra";
+    }
+  }
+
+  get resultPromoTitle() {
+    return this.htFuturaPromoVariant === "warning"
+      ? "Atención"
+      : "Condición comercial";
+  }
+
+  get resultOrdenRef() {
+    const name = this.data?.record?.Name;
+    return name ? `#${name}` : "";
+  }
+
+  get resumenLicencia() {
+    const lineas = this.detalleLineas;
+    if (lineas.some((l) => l.sinLicencia)) return "Sin licencia";
+    const codigos = [...new Set(lineas.map((l) => l.licencia).filter(Boolean))];
+    if (codigos.length) return codigos.join(", ");
+    const lic =
+      this.semilleroData?.licencia || this.DataCompra?.semilleroData?.licencia;
+    if (lic?.Name) return lic.Name;
+    return lic?.Id || this.haveLicence === true
+      ? "Con licencia"
+      : "Sin licencia";
+  }
+
+  get resultVariedadesLabel() {
+    const names = this.confirmacionLineas
+      .map((l) => l.name)
+      .filter((n) => n && n !== "—");
+    return names.length ? names.join(", ") : "—";
+  }
+
+  get resultSuccessSubtext() {
+    const ht = this.resumenHt !== "—" ? `${this.resumenHt} HT` : "HT";
+    const cultivo = this.cultivoNombre || "cultivo";
+    return `Tu compra de ${ht} de ${cultivo} quedó registrada correctamente.`;
+  }
+
+  get whatsappHref() {
+    return "https://api.whatsapp.com/send/?phone=5491131172022&text=Hola%2C+quiero+informaci%C3%B3n+sobre+mi+compra&type=phone_number&app_absent=0";
+  }
+
+  get duplicateCompraSubtext() {
+    if (this.duplicateCompraName) {
+      return `Tenés la compra ${this.duplicateCompraName} sin finalizar para este semillero y cultivo. Continuala desde el paso donde la dejaste.`;
+    }
+    return "Ya tenés una compra sin finalizar para este semillero y cultivo. Continuala desde el paso donde la dejaste.";
+  }
+
+  get hasDuplicateCompraLink() {
+    return !!this.duplicateCompraId;
+  }
+
+  handleResultScrimClick() {
+    if (!this.resultScrimDismissible) return;
+    if (this.isResultExpediente && this.pendingFinalizarPorExpediente) {
+      this.handleResultExpedienteEntendido();
+      return;
+    }
+    if (this.isResultPendingLicencia || this.isResultPendingOrigen) {
+      this.handleResultPendingEntendido();
+      return;
+    }
+    this.resultModal = null;
+  }
+
+  handleResultClose() {
+    // × del modal: mismo destino que Entendido en pendientes; no mandar al home.
+    if (this.isResultPendingLicencia || this.isResultPendingOrigen) {
+      this.handleResultPendingEntendido();
+      return;
+    }
+    if (this.isResultSuccess || this.isResultPendingPayment) {
+      this.handleResultVerMisCompras();
+      return;
+    }
+    if (this.isResultDuplicate) {
+      this.handleResultVerMisCompras();
+      return;
+    }
+    this.resultModal = null;
+  }
+
+  handleResultVerMisCompras() {
+    this.resultModal = null;
+    this[NavigationMixin.Navigate]({
+      type: "standard__webPage",
+      attributes: { url: `${basePath}/comprahtlistproductor` }
+    });
+  }
+
+  /** Detalle de la compra recién confirmada (misma URL que “Ver” en la lista). */
+  goToCompraDetalle() {
+    // No usar this.pageRecordId acá: ese getter pisa this.recordId con null si la URL no es detalle.
+    let compraId = this.recordId;
+    if (!compraId && typeof window !== "undefined") {
+      try {
+        const href = window.location.href;
+        if (
+          href.includes("compra-ht/") &&
+          !href.includes("compra-ht/Compra_HT__c/")
+        ) {
+          compraId = href.split("compra-ht/")[1]?.split("/")[0] || null;
+        }
+      } catch (e) {
+        compraId = null;
+      }
+    }
+
+    const compraName =
+      this.DataCompra?.record?.Name || this.data?.record?.Name || "";
+
+    this.resultModal = null;
+
+    if (!compraId) {
+      this.handleResultVerMisCompras();
+      return;
+    }
+
+    const path = (basePath || "").replace(/\/$/, "");
+    const slug = compraName || compraId;
+    window.open(`${path}/compra-ht/${compraId}/${slug}`, "_self");
+  }
+
+  handleResultVolverInicio() {
+    this.resultModal = null;
+    this[NavigationMixin.Navigate]({
+      type: "standard__webPage",
+      attributes: { url: basePath || "/" }
+    });
+  }
+
+  handleResultPendingEntendido() {
+    this.goToCompraDetalle();
+  }
+
+  handleResultDuplicateVerCompras() {
+    this.handleResultVerMisCompras();
+  }
+
+  /** La compra Creada se abre en el asistente, que la retoma en el paso donde quedó. */
+  handleResultDuplicateContinuar() {
+    const compraId = this.duplicateCompraId;
+    const compraName = this.duplicateCompraName || "";
+    this.resultModal = null;
+    if (!compraId) {
+      this.handleResultVerMisCompras();
+      return;
+    }
+    const path = (basePath || "").replace(/\/$/, "");
+    const slug = compraName || compraId;
+    window.open(`${path}/compra-ht/${compraId}/${slug}`, "_self");
+  }
+
+  handleResultExpedienteEntendido() {
+    this.resultModal = null;
+    if (this.pendingFinalizarPorExpediente) {
+      this.shouldMarkRevisarCompra = true;
+      this.pendingFinalizarPorExpediente = false;
+      this.finalizar({ mostrarModalExpediente: false });
+    }
+  }
+
+  handleResultPromoEntendido() {
+    this.resultModal = null;
+    this.htFuturaPromoMessage = null;
+  }
+
+  handleResultAnularConfirm() {
+    this.anular();
+  }
+
+  handleResultAnularCancel() {
+    this.resultModal = null;
+  }
+
+  handleResultVigenciaContinuar() {
+    this.resultModal = null;
+  }
+
+  async handleResultAnularOrden() {
+    await this.anular();
+    this.resultModal = null;
+    this.handleResultVerMisCompras();
   }
 }

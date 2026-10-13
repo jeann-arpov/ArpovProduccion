@@ -1,95 +1,228 @@
 @isTest
 public class CesionPPHTest {
-    public static testmethod void main() {
-        Test_TestUtils.disableFlows();
-        
-        Date fechaInicioCesion = Date.today();
-        Cultivo__c cultivo = new Cultivo__c(Name = 'SOJA', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today().addDays(-2), Id_Externo__c = 'SOJA', Fecha_Inicio_Cesion__c = fechaInicioCesion, Fecha_Inicio_Cesion_Semilla_Original__c = fechaInicioCesion);
-        insert cultivo;
+  public static testMethod void main() {
+    Test_TestUtils.disableFlows();
 
-        Account productor = Test_TestUtils.crearProductor();
+    Date fechaInicioCesion = Date.today();
+    Cultivo__c cultivo = new Cultivo__c(
+      Name = 'SOJA',
+      Densidad_de_Siembra__c = 5,
+      Fecha_Vencimiento_Tonelada__c = Date.today().addDays(-2),
+      Id_Externo__c = 'SOJA',
+      Fecha_Inicio_Cesion__c = fechaInicioCesion,
+      Fecha_Inicio_Cesion_Semilla_Original__c = fechaInicioCesion
+    );
+    insert cultivo;
 
-        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
-        Variedad__c var2 = new Variedad__c(Name = 'test 2', Biotecnologia__c = 'Enlist E3');
-        insert new List<Variedad__c>{var, var2};
+    Account productor = Test_TestUtils.crearProductor();
 
-        CesionPPH.getLoadData(null);
-        CesionPPH.getNewCesionData(cultivo.Id, 'Explotacion Conjunta');
+    Variedad__c var = new Variedad__c(
+      Name = 'test',
+      Biotecnologia__c = 'Enlist E3'
+    );
+    Variedad__c var2 = new Variedad__c(
+      Name = 'test 2',
+      Biotecnologia__c = 'Enlist E3'
+    );
+    insert new List<Variedad__c>{ var, var2 };
 
-        Cesion_HT__c cesion = [select id from Cesion_HT__c];
+    CesionPPH.getLoadData(null, 'Explotacion Conjunta');
+    CesionPPH.getNewCesionData(cultivo.Id, 'Explotacion Conjunta');
 
-        System.assertEquals(null, CesionPPH.getStockDisponible(cultivo.id, cesion.id, 'Explotacion Conjunta').get(var.id));
+    Cesion_HT__c cesion = [SELECT id, Estado__c FROM Cesion_HT__c];
+    System.assertEquals(
+      'Borrador',
+      cesion.Estado__c,
+      'Al confirmar cultivo la cesión debe quedar en Borrador'
+    );
 
-        Hectareas_Tecnologicas__c hectarea = new Hectareas_Tecnologicas__c(Signo__c = 1, Cantidad__c = 3, Productor__c = productor.id, Biotecnologia__c = 'Enlist E3', Cultivo__c = cultivo.id, Variedad__c = var.id, Origen__c = 'Compra HT', Valor_Conversion__c = 3000);
-        Hectareas_Tecnologicas__c hectarea2 = new Hectareas_Tecnologicas__c(Signo__c = 1, Cantidad__c = 1, Productor__c = productor.id, Biotecnologia__c = 'Enlist E3', Cultivo__c = cultivo.id, Variedad__c = var2.id, Origen__c = 'Compra HT', Valor_Conversion__c = 3000);
-        insert new List<Hectareas_Tecnologicas__c>{hectarea, hectarea2};
+    System.assertEquals(
+      null,
+      CesionPPH.getStockDisponible(
+          cultivo.id,
+          cesion.id,
+          'Explotacion Conjunta'
+        )
+        .get(var.id)
+    );
 
-        Tonelada__c tonelada = new Tonelada__c(Productor__c = productor.id, Biotecnologia__c = 'Enlist E3', Signo__c = 1, Cantidad__c = 9, Cultivo__c = cultivo.id, Variedad__c = var.id, Origen__c = 'Compra HT', Fecha_Inicio__c = Date.today().addDays(-1), Fecha_Fin__c = Date.today().addDays(1), Etapa__c = 'Cobrada');
-        Tonelada__c tonelada2 = new Tonelada__c(Productor__c = productor.id, Biotecnologia__c = 'Enlist E3', Signo__c = 1, Cantidad__c = 3, Cultivo__c = cultivo.id, Variedad__c = var2.id, Origen__c = 'Compra HT', Fecha_Inicio__c = Date.today().addDays(-1), Fecha_Fin__c = Date.today().addDays(1), Etapa__c = 'Cobrada');
-        insert new List<Tonelada__c>{tonelada, tonelada2};
+    Hectareas_Tecnologicas__c hectarea = new Hectareas_Tecnologicas__c(
+      Signo__c = 1,
+      Cantidad__c = 3,
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Cultivo__c = cultivo.id,
+      Variedad__c = var.id,
+      Origen__c = 'Compra HT',
+      Valor_Conversion__c = 3000
+    );
+    Hectareas_Tecnologicas__c hectarea2 = new Hectareas_Tecnologicas__c(
+      Signo__c = 1,
+      Cantidad__c = 1,
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Cultivo__c = cultivo.id,
+      Variedad__c = var2.id,
+      Origen__c = 'Compra HT',
+      Valor_Conversion__c = 3000
+    );
+    insert new List<Hectareas_Tecnologicas__c>{ hectarea, hectarea2 };
 
-        Map<Id, Integer> stock = CesionPPH.getStockDisponible(cultivo.id, cesion.id, 'Explotacion Conjunta');
+    Tonelada__c tonelada = new Tonelada__c(
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Signo__c = 1,
+      Cantidad__c = 9,
+      Cultivo__c = cultivo.id,
+      Variedad__c = var.id,
+      Origen__c = 'Compra HT',
+      Fecha_Inicio__c = Date.today().addDays(-1),
+      Fecha_Fin__c = Date.today().addDays(1),
+      Etapa__c = 'Cobrada'
+    );
+    Tonelada__c tonelada2 = new Tonelada__c(
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Signo__c = 1,
+      Cantidad__c = 3,
+      Cultivo__c = cultivo.id,
+      Variedad__c = var2.id,
+      Origen__c = 'Compra HT',
+      Fecha_Inicio__c = Date.today().addDays(-1),
+      Fecha_Fin__c = Date.today().addDays(1),
+      Etapa__c = 'Cobrada'
+    );
+    insert new List<Tonelada__c>{ tonelada, tonelada2 };
 
-        System.assertEquals(9, stock.get(var.id));
-        System.assertEquals(3, stock.get(var2.id));
+    Map<Id, Integer> stock = CesionPPH.getStockDisponible(
+      cultivo.id,
+      cesion.id,
+      'Explotacion Conjunta'
+    );
 
-        ContentVersion content = new ContentVersion(); 
-        content.Title='Header_Picture1'; 
-        content.VersionData = Blob.valueOf('Unit Test ContentVersion Body');
-        content.PathOnClient = 'test';
-        insert content;
+    System.assertEquals(9, stock.get(var.id));
+    System.assertEquals(3, stock.get(var2.id));
 
-        ContentDocumentLink contentlink=new ContentDocumentLink();
-        contentlink.LinkedEntityId = cesion.id;
-        contentlink.contentdocumentid=[select contentdocumentid from contentversion where id =: content.id].contentdocumentid;
-        insert contentlink;
+    ContentVersion content = new ContentVersion();
+    content.Title = 'Header_Picture1';
+    content.VersionData = Blob.valueOf('Unit Test ContentVersion Body');
+    content.PathOnClient = 'test';
+    insert content;
 
-        CesionPPH.searchDestinatarios('123');
-        Id newProductor = CesionPPH.registerCuit('33645022659', 'test@test.com')[0].Id;
+    ContentDocumentLink contentlink = new ContentDocumentLink();
+    contentlink.LinkedEntityId = cesion.id;
+    contentlink.contentdocumentid = [
+      SELECT contentdocumentid
+      FROM contentversion
+      WHERE id = :content.id
+    ]
+    .contentdocumentid;
+    insert contentlink;
 
-        CesionPPH.Data data = new CesionPPH.Data();
-        CesionPPH.addDestinatario(data, productor.id, var.id, 9);
-        CesionPPH.addDestinatario(data, newProductor, var2.id, 3);
-        
-        CesionPPH.save(JSON.serialize(data), cesion.id);
+    CesionPPH.searchDestinatarios('123');
+    Id newProductor = CesionPPH.registerCuit('33645022659', 'test@test.com')[0]
+      .Id;
 
-        System.assertEquals(2, [select id from Destinatario_Cesion_HT__c].size());
-        System.assertEquals(2, [select id from Linea_Cesion_HT__c].size());
-        System.assertEquals('test; test 2', [select Variedades__c from Cesion_HT__c where id =: cesion.id].Variedades__c);
+    CesionPPH.Data data = new CesionPPH.Data();
+    CesionPPH.addDestinatario(data, productor.id, var.id, 9);
+    CesionPPH.addDestinatario(data, newProductor, var2.id, 3);
 
-        stock = CesionPPH.getStockDisponible(cultivo.id, cesion.id, 'Explotacion Conjunta');
+    CesionPPH.save(JSON.serialize(data), cesion.id);
 
-        System.assertEquals(9, stock.get(var.id));
-        System.assertEquals(3, stock.get(var2.id));
+    System.assertEquals(2, [SELECT id FROM Destinatario_Cesion_HT__c].size());
+    System.assertEquals(2, [SELECT id FROM Linea_Cesion_HT__c].size());
+    System.assertEquals(
+      'En Curso',
+      [SELECT Estado__c FROM Cesion_HT__c WHERE id = :cesion.id].Estado__c,
+      'Tras guardar destinatarios debe pasar a En Curso'
+    );
+    System.assertEquals(
+      'test; test 2',
+      [SELECT Variedades__c FROM Cesion_HT__c WHERE id = :cesion.id]
+      .Variedades__c
+    );
 
-        stock = CesionPPH.getStockDisponible(cultivo.id, null, 'Explotacion Conjunta');
+    stock = CesionPPH.getStockDisponible(
+      cultivo.id,
+      cesion.id,
+      'Explotacion Conjunta'
+    );
 
-        System.assertEquals(0, stock.get(var.id));
-        System.assertEquals(0, stock.get(var2.id));
-        
-        Licencia__c licencia = new Licencia__c(Cuenta_Productor__c = productor.id, Estado__c = 'Aprobada', Fecha_de_Vencimiento__c = System.today(), Tipo_de_Licencia__c = 'Productor', LicenciaId__c = '123', Tecnologia__c = 'Enlist');
-        insert licencia;
+    System.assertEquals(9, stock.get(var.id));
+    System.assertEquals(3, stock.get(var2.id));
 
-        Test.startTest();
+    stock = CesionPPH.getStockDisponible(
+      cultivo.id,
+      null,
+      'Explotacion Conjunta'
+    );
 
-        CesionPPH.sendCesion(cesion.id);
-        System.assertEquals(1, [select Estado__c from Linea_Cesion_HT__c where Estado__c = 'Pendiente de Validación'].size());
-        CesionPPH.backToEnCurso(cesion.id);
-        System.assertEquals(2, [select Estado__c from Linea_Cesion_HT__c where Estado__c = 'En Curso'].size());
-        CesionPPH.sendCesion(cesion.id);
+    System.assertEquals(0, stock.get(var.id));
+    System.assertEquals(0, stock.get(var2.id));
 
-        delete [select id from Destinatario_Cesion_HT__c where Destinatario__r.Name = 'A Gestionar'];
-        System.assertEquals('test', [select Variedades__c from Cesion_HT__c where id =: cesion.id].Variedades__c);
+    Licencia__c licencia = new Licencia__c(
+      Cuenta_Productor__c = productor.id,
+      Estado__c = 'Aprobada',
+      Fecha_de_Vencimiento__c = System.today(),
+      Tipo_de_Licencia__c = 'Productor',
+      LicenciaId__c = '123',
+      Tecnologia__c = 'Enlist'
+    );
+    insert licencia;
 
-        CesionPPH.validateRecord(cesion.id);
-        CesionPPH.desvalidar(cesion.id);
-        CesionPPH.anular(cesion.id);
-        CesionPPH.deleteFile(contentlink.contentdocumentid, cesion.id);
+    Test.startTest();
 
-        delete [select id from Linea_Cesion_HT__c];
-        System.assertEquals(null, [select Variedades__c from Cesion_HT__c where id =: cesion.id].Variedades__c);
+    CesionPPH.sendCesion(cesion.id);
+    System.assertEquals(
+      1,
+      [
+          SELECT Estado__c
+          FROM Linea_Cesion_HT__c
+          WHERE Estado__c = 'Pendiente de Validación'
+        ]
+        .size()
+    );
+    CesionPPH.backToEnCurso(cesion.id);
+    System.assertEquals(
+      2,
+      [SELECT Estado__c FROM Linea_Cesion_HT__c WHERE Estado__c = 'En Curso']
+        .size()
+    );
+    CesionPPH.sendCesion(cesion.id);
 
-        // CesionPPH.deleteCesion(cesion.Id);
-        // System.assertEquals(true, [select id from Cesion_HT__c where id = :cesion.Id].isEmpty());
-    }
+    delete [
+      SELECT id
+      FROM Destinatario_Cesion_HT__c
+      WHERE Destinatario__r.Name = 'A Gestionar'
+    ];
+    System.assertEquals(
+      'test',
+      [SELECT Variedades__c FROM Cesion_HT__c WHERE id = :cesion.id]
+      .Variedades__c
+    );
+
+    CesionPPH.validateRecord(cesion.id);
+    CesionPPH.desvalidar(cesion.id);
+    CesionPPH.anular(cesion.id);
+    CesionPPH.deleteFile(contentlink.contentdocumentid, cesion.id);
+
+    CesionPPH.UploadResult uploaded = CesionPPH.uploadContratoFile(
+      cesion.id,
+      'contrato-test.pdf',
+      EncodingUtil.base64Encode(Blob.valueOf('pdf test body'))
+    );
+    System.assertNotEquals(null, uploaded.documentId);
+    System.assertEquals('contrato-test', uploaded.title);
+    System.assertEquals('PDF', uploaded.extension);
+
+    delete [SELECT id FROM Linea_Cesion_HT__c];
+    System.assertEquals(
+      null,
+      [SELECT Variedades__c FROM Cesion_HT__c WHERE id = :cesion.id]
+      .Variedades__c
+    );
+
+    // CesionPPH.deleteCesion(cesion.Id);
+    // System.assertEquals(true, [select id from Cesion_HT__c where id = :cesion.Id].isEmpty());
+  }
 }

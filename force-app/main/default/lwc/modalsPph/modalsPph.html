@@ -8,11 +8,14 @@
     aria-labelledby="modal-heading-01"
     class="slds-modal slds-fade-in-open slds-text-align_center"
   >
-    <div if:true={loading} class="exampleHolder">
-      <lightning-spinner
-        alternative-text="Loading"
-        size="medium"
-      ></lightning-spinner>
+    <div
+      if:true={loading}
+      class="pph-modal-veil"
+      role="status"
+      aria-busy="true"
+      aria-label="Cargando"
+    >
+      <c-se-brand-loader></c-se-brand-loader>
     </div>
     <div class={cls}>
       <div class="slds-modal__content" id="modal-content-id-1">
@@ -30,7 +33,7 @@
         <div class="slds-p-around_xx-large">
           <div if:true={isDeleteConfirm}>
             <h1 class="slds-m-bottom_medium" style="font-size: 1rem">
-              ¿Está seguro que desea eliminar este establecimiento?
+              ¿Estás seguro de que querés eliminar este establecimiento?
             </h1>
             <lightning-button
               style="font-weight: 700"
@@ -50,7 +53,7 @@
 
           <div if:true={isDeleteDestinatarioConfirm}>
             <h1 class="slds-m-bottom_medium" style="font-size: 1rem">
-              ¿Está seguro que desea eliminar este destinatario?
+              ¿Estás seguro de que querés eliminar este destinatario?
             </h1>
             <lightning-button
               style="font-weight: 700"
@@ -102,6 +105,22 @@
             >
               FELICITACIONES! ESTÁS ADHERIDO AL PROGRAMA DE PRECERTIFICACIÓN DE
               HECTÁREAS
+            </h1>
+            <lightning-button
+              style="font-weight: 700"
+              class="slds-m-top_medium slds-m-left_small circle black-border"
+              type="submit"
+              label="Volver al Inicio"
+              onclick={redirectInicio}
+            ></lightning-button>
+          </div>
+
+          <div if:true={isEnRevision}>
+            <h1
+              class="slds-m-bottom_medium slds-m-vertical_large"
+              style="font-size: 18px"
+            >
+              {recibidaLabel}
             </h1>
             <lightning-button
               style="font-weight: 700"
@@ -213,7 +232,7 @@
               class="slds-m-bottom_medium slds-m-vertical_large"
               style="font-size: 18px"
             >
-              ¿Está seguro que desea enviar el formulario?
+              ¿Estás seguro de que querés enviar el formulario?
             </h1>
 
             <lightning-button
@@ -234,7 +253,7 @@
 
           <div if:true={isContinueConfirmRectificar}>
             <h1 class="slds-m-bottom_medium" style="font-size: 1rem">
-              ¿Está seguro que desea realizar la rectificación?
+              ¿Estás seguro de que querés rectificar el plan?
             </h1>
             <lightning-button
               style="font-weight: 700"
@@ -280,7 +299,7 @@
               class="slds-m-bottom_medium slds-m-vertical_large"
               style="font-size: 18px"
             >
-              ¿Está seguro que desea anular la cesión?
+              ¿Estás seguro de que querés anular la cesión?
             </h1>
             <lightning-button
               style="font-weight: 700"
