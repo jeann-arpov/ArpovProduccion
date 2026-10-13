@@ -1,0 +1,224 @@
+<template>
+    <template if:true={mostrarFinalizado}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">Carga finalizada</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p>{mensajeFinalizado}</p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="brand" label="Aceptar" onclick={aceptarFinalizado}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+    <div class="hoja">
+        <template if:true={acceso.loading}>
+            <lightning-spinner alternative-text="Cargando" size="small"></lightning-spinner>
+        </template>
+
+        <template if:true={acceso.error}>
+            <p class="slds-text-color_error">{mensajeAcceso}</p>
+        </template>
+
+        <template if:true={sinAcceso}>
+            <p class="slds-text-color_error">
+                No está autorizado a usar la carga masiva o no tiene permisos para crear Casos.
+            </p>
+        </template>
+
+        <template if:true={conAcceso}>
+            <div class="barra">
+                <ol class="pasos">
+                    <template for:each={pasos} for:item="paso">
+                        <li key={paso.value} class={paso.clase}>
+                            <span class="marca">{paso.numero}</span>
+                            <span>{paso.label}</span>
+                        </li>
+                    </template>
+                </ol>
+                <template if:true={enCarga}>
+                    <lightning-button-group>
+                        <lightning-button label="Crear" variant={varianteCrear} onclick={elegirCrear}></lightning-button>
+                        <lightning-button label="Editar" variant={varianteEditar} onclick={elegirEditar}></lightning-button>
+                    </lightning-button-group>
+                </template>
+            </div>
+
+            <template if:true={loading}>
+                <div class="bloque avance">
+                    <template if:true={progreso}>
+                        <p class="slds-m-bottom_x-small">{progreso}</p>
+                        <lightning-progress-bar value={porcentaje} size="large"></lightning-progress-bar>
+                    </template>
+                    <template if:false={progreso}>
+                        <lightning-spinner alternative-text="Procesando" size="medium"></lightning-spinner>
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={enCarga}>
+                <div class="cuerpo">
+                    <section class="ayuda">
+                        <template if:false={esEdicion}>
+                            <h2 class="titulo">Crear casos</h2>
+                            <p class="texto">
+                                Una fila por caso. El CUIT identifica la cuenta. Inicio acepta Entrante o Saliente.
+                            </p>
+                            <p class="etiqueta">Obligatorias</p>
+                            <div class="chips">
+                                <span class="chip">CUIT</span>
+                                <span class="chip">Razón Social</span>
+                                <span class="chip">Tipo de registro</span>
+                                <span class="chip">Estado</span>
+                                <span class="chip">Inicio</span>
+                                <span class="chip">Cápsula</span>
+                                <span class="chip">ID Propietario</span>
+                            </div>
+                            <p class="etiqueta">Opcionales</p>
+                            <div class="chips">
+                                <span class="chip">Tipo</span>
+                                <span class="chip">Tema</span>
+                            </div>
+                        </template>
+                        <template if:true={esEdicion}>
+                            <h2 class="titulo">Actualizar casos</h2>
+                            <p class="texto">
+                                Indicá el caso de Sembrá Evolución y solo las columnas que querés cambiar.
+                                Una celda vacía deja el dato como está.
+                            </p>
+                            <p class="etiqueta">Obligatoria</p>
+                            <div class="chips">
+                                <span class="chip">ID Caso</span>
+                            </div>
+                            <p class="etiqueta">Se pueden actualizar</p>
+                            <div class="chips">
+                                <span class="chip">Estado</span>
+                                <span class="chip">Tipo</span>
+                                <span class="chip">Tema</span>
+                                <span class="chip">Inicio</span>
+                                <span class="chip">Cápsula</span>
+                                <span class="chip">ID Propietario</span>
+                                <span class="chip">Comentario Principal</span>
+                                <span class="chip">Comentario Secundario</span>
+                            </div>
+                            <p class="nota">El Comentario Secundario solo se actualiza si también viene el Comentario Principal, y tiene que corresponder a ese valor.</p>
+                        </template>
+                    </section>
+                    <section class="zona">
+                        <lightning-icon icon-name="doctype:excel" size="large" alternative-text="Excel"></lightning-icon>
+                        <p class="zona-titulo">Subí el Excel</p>
+                        <p class="zona-texto">Hasta 10.000 filas. Acepta .xlsx, .xls o .csv.</p>
+                        <lightning-input
+                            class="selector"
+                            type="file"
+                            label="Archivo Excel"
+                            accept=".xlsx,.xls,.csv"
+                            onchange={handleArchivo}>
+                        </lightning-input>
+                        <lightning-button
+                            label="Descargar plantilla"
+                            icon-name="utility:download"
+                            onclick={descargarPlantilla}>
+                        </lightning-button>
+                    </section>
+                </div>
+            </template>
+
+            <template if:true={enConfirmacion}>
+                <div class="bloque">
+                    <p class="slds-m-bottom_small">{archivoNombre}</p>
+                    <div class="resumen slds-m-bottom_medium">
+                        <div class="dato">
+                            <span>{resumen.procesados}</span>
+                            Procesados
+                        </div>
+                        <div class="dato">
+                            <span>{resumen.validos}</span>
+                            {etiquetaListos}
+                        </div>
+                        <div class="dato">
+                            <span>{resumen.conError}</span>
+                            Con error
+                        </div>
+                    </div>
+                    <p class="slds-m-bottom_small">
+                        {textoConfirmacion} Las filas con error quedan afuera.
+                        La tabla muestra solo los errores.
+                    </p>
+                    <template if:true={hayMasErroresEnPantalla}>
+                        <p class="slds-m-bottom_small">Se ven las primeras 100 filas con error. El archivo de descarga trae todas.</p>
+                    </template>
+                    <template if:true={tieneErrores}>
+                        <lightning-datatable
+                            key-field="nroFila"
+                            data={filasVista}
+                            columns={columnas}
+                            hide-checkbox-column>
+                        </lightning-datatable>
+                    </template>
+                    <div class="slds-m-top_medium">
+                        <lightning-button label="Volver" onclick={volver}></lightning-button>
+                        <lightning-button
+                            class="slds-m-left_small"
+                            variant="brand"
+                            label={etiquetaConfirmar}
+                            disabled={confirmarDeshabilitado}
+                            onclick={confirmar}>
+                        </lightning-button>
+                        <lightning-button
+                            if:true={tieneErrores}
+                            class="slds-m-left_small"
+                            label="Descargar errores"
+                            icon-name="utility:download"
+                            onclick={descargarErrores}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={enResultado}>
+                <div class="bloque">
+                    <div class="resumen slds-m-bottom_medium">
+                        <div class="dato">
+                            <span>{resumen.procesados}</span>
+                            Procesados
+                        </div>
+                        <div class="dato">
+                            <span>{resumen.creados}</span>
+                            {etiquetaResultado}
+                        </div>
+                        <div class="dato">
+                            <span>{resumen.conError}</span>
+                            Con error
+                        </div>
+                    </div>
+                    <template if:true={hayMasErroresEnPantalla}>
+                        <p class="slds-m-bottom_small">Se ven las primeras 100 filas con error. El archivo de descarga trae todas.</p>
+                    </template>
+                    <template if:true={tieneErrores}>
+                        <lightning-datatable
+                            key-field="nroFila"
+                            data={filasVista}
+                            columns={columnas}
+                            hide-checkbox-column>
+                        </lightning-datatable>
+                    </template>
+                    <div class="slds-m-top_medium">
+                        <lightning-button variant="brand" label="Nueva carga" onclick={volver}></lightning-button>
+                        <lightning-button
+                            if:true={tieneErrores}
+                            class="slds-m-left_small"
+                            label="Descargar errores"
+                            icon-name="utility:download"
+                            onclick={descargarErrores}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Permite usar la carga masiva de Casos Sembrá Evolución. No otorga por sí solo el permiso de crear Casos.</description>
+    <isLicensed>false</isLicensed>
+    <label>Carga Masiva de Casos SE</label>
+</CustomPermission>

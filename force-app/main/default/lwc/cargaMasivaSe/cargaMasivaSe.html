@@ -1,0 +1,16 @@
+<template>
+    <div class="pagina">
+        <div class="tabs" role="tablist">
+            <button type="button" role="tab" class={claseCasos} onclick={verCasos}>Casos</button>
+            <button type="button" role="tab" class={claseGestiones} onclick={verGestiones}>Gestiones</button>
+        </div>
+        <div class="contenido">
+            <div class={panelCasos}>
+                <c-carga-masiva-casos-se></c-carga-masiva-casos-se>
+            </div>
+            <div class={panelGestiones}>
+                <c-carga-masiva-gestiones-se></c-carga-masiva-gestiones-se>
+            </div>
+        </div>
+    </div>
+</template>
