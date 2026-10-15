@@ -1,5 +1,50 @@
 public with sharing class PPH_NotificacionService {
   public static final String SENDER_ADDRESS = 'info@sembraevolucion.com.ar';
+  public static final String PROCESO = 'PPH';
+  public static final String OBJETO = 'Plan_de_Siembra__c';
+
+  public class Envio {
+    public Messaging.SingleEmailMessage mail;
+    public Id planId;
+    public String nombreRegistro;
+    public Id productorId;
+    public String cuit;
+    public String toAddress;
+    public String asunto;
+    public String evento;
+    public String plantilla;
+  }
+
+  public static Envio crearEnvio(
+    String templateDeveloperName,
+    String evento,
+    Plan_de_Siembra__c plan,
+    Id contactId,
+    String toAddress,
+    String cuit
+  ) {
+    Messaging.SingleEmailMessage mail = buildTemplateMail(
+      templateDeveloperName,
+      plan.Id,
+      contactId,
+      toAddress
+    );
+    if (mail == null) {
+      return null;
+    }
+
+    Envio envio = new Envio();
+    envio.mail = mail;
+    envio.planId = plan.Id;
+    envio.nombreRegistro = plan.Name;
+    envio.productorId = plan.Productor__c;
+    envio.cuit = cuit;
+    envio.toAddress = toAddress;
+    envio.asunto = getAsunto(templateDeveloperName);
+    envio.evento = evento;
+    envio.plantilla = templateDeveloperName;
+    return envio;
+  }
 
   public static Messaging.SingleEmailMessage buildTemplateMail(
     String templateDeveloperName,
@@ -32,9 +77,14 @@ public with sharing class PPH_NotificacionService {
     return mail;
   }
 
+  public static String getAsunto(String templateDeveloperName) {
+    EmailTemplate template = getTemplate(templateDeveloperName);
+    return template != null ? template.Subject : null;
+  }
+
   public static EmailTemplate getTemplate(String developerName) {
     List<EmailTemplate> templates = [
-      SELECT Id
+      SELECT Id, Subject
       FROM EmailTemplate
       WHERE DeveloperName = :developerName
       LIMIT 1
@@ -52,18 +102,69 @@ public with sharing class PPH_NotificacionService {
     return owds.isEmpty() ? null : owds[0];
   }
 
-  public static void send(List<Messaging.SingleEmailMessage> mails) {
-    if (mails == null || mails.isEmpty()) {
+  public static void send(List<Envio> envios) {
+    if (envios == null || envios.isEmpty()) {
       return;
     }
 
+    List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
+    for (Envio envio : envios) {
+      mails.add(envio.mail);
+    }
+
+    List<Envio_Correo__c> registros = new List<Envio_Correo__c>();
     try {
-      Messaging.sendEmail(mails);
+      Messaging.SendEmailResult[] resultados = Messaging.sendEmail(mails);
+      for (Integer i = 0; i < resultados.size(); i++) {
+        Envio_Correo__c registro = crearRegistro(envios[i]);
+        if (resultados[i].isSuccess()) {
+          registro.Estado__c = 'Enviado';
+        } else {
+          registro.Estado__c = 'Error';
+          registro.Mensaje_Error__c = mensajeError(resultados[i]);
+        }
+        registros.add(registro);
+      }
     } catch (Exception e) {
+      for (Envio envio : envios) {
+        Envio_Correo__c registro = crearRegistro(envio);
+        registro.Estado__c = 'Error';
+        registro.Mensaje_Error__c = e.getMessage();
+        registros.add(registro);
+      }
       System.debug(
         LoggingLevel.ERROR,
         'Error enviando notificación PPH: ' + e.getMessage()
       );
     }
+
+    if (!registros.isEmpty()) {
+      insert registros;
+    }
+  }
+
+  private static Envio_Correo__c crearRegistro(Envio envio) {
+    return new Envio_Correo__c(
+      Proceso__c = PROCESO,
+      Objeto__c = OBJETO,
+      Id_Registro__c = String.valueOf(envio.planId),
+      Nombre_Registro__c = envio.nombreRegistro,
+      Productor__c = envio.productorId,
+      CUIT__c = envio.cuit,
+      Evento__c = envio.evento,
+      Plantilla__c = envio.plantilla,
+      Para__c = envio.toAddress,
+      Asunto__c = String.isBlank(envio.asunto) ? PROCESO : envio.asunto,
+      De__c = SENDER_ADDRESS,
+      Estado__c = 'Enviado',
+      Fecha_Envio__c = System.now()
+    );
+  }
+
+  private static String mensajeError(Messaging.SendEmailResult resultado) {
+    if (resultado.getErrors() == null || resultado.getErrors().isEmpty()) {
+      return 'El envío fue rechazado.';
+    }
+    return resultado.getErrors()[0].getMessage();
   }
 }

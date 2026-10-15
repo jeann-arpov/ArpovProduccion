@@ -164,7 +164,7 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
 
     Map<Id, Account> productores = new Map<Id, Account>(
       [
-        SELECT Id, Direccion_de_Correo_electronico_del_CUIT__c
+        SELECT Id, Direccion_de_Correo_electronico_del_CUIT__c, N_CUIT__c
         FROM Account
         WHERE Id IN :productorIds
       ]
@@ -182,38 +182,42 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
       }
     }
 
-    List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
+    List<PPH_NotificacionService.Envio> envios = new List<PPH_NotificacionService.Envio>();
 
     for (Plan_de_Siembra__c plan : planesAprobados) {
       Account productor = productores.get(plan.Productor__c);
-      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildTemplateMail(
+      PPH_NotificacionService.Envio envio = PPH_NotificacionService.crearEnvio(
         'PPH_Aprobado',
-        plan.Id,
+        'Adherido',
+        plan,
         contactoPorProductor.get(plan.Productor__c),
         productor != null
           ? productor.Direccion_de_Correo_electronico_del_CUIT__c
-          : null
+          : null,
+        productor != null ? productor.N_CUIT__c : null
       );
-      if (mail != null) {
-        mails.add(mail);
+      if (envio != null) {
+        envios.add(envio);
       }
     }
 
     for (Plan_de_Siembra__c plan : planesRechazados) {
       Account productor = productores.get(plan.Productor__c);
-      Messaging.SingleEmailMessage mail = PPH_NotificacionService.buildTemplateMail(
+      PPH_NotificacionService.Envio envio = PPH_NotificacionService.crearEnvio(
         'PPH_Rechazado',
-        plan.Id,
+        'Rechazado',
+        plan,
         contactoPorProductor.get(plan.Productor__c),
         productor != null
           ? productor.Direccion_de_Correo_electronico_del_CUIT__c
-          : null
+          : null,
+        productor != null ? productor.N_CUIT__c : null
       );
-      if (mail != null) {
-        mails.add(mail);
+      if (envio != null) {
+        envios.add(envio);
       }
     }
 
-    PPH_NotificacionService.send(mails);
+    PPH_NotificacionService.send(envios);
   }
 }

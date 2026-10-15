@@ -80,6 +80,26 @@ private class PlanDeSiembraTriggerHandlerTest {
     update plan;
 
     System.assertEquals(1, Limits.getEmailInvocations());
+
+    List<Envio_Correo__c> envios = [
+      SELECT
+        Id,
+        Proceso__c,
+        Objeto__c,
+        Estado__c,
+        Productor__c,
+        Id_Registro__c,
+        Evento__c,
+        Plantilla__c
+      FROM Envio_Correo__c
+    ];
+    System.assertEquals(1, envios.size());
+    System.assertEquals('PPH', envios[0].Proceso__c);
+    System.assertEquals('Plan_de_Siembra__c', envios[0].Objeto__c);
+    System.assertEquals('Enviado', envios[0].Estado__c);
+    System.assertEquals(plan.Productor__c, envios[0].Productor__c);
+    System.assertEquals('Adherido', envios[0].Evento__c);
+    System.assertEquals('PPH_Aprobado', envios[0].Plantilla__c);
   }
 
   @IsTest
@@ -90,6 +110,26 @@ private class PlanDeSiembraTriggerHandlerTest {
     update plan;
 
     System.assertEquals(1, Limits.getEmailInvocations());
+
+    List<Envio_Correo__c> envios = [
+      SELECT
+        Id,
+        Proceso__c,
+        Objeto__c,
+        Estado__c,
+        Productor__c,
+        Id_Registro__c,
+        Evento__c,
+        Plantilla__c
+      FROM Envio_Correo__c
+    ];
+    System.assertEquals(1, envios.size());
+    System.assertEquals('PPH', envios[0].Proceso__c);
+    System.assertEquals('Plan_de_Siembra__c', envios[0].Objeto__c);
+    System.assertEquals('Enviado', envios[0].Estado__c);
+    System.assertEquals(plan.Productor__c, envios[0].Productor__c);
+    System.assertEquals('Rechazado', envios[0].Evento__c);
+    System.assertEquals('PPH_Rechazado', envios[0].Plantilla__c);
   }
 
   @IsTest

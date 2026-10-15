@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Proceso__c</fullName>
+    <description
+  >Proceso que originó el envío. Para el aviso del primer MBT de la cosecha usar &quot;MBT inicial de campaña&quot;.</description>
+    <externalId>false</externalId>
+    <label>Proceso</label>
+    <length>80</length>
+    <required>true</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

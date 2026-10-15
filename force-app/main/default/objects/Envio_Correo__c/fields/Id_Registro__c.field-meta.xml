@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Id_Registro__c</fullName>
+    <description
+  >Id del registro de origen. Sirve para cualquier objeto. En el envío de MBT inicial de campaña se guarda el Id del Movimiento BolsaTech.</description>
+    <externalId>true</externalId>
+    <label>Id Registro</label>
+    <length>18</length>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
