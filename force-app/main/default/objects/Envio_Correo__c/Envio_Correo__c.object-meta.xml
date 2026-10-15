@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Registro de los correos enviados por procesos automáticos. Id Registro apunta al registro de origen y puede corresponder a distintos objetos. El proceso de MBT inicial de campaña guarda ahí el Movimiento BolsaTech que disparó el envío.</description>
+    <enableActivities>true</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableLicensing>false</enableLicensing>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <externalSharingModel>Private</externalSharingModel>
+    <gender>Masculine</gender>
+    <label>Envío de Correo</label>
+    <nameField>
+        <displayFormat>EC-{0000000}</displayFormat>
+        <label>Número</label>
+        <trackHistory>false</trackHistory>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Envíos de Correo</pluralLabel>
+    <searchLayouts>
+        <searchResultsAdditionalFields>Proceso__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Objeto__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Id_Registro__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Estado__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Fecha_Envio__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Asunto__c</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>

@@ -669,6 +669,19 @@
         </quickActionListItems>
     </quickActionList>
     <relatedLists>
+        <fields>NAME</fields>
+        <fields>Estado__c</fields>
+        <fields>Fecha_Envio__c</fields>
+        <fields>Proceso__c</fields>
+        <fields>Campania__c</fields>
+        <fields>Cultivo__c</fields>
+        <fields>Asunto__c</fields>
+        <fields>Para__c</fields>
+        <relatedList>Envio_Correo__c.Productor__c</relatedList>
+        <sortField>Fecha_Envio__c</sortField>
+        <sortOrder>Desc</sortOrder>
+    </relatedLists>
+    <relatedLists>
         <fields>CASES.CASE_NUMBER</fields>
         <fields>CASES.SUBJECT</fields>
         <fields>CASES.STATUS</fields>

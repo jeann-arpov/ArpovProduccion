@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Registro__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(ISBLANK(Id_Registro__c), &quot;&quot;, HYPERLINK(&quot;/&quot; &amp; Id_Registro__c, IF(ISBLANK(Nombre_Registro__c), Id_Registro__c, Nombre_Registro__c), &quot;_self&quot;))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Registro</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
