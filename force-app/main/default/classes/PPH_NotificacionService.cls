@@ -8,6 +8,7 @@ public with sharing class PPH_NotificacionService {
     public Id planId;
     public String nombreRegistro;
     public Id productorId;
+    public Id contactoId;
     public String cuit;
     public String toAddress;
     public String asunto;
@@ -38,6 +39,7 @@ public with sharing class PPH_NotificacionService {
     envio.planId = plan.Id;
     envio.nombreRegistro = plan.Name;
     envio.productorId = plan.Productor__c;
+    envio.contactoId = contactId;
     envio.cuit = cuit;
     envio.toAddress = toAddress;
     envio.asunto = getAsunto(templateDeveloperName);
@@ -150,6 +152,7 @@ public with sharing class PPH_NotificacionService {
       Id_Registro__c = String.valueOf(envio.planId),
       Nombre_Registro__c = envio.nombreRegistro,
       Productor__c = envio.productorId,
+      Contacto__c = envio.contactoId,
       CUIT__c = envio.cuit,
       Evento__c = envio.evento,
       Plantilla__c = envio.plantilla,
