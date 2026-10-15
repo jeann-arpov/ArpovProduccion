@@ -9,6 +9,13 @@
                     <p>{mensajeFinalizado}</p>
                 </div>
                 <footer class="slds-modal__footer">
+                    <lightning-button
+                        if:true={tieneErrores}
+                        class="slds-m-right_small"
+                        label="Descargar errores"
+                        icon-name="utility:download"
+                        onclick={descargarErrores}>
+                    </lightning-button>
                     <lightning-button variant="brand" label="Aceptar" onclick={aceptarFinalizado}></lightning-button>
                 </footer>
             </div>
@@ -66,12 +73,12 @@
                         <template if:false={esEdicion}>
                             <h2 class="titulo">Crear casos</h2>
                             <p class="texto">
-                                Una fila por caso. El CUIT identifica la cuenta. Inicio acepta Entrante o Saliente.
+                                Una fila por caso. Con el CUIT se busca la cuenta y se completan la cuenta y la razón social.
+                                Inicio acepta Entrante o Saliente. Si vienen Tipo y Tema, arman el asunto: SE, la cuenta, el tipo, el tema y el número.
                             </p>
                             <p class="etiqueta">Obligatorias</p>
                             <div class="chips">
                                 <span class="chip">CUIT</span>
-                                <span class="chip">Razón Social</span>
                                 <span class="chip">Tipo de registro</span>
                                 <span class="chip">Estado</span>
                                 <span class="chip">Inicio</span>
@@ -82,7 +89,10 @@
                             <div class="chips">
                                 <span class="chip">Tipo</span>
                                 <span class="chip">Tema</span>
+                                <span class="chip">Comentario Principal</span>
+                                <span class="chip">Comentario Secundario</span>
                             </div>
+                            <p class="nota">El Comentario Secundario solo se carga si también viene el Comentario Principal, y tiene que corresponder a ese valor.</p>
                         </template>
                         <template if:true={esEdicion}>
                             <h2 class="titulo">Actualizar casos</h2>
@@ -104,8 +114,9 @@
                                 <span class="chip">ID Propietario</span>
                                 <span class="chip">Comentario Principal</span>
                                 <span class="chip">Comentario Secundario</span>
+                                <span class="chip">Descripción</span>
                             </div>
-                            <p class="nota">El Comentario Secundario solo se actualiza si también viene el Comentario Principal, y tiene que corresponder a ese valor.</p>
+                            <p class="nota">El Comentario Secundario solo se actualiza si también viene el Comentario Principal, y tiene que corresponder a ese valor. Si cambia el Tipo o el Tema, el asunto se rearma.</p>
                         </template>
                     </section>
                     <section class="zona">

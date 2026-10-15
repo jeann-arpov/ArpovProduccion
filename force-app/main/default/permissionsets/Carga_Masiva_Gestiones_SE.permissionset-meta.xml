@@ -11,6 +11,36 @@
         <enabled>true</enabled>
         <name>Carga_Masiva_Gestiones_SE</name>
     </customPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Gestion_Expedientes__c.Caso__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Gestion_Expedientes__c.Celular__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Gestion_Expedientes__c.Comentario__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Gestion_Expedientes__c.Efectividad__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Gestion_Expedientes__c.Operador__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Gestion_Expedientes__c.Respuesta__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <tabSettings>
         <tab>Carga_Masiva_Gestiones_SE</tab>
         <visibility>Visible</visibility>

@@ -16,6 +16,21 @@
         <field>Case.CUIT__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Case.Description</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Case.Comentario_Principal__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Case.Comentario_Secundario__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <tabSettings>
         <tab>Carga_Masiva_Casos_SE</tab>
         <visibility>Visible</visibility>

@@ -25,14 +25,15 @@ const CAMPOS = {
     'id propietario': 'idPropietario',
     'comentario principal': 'comentarioPrincipal',
     'comentario secundario': 'comentarioSecundario',
+    descripcion: 'descripcion',
     'id caso': 'idCaso',
     'caso id': 'idCaso',
     'id del caso': 'idCaso',
     id_caso: 'idCaso',
     caso_id: 'idCaso'
 };
-const CAMPOS_EDICION = ['estado', 'tipo', 'tema', 'inicio', 'capsula', 'idPropietario', 'comentarioPrincipal', 'comentarioSecundario'];
-const ENCABEZADOS_OBLIGATORIOS = ['cuit', 'razonSocial', 'tipoRegistro', 'estado', 'inicio', 'capsula', 'idPropietario'];
+const CAMPOS_EDICION = ['estado', 'tipo', 'tema', 'inicio', 'capsula', 'idPropietario', 'comentarioPrincipal', 'comentarioSecundario', 'descripcion'];
+const ENCABEZADOS_OBLIGATORIOS = ['cuit', 'tipoRegistro', 'estado', 'inicio', 'capsula', 'idPropietario'];
 const ETIQUETAS = {
     cuit: 'CUIT',
     razonSocial: 'Razón Social',
@@ -45,6 +46,10 @@ const ETIQUETAS = {
     comentarioPrincipal: 'Comentario Principal',
     comentarioSecundario: 'Comentario Secundario'
 };
+const COLUMNAS_CREAR = ['CUIT', 'Tipo de registro del Caso', 'Estado', 'Tipo', 'Tema', 'Inicio', 'Cápsula', 'ID Propietario', 'Comentario Principal', 'Comentario Secundario'];
+const CAMPOS_REPORTE_CREAR = ['cuit', 'tipoRegistro', 'estado', 'tipo', 'tema', 'inicio', 'capsula', 'idPropietario', 'comentarioPrincipal', 'comentarioSecundario'];
+const COLUMNAS_EDITAR = ['ID Caso', 'Estado', 'Tipo', 'Tema', 'Inicio', 'Cápsula', 'ID Propietario', 'Comentario Principal', 'Comentario Secundario', 'Descripción'];
+const CAMPOS_REPORTE_EDITAR = ['idCaso', 'estado', 'tipo', 'tema', 'inicio', 'capsula', 'idPropietario', 'comentarioPrincipal', 'comentarioSecundario', 'descripcion'];
 
 export default class CargaMasivaCasosSe extends LightningElement {
     modo = 'crear';
@@ -310,6 +315,9 @@ export default class CargaMasivaCasosSe extends LightningElement {
             filas
         };
         this.step = '3';
+        if (conError > 0) {
+            this.descargarErrores();
+        }
     }
 
     get mostrarFinalizado() {
@@ -325,7 +333,7 @@ export default class CargaMasivaCasosSe extends LightningElement {
         if (!this.resumen.conError) {
             return 'La carga finalizó exitosamente. ' + verbo + ' ' + this.resumen.creados + ' casos.';
         }
-        return 'La carga finalizó. Se ' + accion + ' ' + this.resumen.creados + ' de ' + this.resumen.procesados + ' casos. ' + this.resumen.conError + ' filas tuvieron error.';
+        return 'La carga finalizó. Se ' + accion + ' ' + this.resumen.creados + ' de ' + this.resumen.procesados + ' casos. ' + this.resumen.conError + ' filas tuvieron error. El Excel trae esas filas, con las columnas de la plantilla y el motivo, para corregirlas y volver a cargarlas.';
     }
 
     aceptarFinalizado() {
@@ -382,12 +390,10 @@ export default class CargaMasivaCasosSe extends LightningElement {
             this.toast('El lector de Excel todavía se está cargando', 'warning');
             return;
         }
-        const encabezados = this.esEdicion
-            ? ['ID Caso', 'Estado', 'Tipo', 'Tema', 'Inicio', 'Cápsula', 'ID Propietario', 'Comentario Principal', 'Comentario Secundario']
-            : ['CUIT', 'Razón Social', 'Tipo de registro del Caso', 'Estado', 'Tipo', 'Tema', 'Inicio', 'Cápsula', 'ID Propietario'];
+        const encabezados = this.esEdicion ? COLUMNAS_EDITAR : COLUMNAS_CREAR;
         const ejemplo = this.esEdicion
-            ? ['500000000000000AAA', 'Abierto', '', '', 'Entrante', '', '', 'FISCALIZADA', 'INFORMA VENTAS']
-            : ['20144462980', 'Razon Social SA', 'Sembra Evolucion', 'Abierto', '', '', 'Saliente', 'STINE', ''];
+            ? ['500000000000000AAA', 'Abierto', '', '', 'Entrante', '', '', 'FISCALIZADA', 'INFORMA VENTAS', '']
+            : ['20144462980', 'Sembra Evolucion', 'Abierto', '', '', 'Saliente', 'STINE', '', '', ''];
         const libro = XLSX.utils.book_new();
         const hoja = XLSX.utils.aoa_to_sheet([encabezados, ejemplo]);
         XLSX.utils.book_append_sheet(libro, hoja, 'Casos');
@@ -398,20 +404,41 @@ export default class CargaMasivaCasosSe extends LightningElement {
         if (!this.resumen || !this.xlsxListo) {
             return;
         }
+        const columnas = this.esEdicion ? COLUMNAS_EDITAR : COLUMNAS_CREAR;
+        const campos = this.esEdicion ? CAMPOS_REPORTE_EDITAR : CAMPOS_REPORTE_CREAR;
+        const originales = new Map(this.filas.map((fila) => [fila.nroFila, fila]));
         const errores = this.resumen.filas
             .filter((fila) => !fila.valido)
-            .map((fila) => ({
-                Fila: fila.nroFila,
-                'ID Caso': fila.idInformado || '',
-                CUIT: fila.cuit,
-                'Razón Social': fila.razonSocial,
-                Caso: fila.casoNumero || '',
-                Motivo: fila.motivo
-            }));
+            .map((fila) => {
+                const origen = originales.get(fila.nroFila) || {};
+                const salida = {};
+                columnas.forEach((columna, indice) => {
+                    salida[columna] = this.valorReporte(origen, fila, campos[indice]);
+                });
+                salida.Error = fila.motivo || '';
+                return salida;
+            });
+        if (!errores.length) {
+            return;
+        }
         const libro = XLSX.utils.book_new();
-        const hoja = XLSX.utils.json_to_sheet(errores);
+        const hoja = XLSX.utils.json_to_sheet(errores, { header: columnas.concat('Error') });
         XLSX.utils.book_append_sheet(libro, hoja, 'Errores');
-        XLSX.writeFile(libro, 'Errores carga masiva casos.xlsx');
+        XLSX.writeFile(libro, this.esEdicion ? 'Resultados edicion masiva casos.xlsx' : 'Resultados carga masiva casos.xlsx');
+    }
+
+    valorReporte(origen, fila, campo) {
+        let valor = origen[campo];
+        if (valor == null || valor === '') {
+            if (campo === 'idCaso') {
+                valor = fila.idInformado;
+            } else if (campo === 'cuit') {
+                valor = fila.cuit;
+            } else if (campo === 'razonSocial') {
+                valor = fila.razonSocial;
+            }
+        }
+        return valor == null ? '' : valor;
     }
 
     mapearFilas(crudas) {
@@ -431,7 +458,7 @@ export default class CargaMasivaCasosSe extends LightningElement {
             throw new Error('Faltan columnas obligatorias: ' + faltan.map((campo) => ETIQUETAS[campo]).join(', ') + '.');
         }
         if (this.esEdicion && !CAMPOS_EDICION.some((campo) => presentes.has(campo))) {
-            throw new Error('Incluí al menos una columna para actualizar: Estado, Tipo, Tema, Inicio, Cápsula, ID Propietario o los comentarios.');
+            throw new Error('Incluí al menos una columna para actualizar: Estado, Tipo, Tema, Inicio, Cápsula, ID Propietario, Descripción o los comentarios.');
         }
 
         return crudas
@@ -447,7 +474,7 @@ export default class CargaMasivaCasosSe extends LightningElement {
             })
             .filter((fila) => this.esEdicion
                 ? fila.idCaso || CAMPOS_EDICION.some((campo) => fila[campo])
-                : ENCABEZADOS_OBLIGATORIOS.some((campo) => fila[campo]) || fila.tipo || fila.tema);
+                : ENCABEZADOS_OBLIGATORIOS.some((campo) => fila[campo]) || fila.tipo || fila.tema || fila.comentarioPrincipal || fila.comentarioSecundario);
     }
 
     normalizar(valor) {

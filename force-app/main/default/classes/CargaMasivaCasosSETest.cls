@@ -27,7 +27,7 @@ private class CargaMasivaCasosSETest {
             System.assertEquals(0, resultado.conError);
 
             Case creado = [
-                SELECT AccountId, RecordType.DeveloperName, Status, Type, Tema__c, Inicio__c, Capsula__c, OwnerId, CUIT__c, Subject
+                SELECT AccountId, RecordType.DeveloperName, Status, Type, Tema__c, Inicio__c, Capsula__c, OwnerId, CUIT__c, Subject, CaseNumber
                 FROM Case
                 WHERE Id = :resultado.filas[0].casoId
             ];
@@ -40,7 +40,7 @@ private class CargaMasivaCasosSETest {
             System.assertEquals('STINE', creado.Capsula__c);
             System.assertEquals(operador.Id, creado.OwnerId);
             System.assertEquals('20144462980', creado.CUIT__c);
-            System.assert(creado.Subject.startsWith('Carga masiva - '));
+            System.assertEquals('SE-Productor Test SA---' + creado.CaseNumber, creado.Subject);
         }
     }
 
@@ -58,9 +58,45 @@ private class CargaMasivaCasosSETest {
             CargaMasivaCasosSE.Resumen resultado = CargaMasivaCasosSE.crear(new List<CargaMasivaCasosSE.FilaEntrada>{ fila });
             System.assertEquals(1, resultado.creados, resultado.filas[0].motivo);
 
-            Case creado = [SELECT Type, Tema__c FROM Case WHERE Id = :resultado.filas[0].casoId];
+            Case creado = [SELECT Type, Tema__c, Subject, CaseNumber FROM Case WHERE Id = :resultado.filas[0].casoId];
             System.assertEquals('Solicitud', creado.Type);
             System.assertEquals('HT', creado.Tema__c);
+            System.assertEquals('SE-Otra Razon SA-Solicitud-HT-' + creado.CaseNumber, creado.Subject);
+        }
+    }
+
+    @IsTest
+    static void editarTemaRearmaElAsuntoYGuardaDescripcion() {
+        User operador = usuarioConPermiso();
+
+        System.runAs(operador) {
+            Account cuenta = insertarCuenta('30641405554', 'COOPERATIVA AGROPECUARIA LARGA');
+            CargaMasivaCasosSE.FilaEntrada alta = filaBase(cuenta, operador.Id);
+            alta.tipo = 'Consulta';
+            alta.tema = 'PPH';
+            CargaMasivaCasosSE.Resumen creado = CargaMasivaCasosSE.crear(
+                new List<CargaMasivaCasosSE.FilaEntrada>{ alta }
+            );
+            System.assertEquals(1, creado.creados, creado.filas[0].motivo);
+
+            Case original = [SELECT Subject, CaseNumber FROM Case WHERE Id = :creado.filas[0].casoId];
+            System.assertEquals('SE-COOPERATIVA AGROPECU-Consulta-PPH-' + original.CaseNumber, original.Subject);
+
+            CargaMasivaCasosSE.FilaEntrada edicion = new CargaMasivaCasosSE.FilaEntrada();
+            edicion.nroFila = 1;
+            edicion.idCaso = creado.filas[0].casoId;
+            edicion.tema = 'Licencia';
+            edicion.descripcion = 'Detalle del contacto';
+            CargaMasivaCasosSE.Resumen resultado = CargaMasivaCasosSE.editar(
+                new List<CargaMasivaCasosSE.FilaEntrada>{ edicion }
+            );
+            System.assertEquals(1, resultado.creados, resultado.filas[0].motivo);
+
+            Case actual = [SELECT Subject, Type, Tema__c, Description FROM Case WHERE Id = :original.Id];
+            System.assertEquals('Consulta', actual.Type);
+            System.assertEquals('Licencia', actual.Tema__c);
+            System.assertEquals('Detalle del contacto', actual.Description);
+            System.assertEquals('SE-COOPERATIVA AGROPECU-Consulta-Licencia-' + original.CaseNumber, actual.Subject);
         }
     }
 
@@ -82,24 +118,19 @@ private class CargaMasivaCasosSETest {
             tipoMal.tipo = 'No existe';
             tipoMal.nroFila = 4;
 
-            CargaMasivaCasosSE.FilaEntrada razonMal = filaBase(cuenta, operador.Id);
-            razonMal.razonSocial = 'Otra empresa';
-            razonMal.nroFila = 5;
-
             CargaMasivaCasosSE.Resumen preview = CargaMasivaCasosSE.validar(new List<CargaMasivaCasosSE.FilaEntrada>{
-                cuitMal, sinCuenta, tipoMal, razonMal
+                cuitMal, sinCuenta, tipoMal
             });
 
-            System.assertEquals(4, preview.procesados);
+            System.assertEquals(3, preview.procesados);
             System.assertEquals(0, preview.validos);
-            System.assertEquals(4, preview.conError);
+            System.assertEquals(3, preview.conError);
             System.assert(preview.filas[0].motivo.contains('formato'));
             System.assert(preview.filas[1].motivo.contains('No se encontró'));
             System.assert(preview.filas[2].motivo.contains('Tipo'));
-            System.assert(preview.filas[3].motivo.contains('no coincide'));
 
             CargaMasivaCasosSE.Resumen creado = CargaMasivaCasosSE.crear(new List<CargaMasivaCasosSE.FilaEntrada>{
-                cuitMal, sinCuenta, tipoMal, razonMal
+                cuitMal, sinCuenta, tipoMal
             });
             System.assertEquals(0, creado.creados);
             System.assertEquals(0, [SELECT COUNT() FROM Case]);
@@ -107,17 +138,16 @@ private class CargaMasivaCasosSETest {
     }
 
     @IsTest
-    static void eligeLaCuentaQueCoincideConLaRazonSocial() {
+    static void rechazaCuitConMasDeUnaCuenta() {
         User operador = usuarioConPermiso();
 
         System.runAs(operador) {
-            Account una = insertarObtentor('20144462980', 'Primera SA', '91');
-            Account otra = insertarObtentor('20144462980', 'Segunda SA', '92');
-            CargaMasivaCasosSE.FilaEntrada fila = filaBase(otra, operador.Id);
-            CargaMasivaCasosSE.Resumen resultado = CargaMasivaCasosSE.crear(new List<CargaMasivaCasosSE.FilaEntrada>{ fila });
-            System.assertEquals(1, resultado.creados, resultado.filas[0].motivo);
-            System.assertEquals(otra.Id, resultado.filas[0].cuentaId);
-            System.assertNotEquals(una.Id, resultado.filas[0].cuentaId);
+            insertarObtentor('20144462980', 'Primera SA', '91');
+            insertarObtentor('20144462980', 'Segunda SA', '92');
+            CargaMasivaCasosSE.FilaEntrada fila = filaBase(new Account(N_CUIT__c = '20144462980', Name = 'Primera SA'), operador.Id);
+            CargaMasivaCasosSE.Resumen preview = CargaMasivaCasosSE.validar(new List<CargaMasivaCasosSE.FilaEntrada>{ fila });
+            System.assertEquals(0, preview.validos);
+            System.assert(preview.filas[0].motivo.contains('más de una Cuenta'));
         }
     }
 
@@ -168,6 +198,51 @@ private class CargaMasivaCasosSETest {
             System.assertEquals('Entrante', actual.Inicio__c);
             System.assertEquals('BASF', actual.Capsula__c);
             System.assertEquals('Abierto', actual.Status);
+        }
+    }
+
+    @IsTest
+    static void creaComentariosOpcionales() {
+        User operador = usuarioConPermiso();
+
+        System.runAs(operador) {
+            Account cuenta = insertarCuenta('30616275905', 'Cuenta Comentarios SA');
+            CargaMasivaCasosSE.FilaEntrada sinComentarios = filaBase(cuenta, operador.Id);
+            CargaMasivaCasosSE.Resumen creado = CargaMasivaCasosSE.crear(
+                new List<CargaMasivaCasosSE.FilaEntrada>{ sinComentarios }
+            );
+            System.assertEquals(1, creado.creados, creado.filas[0].motivo);
+            Case vacio = [
+                SELECT Comentario_Principal__c, Comentario_Secundario__c
+                FROM Case
+                WHERE Id = :creado.filas[0].casoId
+            ];
+            System.assertEquals(null, vacio.Comentario_Principal__c);
+            System.assertEquals(null, vacio.Comentario_Secundario__c);
+
+            CargaMasivaCasosSE.FilaEntrada soloSecundario = filaBase(cuenta, operador.Id);
+            soloSecundario.nroFila = 2;
+            soloSecundario.comentarioSecundario = 'INFORMA VENTAS';
+            CargaMasivaCasosSE.Resumen rechazado = CargaMasivaCasosSE.validar(
+                new List<CargaMasivaCasosSE.FilaEntrada>{ soloSecundario }
+            );
+            System.assert(rechazado.filas[0].motivo.contains('Comentario Principal'));
+
+            CargaMasivaCasosSE.FilaEntrada pareja = filaBase(cuenta, operador.Id);
+            pareja.nroFila = 3;
+            pareja.comentarioPrincipal = 'FISCALIZADA';
+            pareja.comentarioSecundario = 'INFORMA VENTAS';
+            CargaMasivaCasosSE.Resumen conPareja = CargaMasivaCasosSE.crear(
+                new List<CargaMasivaCasosSE.FilaEntrada>{ pareja }
+            );
+            System.assertEquals(1, conPareja.creados, conPareja.filas[0].motivo);
+            Case actual = [
+                SELECT Comentario_Principal__c, Comentario_Secundario__c
+                FROM Case
+                WHERE Id = :conPareja.filas[0].casoId
+            ];
+            System.assertEquals('FISCALIZADA', actual.Comentario_Principal__c);
+            System.assertEquals('INFORMA VENTAS', actual.Comentario_Secundario__c);
         }
     }
 

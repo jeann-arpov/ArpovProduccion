@@ -20,9 +20,16 @@ const CAMPOS = {
     'id del caso': 'casoId',
     medio: 'medio',
     'tipo de gestion': 'tipoGestion',
-    'tipo gestion': 'tipoGestion'
+    'tipo gestion': 'tipoGestion',
+    respuesta: 'respuesta',
+    efectividad: 'efectividad',
+    celular: 'celular',
+    'numero de celular': 'celular',
+    telefono: 'celular',
+    comentario: 'comentario',
+    'id propietario': 'idPropietario'
 };
-const ENCABEZADOS_OBLIGATORIOS = ['casoId', 'medio', 'tipoGestion'];
+const ENCABEZADOS_OBLIGATORIOS = ['casoId', 'medio', 'tipoGestion', 'idPropietario'];
 const CAMPOS_EDICION = {
     'id gestion': 'idGestion',
     'gestion id': 'idGestion',
@@ -34,14 +41,29 @@ const CAMPOS_EDICION = {
     'numero gestion': 'idGestion',
     medio: 'medio',
     'tipo de gestion': 'tipoGestion',
-    'tipo gestion': 'tipoGestion'
+    'tipo gestion': 'tipoGestion',
+    respuesta: 'respuesta',
+    efectividad: 'efectividad',
+    celular: 'celular',
+    'numero de celular': 'celular',
+    telefono: 'celular',
+    comentario: 'comentario',
+    'id propietario': 'idPropietario'
 };
+const CAMPOS_ACTUALIZABLES = ['medio', 'tipoGestion', 'respuesta', 'efectividad', 'celular', 'comentario', 'idPropietario'];
 const ETIQUETAS = {
     casoId: 'Caso_ID',
     medio: 'Medio',
     tipoGestion: 'Tipo de Gestión',
-    idGestion: 'ID Gestión'
+    respuesta: 'Respuesta',
+    efectividad: 'Efectividad',
+    idGestion: 'ID Gestión',
+    idPropietario: 'ID Propietario'
 };
+const COLUMNAS_CREAR = ['Caso_ID', 'Medio', 'Tipo de Gestión', 'ID Propietario', 'Respuesta', 'Efectividad', 'Celular', 'Comentario'];
+const CAMPOS_REPORTE_CREAR = ['casoId', 'medio', 'tipoGestion', 'idPropietario', 'respuesta', 'efectividad', 'celular', 'comentario'];
+const COLUMNAS_EDITAR = ['ID Gestión', 'Medio', 'Tipo de Gestión', 'ID Propietario', 'Respuesta', 'Efectividad', 'Celular', 'Comentario'];
+const CAMPOS_REPORTE_EDITAR = ['idGestion', 'medio', 'tipoGestion', 'idPropietario', 'respuesta', 'efectividad', 'celular', 'comentario'];
 
 export default class CargaMasivaGestionesSe extends LightningElement {
     modo = 'crear';
@@ -212,7 +234,7 @@ export default class CargaMasivaGestionesSe extends LightningElement {
         if (!this.resumen.conError) {
             return 'La carga finalizó exitosamente. ' + verbo + ' ' + this.resumen.creados + ' gestiones.';
         }
-        return 'La carga finalizó. Se ' + accion + ' ' + this.resumen.creados + ' de ' + this.resumen.procesados + ' gestiones. ' + this.resumen.conError + ' filas tuvieron error.';
+        return 'La carga finalizó. Se ' + accion + ' ' + this.resumen.creados + ' de ' + this.resumen.procesados + ' gestiones. ' + this.resumen.conError + ' filas tuvieron error. El Excel trae esas filas, con las columnas de la plantilla y el motivo, para corregirlas y volver a cargarlas.';
     }
 
     handleArchivo(event) {
@@ -321,6 +343,9 @@ export default class CargaMasivaGestionesSe extends LightningElement {
             filas
         };
         this.step = '3';
+        if (conError > 0) {
+            this.descargarErrores();
+        }
     }
 
     aceptarFinalizado() {
@@ -379,46 +404,82 @@ export default class CargaMasivaGestionesSe extends LightningElement {
         }
         const libro = XLSX.utils.book_new();
         const hoja = XLSX.utils.aoa_to_sheet(this.esEdicion
-            ? [
-                ['ID Gestión', 'Medio', 'Tipo de Gestión'],
-                ['GE-00001', 'Email', '']
-            ]
-            : [
-                ['Caso_ID', 'Medio', 'Tipo de Gestión'],
-                ['500000000000000AAA', 'WhatsApp', 'Saliente']
-            ]);
+            ? [COLUMNAS_EDITAR, ['GE-00001', 'Email', '', '', 'Sin contacto', '', '', '']]
+            : [COLUMNAS_CREAR, ['500000000000000AAA', 'WhatsApp', 'Saliente', '005000000000000AAA', '', '', '', '']]);
         XLSX.utils.book_append_sheet(libro, hoja, 'Gestiones');
         XLSX.writeFile(libro, this.esEdicion ? 'Edicion masiva gestiones SE.xlsx' : 'Carga masiva gestiones SE.xlsx');
     }
 
     descargarErrores() {
-        this.escribirResultado(true);
-    }
-
-    descargarResultado() {
-        this.escribirResultado(false);
-    }
-
-    escribirResultado(soloErrores) {
         if (!this.resumen || !this.xlsxListo) {
             return;
         }
-        const filas = (soloErrores ? this.resumen.filas.filter((fila) => !fila.valido) : this.resumen.filas)
-            .map((fila) => ({
-                Fila: fila.nroFila,
-                'ID Gestión': fila.idInformado || fila.gestionNombre || '',
-                Caso_ID: fila.casoIdTexto,
-                Medio: fila.medio,
-                'Tipo de Gestión': fila.tipoGestion,
-                Caso: fila.casoNumero || '',
-                Resultado: fila.valido ? 'Procesada correctamente' : 'Rechazada',
-                'Motivo del rechazo': fila.motivo || '',
-                Gestión: fila.gestionNombre || ''
-            }));
+        const columnas = this.esEdicion ? COLUMNAS_EDITAR : COLUMNAS_CREAR;
+        const campos = this.esEdicion ? CAMPOS_REPORTE_EDITAR : CAMPOS_REPORTE_CREAR;
+        const originales = new Map(this.filas.map((fila) => [fila.nroFila, fila]));
+        const errores = this.resumen.filas
+            .filter((fila) => !fila.valido)
+            .map((fila) => {
+                const origen = originales.get(fila.nroFila) || {};
+                const salida = {};
+                columnas.forEach((columna, indice) => {
+                    salida[columna] = this.valorReporte(origen, fila, campos[indice]);
+                });
+                salida.Error = fila.motivo || '';
+                return salida;
+            });
+        if (!errores.length) {
+            return;
+        }
+        const libro = XLSX.utils.book_new();
+        const hoja = XLSX.utils.json_to_sheet(errores, { header: columnas.concat('Error') });
+        XLSX.utils.book_append_sheet(libro, hoja, 'Errores');
+        XLSX.writeFile(libro, this.esEdicion ? 'Resultados edicion masiva gestiones.xlsx' : 'Resultados carga masiva gestiones.xlsx');
+    }
+
+    valorReporte(origen, fila, campo) {
+        let valor = origen[campo];
+        if (valor == null || valor === '') {
+            if (campo === 'idGestion') {
+                valor = fila.idInformado || fila.gestionNombre;
+            } else if (campo === 'casoId') {
+                valor = fila.casoIdTexto;
+            } else if (campo === 'medio') {
+                valor = fila.medio;
+            } else if (campo === 'tipoGestion') {
+                valor = fila.tipoGestion;
+            } else if (campo === 'respuesta') {
+                valor = fila.respuesta;
+            } else if (campo === 'efectividad') {
+                valor = fila.efectividad;
+            } else if (campo === 'celular') {
+                valor = fila.celular;
+            } else if (campo === 'comentario') {
+                valor = fila.comentario;
+            }
+        }
+        return valor == null ? '' : valor;
+    }
+
+    descargarResultado() {
+        if (!this.resumen || !this.xlsxListo) {
+            return;
+        }
+        const filas = this.resumen.filas.map((fila) => ({
+            Fila: fila.nroFila,
+            'ID Gestión': fila.idInformado || fila.gestionNombre || '',
+            Caso_ID: fila.casoIdTexto,
+            Medio: fila.medio,
+            'Tipo de Gestión': fila.tipoGestion,
+            Caso: fila.casoNumero || '',
+            Resultado: fila.valido ? 'Procesada correctamente' : 'Rechazada',
+            'Motivo del rechazo': fila.motivo || '',
+            Gestión: fila.gestionNombre || ''
+        }));
         const libro = XLSX.utils.book_new();
         const hoja = XLSX.utils.json_to_sheet(filas);
         XLSX.utils.book_append_sheet(libro, hoja, 'Resultado');
-        XLSX.writeFile(libro, soloErrores ? 'Errores carga masiva gestiones.xlsx' : 'Resultado carga masiva gestiones.xlsx');
+        XLSX.writeFile(libro, 'Resultado carga masiva gestiones.xlsx');
     }
 
     filaVista(fila) {
@@ -446,8 +507,8 @@ export default class CargaMasivaGestionesSe extends LightningElement {
         if (faltan.length) {
             throw new Error('Faltan columnas obligatorias: ' + faltan.map((campo) => ETIQUETAS[campo]).join(', ') + '.');
         }
-        if (this.esEdicion && !presentes.has('medio') && !presentes.has('tipoGestion')) {
-            throw new Error('Incluí al menos una columna para actualizar: Medio o Tipo de Gestión.');
+        if (this.esEdicion && !CAMPOS_ACTUALIZABLES.some((campo) => presentes.has(campo))) {
+            throw new Error('Incluí al menos una columna para actualizar: Medio, Tipo de Gestión, ID Propietario, Respuesta, Efectividad, Celular o Comentario.');
         }
 
         return crudas
@@ -462,8 +523,8 @@ export default class CargaMasivaGestionesSe extends LightningElement {
                 return fila;
             })
             .filter((fila) => this.esEdicion
-                ? fila.idGestion || fila.medio || fila.tipoGestion
-                : ENCABEZADOS_OBLIGATORIOS.some((campo) => fila[campo]));
+                ? fila.idGestion || CAMPOS_ACTUALIZABLES.some((campo) => fila[campo])
+                : ENCABEZADOS_OBLIGATORIOS.some((campo) => fila[campo]) || fila.celular || fila.comentario);
     }
 
     normalizar(valor) {

@@ -9,6 +9,13 @@
                     <p>{mensajeFinalizado}</p>
                 </div>
                 <footer class="slds-modal__footer">
+                    <lightning-button
+                        if:true={tieneErrores}
+                        class="slds-m-right_small"
+                        label="Descargar errores"
+                        icon-name="utility:download"
+                        onclick={descargarErrores}>
+                    </lightning-button>
                     <lightning-button variant="brand" label="Aceptar" onclick={aceptarFinalizado}></lightning-button>
                 </footer>
             </div>
@@ -68,14 +75,23 @@
                             <p class="texto">
                                 Una fila por gestión de un caso de Sembrá Evolución.
                                 Medio acepta WhatsApp, Email o Llamada. Tipo de Gestión acepta Entrante o Saliente.
+                                Efectividad acepta Efectiva o No Efectiva.
                             </p>
                             <p class="etiqueta">Obligatorias</p>
                             <div class="chips">
                                 <span class="chip">Caso_ID</span>
                                 <span class="chip">Medio</span>
                                 <span class="chip">Tipo de Gestión</span>
+                                <span class="chip">ID Propietario</span>
                             </div>
-                            <p class="nota">La gestión queda asociada al caso, igual que en Registrar Gestión.</p>
+                            <p class="etiqueta">Opcionales</p>
+                            <div class="chips">
+                                <span class="chip">Respuesta</span>
+                                <span class="chip">Efectividad</span>
+                                <span class="chip">Celular</span>
+                                <span class="chip">Comentario</span>
+                            </div>
+                            <p class="nota">El operador se completa solo, según el caso. La Respuesta tiene que corresponder a ese operador.</p>
                         </template>
                         <template if:true={esEdicion}>
                             <h2 class="titulo">Actualizar gestiones</h2>
@@ -91,7 +107,13 @@
                             <div class="chips">
                                 <span class="chip">Medio</span>
                                 <span class="chip">Tipo de Gestión</span>
+                                <span class="chip">ID Propietario</span>
+                                <span class="chip">Respuesta</span>
+                                <span class="chip">Efectividad</span>
+                                <span class="chip">Celular</span>
+                                <span class="chip">Comentario</span>
                             </div>
+                            <p class="nota">Una celda vacía deja el dato como está. La Respuesta tiene que corresponder al operador que ya tiene la gestión.</p>
                         </template>
                     </section>
                     <section class="zona">

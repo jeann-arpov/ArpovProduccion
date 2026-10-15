@@ -58,6 +58,7 @@ public with sharing class CargaMasivaGestionesSE {
 
         List<FilaTrabajo> trabajos = new List<FilaTrabajo>();
         Set<Id> casoIds = new Set<Id>();
+        Set<Id> propietarios = new Set<Id>();
         for (Integer i = 0; i < filas.size(); i++) {
             FilaEntrada entrada = filas[i] == null ? new FilaEntrada() : filas[i];
             FilaTrabajo trabajo = new FilaTrabajo();
@@ -74,7 +75,13 @@ public with sharing class CargaMasivaGestionesSE {
             if (trabajo.casoId != null) {
                 casoIds.add(trabajo.casoId);
             }
+            if (trabajo.ownerId != null) {
+                propietarios.add(trabajo.ownerId);
+            }
         }
+        Map<Id, User> usuarios = propietarios.isEmpty()
+            ? new Map<Id, User>()
+            : new Map<Id, User>([SELECT Id, IsActive FROM User WHERE Id IN :propietarios]);
 
         Map<Id, Case> casos = casoIds.isEmpty()
             ? new Map<Id, Case>()
@@ -94,6 +101,15 @@ public with sharing class CargaMasivaGestionesSE {
             completarCaso(trabajo, casos);
             if (trabajo.motivo != null) {
                 trabajo.resultado.motivo = trabajo.motivo;
+                continue;
+            }
+            completarDatos(trabajo);
+            if (trabajo.motivo != null) {
+                trabajo.resultado.motivo = trabajo.motivo;
+                continue;
+            }
+            if (!propietarioActivo(usuarios, trabajo.ownerId)) {
+                trabajo.resultado.motivo = 'El propietario no existe o no está activo.';
                 continue;
             }
             trabajo.resultado.valido = true;
@@ -171,6 +187,15 @@ public with sharing class CargaMasivaGestionesSE {
             trabajo.motivo = String.isBlank(trabajo.resultado.tipoGestion)
                 ? 'El Tipo de Gestión es obligatorio.'
                 : 'El Tipo de Gestión tiene que ser Entrante o Saliente.';
+            return;
+        }
+        if (String.isBlank(trabajo.entrada.idPropietario)) {
+            trabajo.motivo = 'El ID Propietario es obligatorio.';
+            return;
+        }
+        trabajo.ownerId = idUsuario(trabajo.entrada.idPropietario);
+        if (trabajo.ownerId == null) {
+            trabajo.motivo = 'El ID Propietario no corresponde a un usuario de Salesforce.';
         }
     }
 
@@ -187,13 +212,47 @@ public with sharing class CargaMasivaGestionesSE {
         trabajo.caso = caso;
     }
 
+    private static void completarDatos(FilaTrabajo trabajo) {
+        String operador = operadorDeCaso(trabajo.caso);
+        trabajo.respuesta = valorOpcional(Gestion_Expedientes__c.Respuesta__c, trabajo.entrada.respuesta);
+        if (trabajo.respuesta == ERROR_PICKLIST) {
+            trabajo.motivo = 'La Respuesta "' + trabajo.entrada.respuesta.trim() + '" no es válida.';
+            return;
+        }
+        if (trabajo.respuesta != null && !respuestaCorresponde(operador, trabajo.respuesta)) {
+            trabajo.motivo = 'La Respuesta no corresponde al operador del caso.';
+            return;
+        }
+        trabajo.efectividad = valorOpcional(Gestion_Expedientes__c.Efectividad__c, trabajo.entrada.efectividad);
+        if (trabajo.efectividad == ERROR_PICKLIST) {
+            trabajo.motivo = 'La Efectividad "' + trabajo.entrada.efectividad.trim() + '" no es válida.';
+            return;
+        }
+        trabajo.celular = textoOpcional(trabajo.entrada.celular);
+        trabajo.comentario = textoOpcional(trabajo.entrada.comentario);
+    }
+
     private static Gestion_Expedientes__c armarGestion(FilaTrabajo trabajo) {
-        return new Gestion_Expedientes__c(
+        Gestion_Expedientes__c gestion = new Gestion_Expedientes__c(
             Caso__c = trabajo.caso.Id,
             Medio__c = trabajo.medio,
             Tipo_Gestion__c = trabajo.tipoGestion,
-            Operador__c = operadorDeCaso(trabajo.caso)
+            Operador__c = operadorDeCaso(trabajo.caso),
+            OwnerId = trabajo.ownerId
         );
+        if (trabajo.respuesta != null) {
+            gestion.Respuesta__c = trabajo.respuesta;
+        }
+        if (trabajo.efectividad != null) {
+            gestion.Efectividad__c = trabajo.efectividad;
+        }
+        if (trabajo.celular != null) {
+            gestion.Celular__c = trabajo.celular;
+        }
+        if (trabajo.comentario != null) {
+            gestion.Comentario__c = trabajo.comentario;
+        }
+        return gestion;
     }
 
     private static String operadorDeCaso(Case caso) {
@@ -262,6 +321,7 @@ public with sharing class CargaMasivaGestionesSE {
 
         List<FilaTrabajo> trabajos = new List<FilaTrabajo>();
         Set<String> nombres = new Set<String>();
+        Set<Id> propietarios = new Set<Id>();
         for (Integer i = 0; i < filas.size(); i++) {
             FilaEntrada entrada = filas[i] == null ? new FilaEntrada() : filas[i];
             FilaTrabajo trabajo = new FilaTrabajo();
@@ -274,6 +334,9 @@ public with sharing class CargaMasivaGestionesSE {
             trabajo.resultado.valido = false;
             trabajos.add(trabajo);
             evaluarEdicion(trabajo);
+            if (trabajo.ownerId != null) {
+                propietarios.add(trabajo.ownerId);
+            }
             if (trabajo.motivo == null && trabajo.gestionObjetivo == null && trabajo.nombreGestion != null) {
                 nombres.add(trabajo.nombreGestion);
             }
@@ -310,11 +373,14 @@ public with sharing class CargaMasivaGestionesSE {
             }
         }
 
+        Map<Id, User> usuarios = propietarios.isEmpty()
+            ? new Map<Id, User>()
+            : new Map<Id, User>([SELECT Id, IsActive FROM User WHERE Id IN :propietarios]);
         Set<Id> idsGestion = repeticiones.keySet();
         Map<Id, Gestion_Expedientes__c> gestiones = idsGestion.isEmpty()
             ? new Map<Id, Gestion_Expedientes__c>()
             : new Map<Id, Gestion_Expedientes__c>([
-                SELECT Id, Name, Caso__c, Caso__r.CaseNumber, Caso__r.RecordType.DeveloperName
+                SELECT Id, Name, Operador__c, Caso__c, Caso__r.CaseNumber, Caso__r.RecordType.DeveloperName
                 FROM Gestion_Expedientes__c
                 WHERE Id IN :idsGestion
             ]);
@@ -336,6 +402,14 @@ public with sharing class CargaMasivaGestionesSE {
             if (gestion.Caso__c == null || gestion.Caso__r.RecordType == null
                 || gestion.Caso__r.RecordType.DeveloperName != RT_SEMBRA) {
                 trabajo.resultado.motivo = 'La Gestión no pertenece a un Caso de Sembrá Evolución.';
+                continue;
+            }
+            if (trabajo.respuesta != null && !respuestaCorresponde(gestion.Operador__c, trabajo.respuesta)) {
+                trabajo.resultado.motivo = 'La Respuesta no corresponde al operador de la Gestión.';
+                continue;
+            }
+            if (trabajo.ownerId != null && !propietarioActivo(usuarios, trabajo.ownerId)) {
+                trabajo.resultado.motivo = 'El propietario no existe o no está activo.';
                 continue;
             }
             trabajo.resultado.casoId = gestion.Caso__c;
@@ -411,8 +485,47 @@ public with sharing class CargaMasivaGestionesSE {
                 return;
             }
         }
-        if (trabajo.medio == null && trabajo.tipoGestion == null) {
+        trabajo.respuesta = valorOpcional(Gestion_Expedientes__c.Respuesta__c, trabajo.entrada.respuesta);
+        if (trabajo.respuesta == ERROR_PICKLIST) {
+            trabajo.motivo = 'La Respuesta "' + trabajo.entrada.respuesta.trim() + '" no es válida.';
+            return;
+        }
+        trabajo.efectividad = valorOpcional(Gestion_Expedientes__c.Efectividad__c, trabajo.entrada.efectividad);
+        if (trabajo.efectividad == ERROR_PICKLIST) {
+            trabajo.motivo = 'La Efectividad "' + trabajo.entrada.efectividad.trim() + '" no es válida.';
+            return;
+        }
+        trabajo.celular = textoOpcional(trabajo.entrada.celular);
+        trabajo.comentario = textoOpcional(trabajo.entrada.comentario);
+        if (!String.isBlank(trabajo.entrada.idPropietario)) {
+            trabajo.ownerId = idUsuario(trabajo.entrada.idPropietario);
+            if (trabajo.ownerId == null) {
+                trabajo.motivo = 'El ID Propietario no corresponde a un usuario de Salesforce.';
+                return;
+            }
+        }
+        if (trabajo.medio == null && trabajo.tipoGestion == null && trabajo.respuesta == null
+            && trabajo.efectividad == null && trabajo.celular == null && trabajo.comentario == null
+            && trabajo.ownerId == null) {
             trabajo.motivo = 'No hay datos para actualizar.';
+        }
+    }
+
+    private static Boolean propietarioActivo(Map<Id, User> usuarios, Id ownerId) {
+        User propietario = usuarios.get(ownerId);
+        return propietario != null && propietario.IsActive;
+    }
+
+    private static Id idUsuario(String raw) {
+        String limpio = raw == null ? '' : raw.trim();
+        if (limpio.length() != 15 && limpio.length() != 18) {
+            return null;
+        }
+        try {
+            Id candidato = (Id) limpio;
+            return candidato.getSObjectType() == User.SObjectType ? candidato : null;
+        } catch (Exception ex) {
+            return null;
         }
     }
 
@@ -423,6 +536,21 @@ public with sharing class CargaMasivaGestionesSE {
         }
         if (trabajo.tipoGestion != null) {
             gestion.Tipo_Gestion__c = trabajo.tipoGestion;
+        }
+        if (trabajo.respuesta != null) {
+            gestion.Respuesta__c = trabajo.respuesta;
+        }
+        if (trabajo.efectividad != null) {
+            gestion.Efectividad__c = trabajo.efectividad;
+        }
+        if (trabajo.celular != null) {
+            gestion.Celular__c = trabajo.celular;
+        }
+        if (trabajo.comentario != null) {
+            gestion.Comentario__c = trabajo.comentario;
+        }
+        if (trabajo.ownerId != null) {
+            gestion.OwnerId = trabajo.ownerId;
         }
         return gestion;
     }
@@ -459,6 +587,104 @@ public with sharing class CargaMasivaGestionesSE {
         return valor == null ? '' : valor.trim();
     }
 
+    private static String textoOpcional(String valor) {
+        String limpio = texto(valor);
+        return String.isBlank(limpio) ? null : limpio;
+    }
+
+    private static final String ERROR_PICKLIST = '__INVALID__';
+    private static Map<String, Map<String, String>> cachePicklist = new Map<String, Map<String, String>>();
+    private static Map<String, Set<String>> respuestasPorOperador;
+
+    private static String valorOpcional(Schema.SObjectField campo, String informado) {
+        if (String.isBlank(informado)) {
+            return null;
+        }
+        String valor = valorPicklist(campo, informado);
+        return valor == null ? ERROR_PICKLIST : valor;
+    }
+
+    private static String valorPicklist(Schema.SObjectField campo, String informado) {
+        if (String.isBlank(informado)) {
+            return null;
+        }
+        String api = String.valueOf(campo);
+        if (!cachePicklist.containsKey(api)) {
+            Map<String, String> mapa = new Map<String, String>();
+            for (Schema.PicklistEntry entrada : campo.getDescribe().getPicklistValues()) {
+                if (!entrada.isActive()) {
+                    continue;
+                }
+                mapa.put(clave(entrada.getValue()), entrada.getValue());
+                mapa.put(clave(entrada.getLabel()), entrada.getValue());
+            }
+            cachePicklist.put(api, mapa);
+        }
+        return cachePicklist.get(api).get(clave(informado));
+    }
+
+    private static Boolean respuestaCorresponde(String operador, String respuesta) {
+        if (String.isBlank(operador) || String.isBlank(respuesta)) {
+            return false;
+        }
+        if (respuestasPorOperador == null) {
+            respuestasPorOperador = dependientes(Gestion_Expedientes__c.Respuesta__c);
+        }
+        Set<String> permitidas = respuestasPorOperador.get(operador);
+        return permitidas != null && permitidas.contains(respuesta);
+    }
+
+    private static Map<String, Set<String>> dependientes(Schema.SObjectField campo) {
+        Map<String, Set<String>> porControl = new Map<String, Set<String>>();
+        Schema.DescribeFieldResult describe = campo.getDescribe();
+        Schema.SObjectField controlador = describe.getController();
+        if (controlador == null) {
+            return porControl;
+        }
+        List<Schema.PicklistEntry> controles = controlador.getDescribe().getPicklistValues();
+        String base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        for (Schema.PicklistEntry entrada : describe.getPicklistValues()) {
+            if (!entrada.isActive()) {
+                continue;
+            }
+            Map<String, Object> serializada = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(entrada));
+            String validFor = (String) serializada.get('validFor');
+            if (String.isBlank(validFor)) {
+                continue;
+            }
+            for (Integer index = 0; index < controles.size(); index++) {
+                if (!controles[index].isActive()) {
+                    continue;
+                }
+                Integer bitIndex = index / 6;
+                if (bitIndex >= validFor.length()) {
+                    break;
+                }
+                Integer bitShift = 5 - Math.mod(index, 6);
+                Integer bits = base64.indexOf(validFor.substring(bitIndex, bitIndex + 1));
+                if (bits < 0 || (bits & (1 << bitShift)) == 0) {
+                    continue;
+                }
+                String control = controles[index].getValue();
+                if (!porControl.containsKey(control)) {
+                    porControl.put(control, new Set<String>());
+                }
+                porControl.get(control).add(entrada.getValue());
+            }
+        }
+        return porControl;
+    }
+
+    private static String clave(String valor) {
+        if (valor == null) {
+            return '';
+        }
+        String limpio = valor.trim().toLowerCase();
+        limpio = limpio.replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u');
+        limpio = limpio.replace('ü', 'u').replace('ñ', 'n');
+        return limpio.replaceAll('[^a-z0-9]', '');
+    }
+
     private static String mensajeDml(Database.Error[] errores) {
         List<String> partes = new List<String>();
         for (Database.Error error : errores) {
@@ -477,6 +703,11 @@ public with sharing class CargaMasivaGestionesSE {
         private String nombreGestion;
         private String medio;
         private String tipoGestion;
+        private String respuesta;
+        private String efectividad;
+        private String celular;
+        private String comentario;
+        private Id ownerId;
     }
 
     public class FilaEntrada {
@@ -484,6 +715,11 @@ public with sharing class CargaMasivaGestionesSE {
         @AuraEnabled public String casoId { get; set; }
         @AuraEnabled public String medio { get; set; }
         @AuraEnabled public String tipoGestion { get; set; }
+        @AuraEnabled public String respuesta { get; set; }
+        @AuraEnabled public String efectividad { get; set; }
+        @AuraEnabled public String celular { get; set; }
+        @AuraEnabled public String comentario { get; set; }
+        @AuraEnabled public String idPropietario { get; set; }
         @AuraEnabled public String idGestion { get; set; }
     }
 

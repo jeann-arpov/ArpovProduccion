@@ -24,7 +24,7 @@ private class CargaMasivaGestionesSETest {
             System.assertEquals(1, resultado.creados, resultado.filas[0].motivo);
 
             Gestion_Expedientes__c creada = [
-                SELECT Caso__c, Medio__c, Tipo_Gestion__c, Operador__c, Name
+                SELECT Caso__c, Medio__c, Tipo_Gestion__c, Operador__c, Name, OwnerId
                 FROM Gestion_Expedientes__c
                 WHERE Id = :resultado.filas[0].gestionId
             ];
@@ -32,6 +32,7 @@ private class CargaMasivaGestionesSETest {
             System.assertEquals('WhatsApp', creada.Medio__c);
             System.assertEquals('Saliente', creada.Tipo_Gestion__c);
             System.assertEquals('Caso', creada.Operador__c);
+            System.assertEquals(operador.Id, creada.OwnerId);
             System.assert(creada.Name.startsWith('GE-'));
         }
     }
@@ -221,6 +222,113 @@ private class CargaMasivaGestionesSETest {
         }
     }
 
+    @IsTest
+    static void guardaLosCamposDeRegistrarGestion() {
+        User operador = usuarioConPermiso();
+
+        System.runAs(operador) {
+            Case caso = casoSe(null, null);
+            CargaMasivaGestionesSE.FilaEntrada fila = fila(caso.Id, 'Llamada', 'Saliente');
+            fila.respuesta = 'Sin contacto';
+            fila.efectividad = 'No Efectiva';
+            fila.celular = '1122334455';
+            fila.comentario = 'Llamó y pidió el detalle';
+
+            CargaMasivaGestionesSE.Resumen resultado = CargaMasivaGestionesSE.crear(
+                new List<CargaMasivaGestionesSE.FilaEntrada>{ fila }
+            );
+            System.assertEquals(1, resultado.creados, resultado.filas[0].motivo);
+
+            Gestion_Expedientes__c creada = [
+                SELECT Respuesta__c, Efectividad__c, Celular__c, Comentario__c, Operador__c
+                FROM Gestion_Expedientes__c
+                WHERE Id = :resultado.filas[0].gestionId
+            ];
+            System.assertEquals('Sin contacto', creada.Respuesta__c);
+            System.assertEquals('No Efectiva', creada.Efectividad__c);
+            System.assertEquals('1122334455', creada.Celular__c);
+            System.assertEquals('Llamó y pidió el detalle', creada.Comentario__c);
+            System.assertEquals('Caso', creada.Operador__c);
+        }
+    }
+
+    @IsTest
+    static void creaSinRespuestaNiEfectividad() {
+        User operador = usuarioConPermiso();
+
+        System.runAs(operador) {
+            Case caso = casoSe(null, null);
+            CargaMasivaGestionesSE.FilaEntrada fila = fila(caso.Id, 'Email', 'Entrante');
+            fila.respuesta = null;
+            fila.efectividad = '';
+
+            CargaMasivaGestionesSE.Resumen resultado = CargaMasivaGestionesSE.crear(
+                new List<CargaMasivaGestionesSE.FilaEntrada>{ fila }
+            );
+            System.assertEquals(1, resultado.creados, resultado.filas[0].motivo);
+
+            Gestion_Expedientes__c creada = [
+                SELECT Respuesta__c, Efectividad__c
+                FROM Gestion_Expedientes__c
+                WHERE Id = :resultado.filas[0].gestionId
+            ];
+            System.assertEquals(null, creada.Respuesta__c);
+            System.assertEquals(null, creada.Efectividad__c);
+        }
+    }
+
+    @IsTest
+    static void rechazaRespuestaDeOtroOperador() {
+        User operador = usuarioConPermiso();
+
+        System.runAs(operador) {
+            Case caso = casoSe(null, null);
+            CargaMasivaGestionesSE.FilaEntrada fila = fila(caso.Id, 'WhatsApp', 'Saliente');
+            fila.respuesta = 'Sin intención de compra';
+
+            CargaMasivaGestionesSE.Resumen preview = CargaMasivaGestionesSE.validar(
+                new List<CargaMasivaGestionesSE.FilaEntrada>{ fila }
+            );
+            System.assertEquals(0, preview.validos);
+            System.assert(preview.filas[0].motivo.contains('operador'));
+        }
+    }
+
+    @IsTest
+    static void editaComentarioSinBorrarLaRespuesta() {
+        User operador = usuarioConPermiso();
+
+        System.runAs(operador) {
+            Case caso = casoSe(null, null);
+            CargaMasivaGestionesSE.FilaEntrada alta = fila(caso.Id, 'Email', 'Entrante');
+            alta.comentario = 'Primer contacto';
+            CargaMasivaGestionesSE.Resumen creado = CargaMasivaGestionesSE.crear(
+                new List<CargaMasivaGestionesSE.FilaEntrada>{ alta }
+            );
+            System.assertEquals(1, creado.creados, creado.filas[0].motivo);
+
+            CargaMasivaGestionesSE.FilaEntrada edicion = new CargaMasivaGestionesSE.FilaEntrada();
+            edicion.nroFila = 1;
+            edicion.idGestion = creado.filas[0].gestionId;
+            edicion.comentario = 'Segundo contacto';
+
+            CargaMasivaGestionesSE.Resumen resultado = CargaMasivaGestionesSE.editar(
+                new List<CargaMasivaGestionesSE.FilaEntrada>{ edicion }
+            );
+            System.assertEquals(1, resultado.creados, resultado.filas[0].motivo);
+
+            Gestion_Expedientes__c actual = [
+                SELECT Medio__c, Respuesta__c, Efectividad__c, Comentario__c
+                FROM Gestion_Expedientes__c
+                WHERE Id = :creado.filas[0].gestionId
+            ];
+            System.assertEquals('Email', actual.Medio__c);
+            System.assertEquals('Sin respuesta', actual.Respuesta__c);
+            System.assertEquals('Efectiva', actual.Efectividad__c);
+            System.assertEquals('Segundo contacto', actual.Comentario__c);
+        }
+    }
+
     private static CargaMasivaGestionesSE.FilaEntrada fila(Id casoId, String medio, String tipo) {
         return fila(String.valueOf(casoId), medio, tipo);
     }
@@ -231,6 +339,9 @@ private class CargaMasivaGestionesSETest {
         fila.casoId = casoId;
         fila.medio = medio;
         fila.tipoGestion = tipo;
+        fila.respuesta = 'Sin respuesta';
+        fila.efectividad = 'Efectiva';
+        fila.idPropietario = UserInfo.getUserId();
         return fila;
     }
 

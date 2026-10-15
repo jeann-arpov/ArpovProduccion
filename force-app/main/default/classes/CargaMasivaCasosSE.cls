@@ -51,7 +51,7 @@ public with sharing class CargaMasivaCasosSE {
             trabajo.resultado = new FilaResultado();
             trabajo.resultado.nroFila = trabajo.entrada.nroFila == null ? i + 2 : trabajo.entrada.nroFila;
             trabajo.resultado.cuit = texto(trabajo.entrada.cuit);
-            trabajo.resultado.razonSocial = texto(trabajo.entrada.razonSocial);
+            trabajo.resultado.razonSocial = '';
             trabajo.resultado.valido = false;
             trabajos.add(trabajo);
 
@@ -115,9 +115,27 @@ public with sharing class CargaMasivaCasosSE {
                 Map<Id, Case> numeros = new Map<Id, Case>([
                     SELECT Id, CaseNumber FROM Case WHERE Id IN :creados
                 ]);
+                List<Case> asuntos = new List<Case>();
+                List<FilaTrabajo> conNumero = new List<FilaTrabajo>();
                 for (FilaTrabajo trabajo : pendientes) {
-                    if (trabajo.resultado.casoId != null && numeros.containsKey(trabajo.resultado.casoId)) {
-                        trabajo.resultado.casoNumero = numeros.get(trabajo.resultado.casoId).CaseNumber;
+                    if (trabajo.resultado.casoId == null || !numeros.containsKey(trabajo.resultado.casoId)) {
+                        continue;
+                    }
+                    trabajo.resultado.casoNumero = numeros.get(trabajo.resultado.casoId).CaseNumber;
+                    trabajo.resultado.razonSocial = trabajo.cuenta.Name;
+                    asuntos.add(new Case(
+                        Id = trabajo.resultado.casoId,
+                        Subject = asuntoSe(trabajo.cuenta.Name, trabajo.tipo, trabajo.tema, trabajo.resultado.casoNumero)
+                    ));
+                    conNumero.add(trabajo);
+                }
+                if (!asuntos.isEmpty()) {
+                    Database.SaveResult[] ajustes = Database.update(asuntos, false, AccessLevel.USER_MODE);
+                    for (Integer i = 0; i < ajustes.size(); i++) {
+                        if (!ajustes[i].isSuccess()) {
+                            conNumero[i].resultado.valido = false;
+                            conNumero[i].resultado.motivo = mensajeDml(ajustes[i].getErrors());
+                        }
                     }
                 }
             }
@@ -149,10 +167,6 @@ public with sharing class CargaMasivaCasosSE {
         trabajo.resultado.cuit = trabajo.digitosCuit;
         if (!cuitValido(trabajo.digitosCuit)) {
             trabajo.motivo = 'El CUIT no tiene un formato válido.';
-            return;
-        }
-        if (String.isBlank(entrada.razonSocial)) {
-            trabajo.motivo = 'La Razón Social es obligatoria.';
             return;
         }
         Schema.RecordTypeInfo tipoRegistro = resolverRecordType(entrada.tipoRegistro);
@@ -216,7 +230,9 @@ public with sharing class CargaMasivaCasosSE {
         trabajo.ownerId = idUsuario(entrada.idPropietario);
         if (trabajo.ownerId == null) {
             trabajo.motivo = 'El ID Propietario no corresponde a un usuario de Salesforce.';
+            return;
         }
+        aplicarComentarios(trabajo);
     }
 
     private static void completarCuentaYOwner(
@@ -235,33 +251,12 @@ public with sharing class CargaMasivaCasosSE {
             trabajo.motivo = 'No se encontró una Cuenta visible con este CUIT.';
             return;
         }
-
-        String razon = normalizarNombre(trabajo.entrada.razonSocial);
-        List<Account> coinciden = new List<Account>();
-        for (Account cuenta : cuentas) {
-            if (normalizarNombre(cuenta.Name) == razon) {
-                coinciden.add(cuenta);
-            }
-        }
-
-        if (cuentas.size() == 1) {
-            if (coinciden.isEmpty()) {
-                trabajo.motivo = 'La Razón Social no coincide con la Cuenta del CUIT (' + cuentas[0].Name + ').';
-                return;
-            }
-            trabajo.cuenta = cuentas[0];
+        if (cuentas.size() > 1) {
+            trabajo.motivo = 'Hay más de una Cuenta con este CUIT.';
             return;
         }
-
-        if (coinciden.size() == 1) {
-            trabajo.cuenta = coinciden[0];
-            return;
-        }
-        if (coinciden.isEmpty()) {
-            trabajo.motivo = 'Hay más de una Cuenta con este CUIT y ninguna coincide con la Razón Social.';
-            return;
-        }
-        trabajo.motivo = 'Hay más de una Cuenta con este CUIT y la misma Razón Social.';
+        trabajo.cuenta = cuentas[0];
+        trabajo.resultado.razonSocial = trabajo.cuenta.Name;
     }
 
     private static Case armarCaso(FilaTrabajo trabajo) {
@@ -273,12 +268,18 @@ public with sharing class CargaMasivaCasosSE {
         caso.Capsula__c = trabajo.capsula;
         caso.OwnerId = trabajo.ownerId;
         caso.CUIT__c = trabajo.digitosCuit;
-        caso.Subject = asunto(trabajo.resultado.razonSocial);
+        caso.Subject = asuntoSe(trabajo.cuenta.Name, trabajo.tipo, trabajo.tema, null);
         if (trabajo.tipo != null) {
             caso.Type = trabajo.tipo;
         }
         if (trabajo.tema != null) {
             caso.Tema__c = trabajo.tema;
+        }
+        if (trabajo.comentarioPrincipal != null) {
+            caso.Comentario_Principal__c = trabajo.comentarioPrincipal;
+        }
+        if (trabajo.comentarioSecundario != null) {
+            caso.Comentario_Secundario__c = trabajo.comentarioSecundario;
         }
         return caso;
     }
@@ -365,7 +366,7 @@ public with sharing class CargaMasivaCasosSE {
         Map<Id, Case> casos = idsCaso.isEmpty()
             ? new Map<Id, Case>()
             : new Map<Id, Case>([
-                SELECT Id, CaseNumber, RecordType.DeveloperName
+                SELECT Id, CaseNumber, Type, Tema__c, Account.Name, RecordType.DeveloperName
                 FROM Case
                 WHERE Id IN :idsCaso
             ]);
@@ -399,7 +400,7 @@ public with sharing class CargaMasivaCasosSE {
             }
             trabajo.resultado.valido = true;
             if (actualizar) {
-                aActualizar.add(armarActualizacion(trabajo));
+                aActualizar.add(armarActualizacion(trabajo, caso));
                 pendientes.add(trabajo);
             }
         }
@@ -481,6 +482,25 @@ public with sharing class CargaMasivaCasosSE {
                 return;
             }
         }
+        aplicarComentarios(trabajo);
+        if (trabajo.motivo != null) {
+            return;
+        }
+        trabajo.descripcion = String.isBlank(entrada.descripcion) ? null : entrada.descripcion.trim();
+        if (estado == null && tipo == null && tema == null && inicio == null && capsula == null
+            && trabajo.ownerId == null && trabajo.comentarioPrincipal == null && trabajo.descripcion == null) {
+            trabajo.motivo = 'No hay datos para actualizar.';
+            return;
+        }
+        trabajo.estado = estado;
+        trabajo.tipo = tipo;
+        trabajo.tema = tema;
+        trabajo.inicio = inicio;
+        trabajo.capsula = capsula;
+    }
+
+    private static void aplicarComentarios(FilaTrabajo trabajo) {
+        FilaEntrada entrada = trabajo.entrada;
         String comentarioPrincipal = valorOpcional(Case.Comentario_Principal__c, entrada.comentarioPrincipal);
         if (comentarioPrincipal == ERROR_PICKLIST) {
             trabajo.motivo = 'El Comentario Principal "' + entrada.comentarioPrincipal.trim() + '" no es válido.';
@@ -500,22 +520,18 @@ public with sharing class CargaMasivaCasosSE {
             trabajo.motivo = 'El Comentario Secundario no corresponde al Comentario Principal.';
             return;
         }
-        if (estado == null && tipo == null && tema == null && inicio == null && capsula == null
-            && trabajo.ownerId == null && comentarioPrincipal == null) {
-            trabajo.motivo = 'No hay datos para actualizar.';
-            return;
-        }
-        trabajo.estado = estado;
-        trabajo.tipo = tipo;
-        trabajo.tema = tema;
-        trabajo.inicio = inicio;
-        trabajo.capsula = capsula;
         trabajo.comentarioPrincipal = comentarioPrincipal;
         trabajo.comentarioSecundario = comentarioSecundario;
     }
 
-    private static Case armarActualizacion(FilaTrabajo trabajo) {
+    private static Case armarActualizacion(FilaTrabajo trabajo, Case actual) {
         Case caso = new Case(Id = trabajo.casoObjetivo);
+        if (trabajo.tipo != null || trabajo.tema != null) {
+            String tipoFinal = trabajo.tipo == null ? actual.Type : trabajo.tipo;
+            String temaFinal = trabajo.tema == null ? actual.Tema__c : trabajo.tema;
+            String nombre = actual.Account == null ? null : actual.Account.Name;
+            caso.Subject = asuntoSe(nombre, tipoFinal, temaFinal, actual.CaseNumber);
+        }
         if (trabajo.estado != null) {
             caso.Status = trabajo.estado;
         }
@@ -539,6 +555,9 @@ public with sharing class CargaMasivaCasosSE {
         }
         if (trabajo.comentarioSecundario != null) {
             caso.Comentario_Secundario__c = trabajo.comentarioSecundario;
+        }
+        if (trabajo.descripcion != null) {
+            caso.Description = trabajo.descripcion;
         }
         return caso;
     }
@@ -717,8 +736,12 @@ public with sharing class CargaMasivaCasosSE {
         return valor == null ? '' : valor.trim();
     }
 
-    private static String asunto(String razonSocial) {
-        String base = 'Carga masiva - ' + (razonSocial == null ? '' : razonSocial.trim());
+    private static String asuntoSe(String nombreCuenta, String tipo, String tema, String numero) {
+        String nombre = nombreCuenta == null ? '' : nombreCuenta;
+        if (nombre.length() > 20) {
+            nombre = nombre.substring(0, 20);
+        }
+        String base = 'SE-' + nombre + '-' + (tipo == null ? '' : tipo) + '-' + (tema == null ? '' : tema) + '-' + (numero == null ? '' : numero);
         return base.length() > 255 ? base.substring(0, 255) : base;
     }
 
@@ -746,6 +769,7 @@ public with sharing class CargaMasivaCasosSE {
         private String capsula;
         private String comentarioPrincipal;
         private String comentarioSecundario;
+        private String descripcion;
     }
 
     public class FilaEntrada {
@@ -762,6 +786,7 @@ public with sharing class CargaMasivaCasosSE {
         @AuraEnabled public String idCaso { get; set; }
         @AuraEnabled public String comentarioPrincipal { get; set; }
         @AuraEnabled public String comentarioSecundario { get; set; }
+        @AuraEnabled public String descripcion { get; set; }
     }
 
     public class FilaResultado {
