@@ -150,6 +150,23 @@
                 <identifier>RecordParaField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Contacto__c</fieldItem>
+                <identifier>RecordContacto_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Proceso__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>PPH</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-mensaje</name>
         <type>Facet</type>
     </flexiPageRegions>
