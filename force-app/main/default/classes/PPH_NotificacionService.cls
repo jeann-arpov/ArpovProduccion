@@ -14,6 +14,7 @@ public with sharing class PPH_NotificacionService {
     public String asunto;
     public String evento;
     public String plantilla;
+    public Id plantillaId;
   }
 
   public static Envio crearEnvio(
@@ -45,6 +46,7 @@ public with sharing class PPH_NotificacionService {
     envio.asunto = getAsunto(templateDeveloperName);
     envio.evento = evento;
     envio.plantilla = templateDeveloperName;
+    envio.plantillaId = getPlantillaId(templateDeveloperName);
     return envio;
   }
 
@@ -82,6 +84,11 @@ public with sharing class PPH_NotificacionService {
   public static String getAsunto(String templateDeveloperName) {
     EmailTemplate template = getTemplate(templateDeveloperName);
     return template != null ? template.Subject : null;
+  }
+
+  private static Id getPlantillaId(String templateDeveloperName) {
+    EmailTemplate template = getTemplate(templateDeveloperName);
+    return template != null ? template.Id : null;
   }
 
   public static EmailTemplate getTemplate(String developerName) {
@@ -156,6 +163,7 @@ public with sharing class PPH_NotificacionService {
       CUIT__c = envio.cuit,
       Evento__c = envio.evento,
       Plantilla__c = envio.plantilla,
+      Id_Plantilla__c = String.valueOf(envio.plantillaId),
       Para__c = envio.toAddress,
       Asunto__c = String.isBlank(envio.asunto) ? PROCESO : envio.asunto,
       De__c = SENDER_ADDRESS,

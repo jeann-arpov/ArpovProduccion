@@ -228,8 +228,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Plantilla__c</fieldItem>
-                <identifier>RecordPlantilla_cField</identifier>
+                <fieldItem>Record.Plantilla_Link__c</fieldItem>
+                <identifier>RecordPlantillaLink_cField</identifier>
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Proceso__c}</leftValue>

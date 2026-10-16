@@ -91,7 +91,8 @@ private class PlanDeSiembraTriggerHandlerTest {
         Contacto__c,
         Id_Registro__c,
         Evento__c,
-        Plantilla__c
+        Plantilla__c,
+        Id_Plantilla__c
       FROM Envio_Correo__c
     ];
     System.assertEquals(1, envios.size());
@@ -102,6 +103,7 @@ private class PlanDeSiembraTriggerHandlerTest {
     System.assertNotEquals(null, envios[0].Contacto__c);
     System.assertEquals('Adherido', envios[0].Evento__c);
     System.assertEquals('PPH_Aprobado', envios[0].Plantilla__c);
+    System.assertNotEquals(null, envios[0].Id_Plantilla__c);
   }
 
   @IsTest
@@ -123,7 +125,8 @@ private class PlanDeSiembraTriggerHandlerTest {
         Contacto__c,
         Id_Registro__c,
         Evento__c,
-        Plantilla__c
+        Plantilla__c,
+        Id_Plantilla__c
       FROM Envio_Correo__c
     ];
     System.assertEquals(1, envios.size());
@@ -134,6 +137,7 @@ private class PlanDeSiembraTriggerHandlerTest {
     System.assertNotEquals(null, envios[0].Contacto__c);
     System.assertEquals('Rechazado', envios[0].Evento__c);
     System.assertEquals('PPH_Rechazado', envios[0].Plantilla__c);
+    System.assertNotEquals(null, envios[0].Id_Plantilla__c);
   }
 
   @IsTest
