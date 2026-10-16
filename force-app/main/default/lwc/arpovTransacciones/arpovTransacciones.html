@@ -1,0 +1,431 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="slds-spinner_container custom-spinner-backdrop">
+            <lightning-spinner alternative-text="Cargando..." size="medium" variant="brand"></lightning-spinner>
+        </div>
+    </template>
+
+    <div class="transacciones-container">
+        <div class="section-header">
+            <div>
+                <h1 class="section-title">Declaraciones</h1>
+                <p class="section-subtitle">Gestioná tus declaraciones de siembra.</p>
+            </div>
+            <div>
+                <button class="btn btn-accent" onclick={handleNewTransaction}>
+                    + Nueva Declaración
+                </button>
+            </div>
+        </div>
+
+        <div class="filters-card">
+            <div class="filters-grid">
+                <div class="filter-field">
+                    <label>Estado</label>
+                    <select class="custom-select" onchange={handleFilterStatusChange}>
+                        <option value="">Todos los estados</option>
+                        <option value="Creada">Creada</option>
+                        <option value="Respondida">Respondida</option>
+                        <option value="Facturada">Facturada</option>
+                        <option value="Cobrada">Cobrada</option>
+                        <option value="Cancelada por NC">Cancelada por NC</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label>Desde</label>
+                    <input type="date" class="custom-input" onchange={handleFilterDesdeChange}/>
+                </div>
+                <div class="filter-field">
+                    <label>Hasta</label>
+                    <input type="date" class="custom-input" onchange={handleFilterHastaChange}/>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <template if:true={hasTransactions}>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Declaración</th> 
+                                <th>Fecha de Creación</th>
+                                <th>Cultivo</th>
+                                <th>Campaña</th>
+                                <th>Obtentor</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={pagedTransactions} for:item="tx">
+                                <tr key={tx.Id}>
+                                    <td>
+                                        <a href="#" data-id={tx.Id} onclick={handleOpenDetail} class="tx-link">
+                                            {tx.Name}
+                                        </a>
+                                    </td>
+                                    <td>{tx.formattedDate}</td>
+                                    <td>{tx.cultivoName}</td>
+                                    <td>{tx.campanaName}</td>
+                                    <td>{tx.obtentorName}</td>
+                                    <td>
+                                        <span>
+                                            <span class="status-dot"></span>
+                                            {tx.Estado__c}
+                                        </span>
+                                    </td>
+                                    <td style="position: relative;">
+                                        <!-- Spinner para la fila individual mientras guarda -->
+                                        <template if:true={tx.isSaving}>
+                                            <lightning-spinner alternative-text="Guardando..." size="small" variant="brand"></lightning-spinner>
+                                        </template>
+
+                                        <template if:false={tx.isSaving}>
+                                            <template if:true={tx.esEstadoCreada}>
+                                                <button 
+                                                    class="btn btn-secondary btn-sm table-action-btn" 
+                                                    data-id={tx.Id} 
+                                                    onclick={handleGenerarPdf}>
+                                                    📄 Generar PDF DUP
+                                                </button>
+                                            </template>
+
+                                            <template if:true={tx.isCreada}>
+                                                <button 
+                                                    class="btn btn-accent btn-sm table-action-btn" 
+                                                    data-id={tx.Id} 
+                                                    onclick={handleDeclararVariedades}>
+                                                    🌱 Declarar Variedades
+                                                </button>
+                                            </template>
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination-bar">
+                    <button class="btn-paginator" onclick={handlePreviousPage} disabled={isFirstPage}>
+                        ◀ Anterior
+                    </button>
+                    <span class="pagination-info">
+                        Página <strong>{currentPage}</strong> de {totalPages}
+                    </span>
+                    <button class="btn-paginator" onclick={handleNextPage} disabled={isLastPage}>
+                        Siguiente ▶
+                    </button>
+                </div>
+            </template>
+
+            <template if:false={hasTransactions}>
+                <div class="empty-state">
+                    <p>No se encontraron transacciones con los filtros seleccionados.</p>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- MODAL DE CREACIÓN -->
+    <template if:true={showCreateModal}>
+        <div class="custom-modal-backdrop">
+            <div class="custom-modal-card modal-large">
+                
+                <div class="modal-header header-dark-bg">
+                    <div>
+                        <h2>Nueva Declaración de Transacción</h2>
+                        <p class="form-sub">Completá los datos obligatorios del cultivo y adjuntá tu comprobante de pago.</p>
+                    </div>
+                    <button onclick={handleCloseCreateModal} class="close-modal-btn">✕</button>
+                </div>
+
+                <div class="modal-body slds-scrollable_y">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_large">
+                            <label class="form-field-label">CUIT Productor</label>
+                            <div class="custom-input-wrapper disabled-field-wrapper">
+                                <input type="text" class="custom-input modal-input-disabled" value={cuitProductor} readonly disabled />
+                            </div>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_large">
+                            <label class="form-field-label">Obtentor <span class="required-asterisk">*</span></label>
+                            <div class="custom-input-wrapper dynamic-border-wrapper">
+                                <select class="custom-select form-dropdown modal-select-dark" onchange={handleObtentorChange}>
+                                    <option value="" class="placeholder-option">Seleccione un Obtentor...</option>
+                                    <template for:each={obtentorOptions} for:item="obt">
+                                        <option key={obt.value} value={obt.value}>{obt.label}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_large">
+                            <label class="form-field-label">Cultivo <span class="required-asterisk">*</span></label>
+                            <div class="custom-input-wrapper dynamic-border-wrapper">
+                                <select class="custom-select form-dropdown modal-select-dark" onchange={handleCultivoChange} disabled={isCultivoDisabled}>
+                                    <option value="" class="placeholder-option">Seleccione un Cultivo...</option>
+                                    <template for:each={cultivoOptions} for:item="opt">
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_large">
+                            <label class="form-field-label">Campaña <span class="required-asterisk">*</span></label>
+                            <div class="custom-input-wrapper dynamic-border-wrapper">
+                                <select class="custom-select form-dropdown modal-select-dark" onchange={handleCampanaChange} disabled={isCampanaDisabled}>
+                                    <option value="" class="placeholder-option">Seleccione una Campaña...</option>
+                                    <template for:each={campanaOptions} for:item="opt">
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field full-width slds-m-top_medium rich-text-dark" style="color:black">
+                        <label class="form-field-label">Comentarios</label>
+                        <lightning-textarea
+                            value={comentarios}
+                            onchange={handleComentariosChange}
+                            placeholder="Escribí aquí detalles adicionales de la transacción...">
+                        </lightning-textarea>
+                    </div>
+
+                    <div class="attachment-section full-width slds-m-top_xlarge custom-uploader-section">
+                        <label class="attachment-title">Cargar Documentación (Opcional)</label>
+                        <p class="attachment-help">Podés adjuntar un archivo (PDF, JPG, PNG) como comprobante si lo deseás.</p>
+                        
+                        <div class="upload-controls custom-uploader-dark">
+                            <lightning-file-upload
+                                label="Adjuntar Comprobante"
+                                name="fileUploader"
+                                accept={acceptedFormats}
+                                record-id={userIdContainer}
+                                onuploadfinished={handleUploadFinished}>
+                            </lightning-file-upload>
+                        </div>
+
+                        <template if:true={hasAttachedFiles}>
+                            <div class="file-badge slds-m-top_small custom-file-badge">
+                                <span class="file-icon">📄</span>
+                                <span class="file-name">{attachedFileName}</span>
+                                <button type="button" class="btn-remove-file" onclick={handleRemoveFile}>✕</button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="modal-actions footer-dark-bg">
+                    <button type="button" class="btn btn-secondary modal-cancel-btn" onclick={handleCloseCreateModal}>
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-accent modal-submit-btn" onclick={handleSubmit} disabled={isSubmitDisabled}>
+                        Generar Declaración
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- MODAL DE ÉXITO -->
+    <template if:true={showSuccessModal}>
+        <div class="custom-modal-backdrop">
+            <div class="custom-modal-card">
+                <div class="modal-header">
+                    <div class="success-icon-badge">✓</div>
+                    <h2>¡Declaración Iniciada!</h2>
+                </div>
+                <div class="modal-body">
+                    <p style="color: white;">La declaración fue creada con éxito en el sistema.</p>
+                    <p class="highlight-text">Para continuar con el proceso, debe completar la declaración de las variedades.</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-accent modal-btn" onclick={handleCloseModal}>
+                        Continuar a Variedades
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- MODAL DE DETALLE -->
+    <template if:true={showDetailModal}>
+        <div class="custom-modal-backdrop">
+            <div class="custom-modal-card modal-medium">
+                <div class="modal-header detail-modal-header">
+                    <h2>Detalle de Declaración {selectedTx.Name}</h2>
+                    <button onclick={handleCloseDetailModal} class="close-text-btn">✕</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small">
+                            <label class="custom-field-label label-opacity">Fecha de Creación</label>
+                            <p class="detail-value-text">{selectedTx.formattedDate}</p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small">
+                            <label class="custom-field-label label-opacity">Estado</label>
+                            <p class="slds-m-top_xxx-small">
+                                <span style="color: white;">
+                                    <span class="status-dot"></span>
+                                    {selectedTx.Estado__c}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small slds-m-top_small">
+                            <label class="custom-field-label label-opacity">Cultivo</label>
+                            <p class="detail-value-text">{selectedTx.cultivoName}</p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-bottom_small slds-m-top_small">
+                            <label class="custom-field-label label-opacity">Campaña</label>
+                            <p class="detail-value-text">{selectedTx.campanaName}</p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-p-bottom_small slds-m-top_small">
+                            <label class="custom-field-label label-opacity">Obtentor</label>
+                            <p class="detail-value-text">{selectedTx.obtentorName}</p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-p-bottom_small slds-m-top_small">
+                            <label class="custom-field-label label-opacity">Comentarios</label>
+                            <div class="detail-comments-container">
+                                <lightning-formatted-rich-text value={selectedTx.Comentarios__c}></lightning-formatted-rich-text>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-attachments-section">
+                        <h3 class="detail-attachments-title">Documentos Adjuntos</h3>
+                        
+                        <template if:true={hasRelatedFiles}>
+                            <div class="detail-files-grid">
+                                <template for:each={currentRelatedFiles} for:item="file">
+                                    <div key={file.documentId} class="file-badge static-file-badge">
+                                        <span class="file-icon">📄</span>
+                                        <span class="file-name">{file.title}</span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <template if:false={hasRelatedFiles}>
+                            <p style="color:white" class="no-files-text">No hay comprobantes cargados para esta declaración.</p>
+                        </template>
+
+                        <div class="detail-upload-box">
+                            <label class="custom-field-label label-margin-bottom">Cargar Nuevo Documento</label>
+                            <lightning-file-upload
+                                label="Adjuntar Comprobante Adicional"
+                                name="detailFileUploader"
+                                accept={acceptedFormats}
+                                record-id={selectedTx.Id}
+                                onuploadfinished={handleDetailUploadFinished}>
+                            </lightning-file-upload>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions detail-modal-footer">
+                    <button class="btn btn-secondary detail-close-btn" onclick={handleCloseDetailModal}>
+                        Cerrar Detalle
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- MODAL DE VARIEDADES -->
+    <template if:true={showVariedadesModal}>
+        <div class="custom-modal-backdrop">
+            <div class="custom-modal-card modal-large">
+                
+                <div class="modal-header header-dark-bg">
+                    <div>
+                        <h2>Declarar Variedades para {selectedTx.Name}</h2>
+                        <p class="form-sub">Agregá las variedades correspondientes, indicando la cantidad y densidad de siembra.</p>
+                    </div>
+                    <button onclick={handleCloseVariedadesModal} class="close-modal-btn">✕</button>
+                </div>
+
+                <div class="modal-body">
+                    <template for:each={variedadesFormList} for:item="item">
+                        <div key={item.key} class="slds-box slds-m-bottom_medium" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); position: relative;">
+                            
+                            <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+                                <span class="form-field-label" style="font-weight: bold; color: #4ac2ef;">Variedad #{item.numero}</span>
+                                <button type="button" 
+                                        class="btn-remove-file" 
+                                        data-index={item.key} 
+                                        onclick={handleBorrarVariedadBloque}
+                                        style="background: transparent; border: none; cursor: pointer;">✕ Eliminar</button>
+                            </div>
+
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-bottom_small">
+                                    <label class="form-field-label">Variedad / Producto <span class="required-asterisk">*</span></label>
+                                    <div class="custom-input-wrapper dynamic-border-wrapper">
+                                        <select class="custom-select form-dropdown modal-select-dark" 
+                                                data-index={item.key} 
+                                                data-field="productoId" 
+                                                onchange={handleVariedadFieldChange}>
+                                            <option value="" class="placeholder-option">Seleccione una variedad...</option>
+                                            <template for:each={productoOptions} for:item="prod">
+                                                <option key={prod.value} value={prod.value} selected={prod.selected}>{prod.label}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-bottom_small">
+                                    <label class="form-field-label">Cantidad Declarada (hectáreas sembradas) <span class="required-asterisk">*</span></label>
+                                    <div class="custom-input-wrapper dynamic-border-wrapper">
+                                        <input type="number" 
+                                               class="custom-input" 
+                                               value={item.cantidad} 
+                                               data-index={item.key} 
+                                               data-field="cantidad" 
+                                               placeholder="0.00" 
+                                               step="any" 
+                                               oninput={handleVariedadFieldChange} />
+                                    </div>
+                                </div>
+
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-bottom_small">
+                                    <label class="form-field-label">Densidad de Siembra (en kg/ha) <span class="required-asterisk">*</span></label>
+                                    <div class="custom-input-wrapper dynamic-border-wrapper">
+                                        <input type="number" 
+                                               class="custom-input" 
+                                               value={item.densidad} 
+                                               data-index={item.key} 
+                                               data-field="densidad" 
+                                               placeholder="0.00" 
+                                               step="any" 
+                                               oninput={handleVariedadFieldChange} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="slds-m-top_medium">
+                        <button type="button" class="btn btn-secondary" onclick={handleAgregarVariedadBloque}>
+                            ➕ Añadir Otra Variedad
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-actions footer-dark-bg">
+                    <button type="button" class="btn btn-secondary modal-cancel-btn" onclick={handleCloseVariedadesModal}>
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-accent modal-submit-btn" onclick={handleFinalizarDeclaracion}>
+                        Finalizar Declaración
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

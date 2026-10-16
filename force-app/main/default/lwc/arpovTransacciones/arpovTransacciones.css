@@ -1,0 +1,642 @@
+:host {
+    --arpov-blue: #024751;
+    --arpov-green: #00C776;
+    --paper-white: #ffffff;
+    --bg-dark: #012b2e;
+    --border-color: rgba(255, 255, 255, 0.1);
+    
+    width: 100%;
+    display: block;
+}
+
+.transacciones-container {
+    padding: 0;
+    color: #ffffff;
+}
+
+/* Estilo personalizado para el botón de la tabla */
+.btn-generar-pdf {
+    --sds-c-button-text-color: #00ffaa;
+}
+
+.btn-generar-pdf:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+/* Cabecera */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+}
+
+.section-subtitle {
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Tarjetas */
+.filters-card, .table-card, .form-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+/* Panel de Filtros */
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.filter-field label, .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 8px;
+}
+
+.custom-input, .custom-select {
+    width: 100%;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 0 12px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.custom-select option {
+    background: var(--bg-dark);
+    color: #ffffff;
+}
+
+/* Estilos de Tabla */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+/* Estilo unificado para los nuevos select del formulario */
+.form-dropdown {
+    background-color: #ffffff !important;
+    border: 1px solid #dcdad4 !important;
+    color: #012b2e !important;
+    border-radius: 4px;
+    padding: 0 12px;
+    height: 40px;
+    font-size: 14px;
+}
+
+.form-dropdown option {
+    background-color: #ffffff;
+    color: #012b2e;
+}
+
+/* Forzar que el combobox de Obtentor no herede padding nativo molesto */
+.custom-combobox-container lightning-combobox {
+    width: 100%;
+}
+
+.custom-table th {
+    padding: 14px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.5);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.custom-table td {
+    padding: 16px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color);
+    color: rgba(255, 255, 255, 0.85);
+    vertical-align: middle;
+}
+
+.custom-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Badges de Estado */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+    border: 1px solid transparent;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.badge-pendiente {
+    background: rgba(251, 191, 36, 0.08);
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.3);
+}
+.badge-pendiente .status-dot {
+    background: #fbbf24;
+    box-shadow: 0 0 8px #fbbf24;
+}
+
+.badge-en-validación {
+    background: rgba(56, 189, 248, 0.08);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.3);
+}
+.badge-en-validación .status-dot {
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+}
+
+.badge-aprobada {
+    background: rgba(16, 185, 129, 0.08);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+.badge-aprobada .status-dot {
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+}
+
+.badge-rechazada {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+.badge-rechazada .status-dot {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+}
+
+/* Controles del Paginador */
+.pagination-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.pagination-info strong {
+    color: var(--arpov-green);
+    font-weight: 600;
+}
+
+.btn-paginator {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-paginator:hover:not([disabled]) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--arpov-green);
+    color: var(--arpov-green);
+}
+
+.btn-paginator[disabled] {
+    opacity: 0.25;
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Formulario */
+.form-card {
+    background: #fafaf7;
+    color: var(--bg-dark);
+    position: relative;
+}
+.form-title { font-size: 22px; font-weight: 600; margin: 0 0 6px 0; color: var(--arpov-blue); }
+.form-sub { font-size: 14px; color: #5a5a5a; margin-bottom: 28px; }
+
+.field.full-width, .attachment-section.full-width, .form-actions.full-width {
+    grid-column: span 2;
+    margin-bottom: 24px;
+}
+
+.form-card label { color: #4a4a4a; }
+.form-card .custom-input { background: #ffffff; border: 1px solid #dcdad4; color: var(--bg-dark); }
+.disabled-field input { background: #f0eee8; color: #7a7a7a; cursor: not-allowed; }
+
+.required-label::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Botones Comunes */
+.btn {
+    height: 42px;
+    padding: 0 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+.btn-accent { background: var(--arpov-green); color: var(--bg-dark); }
+.btn-accent:hover:not([disabled]) { filter: brightness(1.05); }
+.btn-accent[disabled] { background: #d2cfc7; color: #8a8882; cursor: not-allowed; }
+.btn-secondary { background: rgba(0, 0, 0, 0.05); color: var(--bg-dark); border: 1px solid #c2c0ba; color:white}
+.btn-secondary:hover { background: rgba(0, 0, 0, 0.1); }
+
+/* Adjuntos */
+.attachment-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px dashed #c2c0ba;
+    color: black;
+}
+.attachment-help { font-size: 12px; color: #6a6a6a; margin: 0 0 14px 0; }
+
+.file-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #d2cfc7;
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.btn-remove-file { background: transparent; border: none; color: #dc3545; cursor: pointer; font-weight: bold; }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    border-top: 1px solid #e2e0da;
+    padding-top: 24px;
+}
+
+.empty-state { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); }
+
+.custom-field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white !important;
+    margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   AJUSTES UNIFICADOS Y AMPLIADOS PARA EL MODAL (NUEVA DECLARACIÓN)
+   ========================================================================== */
+
+.custom-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(6, 26, 26, 0.85); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px); 
+}
+
+.custom-modal-card {
+    background-color: #041a1a; 
+    border: 1px solid rgba(0, 200, 133, 0.2);
+    border-radius: 12px;
+    padding: 0; 
+    width: 90vw;
+    max-width: 500px; 
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeInModal 0.3s ease-out;
+    transition: max-width 0.3s ease, width 0.3s ease;
+}
+
+.modal-large {
+    max-width: 100%; 
+    width: 85vw;       
+}
+
+.modal-medium {
+    max-width: 700px;
+    text-align: left;
+}
+
+.modal-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+    padding: 1.5rem 2rem; 
+    background: #012b2e;
+    position: relative;
+}
+
+.modal-header h2, .custom-modal-card h2 {
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.close-modal-btn {
+    background: none; 
+    border: none; 
+    color: #8fa3a3; 
+    font-size: 1.5rem; 
+    cursor: pointer; 
+    transition: color 0.2s ease; 
+    padding: 4px;
+    line-height: 1;
+    margin-left: 1.5rem;
+}
+.close-modal-btn:hover { 
+    color: #00c885; 
+}
+
+.modal-body {
+    padding: 2.25rem 2.5rem; 
+    max-height: 70vh;
+    background-color: #012b2e;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.modal-body .slds-col {
+    padding-bottom: 1.25rem !important;
+}
+
+.modal-actions {
+    padding: 1.5rem 2rem; 
+    text-align: right; 
+    border-top: 1px solid rgba(255, 255, 255, 0.08); 
+    background: #012b2e; 
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 12px;
+}
+
+.success-icon-badge {
+    background-color: #00c885; 
+    color: #061a1a;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 auto 1.5rem auto;
+}
+
+.modal-body p {
+    color: black; 
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.modal-body .highlight-text {
+    color: #ffffff;
+    font-weight: 500;
+    margin-top: 1rem;
+    border-left: 3px solid #00c885;
+    padding-left: 10px;
+    text-align: left;
+}
+
+.modal-btn {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.form-card lightning-spinner {
+    background-color: rgba(6, 26, 26, 0.7); 
+}
+
+.label-opacity { opacity: 0.7; }
+
+.detail-value-text {
+    color: #fff; 
+    font-size: 1.05rem; 
+    margin-top: 2px;
+}
+
+.detail-comments-container {
+    color: #a3b8b8; 
+    margin-top: 4px; 
+    background: rgba(255,255,255,0.03); 
+    padding: 10px; 
+    border-radius: 6px; 
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.detail-attachments-section {
+    margin-top: 2rem; 
+    border-top: 1px solid rgba(255,255,255,0.1); 
+    padding-top: 1.5rem;
+}
+
+.detail-upload-box {
+    background: rgba(255,255,255,0.02); 
+    padding: 15px; 
+    border-radius: 8px; 
+    border: 1px dashed rgba(255,255,255,0.15);
+}
+
+.hide-native-label lightning-input-field label {
+    display: none !important;
+}
+
+.hide-help-text .slds-form-element__icon,
+.hide-help-text lightning-helptext,
+.hide-help-text button.slds-button_icon-bare,
+.hide-help-text .slds-form-element__label + div,
+.hide-help-text .slds-form-element__label-alt + div {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.hide-help-text .slds-form-element__control {
+    margin-top: 0px !important;
+    padding-top: 0px !important;
+}
+
+.custom-input-wrapper {
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.custom-form-grid .slds-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .section-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .modal-large { width: 100%; }
+}
+
+/* ==========================================================================
+   NUEVOS AJUSTES EXCLUSIVOS PARA EL MODAL DE DETALLES (UI FIXES)
+   ========================================================================== */
+
+/* 1. Visibilidad Máxima de Valores Clave */
+.modal-medium .detail-value-text {
+    color: #ffffff !important;
+    font-size: 15px;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* 2. Color Verde Acento para los Títulos de los Campos (Labels) */
+.modal-medium .custom-field-label.label-opacity {
+    opacity: 0.9 !important;
+    color: var(--arpov-green) !important;
+}
+
+/* 3. Corrección del Botón '✕' Superior */
+.detail-modal-header .close-text-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+.detail-modal-header .close-text-btn:hover {
+    color: var(--arpov-green) !important;
+}
+
+/* 4. Optimización de Contenedor de Comentarios */
+.modal-medium .detail-comments-container {
+    color: #e2f0f0 !important;
+    margin-top: 6px;
+    background: rgba(255, 255, 255, 0.05) !important;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    min-height: 44px;
+}
+
+/* 5. Corrección Visual del Badge de Archivos Adjuntos Existentes */
+.modal-medium .static-file-badge {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    padding: 8px 14px;
+    border-radius: 6px;
+}
+.modal-medium .static-file-badge .file-name {
+    color: #ffffff !important;
+}
+
+/* 6. Caja de Carga (Upload Dropzone Area) */
+.modal-medium .detail-upload-box {
+    background: rgba(255, 255, 255, 0.02) !important;
+    padding: 20px !important;
+    border-radius: 8px;
+    border: 1px dashed rgba(0, 199, 118, 0.35) !important;
+    margin-top: 15px;
+}
+.modal-medium .detail-upload-box lightning-file-upload {
+    --slds-c-form-element-label-text-color: #ffffff;
+}
+
+/* 7. Estilo Especial para Botón 'Cerrar Detalle' Inferior */
+.detail-modal-footer .detail-close-btn {
+    background: transparent !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    height: 40px;
+    padding: 0 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.detail-modal-footer .detail-close-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: #ffffff !important;
+}

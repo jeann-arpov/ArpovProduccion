@@ -1,0 +1,74 @@
+<template>
+    <div class="stage">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo" onclick={navigateToHome}>
+                    <span class="logo-mark">
+                        <!-- Imagen cargada desde el recurso estático -->
+                        <img src={logoUrl} alt="Logo ArPOV" class="logo-img" />
+                    </span>
+                    <span class="logo-text">Ar<b>POV</b></span>
+                </div>
+
+                <nav class="nav-menu">
+                    <a href="#" class={inicioClass} data-tab="inicio" onclick={handleTabNavigation}>INICIO</a>
+                    
+                    <div class="nav-dropdown-container">
+                        <a href="#" class={declaracionesClass} onclick={toggleDeclaracionesMenu}>
+                            DECLARACIONES 
+                        </a>
+                        <div class={declaracionesMenuClass}>
+                            <a href="#" data-tab="uso-propio" onclick={handleTabNavigation}>Declaraciones de uso propio</a>
+                            <a href="#" data-tab="semilla-fiscalizada" onclick={handleTabNavigation}>Declaraciones de semilla fiscalizada</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="header-right">
+                <span class="context-account">{currentContext}</span>
+                
+                <div class="profile-container">
+                    <button class="profile-trigger" onclick={toggleProfileMenu}>
+                        <span class="avatar">{userInitials}</span>
+                        <span class="user-name">{userName}</span>
+                        <span class="arrow-down">▼</span>
+                    </button>
+
+                    <div class={profileMenuClass}>
+                        <a data-page="editProfile" onclick={handleMenuOption}>Mi Perfil</a>
+                        <hr class="dropdown-divider"/>
+                        <a href="#" class="logout-link" onclick={handleLogout}>Cerrar Sesión</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-container">
+            <template if:true={isInicioActive}>
+                <section class="hero-section">
+                    <div class="eyebrow">PORTAL ArPOV</div>
+                    <h1 class="headline">
+                        El futuro<br/>
+                        también<br/>
+                        <span class="green">se siembra.</span>
+                    </h1>
+                </section>
+            </template>
+
+            <template if:true={isUsoPropioActive}>
+                <section class="content-section">
+                    <p class="section-subtitle"></p>
+                    <c-arpov-transacciones></c-arpov-transacciones>
+                    <div class="placeholder-card"></div>
+                </section>
+            </template>
+
+            <template if:true={isSemillaFiscalizadaActive}>
+                <section class="content-section">
+                    <c-arpov-semilla-fiscalizada></c-arpov-semilla-fiscalizada>
+                </section>
+            </template>
+        </main>
+    </div>
+</template>

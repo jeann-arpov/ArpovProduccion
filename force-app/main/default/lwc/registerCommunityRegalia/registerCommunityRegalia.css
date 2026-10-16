@@ -1,0 +1,231 @@
+:host {
+    --bg-left: #fafaf7;
+    --bg-right: #003639;
+    --accent: #00d38a;
+    --text-dark: #003639;
+}
+
+.main-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Panel Izquierdo */
+.left-panel {
+    flex: 1.2;
+    background-color: var(--bg-left);
+    background-image: radial-gradient(#d1d1d1 0.7px, transparent 0.7px);
+    background-size: 25px 25px;
+    padding: 4% 8%;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    cursor: pointer;
+}
+
+.logo span {
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--text-dark);
+}
+
+.left-panel h1 {
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.description {
+    color: #666;
+    margin-bottom: 35px;
+}
+
+/* Formulario */
+.registration-form, .confirmation-form {
+    width: 100%;
+    max-width: 600px;
+    margin-left: 5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+}
+
+.dot {
+    height: 6px;
+    width: 6px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+/* Reset de Lightning Input para que parezca el diseño */
+lightning-input {
+    --slds-c-input-color-background: #ffffff;
+    --slds-c-input-radius-border: 6px;
+    --slds-c-input-spacing-vertical-start: 12px;
+    --slds-c-input-spacing-vertical-end: 12px;
+}
+
+.pass-relative {
+    position: relative;
+}
+
+.eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+}
+
+.instruction {
+    font-size: 11px;
+    color: #888;
+    margin-top: 6px;
+}
+
+.checkbox-container {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    font-size: 13px;
+}
+
+.btn-submit {
+    width: 100%;
+    background: var(--accent);
+    color: var(--text-dark);
+    border: none;
+    padding: 16px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-cancel {
+    width: 100%;
+    background: transparent;
+    color: #666;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 30px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.footer-link {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: #666;
+}
+
+.footer-link a {
+    color: var(--text-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* Panel Derecho */
+.right-panel {
+    flex: 0.8;
+    background-color: var(--bg-right);
+    color: white;
+    padding: 6% 6%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.portal-tag {
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: 0.6;
+    margin-bottom: 20px;
+}
+
+.right-panel h2 {
+    font-size: 52px;
+    line-height: 1.1;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.highlight {
+    color: var(--accent);
+}
+
+.right-desc {
+    font-size: 16px;
+    opacity: 0.8;
+    margin-bottom: 40px;
+}
+
+.divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin-bottom: 40px;
+}
+
+.steps-list {
+    list-style: none;
+    padding: 0;
+}
+
+.steps-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    font-size: 17px;
+}
+
+.step-num {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+    .right-panel { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+}

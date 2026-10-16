@@ -1,0 +1,89 @@
+<template>
+    <div class="form-container">
+        <h2 class="form-title">Declaración de Siembra - Semilla Fiscalizada</h2>
+        <p class="form-subtitle"></p>
+
+        <template if:true={isSubmitted}>
+            <div class="success-message">
+                <h3>¡Declaración Enviada Con Éxito!</h3>
+                <p style="color: white;">Información enviada para su validación por un analista.</p>
+            </div>
+        </template>
+
+        <template if:false={isSubmitted}>
+            <lightning-record-edit-form object-api-name="User">
+                <div class="grid-form">
+                    <!-- CUIT del Productor -->
+                    <div class="form-field">
+                        <lightning-input 
+                            label="CUIT del Productor" 
+                            value={cuitProductor} 
+                            disabled>
+                        </lightning-input>
+                    </div>
+
+                    <!-- Campaña -->
+                    <div class="form-field">
+                        <lightning-combobox 
+                            name="campana" 
+                            label="Campaña" 
+                            value={formData.campana} 
+                            options={campanaOptions} 
+                            onchange={handleInputChange} 
+                            required>
+                        </lightning-combobox>
+                    </div>
+
+                    <!-- Archivos Múltiples -->
+                    <div class="form-field full-width">
+                        <lightning-input 
+                            type="file" 
+                            label="Adjuntar comprobante(s) (PDF, JPG, PNG)" 
+                            accept=".pdf, .png, .jpg, .jpeg" 
+                            onchange={handleFileChange}
+                            multiple
+                            required={isFileInputRequired}>
+                        </lightning-input>
+
+                        <!-- Lista de archivos adjuntados -->
+                        <template if:true={hasFiles}>
+                            <ul class="file-list slds-m-top_small">
+                                <template for:each={files} for:item="file" for:index="index">
+                                    <li key={file.fileName} class="file-item slds-grid slds-grid_align-spread slds-p-vertical_xx-small">
+                                        <span style="color: white">📄 {file.fileName}</span>
+                                        <lightning-button-icon 
+                                            icon-name="utility:close" 
+                                            alternative-text="Eliminar" 
+                                            title="Eliminar archivo"
+                                            data-index={index}
+                                            onclick={handleRemoveFile}
+                                            variant="border-filled"
+                                            size="x-small">
+                                        </lightning-button-icon>
+                                    </li>
+                                </template>
+                            </ul>
+                        </template>
+                    </div>
+
+                    <!-- Comentarios -->
+                    <div class="form-field full-width">
+                        <lightning-textarea 
+                            name="comentarios" 
+                            label="Comentarios / Observaciones" 
+                            value={formData.comentarios} 
+                            onchange={handleInputChange}>
+                        </lightning-textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-submit" onclick={handleSubmit} disabled={isLoading}>
+                        <template if:true={isLoading}>Enviando...</template>
+                        <template if:false={isLoading}>Enviar Declaración</template>
+                    </button>
+                </div>
+            </lightning-record-edit-form>
+        </template>
+    </div>
+</template>

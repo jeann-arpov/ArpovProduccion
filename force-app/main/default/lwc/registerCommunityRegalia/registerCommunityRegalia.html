@@ -1,0 +1,112 @@
+<template>
+    <div class="main-container register-form">
+        <template if:true={showSpinner}>
+            <lightning-spinner alternative-text="Cargando" size="large" variant="brand"></lightning-spinner>
+        </template>
+
+        <div class="left-panel">
+
+            <template if:false={identifier}>
+                <h1>Crear una cuenta</h1>
+
+                <div class="registration-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span class="dot"></span>CUIT</label>
+                            <lightning-input name="cuit" variant="label-hidden" placeholder="Ingrese CUIT" value={cuit} onchange={handleChange} required></lightning-input>
+                        </div>
+                        <div class="form-group">
+                            <label><span class="dot"></span>DNI</label>
+                            <lightning-input name="dni" variant="label-hidden" placeholder="Ingrese DNI" value={dni} onchange={handleChange} required></lightning-input>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span class="dot"></span>Nombre</label>
+                            <lightning-input name="firstName" variant="label-hidden" placeholder="Ingrese Nombre" value={firstName} onchange={handleChange} required></lightning-input>
+                        </div>
+                        <div class="form-group">
+                            <label><span class="dot"></span>Apellido</label>
+                            <lightning-input name="lastName" variant="label-hidden" placeholder="Ingrese Apellido" value={lastName} onchange={handleChange} required></lightning-input>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span class="dot"></span>Número de celular</label>
+                            <div class="phone-input-container">
+                                <lightning-input data-id="phone" variant="label-hidden" type="tel" placeholder="Ingrese Número de celular" 
+                                    value={telefono} onchange={handleChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><span class="dot"></span>Email</label>
+                            <lightning-input name="email" variant="label-hidden" type="email" placeholder="Ingrese Email" value={email} onchange={handleChange} required></lightning-input>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label><span class="dot"></span>Contraseña</label>
+                        <div class="pass-relative">
+                            <lightning-input data-id="password" variant="label-hidden" type={passwordType} placeholder="Contraseña" 
+                                value={password} onchange={handleChange} onblur={handlePasswordBlur} required>
+                            </lightning-input>
+                            <lightning-button-icon icon-name={passwordIcon} variant="bare" onclick={togglePasswordVisibility} 
+                                alternative-text={passwordAltText} class="eye-btn"></lightning-button-icon>
+                        </div>
+                        <p class="instruction">Mínimo 8 caracteres, con mayúsculas, minúsculas y un número.</p>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label><span class="dot"></span>Confirmar Contraseña</label>
+                        <div class="pass-relative">
+                            <lightning-input data-id="passconfirm" variant="label-hidden" type={passwordConfirmType} placeholder="Confirmar Contraseña" 
+                                value={passwordConfirm} onchange={handleChange} required>
+                            </lightning-input>
+                            <lightning-button-icon icon-name={passwordConfirmIcon} variant="bare" onclick={togglePasswordConfirmVisibility} 
+                                alternative-text={passwordConfirmAltText} class="eye-btn"></lightning-button-icon>
+                        </div>
+                    </div>
+
+                    <template if:true={message}>
+                        <div class={messageClass}>{message}</div>
+                    </template>
+
+                    <button class="btn-submit" onclick={register}>Crear cuenta</button>
+
+                    <div class="footer-link">
+                        ¿Ya tenés cuenta? <a href="javascript:void(0);" onclick={login}>Iniciar sesión</a>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={identifier}>
+                <h1>Confirmar Registro</h1>
+                <p class="description">Ingresa el código enviado a {email}</p>
+                <div class="confirmation-form">
+                    <div class="form-group full-width">
+                        <label>Código de Seguridad</label>
+                        <lightning-input name="code" variant="label-hidden" placeholder="Código" value={code} onchange={handleChange} required></lightning-input>
+                    </div>
+                    <button class="btn-submit" onclick={confirm}>Verificar código</button>
+                    <button class="btn-cancel" onclick={cancel}>Cancelar</button>
+                </div>
+            </template>
+        </div>
+
+        <div class="right-panel">
+            <div class="portal-tag">PORTAL DEL PRODUCTOR</div>
+            <h2>El futuro también <br><span class="highlight">se siembra</span></h2>
+            
+            <div class="divider"></div>
+
+            <ul class="steps-list">
+                <li><span class="step-num">1</span> Completá tus datos</li>
+                <li><span class="step-num">2</span> Verificá tu email</li>
+                <li><span class="step-num">3</span> Cuenta lista para usar</li>
+            </ul>
+        </div>
+    </div>
+</template>

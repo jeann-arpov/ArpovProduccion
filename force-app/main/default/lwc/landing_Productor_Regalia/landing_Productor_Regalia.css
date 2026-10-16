@@ -1,0 +1,286 @@
+:host {
+    --arpov-bg-dark: #012b2e;
+    --arpov-green: #00C776;
+    --text-white: #ffffff;
+    --ink-soft: #4a4a4a;
+    --line-border: #e8e5e0;
+    
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    display: block;
+    width: 100%;
+}
+
+.logo-img {
+    width: 36px;
+    height: 26px;
+    object-fit: contain;
+}
+
+* { box-sizing: border-box; }
+
+.stage {
+    background-color: var(--arpov-bg-dark);
+    min-height: 100vh;
+    width: 100%;
+    color: var(--text-white);
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Header */
+.header {
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+/* Logo */
+.logo { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 10px; 
+    cursor: pointer;
+}
+.logo-mark svg { display: block; }
+.logo-text {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-white);
+}
+.logo-text b { color: var(--arpov-green); font-weight: 700; }
+
+/* Menú de Navegación */
+.nav-menu {
+    display: flex;
+    gap: 24px;
+}
+.nav-item {
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: color 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+.nav-item:hover {
+    color: var(--text-white);
+}
+.nav-item.active {
+    color: var(--text-white);
+    border-bottom-color: var(--arpov-green);
+}
+
+/* Sección de Cuenta y Usuario */
+.context-account {
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.profile-container {
+    position: relative;
+}
+
+.profile-trigger {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-white);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.profile-trigger:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    background-color: var(--arpov-green);
+    color: var(--arpov-bg-dark);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.arrow-down {
+    font-size: 9px;
+    opacity: 0.6;
+}
+
+/* Dropdown de Menú de Perfil */
+.profile-dropdown {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: #fafaf7;
+    border-radius: 8px;
+    min-width: 160px;
+    padding: 8px 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 10;
+}
+
+.profile-dropdown.open {
+    display: block;
+}
+
+.profile-dropdown a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+
+.profile-dropdown a:hover {
+    background: #f0eee9;
+    color: var(--arpov-bg-dark);
+}
+
+.dropdown-divider {
+    border: 0;
+    border-top: 1px solid var(--line-border);
+    margin: 6px 0;
+}
+
+.profile-dropdown a.logout-link {
+    color: #c23934;
+}
+
+/* Contenido Principal */
+.main-container {
+    flex-grow: 1;
+    padding: 20px 100px;
+    display: flex;
+    align-items: center;
+}
+
+/* Estilos de la Sección Inicio (Hero) */
+.hero-section {
+    max-width: 600px;
+}
+
+.eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 24px;
+    font-weight: 600;
+}
+
+/* Contenedor del dropdown en la barra de navegación */
+.nav-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.arrow-down-nav {
+    font-size: 9px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Submenú oculto por defecto */
+.nav-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #03211F; /* El color verde oscuro de tu portal */
+    min-width: 260px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+    z-index: 1000;
+    border-radius: 4px;
+    margin-top: 8px;
+    padding: 8px 0;
+}
+
+/* Mostrar cuando tiene la clase open */
+.nav-dropdown.open {
+    display: block;
+}
+
+/* Links del submenú */
+.nav-dropdown a {
+    color: #ffffff;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    text-align: left;
+    transition: background 0.2s ease;
+}
+
+.nav-dropdown a:hover {
+    background-color: #00C776; /* Tu verde brillante */
+    color: #03211F;
+}
+
+.headline {
+    font-size: clamp(40px, 6vw, 68px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.headline .green {
+    color: var(--arpov-green);
+}
+
+/* Estilos de la Vista de Transacciones */
+.content-section {
+    width: 100%;
+}
+.section-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.section-subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 32px;
+}
+.placeholder-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 60px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .header { padding: 16px 20px; }
+    .header-left, .header-right { gap: 16px; }
+    .context-account, .user-name { display: none; }
+    .main-container { padding: 40px 20px; }
+}

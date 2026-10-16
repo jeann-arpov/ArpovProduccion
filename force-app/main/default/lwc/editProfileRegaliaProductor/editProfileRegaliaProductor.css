@@ -1,0 +1,272 @@
+/* =========================================================================
+   1. ESTRUCTURA GENERAL Y CONTENEDORES
+   ========================================================================= */
+
+/* Contenedor Principal (Fondo verde oscuro del portal en toda la página) */
+.portal-container {
+    background-color: #031c1b !important;
+    padding: 3rem 1.5rem;
+    min-height: 100vh;
+    color: #ffffff;
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Envoltura interna para controlar el ancho de las tarjetas */
+.portal-content-wrapper {
+    width: 100%;
+    max-width: 1100px;
+}
+
+/* Tarjetas contenedoras de secciones */
+.portal-card {
+    background-color: #052927 !important;
+    border: 1px solid #0a3d3a !important;
+    border-radius: 10px;
+    padding: 2.5rem;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+}
+
+.card-header h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+
+/* =========================================================================
+   2. TEXTOS, TIPOGRAFÍAS E ICONOS
+   ========================================================================= */
+
+.portal-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 0.25rem;
+}
+
+.text-muted {
+    color: #8da4a1;
+}
+
+.text-uppercase {
+    text-transform: uppercase;
+}
+
+.tracking-wide {
+    letter-spacing: 0.08em;
+}
+
+.custom-icon {
+    --slds-c-icon-color-foreground-default: #00c389;
+}
+
+/* Separación estricta entre columnas de la grilla */
+.grid-gap .slds-col {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+/* Estilo para las etiquetas (Labels) superiores */
+.custom-input .slds-form-element__label {
+    color: #8da4a1 !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    margin-bottom: 0.75rem !important;
+    display: inline-block !important;
+}
+
+/* Texto de ayuda inferior del Celular */
+.input-help-text {
+    font-size: 0.75rem;
+    color: #8da4a1;
+    margin-top: 0.5rem;
+    display: block;
+    padding-left: 0.25rem;
+}
+
+
+/* =========================================================================
+   3. CONFIGURACIÓN DE INPUTS (TEXTO NEGRO Y FONDOS)
+   ========================================================================= */
+
+.custom-input {
+    /* Variables de entorno oficiales para sobreescribir el Shadow DOM */
+    --slds-c-input-color-background: #ffffff !important;
+    --slds-c-input-text-color: #000000 !important;
+    --slds-c-input-color-border: #0e4c48 !important;
+    --slds-c-input-radius: 6px !important;
+    
+    --slds-c-input-color-background-focus: #ffffff !important;
+    --slds-c-input-text-color-focus: #000000 !important;
+    --slds-c-input-color-border-focus: #00c389 !important;
+}
+
+/* Inputs Editables (Estado normal y focus) */
+.custom-input .slds-input,
+.custom-input input {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #0e4c48 !important;
+    height: 52px !important;
+    padding: 0 45px 0 16px !important; /* Espacio para que el texto no tape el ojito */
+    font-size: 1.05rem !important;
+    font-weight: 500 !important;
+    -webkit-text-fill-color: #000000 !important; /* Obliga a motores Webkit a pintar de negro */
+}
+
+.custom-input .slds-input:focus,
+.custom-input input:focus {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    border-color: #00c389 !important;
+}
+
+/* Inputs Bloqueados / Deshabilitados */
+.custom-input .slds-input:disabled,
+.custom-input input:disabled {
+    background-color: #042422 !important;
+    border-color: #073532 !important;
+    color: #718e8b !important;
+    -webkit-text-fill-color: #718e8b !important;
+    height: 52px !important;
+    padding: 0 16px !important;
+}
+
+
+/* =========================================================================
+   4. CONTROL DE ERRORES (FUERZA BRUTA PARA CONTRASEÑA EN NEGRO)
+   ========================================================================= */
+
+/* Atacamos el input interno usando herencia de error y selectores por atributo [data-id] */
+.custom-input .slds-has-error input,
+.custom-input .slds-has-error .slds-input,
+.slds-has-error .custom-input input,
+.slds-has-error .custom-input .slds-input,
+[data-id="passconfirm"] input,
+[data-id="passconfirm"] .slds-input {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ea001e !important;
+    -webkit-text-fill-color: #000000 !important; /* Evita que el texto se vuelva blanco */
+}
+
+/* Mantenemos el texto negro aun haciendo Focus sobre el campo con error */
+.custom-input .slds-has-error input:focus,
+.custom-input .slds-has-error .slds-input:focus,
+[data-id="passconfirm"] input:focus,
+[data-id="passconfirm"] .slds-input:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ea001e !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* Mensaje inferior rojo ("Las contraseñas no coinciden") */
+.custom-input .slds-form-element__help {
+    color: #ff4d5a !important; 
+    font-weight: 500 !important;
+    margin-top: 0.5rem !important;
+}
+
+
+/* =========================================================================
+   5. POSICIONAMIENTO DEL OJITO DE CONTRASEÑA
+   ========================================================================= */
+
+.password-wrapper {
+    position: relative !important;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Clava el ojito de forma absoluta centrado en la caja blanca */
+.password-toggle-btn {
+    position: absolute !important;
+    right: 28px !important; 
+    /* Desfase matemático exacto tomando en cuenta el alto del label e input */
+    top: 50% !important; 
+    --slds-c-icon-color-foreground: #00c389;
+    z-index: 99 !important;
+}
+
+
+/* =========================================================================
+   6. BOTONES ESTILO PORTAL
+   ========================================================================= */
+
+.btn-portal {
+    background-color: #00c389;
+    color: #031c1b;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    padding: 0.8rem 2.5rem;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 195, 137, 0.2);
+}
+
+.btn-portal:hover {
+    background-color: #00e6a3;
+    color: #021413;
+    box-shadow: 0 4px 12px rgba(0, 195, 137, 0.4);
+}
+
+.btn-portal:active {
+    transform: scale(0.97);
+}
+/* Layout del Header con Botón */
+.portal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* Botón Volver al Inicio */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-back:hover {
+    background-color: rgba(0, 199, 118, 0.15); /* Tu verde brillante con opacidad */
+    border-color: #00C776;
+    color: #00C776;
+}
+
+/* Para cambiar el color del icono lightning al pasar el mouse */
+.btn-back .btn-icon {
+    --slds-c-icon-color-foreground-default: #ffffff;
+}
+
+.btn-back:hover .btn-icon {
+    --slds-c-icon-color-foreground-default: #00C776;
+}
+
+@media (max-width: 600px) {
+    .portal-header-row {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,108 @@
+<template>
+    <div class="stage">
+        <div class="bg-curves">
+            <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+                <path d="M-100 600 Q400 100 700 500 T1400 400" stroke="#00C776" stroke-width="2" fill="none"></path>
+                <path d="M-100 660 Q400 160 700 560 T1400 460" stroke="#00C776" stroke-width="1.5" fill="none"></path>
+                <path d="M-100 720 Q400 220 700 620 T1400 520" stroke="#00C776" stroke-width="1" fill="none"></path>
+            </svg>
+        </div>
+
+        <header class="header">
+            <div class="url">arpov.org.ar</div>
+        </header>
+
+        <main class="content">
+            <template if:true={showSpinner}>
+                <lightning-spinner alternative-text="Cargando" size="medium"></lightning-spinner>
+            </template>
+            
+
+            <section class="tagline">
+                <div class="logo-container" style="margin-bottom: 1rem;">
+                    <img src={logoProductor} alt="Logo Regalia Productor" class="portal-logo" />
+                </div>
+                <div class="eyebrow">Portal del productor</div>
+                <h1 class="headline">
+                    El futuro<br />
+                    también<br />
+                    <span class="green">se siembra</span>
+                </h1>
+                <p class="subhead">
+                    Reconocer la creación genética genera más y mejor genética.
+                </p>
+            </section>
+
+            <template if:false={identifier}>
+                <div class="form-card login-form">
+                    <h2 class="form-title">Acceder a mi cuenta</h2>
+
+                    <div class="field">
+                        <label>CUIT</label>
+                        <div class="input-wrap">
+                            <!-- Agregado name, value y corrección de comportamiento -->
+                            <input class="input" type="text" name="cuit" value={cuit} placeholder="Ingrese Numero" onchange={handleChange} onkeyup={checkEnterKey} />
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Email</label>
+                        <div class="input-wrap">
+                            <!-- Agregado name y value -->
+                            <input class="input" type="email" name="email" value={email} placeholder="Ingrese Email" onchange={handleChange} onkeyup={checkEnterKey} />
+                        </div>
+                    </div>
+
+                    <template if:false={isPortalArpov}>
+                        <div class="field">
+                            <label>Contraseña</label>
+                            <div class="input-wrap">
+                                <!-- Agregado name y value -->
+                                <input class="input" type="password" name="password" value={password} placeholder="Ingrese Contraseña" onchange={handleChange} onkeyup={checkEnterKey} />
+                            </div>
+                        </div>
+                    </template>
+
+                    <button class="btn btn-accent" onclick={login}>
+                        Ingresar
+                    </button>
+
+                    <div class="link-row">
+                        <a class="link" onclick={forgotPassword}><b>¿Olvidaste tu contraseña?</b>&nbsp;&nbsp;</a>
+                        <span class="divider">|</span>
+                        <a class="link" onclick={register}>&nbsp;&nbsp;<b>Registrarse</b></a>
+                    </div>
+
+                    <template if:true={message}>
+                        <div class={messageClass} style="margin-top: 1rem; text-align: center;">
+                            {message}
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={identifier}>
+                <div class="form-card confirmation-form">
+                    <h2 class="form-title">Verifica tu identidad</h2>
+                    <p style="margin-bottom: 1rem; color: #666;">Ingresa el código enviado a tu email.</p>
+
+                    <div class="field">
+                        <label>Código de Seguridad</label>
+                        <div class="input-wrap">
+                            <!-- Agregado name y value -->
+                            <input class="input" type="text" name="code" value={code} placeholder="Código" onchange={handleChange} />
+                        </div>
+                    </div>
+
+                    <button class="btn btn-accent" onclick={confirm}>
+                        Confirmar Código
+                    </button>
+
+                    <div class="link-row">
+                        <a class="link" onclick={cancel}>Volver atrás</a>
+                    </div>
+                </div>
+            </template>
+        </main>
+    </div>
+</template>

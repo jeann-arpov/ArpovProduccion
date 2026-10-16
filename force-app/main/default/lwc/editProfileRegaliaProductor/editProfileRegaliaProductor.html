@@ -1,0 +1,93 @@
+<template>
+    <div class="portal-container">
+        <div class="portal-content-wrapper">
+            
+            <!-- HEADER CON TÍTULO Y BOTÓN DE RETORNO -->
+            <div class="portal-header-row slds-m-bottom_large">
+                <div class="portal-header">
+                    <p class="text-uppercase tracking-wide text-muted slds-text-body_small">Configuración</p>
+                    <h1 class="portal-title">Perfil de {userName}</h1>
+                    <p class="text-muted slds-m-top_xx-small">Actualizá tus datos de contacto y contraseña de acceso.</p>
+                </div>
+
+                <button class="btn-back" onclick={navigateToHome}>
+                    <lightning-icon icon-name="utility:back" size="x-small" class="btn-icon"></lightning-icon>
+                    Volver al inicio
+                </button>
+            </div>
+
+            <!-- DATOS DE CONTACTO (SIN CAMBIOS) -->
+            <div class="portal-card slds-m-bottom_large">
+                <div class="card-header slds-m-bottom_large">
+                    <lightning-icon 
+                        icon-name="utility:user" 
+                        alternative-text="Usuario" 
+                        size="small" 
+                        class="custom-icon slds-m-right_small">
+                    </lightning-icon>
+                    <h2>Datos de contacto</h2>
+                </div>
+                
+                <div class="slds-grid slds-wrap slds-gutter_large grid-gap">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-input type="text" label="NOMBRE COMPLETO" value={fullName} disabled class="custom-input"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-input type="text" label="RAZÓN SOCIAL" value={businessName} disabled class="custom-input"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-input type="text" label="NRO. DE DOCUMENTO" value={documentId} disabled class="custom-input"></lightning-input>
+                    </div>
+                    
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-input type="text" label="CUIT" value={cuit} disabled class="custom-input"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-input type="tel" label="CELULAR" value={mobilePhone} onchange={handlePhone} class="custom-input"></lightning-input>
+                        <span class="input-help-text">Formato: +549 seguido de 10 dígitos</span>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-input type="email" label="EMAIL" value={email} onchange={handleEmail} class="custom-input"></lightning-input>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-grid_align-end slds-m-top_medium">
+                    <button class="btn-portal" onclick={handleUpdate}>Actualizar datos</button>
+                </div>
+            </div>
+
+            <!-- SEGURIDAD (SIN CAMBIOS) -->
+            <div class="portal-card">
+                <div class="card-header slds-m-bottom_large">
+                    <lightning-icon 
+                        icon-name="utility:lock" 
+                        alternative-text="Seguridad" 
+                        size="small" 
+                        class="custom-icon slds-m-right_small">
+                    </lightning-icon>
+                    <h2>Seguridad</h2>
+                </div>
+
+                <div class="slds-grid slds-wrap slds-gutter_large grid-gap">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 password-wrapper">
+                        <lightning-input type={passwordInputType} data-id="oldpass" label="CONTRASEÑA ACTUAL" placeholder="Contraseña Actual" onchange={handleChange} class="custom-input"></lightning-input>
+                        <lightning-button-icon icon-name={toggleIconName} class="password-toggle-btn" variant="bare" onclick={togglePasswordVisibility} alternative-text="Mostrar/Ocultar"></lightning-button-icon>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 password-wrapper">
+                        <lightning-input type={passwordInputType} data-id="newpass" label="NUEVA CONTRASEÑA" placeholder="Nueva Contraseña" onchange={handleChange} class="custom-input"></lightning-input>
+                        <lightning-button-icon icon-name={toggleIconName} class="password-toggle-btn" variant="bare" onclick={togglePasswordVisibility} alternative-text="Mostrar/Ocultar"></lightning-button-icon>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 password-wrapper">
+                        <lightning-input type={passwordInputType} data-id="passconfirm" label="CONFIRMAR NUEVA CONTRASEÑA" placeholder="Confirmar Nueva Contraseña" onchange={handleChange} class="custom-input"></lightning-input>
+                        <lightning-button-icon icon-name={toggleIconName} class="password-toggle-btn" variant="bare" onclick={togglePasswordVisibility} alternative-text="Mostrar/Ocultar"></lightning-button-icon>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-grid_align-end slds-m-top_medium">
+                    <button class="btn-portal" onclick={handleChangePassword}>Modificar contraseña</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</template>
