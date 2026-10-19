@@ -7,7 +7,7 @@
     <label>Campaña</label>
     <referenceTo>Campana_Agricola__c</referenceTo>
     <relationshipLabel>Envíos de Correo</relationshipLabel>
-    <relationshipName>Envios_de_Correo</relationshipName>
+    <relationshipName>EnvioCorreo_Campania</relationshipName>
     <required>false</required>
     <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>

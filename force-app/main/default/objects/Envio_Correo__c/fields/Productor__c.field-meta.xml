@@ -7,7 +7,7 @@
     <label>Productor</label>
     <referenceTo>Account</referenceTo>
     <relationshipLabel>Envíos de Correo</relationshipLabel>
-    <relationshipName>Envios_de_Correo_Productor</relationshipName>
+    <relationshipName>EnvioCorreo_Productor</relationshipName>
     <required>false</required>
     <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>

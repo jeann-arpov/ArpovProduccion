@@ -7,7 +7,7 @@
     <label>Cultivo</label>
     <referenceTo>Cultivo__c</referenceTo>
     <relationshipLabel>Envíos de Correo</relationshipLabel>
-    <relationshipName>Envios_de_Correo_Cultivo</relationshipName>
+    <relationshipName>EnvioCorreo_Cultivo</relationshipName>
     <required>false</required>
     <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
