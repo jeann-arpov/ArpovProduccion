@@ -812,7 +812,8 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         return this.destinatarios.find(d => d.record?.Estado__c == 'En Curso') != null;
     }
 
-    /** Solo se edita En Curso/Borrador, o una Parcialmente Validada con destinatarios devueltos a En Curso. */
+    /** El resumen es solo lectura salvo En Curso/Borrador, o una Parcialmente Validada con destinatarios En Curso.
+     *  Pendiente de Validación se abre en el resumen y se edita con el botón (backToEnCurso). */
     get isSoloLectura() {
         if (this.isEnCurso) return false;
         return !(this.cesion.Estado__c == 'Parcialmente Validada' && this.hasDestinatarioEnCurso);
@@ -829,9 +830,10 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
 
     async edit(id) {
         this.closeModal();
+        const wasEnCurso = this.isEnCurso;
 
         await this.doRequest(async _ => {
-            if (!this.isEnCurso) await backToEnCurso({cesionId: this.cesion.Id}).then(data => this.loadData(data));
+            if (!wasEnCurso) await backToEnCurso({cesionId: this.cesion.Id}).then(data => this.loadData(data));
 
             this.hiding = {};
 
@@ -840,8 +842,10 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
                     this.hiding[destinatario.id] = true;
                 }
             }
-            
+
             this.step = "edit";
+            // Contrato (paso 2) y, al continuar, toneladas (paso 3).
+            if (!wasEnCurso) this.wizardStep = 2;
         })
     }
 
