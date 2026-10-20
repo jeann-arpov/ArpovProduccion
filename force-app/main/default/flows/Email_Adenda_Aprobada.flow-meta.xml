@@ -1,0 +1,1270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Envio_de_Email_de_Confirmacion_de_Adenda</name>
+        <label>Envio de Email de Confirmacion de Adenda</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>END_ELEMENT_1</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>recipientAddresses</name>
+            <value>
+                <collectionElements>
+                    <elementReference>$Record.Firmante_Licencia__c</elementReference>
+                </collectionElements>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderType</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>OrgWideEmailAddress</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>senderAddress</name>
+            <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
+                <stringValue>info@sembraevolucion.com.ar</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>composeEmailContent</name>
+            <value>
+                <stringValue>True</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+                <stringValue>Adenda Aprobada</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>EmailTemplate</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <offset>0</offset>
+        <versionString>3.0.1</versionString>
+    </actionCalls>
+    <apiVersion>68.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <constants>
+        <name>AporteGenetico</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Aporte Genético</stringValue>
+        </value>
+    </constants>
+    <constants>
+        <name>EmailInfoSembra</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>info@sembraevolucion.com.ar</stringValue>
+        </value>
+    </constants>
+    <decisions>
+        <name>Cumple_Condiciones</name>
+        <label>Cumple Condiciones</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>END_ELEMENT_1</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Firmante_Licencia__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Crear_Registro_de_Email</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <ends>
+        <name>END_ELEMENT_1</name>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+    </ends>
+    <environments>Default</environments>
+    <formulas>
+        <name>IdObtentor</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Cuenta_Obtentor__r.Id_Obtentor__c}</expression>
+    </formulas>
+    <formulas>
+        <name>OrigendeLicencia</name>
+        <dataType>String</dataType>
+        <expression>IF( ( TEXT( {!$Record.Tecnologia__c}) = &apos;Enlist&apos; ) || ( TEXT( {!$Record.Tecnologia__c}) = &apos;Conkesta&apos;) , &apos;Enlist/Conkesta&apos;, &apos;Aporte Genético&apos;)</expression>
+    </formulas>
+    <interviewLabel>Email Adenda Aprobada {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Email Adenda Aprobada</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Crear_EmailMessage</name>
+        <label>Crear EmailMessage</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Envio_de_Email_de_Confirmacion_de_Adenda</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>FromAddress</field>
+            <value>
+                <elementReference>EmailInfoSembra</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FromName</field>
+            <value>
+                <stringValue>Sembrá Evolución</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>HtmlBody</field>
+            <value>
+                <elementReference>EmailTemplate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RelatedToId</field>
+            <value>
+                <elementReference>Crear_Registro_de_Email.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>3</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <stringValue>Adenda Aprobada</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ToAddress</field>
+            <value>
+                <elementReference>$Record.Firmante_Licencia__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>EmailMessage</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>Crear_Registro_de_Email</name>
+        <label>Crear Registro de Email</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Crear_EmailMessage</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Asunto__c</field>
+            <value>
+                <stringValue>Adenda Aprobada</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CUIT__c</field>
+            <value>
+                <elementReference>$Record.Cuenta_Productor__r.N_CUIT__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Cuerpo_HTML__c</field>
+            <value>
+                <elementReference>EmailTemplate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>De__c</field>
+            <value>
+                <elementReference>EmailInfoSembra</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Estado__c</field>
+            <value>
+                <stringValue>Enviado</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Fecha_Envio__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Id_Registro__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Nombre_Registro__c</field>
+            <value>
+                <elementReference>$Record.Name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Objeto__c</field>
+            <value>
+                <stringValue>Licencia__c</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Para__c</field>
+            <value>
+                <elementReference>$Record.Firmante_Licencia__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Proceso__c</field>
+            <value>
+                <stringValue>Adenda Aprobada</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Productor__c</field>
+            <value>
+                <elementReference>$Record.Cuenta_Productor__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Envio_Correo__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Cumple_Condiciones</targetReference>
+        </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Regalia_extendida__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Estado__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Aprobada</stringValue>
+            </value>
+        </filters>
+        <object>Licencia__c</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>EmailTemplate</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>&lt;!doctype html&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; xmlns:v=&quot;urn:schemas-microsoft-com:vml&quot; xmlns:o=&quot;urn:schemas-microsoft-com:office:office&quot;&gt;
+    &lt;head&gt;
+        &lt;!-- NAME: 1 COLUMN - FULL WIDTH --&gt;
+        &lt;!--[if gte mso 15]&gt;
+        &lt;xml&gt;
+            &lt;o:OfficeDocumentSettings&gt;
+            &lt;o:AllowPNG/&gt;
+            &lt;o:PixelsPerInch&gt;96&lt;/o:PixelsPerInch&gt;
+            &lt;/o:OfficeDocumentSettings&gt;
+        &lt;/xml&gt;
+        &lt;![endif]--&gt;
+        &lt;meta charset=&quot;UTF-8&quot;&gt;
+        &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+        &lt;title&gt;¡Ahora todas tus variedades GDM en un solo lugar!&lt;/title&gt;
+        
+    &lt;style type=&quot;text/css&quot;&gt;
+		p{
+			margin:10px 0;
+			padding:0;
+		}
+		table{
+			border-collapse:collapse;
+		}
+		h1,h2,h3,h4,h5,h6{
+			display:block;
+			margin:0;
+			padding:0;
+		}
+		img,a img{
+			border:0;
+			height:auto;
+			outline:none;
+			text-decoration:none;
+		}
+		body,#bodyTable,#bodyCell{
+			height:100%;
+			margin:0;
+			padding:0;
+			width:100%;
+		}
+		.mcnPreviewText{
+			display:none !important;
+		}
+		#outlook a{
+			padding:0;
+		}
+		img{
+			-ms-interpolation-mode:bicubic;
+		}
+		table{
+			mso-table-lspace:0pt;
+			mso-table-rspace:0pt;
+		}
+		.ReadMsgBody{
+			width:100%;
+		}
+		.ExternalClass{
+			width:100%;
+		}
+		p,a,li,td,blockquote{
+			mso-line-height-rule:exactly;
+		}
+		a[href^=tel],a[href^=sms]{
+			color:inherit;
+			cursor:default;
+			text-decoration:none;
+		}
+		p,a,li,td,body,table,blockquote{
+			-ms-text-size-adjust:100%;
+			-webkit-text-size-adjust:100%;
+		}
+		.ExternalClass,.ExternalClass p,.ExternalClass td,.ExternalClass div,.ExternalClass span,.ExternalClass font{
+			line-height:100%;
+		}
+		a[x-apple-data-detectors]{
+			color:inherit !important;
+			text-decoration:none !important;
+			font-size:inherit !important;
+			font-family:inherit !important;
+			font-weight:inherit !important;
+			line-height:inherit !important;
+		}
+		table[align=left]{
+			float:left;
+		}
+		table[align=right]{
+			float:right;
+		}
+		.templateContainer{
+			max-width:600px !important;
+		}
+		a.mcnButton{
+			display:block;
+		}
+		.mcnImage,.mcnRetinaImage{
+			vertical-align:bottom;
+		}
+		.mcnTextContent{
+			word-break:break-word;
+		}
+		.mcnTextContent img{
+			height:auto !important;
+		}
+		.mcnDividerBlock{
+			table-layout:fixed !important;
+		}
+		body,#bodyTable{
+			background-color:#FAFAFA;
+		}
+		#bodyCell{
+			border-top:0;
+		}
+		h1{
+			color:#202020;
+			font-family:Helvetica;
+			font-size:26px;
+			font-style:normal;
+			font-weight:bold;
+			line-height:125%;
+			letter-spacing:normal;
+			text-align:left;
+		}
+		h2{
+			color:#202020;
+			font-family:Helvetica;
+			font-size:22px;
+			font-style:normal;
+			font-weight:bold;
+			line-height:125%;
+			letter-spacing:normal;
+			text-align:left;
+		}
+		h3{
+			color:#202020;
+			font-family:Helvetica;
+			font-size:20px;
+			font-style:normal;
+			font-weight:bold;
+			line-height:125%;
+			letter-spacing:normal;
+			text-align:left;
+		}
+		h4{
+			color:#202020;
+			font-family:Helvetica;
+			font-size:18px;
+			font-style:normal;
+			font-weight:bold;
+			line-height:125%;
+			letter-spacing:normal;
+			text-align:left;
+		}
+		#templatePreheader{
+			background-color:#FAFAFA;
+			background-image:none;
+			background-repeat:no-repeat;
+			background-position:center;
+			background-size:cover;
+			border-top:0;
+			border-bottom:0;
+			padding-top:9px;
+			padding-bottom:9px;
+		}
+		#templatePreheader .mcnTextContent,#templatePreheader .mcnTextContent p{
+			color:#656565;
+			font-family:Helvetica;
+			font-size:12px;
+			line-height:150%;
+			text-align:left;
+		}
+		#templatePreheader .mcnTextContent a,#templatePreheader .mcnTextContent p a{
+			color:#656565;
+			font-weight:normal;
+			text-decoration:underline;
+		}
+		#templateHeader{
+			background-color:#FFFFFF;
+			background-image:none;
+			background-repeat:no-repeat;
+			background-position:center;
+			background-size:cover;
+			border-top:0;
+			border-bottom:0;
+			padding-top:9px;
+			padding-bottom:0;
+		}
+		#templateHeader .mcnTextContent,#templateHeader .mcnTextContent p{
+			color:#202020;
+			font-family:Helvetica;
+			font-size:16px;
+			line-height:150%;
+			text-align:left;
+		}
+		#templateHeader .mcnTextContent a,#templateHeader .mcnTextContent p a{
+			color:#007C89;
+			font-weight:normal;
+			text-decoration:underline;
+		}
+		#templateBody{
+			background-color:#FFFFFF;
+			background-image:none;
+			background-repeat:no-repeat;
+			background-position:center;
+			background-size:cover;
+			border-top:0;
+			border-bottom:0;
+			padding-top:9px;
+			padding-bottom:9px;
+		}
+		#templateBody .mcnTextContent,#templateBody .mcnTextContent p{
+			color:#202020;
+			font-family:Helvetica;
+			font-size:16px;
+			line-height:150%;
+			text-align:left;
+		}
+		#templateBody .mcnTextContent a,#templateBody .mcnTextContent p a{
+			color:#007C89;
+			font-weight:normal;
+			text-decoration:underline;
+		}
+		#templateFooter{
+			background-color:#FAFAFA;
+			background-image:none;
+			background-repeat:no-repeat;
+			background-position:center;
+			background-size:cover;
+			border-top:0;
+			border-bottom:0;
+			padding-top:9px;
+			padding-bottom:9px;
+		}
+		#templateFooter .mcnTextContent,#templateFooter .mcnTextContent p{
+			color:#656565;
+			font-family:Helvetica;
+			font-size:12px;
+			line-height:150%;
+			text-align:center;
+		}
+		#templateFooter .mcnTextContent a,#templateFooter .mcnTextContent p a{
+			color:#656565;
+			font-weight:normal;
+			text-decoration:underline;
+		}
+	@media only screen and (min-width:768px){
+		.templateContainer{
+			width:600px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		body,table,td,p,a,li,blockquote{
+			-webkit-text-size-adjust:none !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		body{
+			width:100% !important;
+			min-width:100% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnRetinaImage{
+			max-width:100% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnImage{
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnCartContainer,.mcnCaptionTopContent,.mcnRecContentContainer,.mcnCaptionBottomContent,.mcnTextContentContainer,.mcnBoxedTextContentContainer,.mcnImageGroupContentContainer,.mcnCaptionLeftTextContentContainer,.mcnCaptionRightTextContentContainer,.mcnCaptionLeftImageContentContainer,.mcnCaptionRightImageContentContainer,.mcnImageCardLeftTextContentContainer,.mcnImageCardRightTextContentContainer,.mcnImageCardLeftImageContentContainer,.mcnImageCardRightImageContentContainer{
+			max-width:100% !important;
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnBoxedTextContentContainer{
+			min-width:100% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnImageGroupContent{
+			padding:9px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnCaptionLeftContentOuter .mcnTextContent,.mcnCaptionRightContentOuter .mcnTextContent{
+			padding-top:9px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnImageCardTopImageContent,.mcnCaptionBottomContent:last-child .mcnCaptionBottomImageContent,.mcnCaptionBlockInner .mcnCaptionTopContent:last-child .mcnTextContent{
+			padding-top:18px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnImageCardBottomImageContent{
+			padding-bottom:9px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnImageGroupBlockInner{
+			padding-top:0 !important;
+			padding-bottom:0 !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnImageGroupBlockOuter{
+			padding-top:9px !important;
+			padding-bottom:9px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnTextContent,.mcnBoxedTextContentColumn{
+			padding-right:18px !important;
+			padding-left:18px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnImageCardLeftImageContent,.mcnImageCardRightImageContent{
+			padding-right:18px !important;
+			padding-bottom:0 !important;
+			padding-left:18px !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcpreview-image-uploader{
+			display:none !important;
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		h1{
+			font-size:22px !important;
+			line-height:125% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		h2{
+			font-size:20px !important;
+			line-height:125% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		h3{
+			font-size:18px !important;
+			line-height:125% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		h4{
+			font-size:16px !important;
+			line-height:150% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		.mcnBoxedTextContentContainer .mcnTextContent,.mcnBoxedTextContentContainer .mcnTextContent p{
+			font-size:14px !important;
+			line-height:150% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		#templatePreheader{
+			display:block !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		#templatePreheader .mcnTextContent,#templatePreheader .mcnTextContent p{
+			font-size:14px !important;
+			line-height:150% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		#templateHeader .mcnTextContent,#templateHeader .mcnTextContent p{
+			font-size:16px !important;
+			line-height:150% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		#templateBody .mcnTextContent,#templateBody .mcnTextContent p{
+			font-size:16px !important;
+			line-height:150% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		#templateFooter .mcnTextContent,#templateFooter .mcnTextContent p{
+			font-size:14px !important;
+			line-height:150% !important;
+		}
+
+}&lt;/style&gt;&lt;!--[if !mso]&gt;&lt;!--&gt;&lt;link href=&quot;https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Roboto:400,400i,700,700i&quot; rel=&quot;stylesheet&quot;&gt;&lt;!--&lt;![endif]--&gt;&lt;/head&gt;
+    &lt;body style=&quot;height: 100%;margin: 0;padding: 0;width: 100%;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #FAFAFA;&quot;&gt;
+        &lt;!----&gt;
+        &lt;!--[if !gte mso 9]&gt;&lt;!----&gt;&lt;span class=&quot;mcnPreviewText&quot; style=&quot;display:none; font-size:0px; line-height:0px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; visibility:hidden; mso-hide:all;&quot;&gt;Tu licencia de Aporte Genético ya fue actualizada y aprobada.&lt;/span&gt;&lt;!--&lt;![endif]--&gt;
+        &lt;!----&gt;
+        &lt;center&gt;
+            &lt;table align=&quot;center&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; height=&quot;100%&quot; width=&quot;100%&quot; id=&quot;bodyTable&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;height: 100%;margin: 0;padding: 0;width: 100%;background-color: #FAFAFA;&quot;&gt;
+                &lt;tr&gt;
+                    &lt;td align=&quot;center&quot; valign=&quot;top&quot; id=&quot;bodyCell&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;height: 100%;margin: 0;padding: 0;width: 100%;border-top: 0;&quot;&gt;
+                        &lt;!-- BEGIN TEMPLATE // --&gt;
+                        &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                            &lt;tr&gt;
+                                &lt;td align=&quot;center&quot; valign=&quot;top&quot; id=&quot;templatePreheader&quot; style=&quot;background:#FAFAFA none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #FAFAFA;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 9px;&quot;&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;tr&gt;
+                                    &lt;td align=&quot;center&quot; valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;![endif]--&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;templateContainer&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;max-width: 600px !important;&quot;&gt;
+                                        &lt;tr&gt;
+                                            &lt;td valign=&quot;top&quot; class=&quot;preheaderContainer&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnTextBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnTextBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td valign=&quot;top&quot; class=&quot;mcnTextBlockInner&quot; style=&quot;padding-top: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+              	&lt;!--[if mso]&gt;
+				&lt;table align=&quot;left&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;100%&quot; style=&quot;width:100%;&quot;&gt;
+				&lt;tr&gt;
+				&lt;![endif]--&gt;
+			    
+				&lt;!--[if mso]&gt;
+				&lt;td valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+				&lt;![endif]--&gt;
+                &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 100%;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot; width=&quot;100%&quot; class=&quot;mcnTextContentContainer&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        
+                        &lt;td valign=&quot;top&quot; class=&quot;mcnTextContent&quot; style=&quot;padding-top: 0;padding-right: 18px;padding-bottom: 9px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #656565;font-family: Helvetica;font-size: 12px;line-height: 150%;text-align: left;&quot;&gt;
+                        
+                            &lt;div style=&quot;text-align: center;&quot;&gt;&lt;a href=&quot;https://mailchi.mp/sembraevolucion/licencia-de-aporte-genetico-actualizada-y-aprobada?e=[UNIQID]&quot; target=&quot;_blank&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-weight: normal;text-decoration: underline;&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;&lt;span style=&quot;font-family:roboto, helvetica neue, helvetica, arial, sans-serif&quot;&gt;Ver este correo en tu navegador&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;&lt;/div&gt;
+
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+				&lt;!--[if mso]&gt;
+				&lt;/td&gt;
+				&lt;![endif]--&gt;
+                
+				&lt;!--[if mso]&gt;
+				&lt;/tr&gt;
+				&lt;/table&gt;
+				&lt;![endif]--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;/td&gt;
+                                        &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;/td&gt;
+                                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;![endif]--&gt;
+                                &lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td align=&quot;center&quot; valign=&quot;top&quot; id=&quot;templateHeader&quot; style=&quot;background:#FFFFFF none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #FFFFFF;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 0;&quot;&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;tr&gt;
+                                    &lt;td align=&quot;center&quot; valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;![endif]--&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;templateContainer&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;max-width: 600px !important;&quot;&gt;
+                                        &lt;tr&gt;
+                                            &lt;td valign=&quot;top&quot; class=&quot;headerContainer&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnImageBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnImageBlockOuter&quot;&gt;
+            &lt;tr&gt;
+                &lt;td valign=&quot;top&quot; style=&quot;padding: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; class=&quot;mcnImageBlockInner&quot;&gt;
+                    &lt;table align=&quot;left&quot; width=&quot;100%&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;mcnImageContentContainer&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                        &lt;tbody&gt;&lt;tr&gt;
+                            &lt;td class=&quot;mcnImageContent&quot; valign=&quot;top&quot; style=&quot;padding-right: 0px;padding-left: 0px;padding-top: 0;padding-bottom: 0;text-align: center;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                
+                                    
+                                        &lt;img align=&quot;center&quot; alt=&quot;&quot; src=&quot;https://mcusercontent.com/e5aa41c44e1b1ab5d65d4661b/images/7de9f5b7-78e6-3bd4-37a7-95e31454c0a5.png&quot; width=&quot;599.9884643554688&quot; style=&quot;max-width: 1200px;padding-bottom: 0;display: inline !important;vertical-align: bottom;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;&quot; class=&quot;mcnImage&quot;&gt;
+                                    
+                                
+                            &lt;/td&gt;
+                        &lt;/tr&gt;
+                    &lt;/tbody&gt;&lt;/table&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;/td&gt;
+                                        &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;/td&gt;
+                                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;![endif]--&gt;
+                                &lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td align=&quot;center&quot; valign=&quot;top&quot; id=&quot;templateBody&quot; style=&quot;background:#FFFFFF none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #FFFFFF;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 9px;&quot;&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;tr&gt;
+                                    &lt;td align=&quot;center&quot; valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;![endif]--&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;templateContainer&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;max-width: 600px !important;&quot;&gt;
+                                        &lt;tr&gt;
+                                            &lt;td valign=&quot;top&quot; class=&quot;bodyContainer&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnTextBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnTextBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td valign=&quot;top&quot; class=&quot;mcnTextBlockInner&quot; style=&quot;padding-top: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+              	&lt;!--[if mso]&gt;
+				&lt;table align=&quot;left&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;100%&quot; style=&quot;width:100%;&quot;&gt;
+				&lt;tr&gt;
+				&lt;![endif]--&gt;
+			    
+				&lt;!--[if mso]&gt;
+				&lt;td valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+				&lt;![endif]--&gt;
+                &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 100%;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot; width=&quot;100%&quot; class=&quot;mcnTextContentContainer&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        
+                        &lt;td valign=&quot;top&quot; class=&quot;mcnTextContent&quot; style=&quot;padding-top: 0;padding-right: 18px;padding-bottom: 9px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;&quot;&gt;
+                        
+                            &lt;div style=&quot;text-align: justify;&quot;&gt;&lt;span style=&quot;font-size:13px&quot;&gt;&lt;span style=&quot;font-family:roboto, helvetica neue, helvetica, arial, sans-serif&quot;&gt;Hola&amp;nbsp;👋&lt;strong&gt;&amp;nbsp;{!$Record.Razon_Social_Licenciatario__c}&lt;/strong&gt;&lt;br&gt;
+&lt;br&gt;
+¡Tenemos buenas noticias! Tu &lt;strong data-end=&quot;363&quot; data-start=&quot;332&quot; style=&quot;font-family:roboto, &amp;quot;helvetica neue, helvetica, arial, sans-serif&quot;&gt;Licencia de Aporte Genético&lt;/strong&gt; ya fue actualizada y aprobada.&lt;br&gt;
+&lt;br&gt;
+A partir de ahora,&amp;nbsp;podés gestionar en &lt;strong data-end=&quot;476&quot; data-start=&quot;428&quot; style=&quot;font-family:roboto, &amp;quot;helvetica neue, helvetica, arial, sans-serif&quot;&gt;&lt;a href=&quot;https://sembraevolucion.com.ar/&quot; target=&quot;_blank&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #007C89;font-weight: normal;text-decoration: underline;&quot;&gt;Sembrá Evolución&lt;/a&gt; todas las variedades de GDM&lt;/strong&gt;, incluso aquellas que antes reconocías por regalía extendida.&lt;br&gt;
+&lt;br&gt;
+Todo en un solo lugar, de forma más simple y con todos los beneficios del sistema.&amp;nbsp;&lt;br&gt;
+&lt;strong&gt;Recordá los 4 pasos clave: &lt;/strong&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+				&lt;!--[if mso]&gt;
+				&lt;/td&gt;
+				&lt;![endif]--&gt;
+                
+				&lt;!--[if mso]&gt;
+				&lt;/tr&gt;
+				&lt;/table&gt;
+				&lt;![endif]--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnBoxedTextBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;!--[if gte mso 9]&gt;
+	&lt;table align=&quot;center&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;100%&quot;&gt;
+	&lt;![endif]--&gt;
+	&lt;tbody class=&quot;mcnBoxedTextBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td valign=&quot;top&quot; class=&quot;mcnBoxedTextBlockInner&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                
+				&lt;!--[if gte mso 9]&gt;
+				&lt;td align=&quot;center&quot; valign=&quot;top&quot; &quot;&gt;
+				&lt;![endif]--&gt;
+                &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot; class=&quot;mcnBoxedTextContentContainer&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        
+                        &lt;td style=&quot;padding-top: 9px;padding-left: 18px;padding-bottom: 9px;padding-right: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                        
+                            &lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;mcnTextContentContainer&quot; width=&quot;100%&quot; style=&quot;min-width: 100% !important;background-color: #B6FF00;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                &lt;tbody&gt;&lt;tr&gt;
+                                    &lt;td valign=&quot;top&quot; class=&quot;mcnTextContent&quot; style=&quot;padding: 18px;color: #222222;font-family: Roboto, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif;font-size: 13px;font-style: normal;font-weight: bold;text-align: center;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;line-height: 150%;&quot;&gt;
+                                        &lt;div style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;font-size:13px&quot;&gt;&lt;span style=&quot;font-family:roboto, helvetica neue, helvetica, arial, sans-serif&quot;&gt;✍️ Gestioná tu licencia de uso&lt;br&gt;
+🌱🌾Acreditá tus Hectáreas Tecnológicas (HT)&lt;br&gt;
+🤝Sumate al Programa de Precertificación de Hectáreas (PPH)&lt;br&gt;
+&amp;nbsp; &amp;nbsp; &amp;nbsp;🚜&amp;nbsp;Entregá tu cosecha con tranquilidad&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+
+                                    &lt;/td&gt;
+                                &lt;/tr&gt;
+                            &lt;/tbody&gt;&lt;/table&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+				&lt;!--[if gte mso 9]&gt;
+				&lt;/td&gt;
+				&lt;![endif]--&gt;
+                
+				&lt;!--[if gte mso 9]&gt;
+                &lt;/tr&gt;
+                &lt;/table&gt;
+				&lt;![endif]--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnDividerBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;table-layout: fixed !important;&quot;&gt;
+    &lt;tbody class=&quot;mcnDividerBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td class=&quot;mcnDividerBlockInner&quot; style=&quot;min-width: 100%;padding: 2px 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                &lt;table class=&quot;mcnDividerContent&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; style=&quot;min-width: 100%;border-top: 2px none #EAEAEA;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        &lt;td style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                            &lt;span&gt;&lt;/span&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+&lt;!--            
+                &lt;td class=&quot;mcnDividerBlockInner&quot; style=&quot;padding: 18px;&quot;&gt;
+                &lt;hr class=&quot;mcnDividerContent&quot; style=&quot;border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;&quot; /&gt;
+--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnTextBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnTextBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td valign=&quot;top&quot; class=&quot;mcnTextBlockInner&quot; style=&quot;padding-top: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+              	&lt;!--[if mso]&gt;
+				&lt;table align=&quot;left&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;100%&quot; style=&quot;width:100%;&quot;&gt;
+				&lt;tr&gt;
+				&lt;![endif]--&gt;
+			    
+				&lt;!--[if mso]&gt;
+				&lt;td valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+				&lt;![endif]--&gt;
+                &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 100%;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot; width=&quot;100%&quot; class=&quot;mcnTextContentContainer&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        
+                        &lt;td valign=&quot;top&quot; class=&quot;mcnTextContent&quot; style=&quot;padding-top: 0;padding-right: 18px;padding-bottom: 9px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;&quot;&gt;
+                        
+                            &lt;div style=&quot;text-align: justify;&quot;&gt;&lt;span style=&quot;font-size:13px&quot;&gt;&lt;span style=&quot;font-family:roboto, helvetica neue, helvetica, arial, sans-serif&quot;&gt;Ante cualquier duda&amp;nbsp;o consulta, podés &lt;strong&gt;responder a este mail o hacer clic en el botón a continuación &lt;/strong&gt;y te acompañamos durante todo el proceso&lt;strong&gt;.&lt;/strong&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+				&lt;!--[if mso]&gt;
+				&lt;/td&gt;
+				&lt;![endif]--&gt;
+                
+				&lt;!--[if mso]&gt;
+				&lt;/tr&gt;
+				&lt;/table&gt;
+				&lt;![endif]--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnDividerBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;table-layout: fixed !important;&quot;&gt;
+    &lt;tbody class=&quot;mcnDividerBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td class=&quot;mcnDividerBlockInner&quot; style=&quot;min-width: 100%;padding: 6px 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                &lt;table class=&quot;mcnDividerContent&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; style=&quot;min-width: 100%;border-top: 2px none #EAEAEA;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        &lt;td style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                            &lt;span&gt;&lt;/span&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+&lt;!--            
+                &lt;td class=&quot;mcnDividerBlockInner&quot; style=&quot;padding: 18px;&quot;&gt;
+                &lt;hr class=&quot;mcnDividerContent&quot; style=&quot;border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;&quot; /&gt;
+--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnButtonBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnButtonBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td style=&quot;padding-top: 0;padding-right: 18px;padding-bottom: 18px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; valign=&quot;top&quot; align=&quot;center&quot; class=&quot;mcnButtonBlockInner&quot;&gt;
+                &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;mcnButtonContentContainer&quot; style=&quot;border-collapse: separate !important;border-radius: 19px;background-color: #B6FF00;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                    &lt;tbody&gt;
+                        &lt;tr&gt;
+                            &lt;td align=&quot;center&quot; valign=&quot;middle&quot; class=&quot;mcnButtonContent&quot; style=&quot;font-family: Lato, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Arial, sans-serif;font-size: 13px;padding: 15px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                &lt;a class=&quot;mcnButton &quot; title=&quot;👉 Mesa de Ayuda&quot; href=&quot;https://api.whatsapp.com/send/?phone=5491131172022&amp;text=Hola%2C+me+comunico+para+consultar+respecto+de+mi+adenda.&amp;type=phone_number&amp;app_absent=0&quot; target=&quot;_blank&quot; style=&quot;font-weight: bold;letter-spacing: 1px;line-height: 100%;text-align: center;text-decoration: none;color: #002222;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;display: block;&quot;&gt;👉 Mesa de Ayuda&lt;/a&gt;
+                            &lt;/td&gt;
+                        &lt;/tr&gt;
+                    &lt;/tbody&gt;
+                &lt;/table&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnTextBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnTextBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td valign=&quot;top&quot; class=&quot;mcnTextBlockInner&quot; style=&quot;padding-top: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+              	&lt;!--[if mso]&gt;
+				&lt;table align=&quot;left&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;100%&quot; style=&quot;width:100%;&quot;&gt;
+				&lt;tr&gt;
+				&lt;![endif]--&gt;
+			    
+				&lt;!--[if mso]&gt;
+				&lt;td valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+				&lt;![endif]--&gt;
+                &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 100%;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot; width=&quot;100%&quot; class=&quot;mcnTextContentContainer&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        
+                        &lt;td valign=&quot;top&quot; class=&quot;mcnTextContent&quot; style=&quot;padding-top: 0;padding-right: 18px;padding-bottom: 9px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;&quot;&gt;
+                        
+                            &lt;div style=&quot;text-align: justify;&quot;&gt;&lt;span style=&quot;font-size:13px&quot;&gt;&lt;span style=&quot;font-family:roboto, helvetica neue, helvetica, arial, sans-serif&quot;&gt;¡Saludos!&lt;br&gt;
+&lt;br&gt;
+&lt;strong&gt;Equipo de Sembrá Evolución&lt;/strong&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+				&lt;!--[if mso]&gt;
+				&lt;/td&gt;
+				&lt;![endif]--&gt;
+                
+				&lt;!--[if mso]&gt;
+				&lt;/tr&gt;
+				&lt;/table&gt;
+				&lt;![endif]--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnDividerBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;table-layout: fixed !important;&quot;&gt;
+    &lt;tbody class=&quot;mcnDividerBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td class=&quot;mcnDividerBlockInner&quot; style=&quot;min-width: 100%;padding: 30px 18px 10px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                &lt;table class=&quot;mcnDividerContent&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; style=&quot;min-width: 100%;border-top: 2px solid #222222;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        &lt;td style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                            &lt;span&gt;&lt;/span&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+&lt;!--            
+                &lt;td class=&quot;mcnDividerBlockInner&quot; style=&quot;padding: 18px;&quot;&gt;
+                &lt;hr class=&quot;mcnDividerContent&quot; style=&quot;border-bottom-color:none; border-left-color:none; border-right-color:none; border-bottom-width:0; border-left-width:0; border-right-width:0; margin-top:0; margin-right:0; margin-bottom:0; margin-left:0;&quot; /&gt;
+--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnFollowBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnFollowBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td align=&quot;center&quot; valign=&quot;top&quot; style=&quot;padding: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; class=&quot;mcnFollowBlockInner&quot;&gt;
+                &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnFollowContentContainer&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody&gt;&lt;tr&gt;
+        &lt;td align=&quot;center&quot; style=&quot;padding-left: 9px;padding-right: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+            &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; style=&quot;min-width: 100%;background-color: #FFFFFF;border: 1px;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; class=&quot;mcnFollowContent&quot;&gt;
+                &lt;tbody&gt;&lt;tr&gt;
+                    &lt;td align=&quot;center&quot; valign=&quot;top&quot; style=&quot;padding-top: 9px;padding-right: 9px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                        &lt;table align=&quot;center&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                            &lt;tbody&gt;&lt;tr&gt;
+                                &lt;td align=&quot;center&quot; valign=&quot;top&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                    &lt;!--[if mso]&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+                                    &lt;tr&gt;
+                                    &lt;![endif]--&gt;
+                                    
+                                        &lt;!--[if mso]&gt;
+                                        &lt;td align=&quot;center&quot; valign=&quot;top&quot;&gt;
+                                        &lt;![endif]--&gt;
+                                        
+                                        
+                                            &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;mcnBlockFloatLeft&quot; style=&quot;display: inline;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                &lt;tbody&gt;&lt;tr&gt;
+                                                    &lt;td valign=&quot;top&quot; style=&quot;padding-right: 10px;padding-bottom: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; class=&quot;mcnFollowContentItemContainer&quot;&gt;
+                                                        &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnFollowContentItem&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                            &lt;tbody&gt;&lt;tr&gt;
+                                                                &lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;padding-top: 5px;padding-right: 10px;padding-bottom: 5px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                    &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                                        &lt;tbody&gt;&lt;tr&gt;
+                                                                            
+                                                                                &lt;td align=&quot;center&quot; valign=&quot;middle&quot; width=&quot;24&quot; class=&quot;mcnFollowIconContent&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                                    &lt;a href=&quot;http://sembraevolucion.com.ar&quot; target=&quot;_blank&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;img src=&quot;https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/light-link-48.png&quot; alt=&quot;Sitio Web&quot; style=&quot;display: block;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;&quot; height=&quot;24&quot; width=&quot;24&quot; class=&quot;&quot;&gt;&lt;/a&gt;
+                                                                                &lt;/td&gt;
+                                                                            
+                                                                            
+                                                                        &lt;/tr&gt;
+                                                                    &lt;/tbody&gt;&lt;/table&gt;
+                                                                &lt;/td&gt;
+                                                            &lt;/tr&gt;
+                                                        &lt;/tbody&gt;&lt;/table&gt;
+                                                    &lt;/td&gt;
+                                                &lt;/tr&gt;
+                                            &lt;/tbody&gt;&lt;/table&gt;
+                                        
+                                        &lt;!--[if mso]&gt;
+                                        &lt;/td&gt;
+                                        &lt;![endif]--&gt;
+                                    
+                                        &lt;!--[if mso]&gt;
+                                        &lt;td align=&quot;center&quot; valign=&quot;top&quot;&gt;
+                                        &lt;![endif]--&gt;
+                                        
+                                        
+                                            &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;mcnBlockFloatLeft&quot; style=&quot;display: inline;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                &lt;tbody&gt;&lt;tr&gt;
+                                                    &lt;td valign=&quot;top&quot; style=&quot;padding-right: 10px;padding-bottom: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; class=&quot;mcnFollowContentItemContainer&quot;&gt;
+                                                        &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnFollowContentItem&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                            &lt;tbody&gt;&lt;tr&gt;
+                                                                &lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;padding-top: 5px;padding-right: 10px;padding-bottom: 5px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                    &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                                        &lt;tbody&gt;&lt;tr&gt;
+                                                                            
+                                                                                &lt;td align=&quot;center&quot; valign=&quot;middle&quot; width=&quot;24&quot; class=&quot;mcnFollowIconContent&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                                    &lt;a href=&quot;https://www.instagram.com/sembraevolucion/&quot; target=&quot;_blank&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;img src=&quot;https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/light-instagram-48.png&quot; alt=&quot;Instagram&quot; style=&quot;display: block;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;&quot; height=&quot;24&quot; width=&quot;24&quot; class=&quot;&quot;&gt;&lt;/a&gt;
+                                                                                &lt;/td&gt;
+                                                                            
+                                                                            
+                                                                        &lt;/tr&gt;
+                                                                    &lt;/tbody&gt;&lt;/table&gt;
+                                                                &lt;/td&gt;
+                                                            &lt;/tr&gt;
+                                                        &lt;/tbody&gt;&lt;/table&gt;
+                                                    &lt;/td&gt;
+                                                &lt;/tr&gt;
+                                            &lt;/tbody&gt;&lt;/table&gt;
+                                        
+                                        &lt;!--[if mso]&gt;
+                                        &lt;/td&gt;
+                                        &lt;![endif]--&gt;
+                                    
+                                        &lt;!--[if mso]&gt;
+                                        &lt;td align=&quot;center&quot; valign=&quot;top&quot;&gt;
+                                        &lt;![endif]--&gt;
+                                        
+                                        
+                                            &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;mcnBlockFloatLeft&quot; style=&quot;display: inline;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                &lt;tbody&gt;&lt;tr&gt;
+                                                    &lt;td valign=&quot;top&quot; style=&quot;padding-right: 10px;padding-bottom: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; class=&quot;mcnFollowContentItemContainer&quot;&gt;
+                                                        &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnFollowContentItem&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                            &lt;tbody&gt;&lt;tr&gt;
+                                                                &lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;padding-top: 5px;padding-right: 10px;padding-bottom: 5px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                    &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                                        &lt;tbody&gt;&lt;tr&gt;
+                                                                            
+                                                                                &lt;td align=&quot;center&quot; valign=&quot;middle&quot; width=&quot;24&quot; class=&quot;mcnFollowIconContent&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                                    &lt;a href=&quot;https://www.youtube.com/@sembraevolucion2030&quot; target=&quot;_blank&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;img src=&quot;https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/light-youtube-48.png&quot; alt=&quot;YouTube&quot; style=&quot;display: block;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;&quot; height=&quot;24&quot; width=&quot;24&quot; class=&quot;&quot;&gt;&lt;/a&gt;
+                                                                                &lt;/td&gt;
+                                                                            
+                                                                            
+                                                                        &lt;/tr&gt;
+                                                                    &lt;/tbody&gt;&lt;/table&gt;
+                                                                &lt;/td&gt;
+                                                            &lt;/tr&gt;
+                                                        &lt;/tbody&gt;&lt;/table&gt;
+                                                    &lt;/td&gt;
+                                                &lt;/tr&gt;
+                                            &lt;/tbody&gt;&lt;/table&gt;
+                                        
+                                        &lt;!--[if mso]&gt;
+                                        &lt;/td&gt;
+                                        &lt;![endif]--&gt;
+                                    
+                                        &lt;!--[if mso]&gt;
+                                        &lt;td align=&quot;center&quot; valign=&quot;top&quot;&gt;
+                                        &lt;![endif]--&gt;
+                                        
+                                        
+                                            &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;mcnBlockFloatLeft&quot; style=&quot;display: inline;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                &lt;tbody&gt;&lt;tr&gt;
+                                                    &lt;td valign=&quot;top&quot; style=&quot;padding-right: 0;padding-bottom: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot; class=&quot;mcnFollowContentItemContainer&quot;&gt;
+                                                        &lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnFollowContentItem&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                            &lt;tbody&gt;&lt;tr&gt;
+                                                                &lt;td align=&quot;left&quot; valign=&quot;middle&quot; style=&quot;padding-top: 5px;padding-right: 10px;padding-bottom: 5px;padding-left: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                    &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot;&gt;
+                                                                        &lt;tbody&gt;&lt;tr&gt;
+                                                                            
+                                                                                &lt;td align=&quot;center&quot; valign=&quot;middle&quot; width=&quot;24&quot; class=&quot;mcnFollowIconContent&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+                                                                                    &lt;a href=&quot;https://whatsapp.com/channel/0029VbAXBsT7dmeZIdxa5s16&quot; target=&quot;_blank&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;img src=&quot;https://digitalasset.intuit.com/render/content/dam/intuit/mc-fe/en_us/icons/social-block-v2/light-whatsapp-48.png&quot; alt=&quot;¡Novedades!&quot; style=&quot;display: block;border: 0;height: auto;outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;&quot; height=&quot;24&quot; width=&quot;24&quot; class=&quot;&quot;&gt;&lt;/a&gt;
+                                                                                &lt;/td&gt;
+                                                                            
+                                                                            
+                                                                        &lt;/tr&gt;
+                                                                    &lt;/tbody&gt;&lt;/table&gt;
+                                                                &lt;/td&gt;
+                                                            &lt;/tr&gt;
+                                                        &lt;/tbody&gt;&lt;/table&gt;
+                                                    &lt;/td&gt;
+                                                &lt;/tr&gt;
+                                            &lt;/tbody&gt;&lt;/table&gt;
+                                        
+                                        &lt;!--[if mso]&gt;
+                                        &lt;/td&gt;
+                                        &lt;![endif]--&gt;
+                                    
+                                    &lt;!--[if mso]&gt;
+                                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;![endif]--&gt;
+                                &lt;/td&gt;
+                            &lt;/tr&gt;
+                        &lt;/tbody&gt;&lt;/table&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/tbody&gt;&lt;/table&gt;
+        &lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;/td&gt;
+                                        &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;/td&gt;
+                                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;![endif]--&gt;
+                                &lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;tr&gt;
+                                &lt;td align=&quot;center&quot; valign=&quot;top&quot; id=&quot;templateFooter&quot; style=&quot;background:#FAFAFA none no-repeat center/cover;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #FAFAFA;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;border-top: 0;border-bottom: 0;padding-top: 9px;padding-bottom: 9px;&quot;&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;tr&gt;
+                                    &lt;td align=&quot;center&quot; valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+                                    &lt;![endif]--&gt;
+                                    &lt;table align=&quot;center&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;templateContainer&quot; style=&quot;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;max-width: 600px !important;&quot;&gt;
+                                        &lt;tr&gt;
+                                            &lt;td valign=&quot;top&quot; class=&quot;footerContainer&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; class=&quot;mcnTextBlock&quot; style=&quot;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+    &lt;tbody class=&quot;mcnTextBlockOuter&quot;&gt;
+        &lt;tr&gt;
+            &lt;td valign=&quot;top&quot; class=&quot;mcnTextBlockInner&quot; style=&quot;padding-top: 9px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;&quot;&gt;
+              	&lt;!--[if mso]&gt;
+				&lt;table align=&quot;left&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot; width=&quot;100%&quot; style=&quot;width:100%;&quot;&gt;
+				&lt;tr&gt;
+				&lt;![endif]--&gt;
+			    
+				&lt;!--[if mso]&gt;
+				&lt;td valign=&quot;top&quot; width=&quot;600&quot; style=&quot;width:600px;&quot;&gt;
+				&lt;![endif]--&gt;
+                &lt;table align=&quot;left&quot; border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 100%;min-width: 100%;border-collapse: collapse;mso-table-lspace: 0pt;mso-table-rspace: 0pt;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;float: left;&quot; width=&quot;100%&quot; class=&quot;mcnTextContentContainer&quot;&gt;
+                    &lt;tbody&gt;&lt;tr&gt;
+                        
+                        &lt;td valign=&quot;top&quot; class=&quot;mcnTextContent&quot; style=&quot;padding-top: 0;padding-right: 18px;padding-bottom: 9px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #656565;font-family: Helvetica;font-size: 12px;line-height: 150%;text-align: center;&quot;&gt;
+                        
+                            &lt;div style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;&lt;span style=&quot;font-family:roboto, helvetica neue, helvetica, arial, sans-serif&quot;&gt;&lt;span style=&quot;color:#808080&quot;&gt;&lt;em&gt;Copyright © 2026 Sembra Evolucion, All rights reserved.&lt;/em&gt;&lt;br&gt;
+ Ud. recibe estas comunicaciones como miembro de la comunidad de Sembrá Evolución.&lt;br&gt;
+&lt;br&gt;
+Want to change how you receive these emails?&lt;br&gt;
+You can &lt;/span&gt;&lt;a href=&quot;https://sembraevolucion.us18.list-manage.com/profile?u=e5aa41c44e1b1ab5d65d4661b&amp;id=67b3569e9c&amp;e=[UNIQID]&amp;c=6bda177365&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-weight: normal;text-decoration: underline;&quot;&gt;&lt;span style=&quot;color:#808080&quot;&gt;update your preferences&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot;color:#808080&quot;&gt; or &lt;/span&gt;&lt;a href=&quot;https://sembraevolucion.us18.list-manage.com/unsubscribe?u=e5aa41c44e1b1ab5d65d4661b&amp;id=67b3569e9c&amp;t=b&amp;e=[UNIQID]&amp;c=6bda177365&quot; style=&quot;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #656565;font-weight: normal;text-decoration: underline;&quot;&gt;&lt;span style=&quot;color:#808080&quot;&gt;unsubscribe from this list&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot;color:#808080&quot;&gt;.&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
+
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/tbody&gt;&lt;/table&gt;
+				&lt;!--[if mso]&gt;
+				&lt;/td&gt;
+				&lt;![endif]--&gt;
+                
+				&lt;!--[if mso]&gt;
+				&lt;/tr&gt;
+				&lt;/table&gt;
+				&lt;![endif]--&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;&lt;/td&gt;
+                                        &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;!--[if (gte mso 9)|(IE)]&gt;
+                                    &lt;/td&gt;
+                                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+                                    &lt;![endif]--&gt;
+                                &lt;/td&gt;
+                            &lt;/tr&gt;
+                        &lt;/table&gt;
+                        &lt;!-- // END TEMPLATE --&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/table&gt;
+        &lt;/center&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</text>
+    </textTemplates>
+</Flow>
