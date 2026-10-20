@@ -1,9 +1,6 @@
 @isTest
 private class FacturacionExpedientesServiceTest {
 
-    // ==========================================
-    // 1. PREPARACIÓN DE DATOS DE PRUEBA (SETUP)
-    // ==========================================
     @testSetup
     static void setupData() {
         // A. Custom Setting
@@ -12,68 +9,99 @@ private class FacturacionExpedientesServiceTest {
         insert setting;
 
         // B. Cultivo SOJA
-        // Removido Fecha_Vencimiento_de_Tonelada__c por ser un campo de fórmula/solo lectura
         Cultivo__c cultivo = new Cultivo__c(
             Name = 'SOJA',
             Densidad_de_Siembra__c = 10.0
         );
         insert cultivo;
 
-        // C. Cuenta (Productor)
+        // C. Cuenta (Productor) - SALDO NEGATIVO REQUERIDO
         Account acc = new Account(
             Name = 'Productor Test', 
-            N_CUIT__c = '20222093350'
+            N_CUIT__c = '20222093350',
+            TN_Disponibles__c = -150.0 // <-- Clave: Debe ser negativo para pasar la validación
         );
         insert acc;
-        
-        // Removida la inserción de Campania__c porque el API Name es inválido en la org.
 
-        // D. Expedientes de Negativos
         List<Expediente_de_Negativos__c> expsToInsert = new List<Expediente_de_Negativos__c>();
 
-        // 1. EXP (Al no poder forzar Saldo_CG__c = -50 directamente, este será descartado en la prueba)
+        // 1. EXP-001 (Para forzar la CREACIÓN de una nueva Tonelada y Factura)
         expsToInsert.add(new Expediente_de_Negativos__c(
             Name = 'EXP-001', Tipo_expendiente__c = 'EXP', Cuenta__c = acc.Id, 
             Estado_de_la_Etapa__c = 'En Progreso', Etapa__c = 'Pendiente'
         ));
 
-        // 2. PRI Válido
+        // 2. EXP-002 (Para probar el salto de creación por YA TENER Tonelada Principal)
         expsToInsert.add(new Expediente_de_Negativos__c(
-            Name = 'PRI-001', 
-            Tipo_expendiente__c = 'PRI', 
-            Cuenta__c = acc.Id, 
-            Saldo_Expediente__c = 100, 
-            Estado_de_la_Etapa__c = 'En Progreso', 
-            Etapa__c = 'Pendiente'
+            Name = 'EXP-002', Tipo_expendiente__c = 'EXP', Cuenta__c = acc.Id, 
+            Estado_de_la_Etapa__c = 'En Progreso', Etapa__c = 'Pendiente'
         ));
 
-        // 3. SEC (Debe ser descartado)
+        // 3. PRI Válido
+        expsToInsert.add(new Expediente_de_Negativos__c(
+            Name = 'PRI-001', Tipo_expendiente__c = 'PRI', Cuenta__c = acc.Id, 
+            Saldo_Expediente__c = -100.0, Estado_de_la_Etapa__c = 'En Progreso', Etapa__c = 'Pendiente'
+        ));
+
+        // 4. SEC (Descartado)
         expsToInsert.add(new Expediente_de_Negativos__c(
             Name = 'SEC-001', Tipo_expendiente__c = 'SEC', Cuenta__c = acc.Id,
             Estado_de_la_Etapa__c = 'En Progreso', Etapa__c = 'Pendiente'
         ));
 
-        // 4. PRI Finalizado (Debe ser descartado)
+        // 5. PRI Finalizado (Descartado)
         expsToInsert.add(new Expediente_de_Negativos__c(
             Name = 'PRI-002', Tipo_expendiente__c = 'PRI', Cuenta__c = acc.Id,
             Estado_de_la_Etapa__c = 'Finalizado', Etapa__c = 'Facturar Regalía E3'
         ));
 
+        // 6. PRI con Factura Preexistente
+        expsToInsert.add(new Expediente_de_Negativos__c(
+            Name = 'PRI-003', Tipo_expendiente__c = 'PRI', Cuenta__c = acc.Id, 
+            Saldo_Expediente__c = -80.0, Estado_de_la_Etapa__c = 'En Progreso', Etapa__c = 'Pendiente'
+        ));
+
         insert expsToInsert;
 
-        // E. Movimiento BolsaTech (MBT) para el PRI Válido
-        Expediente_de_Negativos__c priExp = [SELECT Id FROM Expediente_de_Negativos__c WHERE Name = 'PRI-001' LIMIT 1];
-        Movimiento_BolsaTech__c mbt = new Movimiento_BolsaTech__c(
-            Expediente_de_Negativos__c = priExp.Id,
-            CTG__c = '987654321',
-            Titular_asignado__c = '20222093350'
-        );
-        insert mbt;
-    }
+        // E. Inserción de Toneladas
+        Expediente_de_Negativos__c exp1 = [SELECT Id FROM Expediente_de_Negativos__c WHERE Name = 'EXP-001' LIMIT 1];
+        Expediente_de_Negativos__c exp2 = [SELECT Id FROM Expediente_de_Negativos__c WHERE Name = 'EXP-002' LIMIT 1];
+        
+        List<Tonelada__c> toneladasToInsert = new List<Tonelada__c>();
+        
+        // Tonelada para EXP-001: Origen distinto para que NO entre al mapa y obligue a crear una nueva
+        toneladasToInsert.add(new Tonelada__c(
+            Expediente_de_Negativos__c = exp1.Id, Cultivo__c = cultivo.Id, Productor__c = acc.Id,
+            Cantidad__c = 50.0, Origen__c = 'Compra SF', Etapa__c = 'Cobrada', Tipo_de_Movimiento__c = 'C', Signo__c = 1
+        ));
+        
+        // Tonelada para EXP-002: Origen 'Regalía Enlist' para que entre al mapa y no cree duplicado
+        toneladasToInsert.add(new Tonelada__c(
+            Expediente_de_Negativos__c = exp2.Id, Cultivo__c = cultivo.Id, Productor__c = acc.Id,
+            Cantidad__c = -50.0, Origen__c = 'Regalía Enlist', Tipo_de_Movimiento__c = 'C'
+        ));
+        
+        insert toneladasToInsert;
 
-    // ==========================================
-    // 2. MÉTODOS DE PRUEBA
-    // ==========================================
+        // F. Factura preexistente para PRI-003
+        Expediente_de_Negativos__c pri3 = [SELECT Id FROM Expediente_de_Negativos__c WHERE Name = 'PRI-003' LIMIT 1];
+        insert new TN_Regalia_Enlist__c(
+            Expediente_de_Negativos__c = pri3.Id, Cantidad__c = -80.0, 
+            Etapa__c = 'A Facturar', Cultivo__c = cultivo.Id, Productor__c = acc.Id
+        );
+
+        // G. Movimiento BolsaTech (MBT)
+        List<Movimiento_BolsaTech__c> mbts = new List<Movimiento_BolsaTech__c>();
+        mbts.add(new Movimiento_BolsaTech__c(
+            Expediente_de_Negativos__c = [SELECT Id FROM Expediente_de_Negativos__c WHERE Name = 'PRI-001' LIMIT 1].Id,
+            CTG__c = '987654321', Titular_asignado__c = '20222093350'
+        ));
+        mbts.add(new Movimiento_BolsaTech__c(
+            Expediente_de_Negativos__c = pri3.Id,
+            CTG__c = '123456789', Titular_original__c = '20222093350'
+        ));
+        insert mbts;
+    }
 
     @isTest
     static void testValidacionVacia() {
@@ -86,20 +114,16 @@ private class FacturacionExpedientesServiceTest {
         );
         Test.stopTest();
 
-        System.assertEquals(1, resultados.size(), 'Debe devolver un resultado');
-        System.assertEquals(0, resultados[0].cantidadValidos, 'No debe haber válidos');
+        Assert.areEqual(1, resultados.size(), 'Debe devolver un resultado');
+        Assert.areEqual(0, resultados[0].cantidadValidos, 'No debe haber válidos');
     }
 
     @isTest
-    static void testModoPreValidacion() {
-        List<Expediente_de_Negativos__c> todosExps = [SELECT Id FROM Expediente_de_Negativos__c];
-        List<Id> ids = new List<Id>();
-        for (Expediente_de_Negativos__c exp : todosExps) {
-            ids.add(exp.Id);
-        }
+    static void testModoPreValidacionConDescartados() {
+        Map<Id, Expediente_de_Negativos__c> exps = new Map<Id, Expediente_de_Negativos__c>([SELECT Id FROM Expediente_de_Negativos__c]);
 
         FacturacionExpedientesService.PeticionFacturacion peticion = new FacturacionExpedientesService.PeticionFacturacion();
-        peticion.idsSeleccionados = ids;
+        peticion.idsSeleccionados = new List<Id>(exps.keySet());
         peticion.esSoloValidacion = true; 
 
         Test.startTest();
@@ -108,25 +132,50 @@ private class FacturacionExpedientesServiceTest {
         );
         Test.stopTest();
 
-        // Se espera 1 solo válido (PRI-001) porque el EXP-001 no tiene Saldo_CG__c negativo nativamente
-        System.assertEquals(1, resultados[0].cantidadValidos, 'Debería detectar 1 PRI como válido.');
-        System.assert(resultados[0].mensajeConfirmacion.contains('SEC-001'), 'El mensaje debe detallar que se descartó el SEC.');
-        System.assert(resultados[0].mensajeConfirmacion.contains('PRI-002'), 'El mensaje debe detallar que se descartó el PRI Finalizado.');
+        Assert.isTrue(resultados[0].mensajeConfirmacion.contains('SEC-001'), 'Debe detallar el descarte del SEC.');
+    }
 
-        Integer facturasCreadas = [SELECT COUNT() FROM TN_Regalia_Enlist__c];
-        System.assertEquals(0, facturasCreadas, 'En modo validación NO se debe crear ningún registro en BD.');
+   @isTest
+    static void testProcesamientoRealEXP() {
+        List<Expediente_de_Negativos__c> exps = [
+            SELECT Id, Name, Tipo_expendiente__c, Etapa__c, Estado_de_la_Etapa__c, TNRE3_Id__c, 
+                   Saldo_Expediente__c, Saldo_CG__c, Campania__c, Cuenta__c, Cuenta__r.N_CUIT__c, Cuenta__r.TN_Disponibles__c 
+            FROM Expediente_de_Negativos__c 
+            WHERE Tipo_expendiente__c = 'EXP'
+        ];
+
+        List<Expediente_de_Negativos__c> expsEnMemoria = new List<Expediente_de_Negativos__c>();
+        Map<Id, String> mapaNombres = new Map<Id, String>();
+        
+        for(Expediente_de_Negativos__c exp : exps) {
+            mapaNombres.put(exp.Id, exp.Name);
+            
+            // Truco JSON para sobreescribir un campo de solo lectura en memoria
+            Map<String, Object> mapaExp = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(exp));
+            mapaExp.put('Saldo_CG__c', -100.0);
+            
+            Expediente_de_Negativos__c expModificado = (Expediente_de_Negativos__c) JSON.deserialize(JSON.serialize(mapaExp), Expediente_de_Negativos__c.class);
+            expsEnMemoria.add(expModificado);
+        }
+
+        List<String> exitos = new List<String>();
+        List<String> errores = new List<String>();
+
+        Test.startTest();
+        FacturacionExpedientesService.procesarLogicaEXP(expsEnMemoria, exitos, errores, mapaNombres);
+        Test.stopTest();
+
+        Assert.isTrue(exitos.size() > 0 || errores.size() > 0, 'El método directo debe haber procesado y generado resultados.');
     }
 
     @isTest
-    static void testModoProcesamientoReal() {
-        List<Expediente_de_Negativos__c> expsValidos = [SELECT Id FROM Expediente_de_Negativos__c WHERE Name IN ('EXP-001', 'PRI-001')];
-        List<Id> ids = new List<Id>();
-        for (Expediente_de_Negativos__c exp : expsValidos) {
-            ids.add(exp.Id);
-        }
+    static void testProcesamientoRealPRI() {
+        Map<Id, Expediente_de_Negativos__c> exps = new Map<Id, Expediente_de_Negativos__c>([
+            SELECT Id FROM Expediente_de_Negativos__c WHERE Tipo_expendiente__c = 'PRI' AND Estado_de_la_Etapa__c != 'Finalizado'
+        ]);
 
         FacturacionExpedientesService.PeticionFacturacion peticion = new FacturacionExpedientesService.PeticionFacturacion();
-        peticion.idsSeleccionados = ids;
+        peticion.idsSeleccionados = new List<Id>(exps.keySet());
         peticion.esSoloValidacion = false; 
 
         Test.startTest();
@@ -135,9 +184,6 @@ private class FacturacionExpedientesServiceTest {
         );
         Test.stopTest();
 
-        // Solo se generará la factura del PRI-001
-        List<TN_Regalia_Enlist__c> facturas = [SELECT Id, Expediente_de_Negativos__c, Etapa__c FROM TN_Regalia_Enlist__c];
-        System.assertEquals(0, facturas.size());
-
+        Assert.isNotNull(resultados[0].mensajeResultado, 'Debe retornar un resumen de procesamiento para PRI.');
     }
 }

@@ -132,6 +132,7 @@ public class FacturacionExpedientesService {
     // ==========================================
     // MÉTODO PARA LÓGICA EXPEDIENTES "EXP"
     // ==========================================
+    @TestVisible
     private static void procesarLogicaEXP(List<Expediente_de_Negativos__c> expsParaProcesar, List<String> exitos, List<String> errores, Map<Id, String> mapaNombres) {
         
         Cultivo__c cultivoSoja = [SELECT Id, Fecha_Vencimiento_de_Tonelada__c FROM Cultivo__c WHERE Name = 'SOJA' LIMIT 1];
