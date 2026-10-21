@@ -14,7 +14,7 @@ public with sharing class EnvioCorreoMbtInicialService {
 
         List<Movimiento_BolsaTech__c> candidatos = [
             SELECT Id, Name, Titular__c, Titular__r.Name, Titular__r.N_CUIT__c,
-                Cosecha__c, Cultivo__c, Tecnologia__c, CreatedDate
+                Cosecha__c, Cultivo__c, Tecnologia__c, Licenciatario_Elist__c, CreatedDate
             FROM Movimiento_BolsaTech__c
             WHERE Id IN :movimientoIds
             AND Titular__c != null
@@ -74,25 +74,22 @@ public with sharing class EnvioCorreoMbtInicialService {
             }
 
             List<String> destinatarios = correosPorTitular.get(movimiento.Titular__c);
-            if (casilla == null) {
-                marcarError(envio, 'No está configurada la casilla ' + REMITENTE + '.');
-            } else if (String.isBlank(htmlPlantilla)) {
-                marcarError(envio, 'No se encontró la plantilla ' + PLANTILLA + '.');
-            } else if (destinatarios == null || destinatarios.isEmpty()) {
-                marcarError(envio, 'El productor no tiene un firmante en una licencia Enlist aprobada.');
-            } else {
-                String html = armarCuerpo(htmlPlantilla, movimiento.Titular__r.Name);
-                String asuntoCorreo = ASUNTO + ' - ' + nombreCampania(movimiento, campaniaPorCultivoAnio);
-                envio.Para__c = String.join(destinatarios, ', ');
-                envio.Asunto__c = asuntoCorreo;
-                envio.Cuerpo_HTML__c = html;
-                envio.De__c = REMITENTE;
-                envio.Estado__c = 'Enviado';
-                envio.Mensaje_Error__c = null;
-                envio.Fecha_Envio__c = System.now();
-                correos.add(armarCorreo(casilla, destinatarios, asuntoCorreo, html));
-                indiceEnvioPorCorreo.add(aGuardar.size());
+            if (casilla == null || String.isBlank(htmlPlantilla) || movimiento.Licenciatario_Elist__c != true
+                || destinatarios == null || destinatarios.isEmpty()) {
+                continue;
             }
+
+            String html = armarCuerpo(htmlPlantilla, movimiento.Titular__r.Name);
+            String asuntoCorreo = ASUNTO + ' - ' + nombreCampania(movimiento, campaniaPorCultivoAnio);
+            envio.Para__c = String.join(destinatarios, ', ');
+            envio.Asunto__c = asuntoCorreo;
+            envio.Cuerpo_HTML__c = html;
+            envio.De__c = REMITENTE;
+            envio.Estado__c = 'Enviado';
+            envio.Mensaje_Error__c = null;
+            envio.Fecha_Envio__c = System.now();
+            correos.add(armarCorreo(casilla, destinatarios, asuntoCorreo, html));
+            indiceEnvioPorCorreo.add(aGuardar.size());
             aGuardar.add(envio);
         }
 
@@ -107,11 +104,17 @@ public with sharing class EnvioCorreoMbtInicialService {
             }
         }
 
-        if (aGuardar.isEmpty()) {
+        List<Envio_Correo__c> enviados = new List<Envio_Correo__c>();
+        for (Envio_Correo__c envio : aGuardar) {
+            if (envio.Estado__c == 'Enviado') {
+                enviados.add(envio);
+            }
+        }
+        if (enviados.isEmpty()) {
             return;
         }
-        upsert aGuardar;
-        vincularCorreos(aGuardar);
+        upsert enviados;
+        vincularCorreos(enviados);
     }
 
     private static Map<String, Id> primerosPorClave(List<Movimiento_BolsaTech__c> candidatos) {
@@ -387,9 +390,13 @@ public with sharing class EnvioCorreoMbtInicialService {
             }
             mensajes.add(new EmailMessage(
                 Subject = envio.Asunto__c,
+                HtmlBody = envio.Cuerpo_HTML__c,
+                FromAddress = REMITENTE,
+                FromName = 'Sembrá Evolución',
                 ToAddress = envio.Para__c,
                 RelatedToId = envio.Id,
                 Status = '3',
+                Incoming = false,
                 MessageDate = envio.Fecha_Envio__c
             ));
             enviados.add(envio);

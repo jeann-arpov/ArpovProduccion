@@ -536,13 +536,13 @@
                         <td valign="top" class="mcnTextContent" style="padding-top: 0;padding-right: 18px;padding-bottom: 9px;padding-left: 18px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;word-break: break-word;color: #202020;font-family: Helvetica;font-size: 16px;line-height: 150%;text-align: left;">
                         
                             <div style="text-align: justify;">
-<div style="text-align: justify;"><span style="font-size:13px"><span style="font-family:roboto, helvetica neue, helvetica, arial, sans-serif">Hola 👋<strong>&nbsp;*|RAZONSOC|*</strong><br>
+<div style="text-align: justify;"><span style="font-size:13px"><span style="font-family:roboto, helvetica neue, helvetica, arial, sans-serif">Hola <span style="font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Segoe UI Symbol',sans-serif;font-size:16px;line-height:normal;">&#128075;</span><strong>&nbsp;*|RAZONSOC|*</strong><br>
 <br>
 Nos comunicamos por cuenta y orden del titular de la tecnología Enlist®, Corteva Seeds Argentina, en relación con la detección de la tecnología Enlist® en tus entregas de grano informadas por Bolsatech.<br>
 <br>
 Hemos registrado movimientos en tu Cuenta Granaria, por lo que te invitamos a&nbsp;ingresar a tu perfil de Productor en la plataforma <a href="https://portal.sembraevolucion.com.ar/Productores/s/login/" target="_blank" style="mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;color: #007C89;font-weight: normal;text-decoration: underline;"><strong>Sembrá Evolución</strong></a>&nbsp;y&nbsp;verificar si las toneladas disponibles son suficientes para cubrir tus entregas.<br>
 <br>
-🤝<strong style="font-family:roboto, &quot;helvetica neue, helvetica, arial, sans-serif"> ¿Necesitás ayuda?</strong></span></span></div>
+<span style="font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Segoe UI Symbol',sans-serif;font-size:16px;line-height:normal;">&#129309;</span><strong style="font-family:roboto, helvetica, arial, sans-serif"> ¿Necesitás ayuda?</strong></span></span></div>
 
 <div font-size:13px=""><span style="font-size:13px"><span style="font-family:roboto, helvetica neue, helvetica, arial, sans-serif">Ante cualquier duda o consulta, podés&nbsp;responder a este correo o&nbsp;<strong>contactarte por&nbsp;whatsapp con nuestra Mesa de Ayuda</strong>.</span></span></div>
 </div>

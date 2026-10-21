@@ -2,7 +2,7 @@
 private class EnvioCorreoMbtInicialServiceTest {
     @isTest
     static void enviaUnaVezAlPrimerMovimientoYNoRepite() {
-        Account productor = Test_TestUtils.crearProductor();
+        Account productor = productorLicenciatario();
         Cultivo__c cultivo = cultivoSoja();
         Test_TestUtils.crearCampanaAgricola(
             '2025',
@@ -16,6 +16,7 @@ private class EnvioCorreoMbtInicialServiceTest {
             licencia(productor.Id, 'LIC-ENLIST-2', 'dos@productor.test'),
             licencia(productor.Id, 'LIC-ENLIST-3', 'uno@productor.test')
         };
+        marcarLicenciatario(productor);
 
         Movimiento_BolsaTech__c primero = movimiento(productor, '2526');
         insert primero;
@@ -54,7 +55,7 @@ private class EnvioCorreoMbtInicialServiceTest {
 
     @isTest
     static void unaCampaniaAgrupaCosechasDelMismoAnio() {
-        Account productor = Test_TestUtils.crearProductor();
+        Account productor = productorLicenciatario();
         Cultivo__c cultivo = cultivoSoja();
         Test_TestUtils.crearCampanaAgricola(
             '2025',
@@ -64,6 +65,7 @@ private class EnvioCorreoMbtInicialServiceTest {
             '2025 - SOJA'
         );
         insert licencia(productor.Id, 'LIC-ENLIST-7', 'campania@productor.test');
+        marcarLicenciatario(productor);
         Movimiento_BolsaTech__c primero = movimiento(productor, '2526');
         insert primero;
         Movimiento_BolsaTech__c mismaCampania = movimiento(productor, '2530');
@@ -85,7 +87,7 @@ private class EnvioCorreoMbtInicialServiceTest {
 
     @isTest
     static void cultivosDistintosDeLaMismaCosechaSonCampaniasDistintas() {
-        Account productor = Test_TestUtils.crearProductor();
+        Account productor = productorLicenciatario();
         Cultivo__c soja = cultivoSoja();
         Cultivo__c maiz = new Cultivo__c(Name = 'MAIZ', Temporada__c = 'Anual', Densidad_de_Siembra__c = 23);
         insert maiz;
@@ -104,6 +106,7 @@ private class EnvioCorreoMbtInicialServiceTest {
             '2025 - MAIZ'
         );
         insert licencia(productor.Id, 'LIC-ENLIST-8', 'cultivo@productor.test');
+        marcarLicenciatario(productor);
         Movimiento_BolsaTech__c sojaMbt = movimiento(productor, '2526');
         Movimiento_BolsaTech__c maizMbt = movimiento(productor, '2526');
         maizMbt.Cultivo__c = 'MAIZ';
@@ -122,6 +125,8 @@ private class EnvioCorreoMbtInicialServiceTest {
     @isTest
     static void registraErrorSiNoHayFirmante() {
         Account productor = Test_TestUtils.crearProductor();
+        productor.Usuario_Enlist__c = true;
+        update productor;
         cultivoSoja();
         Movimiento_BolsaTech__c primero = movimiento(productor, '2526');
         insert primero;
@@ -130,14 +135,26 @@ private class EnvioCorreoMbtInicialServiceTest {
         EnvioCorreoMbtInicialService.procesar(new Set<Id>{ primero.Id });
         Test.stopTest();
 
-        Envio_Correo__c envio = [
-            SELECT Estado__c, Mensaje_Error__c, Id_Correo__c
-            FROM Envio_Correo__c
-            WHERE Productor__c = :productor.Id
-        ];
-        System.assertEquals('Error', envio.Estado__c);
-        System.assert(envio.Mensaje_Error__c.contains('firmante'));
-        System.assertEquals(null, envio.Id_Correo__c);
+        System.assertEquals(0, [SELECT COUNT() FROM Envio_Correo__c WHERE Productor__c = :productor.Id]);
+    }
+
+    @isTest
+    static void noEnviaSiElTitularNoEsLicenciatarioEnlist() {
+        Account productor = Test_TestUtils.crearProductor();
+        productor.Usuario_Enlist__c = false;
+        update productor;
+        cultivoSoja();
+        insert licencia(productor.Id, 'LIC-ENLIST-9', 'licenciatario@productor.test');
+        productor.Usuario_Enlist__c = false;
+        update productor;
+        Movimiento_BolsaTech__c primero = movimiento(productor, '2526');
+        insert primero;
+
+        Test.startTest();
+        EnvioCorreoMbtInicialService.procesar(new Set<Id>{ primero.Id });
+        Test.stopTest();
+
+        System.assertEquals(0, [SELECT COUNT() FROM Envio_Correo__c WHERE Productor__c = :productor.Id]);
     }
 
     @isTest
@@ -166,9 +183,10 @@ private class EnvioCorreoMbtInicialServiceTest {
 
     @isTest
     static void alCrearElMovimientoValidaMbtYCorreoPrevio() {
-        Account productor = Test_TestUtils.crearProductor();
+        Account productor = productorLicenciatario();
         cultivoSoja();
         insert licencia(productor.Id, 'LIC-ENLIST-6', 'trigger@productor.test');
+        marcarLicenciatario(productor);
 
         Test.startTest();
         insert movimiento(productor, '2526');
@@ -187,9 +205,10 @@ private class EnvioCorreoMbtInicialServiceTest {
 
     @isTest
     static void elBatchTomaLaCosechaIndicada() {
-        Account productor = Test_TestUtils.crearProductor();
+        Account productor = productorLicenciatario();
         cultivoSoja();
         insert licencia(productor.Id, 'LIC-ENLIST-5', 'batch@productor.test');
+        marcarLicenciatario(productor);
         insert movimiento(productor, '2526');
         insert movimiento(productor, '2425');
 
@@ -208,9 +227,10 @@ private class EnvioCorreoMbtInicialServiceTest {
 
     @isTest
     static void ignoraUnMovimientoQueNoEsElPrimero() {
-        Account productor = Test_TestUtils.crearProductor();
+        Account productor = productorLicenciatario();
         cultivoSoja();
         insert licencia(productor.Id, 'LIC-ENLIST-4', 'uno@productor.test');
+        marcarLicenciatario(productor);
         Movimiento_BolsaTech__c primero = movimiento(productor, '2526');
         insert primero;
         Movimiento_BolsaTech__c siguiente = movimiento(productor, '2526');
@@ -227,6 +247,17 @@ private class EnvioCorreoMbtInicialServiceTest {
         ];
         System.assertEquals(1, envios.size());
         System.assertEquals(String.valueOf(primero.Id), envios[0].Id_Registro__c);
+    }
+
+    private static Account productorLicenciatario() {
+        Account productor = Test_TestUtils.crearProductor();
+        marcarLicenciatario(productor);
+        return productor;
+    }
+
+    private static void marcarLicenciatario(Account productor) {
+        productor.Usuario_Enlist__c = true;
+        update productor;
     }
 
     private static Cultivo__c cultivoSoja() {

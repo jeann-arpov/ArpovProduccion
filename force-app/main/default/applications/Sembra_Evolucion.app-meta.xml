@@ -2,6 +2,15 @@
 <CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionOverrides>
         <actionName>View</actionName>
+        <comment>Página de Envío de Correo con campos según el objeto de origen.</comment>
+        <content>Envio_Correo_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>Envio_Correo__c</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
         <content>Plan_de_Siembra_Record_Page</content>
         <formFactor>Large</formFactor>
@@ -76,6 +85,38 @@
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
     <label>Sembrá Evolución</label>
     <navType>Console</navType>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Envio_Correo_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>Envio_Correo__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Administrador</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Envio_Correo_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>Envio_Correo__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Sembra Evolucion - Lider</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Envio_Correo_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>Envio_Correo__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Sembra Evolucion - Operador</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Envio_Correo_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>Envio_Correo__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Sembra Evolucion - Operador BIS</profile>
+    </profileActionOverrides>
     <profileActionOverrides>
         <actionName>View</actionName>
         <content>Caso_Sembra_Evolucion</content>
@@ -878,6 +919,7 @@
     <tabs>Linea_de_Compra_HT__c</tabs>
     <tabs>muestreo_y_testeo__c</tabs>
     <tabs>Cuenta_Granaria__c</tabs>
+    <tabs>Envio_Correo__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Sembr_Evoluci_n_UtilityBar</utilityBar>
     <workspaceConfig>
@@ -892,6 +934,9 @@
         </mappings>
         <mappings>
             <tab>Cuenta_Granaria__c</tab>
+        </mappings>
+        <mappings>
+            <tab>Envio_Correo__c</tab>
         </mappings>
         <mappings>
             <tab>Ensayo__c</tab>
