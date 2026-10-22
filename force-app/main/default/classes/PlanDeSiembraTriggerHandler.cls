@@ -1,6 +1,10 @@
 public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
   public override void afterInsert() {
     marcarCuentaGranariaAdherida((List<Plan_de_Siembra__c>) Trigger.new, null);
+    encolarSincronizacionCasoAlerta(
+      (List<Plan_de_Siembra__c>) Trigger.new,
+      null
+    );
   }
 
   public override void beforeUpdate() {
@@ -16,6 +20,10 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
       (Map<Id, Plan_de_Siembra__c>) Trigger.oldMap
     );
     notificarResultadoAlProductor(
+      (List<Plan_de_Siembra__c>) Trigger.new,
+      (Map<Id, Plan_de_Siembra__c>) Trigger.oldMap
+    );
+    encolarSincronizacionCasoAlerta(
       (List<Plan_de_Siembra__c>) Trigger.new,
       (Map<Id, Plan_de_Siembra__c>) Trigger.oldMap
     );
@@ -121,6 +129,31 @@ public with sharing class PlanDeSiembraTriggerHandler extends TriggerHandler {
         plan.Fecha_Detectada_Alerta__c = Date.today();
         plan.Fecha_Limite_Resolucion__c = Date.today().addDays(30);
       }
+    }
+  }
+
+  private static void encolarSincronizacionCasoAlerta(
+    List<Plan_de_Siembra__c> planes,
+    Map<Id, Plan_de_Siembra__c> oldMap
+  ) {
+    Set<Id> planIds = new Set<Id>();
+    for (Plan_de_Siembra__c plan : planes) {
+      String criterioNuevo = plan.Criterio_Alerta__c == null
+        ? ''
+        : plan.Criterio_Alerta__c;
+      Plan_de_Siembra__c anterior = oldMap == null ? null : oldMap.get(plan.Id);
+      String criterioAnterior = anterior == null ||
+        anterior.Criterio_Alerta__c == null
+        ? ''
+        : anterior.Criterio_Alerta__c;
+
+      if (criterioNuevo != criterioAnterior) {
+        planIds.add(plan.Id);
+      }
+    }
+
+    if (!planIds.isEmpty()) {
+      System.enqueueJob(new CasoAlertaPPHQueueable(new List<Id>(planIds)));
     }
   }
 
