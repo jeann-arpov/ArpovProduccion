@@ -153,7 +153,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
       }
     }
 
-    sincronizarSubCuentas(cg.Id, lineas, pesoKg, mbtId);
+    sincronizarSubCuentas(cg.Id, lineas, pesoKg);
     recalcularSaldoVariedad(cg.Id, variedadesDebitadas);
     recalcularSaldoCuenta(cg.Id);
     resultado.exitoso = resultado.debitosCreados > 0;
@@ -228,8 +228,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
   private static void sincronizarSubCuentas(
     Id cgId,
     List<LineaVarietal> lineas,
-    Decimal pesoKg,
-    Id mbtId
+    Decimal pesoKg
   ) {
     List<Detalle_Variedad_CG__c> subCuentas = new List<Detalle_Variedad_CG__c>();
     for (LineaVarietal linea : lineas) {
@@ -246,8 +245,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
           Porcentaje_Varietal__c = linea.porcentaje,
           Kilos_Variedad__c = pesoKg *
             (linea.porcentaje != null ? linea.porcentaje : 0) /
-            100,
-          Movimiento_BolsaTech__c = mbtId
+            100
         )
       );
     }

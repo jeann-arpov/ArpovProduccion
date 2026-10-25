@@ -47,16 +47,16 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
     }
 
     // Líneas del escáner vinculadas a estos camiones
-    Map<Id, List<Detalle_Variedad_CG__c>> lineasPorMbt = new Map<Id, List<Detalle_Variedad_CG__c>>();
-    for (Detalle_Variedad_CG__c det : [
+    Map<Id, List<Detalle_Variedad_MBT__c>> lineasPorMbt = new Map<Id, List<Detalle_Variedad_MBT__c>>();
+    for (Detalle_Variedad_MBT__c det : [
       SELECT Id, Movimiento_BolsaTech__c, Variedad__c, Porcentaje_Varietal__c
-      FROM Detalle_Variedad_CG__c
+      FROM Detalle_Variedad_MBT__c
       WHERE Movimiento_BolsaTech__c IN :mbtIds
     ]) {
       if (!lineasPorMbt.containsKey(det.Movimiento_BolsaTech__c)) {
         lineasPorMbt.put(
           det.Movimiento_BolsaTech__c,
-          new List<Detalle_Variedad_CG__c>()
+          new List<Detalle_Variedad_MBT__c>()
         );
       }
       lineasPorMbt.get(det.Movimiento_BolsaTech__c).add(det);
@@ -89,15 +89,15 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
       }
       Id campanaId = resolverCampana(cultivoId, m.Cosecha__c);
 
-      List<Detalle_Variedad_CG__c> lineas = lineasPorMbt.containsKey(m.Id)
+      List<Detalle_Variedad_MBT__c> lineas = lineasPorMbt.containsKey(m.Id)
         ? lineasPorMbt.get(m.Id)
-        : new List<Detalle_Variedad_CG__c>();
+        : new List<Detalle_Variedad_MBT__c>();
       if (lineas.isEmpty()) {
         continue;
       }
 
       List<CuentaGranariaVarietalDebitService.LineaVarietal> lineasVarietal = new List<CuentaGranariaVarietalDebitService.LineaVarietal>();
-      for (Detalle_Variedad_CG__c l : lineas) {
+      for (Detalle_Variedad_MBT__c l : lineas) {
         lineasVarietal.add(
           new CuentaGranariaVarietalDebitService.LineaVarietal(
             l.Variedad__c,

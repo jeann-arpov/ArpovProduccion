@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Variedad__c</fullName>
+    <description>Variedad detectada por el escáner en el camión.</description>
+    <label>Variedad</label>
+    <referenceTo>Variedad__c</referenceTo>
+    <relationshipLabel>Detalles Varietales MBT</relationshipLabel>
+    <relationshipName>Detalles_Varietales_MBT_Variedad</relationshipName>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
