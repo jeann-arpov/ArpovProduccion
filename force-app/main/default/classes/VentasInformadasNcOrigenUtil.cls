@@ -1,8 +1,15 @@
 /**
  * Valida NC / Remito de Devolución contra FC(s) de origen.
- * Cruce: CUIT Orig/Dest, Campaña, Variedad, Categoría; kilos NC ≤ suma de FC
+ * Cruce: CUIT Orig/Dest, Campaña, Variedad, Categoría; kilos NC ≤ saldo de FC
  * compatibles (una o varias; igualdad permitida). Estado FC: Pendiente,
  * Preprocesado o Procesado (incluye ya convertidas).
+ *
+ * El saldo de cada FC parte de sus kilos y resta las NC ya vinculadas
+ * (FC_Origen__c), aunque hayan entrado en otra carga o transacción.
+ * Incidente 3665: si la FC es anterior al ticket 1916, Cantidad_de_Bolsas__c
+ * guarda bolsas (el mismo número que Cantidad_Bolsas_40__c) y el saldo
+ * se expresa en kilos como bolsas * unidad del producto.
+ * Dentro de la misma ejecución, las NC del lote también se descuentan entre sí.
  *
  * FC_Origen__c apunta a la FC principal (primera que aporta kilos).
  * También revincula NCs huérfanas cuando llega/reprocesa una FC después.
@@ -128,7 +135,8 @@ public with sharing class VentasInformadasNcOrigenUtil {
     /**
      * Para cada NC del listado busca FC(s) candidatas (DB + FCs del mismo lote),
      * setea FC_Origen__c o marca Resultado = NC sin Origen.
-     * Kilos NC ≤ suma de kilos de FC compatibles (1 o N; igualdad permitida).
+     * Kilos NC ≤ saldo de FC compatibles (1 o N; igualdad permitida).
+     * El saldo ya no incluye los kilos de NC vinculadas en otras cargas.
      */
     public static void aplicar(List<Ventas_Informadas__c> ventas, Set<Id> omitirIds) {
         if (ventas == null || ventas.isEmpty()) {
@@ -166,15 +174,24 @@ public with sharing class VentasInformadasNcOrigenUtil {
             return;
         }
 
+        List<Ventas_Informadas__c> fcsDb = consultarFcsDesdeDb(cuitsO, cuitsD, variedades);
+        Map<Id, Decimal> unidadPorProducto = new Map<Id, Decimal>();
+        cargarUnidades(unidadPorProducto, ncs);
+        cargarUnidades(unidadPorProducto, fcsScope);
+        cargarUnidades(unidadPorProducto, fcsDb);
+
         Map<String, List<Ventas_Informadas__c>> fcsPorClave = new Map<String, List<Ventas_Informadas__c>>();
         Map<Id, Decimal> kilosDisponibles = new Map<Id, Decimal>();
 
         for (Ventas_Informadas__c fc : fcsScope) {
-            registrarFcCandidata(fc, fcsPorClave, kilosDisponibles, ncIds);
+            registrarFcCandidata(fc, fcsPorClave, kilosDisponibles, ncIds, unidadPorProducto);
+        }
+        for (Ventas_Informadas__c fc : fcsDb) {
+            registrarFcCandidata(fc, fcsPorClave, kilosDisponibles, ncIds, unidadPorProducto);
         }
 
-        cargarFcsDesdeDb(cuitsO, cuitsD, variedades, fcsPorClave, kilosDisponibles, ncIds);
-        vincularNcs(ncs, fcsPorClave, kilosDisponibles);
+        descontarNcsYaVinculadas(fcsPorClave, kilosDisponibles, ncIds, unidadPorProducto);
+        vincularNcs(ncs, fcsPorClave, kilosDisponibles, unidadPorProducto);
 
         // Con FC Origen: calcular bolsas (si hay producto) y dejar Resultado OK como en PROD.
         ConvertirVentasInformadasResumenUtil.aplicarCalculoBolsasSiCorresponde(ncs);
@@ -244,6 +261,8 @@ public with sharing class VentasInformadasNcOrigenUtil {
                 Categoria_Portal__c,
                 Cantidad_de_Bolsas__c,
                 Cantidad_Bolsas_40__c,
+                Kilos_por_Bolsa__c,
+                Producto__c,
                 Venta__c
             FROM Ventas_Informadas__c
             WHERE Tipo_de_Comprobante__c IN :TIPOS_NC
@@ -271,14 +290,23 @@ public with sharing class VentasInformadasNcOrigenUtil {
             return resultado;
         }
 
+        List<Ventas_Informadas__c> fcsDb = consultarFcsDesdeDb(cuitsO, cuitsD, variedades);
+        Map<Id, Decimal> unidadPorProducto = new Map<Id, Decimal>();
+        cargarUnidades(unidadPorProducto, ncsAVincular);
+        cargarUnidades(unidadPorProducto, fcs);
+        cargarUnidades(unidadPorProducto, fcsDb);
+
         Map<String, List<Ventas_Informadas__c>> fcsPorClave = new Map<String, List<Ventas_Informadas__c>>();
         Map<Id, Decimal> kilosDisponibles = new Map<Id, Decimal>();
         for (Ventas_Informadas__c fc : fcs) {
-            registrarFcCandidata(fc, fcsPorClave, kilosDisponibles, null);
+            registrarFcCandidata(fc, fcsPorClave, kilosDisponibles, null, unidadPorProducto);
         }
-        cargarFcsDesdeDb(cuitsO, cuitsD, variedades, fcsPorClave, kilosDisponibles, null);
+        for (Ventas_Informadas__c fc : fcsDb) {
+            registrarFcCandidata(fc, fcsPorClave, kilosDisponibles, null, unidadPorProducto);
+        }
+        descontarNcsYaVinculadas(fcsPorClave, kilosDisponibles, excluirNcIds, unidadPorProducto);
 
-        vincularNcs(ncsAVincular, fcsPorClave, kilosDisponibles);
+        vincularNcs(ncsAVincular, fcsPorClave, kilosDisponibles, unidadPorProducto);
 
         ConvertirVentasInformadasResumenUtil.aplicarCalculoBolsasSiCorresponde(ncsAVincular);
 
@@ -301,10 +329,12 @@ public with sharing class VentasInformadasNcOrigenUtil {
     private static void vincularNcs(
         List<Ventas_Informadas__c> ncs,
         Map<String, List<Ventas_Informadas__c>> fcsPorClave,
-        Map<Id, Decimal> kilosDisponibles
+        Map<Id, Decimal> kilosDisponibles,
+        Map<Id, Decimal> unidadPorProducto
     ) {
+        cargarUnidades(unidadPorProducto, ncs);
         for (Ventas_Informadas__c nc : ncs) {
-            Id fcId = encontrarFcOrigen(nc, fcsPorClave, kilosDisponibles);
+            Id fcId = encontrarFcOrigen(nc, fcsPorClave, kilosDisponibles, unidadPorProducto);
             if (fcId != null) {
                 nc.FC_Origen__c = fcId;
                 quitarMensajeNcSinOrigen(nc);
@@ -315,16 +345,14 @@ public with sharing class VentasInformadasNcOrigenUtil {
         }
     }
 
-    private static void cargarFcsDesdeDb(
+    private static List<Ventas_Informadas__c> consultarFcsDesdeDb(
         Set<String> cuitsO,
         Set<String> cuitsD,
-        Set<String> variedades,
-        Map<String, List<Ventas_Informadas__c>> fcsPorClave,
-        Map<Id, Decimal> kilosDisponibles,
-        Set<Id> ncIds
+        Set<String> variedades
     ) {
+        List<Ventas_Informadas__c> fcs = new List<Ventas_Informadas__c>();
         if (cuitsO.isEmpty() || cuitsD.isEmpty() || variedades.isEmpty()) {
-            return;
+            return fcs;
         }
 
         // Filtrar por CUIT en SOQL: en TEST hay 350k+ FC; solo por variedad
@@ -345,6 +373,9 @@ public with sharing class VentasInformadasNcOrigenUtil {
                 Categoria__c,
                 Categoria_Portal__c,
                 Cantidad_de_Bolsas__c,
+                Cantidad_Bolsas_40__c,
+                Kilos_por_Bolsa__c,
+                Producto__c,
                 CreatedDate
             FROM Ventas_Informadas__c
             WHERE Tipo_de_Comprobante__c IN :TIPOS_FC
@@ -360,8 +391,9 @@ public with sharing class VentasInformadasNcOrigenUtil {
             if (!cuitsO.contains(cuitO) || !cuitsD.contains(cuitD)) {
                 continue;
             }
-            registrarFcCandidata(fc, fcsPorClave, kilosDisponibles, ncIds);
+            fcs.add(fc);
         }
+        return fcs;
     }
 
     /**
@@ -396,6 +428,32 @@ public with sharing class VentasInformadasNcOrigenUtil {
     }
 
     /**
+     * Resta del saldo las NC que ya tienen FC_Origen, en orden de creación.
+     * No incluye las NC que esta ejecución va a evaluar de nuevo.
+     * El saldo es de toda la org: una carga no puede reusar kilos ya tomados
+     * por una NC que el usuario que informa no alcanza a ver.
+     */
+    private static void descontarNcsYaVinculadas(
+        Map<String, List<Ventas_Informadas__c>> fcsPorClave,
+        Map<Id, Decimal> kilosDisponibles,
+        Set<Id> excluirNcIds,
+        Map<Id, Decimal> unidadPorProducto
+    ) {
+        if (kilosDisponibles == null || kilosDisponibles.isEmpty()) {
+            return;
+        }
+        List<Ventas_Informadas__c> previas = new SaldoNcQuery().ncsVinculadas(
+            kilosDisponibles.keySet(),
+            excluirNcIds
+        );
+        cargarUnidades(unidadPorProducto, previas);
+        previas.sort(new FcCreatedDateAscComparator());
+        for (Ventas_Informadas__c nc : previas) {
+            reservarKilos(nc, fcsPorClave, kilosDisponibles, false, unidadPorProducto);
+        }
+    }
+
+    /**
      * Reserva kilos de una o más FC compatibles hasta cubrir el NC.
      * Devuelve la FC principal (primera que aporta) o null si no alcanza la suma.
      */
@@ -403,9 +461,25 @@ public with sharing class VentasInformadasNcOrigenUtil {
     private static Id encontrarFcOrigen(
         Ventas_Informadas__c nc,
         Map<String, List<Ventas_Informadas__c>> fcsPorClave,
-        Map<Id, Decimal> kilosDisponibles
+        Map<Id, Decimal> kilosDisponibles,
+        Map<Id, Decimal> unidadPorProducto
     ) {
-        Decimal kilosNc = kilosAbs(nc);
+        return reservarKilos(nc, fcsPorClave, kilosDisponibles, true, unidadPorProducto);
+    }
+
+    /**
+     * @param exigirCoberturaTotal true: solo descuenta si la suma de FC alcanza
+     *        (NC nueva). false: descuenta lo que haya y, si falta, carga el
+     *        resto en la FC_Origen ya guardada (NC histórica).
+     */
+    private static Id reservarKilos(
+        Ventas_Informadas__c nc,
+        Map<String, List<Ventas_Informadas__c>> fcsPorClave,
+        Map<Id, Decimal> kilosDisponibles,
+        Boolean exigirCoberturaTotal,
+        Map<Id, Decimal> unidadPorProducto
+    ) {
+        Decimal kilosNc = kilosParaCruce(nc, unidadPorProducto);
         if (kilosNc == null) {
             return null;
         }
@@ -424,12 +498,10 @@ public with sharing class VentasInformadasNcOrigenUtil {
                 candidatas.add(fc);
             }
         }
-        if (candidatas.isEmpty()) {
-            return null;
-        }
 
-        // Orden estable: más antigua primero (FIFO de cobertura).
-        candidatas.sort(new FcCreatedDateAscComparator());
+        if (!candidatas.isEmpty()) {
+            candidatas.sort(new FcCreatedDateAscComparator());
+        }
 
         Decimal restante = kilosNc;
         Id fcPrincipal = null;
@@ -438,7 +510,7 @@ public with sharing class VentasInformadasNcOrigenUtil {
         for (Ventas_Informadas__c fc : candidatas) {
             Decimal disponible = kilosDisponibles.containsKey(fc.Id)
                 ? kilosDisponibles.get(fc.Id)
-                : kilosAbs(fc);
+                : kilosParaCruce(fc, unidadPorProducto);
             if (disponible == null || disponible <= 0) {
                 continue;
             }
@@ -453,17 +525,39 @@ public with sharing class VentasInformadasNcOrigenUtil {
             }
         }
 
-        if (restante > 0 || fcPrincipal == null) {
+        if (exigirCoberturaTotal == true && (restante > 0 || fcPrincipal == null)) {
             return null;
         }
 
+        aplicarConsumo(kilosDisponibles, consumoTentativo);
+
+        if (restante > 0 && nc != null && nc.FC_Origen__c != null
+            && kilosDisponibles.containsKey(nc.FC_Origen__c)) {
+            Decimal disponible = kilosDisponibles.get(nc.FC_Origen__c);
+            if (disponible == null) {
+                disponible = 0;
+            }
+            kilosDisponibles.put(nc.FC_Origen__c, disponible - restante);
+            if (fcPrincipal == null) {
+                fcPrincipal = nc.FC_Origen__c;
+            }
+        }
+        return fcPrincipal;
+    }
+
+    private static void aplicarConsumo(
+        Map<Id, Decimal> kilosDisponibles,
+        Map<Id, Decimal> consumoTentativo
+    ) {
+        if (consumoTentativo == null || consumoTentativo.isEmpty()) {
+            return;
+        }
         for (Id fcId : consumoTentativo.keySet()) {
             Decimal disponible = kilosDisponibles.containsKey(fcId)
                 ? kilosDisponibles.get(fcId)
                 : 0;
             kilosDisponibles.put(fcId, disponible - consumoTentativo.get(fcId));
         }
-        return fcPrincipal;
     }
 
     private class FcCreatedDateAscComparator implements Comparator<Ventas_Informadas__c> {
@@ -499,7 +593,8 @@ public with sharing class VentasInformadasNcOrigenUtil {
         Ventas_Informadas__c fc,
         Map<String, List<Ventas_Informadas__c>> fcsPorClave,
         Map<Id, Decimal> kilosDisponibles,
-        Set<Id> ncIds
+        Set<Id> ncIds,
+        Map<Id, Decimal> unidadPorProducto
     ) {
         if (fc == null || fc.Id == null || (ncIds != null && ncIds.contains(fc.Id))) {
             return;
@@ -524,7 +619,111 @@ public with sharing class VentasInformadasNcOrigenUtil {
             }
         }
         if (!kilosDisponibles.containsKey(fc.Id)) {
-            kilosDisponibles.put(fc.Id, kilosAbs(fc));
+            kilosDisponibles.put(fc.Id, kilosParaCruce(fc, unidadPorProducto));
+        }
+    }
+
+    /**
+     * Kilos del cruce. Si Cantidad_de_Bolsas__c y Cantidad_Bolsas_40__c son
+     * iguales y no cierran con la unidad del producto, el campo de kilos
+     * todavía guarda bolsas (carga anterior al ticket 1916).
+     */
+    @TestVisible
+    private static Decimal kilosParaCruce(
+        Ventas_Informadas__c venta,
+        Map<Id, Decimal> unidadPorProducto
+    ) {
+        Decimal kilos = kilosAbs(venta);
+        if (
+            kilos == null
+            || !campoConsultado(venta, 'Cantidad_Bolsas_40__c')
+            || venta.Cantidad_Bolsas_40__c == null
+            || !campoConsultado(venta, 'Producto__c')
+            || venta.Producto__c == null
+            || unidadPorProducto == null
+            || !unidadPorProducto.containsKey(venta.Producto__c)
+        ) {
+            return kilos;
+        }
+        Decimal unidad = unidadPorProducto.get(venta.Producto__c);
+        if (unidad == null || unidad <= 1) {
+            return kilos;
+        }
+        Decimal bolsas = venta.Cantidad_Bolsas_40__c.abs();
+        if (bolsas != kilos) {
+            return kilos;
+        }
+        Decimal kilosPorBolsa = 1;
+        if (
+            campoConsultado(venta, 'Kilos_por_Bolsa__c')
+            && venta.Kilos_por_Bolsa__c != null
+            && venta.Kilos_por_Bolsa__c != 0
+        ) {
+            kilosPorBolsa = venta.Kilos_por_Bolsa__c;
+        }
+        Decimal bolsasEsperadas = BatchApexProcesaVentasInformadas.calcularBolsasDesdeKilos(
+            kilos,
+            kilosPorBolsa,
+            unidad
+        );
+        if (bolsasEsperadas == bolsas) {
+            return kilos;
+        }
+        return bolsas * unidad / kilosPorBolsa;
+    }
+
+    private static void cargarUnidades(
+        Map<Id, Decimal> unidadPorProducto,
+        List<Ventas_Informadas__c> ventas
+    ) {
+        if (unidadPorProducto == null || ventas == null || ventas.isEmpty()) {
+            return;
+        }
+        Set<Id> faltan = new Set<Id>();
+        for (Ventas_Informadas__c venta : ventas) {
+            if (
+                venta == null
+                || !campoConsultado(venta, 'Producto__c')
+                || venta.Producto__c == null
+                || unidadPorProducto.containsKey(venta.Producto__c)
+            ) {
+                continue;
+            }
+            faltan.add(venta.Producto__c);
+        }
+        if (faltan.isEmpty()) {
+            return;
+        }
+        for (Product2 producto : [
+            SELECT Id, Unidad_de_Medida__c
+            FROM Product2
+            WHERE Id IN :faltan
+        ]) {
+            unidadPorProducto.put(producto.Id, parseUnidadMedida(producto.Unidad_de_Medida__c));
+        }
+        for (Id productoId : faltan) {
+            if (!unidadPorProducto.containsKey(productoId)) {
+                unidadPorProducto.put(productoId, null);
+            }
+        }
+    }
+
+    private static Boolean campoConsultado(SObject registro, String campo) {
+        return registro != null && registro.isSet(campo);
+    }
+
+    private static Decimal parseUnidadMedida(String unidad) {
+        if (String.isBlank(unidad)) {
+            return null;
+        }
+        if (unidad == 'Granel') {
+            return 1;
+        }
+        try {
+            Decimal qty = Decimal.valueOf(unidad.trim());
+            return qty == 0 ? null : qty;
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -565,5 +764,45 @@ public with sharing class VentasInformadasNcOrigenUtil {
 
     private static String blankToEmpty(String value) {
         return value == null ? '' : value;
+    }
+
+    /**
+     * Lee las NC ya vinculadas sin sharing: el cupo de la FC es único
+     * para toda la org, no depende de qué registros ve el usuario que carga.
+     */
+    private without sharing class SaldoNcQuery {
+        List<Ventas_Informadas__c> ncsVinculadas(Set<Id> fcIds, Set<Id> excluir) {
+            List<Ventas_Informadas__c> acumulado = new List<Ventas_Informadas__c>();
+            if (fcIds == null || fcIds.isEmpty()) {
+                return acumulado;
+            }
+            List<Id> ids = new List<Id>(fcIds);
+            for (Integer i = 0; i < ids.size(); i += 400) {
+                Set<Id> lote = new Set<Id>();
+                Integer fin = Math.min(i + 400, ids.size());
+                for (Integer j = i; j < fin; j++) {
+                    lote.add(ids[j]);
+                }
+                acumulado.addAll(consultar(lote, excluir));
+            }
+            return acumulado;
+        }
+
+        List<Ventas_Informadas__c> consultar(Set<Id> fcIds, Set<Id> excluir) {
+            Set<String> tipos = TIPOS_NC;
+            String soql =
+                'SELECT Id, CreatedDate, Tipo_de_Comprobante__c, FC_Origen__c, ' +
+                'CUIT_Originante__c, CUIT_Destinatario__c, Campana_de_Ventas__c, ' +
+                'Campana_Agricola__c, Variedad__c, Categoria__c, Categoria_Portal__c, ' +
+                'Cantidad_de_Bolsas__c, Cantidad_Bolsas_40__c, Kilos_por_Bolsa__c, Producto__c ' +
+                'FROM Ventas_Informadas__c ' +
+                'WHERE FC_Origen__c IN :fcIds ' +
+                'AND Tipo_de_Comprobante__c IN :tipos';
+            if (excluir != null && !excluir.isEmpty()) {
+                soql += ' AND Id NOT IN :excluir';
+            }
+            soql += ' ORDER BY CreatedDate ASC, Id ASC LIMIT 10000';
+            return Database.query(soql);
+        }
     }
 }
