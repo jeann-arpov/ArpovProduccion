@@ -390,6 +390,9 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     @AuraEnabled
     public static Map<String, Object> saveItem(Id compraId, String itemJson, String cultivo) {
         Linea_de_Compra_HT__c item = (Linea_de_Compra_HT__c) JSON.deserialize(itemJson, Linea_de_Compra_HT__c.class);
+        if (String.isBlank(item.Id)) {
+            UtilsCompraVentaHT.validarCantidadEntera(item.Cantidad__c);
+        }
         Account obtentor = String.isBlank(compraId)
             ? [select Product2.Variedad2__r.Obtentor_Comercializa__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Obtentor_Prefix__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Parent.Obtentor_Prefix__c from PricebookEntry where id =: item.Id_Producto_de_Lista_de_Precio__c].Product2.Variedad2__r.Obtentor_Comercializa__r
             : new Account(Obtentor_Prefix__c = '');

@@ -375,14 +375,46 @@ productChange() {
     }
 
     syncCantidad(event) {
-        this._record['Cantidad__c'] = event.target.value;
-        console.log(this._record['Cantidad__c']);
+        this._record.Cantidad__c = this.cantidadEnteraDesdeInput(event.target);
+        console.log(this._record.Cantidad__c);
         if (this.isOnHtFuturaPromoScreen()) {
             this.dispatchPromoLineChange(false, false);
             return;
         }
         this.updatePriceBasedOnTipoCompra();
         this.dispatchPromoLineChange(false, false);
+    }
+
+    cantidadEnteraDesdeInput(input) {
+        const raw = input?.value;
+        if (raw === '' || raw == null) {
+            return raw ?? '';
+        }
+        const texto = String(raw).trim();
+        const parsed = Number(texto.replace(',', '.'));
+        if (!Number.isFinite(parsed)) {
+            return raw;
+        }
+        const tieneDecimal = texto.includes('.') || texto.includes(',');
+        if (!tieneDecimal) {
+            return parsed;
+        }
+        const anterior = Number(String(this._record?.Cantidad__c ?? '').replace(',', '.'));
+        if (Number.isFinite(anterior) && anterior === parsed) {
+            return parsed;
+        }
+        const entero = Math.floor(parsed);
+        if (input) {
+            input.value = String(entero);
+        }
+        if (parsed !== entero) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Cantidad HT',
+                message: 'Solo se cargan HT enteras. Se tomó ' + entero + '.',
+                variant: 'warning'
+            }));
+        }
+        return entero;
     }
 
     handleCantidadBlur() {

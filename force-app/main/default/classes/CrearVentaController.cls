@@ -640,6 +640,9 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       itemJson,
       Linea_de_Venta_HT__c.class
     );
+    if (String.isBlank(item.Id)) {
+      UtilsCompraVentaHT.validarCantidadEntera(item.Cantidad__c);
+    }
     Account obtentor = String.isBlank(ventaId)
       ? [
           SELECT

@@ -337,4 +337,15 @@ public class CrearCompraControllerTest {
 
         System.assertEquals('26/27', result.get(cultivo.Id), 'Debe tomar la campaña más reciente ya iniciada');
     }
+
+    @IsTest
+    static void saveItemRechazaCantidadDecimal() {
+        String info = JSON.serialize(new Map<String, Object>{ 'Cantidad__c' => 10.5 });
+        try {
+            CrearCompraController.saveItem(null, info, null);
+            System.assert(false, 'Debió rechazar la cantidad con decimales');
+        } catch (AuraHandledException ex) {
+            System.assertEquals(UtilsCompraVentaHT.MENSAJE_CANTIDAD_ENTERA, ex.getMessage());
+        }
+    }
 }
