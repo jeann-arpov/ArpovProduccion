@@ -4,6 +4,7 @@
     <description>Variedad de la sub-cuenta varietal.</description>
     <inlineHelpText
   >Variedad que desglosa el saldo de la cuenta granaria.</inlineHelpText>
+    <deleteConstraint>Restrict</deleteConstraint>
     <label>Variedad</label>
     <referenceTo>Variedad__c</referenceTo>
     <relationshipLabel>Detalles Varietales</relationshipLabel>

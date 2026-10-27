@@ -1,5 +1,5 @@
 @isTest
-private class CuentaGranariaVarietalExpedienteServiceTest {
+private class CuentaGranariaVarietalExpedienteTest {
   private static Cultivo__c cultivo;
   private static Campana_Agricola__c campana;
   private static Account productor;

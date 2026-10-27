@@ -139,7 +139,6 @@ public with sharing class CuentaGranariaVarietalDebitService {
           Detalle_Variedad_CG__c = subCuentaPorVariedad.get(linea.variedadId),
           Cantidad__c = debitoTn,
           Signo__c = -1,
-          Cantidad_con_Signo__c = -debitoTn,
           Origen__c = ORIGEN_ESCANER,
           Etapa__c = 'Cobrada',
           Fecha_Inicio__c = Date.today(),
