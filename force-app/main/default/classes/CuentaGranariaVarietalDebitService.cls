@@ -89,9 +89,26 @@ public with sharing class CuentaGranariaVarietalDebitService {
       lineas
     );
 
+    Set<Id> variedadesYaDebitadas = new Set<Id>();
+    if (mbtId != null) {
+      for (Tonelada__c t : [
+        SELECT Variedad__c
+        FROM Tonelada__c
+        WHERE Mov_BolsaTech__c = :mbtId AND Origen__c = :ORIGEN_ESCANER
+      ]) {
+        variedadesYaDebitadas.add(t.Variedad__c);
+      }
+    }
+
+    Decimal pesoKg = pesoNetoKg != null ? pesoNetoKg : 0;
+    Map<Id, Id> subCuentaPorVariedad = sincronizarSubCuentas(
+      cg.Id,
+      lineas,
+      pesoKg
+    );
+
     List<Tonelada__c> debitos = new List<Tonelada__c>();
     Set<Id> variedadesDebitadas = new Set<Id>();
-    Decimal pesoKg = pesoNetoKg != null ? pesoNetoKg : 0;
 
     for (LineaVarietal linea : lineas) {
       if (
@@ -99,6 +116,9 @@ public with sharing class CuentaGranariaVarietalDebitService {
         linea.porcentaje == null ||
         linea.porcentaje < umbral
       ) {
+        continue;
+      }
+      if (variedadesYaDebitadas.contains(linea.variedadId)) {
         continue;
       }
       Decimal debitoTn = pesoKg / 1000 * (linea.porcentaje / 100);
@@ -116,6 +136,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
             ? biotecnologiaPorVariedad.get(linea.variedadId)
             : BIOTECNOLOGIA_TRIGO,
           Variedad__c = linea.variedadId,
+          Detalle_Variedad_CG__c = subCuentaPorVariedad.get(linea.variedadId),
           Cantidad__c = debitoTn,
           Signo__c = -1,
           Cantidad_con_Signo__c = -debitoTn,
@@ -153,7 +174,6 @@ public with sharing class CuentaGranariaVarietalDebitService {
       }
     }
 
-    sincronizarSubCuentas(cg.Id, lineas, pesoKg);
     recalcularSaldoVariedad(cg.Id, variedadesDebitadas);
     recalcularSaldoCuenta(cg.Id);
     resultado.exitoso = resultado.debitosCreados > 0;
@@ -225,7 +245,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
     return resultado;
   }
 
-  private static void sincronizarSubCuentas(
+  private static Map<Id, Id> sincronizarSubCuentas(
     Id cgId,
     List<LineaVarietal> lineas,
     Decimal pesoKg
@@ -256,6 +276,16 @@ public with sharing class CuentaGranariaVarietalDebitService {
         false
       );
     }
+
+    Map<Id, Id> subCuentaPorVariedad = new Map<Id, Id>();
+    for (Detalle_Variedad_CG__c sc : [
+      SELECT Id, Variedad__c
+      FROM Detalle_Variedad_CG__c
+      WHERE Cuenta_Granaria__c = :cgId
+    ]) {
+      subCuentaPorVariedad.put(sc.Variedad__c, sc.Id);
+    }
+    return subCuentaPorVariedad;
   }
 
   private static void recalcularSaldoVariedad(

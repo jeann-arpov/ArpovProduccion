@@ -36,16 +36,6 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
       mbtIds.add(m.Id);
     }
 
-    // Idempotencia: camiones que ya tienen débito varietal aplicado
-    Set<Id> yaDebitados = new Set<Id>();
-    for (Tonelada__c t : [
-      SELECT Mov_BolsaTech__c
-      FROM Tonelada__c
-      WHERE Mov_BolsaTech__c IN :mbtIds AND Origen__c = 'Escáner varietal'
-    ]) {
-      yaDebitados.add(t.Mov_BolsaTech__c);
-    }
-
     // Líneas del escáner vinculadas a estos camiones
     Map<Id, List<Detalle_Variedad_MBT__c>> lineasPorMbt = new Map<Id, List<Detalle_Variedad_MBT__c>>();
     for (Detalle_Variedad_MBT__c det : [
@@ -79,9 +69,6 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
     }
 
     for (Movimiento_BolsaTech__c m : movimientos) {
-      if (yaDebitados.contains(m.Id)) {
-        continue;
-      }
       Id cultivoId = cultivoPorNombre.get(m.Cultivo__c);
       Id productorId = m.Titular__c;
       if (cultivoId == null || productorId == null) {
