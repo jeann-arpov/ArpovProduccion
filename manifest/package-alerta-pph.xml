@@ -10,6 +10,7 @@
     <types>
         <members>Case.Plan_de_Siembra__c</members>
         <members>Case.Criterio_Alerta__c</members>
+        <members>Case.Estado_Adhesion__c</members>
         <name>CustomField</name>
     </types>
     <types>

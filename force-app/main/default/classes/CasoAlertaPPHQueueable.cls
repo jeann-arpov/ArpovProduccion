@@ -130,6 +130,7 @@ public class CasoAlertaPPHQueueable implements Queueable {
 
   private static void aplicarCriterios(Case caso, Plan_de_Siembra__c plan) {
     caso.Criterio_Alerta__c = plan.Criterio_Alerta__c;
+    caso.Estado_Adhesion__c = plan.Estado__c;
     caso.Subject =
       ASUNTO_PPH +
       (String.isNotBlank(plan.Productor__r.N_CUIT__c)

@@ -19,6 +19,7 @@ private class CasoAlertaPPHQueueableTest {
         AccountId,
         Plan_de_Siembra__c,
         Criterio_Alerta__c,
+        Estado_Adhesion__c,
         Campana__c
       FROM Case
       WHERE Plan_de_Siembra__c = :plan.Id
@@ -35,6 +36,7 @@ private class CasoAlertaPPHQueueableTest {
       '03 - Deuda o expedientes abiertos',
       caso.Criterio_Alerta__c
     );
+    System.assertEquals('En Preparación', caso.Estado_Adhesion__c);
 
     Plan_de_Siembra__c planConCampania = [
       SELECT Parametro_PPH__r.Campana__c

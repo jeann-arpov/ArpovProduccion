@@ -69,6 +69,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>Estado_Adhesion__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Criterio_Alerta__c</field>
             </layoutItems>
             <layoutItems>
