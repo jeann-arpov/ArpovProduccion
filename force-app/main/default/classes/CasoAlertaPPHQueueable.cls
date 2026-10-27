@@ -56,7 +56,7 @@ public class CasoAlertaPPHQueueable implements Queueable {
 
     Map<Id, Case> casosExistentes = new Map<Id, Case>();
     for (Case caso : [
-      SELECT Id, Plan_de_Siembra__c
+      SELECT Id, Plan_de_Siembra__c, IsClosed
       FROM Case
       WHERE Plan_de_Siembra__c IN :ids AND RecordTypeId = :recordTypeId
     ]) {
@@ -70,7 +70,7 @@ public class CasoAlertaPPHQueueable implements Queueable {
       Case existente = casosExistentes.get(plan.Id);
       if (existente == null) {
         aInsertar.add(construirCaso(plan, recordTypeId, colaId));
-      } else {
+      } else if (!existente.IsClosed) {
         aplicarCriterios(existente, plan);
         aActualizar.add(existente);
       }

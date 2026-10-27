@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NoEditarCriterioAlertaCasoCerrado</fullName>
+    <active>true</active>
+    <description
+  >Impide modificar el Criterio de Alerta de un Caso cerrado.</description>
+    <errorConditionFormula
+  >AND(IsClosed, ISCHANGED(Criterio_Alerta__c), NOT(ISNEW()))</errorConditionFormula>
+    <errorDisplayField>Criterio_Alerta__c</errorDisplayField>
+    <errorMessage
+  >No se puede modificar el Criterio de Alerta de un Caso cerrado.</errorMessage>
+</ValidationRule>

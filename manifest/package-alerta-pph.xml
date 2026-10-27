@@ -13,6 +13,10 @@
         <name>CustomField</name>
     </types>
     <types>
+        <members>Case.NoEditarCriterioAlertaCasoCerrado</members>
+        <name>ValidationRule</name>
+    </types>
+    <types>
         <members>Case-Sembrá Evolución</members>
         <members>Plan_de_Siembra__c-Plan de Siembra Layout</members>
         <name>Layout</name>

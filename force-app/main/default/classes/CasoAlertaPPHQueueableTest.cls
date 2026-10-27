@@ -71,6 +71,46 @@ private class CasoAlertaPPHQueueableTest {
   }
 
   @IsTest
+  static void noActualizaCasoCerrado() {
+    Plan_de_Siembra__c plan = crearPlanEnPreparacion();
+
+    Id recordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+      .get('Sembra_Evolucion')
+      .getRecordTypeId();
+
+    Case caso = new Case(
+      RecordTypeId = recordTypeId,
+      Plan_de_Siembra__c = plan.Id,
+      AccountId = plan.Productor__c,
+      Type = 'Consulta',
+      Tema__c = 'PPH',
+      Status = 'Abierto',
+      Capsula__c = 'MESA DE AYUDA',
+      Criterio_Alerta__c = '03 - Deuda o expedientes abiertos'
+    );
+    insert caso;
+    caso.Status = 'Cerrado';
+    update caso;
+
+    Test.startTest();
+    plan.Criterio_Alerta__c = '04 - Auditoria documental';
+    update plan;
+    Test.stopTest();
+
+    caso = [
+      SELECT Id, Status, Criterio_Alerta__c
+      FROM Case
+      WHERE Plan_de_Siembra__c = :plan.Id
+    ];
+
+    System.assertEquals('Cerrado', caso.Status);
+    System.assertEquals(
+      '03 - Deuda o expedientes abiertos',
+      caso.Criterio_Alerta__c
+    );
+  }
+
+  @IsTest
   static void noCreaCasoSiCriterioVacio() {
     Plan_de_Siembra__c plan = crearPlanEnPreparacion();
 
