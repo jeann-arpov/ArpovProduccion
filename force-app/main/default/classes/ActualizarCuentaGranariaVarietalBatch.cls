@@ -17,7 +17,7 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
         FROM Movimiento_BolsaTech__c
         WHERE
           Cultivo_Varietal__c = TRUE
-          AND Estado__c = 'Procesado'
+          AND Estado__c = 'A procesar'
           AND No_Debitar__c = FALSE
       ]
     );
