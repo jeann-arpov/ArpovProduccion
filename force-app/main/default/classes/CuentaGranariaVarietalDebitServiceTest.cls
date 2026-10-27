@@ -49,32 +49,6 @@ private class CuentaGranariaVarietalDebitServiceTest {
   }
 
   @isTest
-  static void testMD11InvalidoNoDebita() {
-    prepararDatos();
-
-    List<CuentaGranariaVarietalDebitService.LineaVarietal> lineas = new List<CuentaGranariaVarietalDebitService.LineaVarietal>{
-      new CuentaGranariaVarietalDebitService.LineaVarietal(variedadA.Id, 60),
-      new CuentaGranariaVarietalDebitService.LineaVarietal(variedadB.Id, 30)
-    };
-
-    Test.startTest();
-    CuentaGranariaVarietalDebitService.ResultadoDebito resultado = CuentaGranariaVarietalDebitService.procesarDebito(
-      productor.Id,
-      campana.Id,
-      cultivo.Id,
-      100000,
-      lineas
-    );
-    Test.stopTest();
-
-    System.assertEquals(false, resultado.md11Valido);
-    System.assertEquals(
-      0,
-      [SELECT COUNT() FROM Tonelada__c WHERE Origen__c = 'Escáner varietal']
-    );
-  }
-
-  @isTest
   static void testUmbral80SoloDebitaMayorIgual() {
     prepararDatos();
 
@@ -93,7 +67,6 @@ private class CuentaGranariaVarietalDebitServiceTest {
     );
     Test.stopTest();
 
-    System.assertEquals(true, resultado.md11Valido);
     System.assertEquals(1, resultado.debitosCreados);
 
     List<Tonelada__c> debitos = [

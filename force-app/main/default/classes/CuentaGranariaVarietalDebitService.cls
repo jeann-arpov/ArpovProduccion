@@ -3,7 +3,6 @@ public with sharing class CuentaGranariaVarietalDebitService {
   private static final String BIOTECNOLOGIA_TRIGO = 'Convencional';
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
   private static final Decimal UMBRAL_DEFAULT = 80;
-  private static final Decimal TOLERANCIA_DEFAULT = 0;
 
   public class LineaVarietal {
     public Id variedadId;
@@ -16,7 +15,6 @@ public with sharing class CuentaGranariaVarietalDebitService {
 
   public class ResultadoDebito {
     public Boolean exitoso = false;
-    public Boolean md11Valido = true;
     public Integer debitosCreados = 0;
     public Decimal debitoTotalTn = 0;
     public String mensaje;
@@ -64,16 +62,6 @@ public with sharing class CuentaGranariaVarietalDebitService {
       cfg.Umbral_Presencia__c != null)
       ? cfg.Umbral_Presencia__c
       : UMBRAL_DEFAULT;
-    Decimal tolerancia = (cfg != null &&
-      cfg.Tolerancia_Suma_MD11__c != null)
-      ? cfg.Tolerancia_Suma_MD11__c
-      : TOLERANCIA_DEFAULT;
-
-    if (!validarMD11(lineas, tolerancia)) {
-      resultado.md11Valido = false;
-      resultado.mensaje = 'MD-11: la suma de porcentajes de variedades no es 100.';
-      return resultado;
-    }
 
     Cuenta_Granaria__c cg = obtenerCuentaGranaria(
       productorId,
@@ -177,19 +165,6 @@ public with sharing class CuentaGranariaVarietalDebitService {
     recalcularSaldoCuenta(cg.Id);
     resultado.exitoso = resultado.debitosCreados > 0;
     return resultado;
-  }
-
-  private static Boolean validarMD11(
-    List<LineaVarietal> lineas,
-    Decimal tolerancia
-  ) {
-    Decimal suma = 0;
-    for (LineaVarietal linea : lineas) {
-      if (linea.porcentaje != null) {
-        suma += linea.porcentaje;
-      }
-    }
-    return Math.abs(suma - 100) <= tolerancia;
   }
 
   private static Configuracion_Varietal__mdt obtenerConfiguracion() {
