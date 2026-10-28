@@ -77,6 +77,8 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         aplicarRolesDesdeCuentas(ventas);
         // NC: intentar vincular FC Origen ya existente (misma planilla se resuelve en el batch).
         VentasInformadasNcOrigenUtil.aplicar(ventas);
+        // Incidente 3593: autoventa sin compra previa. Validar autoventa deja el Resultado en OK.
+        VentasInformadasAutoventaOrigenUtil.aplicar(ventas, oldMap);
         // Ticket 1916: bolsas SF = 0 → Resultado al crear/editar (no recién al convertir).
         ConvertirVentasInformadasResumenUtil.aplicarValidacionBolsasAlGuardar(ventas);
     }
