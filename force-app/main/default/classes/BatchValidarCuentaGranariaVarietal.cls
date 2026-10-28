@@ -17,7 +17,9 @@ public class BatchValidarCuentaGranariaVarietal implements Database.Batchable<SO
         FROM Movimiento_BolsaTech__c
         WHERE
           Cultivo_Varietal__c = TRUE
-          AND Estado__c IN ('Creado', 'Con error')
+          AND (Estado__c = 'Creado'
+          OR (Estado__c = 'Con error'
+          AND LastModifiedDate = LAST_N_DAYS:1))
       ]
     );
   }
