@@ -8,7 +8,6 @@ public class BatchValidarCuentaGranariaVarietal implements Database.Batchable<SO
           Codigo_de_Muestra__c,
           CUIT_Titular__c,
           Cuit_Destinatario__c,
-          Cuit_Remitente_Comercial__c,
           Peso_Neto__c,
           Fecha_de_Analisis__c,
           Cultivo__c,
