@@ -852,9 +852,11 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         for (Establecimiento est: data.establecimientos) {
             est.fillInternal();
 
-            if(setEstablecimientos.contains(est.establecimiento.Id)){
-                throw new AuraHandledException(Label.PPH_Establecimiento_Duplicado);
-            }else{
+            // Sin Id es un establecimiento nuevo: se crea en este guardado y no se compara.
+            if (est.establecimiento.Id != null) {
+                if (setEstablecimientos.contains(est.establecimiento.Id)) {
+                    throw new AuraHandledException(Label.PPH_Establecimiento_Duplicado);
+                }
                 setEstablecimientos.add(est.establecimiento.Id);
             }
 

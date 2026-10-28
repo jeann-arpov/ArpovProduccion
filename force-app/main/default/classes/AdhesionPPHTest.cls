@@ -69,4 +69,105 @@ public class AdhesionPPHTest {
         System.assertNotEquals(null, resultados);
         System.assert(tecnologias.contains('Conkesta E3'));
     }
+
+    @isTest
+    static void dosEstablecimientosNuevosSeGuardan() {
+        Test_TestUtils.disableFlows();
+
+        Cultivo__c cultivo = new Cultivo__c(Name = 'Test', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today());
+        insert cultivo;
+
+        Parametro_PPH__c parametro = new Parametro_PPH__c(Name = 'Test', cultivo__c = cultivo.id, Biotecnologia__c = 'Enlist E3');
+        parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today().addDays(-2);
+        parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today().addDays(2);
+        insert parametro;
+
+        Account productor = Test_TestUtils.crearProductor();
+
+        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
+        insert var;
+
+        insert new Hectareas_Tecnologicas__c(
+            Fecha_Inicio__c = Date.today().addDays(-5),
+            Fecha_Fin__c = Date.today().addDays(30),
+            Signo__c = 1,
+            Cantidad__c = 3,
+            Productor__c = productor.id,
+            Biotecnologia__c = 'Enlist E3',
+            Cultivo__c = cultivo.id,
+            Variedad__c = var.id,
+            Origen__c = 'Compra HT',
+            Saldo_PPH__c = false
+        );
+
+        AdhesionPPH.getLoadData(parametro.id);
+        Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
+
+        String variedades = '{"' + var.Id + '":{"cantidad":1}}';
+        String js = '{"establecimientos":['
+            + '{"latitude":-37.194142,"longitude":-61.116293,"cantidadNoSE":0,"name":"San Juan","origen":"Propio","variedades":' + variedades + '},'
+            + '{"latitude":-37.204497,"longitude":-61.135457,"cantidadNoSE":0,"name":"Juan","origen":"Propio","variedades":' + variedades + '}'
+            + ']}';
+
+        AdhesionPPH.save(js, planId);
+
+        System.assertEquals(2, [SELECT COUNT() FROM Establecimiento_PPH__c]);
+    }
+
+    @isTest
+    static void mismoEstablecimientoSeRechaza() {
+        Test_TestUtils.disableFlows();
+
+        Cultivo__c cultivo = new Cultivo__c(Name = 'Test', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today());
+        insert cultivo;
+
+        Parametro_PPH__c parametro = new Parametro_PPH__c(Name = 'Test', cultivo__c = cultivo.id, Biotecnologia__c = 'Enlist E3');
+        parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today().addDays(-2);
+        parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today().addDays(2);
+        insert parametro;
+
+        Account productor = Test_TestUtils.crearProductor();
+
+        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
+        insert var;
+
+        insert new Hectareas_Tecnologicas__c(
+            Fecha_Inicio__c = Date.today().addDays(-5),
+            Fecha_Fin__c = Date.today().addDays(30),
+            Signo__c = 1,
+            Cantidad__c = 3,
+            Productor__c = productor.id,
+            Biotecnologia__c = 'Enlist E3',
+            Cultivo__c = cultivo.id,
+            Variedad__c = var.id,
+            Origen__c = 'Compra HT',
+            Saldo_PPH__c = false
+        );
+
+        Establecimiento__c establecimiento = new Establecimiento__c(
+            Name = 'Juan',
+            Coordenadas__latitude__s = -37.204497,
+            Coordenadas__longitude__s = -61.135457,
+            Origen__c = 'Propio',
+            Productor__c = productor.Id,
+            Vigente__c = true
+        );
+        insert establecimiento;
+
+        AdhesionPPH.getLoadData(parametro.id);
+        Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
+
+        String est = '{"id":"' + establecimiento.Id + '","latitude":-37.204497,"longitude":-61.135457,"cantidadNoSE":0,"name":"Juan","origen":"Propio","variedades":{"' + var.Id + '":{"cantidad":1}}}';
+        String js = '{"establecimientos":[' + est + ',' + est + ']}';
+
+        Boolean rechazo = false;
+        try {
+            AdhesionPPH.save(js, planId);
+        } catch (AuraHandledException e) {
+            rechazo = true;
+        }
+
+        System.assert(rechazo);
+        System.assertEquals(0, [SELECT COUNT() FROM Establecimiento_PPH__c]);
+    }
 }
