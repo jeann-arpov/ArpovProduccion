@@ -313,7 +313,12 @@ public class CrearVentaControllerTest {
     Test.stopTest();
     
     Opportunity oppActualizada = [SELECT Fecha_Emision_Comprobante__c, StageName FROM Opportunity WHERE Id = :ctx.opp.Id];
-    System.assertEquals('Pedido de Facturacion', oppActualizada.StageName);
+    Venta_HT__c ventaActualizada = [SELECT Estado__c FROM Venta_HT__c WHERE Id = :ctx.venta.Id];
+    System.assertEquals(
+      ventaActualizada.Estado__c,
+      oppActualizada.StageName,
+      'La etapa de la oportunidad debe coincidir con el estado de la venta'
+    );
   }
 
   @IsTest
