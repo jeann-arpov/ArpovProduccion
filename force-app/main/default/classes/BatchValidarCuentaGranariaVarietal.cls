@@ -39,5 +39,8 @@ public class BatchValidarCuentaGranariaVarietal implements Database.Batchable<SO
       errors,
       'Arpov: Errores en BatchValidarCuentaGranariaVarietal'
     );
+
+    // Encadenado: al terminar la validación, dispara el débito varietal.
+    Database.executeBatch(new ActualizarCuentaGranariaVarietalBatch(), 200);
   }
 }
