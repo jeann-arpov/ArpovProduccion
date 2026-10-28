@@ -1,16 +1,23 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Campania__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
-    <description>Cuando se crea el expediente, se asigna la campaña agrícola</description>
+    <description
+  >Cuando se crea el expediente, se asigna la campaña agrícola</description>
     <label>Campaña</label>
     <lookupFilter>
         <active>true</active>
+        <booleanFilter>1 OR 2</booleanFilter>
         <errorMessage>Esta campaña no es válida.</errorMessage>
         <filterItems>
             <field>Campana_Agricola__c.Cultivo_Name__c</field>
             <operation>equals</operation>
             <value>SOJA</value>
+        </filterItems>
+        <filterItems>
+            <field>Campana_Agricola__c.Cultivo_Name__c</field>
+            <operation>equals</operation>
+            <value>TRIGO</value>
         </filterItems>
         <isOptional>false</isOptional>
     </lookupFilter>
