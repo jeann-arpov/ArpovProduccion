@@ -96,6 +96,10 @@
                 <field>Venta_Interna__c</field>
             </layoutItems>
             <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Validar_Autoventa__c</field>
+            </layoutItems>
+            <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>Client_Id__c</field>
             </layoutItems>
