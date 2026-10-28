@@ -897,7 +897,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       Saldo_a_Gestionar__c = total * 1.21,
       Tipo_de_Cambio_Actualizado__c = TipoCambio,
       Saldo_a_Cobrar_Comprobante__c = total * 1.21,
-      StageName = venta.Estado__c,
+      StageName = 'Pedido de Facturacion',
       Tipo_de_Cambio_del_Comprobante__c = TipoCambio
     );
     Movimientos__c mov = new Movimientos__c(
