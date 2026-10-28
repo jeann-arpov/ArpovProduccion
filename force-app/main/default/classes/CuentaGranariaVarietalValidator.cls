@@ -36,13 +36,8 @@ public with sharing class CuentaGranariaVarietalValidator {
         errors.add('Peso Neto Vacio');
       }
 
-      String cuitTitularReal;
       if (String.isNotBlank(movimiento.CUIT_Titular__c)) {
-        cuitTitularReal = movimiento.CUIT_Titular__c;
-        accountByCuit.put(cuitTitularReal, null);
-      } else if (String.isNotBlank(movimiento.Cuit_Remitente_Comercial__c)) {
-        cuitTitularReal = movimiento.Cuit_Remitente_Comercial__c;
-        accountByCuit.put(cuitTitularReal, null);
+        accountByCuit.put(movimiento.CUIT_Titular__c, null);
       } else {
         errors.add('Cuit Titular Vacio');
       }
@@ -73,14 +68,10 @@ public with sharing class CuentaGranariaVarietalValidator {
     for (Movimiento_BolsaTech__c movimiento : movimientos) {
       List<String> errors = errorsById.get(movimiento.Id);
 
-      String cuitTitularReal = String.isNotBlank(movimiento.CUIT_Titular__c)
-        ? movimiento.CUIT_Titular__c
-        : movimiento.Cuit_Remitente_Comercial__c;
-
-      Account titular = accountByCuit.get(cuitTitularReal);
+      Account titular = accountByCuit.get(movimiento.CUIT_Titular__c);
       Account destinatario = accountByCuit.get(movimiento.Cuit_Destinatario__c);
 
-      if (String.isNotBlank(cuitTitularReal) && titular == null) {
+      if (String.isNotBlank(movimiento.CUIT_Titular__c) && titular == null) {
         errors.add('El cuit titular no se encuentra en el sistema');
       }
       if (
