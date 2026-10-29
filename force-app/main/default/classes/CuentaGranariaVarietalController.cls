@@ -5,6 +5,8 @@ public with sharing class CuentaGranariaVarietalController {
     @AuraEnabled
     public String semilleroNombre;
     @AuraEnabled
+    public String idObtentor;
+    @AuraEnabled
     public String variedadId;
     @AuraEnabled
     public String variedadNombre;
@@ -47,11 +49,14 @@ public with sharing class CuentaGranariaVarietalController {
         Variedad__c,
         Variedad__r.Name,
         Variedad__r.Obtentor_Comercializa__c,
-        Variedad__r.Obtentor_Comercializa__r.Name,
+        Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+        Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
         Saldo_Variedad__c
       FROM Detalle_Variedad_CG__c
       WHERE Cuenta_Granaria__c = :cgs[0].Id
-      ORDER BY Variedad__r.Obtentor_Comercializa__r.Name, Variedad__r.Name
+      ORDER BY
+        Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+        Variedad__r.Name
     ];
     if (detalles.isEmpty()) {
       return new List<VariedadResumen>();
@@ -92,7 +97,8 @@ public with sharing class CuentaGranariaVarietalController {
     for (Detalle_Variedad_CG__c d : detalles) {
       VariedadResumen r = new VariedadResumen();
       r.semilleroId = d.Variedad__r.Obtentor_Comercializa__c;
-      r.semilleroNombre = d.Variedad__r.Obtentor_Comercializa__r.Name;
+      r.semilleroNombre = d.Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c;
+      r.idObtentor = d.Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c;
       r.variedadId = d.Variedad__c;
       r.variedadNombre = d.Variedad__r.Name;
       r.credito = creditoPorVariedad.get(d.Variedad__c);

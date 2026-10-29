@@ -863,7 +863,11 @@ export default class CuentaGranariaNew extends LightningElement {
       const v = (this.varietalData || []).find(
         (x) => x.semilleroNombre === nombre
       );
-      return { nombre, id: v ? v.semilleroId : null };
+      return {
+        nombre,
+        id: v ? v.semilleroId : null,
+        idObtentor: v ? v.idObtentor : null
+      };
     });
   }
 
