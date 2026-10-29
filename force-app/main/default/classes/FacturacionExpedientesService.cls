@@ -221,6 +221,7 @@ public class FacturacionExpedientesService {
                 expUpdate.Estado_de_la_Etapa__c = 'Finalizado';
                 expUpdate.Etapa__c = 'Facturar Regalía E3';
                 expUpdate.Fecha_Cambio_Etapa__c = today;
+                expUpdate.Fecha_de_finalizacion__c = today;
                 expUpdate.Saldo_del_Expediente_al_Cierre__c = exp.Saldo_CG__c; 
                 expUpdate.TNRE3_Id__c = fcId;
                 expUpdate.ValidationBypassDateTime__c = Datetime.now();
@@ -325,6 +326,7 @@ public class FacturacionExpedientesService {
                 expUpdate.Estado_de_la_Etapa__c = 'Finalizado';
                 expUpdate.Etapa__c = 'Facturar Regalía E3';
                 expUpdate.Fecha_Cambio_Etapa__c = Date.today();
+                expUpdate.Fecha_de_finalizacion__c = Date.today();
                 expUpdate.Saldo_del_Expediente_al_Cierre__c = exp.Cuenta__r.TN_Disponibles__c; 
                 expUpdate.TNRE3_Id__c = fcId;
                 expUpdate.ValidationBypassDateTime__c = Datetime.now();
