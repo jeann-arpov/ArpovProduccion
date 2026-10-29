@@ -113,8 +113,9 @@
             <label>Cancelada por NC</label>
         </rules>
     </decisions>
-    <description>Cada vez que la oportunidad cambia el estado a Facturada, Pagada o Cancelada por NC, se cambia el estado de la compra HT asociada y si existe de la Venta HT. También se cambia el estado de las líneas de la opp SE si es distinto a Cancelada por NC.
-Se agrega la condición si la opp es punto de venta = true</description>
+    <description>Cada vez que la oportunidad cambia el estado a Pedido de Facturacion, Facturada, Pagada, Aplicada o Cancelada por NC, se cambia el estado de la compra HT asociada y si existe de la Venta HT. También se cambia el estado de las líneas de la opp SE si es distinto a Cancelada por NC.
+Se agrega la condición si la opp es punto de venta = true.
+Solo corre cuando la etapa cambia, para no reentrar al actualizar saldos u otros campos.</description>
     <environments>Default</environments>
     <interviewLabel>Oportunidad - {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Oportunidad - Cambio estado a Compra HT y Venta HT.</label>
@@ -185,7 +186,14 @@ Se agrega la condición si la opp es punto de venta = true</description>
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Compra_HT__r.Id</elementReference>
+                <elementReference>$Record.Compra_HT__c</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Estado__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.StageName</elementReference>
             </value>
         </filters>
         <inputAssignments>
@@ -233,7 +241,7 @@ Se agrega la condición si la opp es punto de venta = true</description>
         <connector>
             <targetReference>Es_Punto_de_Venta</targetReference>
         </connector>
-        <filterLogic>(1 OR 2 OR 3 OR 5) AND 4</filterLogic>
+        <filterLogic>(1 OR 2 OR 3 OR 5 OR 7) AND 4 AND 6</filterLogic>
         <filters>
             <field>StageName</field>
             <operator>EqualTo</operator>
@@ -267,6 +275,20 @@ Se agrega la condición si la opp es punto de venta = true</description>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Aplicada</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>StageName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Pedido de Facturacion</stringValue>
             </value>
         </filters>
         <object>Opportunity</object>

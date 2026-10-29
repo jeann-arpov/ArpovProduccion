@@ -5,7 +5,6 @@
     <formula>IF(
   ISBLANK(Resultado__c),
   IMAGE(&quot;/resource/Status_Icons/pending.png&quot;, &quot;Error&quot;, 25, 25),
-
   IF(
     OR(
       CONTAINS(Resultado__c, &quot;No existe la cuenta originante.&quot;),
@@ -13,38 +12,36 @@
       CONTAINS(Resultado__c, &quot;Cuenta no Válida&quot;)
     ),
     IMAGE(&quot;/resource/Status_Icons/rejected.png&quot;, &quot;OK&quot;, 25, 25),
-
     IF(
       CONTAINS(Resultado__c, &quot;Ya existe una venta con mismo cuit/variedad/cantidad/campaña&quot;),
       IMAGE(&quot;/resource/Status_Icons/warning-icon-dupli.png&quot;, &quot;Duplicado&quot;, 25, 25),
-
       IF(
         OR(
           CONTAINS(Resultado__c, &quot;No existe la cuenta destinataria&quot;),
           CONTAINS(Resultado__c, &quot;No existe la campaña.&quot;)
         ),
         IMAGE(&quot;/resource/Status_Icons/warning.png&quot;, &quot;OK&quot;, 25, 25),
-
         IF(
           CONTAINS(Resultado__c, &quot;NC sin Origen&quot;),
           IMAGE(&quot;/resource/Status_Icons/nc-red.png&quot;, &quot;NC sin Origen&quot;, 27, 27),
-
           IF(
-            CONTAINS(Resultado__c, &quot;Cantidad (Bolsas SF) = 0&quot;),
-            IMAGE(&quot;/resource/Status_Icons/bolsas-cero-kg-yellow.png&quot;, &quot;Bolsas SF = 0&quot;, 25, 25),
-
+            CONTAINS(Resultado__c, &quot;Autoventa sin Origen&quot;),
+            IMAGE(&quot;/resource/Status_Icons/warning.png&quot;, &quot;Autoventa sin Origen&quot;, 25, 25),
             IF(
-              CONTAINS(Resultado__c, &quot;OK&quot;),
+              CONTAINS(Resultado__c, &quot;Cantidad (Bolsas SF) = 0&quot;),
+              IMAGE(&quot;/resource/Status_Icons/bolsas-cero-kg-yellow.png&quot;, &quot;Bolsas SF = 0&quot;, 25, 25),
               IF(
-                TEXT(Tipo_de_Comprobante__c) = &quot;NC&quot;,
-                IMAGE(&quot;/resource/Status_Icons/nc.png&quot;, &quot;NC&quot;, 27, 27),
-                IMAGE(&quot;/resource/Status_Icons/approved.png&quot;, &quot;OK&quot;, 25, 25)
-              ),
-
-              IF(
-                CONTAINS(Resultado__c, &quot;pendiente de validar con comercio&quot;),
-                IMAGE(&quot;/resource/Status_Icons/pendiente-validar-yellow.png&quot;, &quot;Pendiente validar&quot;, 30, 30),
-                IMAGE(&quot;/resource/Status_Icons/rejected.png&quot;, &quot;OK&quot;, 25, 25)
+                CONTAINS(Resultado__c, &quot;OK&quot;),
+                IF(
+                  TEXT(Tipo_de_Comprobante__c) = &quot;NC&quot;,
+                  IMAGE(&quot;/resource/Status_Icons/nc.png&quot;, &quot;NC&quot;, 27, 27),
+                  IMAGE(&quot;/resource/Status_Icons/approved.png&quot;, &quot;OK&quot;, 25, 25)
+                ),
+                IF(
+                  CONTAINS(Resultado__c, &quot;pendiente de validar con comercio&quot;),
+                  IMAGE(&quot;/resource/Status_Icons/pendiente-validar-yellow.png&quot;, &quot;Pendiente validar&quot;, 30, 30),
+                  IMAGE(&quot;/resource/Status_Icons/rejected.png&quot;, &quot;OK&quot;, 25, 25)
+                )
               )
             )
           )

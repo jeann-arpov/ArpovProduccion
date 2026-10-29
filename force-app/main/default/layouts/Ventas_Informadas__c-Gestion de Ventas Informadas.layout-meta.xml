@@ -95,6 +95,10 @@
                 <behavior>Edit</behavior>
                 <field>Venta_Interna__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Validar_Autoventa__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
