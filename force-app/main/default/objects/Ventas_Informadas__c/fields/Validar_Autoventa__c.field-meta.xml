@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Validar_Autoventa__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Si se tilda, una autoventa sin origen se considera válida. El sistema deja el Resultado en OK; no hace falta editar ese campo.</description>
+    <inlineHelpText>Tildar para dar por válida una autoventa sin origen. El Resultado pasa a OK solo.</inlineHelpText>
+    <label>Validar autoventa</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

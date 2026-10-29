@@ -4,7 +4,7 @@
         <name>Agrupar_facturas_a_crear</name>
         <label>Agrupar facturas a crear</label>
         <locationX>182</locationX>
-        <locationY>1214</locationY>
+        <locationY>1322</locationY>
         <actionName>AgruparRegaliasPorCobrador</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -25,7 +25,7 @@
         <name>Generar_Facturas_Temporales</name>
         <label>Generar Facturas Temporales</label>
         <locationX>182</locationX>
-        <locationY>1106</locationY>
+        <locationY>1214</locationY>
         <actionName>GeneradorFacturasMBTApex</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -70,7 +70,7 @@
         <name>Obtener_MBTs_Pendientes</name>
         <label>Obtener MBTs Pendientes</label>
         <locationX>336</locationX>
-        <locationY>674</locationY>
+        <locationY>782</locationY>
         <actionName>FiltrarMBTPendientes</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -91,7 +91,7 @@
         <name>Relacionar_FCRE3_a_MBT</name>
         <label>Relacionar FCRE3 a MBT</label>
         <locationX>182</locationX>
-        <locationY>1430</locationY>
+        <locationY>1538</locationY>
         <actionName>RelacionarFacturaEnlistMbt</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -114,7 +114,7 @@
         <name>Asignar_Conteo_Seleccionados</name>
         <label>Asignar Conteo Seleccionados</label>
         <locationX>182</locationX>
-        <locationY>998</locationY>
+        <locationY>1106</locationY>
         <assignmentItems>
             <assignToReference>varCountSeleccionados</assignToReference>
             <operator>AssignCount</operator>
@@ -130,7 +130,7 @@
         <name>Decision_Cerrar_Expediente</name>
         <label>Decision Cerrar Expediente</label>
         <locationX>182</locationX>
-        <locationY>1538</locationY>
+        <locationY>1646</locationY>
         <defaultConnector>
             <targetReference>Facturado</targetReference>
         </defaultConnector>
@@ -155,7 +155,7 @@
         <name>Decision_Hay_Pendientes</name>
         <label>Decision Hay Pendientes</label>
         <locationX>336</locationX>
-        <locationY>782</locationY>
+        <locationY>890</locationY>
         <defaultConnector>
             <targetReference>Pantalla_Sin_Pendientes</targetReference>
         </defaultConnector>
@@ -179,8 +179,11 @@
     <decisions>
         <name>Es_Continuar</name>
         <label>Es Continuar?</label>
-        <locationX>979</locationX>
-        <locationY>350</locationY>
+        <locationX>935</locationX>
+        <locationY>458</locationY>
+        <defaultConnector>
+            <targetReference>END_ELEMENT_1</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Cancelar</defaultConnectorLabel>
         <rules>
             <name>Continuar</name>
@@ -202,7 +205,10 @@
         <name>Expediente_ya_esta_facturado</name>
         <label>Expediente ya está facturado?</label>
         <locationX>677</locationX>
-        <locationY>458</locationY>
+        <locationY>566</locationY>
+        <defaultConnector>
+            <targetReference>END_ELEMENT_1</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Otro</defaultConnectorLabel>
         <rules>
             <name>No_esta_Facturado_ni_Cerrado</name>
@@ -235,8 +241,44 @@
             <label>Facturado RE3</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>Se_encontro_un_expediente_SEC</name>
+        <label>Se encontro un expediente SEC</label>
+        <locationX>1152</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Tipo_SEC</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Si</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Expediente.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>EstaSeguro</targetReference>
+            </connector>
+            <label>Si</label>
+        </rules>
+    </decisions>
+    <ends>
+        <name>END_ELEMENT_1</name>
+        <locationX>935</locationX>
+        <locationY>2306</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_2</name>
+        <locationX>1370</locationX>
+        <locationY>458</locationY>
+    </ends>
     <environments>Default</environments>
     <interviewLabel>ExpDeNeg - Facturar SEC {!$Flow.CurrentDateTime}</interviewLabel>
+    <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>
     <label>ExpDeNeg - Facturar SEC</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -261,7 +303,7 @@
         <name>Crear_Facturas</name>
         <label>Crear Facturas</label>
         <locationX>182</locationX>
-        <locationY>1322</locationY>
+        <locationY>1430</locationY>
         <connector>
             <targetReference>Relacionar_FCRE3_a_MBT</targetReference>
         </connector>
@@ -271,7 +313,7 @@
         <name>Buscar_Cultivo_SOJA</name>
         <label>Buscar Cultivo SOJA</label>
         <locationX>336</locationX>
-        <locationY>566</locationY>
+        <locationY>674</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Obtener_MBTs_Pendientes</targetReference>
@@ -291,11 +333,11 @@
     <recordLookups>
         <name>Buscar_Expediente</name>
         <label>Buscar Expediente</label>
-        <locationX>979</locationX>
+        <locationX>1152</locationX>
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>EstaSeguro</targetReference>
+            <targetReference>Se_encontro_un_expediente_SEC</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -320,7 +362,7 @@
         <name>Actualizar_expediente</name>
         <label>Actualizar expediente</label>
         <locationX>50</locationX>
-        <locationY>1646</locationY>
+        <locationY>1754</locationY>
         <connector>
             <targetReference>Facturado</targetReference>
         </connector>
@@ -351,6 +393,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Fecha_de_finalizacion__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>ValidationBypassDateTime__c</field>
             <value>
                 <elementReference>$Flow.CurrentDateTime</elementReference>
@@ -358,11 +406,12 @@
         </inputAssignments>
         <object>Expediente_de_Negativos__c</object>
     </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
         <name>EstaSeguro</name>
         <label>EstáSeguro</label>
-        <locationX>979</locationX>
-        <locationY>242</locationY>
+        <locationX>935</locationX>
+        <locationY>350</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -410,10 +459,13 @@
         <name>Facturado</name>
         <label>Facturado</label>
         <locationX>182</locationX>
-        <locationY>1838</locationY>
+        <locationY>1946</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_1</targetReference>
+        </connector>
         <fields>
             <name>MsgFacturado</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Se procesó la facturación para el expediente SEC {!Buscar_Expediente.Name}&lt;/strong&gt;&lt;/p&gt;</fieldText>
@@ -434,7 +486,7 @@
         <name>Pantalla_Seleccion</name>
         <label>Pantalla Seleccion</label>
         <locationX>182</locationX>
-        <locationY>890</locationY>
+        <locationY>998</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -514,10 +566,13 @@
         <name>Pantalla_Sin_Pendientes</name>
         <label>Pantalla Sin Pendientes</label>
         <locationX>490</locationX>
-        <locationY>890</locationY>
+        <locationY>998</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_1</targetReference>
+        </connector>
         <fields>
             <name>MsgSinPendientes</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;No hay movimientos BolsaTech pendientes de facturar para este expediente.&lt;/strong&gt;&lt;/p&gt;</fieldText>
@@ -535,13 +590,43 @@
         <showHeader>false</showHeader>
     </screens>
     <screens>
-        <name>YaFacturado</name>
-        <label>YaFacturado</label>
-        <locationX>754</locationX>
-        <locationY>566</locationY>
+        <name>Tipo_SEC</name>
+        <label>Tipo SEC</label>
+        <locationX>1370</locationX>
+        <locationY>350</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_2</targetReference>
+        </connector>
+        <fields>
+            <name>Copy_1_of_MsgYaFacturado</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente a facturar debe ser tipo SEC&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>YaFacturado</name>
+        <label>YaFacturado</label>
+        <locationX>754</locationX>
+        <locationY>674</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_1</targetReference>
+        </connector>
         <fields>
             <name>MsgYaFacturado</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente {!Buscar_Expediente.Name} ya esta facturado.&lt;/strong&gt;&lt;/p&gt;</fieldText>
@@ -559,7 +644,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>853</locationX>
+        <locationX>1026</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Buscar_Expediente</targetReference>
