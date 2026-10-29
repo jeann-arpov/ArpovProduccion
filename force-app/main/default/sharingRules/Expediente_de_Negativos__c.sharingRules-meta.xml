@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingCriteriaRules>
+        <fullName>Regla_de_Facturacion_SEC_Expediente</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Regla de Facturacion SEC Expediente</label>
+        <sharedTo>
+            <group>Usuarios_Comunidad_Ver_Todo</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>CreatedById</field>
+            <operation>notEqual</operation>
+            <value></value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>fundacion</fullName>
+        <accessLevel>Read</accessLevel>
+        <label>fundacion</label>
+        <sharedTo>
+            <group>CFundacion</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>CTV__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+</SharingRules>

@@ -117,4 +117,5 @@ private class FiltrarMBTPendientesTest {
         System.assertEquals(1, respuestas.size(), 'Debería haber una respuesta devuelta.');
         System.assertEquals(0, respuestas[0].cantidadPendientes, 'La cantidad de pendientes debe ser 0 para un ID vacío.');
     }
+    
 }
