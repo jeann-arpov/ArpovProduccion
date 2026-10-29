@@ -1,225 +1,273 @@
 <template>
-    <lightning-card title="Toneladas de la Cuenta Granaria" icon-name="custom:custom63">
-        
-        <!-- Loading -->
-        <template if:true={isLoading}>
-            <div class="slds-m-around_medium">
-                <lightning-spinner alternative-text="Cargando toneladas..." size="small"></lightning-spinner>
-            </div>
+  <div class="cgv">
+    <template if:true={isLoading}>
+      <div class="cgv-loading">
+        <lightning-spinner
+          alternative-text="Cargando cuenta granaria"
+          size="small"
+        ></lightning-spinner>
+      </div>
+    </template>
+
+    <template if:true={error}>
+      <p class="cgv-error">{error}</p>
+    </template>
+
+    <template if:true={listo}>
+      <header class="cgv-head">
+        <p class="cgv-kicker">Cuenta Granaria {cuentaInfo.nombre}</p>
+        <h2 class="cgv-title">{encabezado}</h2>
+        <p class="cgv-sub" if:true={subtitulo}>{subtitulo}</p>
+      </header>
+
+      <div class="cgv-metrics">
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Crédito total</span>
+          <span class="cgv-metric-val cgv-pos"
+            >{creditoFormatted}<span class="cgv-unit"> tn</span></span
+          >
+        </article>
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Débito total</span>
+          <span class="cgv-metric-val cgv-neg"
+            >{debitoFormatted}<span class="cgv-unit"> tn</span></span
+          >
+        </article>
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Saldo</span>
+          <span class={saldoClass}
+            >{saldoFormatted}<span class="cgv-unit"> tn</span></span
+          >
+        </article>
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Movimientos</span>
+          <span class="cgv-metric-val">{movimientosFormatted}</span>
+        </article>
+      </div>
+
+      <template if:true={puedeGenerarConsumo}>
+        <div class="cgv-consumo">
+          <button
+            type="button"
+            class="cgv-btn"
+            onclick={handleGenerarConsumo}
+            disabled={generarConsumoDisabled}
+          >
+            Generar consumo HT
+          </button>
+          <p>
+            Cuenta manual con saldo negativo. Se creará un consumo positivo en
+            esta CG y negativo en Compra HT Disponible.
+          </p>
+        </div>
+      </template>
+
+      <section class="cgv-panel" if:true={esResumen}>
+        <div class="cgv-panel-head">
+          <h3>Resumen por origen</h3>
+          <button
+            type="button"
+            class="cgv-link"
+            onclick={verDetalleGeneral}
+            if:true={tieneOrigenes}
+          >
+            Ver detalle
+          </button>
+        </div>
+
+        <template if:true={tieneOrigenes}>
+          <table class="cgv-table">
+            <thead>
+              <tr>
+                <th scope="col">Origen</th>
+                <th scope="col" class="cgv-num">Toneladas</th>
+                <th scope="col" class="cgv-num">Movimientos</th>
+                <th scope="col">
+                  <span class="slds-assistive-text">Descargar</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={origenes} for:item="row">
+                <tr key={row.origen} class={row.rowClass}>
+                  <td>{row.etiqueta}</td>
+                  <td class="cgv-num">
+                    <span class={row.valorClass}>{row.toneladasFormatted}</span>
+                  </td>
+                  <td class="cgv-num">{row.movimientosFormatted}</td>
+                  <td class="cgv-actions">
+                    <button
+                      type="button"
+                      class="cgv-csv"
+                      data-origen={row.origen}
+                      data-etiqueta={row.etiqueta}
+                      onclick={descargarCsv}
+                    >
+                      CSV
+                    </button>
+                    <button
+                      type="button"
+                      class="cgv-link"
+                      data-origen={row.origen}
+                      onclick={verDetalleOrigen}
+                    >
+                      Ver detalle
+                    </button>
+                  </td>
+                </tr>
+              </template>
+              <tr class="cgv-total">
+                <td>Total</td>
+                <td class="cgv-num">{saldoFormatted}</td>
+                <td class="cgv-num">{movimientosFormatted}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
+        <p class="cgv-empty" if:false={tieneOrigenes}>
+          No hay toneladas asociadas a esta cuenta granaria.
+        </p>
+      </section>
+
+      <section class="cgv-panel" if:true={esDetalle}>
+        <div class="cgv-panel-head">
+          <h3>Detalle de movimientos</h3>
+          <button type="button" class="cgv-link" onclick={volverAlResumen}>
+            Volver al resumen
+          </button>
+        </div>
+
+        <div class="cgv-filters">
+          <lightning-combobox
+            label="Origen"
+            value={filtroOrigen}
+            options={opcionesOrigen}
+            onchange={handleFiltroOrigen}
+            variant="label-hidden"
+            placeholder="Origen"
+          ></lightning-combobox>
+          <input
+            class="cgv-search"
+            type="search"
+            placeholder="Buscar por número (TN-…)"
+            value={filtroBuscar}
+            oninput={handleFiltroBuscar}
+            onkeydown={handleBuscarKey}
+          />
+          <button
+            type="button"
+            class="cgv-btn cgv-btn-small"
+            onclick={aplicarBusqueda}
+          >
+            Filtrar
+          </button>
+        </div>
+
+        <template if:true={detalleCargando}>
+          <div class="cgv-loading cgv-loading-inline">
+            <lightning-spinner
+              alternative-text="Cargando detalle"
+              size="small"
+            ></lightning-spinner>
+          </div>
         </template>
 
-        <!-- Error -->
-        <template if:true={error}>
-            <div class="slds-m-around_medium">
-                <div class="slds-text-color_error">
-                    <lightning-icon icon-name="utility:error" size="small" class="slds-m-right_x-small"></lightning-icon>
-                    Error al cargar las toneladas: {error}
-                </div>
-            </div>
-        </template>
-
-        <!-- Acción consumo HT (carga manual negativa + HT disponible positivo) -->
-        <template if:true={puedeGenerarConsumo}>
-            <div class="consumo-action slds-p-horizontal_medium slds-p-bottom_medium">
-                <lightning-button
-                    variant="brand"
-                    label="Generar consumo HT"
-                    title="Compensa el saldo negativo usando HT disponible"
-                    icon-name="utility:sync"
-                    onclick={handleGenerarConsumo}
-                    disabled={generarConsumoDisabled}>
-                </lightning-button>
-                <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-                    Cuenta manual con saldo negativo. Se creará un consumo positivo en esta CG y negativo en Compra HT Disponible.
-                </p>
-            </div>
-        </template>
-
-        <!-- Tabla de toneladas -->
-        <template if:true={hasData}>
-            <div class="slds-p-around_medium">
-                <!-- Info de la cuenta -->
-                <div class="cuenta-info slds-m-bottom_medium">
-                    <div class="slds-grid slds-wrap">
-                        <template if:true={esCompraHT}>
-                            <div class="slds-col slds-size_1-of-1 slds-p-bottom_x-small">
-                                <lightning-badge label="Compra HT Disponible" class="badge-compra-ht"></lightning-badge>
-                            </div>
-                        </template>
-                        <template if:false={esCompraHT}>
-                            <div class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
-                                <span class="slds-text-color_weak">Campaña:</span>
-                                <span class="slds-m-left_x-small"><strong>{cuentaInfo.campania}</strong></span>
-                            </div>
-                        </template>
-                        <div class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
-                            <span class="slds-text-color_weak">Productor:</span>
-                            <span class="slds-m-left_x-small"><strong>{cuentaInfo.productor}</strong></span>
-                        </div>
-                        <div class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
-                            <span class="slds-text-color_weak">Cultivo:</span>
-                            <span class="slds-m-left_x-small"><strong>{cuentaInfo.cultivo}</strong></span>
-                        </div>
-                        <div class="slds-col slds-size_1-of-2">
-                            <span class="slds-text-color_weak">Tecnología:</span>
-                            <span class="slds-m-left_x-small"><strong>{cuentaInfo.tecnologia}</strong></span>
-                        </div>
-                        <div class="slds-col slds-size_1-of-2">
-                            <span class="slds-text-color_weak">Saldo Cuenta:</span>
-                            <span class="slds-m-left_x-small"><strong>{saldoCuentaFormatted}</strong></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabla -->
-                <div class="table-container">
-                    <table class="toneladas-table slds-table slds-table_bordered slds-table_striped">
-                        <colgroup>
-                            <col class="col-nombre" />
-                            <col class="col-origen" />
-                            <col class="col-etapa" />
-                            <col class="col-fecha" />
-                            <col class="col-cantidad" />
-                        </colgroup>
-                        <thead>
-                            <tr class="slds-line-height_reset">
-                                <th scope="col" class="col-nombre">
-                                    <div class="cell-truncate" title="Nombre">Nombre</div>
-                                </th>
-                                <th scope="col" class="col-origen">
-                                    <div class="cell-truncate" title="Origen">Origen</div>
-                                </th>
-                                <th scope="col" class="col-etapa">
-                                    <div class="cell-truncate" title="Etapa">Etapa</div>
-                                </th>
-                                <th scope="col" class="col-fecha">
-                                    <span title="Fecha de creación">Creación</span>
-                                </th>
-                                <th scope="col" class="col-cantidad">
-                                    <span title="Cantidad (tn)">Cant.</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template for:each={toneladas} for:item="tn">
-                                <tr key={tn.id} class="slds-hint-parent">
-                                    <td class="col-nombre" data-label="Nombre">
-                                        <div class="cell-truncate" title={tn.nombre}>
-                                            <a onclick={navigateToRecord} data-id={tn.id}>{tn.nombre}</a>
-                                        </div>
-                                    </td>
-                                    <td class="col-origen" data-label="Origen">
-                                        <div class="cell-truncate" title={tn.origen}>{tn.origen}</div>
-                                    </td>
-                                    <td class="col-etapa" data-label="Etapa">
-                                        <div class="cell-truncate" title={tn.etapa}>{tn.etapa}</div>
-                                    </td>
-                                    <td class="col-fecha" data-label="Fecha creación">
-                                        <span title={tn.fechaCreacion}>{tn.fechaCreacion}</span>
-                                    </td>
-                                    <td class="col-cantidad" data-label="Cantidad (tn)">
-                                        <div class={tn.esPositivo} title={tn.cantidadFormatted}>
-                                            <strong>{tn.cantidadFormatted}</strong>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                            
-                            <!-- Fila de Total -->
-                            <tr class="total-row">
-                                <td colspan="3" data-label="Resumen">
-                                    <strong>TOTAL</strong>
-                                </td>
-                                <td class="col-fecha" data-label="Fecha creación"></td>
-                                <td class="col-cantidad" data-label="Cantidad (tn)">
-                                    <div class={totalClass} title={totalFormatted}>
-                                        <strong>{totalFormatted}</strong>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Footer con stats -->
-                <div class="summary-footer slds-m-top_medium">
-                    <div class="summary-badges">
-                        <lightning-badge label={positivoLabel} class="badge-positivo"></lightning-badge>
-                        <lightning-badge label={negativoLabel} class="badge-negativo"></lightning-badge>
-                    </div>
-                    <div class="summary-records slds-text-color_weak slds-text-body_small">
-                        Total registros: <strong>{totalRegistros}</strong>
-                    </div>
-                </div>
-
-                <!-- Compra HT disponible (en cuentas con campaña) -->
-                <template if:false={esCompraHT}>
-                    <div class="compra-ht-info slds-m-top_medium" onclick={navigateToCompraHT} style="cursor: pointer;">
-                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                            <div>
-                                <lightning-icon icon-name="utility:cart" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                <span class="slds-text-title_caps">Compra HT Disponible</span>
-                            </div>
-                            <div class="compra-ht-saldo">
-                                <strong>{saldoCompraHTFormatted}</strong> tn
-                            </div>
-                        </div>
-                    </div>
+        <template if:false={detalleCargando}>
+          <template if:true={detalleVacio}>
+            <p class="cgv-empty">No hay movimientos para ese filtro.</p>
+          </template>
+          <template if:false={detalleVacio}>
+            <table class="cgv-table">
+              <thead>
+                <tr>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Origen</th>
+                  <template if:true={mostrarVariedad}>
+                    <th scope="col">Variedad</th>
+                  </template>
+                  <th scope="col">Etapa</th>
+                  <th scope="col">Creación</th>
+                  <th scope="col" class="cgv-num">Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={detalleFilas} for:item="tn">
+                  <tr key={tn.id}>
+                    <td>
+                      <a href="#" data-id={tn.id} onclick={navigateToRecord}
+                        >{tn.nombre}</a
+                      >
+                    </td>
+                    <td>{tn.origen}</td>
+                    <template if:true={mostrarVariedad}>
+                      <td>
+                        <a
+                          href="#"
+                          data-id={tn.detalleVariedadCGId}
+                          onclick={navigateToDetalleVariedad}
+                          >{tn.variedad}</a
+                        >
+                      </td>
+                    </template>
+                    <td>{tn.etapa}</td>
+                    <td>{tn.fechaCreacion}</td>
+                    <td class="cgv-num">
+                      <span class={tn.cantidadClass}
+                        >{tn.cantidadFormatted}</span
+                      >
+                    </td>
+                  </tr>
                 </template>
-
-                <!-- Cuentas granarias por campaña (en cuentas HT) -->
-                <template if:true={tieneCuentasRelacionadas}>
-                    <div class="cuentas-relacionadas slds-m-top_medium">
-                        <p class="slds-text-title_caps slds-m-bottom_x-small">Cuentas por Campaña</p>
-                        <template for:each={cuentasRelacionadas} for:item="cg">
-                            <div key={cg.id} class="cuenta-relacionada-item" data-id={cg.id} onclick={navigateToCuentaGranaria}>
-                                <span class="slds-truncate">{cg.campania}</span>
-                                <span class={cg.saldoClass}><strong>{cg.saldoFormatted}</strong> tn</span>
-                            </div>
-                        </template>
-                    </div>
-                </template>
+              </tbody>
+            </table>
+            <div class="cgv-pager">
+              <button
+                type="button"
+                class="cgv-btn cgv-btn-ghost"
+                onclick={paginaAnterior}
+                disabled={anteriorDisabled}
+              >
+                Anterior
+              </button>
+              <span>{paginaLabel}</span>
+              <button
+                type="button"
+                class="cgv-btn cgv-btn-ghost"
+                onclick={paginaSiguiente}
+                disabled={siguienteDisabled}
+              >
+                Siguiente
+              </button>
             </div>
+          </template>
         </template>
+      </section>
 
-        <!-- Sin toneladas pero mostrando relaciones -->
-        <template if:true={sinDatos}>
-            <div class="slds-p-around_medium">
-                <!-- Mensaje de sin toneladas -->
-                <div class="slds-m-bottom_medium slds-text-align_center">
-                    <lightning-icon icon-name="utility:info" size="small" class="slds-m-bottom_small"></lightning-icon>
-                    <p class="slds-text-color_weak">No hay toneladas asociadas a esta cuenta granaria.</p>
-                </div>
+      <template if:false={esCompraHT}>
+        <button type="button" class="cgv-ht" onclick={navigateToCompraHT}>
+          <span>Compra HT disponible</span>
+          <strong>{saldoCompraHTFormatted} tn</strong>
+        </button>
+      </template>
 
-                <!-- Compra HT disponible (en cuentas con campaña) -->
-                <template if:false={esCompraHT}>
-                    <div class="compra-ht-info slds-m-top_medium" onclick={navigateToCompraHT} style="cursor: pointer;">
-                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                            <div>
-                                <lightning-icon icon-name="utility:cart" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                <span class="slds-text-title_caps">Compra HT Disponible</span>
-                            </div>
-                            <div class="compra-ht-saldo">
-                                <strong>{saldoCompraHTFormatted}</strong> tn
-                            </div>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- Cuentas granarias por campaña (en cuentas HT) -->
-                <template if:true={tieneCuentasRelacionadas}>
-                    <div class="cuentas-relacionadas slds-m-top_medium">
-                        <p class="slds-text-title_caps slds-m-bottom_x-small">Cuentas por Campaña</p>
-                        <template for:each={cuentasRelacionadas} for:item="cg">
-                            <div key={cg.id} class="cuenta-relacionada-item" data-id={cg.id} onclick={navigateToCuentaGranaria}>
-                                <span class="slds-truncate">{cg.campania}</span>
-                                <span class={cg.saldoClass}><strong>{cg.saldoFormatted}</strong> tn</span>
-                            </div>
-                        </template>
-                    </div>
-                </template>
-            </div>
-        </template>
-
-    </lightning-card>
+      <template if:true={tieneCuentasRelacionadas}>
+        <section class="cgv-related">
+          <h3>Cuentas por campaña</h3>
+          <template for:each={cuentasRelacionadas} for:item="cg">
+            <button
+              type="button"
+              key={cg.id}
+              class="cgv-related-item"
+              data-id={cg.id}
+              onclick={navigateToCuentaGranaria}
+            >
+              <span>{cg.campania}</span>
+              <strong class={cg.saldoClass}>{cg.saldoFormatted} tn</strong>
+            </button>
+          </template>
+        </section>
+      </template>
+    </template>
+  </div>
 </template>
