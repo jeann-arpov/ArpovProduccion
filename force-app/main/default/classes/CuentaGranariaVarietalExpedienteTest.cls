@@ -1,15 +1,11 @@
 @isTest
 private class CuentaGranariaVarietalExpedienteTest {
-  private static Cultivo__c cultivo;
-  private static Campana_Agricola__c campana;
-  private static Account productor;
-  private static Cuenta_Granaria__c cg;
-  private static Variedad__c variedad;
-  private static Detalle_Variedad_CG__c subCuenta;
+  @testSetup
+  static void setup() {
+    Test_TestUtils.disableFlows();
 
-  private static void prepararDatos() {
-    cultivo = Test_TestUtils.crearCultivo('TRIGO', 1, true);
-    campana = Test_TestUtils.crearCampanaAgricola(
+    Cultivo__c cultivo = Test_TestUtils.crearCultivo('TRIGO', 1, true);
+    Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola(
       '2025',
       cultivo,
       Date.today().addDays(-10),
@@ -17,11 +13,12 @@ private class CuentaGranariaVarietalExpedienteTest {
       '2025 - TRIGO',
       true
     );
-    productor = Test_TestUtils.crearProductor();
+
+    Account productor = Test_TestUtils.crearProductor();
     productor.N_CUIT__c = '30502874353';
     update productor;
 
-    variedad = new Variedad__c(
+    Variedad__c variedad = new Variedad__c(
       Name = 'CATALPA',
       Cultivo__c = cultivo.Id,
       Biotecnologia__c = 'Convencional',
@@ -29,7 +26,7 @@ private class CuentaGranariaVarietalExpedienteTest {
     );
     insert variedad;
 
-    cg = new Cuenta_Granaria__c(
+    Cuenta_Granaria__c cg = new Cuenta_Granaria__c(
       Productor__c = productor.Id,
       Campania__c = campana.Id,
       Cultivo__c = cultivo.Id,
@@ -43,18 +40,22 @@ private class CuentaGranariaVarietalExpedienteTest {
     );
     insert cg;
 
-    subCuenta = new Detalle_Variedad_CG__c(
+    insert new Detalle_Variedad_CG__c(
       Cuenta_Granaria__c = cg.Id,
       Variedad__c = variedad.Id,
       Clave_Varietal__c = cg.Id + '|' + variedad.Id,
       Saldo_Variedad__c = -20
     );
-    insert subCuenta;
   }
 
   @isTest
   static void testAperturaExpedienteVarietal() {
-    prepararDatos();
+    Variedad__c variedad = [SELECT Id FROM Variedad__c LIMIT 1];
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
 
     Test.startTest();
     Integer creados = CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
@@ -79,7 +80,11 @@ private class CuentaGranariaVarietalExpedienteTest {
 
   @isTest
   static void testCierreExpedienteRegularizado() {
-    prepararDatos();
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
     CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
 
     subCuenta.Saldo_Variedad__c = 5;
