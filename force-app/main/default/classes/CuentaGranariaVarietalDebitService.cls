@@ -15,6 +15,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
 
   public class ResultadoDebito {
     public Boolean exitoso = false;
+    public Boolean sinDebito = false;
     public Integer debitosCreados = 0;
     public Decimal debitoTotalTn = 0;
     public String mensaje;
@@ -140,6 +141,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
     }
 
     if (debitos.isEmpty()) {
+      resultado.sinDebito = true;
       resultado.mensaje =
         'Ninguna variedad supera el umbral de ' +
         umbral +

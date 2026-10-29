@@ -24,12 +24,14 @@ private class CuentaGranariaVarietalDebitServiceTest {
     variedadA = new Variedad__c(
       Name = 'CATALPA',
       Cultivo__c = cultivo.Id,
-      Biotecnologia__c = 'Convencional'
+      Biotecnologia__c = 'Convencional',
+      Uso_Comercial_Dureza__c = 'PAN'
     );
     variedadB = new Variedad__c(
       Name = 'TIPANA',
       Cultivo__c = cultivo.Id,
-      Biotecnologia__c = 'Convencional'
+      Biotecnologia__c = 'Convencional',
+      Uso_Comercial_Dureza__c = 'PAN'
     );
     insert new List<Variedad__c>{ variedadA, variedadB };
 

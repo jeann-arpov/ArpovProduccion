@@ -68,6 +68,9 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
       cultivoPorNombre.put(c.Name, c.Id);
     }
 
+    List<Movimiento_BolsaTech__c> aProcesado = new List<Movimiento_BolsaTech__c>();
+    List<Movimiento_BolsaTech__c> aConError = new List<Movimiento_BolsaTech__c>();
+
     for (Movimiento_BolsaTech__c m : movimientos) {
       Id cultivoId = cultivoPorNombre.get(m.Cultivo__c);
       Id productorId = m.Titular__c;
@@ -101,11 +104,24 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
         lineasVarietal,
         m.Id
       );
-      if (r.exitoso) {
+      if (r.exitoso || r.sinDebito) {
+        aProcesado.add(
+          new Movimiento_BolsaTech__c(Id = m.Id, Estado__c = 'Procesado')
+        );
         camionesProcesados++;
       } else {
+        aConError.add(
+          new Movimiento_BolsaTech__c(Id = m.Id, Estado__c = 'Con error')
+        );
         errores++;
       }
+    }
+
+    if (!aProcesado.isEmpty()) {
+      Database.update(aProcesado, false);
+    }
+    if (!aConError.isEmpty()) {
+      Database.update(aConError, false);
     }
 
     // Abrir/cerrar expedientes de las variedades afectadas

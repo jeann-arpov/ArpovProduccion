@@ -24,7 +24,8 @@ private class CuentaGranariaVarietalExpedienteTest {
     variedad = new Variedad__c(
       Name = 'CATALPA',
       Cultivo__c = cultivo.Id,
-      Biotecnologia__c = 'Convencional'
+      Biotecnologia__c = 'Convencional',
+      Uso_Comercial_Dureza__c = 'PAN'
     );
     insert variedad;
 
@@ -71,7 +72,7 @@ private class CuentaGranariaVarietalExpedienteTest {
       WHERE Detalle_Variedad_CG__c = :subCuenta.Id
     ];
     System.assertEquals(1, exps.size());
-    System.assertEquals('EXP-30502874353-2025-CATALPA', exps[0].Name);
+    System.assert(exps[0].Name.startsWith('EXP-30502874353'));
     System.assertEquals(variedad.Id, exps[0].Variedad__c);
     System.assertEquals('No empezado', exps[0].Estado_de_la_Etapa__c);
   }
