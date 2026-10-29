@@ -67,11 +67,12 @@ private class ActualizarCGVarietalBatchTest {
     Test.stopTest();
 
     Movimiento_BolsaTech__c procesado = [
-      SELECT Estado__c
+      SELECT Estado__c, Cuenta_Granaria__c
       FROM Movimiento_BolsaTech__c
       WHERE Id = :mbt.Id
     ];
     System.assertEquals('Procesado', procesado.Estado__c);
+    System.assertNotEquals(null, procesado.Cuenta_Granaria__c);
 
     List<Tonelada__c> debitos = [
       SELECT Id

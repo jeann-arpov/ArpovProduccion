@@ -11,6 +11,12 @@
 
     <fieldPermissions>
         <editable>true</editable>
+        <field>Movimiento_BolsaTech__c.Cuenta_Granaria__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Detalle_Variedad_MBT__c.Porcentaje_Varietal__c</field>
         <readable>true</readable>
     </fieldPermissions>

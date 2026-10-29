@@ -106,7 +106,11 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
       );
       if (r.exitoso || r.sinDebito) {
         aProcesado.add(
-          new Movimiento_BolsaTech__c(Id = m.Id, Estado__c = 'Procesado')
+          new Movimiento_BolsaTech__c(
+            Id = m.Id,
+            Estado__c = 'Procesado',
+            Cuenta_Granaria__c = r.cgId
+          )
         );
         camionesProcesados++;
       } else {
