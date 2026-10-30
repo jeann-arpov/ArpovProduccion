@@ -29,26 +29,9 @@ public with sharing class CuentaGranariaVarietalController {
       return new List<VariedadResumen>();
     }
 
-    List<Cuenta_Granaria__c> cgs = [
-      SELECT Id
-      FROM Cuenta_Granaria__c
-      WHERE
-        Productor__c = :productorId
-        AND Cultivo__c = :cultivoId
-        AND Campania__c = :campanaId
-        AND Tecnologia__c = :tecnologia
-      LIMIT 1
-    ];
-    if (cgs.isEmpty()) {
-      return new List<VariedadResumen>();
-    }
-
-    // Crédito (tonelada positiva) y débito (tonelada negativa) por variedad.
-    // La unión entrega + Compra HT sale de las propias toneladas:
-    //  - solo negativa  -> débito (Debe regularizar)
-    //  - solo positiva  -> crédito (Sin entregas)
-    //  - ambas          -> saldo neto
     Map<Id, VariedadResumen> porVariedad = new Map<Id, VariedadResumen>();
+
+    // 1. Crédito (Compra HT): toneladas positivas ligadas a productor + cultivo + campaña
     for (Tonelada__c tn : [
       SELECT
         Variedad__c,
@@ -59,31 +42,47 @@ public with sharing class CuentaGranariaVarietalController {
         Cantidad_con_Signo__c
       FROM Tonelada__c
       WHERE
-        Cuenta_Granaria__c = :cgs[0].Id
+        Productor__c = :productorId
+        AND Cultivo__c = :cultivoId
+        AND Campania__c = :campanaId
+        AND Origen__c = 'Compra HT'
         AND Variedad__c != NULL
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c != 'Balance Anual'
     ]) {
-      VariedadResumen r = porVariedad.containsKey(tn.Variedad__c)
-        ? porVariedad.get(tn.Variedad__c)
-        : nuevoResumen(
-            tn.Variedad__c,
-            tn.Variedad__r.Name,
-            tn.Variedad__r.Obtentor_Comercializa__c,
-            tn.Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
-            tn.Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c
-          );
-      Decimal qty = tn.Cantidad_con_Signo__c != null
-        ? tn.Cantidad_con_Signo__c
-        : 0;
-      if (qty > 0) {
-        r.credito += qty;
-      } else if (qty < 0) {
-        r.debito += qty;
+      agregarTonelada(porVariedad, tn);
+    }
+
+    // 2. Débito (entrega): toneladas ligadas a la Cuenta Granaria
+    List<Cuenta_Granaria__c> cgs = [
+      SELECT Id
+      FROM Cuenta_Granaria__c
+      WHERE
+        Productor__c = :productorId
+        AND Cultivo__c = :cultivoId
+        AND Campania__c = :campanaId
+        AND Tecnologia__c = :tecnologia
+      LIMIT 1
+    ];
+    if (!cgs.isEmpty()) {
+      for (Tonelada__c tn : [
+        SELECT
+          Variedad__c,
+          Variedad__r.Name,
+          Variedad__r.Obtentor_Comercializa__c,
+          Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+          Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
+          Cantidad_con_Signo__c
+        FROM Tonelada__c
+        WHERE
+          Cuenta_Granaria__c = :cgs[0].Id
+          AND Variedad__c != NULL
+          AND Fecha_Inicio__c <= TODAY
+          AND Etapa__c != 'Pendiente'
+          AND Origen__c != 'Balance Anual'
+      ]) {
+        agregarTonelada(porVariedad, tn);
       }
-      r.saldo += qty;
-      porVariedad.put(tn.Variedad__c, r);
     }
 
     List<VariedadResumen> resultado = new List<VariedadResumen>(
@@ -91,6 +90,31 @@ public with sharing class CuentaGranariaVarietalController {
     );
     resultado.sort(new VariedadResumenComparator());
     return resultado;
+  }
+
+  private static void agregarTonelada(
+    Map<Id, VariedadResumen> porVariedad,
+    Tonelada__c tn
+  ) {
+    VariedadResumen r = porVariedad.containsKey(tn.Variedad__c)
+      ? porVariedad.get(tn.Variedad__c)
+      : nuevoResumen(
+          tn.Variedad__c,
+          tn.Variedad__r.Name,
+          tn.Variedad__r.Obtentor_Comercializa__c,
+          tn.Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+          tn.Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c
+        );
+    Decimal qty = tn.Cantidad_con_Signo__c != null
+      ? tn.Cantidad_con_Signo__c
+      : 0;
+    if (qty > 0) {
+      r.credito += qty;
+    } else if (qty < 0) {
+      r.debito += qty;
+    }
+    r.saldo += qty;
+    porVariedad.put(tn.Variedad__c, r);
   }
 
   private static VariedadResumen nuevoResumen(
