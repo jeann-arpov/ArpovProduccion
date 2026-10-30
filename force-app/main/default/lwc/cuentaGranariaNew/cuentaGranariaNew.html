@@ -418,6 +418,7 @@
                   ></lightning-formatted-number
                   >&nbsp;tn
                 </span>
+                <span class={v.estadoClass}>{v.estado}</span>
               </article>
             </template>
           </div>
@@ -431,6 +432,7 @@
                   <th class="cg-cell-r">Crédito</th>
                   <th class="cg-cell-r">Débito</th>
                   <th class="cg-cell-r">Saldo</th>
+                  <th>Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -461,6 +463,9 @@
                         format-style="decimal"
                         maximum-fraction-digits="3"
                       ></lightning-formatted-number>
+                    </td>
+                    <td>
+                      <span class={v.estadoClass}>{v.estado}</span>
                     </td>
                   </tr>
                 </template>

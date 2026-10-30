@@ -1227,3 +1227,27 @@
     grid-template-columns: 1fr;
   }
 }
+
+.cg-estado {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cg-estado-debe {
+  background-color: #fef3e2;
+  color: #c23934;
+}
+
+.cg-estado-regla {
+  background-color: #e3f5e9;
+  color: #027e46;
+}
+
+.cg-estado-sin {
+  background-color: #f3f3f3;
+  color: #706e6b;
+}

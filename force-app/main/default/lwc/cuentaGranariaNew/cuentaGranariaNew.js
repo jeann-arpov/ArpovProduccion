@@ -889,8 +889,22 @@ export default class CuentaGranariaNew extends LightningElement {
       .filter((v) => this.marcasSeleccionadas.includes(v.semilleroNombre))
       .map((v) => ({
         ...v,
-        saldoClass: "cg-var-saldo" + (Number(v.saldo) < 0 ? " is-neg" : "")
+        saldoClass: "cg-var-saldo" + (Number(v.saldo) < 0 ? " is-neg" : ""),
+        estadoClass: this.estadoClass(v.estado)
       }));
+  }
+
+  estadoClass(estado) {
+    switch (estado) {
+      case "Debe regularizar":
+        return "cg-estado cg-estado-debe";
+      case "En regla":
+        return "cg-estado cg-estado-regla";
+      case "Sin entregas":
+        return "cg-estado cg-estado-sin";
+      default:
+        return "cg-estado";
+    }
   }
 
   cargarVarietal() {

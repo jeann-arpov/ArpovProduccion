@@ -16,6 +16,8 @@ public with sharing class CuentaGranariaVarietalController {
     public Decimal debito;
     @AuraEnabled
     public Decimal saldo;
+    @AuraEnabled
+    public String estado;
   }
 
   @AuraEnabled(cacheable=true)
@@ -88,8 +90,25 @@ public with sharing class CuentaGranariaVarietalController {
     List<VariedadResumen> resultado = new List<VariedadResumen>(
       porVariedad.values()
     );
+    for (VariedadResumen r : resultado) {
+      r.estado = calcularEstado(r.credito, r.debito, r.saldo);
+    }
     resultado.sort(new VariedadResumenComparator());
     return resultado;
+  }
+
+  private static String calcularEstado(
+    Decimal credito,
+    Decimal debito,
+    Decimal saldo
+  ) {
+    if (credito > 0 && debito == 0) {
+      return 'Sin entregas';
+    }
+    if (saldo < 0) {
+      return 'Debe regularizar';
+    }
+    return 'En regla';
   }
 
   private static void agregarTonelada(
