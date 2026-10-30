@@ -43,6 +43,7 @@ public with sharing class CuentaGranariaVarietalController {
       return new List<VariedadResumen>();
     }
 
+    Decimal umbral = obtenerUmbral();
     List<Detalle_Variedad_CG__c> detalles = [
       SELECT
         Id,
@@ -51,9 +52,12 @@ public with sharing class CuentaGranariaVarietalController {
         Variedad__r.Obtentor_Comercializa__c,
         Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
         Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
-        Saldo_Variedad__c
+        Saldo_Variedad__c,
+        Porcentaje_Varietal__c
       FROM Detalle_Variedad_CG__c
-      WHERE Cuenta_Granaria__c = :cgs[0].Id
+      WHERE
+        Cuenta_Granaria__c = :cgs[0].Id
+        AND Porcentaje_Varietal__c >= :umbral
       ORDER BY
         Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
         Variedad__r.Name
@@ -107,5 +111,14 @@ public with sharing class CuentaGranariaVarietalController {
       resultado.add(r);
     }
     return resultado;
+  }
+
+  private static Decimal obtenerUmbral() {
+    List<Configuracion_Varietal__mdt> cfgs = Configuracion_Varietal__mdt.getAll()
+      .values();
+    if (cfgs.isEmpty() || cfgs[0].Umbral_Presencia__c == null) {
+      return 10;
+    }
+    return cfgs[0].Umbral_Presencia__c;
   }
 }

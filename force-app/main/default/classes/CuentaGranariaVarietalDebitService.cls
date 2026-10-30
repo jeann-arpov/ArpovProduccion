@@ -2,7 +2,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
   private static final String TECNOLOGIA_TRIGO = 'RR1/RR2 - BT/Convencional';
   private static final String BIOTECNOLOGIA_TRIGO = 'Convencional';
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
-  private static final Decimal UMBRAL_DEFAULT = 80;
+  private static final Decimal UMBRAL_DEFAULT = 10;
 
   public class LineaVarietal {
     public Id variedadId;
