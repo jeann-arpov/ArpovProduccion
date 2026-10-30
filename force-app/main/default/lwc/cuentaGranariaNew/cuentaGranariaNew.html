@@ -386,13 +386,13 @@
           Elegí la marca para ver el saldo de cada variedad.
         </p>
 
-        <div class="cg-plat-grid" role="radiogroup" aria-label="Marca">
+        <div class="cg-plat-grid" role="group" aria-label="Marca">
           <template for:each={decoratedSemilleros} for:item="s">
             <button
               key={s.nombre}
               type="button"
               class={s.cssClass}
-              role="radio"
+              role="checkbox"
               aria-checked={s.ariaChecked}
               data-nombre={s.nombre}
               onclick={handleSelectSemillero}
@@ -403,7 +403,7 @@
           </template>
         </div>
 
-        <template if:true={semilleroSeleccionado}>
+        <template if:true={marcasSeleccionadas.length}>
           <div class="cg-var-grid">
             <template for:each={variedadesFiltradas} for:item="v">
               <article key={v.variedadId} class="cg-var-card">

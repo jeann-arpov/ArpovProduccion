@@ -27,7 +27,7 @@ export default class CuentaGranariaNew extends LightningElement {
 
   // ====== VARIETAL (trigo) ======
   varietalData;
-  semilleroSeleccionado;
+  marcasSeleccionadas = [];
 
   // ====== CAMPAÑAS ======
   campanas; // lista de campañas disponibles para el cultivo seleccionado
@@ -874,17 +874,19 @@ export default class CuentaGranariaNew extends LightningElement {
   get decoratedSemilleros() {
     return this.semilleros.map((s) => ({
       ...s,
-      ariaChecked: this.semilleroSeleccionado === s.nombre ? "true" : "false",
+      ariaChecked: this.marcasSeleccionadas.includes(s.nombre)
+        ? "true"
+        : "false",
       cssClass:
         "cg-plat-opt" +
-        (this.semilleroSeleccionado === s.nombre ? " is-selected" : "")
+        (this.marcasSeleccionadas.includes(s.nombre) ? " is-selected" : "")
     }));
   }
 
   get variedadesFiltradas() {
-    if (!this.semilleroSeleccionado) return [];
+    if (!this.marcasSeleccionadas.length) return [];
     return (this.varietalData || [])
-      .filter((v) => v.semilleroNombre === this.semilleroSeleccionado)
+      .filter((v) => this.marcasSeleccionadas.includes(v.semilleroNombre))
       .map((v) => ({
         ...v,
         saldoClass: "cg-var-saldo" + (Number(v.saldo) < 0 ? " is-neg" : "")
@@ -905,18 +907,21 @@ export default class CuentaGranariaNew extends LightningElement {
         campanaId: this.campanaSeleccionada,
         tecnologia: this.biotecnologia
       });
-      if (
-        this.varietalData &&
-        this.varietalData.length &&
-        !this.semilleroSeleccionado
-      ) {
-        this.semilleroSeleccionado = this.semilleros[0].nombre;
+      if (this.varietalData && this.varietalData.length) {
+        this.marcasSeleccionadas = this.semilleros.map((s) => s.nombre);
       }
     });
   }
 
   handleSelectSemillero(event) {
-    this.semilleroSeleccionado = event.currentTarget.dataset.nombre;
+    const nombre = event.currentTarget.dataset.nombre;
+    if (this.marcasSeleccionadas.includes(nombre)) {
+      this.marcasSeleccionadas = this.marcasSeleccionadas.filter(
+        (n) => n !== nombre
+      );
+    } else {
+      this.marcasSeleccionadas = [...this.marcasSeleccionadas, nombre];
+    }
   }
 
   handleComprarHTVariedad(event) {
