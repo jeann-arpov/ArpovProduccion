@@ -1,16 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>59.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>Al crear  un expediente de negativos, se actualiza el nombre a EXP + Cuit de la cuenta + Autonumber.
+    <description
+  >Al crear  un expediente de negativos, se actualiza el nombre a EXP + Cuit de la cuenta + Autonumber.
 Se Agrega Validacion de si es usuario Enlist</description>
     <environments>Default</environments>
     <formulas>
         <name>forNombre</name>
         <dataType>String</dataType>
-        <expression>&apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; {!$Record.Autonumeric__c}</expression>
+        <expression
+    >IF(NOT(ISBLANK({!$Record.Detalle_Variedad_CG__c})), &apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; {!$Record.Campania__r.Ano__c} &amp; &apos;-&apos; &amp; {!$Record.Variedad__r.Name}, &apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; {!$Record.Autonumeric__c})</expression>
     </formulas>
-    <interviewLabel>ExpDeNeg - Actualizar Nombre {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >ExpDeNeg - Actualizar Nombre {!$Flow.CurrentDateTime}</interviewLabel>
     <label>ExpDeNeg - Actualizar Nombre</label>
     <processMetadataValues>
         <name>BuilderType</name>
