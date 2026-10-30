@@ -29,42 +29,6 @@ public with sharing class CuentaGranariaVarietalController {
       return new List<VariedadResumen>();
     }
 
-    Decimal umbral = obtenerUmbral();
-    Map<Id, VariedadResumen> unionPorVariedad = new Map<Id, VariedadResumen>();
-
-    // 1. Compra HT (crédito en toneladas disponibles)
-    for (Hectareas_Tecnologicas__c ht : [
-      SELECT
-        Variedad__c,
-        Variedad__r.Name,
-        Variedad__r.Obtentor_Comercializa__c,
-        Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
-        Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
-        Toneladas__c
-      FROM Hectareas_Tecnologicas__c
-      WHERE
-        Productor__c = :productorId
-        AND Cultivo__c = :cultivoId
-        AND Campania__c = :campanaId
-        AND Origen__c = 'Compra HT'
-        AND Variedad__c != NULL
-    ]) {
-      VariedadResumen r = unionPorVariedad.containsKey(ht.Variedad__c)
-        ? unionPorVariedad.get(ht.Variedad__c)
-        : nuevoResumen(
-            ht.Variedad__c,
-            ht.Variedad__r.Name,
-            ht.Variedad__r.Obtentor_Comercializa__c,
-            ht.Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
-            ht.Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c
-          );
-      Decimal tn = ht.Toneladas__c != null ? ht.Toneladas__c : 0;
-      r.credito += tn;
-      r.saldo += tn;
-      unionPorVariedad.put(ht.Variedad__c, r);
-    }
-
-    // 2. Sub-cuentas (entregas) — merge
     List<Cuenta_Granaria__c> cgs = [
       SELECT Id
       FROM Cuenta_Granaria__c
@@ -75,73 +39,55 @@ public with sharing class CuentaGranariaVarietalController {
         AND Tecnologia__c = :tecnologia
       LIMIT 1
     ];
-    if (!cgs.isEmpty()) {
-      List<Detalle_Variedad_CG__c> detalles = [
-        SELECT
-          Variedad__c,
-          Variedad__r.Name,
-          Variedad__r.Obtentor_Comercializa__c,
-          Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
-          Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
-          Saldo_Variedad__c
-        FROM Detalle_Variedad_CG__c
-        WHERE
-          Cuenta_Granaria__c = :cgs[0].Id
-          AND Porcentaje_Varietal__c >= :umbral
-      ];
+    if (cgs.isEmpty()) {
+      return new List<VariedadResumen>();
+    }
 
-      if (!detalles.isEmpty()) {
-        Set<Id> variedadIds = new Set<Id>();
-        for (Detalle_Variedad_CG__c d : detalles) {
-          variedadIds.add(d.Variedad__c);
-        }
-
-        Map<Id, Decimal> creditoPorVariedad = new Map<Id, Decimal>();
-        Map<Id, Decimal> debitoPorVariedad = new Map<Id, Decimal>();
-        for (Id vId : variedadIds) {
-          creditoPorVariedad.put(vId, 0);
-          debitoPorVariedad.put(vId, 0);
-        }
-        for (AggregateResult ar : [
-          SELECT Variedad__c v, SUM(Cantidad_con_Signo__c) total
-          FROM Tonelada__c
-          WHERE
-            Cuenta_Granaria__c = :cgs[0].Id
-            AND Variedad__c IN :variedadIds
-            AND Fecha_Inicio__c <= TODAY
-            AND Etapa__c != 'Pendiente'
-            AND Origen__c != 'Balance Anual'
-          GROUP BY Variedad__c
-        ]) {
-          Id vId = (Id) ar.get('v');
-          Decimal total = (Decimal) ar.get('total');
-          if (total > 0) {
-            creditoPorVariedad.put(vId, total);
-          } else if (total < 0) {
-            debitoPorVariedad.put(vId, total);
-          }
-        }
-
-        for (Detalle_Variedad_CG__c d : detalles) {
-          VariedadResumen r = unionPorVariedad.containsKey(d.Variedad__c)
-            ? unionPorVariedad.get(d.Variedad__c)
-            : nuevoResumen(
-                d.Variedad__c,
-                d.Variedad__r.Name,
-                d.Variedad__r.Obtentor_Comercializa__c,
-                d.Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
-                d.Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c
-              );
-          r.credito += creditoPorVariedad.get(d.Variedad__c);
-          r.debito = debitoPorVariedad.get(d.Variedad__c);
-          r.saldo += d.Saldo_Variedad__c != null ? d.Saldo_Variedad__c : 0;
-          unionPorVariedad.put(d.Variedad__c, r);
-        }
+    // Crédito (tonelada positiva) y débito (tonelada negativa) por variedad.
+    // La unión entrega + Compra HT sale de las propias toneladas:
+    //  - solo negativa  -> débito (Debe regularizar)
+    //  - solo positiva  -> crédito (Sin entregas)
+    //  - ambas          -> saldo neto
+    Map<Id, VariedadResumen> porVariedad = new Map<Id, VariedadResumen>();
+    for (Tonelada__c tn : [
+      SELECT
+        Variedad__c,
+        Variedad__r.Name,
+        Variedad__r.Obtentor_Comercializa__c,
+        Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+        Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
+        Cantidad_con_Signo__c
+      FROM Tonelada__c
+      WHERE
+        Cuenta_Granaria__c = :cgs[0].Id
+        AND Variedad__c != NULL
+        AND Fecha_Inicio__c <= TODAY
+        AND Etapa__c != 'Pendiente'
+        AND Origen__c != 'Balance Anual'
+    ]) {
+      VariedadResumen r = porVariedad.containsKey(tn.Variedad__c)
+        ? porVariedad.get(tn.Variedad__c)
+        : nuevoResumen(
+            tn.Variedad__c,
+            tn.Variedad__r.Name,
+            tn.Variedad__r.Obtentor_Comercializa__c,
+            tn.Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+            tn.Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c
+          );
+      Decimal qty = tn.Cantidad_con_Signo__c != null
+        ? tn.Cantidad_con_Signo__c
+        : 0;
+      if (qty > 0) {
+        r.credito += qty;
+      } else if (qty < 0) {
+        r.debito += qty;
       }
+      r.saldo += qty;
+      porVariedad.put(tn.Variedad__c, r);
     }
 
     List<VariedadResumen> resultado = new List<VariedadResumen>(
-      unionPorVariedad.values()
+      porVariedad.values()
     );
     resultado.sort(new VariedadResumenComparator());
     return resultado;
@@ -178,14 +124,5 @@ public with sharing class CuentaGranariaVarietalController {
       String varB = b.variedadNombre != null ? b.variedadNombre : '';
       return varA.compareTo(varB);
     }
-  }
-
-  private static Decimal obtenerUmbral() {
-    List<Configuracion_Varietal__mdt> cfgs = Configuracion_Varietal__mdt.getAll()
-      .values();
-    if (cfgs.isEmpty() || cfgs[0].Umbral_Presencia__c == null) {
-      return 10;
-    }
-    return cfgs[0].Umbral_Presencia__c;
   }
 }
