@@ -124,7 +124,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     private static Boolean esContactoGrabacionCompra() {
         if (contactoGrabacionCompra == null) {
             Id contactId = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
-            contactoGrabacionCompra = contactId == '003Qk00000t89WZIAY' || contactId == '003Qk00000t7qS1IAI' || contactId == '003Qk00000uVgE5IAK';
+            contactoGrabacionCompra = contactId == '003Qk00000t89WZIAY' || contactId == '003Qk00000t7qS1IAI' || contactId == '003Qk00000uVgE5IAK' || contactId == '003Qk00000vhKGaIAM';
         }
         return contactoGrabacionCompra;
     }
