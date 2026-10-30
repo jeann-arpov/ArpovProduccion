@@ -10,7 +10,7 @@ Se Agrega Validacion de si es usuario Enlist</description>
         <name>forNombre</name>
         <dataType>String</dataType>
         <expression
-    >IF(NOT(ISBLANK({!$Record.Detalle_Variedad_CG__c})), &apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; {!$Record.Campania__r.Ano__c} &amp; &apos;-&apos; &amp; {!$Record.Variedad__r.Name}, &apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; {!$Record.Autonumeric__c})</expression>
+    >IF(NOT(ISBLANK({!$Record.Detalle_Variedad_CG__c})), &apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; RIGHT({!$Record.Campania__r.Ano__c}, 2) &amp; &apos;-&apos; &amp; {!$Record.Variedad__r.Name}, &apos;EXP-&apos; &amp; {!$Record.Cuenta__r.N_CUIT__c} &amp; &apos;-&apos; &amp; {!$Record.Autonumeric__c})</expression>
     </formulas>
     <interviewLabel
   >ExpDeNeg - Actualizar Nombre {!$Flow.CurrentDateTime}</interviewLabel>
