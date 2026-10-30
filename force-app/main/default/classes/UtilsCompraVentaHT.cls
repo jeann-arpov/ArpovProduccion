@@ -79,6 +79,47 @@ public inherited sharing class UtilsCompraVentaHT {
         return options;
     }
 
+    public static final String MENSAJE_CANTIDAD_ENTERA = 'La cantidad de HT tiene que ser un número entero.';
+
+    public static void validarCantidadEntera(Decimal cantidad) {
+        if (cantidad != null && cantidad != cantidad.intValue()) {
+            AuraHandledException ex = new AuraHandledException(MENSAJE_CANTIDAD_ENTERA);
+            ex.setMessage(MENSAJE_CANTIDAD_ENTERA);
+            throw ex;
+        }
+    }
+
+    public static void rechazarCantidadDecimal(List<SObject> registros, List<SObject> anteriores, String campo) {
+        Map<Id, SObject> anterioresPorId = new Map<Id, SObject>();
+        if (anteriores != null) {
+            for (SObject anterior : anteriores) {
+                anterioresPorId.put(anterior.Id, anterior);
+            }
+        }
+        if (registros == null) {
+            return;
+        }
+        for (SObject registro : registros) {
+            if (debeRechazarCantidadDecimal(registro, anterioresPorId, campo)) {
+                registro.addError(campo, MENSAJE_CANTIDAD_ENTERA);
+            }
+        }
+    }
+
+    public static Boolean debeRechazarCantidadDecimal(SObject registro, Map<Id, SObject> anteriores, String campo) {
+        Decimal cantidad = (Decimal) registro.get(campo);
+        if (cantidad == null || cantidad == cantidad.intValue()) {
+            return false;
+        }
+        if (registro.Id != null && anteriores != null && anteriores.containsKey(registro.Id)) {
+            Decimal anterior = (Decimal) anteriores.get(registro.Id).get(campo);
+            if (anterior == cantidad) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static Set<Id> getVariedadesSreProductor(String productorId){
         Set<Id> variedadesSreIds = new Set<Id>();
         for(Variedad_SRE_por_Productor__c variedadSreProductor : [SELECT Variedad__c FROM Variedad_SRE_por_Productor__c WHERE Cuenta__c = :productorId]){

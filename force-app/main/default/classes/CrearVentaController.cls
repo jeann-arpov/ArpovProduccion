@@ -34,6 +34,10 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     String cultivoId,
     String productorId
   ) {
+    if (esContactoGrabacionVenta()) {
+      return getProductosGrabacion(cultivoId);
+    }
+
     Boolean isPortalObtentores =
       SolicitarLicencia.networkName == 'Sembrá Evolución Obtentor';
     List<Licencia__c> licences = !isPortalObtentores
@@ -66,6 +70,11 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       productorId
     );
 
+    if (esContactoGrabacionVenta()) {
+      obtentores.add(getAccount(null).Id);
+      variedadesSreIds.add('a6aQk0000008mQrIAI');
+    }
+
     if (isPortalObtentores) {
       obtentores.add(getAccount(null).Id);
       return getProductosPortalObtentor(
@@ -94,6 +103,62 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     }
 
     return entries;
+  }
+
+  private static Boolean esContactoGrabacionVenta() {
+    Id contactId = [
+      SELECT ContactId
+      FROM User
+      WHERE Id = :UserInfo.getUserId()
+    ].ContactId;
+    return contactId == '003Qk00000t89WZIAY' || contactId == '003Qk00000uVgE5IAK';
+  }
+
+  private static List<Account> cuentasGrabacion(String searchTerm) {
+    List<Account> cuentas = [
+      SELECT
+        RecordType.DeveloperName,
+        Name,
+        N_CUIT__c,
+        Owner.Name,
+        Operador_de_Cobranza__r.Name,
+        Provincia_Envio__c,
+        Phone
+      FROM Account
+      WHERE
+        Id IN (
+          '001Qk00000r3xrSIAQ',
+          '001Qk00000r457TIAQ',
+          '001Qk00000r4ZonIAE'
+        )
+      ORDER BY Name
+    ];
+    String needle = normalizarBusqueda(searchTerm);
+    if (String.isBlank(needle)) {
+      return cuentas;
+    }
+    List<Account> filtradas = new List<Account>();
+    for (Account cuenta : cuentas) {
+      String nombre = normalizarBusqueda(cuenta.Name);
+      String cuit = cuenta.N_CUIT__c == null ? '' : cuenta.N_CUIT__c;
+      if (nombre.contains(needle) || cuit.contains(needle)) {
+        filtradas.add(cuenta);
+      }
+    }
+    return filtradas;
+  }
+
+  private static String normalizarBusqueda(String value) {
+    if (String.isBlank(value)) {
+      return '';
+    }
+    String texto = value.toLowerCase();
+    texto = texto.replace('á', 'a');
+    texto = texto.replace('é', 'e');
+    texto = texto.replace('í', 'i');
+    texto = texto.replace('ó', 'o');
+    texto = texto.replace('ú', 'u');
+    return texto;
   }
 
   private static List<PricebookEntry> getProductosPortalComercio(
@@ -128,6 +193,46 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         AND Product2.Variedad2__r.Obtentor_Comercializa__r.Parent.N_CUIT__C != :cuitCorteva))
         AND (Product2.Variedad2__r.Sembra_Evolucion__c = TRUE
         OR Product2.Variedad2__c IN :variedadesSreIds)
+        AND Product2.Variedad2__c NOT IN (
+          'a6aQk0000008mQrIAI',
+          'a6aQk0000008qkbIAA',
+          'a6aQk0000008qmDIAQ'
+        )
+        AND UnitPrice != 0
+      ORDER BY Product2.Nombre_Comercial__c ASC
+    ];
+  }
+
+  private static List<PricebookEntry> getProductosGrabacion(String cultivoId) {
+    Set<Id> variedades = new Set<Id>{
+      'a6aQk0000008mQrIAI',
+      'a6aQk0000008qkbIAA',
+      'a6aQk0000008qmDIAQ'
+    };
+    Set<Id> obtentores = new Set<Id>{ '001Qk00000r4ZonIAE' };
+    return [
+      SELECT
+        Id,
+        UnitPrice,
+        Unit_Price__c,
+        Product2.Nombre_Comercial__c,
+        Product2.Unidad_De_Medida__c,
+        Product2.Tipo_de_Compra__c,
+        Product2.Variedad2__r.Cultivo__r.Name,
+        Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+        Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c,
+        Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c
+      FROM PricebookEntry
+      WHERE
+        Product2.IsActive = TRUE
+        AND Product2.Producto_Vigente__c = TRUE
+        AND Product2.Variedad2__r.Cultivo__c = :cultivoId
+        AND IsActive = TRUE
+        AND Pricebook2.IsActive = TRUE
+        AND Pricebook2.Name = 'Lista de Precios Sembrá Evolución'
+        AND (Product2.Variedad2__r.Obtentor_Comercializa__c IN :obtentores
+        OR Product2.Variedad2__r.Obtentor_Comercializa__r.ParentId IN :obtentores)
+        AND Product2.Variedad2__c IN :variedades
         AND UnitPrice != 0
       ORDER BY Product2.Nombre_Comercial__c ASC
     ];
@@ -162,12 +267,20 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         OR Product2.Variedad2__r.Obtentor_Comercializa__r.ParentId IN :obtentores)
         AND (Product2.Variedad2__r.Sembra_Evolucion__c = TRUE
         OR Product2.Variedad2__c IN :variedadesSreIds)
+        AND Product2.Variedad2__c NOT IN (
+          'a6aQk0000008mQrIAI',
+          'a6aQk0000008qkbIAA',
+          'a6aQk0000008qmDIAQ'
+        )
         AND UnitPrice != 0
       ORDER BY Product2.Nombre_Comercial__c ASC
     ];
   }
 
   private static Licencia__c getLicence(Account obtentor, Id productorId) {
+    if (esContactoGrabacionVenta()) {
+      productorId = '001Qk00000r3xrSIAQ';
+    }
     List<Id> accounts = new List<Id>{ obtentor.id };
     if (obtentor.ParentId != null)
       accounts.add(obtentor.ParentId);
@@ -527,6 +640,9 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       itemJson,
       Linea_de_Venta_HT__c.class
     );
+    if (String.isBlank(item.Id)) {
+      UtilsCompraVentaHT.validarCantidadEntera(item.Cantidad__c);
+    }
     Account obtentor = String.isBlank(ventaId)
       ? [
           SELECT
@@ -680,6 +796,9 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     String searchTerm,
     List<String> selectedIds
   ) {
+    if (esContactoGrabacionVenta()) {
+      return accountsToLookup(cuentasGrabacion(searchTerm));
+    }
     String safeTerm = String.escapeSingleQuotes(searchTerm);
     String normalizedCuitTerm = UtilsVentaHt.normalizeCuit(searchTerm);
     String cuitCondition = String.isNotBlank(normalizedCuitTerm)

@@ -1,4 +1,4 @@
-trigger tg_OpportunityLineItem on OpportunityLineItem (Before insert) {
+trigger tg_OpportunityLineItem on OpportunityLineItem (before insert, before update) {
 
      if(Trigger.isInsert && Trigger.isBefore){
         // Debo asignar el valor de la cotización actual de la moneda DOLAR
@@ -31,5 +31,17 @@ trigger tg_OpportunityLineItem on OpportunityLineItem (Before insert) {
                 item.addError('No se cargó el tipo de cambio para la fecha actual. Póngase en contacto con administración');
         }
     }
+
+    List<OpportunityLineItem> lineasHt = new List<OpportunityLineItem>();
+    for (OpportunityLineItem item : Trigger.new) {
+        if (item.Linea_de_Compra_HT__c != null) {
+            lineasHt.add(item);
+        }
+    }
+    UtilsCompraVentaHT.rechazarCantidadDecimal(
+        (List<SObject>) lineasHt,
+        Trigger.old == null ? null : (List<SObject>) Trigger.old,
+        'Quantity'
+    );
 
 }

@@ -1720,4 +1720,15 @@ public class CrearVentaControllerTest {
       'Disponible debe validar con SF de campaña anterior'
     );
   }
+
+  @isTest
+  static void saveItemRechazaCantidadDecimal() {
+    String info = JSON.serialize(new Map<String, Object>{ 'Cantidad__c' => 10.5 });
+    try {
+      CrearVentaController.saveItem(null, info, null, null);
+      System.assert(false, 'Debió rechazar la cantidad con decimales');
+    } catch (AuraHandledException ex) {
+      System.assertEquals(UtilsCompraVentaHT.MENSAJE_CANTIDAD_ENTERA, ex.getMessage());
+    }
+  }
 }
