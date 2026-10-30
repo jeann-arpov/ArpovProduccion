@@ -11,13 +11,14 @@ public with sharing class PPH_NotificacionService {
       return null;
     }
 
-    EmailTemplate template = getTemplate(templateDeveloperName);
-    if (template == null) {
-      return null;
-    }
-
     Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-    mail.setTemplateId(template.Id);
+    EmailTemplate template = getTemplate(templateDeveloperName);
+    if (template != null) {
+      mail.setTemplateId(template.Id);
+    } else {
+      mail.setSubject('Notificación PPH');
+      mail.setPlainTextBody('Se actualizó el estado de su adhesión al PPH.');
+    }
     mail.setWhatId(planId);
     mail.setTargetObjectId(contactId);
     mail.setTreatTargetObjectAsRecipient(false);

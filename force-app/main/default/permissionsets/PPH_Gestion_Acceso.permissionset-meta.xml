@@ -12,6 +12,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Case.Estado_Adhesion__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Plan_de_Siembra__c.Criterio_Alerta__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -28,6 +33,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Plan_de_Siembra__c.Fecha_Limite_Resolucion__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Plan_de_Siembra__c.Parametro_PPH_Descripcion__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Plan_de_Siembra__c.Productor_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
