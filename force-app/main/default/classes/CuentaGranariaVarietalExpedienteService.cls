@@ -14,6 +14,7 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
 
   public static Integer abrirExpedientesVarietales() {
     Set<Id> subCuentasConExpedienteActivo = obtenerSubCuentasConExpedienteActivo();
+    Decimal umbral = obtenerUmbralExpediente();
 
     List<Expediente_de_Negativos__c> expedientes = new List<Expediente_de_Negativos__c>();
     for (Detalle_Variedad_CG__c sc : [
@@ -28,7 +29,7 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
         Cuenta_Granaria__r.Productor__r.N_CUIT__c,
         Cuenta_Granaria__r.Campania__r.Ano__c
       FROM Detalle_Variedad_CG__c
-      WHERE Saldo_Variedad__c < 0
+      WHERE Saldo_Variedad__c < :umbral
     ]) {
       if (subCuentasConExpedienteActivo.contains(sc.Id)) {
         continue;
@@ -65,6 +66,7 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
   }
 
   public static Integer cerrarExpedientesRegularizados() {
+    Decimal umbral = obtenerUmbralExpediente();
     List<Expediente_de_Negativos__c> aCerrar = new List<Expediente_de_Negativos__c>();
     for (Expediente_de_Negativos__c exp : [
       SELECT
@@ -77,7 +79,7 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
         AND Estado_de_la_Etapa__c NOT IN ('Finalizado', 'Vencido')
     ]) {
       Decimal saldo = exp.Detalle_Variedad_CG__r.Saldo_Variedad__c;
-      if (saldo != null && saldo >= 0) {
+      if (saldo != null && saldo >= umbral) {
         aCerrar.add(
           new Expediente_de_Negativos__c(
             Id = exp.Id,
@@ -113,6 +115,15 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
       ids.add(exp.Detalle_Variedad_CG__c);
     }
     return ids;
+  }
+
+  private static Decimal obtenerUmbralExpediente() {
+    List<Configuracion_Varietal__mdt> cfgs = Configuracion_Varietal__mdt.getAll()
+      .values();
+    if (cfgs.isEmpty() || cfgs[0].Umbral_Apertura_Expediente__c == null) {
+      return -4;
+    }
+    return cfgs[0].Umbral_Apertura_Expediente__c;
   }
 
   private static String construirNombre(Detalle_Variedad_CG__c sc) {
