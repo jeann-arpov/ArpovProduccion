@@ -403,6 +403,24 @@
           </template>
         </div>
 
+        <template if:true={cantidadVariedadesRegularizar}>
+          <div class="cg-reg-summary">
+            <span class="cg-reg-summary-text">
+              {cantidadVariedadesRegularizar} variedades a regularizar
+            </span>
+            <span class="cg-reg-summary-tn">
+              <lightning-formatted-number
+                value={toneladasARegularizar}
+                locale="es-AR"
+                format-style="decimal"
+                minimum-fraction-digits="0"
+                maximum-fraction-digits="3"
+              ></lightning-formatted-number
+              >&nbsp;tn
+            </span>
+          </div>
+        </template>
+
         <template if:true={marcasSeleccionadas.length}>
           <div class="cg-var-grid">
             <template for:each={variedadesFiltradas} for:item="v">

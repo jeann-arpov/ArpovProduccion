@@ -1251,3 +1251,26 @@
   background-color: #f3f3f3;
   color: #706e6b;
 }
+
+.cg-reg-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background-color: #fef3e2;
+  border-left: 4px solid #ff8a3d;
+  border-radius: 4px;
+}
+
+.cg-reg-summary-text {
+  font-weight: 600;
+  color: #c23934;
+}
+
+.cg-reg-summary-tn {
+  font-weight: 700;
+  color: #c23934;
+  white-space: nowrap;
+}

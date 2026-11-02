@@ -90,25 +90,35 @@ public with sharing class CuentaGranariaVarietalController {
     List<VariedadResumen> resultado = new List<VariedadResumen>(
       porVariedad.values()
     );
+    Decimal umbral = obtenerUmbralExpediente();
     for (VariedadResumen r : resultado) {
-      r.estado = calcularEstado(r.credito, r.debito, r.saldo);
+      r.estado = calcularEstado(r.debito, r.saldo, umbral);
     }
     resultado.sort(new VariedadResumenComparator());
     return resultado;
   }
 
   private static String calcularEstado(
-    Decimal credito,
     Decimal debito,
-    Decimal saldo
+    Decimal saldo,
+    Decimal umbral
   ) {
-    if (credito > 0 && debito == 0) {
-      return 'Sin entregas';
-    }
-    if (saldo < 0) {
+    if (saldo < umbral) {
       return 'Debe regularizar';
     }
+    if (debito == 0) {
+      return 'Sin entregas';
+    }
     return 'En regla';
+  }
+
+  private static Decimal obtenerUmbralExpediente() {
+    List<Configuracion_Varietal__mdt> cfgs = Configuracion_Varietal__mdt.getAll()
+      .values();
+    if (cfgs.isEmpty() || cfgs[0].Umbral_Apertura_Expediente__c == null) {
+      return -4;
+    }
+    return cfgs[0].Umbral_Apertura_Expediente__c;
   }
 
   private static void agregarTonelada(

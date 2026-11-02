@@ -907,6 +907,23 @@ export default class CuentaGranariaNew extends LightningElement {
     }
   }
 
+  get variedadesDebeRegularizar() {
+    return (this.varietalData || []).filter(
+      (v) => v.estado === "Debe regularizar"
+    );
+  }
+
+  get cantidadVariedadesRegularizar() {
+    return this.variedadesDebeRegularizar.length;
+  }
+
+  get toneladasARegularizar() {
+    return this.variedadesDebeRegularizar.reduce(
+      (total, v) => total + Math.abs(Number(v.saldo) || 0),
+      0
+    );
+  }
+
   cargarVarietal() {
     if (
       !this.esVarietal ||
