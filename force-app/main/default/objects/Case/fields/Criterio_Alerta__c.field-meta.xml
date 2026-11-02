@@ -11,26 +11,31 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>01 - Area declarada vs entregas</fullName>
+                <fullName>01 – Área declarada vs. entregas</fullName>
                 <default>false</default>
-                <label>01 - Area declarada vs entregas</label>
+                <label>01 – Área declarada vs. entregas</label>
             </value>
             <value>
-                <fullName>02 - Variacion vs adhesiones anteriores</fullName>
+                <fullName>02 – Variación vs. adhesiones anteriores</fullName>
                 <default>false</default>
-                <label>02 - Variacion vs adhesiones anteriores</label>
+                <label>02 – Variación vs. adhesiones anteriores</label>
             </value>
             <value>
-                <fullName>03 - Deuda o expedientes abiertos</fullName>
+                <fullName>03 – Deuda FCRE3</fullName>
                 <default>false</default>
-                <label>03 - Deuda o expedientes abiertos</label>
+                <label>03 – Deuda FCRE3</label>
             </value>
             <value>
-                <fullName>04 - Auditoria documental</fullName>
+                <fullName>04 – Expediente Abierto</fullName>
                 <default>false</default>
-                <label>04 - Auditoria documental</label>
+                <label>04 – Expediente Abierto</label>
+            </value>
+            <value>
+                <fullName>05 – Auditoría documental</fullName>
+                <default>false</default>
+                <label>05 – Auditoría documental</label>
             </value>
         </valueSetDefinition>
     </valueSet>
-    <visibleLines>4</visibleLines>
+    <visibleLines>5</visibleLines>
 </CustomField>
