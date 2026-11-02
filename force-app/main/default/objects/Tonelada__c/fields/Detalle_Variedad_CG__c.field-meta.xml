@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Detalle_Variedad_CG__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description
+  >Sub-cuenta varietal asociada al movimiento (débito varietal).</description>
+    <label>Detalle Variedad CG</label>
+    <referenceTo>Detalle_Variedad_CG__c</referenceTo>
+    <relationshipLabel>Toneladas Varietales</relationshipLabel>
+    <relationshipName>Toneladas_Detalle_Variedad</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

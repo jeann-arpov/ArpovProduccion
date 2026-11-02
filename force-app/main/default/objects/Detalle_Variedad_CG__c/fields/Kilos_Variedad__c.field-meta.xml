@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Kilos_Variedad__c</fullName>
+    <description
+  >Kilos imputables a la variedad (Peso Neto del camión × %).</description>
+    <inlineHelpText
+  >Kilos de la variedad calculados sobre el peso neto.</inlineHelpText>
+    <label>Kilos Variedad</label>
+    <precision>18</precision>
+    <scale>3</scale>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+</CustomField>

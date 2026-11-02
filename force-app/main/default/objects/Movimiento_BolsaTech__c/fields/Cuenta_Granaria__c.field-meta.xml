@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cuenta_Granaria__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description
+  >Cuenta granaria asociada a este movimiento BolsaTech. Se completa automáticamente durante el débito varietal.</description>
+    <inlineHelpText
+  >Cuenta granaria resuelta por Productor + Cultivo + Campaña + Tecnología.</inlineHelpText>
+    <label>Cuenta Granaria</label>
+    <referenceTo>Cuenta_Granaria__c</referenceTo>
+    <relationshipLabel
+  >Movimientos BolsaTech (Cuenta Granaria)</relationshipLabel>
+    <relationshipName>Movimientos_BolsaTech_CG</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

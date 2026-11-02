@@ -14,69 +14,98 @@
  *   (13:33 UTC = hora original del flow → ajustar según necesidad)
  */
 global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>, Schedulable {
+  // ── Schedulable ──────────────────────────────────────────────────────────
+  global void execute(SchedulableContext sc) {
+    // Batch size = 1: cada ejecución es su propia transacción,
+    // lo que evita conflictos de límites entre invocaciones de Flow.
+    Database.executeBatch(new MovBolsaTechDebitarTNsBatch(), 1);
+  }
 
-    // ── Schedulable ──────────────────────────────────────────────────────────
-    global void execute(SchedulableContext sc) {
-        // Batch size = 1: cada ejecución es su propia transacción,
-        // lo que evita conflictos de límites entre invocaciones de Flow.
-        Database.executeBatch(new MovBolsaTechDebitarTNsBatch(), 1);
+  // ── Batchable ────────────────────────────────────────────────────────────
+  global Database.QueryLocator start(Database.BatchableContext bc) {
+    if (Test.isRunningTest()) {
+      return Database.getQueryLocator(
+        [
+          SELECT
+            Id,
+            CUIT_Titular__c,
+            CTG__c,
+            Cultivo__c,
+            Tecnologia__c,
+            Peso_Neto__c
+          FROM Movimiento_BolsaTech__c
+        ]
+      );
     }
+    return Database.getQueryLocator(
+      [
+        SELECT
+          Id,
+          CUIT_Titular__c,
+          CTG__c,
+          Cultivo__c,
+          Tecnologia__c,
+          Peso_Neto__c
+        FROM Movimiento_BolsaTech__c
+        WHERE
+          Procesar__c = TRUE
+          AND No_Debitar__c = FALSE
+          AND TN_Id__c = NULL
+          AND Estado__c = 'A procesar'
+          AND Cultivo_Varietal__c = FALSE
+      ]
+    );
+  }
 
-    // ── Batchable ────────────────────────────────────────────────────────────
-    global Database.QueryLocator start(Database.BatchableContext bc) {
-        if (Test.isRunningTest()) {
-            return Database.getQueryLocator([
-                SELECT Id, CUIT_Titular__c, CTG__c, Cultivo__c, Tecnologia__c, Peso_Neto__c
-                FROM Movimiento_BolsaTech__c
-            ]);
-        }
-        return Database.getQueryLocator([
-            SELECT Id, CUIT_Titular__c, CTG__c, Cultivo__c, Tecnologia__c, Peso_Neto__c
-            FROM Movimiento_BolsaTech__c
-            WHERE Procesar__c = true
-              AND No_Debitar__c = false
-              AND TN_Id__c = null
-              AND Estado__c = 'A procesar'
-        ]);
+  global void execute(
+    Database.BatchableContext bc,
+    List<Movimiento_BolsaTech__c> scope
+  ) {
+    Movimiento_BolsaTech__c mov = scope[0];
+
+    // Buscar movimientos similares que ya tengan TNs debitadas
+    List<Movimiento_BolsaTech__c> similares = [
+      SELECT Id
+      FROM Movimiento_BolsaTech__c
+      WHERE
+        CUIT_Titular__c = :mov.CUIT_Titular__c
+        AND CTG__c = :mov.CTG__c
+        AND Cultivo__c = :mov.Cultivo__c
+        AND Tecnologia__c = :mov.Tecnologia__c
+        AND Peso_Neto__c = :mov.Peso_Neto__c
+        AND TN_Id__c != NULL
+        AND Id != :mov.Id
+      LIMIT 1
+    ];
+
+    // Solo debitar si NO hay movimientos similares ya procesados
+    if (similares.isEmpty()) {
+      try {
+        Map<String, Object> params = new Map<String, Object>{
+          'varMovBolsaTechId' => mov.Id
+        };
+        Flow.Interview.MovBolsaTech_Crear_Debito_de_TNs interview = new Flow.Interview.MovBolsaTech_Crear_Debito_de_TNs(
+          params
+        );
+        interview.start();
+      } catch (Exception e) {
+        System.debug(
+          'MovBolsaTechDebitarTNsBatch: error al invocar flow para movimiento ' +
+            mov.Id +
+            ' → ' +
+            e.getMessage()
+        );
+      }
+    } else {
+      System.debug(
+        'MovBolsaTechDebitarTNsBatch: movimiento ' +
+          mov.Id +
+          ' ignorado, ya existen similares con TNs debitadas.'
+      );
     }
+  }
 
-    global void execute(Database.BatchableContext bc, List<Movimiento_BolsaTech__c> scope) {
-        Movimiento_BolsaTech__c mov = scope[0];
-
-        // Buscar movimientos similares que ya tengan TNs debitadas
-        List<Movimiento_BolsaTech__c> similares = [
-            SELECT Id
-            FROM Movimiento_BolsaTech__c
-            WHERE CUIT_Titular__c = :mov.CUIT_Titular__c
-              AND CTG__c          = :mov.CTG__c
-              AND Cultivo__c      = :mov.Cultivo__c
-              AND Tecnologia__c   = :mov.Tecnologia__c
-              AND Peso_Neto__c    = :mov.Peso_Neto__c
-              AND TN_Id__c        != null
-              AND Id              != :mov.Id
-            LIMIT 1
-        ];
-
-        // Solo debitar si NO hay movimientos similares ya procesados
-        if (similares.isEmpty()) {
-            try {
-                Map<String, Object> params = new Map<String, Object>{
-                    'varMovBolsaTechId' => mov.Id
-                };
-                Flow.Interview.MovBolsaTech_Crear_Debito_de_TNs interview =
-                    new Flow.Interview.MovBolsaTech_Crear_Debito_de_TNs(params);
-                interview.start();
-            } catch (Exception e) {
-                System.debug('MovBolsaTechDebitarTNsBatch: error al invocar flow para movimiento '
-                    + mov.Id + ' → ' + e.getMessage());
-            }
-        } else {
-            System.debug('MovBolsaTechDebitarTNsBatch: movimiento ' + mov.Id +
-                         ' ignorado, ya existen similares con TNs debitadas.');
-        }
-    }
-
-    global void finish(Database.BatchableContext bc) {
-        System.debug('MovBolsaTechDebitarTNsBatch: proceso finalizado.');
-    }
+  global void finish(Database.BatchableContext bc) {
+    System.debug('MovBolsaTechDebitarTNsBatch: proceso finalizado.');
+  }
 }
