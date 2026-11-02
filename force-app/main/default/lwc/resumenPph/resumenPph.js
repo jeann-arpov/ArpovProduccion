@@ -4,6 +4,14 @@ const ESTADOS_CON_SALDO_PPH = ['En Revisión', 'Adherido', 'Vencido'];
 
 const fmt = (n) => new Intl.NumberFormat('es-AR').format(Number(n) || 0);
 
+// new Date("yyyy-mm-dd") es medianoche UTC; en Argentina eso es las 21:00 del día anterior.
+const parseLocalDate = (value) => {
+    if (!value) return null;
+    const [y, m, d] = String(value).substring(0, 10).split('-').map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
+};
+
 const sumVariedades = (est) =>
     Object.values(est.variedades || {})
         .map((v) => Number(v.cantidad) || 0)
@@ -114,11 +122,12 @@ export default class ResumenPph extends LightningElement {
     }
 
     isWithinWindow(params, n) {
-        const start = params[`Fecha_Inicio_Rectificacion_${n}__c`];
-        const end = params[`Fecha_Fin_Rectificacion_${n}__c`];
+        const start = parseLocalDate(params[`Fecha_Inicio_Rectificacion_${n}__c`]);
+        const end = parseLocalDate(params[`Fecha_Fin_Rectificacion_${n}__c`]);
         if (!start || !end) return false;
+        end.setHours(23, 59, 59, 999);
         const now = new Date();
-        return now >= new Date(start) && now <= new Date(end);
+        return now >= start && now <= end;
     }
 
     toggle(event) {
