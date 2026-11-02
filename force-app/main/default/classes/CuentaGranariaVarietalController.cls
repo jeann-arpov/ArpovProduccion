@@ -33,26 +33,25 @@ public with sharing class CuentaGranariaVarietalController {
 
     Map<Id, VariedadResumen> porVariedad = new Map<Id, VariedadResumen>();
 
-    // 1. Crédito (Compra HT): toneladas positivas ligadas a productor + cultivo + campaña
-    for (Tonelada__c tn : [
+    // 1. Crédito (Semilla Fiscalizada + Compra HT): toneladas positivas de las HT
+    for (Hectareas_Tecnologicas__c ht : [
       SELECT
         Variedad__c,
         Variedad__r.Name,
         Variedad__r.Obtentor_Comercializa__c,
         Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
         Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
-        Cantidad_con_Signo__c
-      FROM Tonelada__c
+        Toneladas__c
+      FROM Hectareas_Tecnologicas__c
       WHERE
         Productor__c = :productorId
         AND Cultivo__c = :cultivoId
         AND Campania__c = :campanaId
-        AND Origen__c = 'Compra HT'
+        AND Origen__c IN ('Compra SF', 'Compra HT')
+        AND Signo__c = 1
         AND Variedad__c != NULL
-        AND Fecha_Inicio__c <= TODAY
-        AND Etapa__c != 'Pendiente'
     ]) {
-      agregarTonelada(porVariedad, tn);
+      agregarCredito(porVariedad, ht);
     }
 
     // 2. Débito (entrega): toneladas ligadas a la Cuenta Granaria
@@ -96,6 +95,22 @@ public with sharing class CuentaGranariaVarietalController {
     }
     resultado.sort(new VariedadResumenComparator());
     return resultado;
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static List<CuentaGranariaVarietalCreditoService.CreditoVariedad> getCreditosPorVariedad(
+    String cultivoId,
+    String campanaId
+  ) {
+    Id productorId = CrearCompraController.getAccount().Id;
+    if (productorId == null) {
+      return new List<CuentaGranariaVarietalCreditoService.CreditoVariedad>();
+    }
+    return CuentaGranariaVarietalCreditoService.obtenerCreditos(
+      productorId,
+      cultivoId,
+      campanaId
+    );
   }
 
   private static String calcularEstado(
@@ -144,6 +159,25 @@ public with sharing class CuentaGranariaVarietalController {
     }
     r.saldo += qty;
     porVariedad.put(tn.Variedad__c, r);
+  }
+
+  private static void agregarCredito(
+    Map<Id, VariedadResumen> porVariedad,
+    Hectareas_Tecnologicas__c ht
+  ) {
+    VariedadResumen r = porVariedad.containsKey(ht.Variedad__c)
+      ? porVariedad.get(ht.Variedad__c)
+      : nuevoResumen(
+          ht.Variedad__c,
+          ht.Variedad__r.Name,
+          ht.Variedad__r.Obtentor_Comercializa__c,
+          ht.Variedad__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
+          ht.Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c
+        );
+    Decimal tn = ht.Toneladas__c != null ? ht.Toneladas__c : 0;
+    r.credito += tn;
+    r.saldo += tn;
+    porVariedad.put(ht.Variedad__c, r);
   }
 
   private static VariedadResumen nuevoResumen(

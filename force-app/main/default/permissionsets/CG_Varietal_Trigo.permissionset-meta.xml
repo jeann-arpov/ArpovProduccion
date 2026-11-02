@@ -51,6 +51,11 @@
         <field>Detalle_Variedad_CG__c.Clave_Varietal__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Detalle_Variedad_CG__c.Credito_Variedad__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 
     <fieldPermissions>
         <editable>true</editable>
