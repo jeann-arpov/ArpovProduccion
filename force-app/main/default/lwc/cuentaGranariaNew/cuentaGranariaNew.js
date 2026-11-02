@@ -909,7 +909,9 @@ export default class CuentaGranariaNew extends LightningElement {
 
   get variedadesDebeRegularizar() {
     return (this.varietalData || []).filter(
-      (v) => v.estado === "Debe regularizar"
+      (v) =>
+        v.estado === "Debe regularizar" &&
+        this.marcasSeleccionadas.includes(v.semilleroNombre)
     );
   }
 
