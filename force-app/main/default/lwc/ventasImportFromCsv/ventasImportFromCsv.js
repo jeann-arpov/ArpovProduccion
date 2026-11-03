@@ -196,15 +196,29 @@ export default class LwcCSVUploader extends LightningElement {
                 this.fileReader.readAsArrayBuffer(this.file);
                 
             }else {
-                var workbook = XLSX.read(new Uint8Array(this.fileReader.result), {
-                    type: 'array',
-                    cellText: true,
-                    cellNF: true
-                });
-                const sheetName = this.resolveImportSheetName(workbook);
-                const rawRows = this.parseSheetToRows(workbook.Sheets[sheetName]);
-                this.uploadFile(this.filterFilasDatosVentas(rawRows));
-              
+                try {
+                    const workbook = XLSX.read(new Uint8Array(this.fileReader.result), {
+                        type: 'array',
+                        cellText: true,
+                        cellNF: true
+                    });
+                    const sheetName = this.resolveImportSheetName(workbook);
+                    if (!sheetName) {
+                        this.rechazarNombreHoja(workbook);
+                        return;
+                    }
+                    const rawRows = this.parseSheetToRows(workbook.Sheets[sheetName]);
+                    this.uploadFile(this.filterFilasDatosVentas(rawRows));
+                } catch (error) {
+                    this.showLoadingSpinner = false;
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error al importar',
+                            message: 'No se pudo leer el archivo Excel.',
+                            variant: 'error'
+                        })
+                    );
+                }
             }
         });
 
@@ -214,7 +228,8 @@ export default class LwcCSVUploader extends LightningElement {
     
 
     /**
-     * Hoja de datos: CARGA (modelo nuevo), Planilla/Datos (legacy) o Pegar datos.
+     * Hoja de datos: CARGA. Planilla, Datos y Pegar datos siguen válidos en archivos viejos.
+     * Cualquier otro nombre (por ejemplo "wachi") no se importa.
      */
     resolveImportSheetName(workbook) {
         const names = workbook.SheetNames || [];
@@ -237,7 +252,23 @@ export default class LwcCSVUploader extends LightningElement {
                 return pegarName;
             }
         }
-        return names[0];
+        return null;
+    }
+
+    rechazarNombreHoja(workbook) {
+        this.showLoadingSpinner = false;
+        const names = (workbook.SheetNames || [])
+            .map((n) => String(n).trim())
+            .filter(Boolean);
+        const lista = names.length ? ` Se encontró: ${names.join(', ')}.` : '';
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error al importar',
+                message: `La pestaña de datos debe llamarse CARGA.${lista}`,
+                variant: 'error',
+                mode: 'sticky'
+            })
+        );
     }
 
     /**
