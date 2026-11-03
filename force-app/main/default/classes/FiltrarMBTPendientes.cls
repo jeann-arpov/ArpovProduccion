@@ -1,4 +1,4 @@
-public with sharing class FiltrarMBTPendientes {
+public without sharing class FiltrarMBTPendientes {
     
     public class Request {
         @InvocableVariable(required=true label='Expediente ID')

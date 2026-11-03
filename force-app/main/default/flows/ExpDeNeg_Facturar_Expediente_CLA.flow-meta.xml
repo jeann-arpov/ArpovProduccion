@@ -4,7 +4,7 @@
         <name>Relacionar_FCRE3_a_MBT</name>
         <label>Relacionar FCRE3 a MBT</label>
         <locationX>248</locationX>
-        <locationY>2280</locationY>
+        <locationY>2348</locationY>
         <actionName>RelacionarFacturaEnlistMbt</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -139,6 +139,9 @@
         <label>Es Continuar?</label>
         <locationX>1023</locationX>
         <locationY>1316</locationY>
+        <defaultConnector>
+            <targetReference>END_ELEMENT_5</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Cancelar</defaultConnectorLabel>
         <rules>
             <name>Continuar</name>
@@ -211,6 +214,9 @@
         <label>Expediente ya está facturado?</label>
         <locationX>677</locationX>
         <locationY>1424</locationY>
+        <defaultConnector>
+            <targetReference>END_ELEMENT_6</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Otro</defaultConnectorLabel>
         <rules>
             <name>No_esta_Facturado_ni_Cerrado</name>
@@ -282,6 +288,26 @@
             <label>Asignado</label>
         </rules>
     </decisions>
+    <ends>
+        <name>END_ELEMENT_5</name>
+        <locationX>1370</locationX>
+        <locationY>1424</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_6</name>
+        <locationX>1106</locationX>
+        <locationY>1532</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_7</name>
+        <locationX>248</locationX>
+        <locationY>2672</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_8</name>
+        <locationX>842</locationX>
+        <locationY>1640</locationY>
+    </ends>
     <environments>Default</environments>
     <formulas>
         <name>CTGs</name>
@@ -371,6 +397,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>CTGs_Involucrados__c</field>
+            <value>
+                <elementReference>CTGs</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Cantidad__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Saldo_Expediente__c</elementReference>
@@ -410,12 +442,6 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <field>Productor__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Cuenta__r.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CTGs_Involucrados_Largo__c</field>
-            <value>
-                <elementReference>CTGs</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -442,6 +468,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>CTGs_Involucrados__c</field>
+            <value>
+                <elementReference>CTGs</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Cantidad__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Saldo_Expediente__c</elementReference>
@@ -481,12 +513,6 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <field>Productor__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Cuenta__r.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CTGs_Involucrados_Largo__c</field>
-            <value>
-                <elementReference>CTGs</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -601,7 +627,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>Actualizar_expediente</name>
         <label>Actualizar expediente</label>
         <locationX>248</locationX>
-        <locationY>2348</locationY>
+        <locationY>2456</locationY>
         <connector>
             <targetReference>Facturado</targetReference>
         </connector>
@@ -627,6 +653,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         </inputAssignments>
         <inputAssignments>
             <field>Fecha_Cambio_Etapa__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Fecha_de_finalizacion__c</field>
             <value>
                 <elementReference>$Flow.CurrentDate</elementReference>
             </value>
@@ -703,10 +735,13 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>Facturado</name>
         <label>Facturado</label>
         <locationX>248</locationX>
-        <locationY>2456</locationY>
+        <locationY>2564</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_7</targetReference>
+        </connector>
         <fields>
             <name>MsgFacturado</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Se facturo el expediente {!Buscar_Expediente.Name}&lt;/strong&gt;&lt;/p&gt;</fieldText>
@@ -731,6 +766,9 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_8</targetReference>
+        </connector>
         <fields>
             <name>MsgYaFacturado</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente {!Buscar_Expediente.Name}  ya esta facturado.﻿&lt;/strong&gt;&lt;/p&gt;</fieldText>

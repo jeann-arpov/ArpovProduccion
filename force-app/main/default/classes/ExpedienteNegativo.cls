@@ -14,6 +14,18 @@ public without sharing class ExpedienteNegativo {
         ));
     }
 
+    @AuraEnabled(cacheable=true)
+    public static Boolean userCanFacturarSEC() {
+        Id userId = UserInfo.getUserId();
+        User u = [SELECT ContactId FROM User WHERE Id = :userId];
+        if (u.ContactId != null) {
+            Contact c = [SELECT FacturarSEC__c FROM Contact WHERE Id = :u.ContactId];
+            return c.FacturarSEC__c == true;
+        }
+        return false;
+    }
+    
+
     @AuraEnabled
     public static Expediente_de_Negativos__c getExpedienteNegativosById(String recordId){
         return [SELECT Id, Name, Saldo_Cuenta__c FROM Expediente_de_Negativos__c WHERE Id = :recordId];

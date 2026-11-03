@@ -20,6 +20,7 @@ private class GeneradorFacturasMBTApexTest {
 
     @testSetup
     static void setupData() {
+        Test_TestUtils.disableFlows();
         // 1. Crear Cuenta Obtentora usando el método con sufijo '30' (2 caracteres máx)
         Account accObtentor = crearObtentor('20444444445', '30');
 

@@ -1,4 +1,4 @@
-public with sharing class GeneradorFacturasMBTApex {
+public without sharing class GeneradorFacturasMBTApex {
     
     public class Request {
         @InvocableVariable(required=true label='MBTs Seleccionados')

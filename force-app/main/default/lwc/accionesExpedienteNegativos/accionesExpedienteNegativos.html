@@ -1,7 +1,17 @@
 <template>
     <div if:true={processing}><lightning-spinner alternative-text="Loading"></lightning-spinner></div>
-    <!-- <lightning-button label="Facturar Regalía Enlist" onclick={facturarRegaliaEnlist} lwc:if={expediente}></lightning-button> -->
+
+    <!-- Botón condicional para Facturar Expediente SEC -->
+    <lightning-button 
+        label="Facturar Expediente SEC" 
+        onclick={handleFacturarSecClick} 
+        lwc:if={canFacturarSEC}
+        class="slds-var-m-right_x-small">
+    </lightning-button>
+
     <lightning-button label="Cerrar Expediente" onclick={cerrarExpediente} lwc:if={expediente}></lightning-button>
+
+    <!-- Modal para Regalía Enlist -->
     <c-modal>
         <div class="slds-align_absolute-center slds-text-heading_small">
             Está seguro que desea continuar con la facturación de la regalía Enlist? Esta acción no puede deshacerse
@@ -11,4 +21,27 @@
             <lightning-button label="Continuar" onclick={confirmFacturarRegaliaEnlist}></lightning-button>
         </div>
     </c-modal>
+
+    <!-- Modal o sección para ejecutar el Flow ExpDeNeg_Facturar_SEC -->
+    <template if:true={showFlowModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Cerrar" onclick={closeFlowModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="cerrar" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Cerrar</span>
+                    </button>
+                    <h2 class="slds-modal__title slds-hyphenate">Facturar Expediente SEC</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-flow
+                        flow-api-name="ExpDeNeg_Facturar_SEC"
+                        flow-input-variables={flowInputVariables}
+                        onstatuschange={handleFlowStatusChange}>
+                    </lightning-flow>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
 </template>

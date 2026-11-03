@@ -14,6 +14,16 @@ import recibidaLabel from "@salesforce/label/c.PPH_Mensaje_Recibida";
 
 const TOAST_MS = 8000;
 const TITULO_ADHESION = "Adhesión al Programa de Precertificación de Hectáreas (PPH)";
+const MSG_SIN_HECTAREAS_SE =
+  "No se puede realizar la adhesión sin tener hectáreas SE en al menos un establecimiento";
+
+// new Date("yyyy-mm-dd") es medianoche UTC; en Argentina eso es las 21:00 del día anterior.
+const parseLocalDate = (value) => {
+  if (!value) return null;
+  const [y, m, d] = String(value).substring(0, 10).split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+};
 
 const STATUS = {
   "En Preparación": { label: "Tu solicitud de adhesión está lista para ser enviada", tone: "info" },
@@ -38,6 +48,7 @@ export default class AdhesionPph extends LightningElement {
   plan;
   recibidaLabel = recibidaLabel;
   doContinue = false;
+  continuing = false;
   modalCallback;
   hiding = {};
   htsGlobales = {}; // Las HTs globales de PPH están porque se certificaron previo a las HTs por variedad. Son hts sin variedad
@@ -483,10 +494,7 @@ export default class AdhesionPph extends LightningElement {
           cantidadSE += variedadData.cantidad;
         }
       }
-      if (cantidadSE == 0)
-        throw new Error(
-          "No se puede realizar la adhesión sin tener hectáreas SE en al menos un establecimiento"
-        );
+      if (cantidadSE == 0) throw new Error(MSG_SIN_HECTAREAS_SE);
     } catch (e) {
       valid = false;
       if (showError) this.onError(e);
@@ -495,25 +503,62 @@ export default class AdhesionPph extends LightningElement {
     return valid;
   }
 
-  async save() {
-    if (!this.plan || !this.isDraft || !this.isValid()) return;
+  async save({ fromContinue = false } = {}) {
+    if (!this.plan || !this.isDraft || !this.isValid()) return null;
     this.saving = true;
+    let data = null;
     try {
       const payload = this.serializeSavePayload(this.data);
-      const newData = await save({
+      data = await save({
         js: JSON.stringify(payload),
         planId: this.plan.Id
       });
-      this.loadData(newData);
+      this.loadData(data);
     } catch (e) {
       this.onError(e);
+      data = null;
     }
     this.saving = false;
 
-    if (this.doContinue) {
+    const followUp = this.doContinue && !fromContinue;
+    this.doContinue = false;
+    if (followUp) this.continuar();
+    return { data, followUp };
+  }
+
+  savedHasHectareasSe(data) {
+    return (data?.establecimientos || []).some((est) =>
+      (est.Lineas_PPH__r || []).some((linea) => Number(linea.Cantidad_Declarada__c) > 0)
+    );
+  }
+
+  // Guarda lo que está en pantalla y confirma que el plan quedó con hectáreas SE.
+  // Si no, avisa acá y no deja seguir a términos ni al envío.
+  async ensureSavedHectareas({ volverSiFalta = false } = {}) {
+    if (this.pendingSave) await this.pendingSave;
+
+    if (!this.isValid(true)) {
       this.doContinue = false;
-      this.continuar();
+      if (volverSiFalta) {
+        this.step = "adhesion";
+        this.scrollTop();
+      }
+      return false;
     }
+
+    const result = await this.save({ fromContinue: true });
+    if (!result || result.followUp || !result.data) return false;
+
+    if (!this.savedHasHectareasSe(result.data)) {
+      if (volverSiFalta) {
+        this.step = "adhesion";
+        this.scrollTop();
+      }
+      this.onError(new Error(MSG_SIN_HECTAREAS_SE));
+      return false;
+    }
+
+    return true;
   }
 
   autosave() {
@@ -522,14 +567,26 @@ export default class AdhesionPph extends LightningElement {
 
   /* ---------- Pasos ---------- */
 
-  continuar() {
-    if (this.saving) {
+  async continuar() {
+    if (this.saving || this.continuing) {
       this.doContinue = true;
       return;
     }
-    if (this.isValid(true)) {
-      this.currentModal = "confirm-continue";
-      this.modalCallback = this.goToNextStep.bind(this);
+
+    this.continuing = true;
+    let opened = false;
+    try {
+      if (await this.ensureSavedHectareas()) {
+        this.currentModal = "confirm-continue";
+        this.modalCallback = this.goToNextStep.bind(this);
+        opened = true;
+      }
+    } finally {
+      this.continuing = false;
+      if (this.doContinue && !opened) {
+        this.doContinue = false;
+        this.continuar();
+      }
     }
   }
 
@@ -550,6 +607,8 @@ export default class AdhesionPph extends LightningElement {
   }
 
   async acceptTerms() {
+    if (!(await this.ensureSavedHectareas({ volverSiFalta: true }))) return;
+
     await this.doRequest(async () => {
       await acceptTerms({ planId: this.plan.Id });
       this.plan = { ...this.plan, Terminos_y_Condiciones__c: true };
@@ -558,11 +617,10 @@ export default class AdhesionPph extends LightningElement {
     if (this.plan.Terminos_y_Condiciones__c) this.enviarConfirm();
   }
 
-  backToResumen() {
-    if (this.isValid(true)) {
-      this.step = "resumen";
-      this.scrollTop();
-    }
+  async backToResumen() {
+    if (!(await this.ensureSavedHectareas())) return;
+    this.step = "resumen";
+    this.scrollTop();
   }
 
   edit(e) {
@@ -600,6 +658,8 @@ export default class AdhesionPph extends LightningElement {
   }
 
   async enviar() {
+    if (this.isDraft && !(await this.ensureSavedHectareas({ volverSiFalta: true }))) return;
+
     let enviado = false;
     await this.doRequest(async () => {
       await sendAdhesion({ planId: this.plan.Id });
@@ -634,11 +694,12 @@ export default class AdhesionPph extends LightningElement {
     const params = this.plan?.Parametro_PPH__r;
     if (!params) return 0;
     const inWindow = (n) => {
-      const start = params[`Fecha_Inicio_Rectificacion_${n}__c`];
-      const end = params[`Fecha_Fin_Rectificacion_${n}__c`];
+      const start = parseLocalDate(params[`Fecha_Inicio_Rectificacion_${n}__c`]);
+      const end = parseLocalDate(params[`Fecha_Fin_Rectificacion_${n}__c`]);
       if (!start || !end) return false;
+      end.setHours(23, 59, 59, 999);
       const now = new Date();
-      return now >= new Date(start) && now <= new Date(end);
+      return now >= start && now <= end;
     };
     if (inWindow(1)) return 1;
     if (inWindow(2)) return 2;

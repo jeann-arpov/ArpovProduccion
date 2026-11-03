@@ -2,24 +2,49 @@ import { LightningElement, api } from 'lwc';
 import getExpedienteNegativosById from '@salesforce/apex/ExpedienteNegativo.getExpedienteNegativosById';
 import facturarRegaliaEnlist from '@salesforce/apex/ExpedienteNegativo.facturarRegaliaEnlist';
 import cerrarExpediente from '@salesforce/apex/ExpedienteNegativo.cerrarExpediente';
+import userCanFacturarSEC from '@salesforce/apex/ExpedienteNegativo.userCanFacturarSEC';
 import { doRequest, errorEvent } from 'c/utils';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { notifyRecordUpdateAvailable } from 'lightning/uiRecordApi';
+
 export default class AccionesExpedienteNegativos extends LightningElement {
 
     expediente;
-
     processing;
-
+    canFacturarSEC = false;
+    showFlowModal = false;
     _recordId;
 
     @api set recordId(value){
         this._recordId = value;
-        getExpedienteNegativosById({recordId: this._recordId}).then(expediente => this.expediente = expediente).catch(err => this.onError(err));
+        this.loadData();
     }
 
     get recordId(){
         return this._recordId;
+    }
+
+    async loadData() {
+        try {
+            this.processing = true;
+            // Cargamos en paralelo o secuencial el expediente y la validación del usuario
+            this.expediente = await getExpedienteNegativosById({ recordId: this._recordId });
+            this.canFacturarSEC = await userCanFacturarSEC();
+        } catch (err) {
+            this.onError(err);
+        } finally {
+            this.processing = false;
+        }
+    }
+
+    get flowInputVariables() {
+        return [
+            {
+                name: 'recordId',
+                type: 'String',
+                value: this._recordId
+            }
+        ];
     }
 
     facturarRegaliaEnlist(){
@@ -45,6 +70,25 @@ export default class AccionesExpedienteNegativos extends LightningElement {
             notifyRecordUpdateAvailable([{recordId: this.expediente.Id}]);
             this.processing = false;
         });
+    }
+
+    // Métodos para el Flow de Facturar Expediente SEC
+    handleFacturarSecClick() {
+        this.showFlowModal = true;
+    }
+
+    handleFlowStatusChange(event) {
+        if (event.detail.status === 'FINISHED') {
+            this.showFlowModal = false;
+            this.showMessage('', 'El flujo de Facturación SEC ha finalizado con éxito', 'success');
+            notifyRecordUpdateAvailable([{ recordId: this._recordId }]);
+            // Opcional: recargar datos
+            this.loadData();
+        }
+    }
+
+    closeFlowModal() {
+        this.showFlowModal = false;
     }
 
     closeModal(){

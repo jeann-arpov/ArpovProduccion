@@ -54,8 +54,19 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     }
 
     private static Boolean isInPeriodoAdhesion(Parametro_PPH__c param) {
-    return param.Fecha_Inicio_Adhesion_PPH__c <= System.today() &&
-      param.Fecha_Fin_Adhesion_PPH__c >= System.today();
+    return param.Fecha_Inicio_Adhesion_PPH__c != null &&
+      param.Fecha_Fin_Adhesion_PPH__c != null &&
+      !periodoNoComenzado(param.Fecha_Inicio_Adhesion_PPH__c) &&
+      !periodoFinalizado(param.Fecha_Fin_Adhesion_PPH__c);
+    }
+
+    // Los períodos son de día completo en la hora del usuario: el día de fin vale hasta las 23:59.
+    private static Boolean periodoNoComenzado(Date inicio) {
+        return inicio != null && System.today() < inicio;
+    }
+
+    private static Boolean periodoFinalizado(Date fin) {
+        return fin != null && System.today() > fin;
     }
 
     @AuraEnabled
@@ -425,11 +436,11 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
       WHERE id = :plan.Parametro_PPH__c
     ];
         
-    if (parametro.Fecha_Inicio_Rectificacion_1__c < System.now() == false)
+    if (parametro.Fecha_Inicio_Rectificacion_1__c == null || periodoNoComenzado(parametro.Fecha_Inicio_Rectificacion_1__c))
       throw new AuraHandledException(
         Label.PPH_Periodo_Rectificacion_No_Comenzado
       );
-    if (parametro.Fecha_Fin_Rectificacion_1__c > System.now() == false)
+    if (parametro.Fecha_Fin_Rectificacion_1__c == null || periodoFinalizado(parametro.Fecha_Fin_Rectificacion_1__c))
       throw new AuraHandledException(
         Label.PPH_Periodo_Rectificacion_Finalizado
       );
@@ -454,11 +465,11 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
       WHERE id = :plan.Parametro_PPH__c
     ];
         
-    if (parametro.Fecha_Inicio_Rectificacion_2__c < System.now() == false)
+    if (parametro.Fecha_Inicio_Rectificacion_2__c == null || periodoNoComenzado(parametro.Fecha_Inicio_Rectificacion_2__c))
       throw new AuraHandledException(
         Label.PPH_Periodo_Rectificacion_No_Comenzado
       );
-    if (parametro.Fecha_Fin_Rectificacion_2__c > System.now() == false)
+    if (parametro.Fecha_Fin_Rectificacion_2__c == null || periodoFinalizado(parametro.Fecha_Fin_Rectificacion_2__c))
       throw new AuraHandledException(
         Label.PPH_Periodo_Rectificacion_Finalizado
       );
@@ -470,30 +481,35 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     Parametro_PPH__c param,
     String version
   ) {
+        String error = getErrorPeriodo(param, version);
+        if (error != null) throw validationException(error);
+    }
+
+  private static String getErrorPeriodo(Parametro_PPH__c param, String version) {
         if (version == 'Original') {
-      if (param.Fecha_Inicio_Adhesion_PPH__c > System.now())
-        throw new AuraHandledException(Label.PPH_Periodo_Adhesion_No_Comenzado);
-      if (param.Fecha_Fin_Adhesion_PPH__c < System.now())
-        throw new AuraHandledException(Label.PPH_Periodo_Adhesion_Finalizado);
+      if (periodoNoComenzado(param.Fecha_Inicio_Adhesion_PPH__c))
+        return Label.PPH_Periodo_Adhesion_No_Comenzado;
+      if (periodoFinalizado(param.Fecha_Fin_Adhesion_PPH__c))
+        return Label.PPH_Periodo_Adhesion_Finalizado;
         } else if (version == 'Rectificación 1') {
-      if (param.Fecha_Inicio_Rectificacion_1__c > System.now())
-        throw new AuraHandledException(
-          Label.PPH_Periodo_Rectificacion_1_No_Comenzado
-        );
-      if (param.Fecha_Fin_Rectificacion_1__c < System.now())
-        throw new AuraHandledException(
-          Label.PPH_Periodo_Rectificacion_1_Finalizado
-        );
+      if (periodoNoComenzado(param.Fecha_Inicio_Rectificacion_1__c))
+        return Label.PPH_Periodo_Rectificacion_1_No_Comenzado;
+      if (periodoFinalizado(param.Fecha_Fin_Rectificacion_1__c))
+        return Label.PPH_Periodo_Rectificacion_1_Finalizado;
         }  else if (version == 'Rectificación 2') {
-      if (param.Fecha_Inicio_Rectificacion_2__c > System.now())
-        throw new AuraHandledException(
-          Label.PPH_Periodo_Rectificacion_2_No_Comenzado
-        );
-      if (param.Fecha_Fin_Rectificacion_2__c < System.now())
-        throw new AuraHandledException(
-          Label.PPH_Periodo_Rectificacion_2_Finalizado
-        );
+      if (periodoNoComenzado(param.Fecha_Inicio_Rectificacion_2__c))
+        return Label.PPH_Periodo_Rectificacion_2_No_Comenzado;
+      if (periodoFinalizado(param.Fecha_Fin_Rectificacion_2__c))
+        return Label.PPH_Periodo_Rectificacion_2_Finalizado;
         }
+        return null;
+    }
+
+    // getMessage() de un AuraHandledException devuelve "Script-thrown exception" si no se llama a setMessage.
+    private static AuraHandledException validationException(String message) {
+        AuraHandledException ex = new AuraHandledException(message);
+        ex.setMessage(message);
+        return ex;
     }
 
   private static String validateStockAndGetError(
@@ -527,6 +543,31 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         return error.removeEnd('\n');
     }
 
+    private static String getErrorEnvio(Parametro_PPH__c parametro, Plan_de_siembra__c plan, Id planId) {
+        String error = getErrorPeriodo(parametro, plan.Version__c);
+        if (error != null) return error;
+      if (
+        [
+            SELECT id
+            FROM Linea_PPH__c
+            WHERE
+              Establecimiento_PPH__r.Plan_de_siembra__c = :planId
+              AND Cantidad_Declarada__c > 0
+            LIMIT 1
+          ]
+          .isEmpty()
+      )
+        return Label.PPH_Adhesion_Sin_Hectareas_SE;
+      if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado')
+        return Label.PPH_Plan_Estado_Invalido;
+
+      return validateStockAndGetError(
+        getStockPorVariedad(parametro),
+        plan,
+        false
+      );
+    }
+
     @AuraEnabled
     public static void sendAdhesion(Id planId) {
     Plan_de_siembra__c plan = [
@@ -552,33 +593,13 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             WHERE id =: plan.Parametro_PPH__c
         ];
 
+        String errorValidacion;
         try {
-            validateInPeriodoAdhesion(parametro, plan.Version__c);
-      if (
-        [
-            SELECT id
-            FROM Linea_PPH__c
-            WHERE
-              Establecimiento_PPH__r.Plan_de_siembra__c = :planId
-              AND Cantidad_Declarada__c > 0
-            LIMIT 1
-          ]
-          .isEmpty()
-      )
-        throw new AuraHandledException(Label.PPH_Adhesion_Sin_Hectareas_SE);
-      if (plan.Estado__c != 'En Preparación' && plan.Estado__c != 'Rectificado')
-        throw new AuraHandledException(Label.PPH_Plan_Estado_Invalido);
-
-      String error = validateStockAndGetError(
-        getStockPorVariedad(parametro),
-        plan,
-        false
-      );
-      if (String.isBlank(error) == false)
-        throw new AuraHandledException(error);
+            errorValidacion = getErrorEnvio(parametro, plan, planId);
         } catch (Exception e) {
             throw handleException(e, 'ERR-ADH-001', 'AdhesionPPH', planId);
         }
+        if (String.isNotBlank(errorValidacion)) throw validationException(errorValidacion);
 
         if(plan.Version__c == 'Original'){
             plan.Fecha_de_Adhesion__c = System.today();

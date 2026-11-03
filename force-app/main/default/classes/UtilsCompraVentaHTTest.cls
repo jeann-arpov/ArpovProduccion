@@ -73,6 +73,48 @@ private class UtilsCompraVentaHTTest {
         System.assertEquals(0, variedadesSre.size());
     }
 
+    @isTest
+    static void cantidadDecimalSeRechazaYLaYaGuardadaNo() {
+        System.assertEquals(false, UtilsCompraVentaHT.debeRechazarCantidadDecimal(
+            new Linea_de_Compra_HT__c(Cantidad__c = 10),
+            null,
+            'Cantidad__c'
+        ));
+        System.assertEquals(false, UtilsCompraVentaHT.debeRechazarCantidadDecimal(
+            new Linea_de_Compra_HT__c(),
+            null,
+            'Cantidad__c'
+        ));
+        System.assertEquals(true, UtilsCompraVentaHT.debeRechazarCantidadDecimal(
+            new Linea_de_Compra_HT__c(Cantidad__c = 10.5),
+            null,
+            'Cantidad__c'
+        ));
+
+        Id lineaId = (Id) (Linea_de_Compra_HT__c.SObjectType.getDescribe().getKeyPrefix() + '000000000001');
+        Linea_de_Compra_HT__c actual = new Linea_de_Compra_HT__c(Id = lineaId, Cantidad__c = 87.5);
+        Map<Id, SObject> anteriores = new Map<Id, SObject>{
+            lineaId => new Linea_de_Compra_HT__c(Id = lineaId, Cantidad__c = 87.5)
+        };
+        System.assertEquals(false, UtilsCompraVentaHT.debeRechazarCantidadDecimal(actual, anteriores, 'Cantidad__c'));
+
+        actual.Cantidad__c = 90.5;
+        System.assertEquals(true, UtilsCompraVentaHT.debeRechazarCantidadDecimal(actual, anteriores, 'Cantidad__c'));
+
+        actual.Cantidad__c = 90;
+        System.assertEquals(false, UtilsCompraVentaHT.debeRechazarCantidadDecimal(actual, anteriores, 'Cantidad__c'));
+
+        UtilsCompraVentaHT.validarCantidadEntera(10);
+        UtilsCompraVentaHT.validarCantidadEntera(10.0);
+        UtilsCompraVentaHT.validarCantidadEntera(null);
+        try {
+            UtilsCompraVentaHT.validarCantidadEntera(2.34);
+            System.assert(false, 'Debió rechazar la cantidad con decimales');
+        } catch (AuraHandledException ex) {
+            System.assertEquals(UtilsCompraVentaHT.MENSAJE_CANTIDAD_ENTERA, ex.getMessage());
+        }
+    }
+
     private static Map<String, Object> findCultivo(List<Map<String, Object>> options, Id cultivoId) {
         for (Map<String, Object> option : options) {
             if ((Id) option.get('value') == cultivoId) {

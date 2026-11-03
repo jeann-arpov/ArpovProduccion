@@ -6,7 +6,7 @@
         <name>Asignar_FC_RE3</name>
         <label>Asignar FC RE3</label>
         <locationX>50</locationX>
-        <locationY>1514</locationY>
+        <locationY>1922</locationY>
         <assignmentItems>
             <assignToReference>varFCRE3</assignToReference>
             <operator>Assign</operator>
@@ -22,7 +22,7 @@
         <name>Asignar_FC_Reg_E3</name>
         <label>Asignar FC Reg E3</label>
         <locationX>314</locationX>
-        <locationY>1622</locationY>
+        <locationY>2030</locationY>
         <assignmentItems>
             <assignToReference>varFCRE3</assignToReference>
             <operator>Assign</operator>
@@ -47,7 +47,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Buscar_FC_RE3</targetReference>
+            <targetReference>Buscar_Lista_de_TN</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -63,7 +63,23 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Buscar_FC_RE3</targetReference>
+            <targetReference>Buscar_Lista_de_TN</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Asignar_Valor_CTGs</name>
+        <label>Asignar Valor CTGs</label>
+        <locationX>270</locationX>
+        <locationY>1514</locationY>
+        <assignmentItems>
+            <assignToReference>CTGsInvolucrados</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Recorrer_Lista_de_TN.Mov_BolsaTech__r.CTG__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Recorrer_Lista_de_TN</targetReference>
         </connector>
     </assignments>
     <decisions>
@@ -71,6 +87,9 @@
         <label>Es Continuar?</label>
         <locationX>1056</locationX>
         <locationY>350</locationY>
+        <defaultConnector>
+            <targetReference>END_ELEMENT_6</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Cancelar</defaultConnectorLabel>
         <rules>
             <name>Continuar</name>
@@ -92,7 +111,7 @@
         <name>Existe_FC_RE3</name>
         <label>Existe FC RE3?</label>
         <locationX>182</locationX>
-        <locationY>1406</locationY>
+        <locationY>1814</locationY>
         <defaultConnector>
             <targetReference>Crear_FC_RE3</targetReference>
         </defaultConnector>
@@ -143,6 +162,9 @@
         <label>Expediente ya está facturado?</label>
         <locationX>743</locationX>
         <locationY>458</locationY>
+        <defaultConnector>
+            <targetReference>END_ELEMENT_7</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Otro</defaultConnectorLabel>
         <rules>
             <name>No_esta_Facturado_ni_Cerrado</name>
@@ -202,7 +224,7 @@
             <name>Es_Negativo</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>forSaldoAFacturar</leftValueReference>
+                <leftValueReference>Buscar_Expediente.Saldo_CG__c</leftValueReference>
                 <operator>LessThan</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
@@ -220,11 +242,41 @@ Se agrega pop-up para ver si está seguro de facturar.
 Cuando se crea la factura RE3, se crea con etapa = A Facturar.
 Se agrega el Id de la FC RE3 a la TN de origen = Regalía Enlist, de tipo movim = C para el expediente de negativos del productor
 Se agrega que al crear la TN con origen = Regalía Enlist --&gt; Etapa = Facturada (en lugar de Cobrada)</description>
+    <ends>
+        <name>END_ELEMENT_10</name>
+        <locationX>842</locationX>
+        <locationY>674</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_6</name>
+        <locationX>1370</locationX>
+        <locationY>458</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_7</name>
+        <locationX>1106</locationX>
+        <locationY>566</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_8</name>
+        <locationX>578</locationX>
+        <locationY>890</locationY>
+    </ends>
+    <ends>
+        <name>END_ELEMENT_9</name>
+        <locationX>182</locationX>
+        <locationY>2546</locationY>
+    </ends>
     <environments>Default</environments>
+    <formulas>
+        <name>CTGs</name>
+        <dataType>String</dataType>
+        <expression>{!CTGsInvolucrados}</expression>
+    </formulas>
     <formulas>
         <name>forCantidadTN</name>
         <dataType>Number</dataType>
-        <expression>{!forSaldoAFacturar} * (-1)</expression>
+        <expression>{!Buscar_Expediente.Saldo_CG__c} * (-1)</expression>
         <scale>0</scale>
     </formulas>
     <formulas>
@@ -240,18 +292,22 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <dataType>Date</dataType>
         <expression>{!Buscar_Cultivo_SOJA.Fecha_Vencimiento_de_Tonelada__c}</expression>
     </formulas>
-    <formulas>
-        <name>forSaldoAFacturar</name>
-        <dataType>Number</dataType>
-        <expression>IF(
-  TEXT({!Buscar_Expediente.Tipo_expendiente__c}) = &quot;EXP&quot;,
-  {!Buscar_Expediente.Saldo_CG__c},
-  {!Buscar_Expediente.Saldo_Expediente__c}
-)</expression>
-        <scale>0</scale>
-    </formulas>
     <interviewLabel>ExpDeNeg - Facturar Regalía Enlist {!$Flow.CurrentDateTime}</interviewLabel>
     <label>ExpDeNeg - Facturar Regalía Enlist</label>
+    <loops>
+        <name>Recorrer_Lista_de_TN</name>
+        <label>Recorrer Lista de TN</label>
+        <locationX>182</locationX>
+        <locationY>1406</locationY>
+        <collectionReference>Buscar_Lista_de_TN</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Asignar_Valor_CTGs</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Buscar_FC_RE3</targetReference>
+        </noMoreValuesConnector>
+    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -275,7 +331,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>Crear_FC_RE3</name>
         <label>Crear FC RE3</label>
         <locationX>314</locationX>
-        <locationY>1514</locationY>
+        <locationY>1922</locationY>
         <connector>
             <targetReference>Asignar_FC_Reg_E3</targetReference>
         </connector>
@@ -283,6 +339,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             <field>Biotecnologia__c</field>
             <value>
                 <stringValue>Enlist</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CTGs_Involucrados__c</field>
+            <value>
+                <elementReference>CTGs</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -472,7 +534,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>Buscar_FC_RE3</name>
         <label>Buscar FC RE3</label>
         <locationX>182</locationX>
-        <locationY>1298</locationY>
+        <locationY>1706</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Existe_FC_RE3</targetReference>
@@ -494,6 +556,34 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>TN_Regalia_Enlist__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Buscar_Lista_de_TN</name>
+        <label>Buscar Lista de TN</label>
+        <locationX>182</locationX>
+        <locationY>1298</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Recorrer_Lista_de_TN</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Expediente_de_Negativos__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Buscar_Expediente.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Productor__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Buscar_Expediente.Cuenta__r.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Tonelada__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -543,7 +633,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>Actualizar_expediente</name>
         <label>Actualizar expediente</label>
         <locationX>182</locationX>
-        <locationY>1814</locationY>
+        <locationY>2222</locationY>
         <connector>
             <targetReference>Actualizar_TN_Regalia_Enlist</targetReference>
         </connector>
@@ -574,6 +664,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Fecha_de_finalizacion__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Saldo_del_Expediente_al_Cierre__c</field>
             <value>
                 <elementReference>Buscar_Expediente.Saldo_CG__c</elementReference>
@@ -597,7 +693,7 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>Actualizar_TN_Regalia_Enlist</name>
         <label>Actualizar TN Regalía Enlist</label>
         <locationX>182</locationX>
-        <locationY>1922</locationY>
+        <locationY>2330</locationY>
         <connector>
             <targetReference>Facturado</targetReference>
         </connector>
@@ -625,9 +721,12 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_8</targetReference>
+        </connector>
         <fields>
             <name>MsgEsPositivo</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente {!Buscar_Expediente.Name} no tiene saldo de expediente negativo.&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente {!Buscar_Expediente.Name} tiene la cuenta granaria &amp;gt;= 0.&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -693,10 +792,13 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <name>Facturado</name>
         <label>Facturado</label>
         <locationX>182</locationX>
-        <locationY>2030</locationY>
+        <locationY>2438</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_9</targetReference>
+        </connector>
         <fields>
             <name>MsgFacturado</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Se facturaron las regalías Enlist para el expediente {!Buscar_Expediente.Name}&lt;/strong&gt;&lt;/p&gt;</fieldText>
@@ -721,6 +823,9 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <connector>
+            <targetReference>END_ELEMENT_10</targetReference>
+        </connector>
         <fields>
             <name>MsgYaFacturado</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;El expediente {!Buscar_Expediente.Name}  ya facturó Regalía Enlist.﻿&lt;/strong&gt;&lt;/p&gt;</fieldText>
@@ -745,6 +850,13 @@ Fecha Vto TN, si 01/01/año_actual &lt;= HOY &lt; Fecha Vto TN</description>
         </connector>
     </start>
     <status>Active</status>
+    <variables>
+        <name>CTGsInvolucrados</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>

@@ -170,4 +170,67 @@ public class AdhesionPPHTest {
         System.assert(rechazo);
         System.assertEquals(0, [SELECT COUNT() FROM Establecimiento_PPH__c]);
     }
+
+    @isTest
+    static void ultimoDiaDeAdhesionPermiteEnviar() {
+        Id planId = crearPlanConHectareas(System.today());
+
+        AdhesionPPH.acceptTerms(planId);
+        AdhesionPPH.sendAdhesion(planId);
+
+        System.assertEquals('En Revisión', [SELECT Estado__c FROM Plan_de_siembra__c WHERE Id = :planId].Estado__c);
+    }
+
+    @isTest
+    static void periodoFinalizadoMuestraElMotivo() {
+        Id planId = crearPlanConHectareas(System.today());
+        Parametro_PPH__c parametro = [SELECT Id FROM Parametro_PPH__c LIMIT 1];
+        parametro.Fecha_Fin_Adhesion_PPH__c = System.today().addDays(-1);
+        update parametro;
+
+        String mensaje;
+        try {
+            AdhesionPPH.sendAdhesion(planId);
+        } catch (AuraHandledException e) {
+            mensaje = e.getMessage();
+        }
+
+        System.assertEquals(Label.PPH_Periodo_Adhesion_Finalizado, mensaje);
+        System.assertEquals('En Preparación', [SELECT Estado__c FROM Plan_de_siembra__c WHERE Id = :planId].Estado__c);
+    }
+
+    private static Id crearPlanConHectareas(Date finAdhesion) {
+        Test_TestUtils.disableFlows();
+
+        Cultivo__c cultivo = new Cultivo__c(Name = 'Test', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today());
+        insert cultivo;
+
+        Parametro_PPH__c parametro = new Parametro_PPH__c(Name = 'Test', cultivo__c = cultivo.id, Biotecnologia__c = 'Enlist E3');
+        parametro.Fecha_Inicio_Adhesion_PPH__c = System.today().addDays(-2);
+        parametro.Fecha_Fin_Adhesion_PPH__c = finAdhesion;
+        insert parametro;
+
+        Account productor = Test_TestUtils.crearProductor();
+
+        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
+        insert var;
+
+        insert new Hectareas_Tecnologicas__c(
+            Fecha_Inicio__c = Date.today().addDays(-5),
+            Fecha_Fin__c = Date.today().addDays(30),
+            Signo__c = 1,
+            Cantidad__c = 3,
+            Productor__c = productor.id,
+            Biotecnologia__c = 'Enlist E3',
+            Cultivo__c = cultivo.id,
+            Variedad__c = var.id,
+            Origen__c = 'Compra HT',
+            Saldo_PPH__c = false
+        );
+
+        AdhesionPPH.getLoadData(parametro.id);
+        Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
+        AdhesionPPH.save(JSON.serialize(AdhesionPPH.getTestData(var.id)), planId);
+        return planId;
+    }
 }

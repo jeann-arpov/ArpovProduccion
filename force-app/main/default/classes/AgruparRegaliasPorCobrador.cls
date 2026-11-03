@@ -1,4 +1,4 @@
-public with sharing class AgruparRegaliasPorCobrador {
+public without sharing class AgruparRegaliasPorCobrador {
     // WI-000009 registro changeset BUG-03 factura PRI Y TN
 
     @InvocableMethod(label='Agrupar TN_Regalia_Enlist por Cobrador y sumar Cantidad')
@@ -47,8 +47,8 @@ public with sharing class AgruparRegaliasPorCobrador {
             }
 
             // Acumular CTGs (permitiendo duplicados). Preferir campo largo; fallback al histórico.
-            String ctgsValor = reg.CTGs_Involucrados_Largo__c != null
-                ? reg.CTGs_Involucrados_Largo__c
+            String ctgsValor = reg.CTGs_Involucrados__c != null
+                ? reg.CTGs_Involucrados__c
                 : reg.CTGs_Involucrados__c;
             if (ctgsValor != null) {
                 ctgsPorCobrador.get(cobrador).add(ctgsValor);
@@ -61,7 +61,7 @@ public with sharing class AgruparRegaliasPorCobrador {
 
             if (ctgs != null && !ctgs.isEmpty()) {
                 String listaFormateada = '[' + String.join(ctgs, ', ') + ']';
-                agrupados.get(cobradorId).CTGs_Involucrados_Largo__c = listaFormateada;
+                agrupados.get(cobradorId).CTGs_Involucrados__c = listaFormateada;
             }
         }
 
