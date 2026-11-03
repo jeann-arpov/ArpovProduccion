@@ -104,4 +104,60 @@ private class CuentaGranariaVarietalExpedienteTest {
     System.assertEquals('Finalizado', exp.Estado_de_la_Etapa__c);
     System.assertEquals(Date.today(), exp.Fecha_de_finalizacion__c);
   }
+
+  @isTest
+  static void testNoAbreConSaldoIgualAlUmbral() {
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
+    subCuenta.Saldo_Variedad__c = -4;
+    update subCuenta;
+
+    Test.startTest();
+    Integer creados = CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+    Test.stopTest();
+
+    System.assertEquals(0, creados);
+  }
+
+  @isTest
+  static void testNoAbreConSaldoSobreElUmbral() {
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
+    subCuenta.Saldo_Variedad__c = -3;
+    update subCuenta;
+
+    Test.startTest();
+    Integer creados = CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+    Test.stopTest();
+
+    System.assertEquals(0, creados);
+  }
+
+  @isTest
+  static void testCierraConSaldoIgualAlUmbral() {
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
+    subCuenta.Saldo_Variedad__c = -5;
+    update subCuenta;
+
+    CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+
+    subCuenta.Saldo_Variedad__c = -4;
+    update subCuenta;
+
+    Test.startTest();
+    Integer cerrados = CuentaGranariaVarietalExpedienteService.cerrarExpedientesRegularizados();
+    Test.stopTest();
+
+    System.assertEquals(1, cerrados);
+  }
 }
