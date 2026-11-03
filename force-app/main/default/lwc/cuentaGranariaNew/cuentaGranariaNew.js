@@ -6,16 +6,11 @@ import getCampanasConTotales from "@salesforce/apex/CuentaGranaria.getCampanasCo
 import getToneladasByCampana from "@salesforce/apex/CuentaGranaria.getToneladasByCampana";
 import getLoadData from "@salesforce/apex/CuentaGranaria.getLoadData";
 import getDetalleBT from "@salesforce/apex/CuentaGranaria.getDetalleBT";
-import getVarietalResumen from "@salesforce/apex/CuentaGranariaVarietalController.getVarietalResumen";
 import IMAGENES from "@salesforce/resourceUrl/CuentaGranariaIcons";
 import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
 import { doRequest, errorEvent, warningEvent } from "c/utils";
-import { trackGa4Event } from "c/portalGa4Events";
-import MESA_AYUDA_EMAIL from "@salesforce/label/c.Mesa_Ayuda_Email";
 
 export default class CuentaGranariaNew extends LightningElement {
-  mesaAyudaEmail = MESA_AYUDA_EMAIL;
-
   // ====== DATA PRINCIPAL ======
   cultivos;
   cultivo;
@@ -24,10 +19,6 @@ export default class CuentaGranariaNew extends LightningElement {
   totales;
   adhesion;
   biotecnologia;
-
-  // ====== VARIETAL (trigo) ======
-  varietalData;
-  marcasSeleccionadas = [];
 
   // ====== CAMPAÑAS ======
   campanas; // lista de campañas disponibles para el cultivo seleccionado
@@ -62,6 +53,20 @@ export default class CuentaGranariaNew extends LightningElement {
   // ====== STEPS ======
   step = 1;
 
+  get step1Class() {
+    return (
+      "step" + (this.step === 1 ? " active" : this.step > 1 ? " completed" : "")
+    );
+  }
+  get step2Class() {
+    return (
+      "step" + (this.step === 2 ? " active" : this.step > 2 ? " completed" : "")
+    );
+  }
+  get step3Class() {
+    return "step" + (this.step === 3 ? " active" : "");
+  }
+
   get isStep1Active() {
     return this.step === 1;
   }
@@ -72,136 +77,16 @@ export default class CuentaGranariaNew extends LightningElement {
     return this.step === 3;
   }
 
-  get showStep2Panel() {
-    return this.isStep2Active && this.showFilterTech;
-  }
-
-  get showStep3Panel() {
-    return this.isStep3Active && this.showCampanaSelector;
-  }
-
-  get wizardStepsTotal() {
-    return 3;
-  }
-
-  get wizardStepLabels() {
-    return ["Cultivo", "Plataforma", "Campaña"];
-  }
-
-  get wizardStepLabelList() {
-    return [
-      this.cultivoName ? `Cultivo · ${this.cultivoName}` : "Cultivo",
-      this.step >= 2 && this.biotecnologiaLabel
-        ? `Plataforma · ${this.biotecnologiaLabel}`
-        : "Plataforma",
-      "Campaña"
-    ];
-  }
-
-  get wizardProgressLabel() {
-    return `Paso ${this.step} de ${this.wizardStepsTotal}`;
-  }
-
-  get progressEyebrow() {
-    return `Cuenta Granaria · Paso ${this.step} de ${this.wizardStepsTotal}`;
-  }
-
-  get pphRibbonUrl() {
-    return this.images.pph;
-  }
-
-  get biotecnologiaLabel() {
-    if (!this.biotecnologia) return "";
-    const plats = this.biotecnologias || [];
-    const match = plats.find((p) => p.value === this.biotecnologia);
-    return match?.label || this.biotecnologia;
-  }
-
-  get continuarPaso1Disabled() {
-    return !this.cultivoSeleccionadoId;
-  }
-
-  get continuarPaso2Disabled() {
-    return !this.biotecnologia;
-  }
-
-  get cultivoNameDisplay() {
-    if (!this.cultivoName) return "";
-    const raw = this.cultivoName.toLowerCase();
-    return raw.charAt(0).toUpperCase() + raw.slice(1);
-  }
-
-  handleProgStepClick(event) {
-    const clickedStep = Number(event.detail?.step);
-    this.goToStep(clickedStep);
-  }
-
   handleStepClick(event) {
     const clickedStep = Number(event.currentTarget.dataset.step);
-    this.goToStep(clickedStep);
-  }
-
-  goToStep(clickedStep) {
-    if (!clickedStep || clickedStep > this.step) return;
-    this.step = clickedStep;
-    if (clickedStep < 3) {
-      this.totales = null;
-      this.campanaSeleccionada = null;
+    if (clickedStep <= this.step) {
+      this.step = clickedStep;
     }
-    if (clickedStep < 2) {
-      this.biotecnologia = null;
-      this.campanas = null;
-    }
-  }
-
-  handleBackToPaso1() {
-    this.step = 1;
-    this.biotecnologia = null;
-    this.campanas = null;
-    this.totales = null;
-    this.campanaSeleccionada = null;
-  }
-
-  handleBackToPaso2() {
-    this.step = 2;
-    this.totales = null;
-    this.campanaSeleccionada = null;
-    this.campanas = null;
-  }
-
-  handleContinuarPaso1() {
-    if (!this.cultivoSeleccionadoId) return;
-    this.cultivo = this.cultivoSeleccionadoId;
-    this.reset();
-    this.verificarAdhesion();
-    this.step = 2;
-  }
-
-  handlePickPlataforma(event) {
-    this.biotecnologia = event.currentTarget.dataset.value;
-  }
-
-  handleContinuarPaso2() {
-    if (!this.biotecnologia) return;
-    this.totales = null;
-    this.campanaSeleccionada = null;
-    this.cargarCampanas(this.cultivo);
-    this.step = 3;
   }
 
   // ====== INIT ======
   get paramCultivo() {
     return new URL(window.location.href).searchParams.get("cultivoId");
-  }
-
-  connectedCallback() {
-    document.documentElement.classList.add("se-inner");
-    document.body.classList.add("se-inner");
-  }
-
-  disconnectedCallback() {
-    document.documentElement.classList.remove("se-inner");
-    document.body.classList.remove("se-inner");
   }
 
   init() {
@@ -210,12 +95,9 @@ export default class CuentaGranariaNew extends LightningElement {
     doRequest.call(this, async (_) => {
       const data = await getLoadData();
       this.cultivos = data.cultivos;
-      trackGa4Event("cuenta_granaria_vista");
       if (this.paramCultivo) {
         this.cultivo = this.paramCultivo;
-        this.cultivoSeleccionadoId = this.paramCultivo;
         this.verificarAdhesion();
-        this.step = 2;
       }
     });
   }
@@ -225,7 +107,7 @@ export default class CuentaGranariaNew extends LightningElement {
       this.init();
     }
     if (this._scrollToResumen) {
-      const el = this.template.querySelector(".cg-resumen");
+      const el = this.template.querySelector(".resumen-toneladas");
       if (el) {
         this._scrollToResumen = false;
         el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -238,15 +120,13 @@ export default class CuentaGranariaNew extends LightningElement {
     return (this.cultivos || []).map((c) => {
       const nombre = c.Name;
       const id = c.Id;
-      const selected = this.cultivoSeleccionadoId === id;
       return {
         ...c,
         nombre,
-        nombreUpper: (nombre || "").toUpperCase(),
         id,
         icono: this.getIcon(nombre),
-        ariaChecked: selected ? "true" : "false",
-        cssClass: "cg-cultivo-tile" + (selected ? " is-selected" : "")
+        cssClass:
+          "item" + (this.cultivoSeleccionadoId === id ? " selected" : "")
       };
     });
   }
@@ -266,13 +146,14 @@ export default class CuentaGranariaNew extends LightningElement {
 
   handleSelectCultivo(event) {
     const cultivoId = event.currentTarget.dataset.id;
-    this.cultivoSeleccionadoId = cultivoId;
+    const cultivoName = event.currentTarget.dataset.nombre;
     this.cultivo = cultivoId;
-    console.log(
-      "Cultivo seleccionado:",
-      event.currentTarget.dataset.nombre,
-      cultivoId
-    );
+    this.cultivoSeleccionadoId = cultivoId;
+    this.reset();
+    this.verificarAdhesion();
+    this.step = 2;
+
+    console.log("Cultivo seleccionado:", cultivoName, cultivoId);
   }
 
   // ====== ADHESIÓN ======
@@ -301,13 +182,16 @@ export default class CuentaGranariaNew extends LightningElement {
     });
   }
 
-  // Año cruzado como en Home y Compra HT: '2026' -> '26/27'
+  // Genera el nombre corto de campaña, ej: SOJA '2025' -> '24/25', otros '2025' -> '2025'
   getCampanaPeriod(ano) {
     const year = parseInt(ano, 10);
     if (isNaN(year)) return ano;
-    const next = String(year + 1).slice(-2);
-    const curr = String(year).slice(-2);
-    return `${curr}/${next}`;
+    if (this.cultivoName === "SOJA") {
+      const next = String(year + 1).slice(-2);
+      const curr = String(year).slice(-2);
+      return `${curr}/${next}`;
+    }
+    return String(year);
   }
 
   // Devuelve el nombre del cultivo seleccionado
@@ -323,6 +207,7 @@ export default class CuentaGranariaNew extends LightningElement {
       .slice()
       .sort((a, b) => parseInt(a.ano, 10) - parseInt(b.ano, 10));
 
+    // Obtener set de campañas con adhesión
     const campanasConAdhesion = new Set();
     if (this.adhesion && Array.isArray(this.adhesion)) {
       this.adhesion.forEach((plan) => {
@@ -332,63 +217,55 @@ export default class CuentaGranariaNew extends LightningElement {
       });
     }
 
-    const flaggedIdx = sorted.findIndex((c) => c.esActual === true);
-    const activaIdx = sorted.map((c) => c.estado).lastIndexOf("Activa");
-    const currentIdx =
-      flaggedIdx >= 0
-        ? flaggedIdx
-        : activaIdx >= 0
-          ? activaIdx
-          : sorted.length - 1;
+    console.log(
+      "Campañas disponibles:",
+      sorted.map((c) => ({ id: c.id, name: c.name }))
+    );
+    console.log("Campañas con adhesión:", Array.from(campanasConAdhesion));
 
     return sorted.map((c, idx) => {
-      const isCurrent = idx === currentIdx;
-      const isPrecampana = !isCurrent && c.estado === "En Preparación";
+      let isLast = idx === sorted.length - 1;
       const hasAdhesion =
         campanasConAdhesion.has(c.id) || c.pphAdherida === true;
-      const showPPH = hasAdhesion;
-      const displayToneladas =
-        Number(c.totalToneladas ?? c.saldoCuentaGranaria ?? 0) || 0;
-      const isSelected = this.campanaSeleccionada === c.id;
-      const isNegativa = !showPPH && displayToneladas < 0;
-      // Regla de negocio (prod): solo la campaña actual admite Ingresar, salvo una pasada en
-      // negativo (para ver qué regularizar); si la campaña está adherida a PPH, queda deshabilitado.
-      const ingresarDisabled = showPPH || (!isCurrent && !isNegativa);
+      if (hasAdhesion) {
+        console.log("✓ Campaña " + c.name + " (" + c.id + ") tiene adhesión");
+      }
+      const showPPH = hasAdhesion && this.adhesion && this.adhesion.length > 0;
+      // Si es última campaña y tiene PPH, deshabilitar
 
+      const isDisabled = isLast && showPPH;
+      console.log(
+        "Campaña " +
+          c.name +
+          " (" +
+          c.id +
+          "): isLast=" +
+          isLast +
+          ", hasAdhesion=" +
+          hasAdhesion +
+          ", showPPH=" +
+          showPPH
+      );
+      isLast = isLast && !hasAdhesion; // Si tiene adhesión, no considerarla última para selección
       return {
         ...c,
         period: this.getCampanaPeriod(c.ano),
         displayName: this.cultivoName,
-        displayToneladas,
-        figClass: "cg-camp-fig" + (isNegativa ? " is-neg" : ""),
-        cssClass: "cg-camp-card" + (isSelected ? " is-selected" : ""),
-        btnClass:
-          "cg-btn cg-btn-block" +
-          (isSelected ? " cg-btn-camp-sel" : " cg-btn-primary"),
-        tipTitle: showPPH
-          ? "Campaña Adherida a PPH"
-          : "Saldo disponible de esta campaña",
-        tipBody: showPPH
-          ? "Podés entregar tu grano sin segregar tecnologías en función del plan de siembra informado."
-          : "Es el saldo que se usa primero cuando realizás una entrega de grano de esta campaña. Si tenés saldo suficiente, se debita automáticamente. Si no alcanza, el sistema utilizará tus HT disponibles.",
-        isLast: isCurrent,
-        isCurrent,
+        cssClass:
+          "campana-item" +
+          (this.campanaSeleccionada === c.id ? " selected" : "") +
+          (isLast ? " campana-activa" : " campana-disabled") +
+          (isDisabled ? " campana-disabled" : ""),
+        isLast,
         showPPH,
         hideToneladas: showPPH,
         hasAdhesion,
-        ingresarDisabled,
-        isDisabled: ingresarDisabled,
-        statusMeta: hasAdhesion
-          ? "Campaña con PPH"
-          : isCurrent
-            ? "Activa · disponible"
-            : isPrecampana
-              ? "Precampaña"
-              : "Histórico",
+        isDisabled,
         adhesionVencimiento:
           hasAdhesion && this.adhesion?.[0]
             ? this.adhesion[0].Parametro_PPH__r?.Fecha_Vencimiento_PPH__c
             : null,
+        // Nuevos campos para mostrar saldo y valor original
         saldoCuentaGranaria: c.saldoCuentaGranaria || 0,
         totalToneladasOriginal: c.totalToneladas || 0
       };
@@ -396,9 +273,18 @@ export default class CuentaGranariaNew extends LightningElement {
   }
 
   handleSelectCampana(event) {
-    const index = Number(event.currentTarget.getAttribute("data-index"));
+    // Solo permitir selección si es la última campaña Y no tiene adhesión
+    const index = event.currentTarget.getAttribute("data-index");
     const camp = this.decoratedCampanas[index];
-    if (!camp || camp.ingresarDisabled) {
+
+    // Validar: debe ser última campaña
+    if (index != this.decoratedCampanas.length - 1) {
+      return;
+    }
+
+    // Validar: NO debe tener adhesión/PPH
+    if (camp.showPPH) {
+      console.log("✗ No se puede seleccionar - campaña con PPH adhesión");
       return;
     }
 
@@ -406,9 +292,7 @@ export default class CuentaGranariaNew extends LightningElement {
     this.campanaSeleccionada = campanaId;
     this._scrollToResumen = true;
     this.getData();
-    if (this.esVarietal) {
-      this.cargarVarietal();
-    }
+    console.log("Campaña seleccionada:", campanaId);
   }
 
   /* COMENTADO - selector tipo combobox
@@ -426,15 +310,6 @@ export default class CuentaGranariaNew extends LightningElement {
     */
 
   // ====== TECNOLOGÍA ======
-  handleSelectPlataforma(event) {
-    this.biotecnologia = event.currentTarget.dataset.value;
-    console.log("Biotecnología seleccionada:", this.biotecnologia);
-    this.totales = null;
-    this.campanaSeleccionada = null;
-    this.cargarCampanas(this.cultivo);
-    this.step = 3;
-  }
-
   selectTech(event) {
     this.biotecnologia = event.detail.value;
     console.log("Biotecnología seleccionada:", this.biotecnologia);
@@ -498,10 +373,6 @@ export default class CuentaGranariaNew extends LightningElement {
       console.log("totales", JSON.stringify(totales));
 
       this.totales = Object.values(totales);
-      trackGa4Event("cuenta_granaria_creditos", {
-        cultivo: this.cultivoName,
-        campaña: this.campanaSeleccionadaPeriod
-      });
     });
   }
 
@@ -634,74 +505,6 @@ export default class CuentaGranariaNew extends LightningElement {
     return this.tecnologias[
       this.cultivoOptions.find((c) => c.value == this.cultivo).label
     ];
-  }
-
-  get decoratedPlataformas() {
-    return (this.biotecnologias || []).map((p) => {
-      const selected = this.biotecnologia === p.value;
-      return {
-        ...p,
-        ariaChecked: selected ? "true" : "false",
-        cssClass: "cg-plat-opt" + (selected ? " is-selected" : "")
-      };
-    });
-  }
-
-  get needsRegularizar() {
-    return Number(this.totalToneladasRegularizar) > 0;
-  }
-
-  get regularizarCardClass() {
-    return "cg-reg-card" + (this.needsRegularizar ? " is-warn" : "");
-  }
-
-  get resumenRows() {
-    if (!this.totales) return [];
-    const rows = (this.totales || []).map((t) => ({
-      key: `origen-${t.label}`,
-      label: t.label,
-      value: t.value,
-      origen: t.origen,
-      canDownload: false,
-      rowClass: "",
-      cardClass: "cg-mcard"
-    }));
-
-    rows.push({
-      key: "bolsatech",
-      label: this.totalBolsatech.label,
-      value: this.totalBolsatech.value,
-      origen: this.totalBolsatech.origen,
-      canDownload: true,
-      rowClass: "",
-      cardClass: "cg-mcard"
-    });
-
-    if (this.showInfoRegaliaEnlist) {
-      rows.push({
-        key: "regalia-pagada",
-        label: this.totalRegaliaEnlistPagada.label,
-        value: this.totalRegaliaEnlistPagada.value,
-        origen: this.totalRegaliaEnlistPagada.origen,
-        canDownload: false,
-        rowClass: "",
-        cardClass: "cg-mcard"
-      });
-    }
-
-    if (this.showTotalTransferencia) {
-      rows.push({
-        key: "transferencia",
-        label: this.totalTransferencia.label,
-        value: this.totalTransferencia.value,
-        origen: this.totalTransferencia.origen,
-        canDownload: false,
-        rowClass: "",
-        cardClass: "cg-mcard"
-      });
-    }
-
-    return rows;
   }
 
   get biotecnologiaLabel() {
@@ -838,127 +641,5 @@ export default class CuentaGranariaNew extends LightningElement {
       .filter((tn) => tn.Origen__c == origen)
       .reduce((total, tn) => (total += tn.Cantidad_con_Signo__c), 0);
     return { label: this.origenLabels[origen], value, origen: origen };
-  }
-
-  // ====== VARIETAL (trigo) ======
-  get esVarietal() {
-    return (this.cultivoName || "").toUpperCase() === "TRIGO";
-  }
-
-  get showVarietal() {
-    return (
-      this.esVarietal &&
-      this.campanaSeleccionada &&
-      this.varietalData &&
-      this.varietalData.length > 0
-    );
-  }
-
-  get semilleros() {
-    const nombres = new Set();
-    (this.varietalData || []).forEach((v) => {
-      if (v.semilleroNombre) nombres.add(v.semilleroNombre);
-    });
-    return Array.from(nombres).map((nombre) => {
-      const v = (this.varietalData || []).find(
-        (x) => x.semilleroNombre === nombre
-      );
-      return {
-        nombre,
-        id: v ? v.semilleroId : null,
-        idObtentor: v ? v.idObtentor : null
-      };
-    });
-  }
-
-  get decoratedSemilleros() {
-    return this.semilleros.map((s) => ({
-      ...s,
-      ariaChecked: this.marcasSeleccionadas.includes(s.nombre)
-        ? "true"
-        : "false",
-      cssClass:
-        "cg-plat-opt" +
-        (this.marcasSeleccionadas.includes(s.nombre) ? " is-selected" : "")
-    }));
-  }
-
-  get variedadesFiltradas() {
-    if (!this.marcasSeleccionadas.length) return [];
-    return (this.varietalData || [])
-      .filter((v) => this.marcasSeleccionadas.includes(v.semilleroNombre))
-      .map((v) => ({
-        ...v,
-        saldoClass: "cg-var-saldo" + (Number(v.saldo) < 0 ? " is-neg" : ""),
-        estadoClass: this.estadoClass(v.estado)
-      }));
-  }
-
-  estadoClass(estado) {
-    switch (estado) {
-      case "Debe regularizar":
-        return "cg-estado cg-estado-debe";
-      case "En regla":
-        return "cg-estado cg-estado-regla";
-      case "Sin entregas":
-        return "cg-estado cg-estado-sin";
-      default:
-        return "cg-estado";
-    }
-  }
-
-  get variedadesDebeRegularizar() {
-    return (this.varietalData || []).filter(
-      (v) =>
-        v.estado === "Debe regularizar" &&
-        this.marcasSeleccionadas.includes(v.semilleroNombre)
-    );
-  }
-
-  get cantidadVariedadesRegularizar() {
-    return this.variedadesDebeRegularizar.length;
-  }
-
-  get toneladasARegularizar() {
-    return this.variedadesDebeRegularizar.reduce(
-      (total, v) => total + Math.abs(Number(v.saldo) || 0),
-      0
-    );
-  }
-
-  cargarVarietal() {
-    if (
-      !this.esVarietal ||
-      !this.cultivo ||
-      !this.campanaSeleccionada ||
-      !this.biotecnologia
-    )
-      return;
-    doRequest.call(this, async (_) => {
-      this.varietalData = await getVarietalResumen({
-        cultivoId: this.cultivo,
-        campanaId: this.campanaSeleccionada,
-        tecnologia: this.biotecnologia
-      });
-      if (this.varietalData && this.varietalData.length) {
-        this.marcasSeleccionadas = this.semilleros.map((s) => s.nombre);
-      }
-    });
-  }
-
-  handleSelectSemillero(event) {
-    const nombre = event.currentTarget.dataset.nombre;
-    if (this.marcasSeleccionadas.includes(nombre)) {
-      this.marcasSeleccionadas = this.marcasSeleccionadas.filter(
-        (n) => n !== nombre
-      );
-    } else {
-      this.marcasSeleccionadas = [...this.marcasSeleccionadas, nombre];
-    }
-  }
-
-  handleComprarHTVariedad(event) {
-    const portalBase = window.location.pathname.split("/s/")[0];
-    window.location.href = portalBase + "/s/FormularioNuevaVentaHT";
   }
 }
