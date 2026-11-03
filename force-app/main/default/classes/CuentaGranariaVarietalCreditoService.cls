@@ -22,7 +22,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     'Compra HT'
   };
 
-  // Recalcula y guarda el crédito (toneladas) por variedad desde las HT positivas.
+  // Recalcula y guarda el crédito y el saldo por variedad (crédito de HT + débito de CG).
   public static void recalcularCreditos(
     Id productorId,
     Id cultivoId,
@@ -38,6 +38,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       cultivoId,
       campanaId
     );
+    Map<Id, Decimal> debitoPorVariedad = calcularDebitoPorVariedad(cgId);
+
+    Set<Id> variedades = new Set<Id>();
+    variedades.addAll(creditoPorVariedad.keySet());
+    variedades.addAll(debitoPorVariedad.keySet());
 
     Map<Id, Detalle_Variedad_CG__c> subCuentaPorVariedad = new Map<Id, Detalle_Variedad_CG__c>();
     for (Detalle_Variedad_CG__c sc : [
@@ -51,22 +56,24 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     List<Detalle_Variedad_CG__c> aActualizar = new List<Detalle_Variedad_CG__c>();
     List<Detalle_Variedad_CG__c> aCrear = new List<Detalle_Variedad_CG__c>();
 
-    // Resetea el crédito de las sub-cuentas existentes (0 si ya no hay HT)
-    for (Id vId : subCuentaPorVariedad.keySet()) {
+    for (Id vId : variedades) {
       Decimal credito = creditoPorVariedad.containsKey(vId)
         ? creditoPorVariedad.get(vId)
         : 0;
-      aActualizar.add(
-        new Detalle_Variedad_CG__c(
-          Id = subCuentaPorVariedad.get(vId).Id,
-          Credito_Variedad__c = credito
-        )
-      );
-    }
+      Decimal debito = debitoPorVariedad.containsKey(vId)
+        ? debitoPorVariedad.get(vId)
+        : 0;
+      Decimal saldo = credito + debito;
 
-    // Crea sub-cuentas para variedades con crédito que aún no la tienen
-    for (Id vId : creditoPorVariedad.keySet()) {
-      if (!subCuentaPorVariedad.containsKey(vId)) {
+      if (subCuentaPorVariedad.containsKey(vId)) {
+        aActualizar.add(
+          new Detalle_Variedad_CG__c(
+            Id = subCuentaPorVariedad.get(vId).Id,
+            Credito_Variedad__c = credito,
+            Saldo_Variedad__c = saldo
+          )
+        );
+      } else {
         aCrear.add(
           new Detalle_Variedad_CG__c(
             Clave_Varietal__c = String.valueOf(cgId) +
@@ -74,7 +81,8 @@ public with sharing class CuentaGranariaVarietalCreditoService {
               String.valueOf(vId),
             Cuenta_Granaria__c = cgId,
             Variedad__c = vId,
-            Credito_Variedad__c = creditoPorVariedad.get(vId)
+            Credito_Variedad__c = credito,
+            Saldo_Variedad__c = saldo
           )
         );
       }
@@ -86,6 +94,28 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     if (!aCrear.isEmpty()) {
       Database.insert(aCrear, false);
     }
+  }
+
+  private static Map<Id, Decimal> calcularDebitoPorVariedad(Id cgId) {
+    Map<Id, Decimal> debitoPorVariedad = new Map<Id, Decimal>();
+    for (AggregateResult ar : [
+      SELECT Variedad__c v, SUM(Cantidad_con_Signo__c) total
+      FROM Tonelada__c
+      WHERE
+        Cuenta_Granaria__c = :cgId
+        AND Variedad__c != NULL
+        AND Fecha_Inicio__c <= TODAY
+        AND Etapa__c != 'Pendiente'
+        AND Origen__c != 'Balance Anual'
+      GROUP BY Variedad__c
+    ]) {
+      Id vId = (Id) ar.get('v');
+      Decimal total = (Decimal) ar.get('total');
+      if (total != null) {
+        debitoPorVariedad.put(vId, total);
+      }
+    }
+    return debitoPorVariedad;
   }
 
   // Lista de créditos por variedad: fecha, origen, HT, tipo, toneladas.

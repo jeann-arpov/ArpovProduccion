@@ -274,12 +274,17 @@ public with sharing class CuentaGranariaVarietalDebitService {
       return;
     }
     Map<Id, Id> subCuentaPorVariedad = new Map<Id, Id>();
+    Map<Id, Decimal> creditoPorSubCuenta = new Map<Id, Decimal>();
     for (Detalle_Variedad_CG__c sc : [
-      SELECT Id, Variedad__c
+      SELECT Id, Variedad__c, Credito_Variedad__c
       FROM Detalle_Variedad_CG__c
       WHERE Cuenta_Granaria__c = :cgId AND Variedad__c IN :variedadesDebitadas
     ]) {
       subCuentaPorVariedad.put(sc.Variedad__c, sc.Id);
+      creditoPorSubCuenta.put(
+        sc.Id,
+        sc.Credito_Variedad__c != null ? sc.Credito_Variedad__c : 0
+      );
     }
     if (subCuentaPorVariedad.isEmpty()) {
       return;
@@ -313,11 +318,13 @@ public with sharing class CuentaGranariaVarietalDebitService {
 
     List<Detalle_Variedad_CG__c> actualizar = new List<Detalle_Variedad_CG__c>();
     for (Id scId : saldoPorSubCuenta.keySet()) {
+      Decimal saldo =
+        saldoPorSubCuenta.get(scId) +
+        (creditoPorSubCuenta.containsKey(scId)
+          ? creditoPorSubCuenta.get(scId)
+          : 0);
       actualizar.add(
-        new Detalle_Variedad_CG__c(
-          Id = scId,
-          Saldo_Variedad__c = saldoPorSubCuenta.get(scId)
-        )
+        new Detalle_Variedad_CG__c(Id = scId, Saldo_Variedad__c = saldo)
       );
     }
     if (!actualizar.isEmpty()) {
@@ -336,6 +343,16 @@ public with sharing class CuentaGranariaVarietalDebitService {
         AND Origen__c != 'Balance Anual'
     ];
     Decimal total = ar.get('total') != null ? (Decimal) ar.get('total') : 0;
-    update new Cuenta_Granaria__c(Id = cgId, Saldo_Cuenta__c = total);
+
+    AggregateResult arCredito = [
+      SELECT SUM(Credito_Variedad__c) total
+      FROM Detalle_Variedad_CG__c
+      WHERE Cuenta_Granaria__c = :cgId
+    ];
+    Decimal credito = arCredito.get('total') != null
+      ? (Decimal) arCredito.get('total')
+      : 0;
+
+    update new Cuenta_Granaria__c(Id = cgId, Saldo_Cuenta__c = total + credito);
   }
 }
