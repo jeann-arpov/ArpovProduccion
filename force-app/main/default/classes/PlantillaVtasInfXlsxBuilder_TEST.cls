@@ -51,10 +51,11 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
             'Remito debe estar en Tipo de Comprobante.'
         );
         List<String> anos = dicc.get('CAMPANAS');
-        System.assertEquals(4, anos.size(), 'Rango: actual-2, actual-1, actual, actual+1.');
         Integer y = Date.today().year();
+        System.assertEquals(3, anos.size(), 'Años sueltos: actual-2, actual-1 y actual. El siguiente no va como número.');
         System.assert(anos.contains(String.valueOf(y - 2)), 'Debe incluir 2 a\u00f1os atr\u00e1s.');
-        System.assert(anos.contains(String.valueOf(y + 1)), 'Debe incluir 1 a\u00f1o adelante.');
+        System.assert(anos.contains(String.valueOf(y)), 'Debe incluir el a\u00f1o actual.');
+        System.assert(!anos.contains(String.valueOf(y + 1)), '2027 (a\u00f1o siguiente) no va suelto: en SOJA se informa el a\u00f1o de inicio.');
     }
 
     @isTest
@@ -62,7 +63,45 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
         List<String> anos = PlantillaVtasInfXlsxBuilder.buildAnosCampanaLista();
         Integer y = Date.today().year();
         System.assertEquals(String.valueOf(y - 2), anos[0]);
-        System.assertEquals(String.valueOf(y + 1), anos[3]);
+        System.assertEquals(String.valueOf(y), anos[2]);
+        System.assert(!anos.contains(String.valueOf(y + 1)));
+    }
+
+    @isTest
+    static void buildAnosCampanaListaIgnoraNombresDeCampana() {
+        Test_TestUtils.disableFlows();
+        Integer y = Date.today().year();
+        String siguiente = String.valueOf(y + 1);
+        Cultivo__c soja = new Cultivo__c(Name = 'SOJA', Densidad_de_Siembra__c = 1);
+        Cultivo__c trigo = new Cultivo__c(Name = 'TRIGO', Densidad_de_Siembra__c = 1);
+        insert new List<Cultivo__c>{ soja, trigo };
+
+        String nombreTrigo = siguiente + ' - TRIGO';
+        String nombreSoja = siguiente + ' - SOJA';
+        insert new List<Campana_Agricola__c>{
+            new Campana_Agricola__c(
+                Name = nombreSoja,
+                Ano__c = siguiente,
+                Id_Externo__c = 'PLT_SOJA_SIG',
+                Z9_Clave_Unica__c = 'PLT_Z9_SOJA_SIG',
+                SKEY_CAMPANIA__c = 8800401,
+                Cultivo__c = soja.Id
+            ),
+            new Campana_Agricola__c(
+                Name = nombreTrigo,
+                Ano__c = siguiente,
+                Id_Externo__c = 'PLT_TRIGO_SIG',
+                Z9_Clave_Unica__c = 'PLT_Z9_TRIGO_SIG',
+                SKEY_CAMPANIA__c = 8800402,
+                Cultivo__c = trigo.Id
+            )
+        };
+
+        List<String> anos = PlantillaVtasInfXlsxBuilder.buildAnosCampanaLista();
+        System.assertEquals(3, anos.size(), 'La plantilla lista solo tres a\u00f1os, sin cultivo.');
+        System.assert(!anos.contains(nombreTrigo), 'No mezcla el nombre de la campa\u00f1a.');
+        System.assert(!anos.contains(nombreSoja), 'No mezcla el nombre de la campa\u00f1a.');
+        System.assert(!anos.contains(siguiente), 'El a\u00f1o siguiente no entra en la plantilla.');
     }
 
     @isTest
@@ -302,10 +341,12 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
         String sheet1 = null;
         String sheet3 = null;
         String workbook = null;
+        Boolean tieneLocalidades = false;
         for (Compression.ZipEntry e : zr.getEntries()) {
             if (e.getName() == 'xl/worksheets/sheet2.xml') sheet2 = e.getContent().toString();
             if (e.getName() == 'xl/worksheets/sheet1.xml') sheet1 = e.getContent().toString();
             if (e.getName() == 'xl/worksheets/sheet3.xml') sheet3 = e.getContent().toString();
+            if (e.getName() == 'xl/worksheets/sheet4.xml') tieneLocalidades = true;
             if (e.getName() == 'xl/workbook.xml') workbook = e.getContent().toString();
         }
 
@@ -322,6 +363,20 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
             System.assert(sheet1.contains('tabSelected="1"'), 'CARGA debe ser la hoja activa.');
             System.assertNotEquals(null, workbook, 'workbook.xml debe estar en el zip.');
             System.assert(workbook.contains('activeTab="0"'), 'Excel debe abrir en pesta\u00f1a CARGA.');
+            System.assert(workbook.contains('lockStructure="1"'),
+                'La estructura del libro debe impedir renombrar pesta\u00f1as.');
+            System.assert(workbook.contains('name="CARGA"'), 'La pesta\u00f1a de datos debe llamarse CARGA.');
+            System.assert(workbook.contains('name="INSTRUCCIONES"'),
+                'La pesta\u00f1a de instrucciones debe llamarse INSTRUCCIONES.');
+            System.assert(workbook.contains('name="REFERENCIAS"'),
+                'La pesta\u00f1a de listas debe llamarse REFERENCIAS.');
+            System.assert(!sheet1.contains('<sheetProtection'), 'CARGA debe seguir editable.');
+            System.assert(sheet2 == null || sheet2.contains('<sheetProtection'),
+                'INSTRUCCIONES debe quedar solo lectura.');
+            if (tieneLocalidades) {
+                System.assert(workbook.contains('name="LOCALIDADES"'),
+                    'La pesta\u00f1a de localidades debe llamarse LOCALIDADES.');
+            }
             System.assert(sheet2 == null || !sheet2.contains('tabSelected="1"'),
                 'INSTRUCCIONES no debe quedar como hoja activa.');
             System.assert(sheet3 == null || !sheet3.contains('tabSelected="1"'),
@@ -529,5 +584,74 @@ public class PlantillaVtasInfXlsxBuilder_TEST {
         );
         System.assert(prot.contains('<sheetProtection'));
         System.assert(prot.contains('selectLockedCells="0"'));
+    }
+
+    @isTest
+    static void fijaNombresYBloqueaEstructura() {
+        Map<String, Blob> entradas = new Map<String, Blob>{
+            'xl/workbook.xml' => Blob.valueOf(
+                '<workbook><bookViews><workbookView activeTab="0"/></bookViews><sheets>'
+                + '<sheet name="Datos" sheetId="1" r:id="rId1"/>'
+                + '<sheet name="Ayuda" sheetId="2" r:id="rId2"/>'
+                + '<sheet name="Listas" sheetId="3" r:id="rId3"/>'
+                + '<sheet name="Geo" sheetId="4" state="hidden" r:id="rId4"/>'
+                + '</sheets><definedNames><definedName name="Loc">Geo!$A$1</definedName></definedNames></workbook>'
+            ),
+            'xl/_rels/workbook.xml.rels' => Blob.valueOf(
+                '<Relationships>'
+                + '<Relationship Id="rId1" Type="worksheet" Target="worksheets/sheet1.xml"/>'
+                + '<Relationship Id="rId2" Type="worksheet" Target="worksheets/sheet2.xml"/>'
+                + '<Relationship Id="rId3" Type="worksheet" Target="worksheets/sheet3.xml"/>'
+                + '<Relationship Id="rId4" Type="worksheet" Target="worksheets/sheet4.xml"/>'
+                + '</Relationships>'
+            ),
+            'xl/worksheets/sheet1.xml' => Blob.valueOf('<worksheet>Listas!$B$3 Ayuda!A1</worksheet>'),
+            'xl/worksheets/sheet2.xml' => Blob.valueOf('<worksheet><sheetData/></worksheet>'),
+            'xl/worksheets/sheet3.xml' => Blob.valueOf('<worksheet/>'),
+            'xl/worksheets/sheet4.xml' => Blob.valueOf('<worksheet><pageMargins/></worksheet>')
+        };
+
+        PlantillaVtasInfXlsxBuilder.fijarNombresYBloquearEstructura(entradas);
+
+        String wb = entradas.get('xl/workbook.xml').toString();
+        System.assert(wb.contains('name="CARGA"'));
+        System.assert(wb.contains('name="INSTRUCCIONES"'));
+        System.assert(wb.contains('name="REFERENCIAS"'));
+        System.assert(wb.contains('name="LOCALIDADES"'));
+        System.assert(wb.contains('LOCALIDADES!$A$1'));
+        System.assert(wb.contains('lockStructure="1"'));
+        System.assert(wb.contains('workbookPassword="8D39"'));
+        System.assert(entradas.get('xl/worksheets/sheet1.xml').toString().contains('REFERENCIAS!$B$3'));
+        System.assert(entradas.get('xl/worksheets/sheet1.xml').toString().contains('INSTRUCCIONES!A1'));
+        System.assert(!entradas.get('xl/worksheets/sheet1.xml').toString().contains('<sheetProtection'));
+        System.assert(entradas.get('xl/worksheets/sheet2.xml').toString().contains('password="8D39"'));
+        System.assert(entradas.get('xl/worksheets/sheet4.xml').toString().contains('<sheetProtection'));
+    }
+
+    @isTest
+    static void legacySoloBloqueaEstructuraSinRenombrar() {
+        Map<String, Blob> entradas = new Map<String, Blob>{
+            'xl/workbook.xml' => Blob.valueOf(
+                '<workbook><sheets><sheet name="Planilla" sheetId="1" r:id="rId1"/>'
+                + '<sheet name="Comentarios" sheetId="2" r:id="rId2"/></sheets></workbook>'
+            ),
+            'xl/_rels/workbook.xml.rels' => Blob.valueOf(
+                '<Relationships>'
+                + '<Relationship Id="rId1" Target="worksheets/sheet1.xml"/>'
+                + '<Relationship Id="rId2" Target="worksheets/sheet2.xml"/>'
+                + '</Relationships>'
+            ),
+            'xl/worksheets/sheet1.xml' => Blob.valueOf('<worksheet>Comentarios!$E$5</worksheet>'),
+            'xl/worksheets/sheet2.xml' => Blob.valueOf('<worksheet><sheetData/></worksheet>')
+        };
+
+        PlantillaVtasInfXlsxBuilder.fijarNombresYBloquearEstructura(entradas);
+
+        String wb = entradas.get('xl/workbook.xml').toString();
+        System.assert(wb.contains('name="Planilla"'));
+        System.assert(wb.contains('name="Comentarios"'));
+        System.assert(wb.contains('lockStructure="1"'));
+        System.assert(entradas.get('xl/worksheets/sheet1.xml').toString().contains('Comentarios!$E$5'));
+        System.assert(!entradas.get('xl/worksheets/sheet2.xml').toString().contains('sheetProtection'));
     }
 }
