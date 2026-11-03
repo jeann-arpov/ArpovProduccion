@@ -39,19 +39,52 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       campanaId
     );
 
-    List<Detalle_Variedad_CG__c> aUpsert = new List<Detalle_Variedad_CG__c>();
-    for (Id vId : creditoPorVariedad.keySet()) {
-      aUpsert.add(
+    Map<Id, Detalle_Variedad_CG__c> subCuentaPorVariedad = new Map<Id, Detalle_Variedad_CG__c>();
+    for (Detalle_Variedad_CG__c sc : [
+      SELECT Id, Variedad__c
+      FROM Detalle_Variedad_CG__c
+      WHERE Cuenta_Granaria__c = :cgId
+    ]) {
+      subCuentaPorVariedad.put(sc.Variedad__c, sc);
+    }
+
+    List<Detalle_Variedad_CG__c> aActualizar = new List<Detalle_Variedad_CG__c>();
+    List<Detalle_Variedad_CG__c> aCrear = new List<Detalle_Variedad_CG__c>();
+
+    // Resetea el crédito de las sub-cuentas existentes (0 si ya no hay HT)
+    for (Id vId : subCuentaPorVariedad.keySet()) {
+      Decimal credito = creditoPorVariedad.containsKey(vId)
+        ? creditoPorVariedad.get(vId)
+        : 0;
+      aActualizar.add(
         new Detalle_Variedad_CG__c(
-          Clave_Varietal__c = String.valueOf(cgId) + '|' + String.valueOf(vId),
-          Cuenta_Granaria__c = cgId,
-          Variedad__c = vId,
-          Credito_Variedad__c = creditoPorVariedad.get(vId)
+          Id = subCuentaPorVariedad.get(vId).Id,
+          Credito_Variedad__c = credito
         )
       );
     }
-    if (!aUpsert.isEmpty()) {
-      Database.upsert(aUpsert, Detalle_Variedad_CG__c.Clave_Varietal__c, false);
+
+    // Crea sub-cuentas para variedades con crédito que aún no la tienen
+    for (Id vId : creditoPorVariedad.keySet()) {
+      if (!subCuentaPorVariedad.containsKey(vId)) {
+        aCrear.add(
+          new Detalle_Variedad_CG__c(
+            Clave_Varietal__c = String.valueOf(cgId) +
+              '|' +
+              String.valueOf(vId),
+            Cuenta_Granaria__c = cgId,
+            Variedad__c = vId,
+            Credito_Variedad__c = creditoPorVariedad.get(vId)
+          )
+        );
+      }
+    }
+
+    if (!aActualizar.isEmpty()) {
+      Database.update(aActualizar, false);
+    }
+    if (!aCrear.isEmpty()) {
+      Database.insert(aCrear, false);
     }
   }
 
