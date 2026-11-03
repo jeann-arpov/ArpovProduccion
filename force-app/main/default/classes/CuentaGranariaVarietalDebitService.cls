@@ -303,7 +303,8 @@ public with sharing class CuentaGranariaVarietalDebitService {
         AND Variedad__c IN :variedadesDebitadas
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c != 'Balance Anual'
+        AND Origen__c = :ORIGEN_ESCANER
+        AND Signo__c = -1
       GROUP BY Variedad__c
     ]) {
       Id variedadId = (Id) ar.get('variedad');
@@ -340,7 +341,8 @@ public with sharing class CuentaGranariaVarietalDebitService {
         Cuenta_Granaria__c = :cgId
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c != 'Balance Anual'
+        AND Origen__c = :ORIGEN_ESCANER
+        AND Signo__c = -1
     ];
     Decimal total = ar.get('total') != null ? (Decimal) ar.get('total') : 0;
 

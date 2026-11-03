@@ -17,6 +17,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
   }
 
   private static final String TECNOLOGIA = 'RR1/RR2 - BT/Convencional';
+  private static final String ORIGEN_ESCANER = 'Escáner varietal';
   private static final Set<String> ORIGENES_CREDITO = new Set<String>{
     'Compra SF',
     'Compra HT'
@@ -106,7 +107,8 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         AND Variedad__c != NULL
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c != 'Balance Anual'
+        AND Origen__c = :ORIGEN_ESCANER
+        AND Signo__c = -1
       GROUP BY Variedad__c
     ]) {
       Id vId = (Id) ar.get('v');
