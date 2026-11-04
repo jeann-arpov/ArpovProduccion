@@ -162,7 +162,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
     }
 
     recalcularSaldoVariedad(cg.Id, variedadesDebitadas);
-    recalcularSaldoCuenta(cg.Id);
+    CuentaGranariaVarietalCreditoService.recalcularSaldoCuenta(cg.Id);
     resultado.exitoso = resultado.debitosCreados > 0;
     return resultado;
   }
@@ -322,30 +322,5 @@ public with sharing class CuentaGranariaVarietalDebitService {
     if (!actualizar.isEmpty()) {
       Database.update(actualizar, false);
     }
-  }
-
-  private static void recalcularSaldoCuenta(Id cgId) {
-    AggregateResult ar = [
-      SELECT SUM(Cantidad_con_Signo__c) total
-      FROM Tonelada__c
-      WHERE
-        Cuenta_Granaria__c = :cgId
-        AND Fecha_Inicio__c <= TODAY
-        AND Etapa__c != 'Pendiente'
-        AND Origen__c = :ORIGEN_ESCANER
-        AND Signo__c = -1
-    ];
-    Decimal total = ar.get('total') != null ? (Decimal) ar.get('total') : 0;
-
-    AggregateResult arCredito = [
-      SELECT SUM(Credito_Variedad__c) total
-      FROM Detalle_Variedad_CG__c
-      WHERE Cuenta_Granaria__c = :cgId
-    ];
-    Decimal credito = arCredito.get('total') != null
-      ? (Decimal) arCredito.get('total')
-      : 0;
-
-    update new Cuenta_Granaria__c(Id = cgId, Saldo_Cuenta__c = total + credito);
   }
 }

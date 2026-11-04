@@ -95,6 +95,42 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     if (!aCrear.isEmpty()) {
       Database.insert(aCrear, false);
     }
+
+    recalcularSaldoCuenta(cgId);
+  }
+
+  public static void recalcularSaldoCuenta(Id cgId) {
+    if (cgId == null) {
+      return;
+    }
+
+    AggregateResult arDebito = [
+      SELECT SUM(Cantidad_con_Signo__c) total
+      FROM Tonelada__c
+      WHERE
+        Cuenta_Granaria__c = :cgId
+        AND Fecha_Inicio__c <= TODAY
+        AND Etapa__c != 'Pendiente'
+        AND Origen__c = :ORIGEN_ESCANER
+        AND Signo__c = -1
+    ];
+    Decimal debito = arDebito.get('total') != null
+      ? (Decimal) arDebito.get('total')
+      : 0;
+
+    AggregateResult arCredito = [
+      SELECT SUM(Credito_Variedad__c) total
+      FROM Detalle_Variedad_CG__c
+      WHERE Cuenta_Granaria__c = :cgId
+    ];
+    Decimal credito = arCredito.get('total') != null
+      ? (Decimal) arCredito.get('total')
+      : 0;
+
+    update new Cuenta_Granaria__c(
+      Id = cgId,
+      Saldo_Cuenta__c = debito + credito
+    );
   }
 
   private static Map<Id, Decimal> calcularDebitoPorVariedad(Id cgId) {
