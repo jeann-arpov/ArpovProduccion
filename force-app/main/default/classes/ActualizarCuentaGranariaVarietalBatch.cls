@@ -145,10 +145,13 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
     Database.executeBatch(new ActualizarCuentaGranariaVarietalBatch(), 200);
   }
 
-  private static Id resolverCampana(Id cultivoId, String anio) {
-    if (String.isBlank(anio)) {
+  private static Id resolverCampana(Id cultivoId, String cosecha) {
+    if (String.isBlank(cosecha) || cosecha.length() < 2) {
       return null;
     }
+    String anio = (cosecha.length() == 4 && cosecha.startsWith('20'))
+      ? cosecha
+      : '20' + cosecha.substring(0, 2);
     List<Campana_Agricola__c> camps = [
       SELECT Id
       FROM Campana_Agricola__c
