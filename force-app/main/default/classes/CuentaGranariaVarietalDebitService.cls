@@ -92,11 +92,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
     }
 
     Decimal pesoKg = pesoNetoKg != null ? pesoNetoKg : 0;
-    Map<Id, Id> subCuentaPorVariedad = sincronizarSubCuentas(
-      cg.Id,
-      lineas,
-      pesoKg
-    );
+    Map<Id, Id> subCuentaPorVariedad = sincronizarSubCuentas(cg.Id, lineas);
 
     List<Tonelada__c> debitos = new List<Tonelada__c>();
     Set<Id> variedadesDebitadas = new Set<Id>();
@@ -225,8 +221,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
 
   private static Map<Id, Id> sincronizarSubCuentas(
     Id cgId,
-    List<LineaVarietal> lineas,
-    Decimal pesoKg
+    List<LineaVarietal> lineas
   ) {
     List<Detalle_Variedad_CG__c> subCuentas = new List<Detalle_Variedad_CG__c>();
     for (LineaVarietal linea : lineas) {
@@ -239,11 +234,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
           Variedad__c = linea.variedadId,
           Clave_Varietal__c = String.valueOf(cgId) +
             '|' +
-            String.valueOf(linea.variedadId),
-          Porcentaje_Varietal__c = linea.porcentaje,
-          Kilos_Variedad__c = pesoKg *
-            (linea.porcentaje != null ? linea.porcentaje : 0) /
-            100
+            String.valueOf(linea.variedadId)
         )
       );
     }
