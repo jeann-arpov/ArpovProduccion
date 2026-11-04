@@ -319,6 +319,8 @@ public without sharing class ToneladaTriggerHandler {
      */
     private static void recalcularSaldos(Set<Id> cuentaIds) {
         // Filtrar cuentas que NO son de carga manual
+        Set<String> cultivosVarietales = CuentaGranariaVarietalCreditoService.obtenerCultivosVarietales();
+        String tecnologiaVarietal = CuentaGranariaVarietalCreditoService.TECNOLOGIA;
         Set<Id> cuentasQueProcesar = new Set<Id>();
         for (Cuenta_Granaria__c cg : [
             SELECT Id 
@@ -326,6 +328,10 @@ public without sharing class ToneladaTriggerHandler {
             WHERE Id IN :cuentaIds 
                 AND (Es_Carga_Manual__c = false OR Es_Carga_Manual__c = null)
                 AND (Campania__r.Ano__c >= '2025' OR Campania__c = null)
+                AND (
+                    Cultivo__r.Name NOT IN :cultivosVarietales
+                    OR Tecnologia__c != :tecnologiaVarietal
+                )
         ]) {
             cuentasQueProcesar.add(cg.Id);
         }

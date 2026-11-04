@@ -16,7 +16,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     public Decimal toneladas;
   }
 
-  private static final String TECNOLOGIA = 'RR1/RR2 - BT/Convencional';
+  public static final String TECNOLOGIA = 'RR1/RR2 - BT/Convencional';
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
   private static final Set<String> ORIGENES_CREDITO = new Set<String>{
     'Compra SF',
@@ -239,5 +239,22 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       LIMIT 1
     ];
     return cgs.isEmpty() ? null : cgs[0].Id;
+  }
+
+  public static Set<String> obtenerCultivosVarietales() {
+    Set<String> cultivos = new Set<String>();
+    for (
+      Configuracion_Varietal__mdt cfg : Configuracion_Varietal__mdt.getAll()
+      .values()
+    ) {
+      if (String.isNotBlank(cfg.Cultivos_Varietales__c)) {
+        for (String nombre : cfg.Cultivos_Varietales__c.split(',')) {
+          if (String.isNotBlank(nombre)) {
+            cultivos.add(nombre.trim().toUpperCase());
+          }
+        }
+      }
+    }
+    return cultivos;
   }
 }

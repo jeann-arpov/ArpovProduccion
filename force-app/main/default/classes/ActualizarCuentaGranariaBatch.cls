@@ -730,6 +730,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
         Set<Id> cultivosIds
     ) {
         Map<String, Decimal> saldosPorClave = new Map<String, Decimal>();
+        Set<String> cultivosVarietales = CuentaGranariaVarietalCreditoService.obtenerCultivosVarietales();
         System.debug('=== calcularSaldosToneladas ===');
         System.debug('Productores: ' + productoresIds + ' | Campañas: ' + campanasIds + ' | Cultivos: ' + cultivosIds);
         
@@ -747,6 +748,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             WHERE Productor__c IN :productoresIds
                 AND Campania__c IN :campanasIds
                 AND Cultivo__c IN :cultivosIds
+                AND Cultivo__r.Name NOT IN :cultivosVarietales
                 AND Biotecnologia__c != null
                 AND Fecha_Inicio__c <= TODAY
                 AND Etapa__c != 'Pendiente'
@@ -2170,6 +2172,8 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
     private void recalcularSaldosCuentas(Map<String, Id> claveACuentaId) {
         System.debug('========== recalcularSaldosCuentas ==========');
         System.debug('Claves recibidas: ' + claveACuentaId.size());
+        Set<String> cultivosVarietales = CuentaGranariaVarietalCreditoService.obtenerCultivosVarietales();
+        String tecnologiaVarietal = CuentaGranariaVarietalCreditoService.TECNOLOGIA;
         Set<Id> cuentaIds = new Set<Id>(claveACuentaId.values());
         System.debug('IDs únicos de cuentas: ' + cuentaIds.size());
         if (cuentaIds.isEmpty()) {
@@ -2185,6 +2189,10 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 AND (Es_Carga_Manual__c = false OR Es_Carga_Manual__c = null)
                 AND (Campania__c = null OR (Campania__r.Ano__c >= '2025'
                     AND Campania__r.Estado__c IN ('Completa', 'Activa')))
+                AND (
+                    Cultivo__r.Name NOT IN :cultivosVarietales
+                    OR Tecnologia__c != :tecnologiaVarietal
+                )
         ]) {
             cuentasNoManuales.add(cg.Id);
         }
