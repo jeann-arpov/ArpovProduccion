@@ -4,7 +4,7 @@
     <description
   >Kilos imputables a la variedad en el camión (Peso Neto × %).</description>
     <formula
-  >Movimiento_BolsaTech__r.Peso_Neto__c * Porcentaje_Varietal__c / 100</formula>
+  >Movimiento_BolsaTech__r.Peso_Neto__c * Porcentaje_Varietal__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Kilos Variedad</label>
     <precision>18</precision>
