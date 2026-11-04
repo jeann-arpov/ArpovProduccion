@@ -3,11 +3,13 @@
     <fullName>Saldo_Variedad__c</fullName>
     <description
   >Créditos menos débitos de la variedad (calculado por Apex).</description>
-    <inlineHelpText>Saldo neto de la sub-cuenta varietal.</inlineHelpText>
+    <externalId>false</externalId>
+    <inlineHelpText>Saldo neto en Toneladas</inlineHelpText>
     <label>Saldo Variedad</label>
     <precision>18</precision>
-    <scale>3</scale>
     <required>false</required>
+    <scale>3</scale>
     <trackTrending>false</trackTrending>
     <type>Number</type>
+    <unique>false</unique>
 </CustomField>

@@ -3,10 +3,13 @@
     <fullName>Credito_Variedad__c</fullName>
     <description
   >Crédito acumulado de la variedad en toneladas (HT × 4). Se recalcula al acreditar Semilla Fiscalizada o Compra HT.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Crédito por variedad en Toneladas</inlineHelpText>
     <label>Crédito Variedad</label>
     <precision>15</precision>
-    <scale>3</scale>
     <required>false</required>
+    <scale>3</scale>
     <trackTrending>false</trackTrending>
     <type>Number</type>
+    <unique>false</unique>
 </CustomField>
