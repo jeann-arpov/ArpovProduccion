@@ -19,26 +19,6 @@
                 <field>Fecha_Envio__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Abierto__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Cantidad_Destinatarios__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Cantidad_Abiertos__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Fecha_Primera_Apertura__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Fecha_Ultima_Apertura__c</field>
-            </layoutItems>
-            <layoutItems>
                 <behavior>Edit</behavior>
                 <field>De__c</field>
             </layoutItems>
@@ -47,6 +27,14 @@
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>Proceso__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Evento__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Plantilla_Link__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>
@@ -72,6 +60,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Para__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Contacto__c</field>
             </layoutItems>
         </layoutColumns>
         <style>OneColumn</style>
@@ -147,6 +139,7 @@
         <fields>NAME</fields>
         <fields>Correo__c</fields>
         <fields>Abierto__c</fields>
+        <fields>Fecha_Envio__c</fields>
         <fields>Fecha_Primera_Apertura__c</fields>
         <fields>Fecha_Ultima_Apertura__c</fields>
         <relatedList>Destinatario_Envio_Correo__c.Envio_Correo__c</relatedList>
@@ -157,8 +150,6 @@
         <fields>Asunto__c</fields>
         <fields>Estado__c</fields>
         <fields>Fecha_Envio__c</fields>
-        <fields>Abierto__c</fields>
-        <fields>Fecha_Primera_Apertura__c</fields>
         <fields>Objeto__c</fields>
         <fields>Proceso__c</fields>
     </miniLayout>

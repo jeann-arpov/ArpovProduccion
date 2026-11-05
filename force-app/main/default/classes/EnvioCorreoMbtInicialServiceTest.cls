@@ -32,7 +32,7 @@ private class EnvioCorreoMbtInicialServiceTest {
 
         List<Envio_Correo__c> envios = [
             SELECT Estado__c, Para__c, Asunto__c, Cuerpo_HTML__c, Productor__c, Campania__c,
-                Cultivo__c, Nombre_Registro__c, Id_Correo__c, Proceso__c, Abierto__c
+                Cultivo__c, Nombre_Registro__c, Id_Correo__c, Proceso__c
             FROM Envio_Correo__c
             WHERE Productor__c = :productor.Id
         ];
@@ -43,7 +43,6 @@ private class EnvioCorreoMbtInicialServiceTest {
         System.assert(envios[0].Para__c.contains('dos@productor.test'));
         System.assertEquals(1, envios[0].Para__c.countMatches('uno@productor.test'));
         System.assert(envios[0].Cuerpo_HTML__c.contains(productor.Name));
-        System.assertEquals(false, envios[0].Abierto__c);
         System.assert(!envios[0].Cuerpo_HTML__c.contains('mailchi.mp'));
         List<Destinatario_Envio_Correo__c> destinatarios = [
             SELECT Correo__c, Token_Apertura__c, Abierto__c

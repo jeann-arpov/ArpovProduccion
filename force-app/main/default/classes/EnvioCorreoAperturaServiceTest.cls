@@ -3,37 +3,36 @@ private class EnvioCorreoAperturaServiceTest {
     @isTest
     static void registraLaPrimeraAperturaYConservaEsaFecha() {
         String token = EnvioCorreoAperturaService.nuevoToken();
-        Envio_Correo__c envio = envio(token);
-        insert envio;
+        Destinatario_Envio_Correo__c fila = destinatario(token);
 
         Test.startTest();
         EnvioCorreoAperturaService.registrar(token);
         Datetime primera = [
             SELECT Fecha_Primera_Apertura__c
-            FROM Envio_Correo__c
-            WHERE Id = :envio.Id
+            FROM Destinatario_Envio_Correo__c
+            WHERE Id = :fila.Id
         ].Fecha_Primera_Apertura__c;
-        envio.Fecha_Primera_Apertura__c = Datetime.newInstance(2026, 1, 1, 8, 0, 0);
-        envio.Fecha_Ultima_Apertura__c = envio.Fecha_Primera_Apertura__c;
-        update envio;
+        fila.Fecha_Primera_Apertura__c = Datetime.newInstance(2026, 1, 1, 8, 0, 0);
+        fila.Fecha_Ultima_Apertura__c = fila.Fecha_Primera_Apertura__c;
+        update fila;
         EnvioCorreoAperturaService.registrar(token);
         Test.stopTest();
 
-        envio = [
+        fila = [
             SELECT Abierto__c, Fecha_Primera_Apertura__c, Fecha_Ultima_Apertura__c
-            FROM Envio_Correo__c
-            WHERE Id = :envio.Id
+            FROM Destinatario_Envio_Correo__c
+            WHERE Id = :fila.Id
         ];
-        System.assertEquals(true, envio.Abierto__c);
-        System.assertEquals(Datetime.newInstance(2026, 1, 1, 8, 0, 0), envio.Fecha_Primera_Apertura__c);
-        System.assert(envio.Fecha_Ultima_Apertura__c > envio.Fecha_Primera_Apertura__c);
+        System.assertEquals(true, fila.Abierto__c);
+        System.assertEquals(Datetime.newInstance(2026, 1, 1, 8, 0, 0), fila.Fecha_Primera_Apertura__c);
+        System.assert(fila.Fecha_Ultima_Apertura__c > fila.Fecha_Primera_Apertura__c);
         System.assertNotEquals(null, primera);
     }
 
     @isTest
     static void ignoraUnTokenInvalidoODesconocido() {
         String token = EnvioCorreoAperturaService.nuevoToken();
-        insert envio(token);
+        Destinatario_Envio_Correo__c fila = destinatario(token);
 
         Test.startTest();
         EnvioCorreoAperturaService.registrar((String) null);
@@ -41,12 +40,12 @@ private class EnvioCorreoAperturaServiceTest {
         EnvioCorreoAperturaService.registrar('a'.repeat(EnvioCorreoAperturaService.LARGO_TOKEN));
         Test.stopTest();
 
-        Envio_Correo__c envio = [
+        fila = [
             SELECT Abierto__c
-            FROM Envio_Correo__c
-            WHERE Token_Apertura__c = :token
+            FROM Destinatario_Envio_Correo__c
+            WHERE Id = :fila.Id
         ];
-        System.assertEquals(false, envio.Abierto__c);
+        System.assertEquals(false, fila.Abierto__c);
     }
 
     @isTest
@@ -62,19 +61,19 @@ private class EnvioCorreoAperturaServiceTest {
     @isTest
     static void laPaginaPublicaRegistraLaApertura() {
         String token = EnvioCorreoAperturaService.nuevoToken();
-        insert envio(token);
+        Destinatario_Envio_Correo__c fila = destinatario(token);
         Test.setCurrentPage(new PageReference('/apex/EnvioCorreoApertura?t=' + token));
 
         Test.startTest();
         new EnvioCorreoAperturaController().registrar();
         Test.stopTest();
 
-        Envio_Correo__c envio = [
+        fila = [
             SELECT Abierto__c
-            FROM Envio_Correo__c
-            WHERE Token_Apertura__c = :token
+            FROM Destinatario_Envio_Correo__c
+            WHERE Id = :fila.Id
         ];
-        System.assertEquals(true, envio.Abierto__c);
+        System.assertEquals(true, fila.Abierto__c);
     }
 
     @isTest
@@ -128,23 +127,22 @@ private class EnvioCorreoAperturaServiceTest {
         System.assertEquals(true, porCorreo.get('dos@firma.test').Abierto__c);
         System.assertNotEquals(null, porCorreo.get('uno@firma.test').Fecha_Primera_Apertura__c);
         System.assertNotEquals(null, porCorreo.get('dos@firma.test').Fecha_Primera_Apertura__c);
-        envio = [
-            SELECT Abierto__c, Cantidad_Destinatarios__c, Cantidad_Abiertos__c
-            FROM Envio_Correo__c
-            WHERE Id = :envio.Id
-        ];
-        System.assertEquals(true, envio.Abierto__c);
-        System.assertEquals(2, envio.Cantidad_Destinatarios__c);
-        System.assertEquals(2, envio.Cantidad_Abiertos__c);
     }
 
-    private static Envio_Correo__c envio(String token) {
-        return new Envio_Correo__c(
+    private static Destinatario_Envio_Correo__c destinatario(String token) {
+        Envio_Correo__c envio = new Envio_Correo__c(
             Proceso__c = 'Prueba de apertura',
             Objeto__c = 'Movimiento_BolsaTech__c',
             Asunto__c = 'Prueba',
-            Estado__c = 'Enviado',
+            Estado__c = 'Enviado'
+        );
+        insert envio;
+        Destinatario_Envio_Correo__c fila = new Destinatario_Envio_Correo__c(
+            Envio_Correo__c = envio.Id,
+            Correo__c = 'uno@firma.test',
             Token_Apertura__c = token
         );
+        insert fila;
+        return fila;
     }
 }

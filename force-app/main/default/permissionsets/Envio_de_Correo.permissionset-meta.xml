@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>EnvioCorreoAperturaController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>EnvioCorreoAperturaService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>EnvioCorreoMbtInicialBatch</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>EnvioCorreoMbtInicialQueueable</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>EnvioCorreoMbtInicialService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description>Acceso al objeto Envío de Correo y a sus campos.</description>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Destinatario_Envio_Correo__c.Abierto__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Destinatario_Envio_Correo__c.Fecha_Envio__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Destinatario_Envio_Correo__c.Fecha_Primera_Apertura__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Destinatario_Envio_Correo__c.Fecha_Ultima_Apertura__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Destinatario_Envio_Correo__c.Id_Correo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Envio_Correo__c.CUIT__c</field>
