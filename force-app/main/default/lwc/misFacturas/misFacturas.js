@@ -299,7 +299,11 @@ export default class MisFacturas extends LightningElement {
     const row = event.detail.row;
     switch (action.name) {
       case "Ver":
-        this.openDocumentos(row);
+        if (row.file) {
+          this.showPdf(row);
+        } else {
+          this.openDocumentos(row);
+        }
         break;
       case "Pagar":
         this.handleOnPayClickConfirm(row);
