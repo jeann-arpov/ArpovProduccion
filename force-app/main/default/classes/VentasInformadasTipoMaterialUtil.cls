@@ -2,7 +2,10 @@
  * Checkbox Tipo de regalía comercial en la Venta Informada:
  *  - marcado → Tipo_de_Material__c = Regalía Comercial + Producto Family Regalía Comercial
  *    (misma Variedad / Cultivar INASE y Categoría).
- *  - desmarcado → limpia Tipo_de_Material__c y restaura Producto Semilla Fiscalizada.
+ *  - se desmarca (estaba marcado) → limpia Tipo_de_Material__c y restaura Producto Semilla Fiscalizada.
+ *  - la interfaz informa Tipo de Material = Regalía Comercial (ZREG) sin checkbox
+ *    → se conserva el texto y se alinea el producto Regalía Comercial.
+ *    No se borra: antes ese caso se tomaba como desmarcado y el campo quedaba vacío.
  * Se aplica en before insert/update (trigger). Reprocesar/Convertir siguen pudiendo llamar
  * aplicarDesdeCheckbox por datos legacy.
  */
@@ -12,8 +15,9 @@ public without sharing class VentasInformadasTipoMaterialUtil {
     public static final String SEMILLA_FISCALIZADA = 'Semilla Fiscalizada';
 
     /**
-     * Before-save: reacciona al checkbox (y mantiene producto RC si ya está marcado
-     * y se recalculó producto SF por cambio de variedad/categoría).
+     * Before-save: reacciona al checkbox y, si Tipo de Material ya es Regalía Comercial
+     * (alta por interfaz, sin checkbox), conserva el texto y el producto RC.
+     * actualizarProducto corre antes y deja Semilla Fiscalizada; acá se corrige.
      */
     public static void aplicarBeforeSave(
         List<Ventas_Informadas__c> ventas,
@@ -34,10 +38,10 @@ public without sharing class VentasInformadasTipoMaterialUtil {
             Boolean checkNuevo = vi.Tipo_de_regalia_comercial__c == true;
             Boolean checkViejo = oldV != null && oldV.Tipo_de_regalia_comercial__c == true;
 
-            if (checkNuevo) {
+            if (checkNuevo || (!checkViejo && vi.Tipo_de_Material__c == REGALIA_COMERCIAL)) {
                 aMarcar.add(vi);
                 acumularClaves(vi, variedades, categorias);
-            } else if (checkViejo || vi.Tipo_de_Material__c == REGALIA_COMERCIAL) {
+            } else if (checkViejo) {
                 aDesmarcar.add(vi);
                 acumularClaves(vi, variedades, categorias);
             }
