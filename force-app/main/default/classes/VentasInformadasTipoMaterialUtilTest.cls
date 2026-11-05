@@ -141,6 +141,42 @@ private class VentasInformadasTipoMaterialUtilTest {
     }
 
     @IsTest
+    static void interfazConRegaliaComercialSinCheckboxConservaTipoYProducto() {
+        ProductosFixture fx = crearProductosPar();
+
+        Ventas_Informadas__c vi = new Ventas_Informadas__c(
+            Tipo_de_Comprobante__c = 'FC',
+            Estado__c = 'Pendiente',
+            CUIT_Originante__c = '20111111112',
+            CUIT_Destinatario__c = '20222222223',
+            Variedad__c = fx.cultivar,
+            Categoria__c = fx.categoria,
+            Cantidad_de_Bolsas__c = 40,
+            Campana_de_Ventas__c = '2026',
+            Tipo_de_regalia_comercial__c = false,
+            Tipo_de_Material__c = VentasInformadasTipoMaterialUtil.REGALIA_COMERCIAL
+        );
+
+        Test.startTest();
+        insert vi;
+        vi.Cantidad_de_Bolsas__c = 41;
+        update vi;
+        Test.stopTest();
+
+        vi = [
+            SELECT Tipo_de_Material__c, Producto__c, Tipo_de_regalia_comercial__c
+            FROM Ventas_Informadas__c
+            WHERE Id = :vi.Id
+        ];
+        System.assertEquals(
+            VentasInformadasTipoMaterialUtil.REGALIA_COMERCIAL,
+            vi.Tipo_de_Material__c
+        );
+        System.assertEquals(fx.prodRc.Id, vi.Producto__c);
+        System.assertEquals(false, vi.Tipo_de_regalia_comercial__c);
+    }
+
+    @IsTest
     static void aplicaSoloSiCheckboxMarcadoYAsignaProducto() {
         ProductosFixture fx = crearProductosPar();
 
