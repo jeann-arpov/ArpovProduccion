@@ -2,7 +2,7 @@ public with sharing class MovimientoBolsaTechTriggerHandler extends TriggerHandl
     public override void afterInsert() {
         Set<Id> movimientoIds = new Set<Id>();
         for (Movimiento_BolsaTech__c movimiento : (List<Movimiento_BolsaTech__c>) Trigger.new) {
-            if (movimiento.Titular__c == null || String.isBlank(movimiento.Cosecha__c)) {
+            if (String.isBlank(movimiento.Cosecha__c) || String.isBlank(EnvioCorreoMbtInicialService.cuitTitular(movimiento))) {
                 continue;
             }
             if (movimiento.Tecnologia__c == null || !movimiento.Tecnologia__c.equalsIgnoreCase(EnvioCorreoMbtInicialService.TECNOLOGIA)) {

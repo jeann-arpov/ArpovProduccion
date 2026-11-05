@@ -32,7 +32,7 @@ private class EnvioCorreoMbtInicialServiceTest {
 
         List<Envio_Correo__c> envios = [
             SELECT Estado__c, Para__c, Asunto__c, Cuerpo_HTML__c, Productor__c, Campania__c,
-                Cultivo__c, Nombre_Registro__c, Id_Correo__c, Proceso__c
+                Cultivo__c, Nombre_Registro__c, Id_Correo__c, Proceso__c, Abierto__c
             FROM Envio_Correo__c
             WHERE Productor__c = :productor.Id
         ];
@@ -43,7 +43,17 @@ private class EnvioCorreoMbtInicialServiceTest {
         System.assert(envios[0].Para__c.contains('dos@productor.test'));
         System.assertEquals(1, envios[0].Para__c.countMatches('uno@productor.test'));
         System.assert(envios[0].Cuerpo_HTML__c.contains(productor.Name));
+        System.assertEquals(false, envios[0].Abierto__c);
         System.assert(!envios[0].Cuerpo_HTML__c.contains('mailchi.mp'));
+        List<Destinatario_Envio_Correo__c> destinatarios = [
+            SELECT Correo__c, Token_Apertura__c, Abierto__c
+            FROM Destinatario_Envio_Correo__c
+            WHERE Envio_Correo__c = :envios[0].Id
+        ];
+        System.assertEquals(2, destinatarios.size());
+        System.assertEquals(false, destinatarios[0].Abierto__c);
+        System.assertEquals(false, destinatarios[1].Abierto__c);
+        System.assertNotEquals(destinatarios[0].Token_Apertura__c, destinatarios[1].Token_Apertura__c);
         System.assert(!envios[0].Cuerpo_HTML__c.contains('list-manage.com'));
         primero = [SELECT Name FROM Movimiento_BolsaTech__c WHERE Id = :primero.Id];
         System.assertEquals(primero.Name, envios[0].Nombre_Registro__c);
@@ -223,6 +233,32 @@ private class EnvioCorreoMbtInicialServiceTest {
             AND Asunto__c LIKE '%2025%'
         ];
         System.assertEquals(1, envios.size());
+    }
+
+    @isTest
+    static void elTriggerEnviaAunqueElMovimientoNoTengaTitular() {
+        Account productor = productorLicenciatario();
+        cultivoSoja();
+        insert licencia(productor.Id, 'LIC-ENLIST-CUIT', 'cuit@productor.test');
+        marcarLicenciatario(productor);
+        Movimiento_BolsaTech__c movimiento = movimiento(productor, '2526');
+        movimiento.Titular__c = null;
+
+        Test.startTest();
+        insert movimiento;
+        Test.stopTest();
+
+        movimiento = [SELECT Titular__c FROM Movimiento_BolsaTech__c WHERE Id = :movimiento.Id];
+        System.assertEquals(null, movimiento.Titular__c);
+        List<Envio_Correo__c> envios = [
+            SELECT Productor__c, Para__c, Estado__c
+            FROM Envio_Correo__c
+            WHERE Productor__c = :productor.Id
+        ];
+        System.assertEquals(1, envios.size());
+        System.assertEquals('Enviado', envios[0].Estado__c);
+        System.assertEquals(productor.Id, envios[0].Productor__c);
+        System.assert(envios[0].Para__c.contains('cuit@productor.test'));
     }
 
     @isTest

@@ -79,6 +79,16 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+        <object>Destinatario_Envio_Correo__c</object>
+        <viewAllFields>true</viewAllFields>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
         <object>Envio_Correo__c</object>
         <viewAllFields>true</viewAllFields>
         <viewAllRecords>true</viewAllRecords>

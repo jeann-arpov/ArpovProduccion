@@ -13,14 +13,22 @@ public with sharing class EnvioCorreoMbtInicialService {
         }
 
         List<Movimiento_BolsaTech__c> candidatos = [
-            SELECT Id, Name, Titular__c, Titular__r.Name, Titular__r.N_CUIT__c,
-                Cosecha__c, Cultivo__c, Tecnologia__c, Licenciatario_Elist__c, CreatedDate
+            SELECT Id, Name, Titular__c, Titular__r.Name, Titular__r.N_CUIT__c, Titular__r.Usuario_Enlist__c,
+                CUIT_Titular__c, Cuit_Remitente_Comercial__c,
+                Cosecha__c, Cultivo__c, Tecnologia__c, CreatedDate
             FROM Movimiento_BolsaTech__c
             WHERE Id IN :movimientoIds
-            AND Titular__c != null
             AND Cosecha__c != null
             AND Tecnologia__c = :TECNOLOGIA
         ];
+        resolverTitular(candidatos);
+        List<Movimiento_BolsaTech__c> conTitular = new List<Movimiento_BolsaTech__c>();
+        for (Movimiento_BolsaTech__c movimiento : candidatos) {
+            if (movimiento.Titular__c != null) {
+                conTitular.add(movimiento);
+            }
+        }
+        candidatos = conTitular;
         if (candidatos.isEmpty()) {
             return;
         }
@@ -34,7 +42,8 @@ public with sharing class EnvioCorreoMbtInicialService {
             if (String.isBlank(movimiento.Cultivo__c) || anioDeCosecha(movimiento.Cosecha__c) == null) {
                 continue;
             }
-            if (primerMovimientoPorClave.get(clave(movimiento)) != movimiento.Id) {
+            Id primerId = primerMovimientoPorClave.get(clave(movimiento));
+            if (primerId != null && primerId != movimiento.Id) {
                 continue;
             }
             primeros.add(movimiento);
@@ -55,8 +64,10 @@ public with sharing class EnvioCorreoMbtInicialService {
         OrgWideEmailAddress casilla = casillaRemitente();
 
         List<Envio_Correo__c> aGuardar = new List<Envio_Correo__c>();
+        List<List<Destinatario_Envio_Correo__c>> destinatariosPorEnvio = new List<List<Destinatario_Envio_Correo__c>>();
         List<Messaging.SingleEmailMessage> correos = new List<Messaging.SingleEmailMessage>();
         List<Integer> indiceEnvioPorCorreo = new List<Integer>();
+        List<Integer> indiceDestinatarioPorCorreo = new List<Integer>();
 
         for (Movimiento_BolsaTech__c movimiento : primeros) {
             if (clavesNotificadas.contains(clave(movimiento))) {
@@ -74,47 +85,81 @@ public with sharing class EnvioCorreoMbtInicialService {
             }
 
             List<String> destinatarios = correosPorTitular.get(movimiento.Titular__c);
-            if (casilla == null || String.isBlank(htmlPlantilla) || movimiento.Licenciatario_Elist__c != true
+            if (casilla == null || String.isBlank(htmlPlantilla) || movimiento.Titular__r == null
+                || movimiento.Titular__r.Usuario_Enlist__c != true
                 || destinatarios == null || destinatarios.isEmpty()) {
                 continue;
             }
 
-            String html = armarCuerpo(htmlPlantilla, movimiento.Titular__r.Name);
+            String cuerpoBase = armarCuerpo(htmlPlantilla, movimiento.Titular__r.Name);
             String asuntoCorreo = ASUNTO + ' - ' + nombreCampania(movimiento, campaniaPorCultivoAnio);
             envio.Para__c = String.join(destinatarios, ', ');
             envio.Asunto__c = asuntoCorreo;
-            envio.Cuerpo_HTML__c = html;
+            envio.Cuerpo_HTML__c = cuerpoBase;
             envio.De__c = REMITENTE;
             envio.Estado__c = 'Enviado';
             envio.Mensaje_Error__c = null;
             envio.Fecha_Envio__c = System.now();
-            correos.add(armarCorreo(casilla, destinatarios, asuntoCorreo, html));
-            indiceEnvioPorCorreo.add(aGuardar.size());
+            List<Destinatario_Envio_Correo__c> filas = new List<Destinatario_Envio_Correo__c>();
+            for (String destinatario : destinatarios) {
+                String token = EnvioCorreoAperturaService.nuevoToken();
+                filas.add(new Destinatario_Envio_Correo__c(
+                    Correo__c = destinatario,
+                    Token_Apertura__c = token
+                ));
+                correos.add(armarCorreo(
+                    casilla,
+                    new List<String>{ destinatario },
+                    asuntoCorreo,
+                    EnvioCorreoAperturaService.agregarPixel(cuerpoBase, token)
+                ));
+                indiceEnvioPorCorreo.add(aGuardar.size());
+                indiceDestinatarioPorCorreo.add(filas.size() - 1);
+            }
+            destinatariosPorEnvio.add(filas);
             aGuardar.add(envio);
         }
 
-        if (!correos.isEmpty()) {
-            Messaging.SendEmailResult[] resultados = Messaging.sendEmail(correos, false);
-            for (Integer i = 0; i < resultados.size(); i++) {
-                if (resultados[i].isSuccess()) {
-                    continue;
+        List<Messaging.SendEmailResult> resultados = enviarEnLotes(correos);
+        Map<Integer, List<Destinatario_Envio_Correo__c>> enviadosPorIndice = new Map<Integer, List<Destinatario_Envio_Correo__c>>();
+        Map<Integer, List<String>> erroresPorIndice = new Map<Integer, List<String>>();
+        for (Integer i = 0; i < resultados.size(); i++) {
+            Integer indiceEnvio = indiceEnvioPorCorreo[i];
+            Destinatario_Envio_Correo__c fila = destinatariosPorEnvio[indiceEnvio][indiceDestinatarioPorCorreo[i]];
+            if (resultados[i].isSuccess()) {
+                if (!enviadosPorIndice.containsKey(indiceEnvio)) {
+                    enviadosPorIndice.put(indiceEnvio, new List<Destinatario_Envio_Correo__c>());
                 }
-                Envio_Correo__c envio = aGuardar[indiceEnvioPorCorreo[i]];
-                marcarError(envio, mensajeError(resultados[i]));
+                enviadosPorIndice.get(indiceEnvio).add(fila);
+            } else {
+                if (!erroresPorIndice.containsKey(indiceEnvio)) {
+                    erroresPorIndice.put(indiceEnvio, new List<String>());
+                }
+                erroresPorIndice.get(indiceEnvio).add(fila.Correo__c + ': ' + mensajeError(resultados[i]));
             }
         }
 
         List<Envio_Correo__c> enviados = new List<Envio_Correo__c>();
-        for (Envio_Correo__c envio : aGuardar) {
-            if (envio.Estado__c == 'Enviado') {
-                enviados.add(envio);
+        List<Destinatario_Envio_Correo__c> destinatariosEnviados = new List<Destinatario_Envio_Correo__c>();
+        for (Integer indiceEnvio : enviadosPorIndice.keySet()) {
+            Envio_Correo__c envio = aGuardar[indiceEnvio];
+            if (erroresPorIndice.containsKey(indiceEnvio)) {
+                envio.Mensaje_Error__c = String.join(erroresPorIndice.get(indiceEnvio), '\n');
             }
+            enviados.add(envio);
         }
         if (enviados.isEmpty()) {
             return;
         }
         upsert enviados;
-        vincularCorreos(enviados);
+        for (Integer indiceEnvio : enviadosPorIndice.keySet()) {
+            for (Destinatario_Envio_Correo__c fila : enviadosPorIndice.get(indiceEnvio)) {
+                fila.Envio_Correo__c = aGuardar[indiceEnvio].Id;
+                destinatariosEnviados.add(fila);
+            }
+        }
+        insert destinatariosEnviados;
+        vincularCorreos(enviados, destinatariosEnviados);
     }
 
     private static Map<String, Id> primerosPorClave(List<Movimiento_BolsaTech__c> candidatos) {
@@ -149,13 +194,93 @@ public with sharing class EnvioCorreoMbtInicialService {
             'AND Tecnologia__c = :tecnologia ' +
             'AND (' + String.join(filtrosAnio, ' OR ') + ') ' +
             'ORDER BY CreatedDate ASC, Id ASC';
+        Map<String, Movimiento_BolsaTech__c> primero = new Map<String, Movimiento_BolsaTech__c>();
         for (Movimiento_BolsaTech__c movimiento : Database.query(consulta)) {
-            if (primerId.containsKey(clave(movimiento))) {
-                continue;
-            }
-            primerId.put(clave(movimiento), movimiento.Id);
+            incorporarPrimero(primero, movimiento);
+        }
+        for (Movimiento_BolsaTech__c movimiento : candidatos) {
+            incorporarPrimero(primero, movimiento);
+        }
+        for (String claveMovimiento : primero.keySet()) {
+            primerId.put(claveMovimiento, primero.get(claveMovimiento).Id);
         }
         return primerId;
+    }
+
+    public static String cuitTitular(Movimiento_BolsaTech__c movimiento) {
+        if (movimiento == null) {
+            return null;
+        }
+        if (String.isNotBlank(movimiento.CUIT_Titular__c)) {
+            return movimiento.CUIT_Titular__c.trim();
+        }
+        if (String.isBlank(movimiento.Cuit_Remitente_Comercial__c)) {
+            return null;
+        }
+        return movimiento.Cuit_Remitente_Comercial__c.trim();
+    }
+
+    private static void resolverTitular(List<Movimiento_BolsaTech__c> movimientos) {
+        Set<String> cuits = new Set<String>();
+        for (Movimiento_BolsaTech__c movimiento : movimientos) {
+            String cuit = cuitTitular(movimiento);
+            if (String.isNotBlank(cuit)) {
+                cuits.add(cuit);
+            }
+        }
+        Map<String, Account> cuentas = new CuentasPorCuit().buscar(cuits);
+        for (Movimiento_BolsaTech__c movimiento : movimientos) {
+            String cuit = cuitTitular(movimiento);
+            if (String.isBlank(cuit)) {
+                continue;
+            }
+            Account cuenta = cuentas.get(cuit);
+            movimiento.Titular__c = cuenta == null ? null : cuenta.Id;
+            movimiento.Titular__r = cuenta;
+        }
+    }
+
+    private static void incorporarPrimero(
+        Map<String, Movimiento_BolsaTech__c> primero,
+        Movimiento_BolsaTech__c movimiento
+    ) {
+        if (movimiento.Titular__c == null || String.isBlank(movimiento.Cultivo__c) || anioDeCosecha(movimiento.Cosecha__c) == null) {
+            return;
+        }
+        String claveMovimiento = clave(movimiento);
+        Movimiento_BolsaTech__c actual = primero.get(claveMovimiento);
+        if (actual == null || esAnterior(movimiento, actual)) {
+            primero.put(claveMovimiento, movimiento);
+        }
+    }
+
+    private static Boolean esAnterior(Movimiento_BolsaTech__c candidato, Movimiento_BolsaTech__c actual) {
+        if (candidato.CreatedDate == actual.CreatedDate) {
+            return String.valueOf(candidato.Id) < String.valueOf(actual.Id);
+        }
+        return candidato.CreatedDate < actual.CreatedDate;
+    }
+
+    private without sharing class CuentasPorCuit {
+        public Map<String, Account> buscar(Set<String> cuits) {
+            Map<String, Account> cuentas = new Map<String, Account>();
+            if (cuits == null || cuits.isEmpty()) {
+                return cuentas;
+            }
+            for (Account cuenta : [
+                SELECT Id, Name, N_CUIT__c, Usuario_Enlist__c
+                FROM Account
+                WHERE RecordType.DeveloperName != 'Proveedor'
+                AND N_CUIT__c IN :cuits
+                AND (
+                    (N_CUIT__c IN ('30569723023', '30715468294') AND Type = 'Obtentor')
+                    OR ParentId = null
+                )
+            ]) {
+                cuentas.put(cuenta.N_CUIT__c, cuenta);
+            }
+            return cuentas;
+        }
     }
 
     private static Set<String> clavesYaNotificadas(Set<Id> titularIds) {
@@ -381,34 +506,60 @@ public with sharing class EnvioCorreoMbtInicialService {
         return resultado.getErrors()[0].getMessage();
     }
 
-    private static void vincularCorreos(List<Envio_Correo__c> envios) {
+    private static List<Messaging.SendEmailResult> enviarEnLotes(List<Messaging.SingleEmailMessage> correos) {
+        List<Messaging.SendEmailResult> resultados = new List<Messaging.SendEmailResult>();
+        Integer tamanoLote = 100;
+        for (Integer inicio = 0; inicio < correos.size(); inicio += tamanoLote) {
+            List<Messaging.SingleEmailMessage> lote = new List<Messaging.SingleEmailMessage>();
+            Integer fin = Math.min(inicio + tamanoLote, correos.size());
+            for (Integer i = inicio; i < fin; i++) {
+                lote.add(correos[i]);
+            }
+            for (Messaging.SendEmailResult resultado : Messaging.sendEmail(lote, false)) {
+                resultados.add(resultado);
+            }
+        }
+        return resultados;
+    }
+
+    private static void vincularCorreos(
+        List<Envio_Correo__c> envios,
+        List<Destinatario_Envio_Correo__c> destinatarios
+    ) {
+        Map<Id, Envio_Correo__c> envioPorId = new Map<Id, Envio_Correo__c>(envios);
         List<EmailMessage> mensajes = new List<EmailMessage>();
-        List<Envio_Correo__c> enviados = new List<Envio_Correo__c>();
-        for (Envio_Correo__c envio : envios) {
-            if (envio.Estado__c != 'Enviado' || String.isBlank(envio.Para__c)) {
+        List<Destinatario_Envio_Correo__c> conMensaje = new List<Destinatario_Envio_Correo__c>();
+        for (Destinatario_Envio_Correo__c destinatario : destinatarios) {
+            Envio_Correo__c envio = envioPorId.get(destinatario.Envio_Correo__c);
+            if (envio == null || envio.Estado__c != 'Enviado' || String.isBlank(destinatario.Correo__c)) {
                 continue;
             }
             mensajes.add(new EmailMessage(
                 Subject = envio.Asunto__c,
-                HtmlBody = envio.Cuerpo_HTML__c,
+                HtmlBody = EnvioCorreoAperturaService.agregarPixel(envio.Cuerpo_HTML__c, destinatario.Token_Apertura__c),
                 FromAddress = REMITENTE,
                 FromName = 'Sembrá Evolución',
-                ToAddress = envio.Para__c,
+                ToAddress = destinatario.Correo__c,
                 RelatedToId = envio.Id,
                 Status = '3',
                 Incoming = false,
                 MessageDate = envio.Fecha_Envio__c
             ));
-            enviados.add(envio);
+            conMensaje.add(destinatario);
         }
         if (mensajes.isEmpty()) {
             return;
         }
         insert mensajes;
         for (Integer i = 0; i < mensajes.size(); i++) {
-            enviados[i].Id_Correo__c = String.valueOf(mensajes[i].Id);
+            conMensaje[i].Id_Correo__c = String.valueOf(mensajes[i].Id);
+            Envio_Correo__c envio = envioPorId.get(conMensaje[i].Envio_Correo__c);
+            if (String.isBlank(envio.Id_Correo__c)) {
+                envio.Id_Correo__c = conMensaje[i].Id_Correo__c;
+            }
         }
-        update enviados;
+        update conMensaje;
+        update envios;
     }
 
     private static String nombreCampania(Movimiento_BolsaTech__c movimiento, Map<String, CampaniaInfo> campaniaPorCultivoAnio) {

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>EnvioCorreoAperturaController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>EnvioCorreoAperturaService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Permite al sitio público marcar un Envío de Correo como abierto. No otorga acceso a otros registros.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Apertura de correo - Sitio</label>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Apertura_Correo__e</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <pageAccesses>
+        <apexPage>EnvioCorreoApertura</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+</PermissionSet>

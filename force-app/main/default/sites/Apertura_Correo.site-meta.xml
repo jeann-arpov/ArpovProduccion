@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomSite xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <allowGuestPaymentsApi>false</allowGuestPaymentsApi>
+    <allowHomePage>false</allowHomePage>
+    <allowStandardAnswersPages>false</allowStandardAnswersPages>
+    <allowStandardIdeasPages>false</allowStandardIdeasPages>
+    <allowStandardLookups>false</allowStandardLookups>
+    <allowStandardPortalPages>false</allowStandardPortalPages>
+    <allowStandardSearch>false</allowStandardSearch>
+    <authorizationRequiredPage>Unauthorized</authorizationRequiredPage>
+    <bandwidthExceededPage>BandwidthExceeded</bandwidthExceededPage>
+    <browserXssProtection>true</browserXssProtection>
+    <cachePublicVisualforcePagesInProxyServers>false</cachePublicVisualforcePagesInProxyServers>
+    <clickjackProtectionLevel>SameOriginOnly</clickjackProtectionLevel>
+    <contentSniffingProtection>true</contentSniffingProtection>
+    <description>Pixel público para registrar la apertura de un Envío de Correo.</description>
+    <enableAuraRequests>false</enableAuraRequests>
+    <fileNotFoundPage>FileNotFound</fileNotFoundPage>
+    <genericErrorPage>Exception</genericErrorPage>
+    <inMaintenancePage>InMaintenance</inMaintenancePage>
+    <inactiveIndexPage>InMaintenance</inactiveIndexPage>
+    <indexPage>EnvioCorreoApertura</indexPage>
+    <masterLabel>Apertura de correo</masterLabel>
+    <redirectToCustomDomain>false</redirectToCustomDomain>
+    <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
+    <siteAdmin>acquaadmin@arpov.org.ar</siteAdmin>
+    <siteGuestRecordDefaultOwner>acquaadmin@arpov.org.ar</siteGuestRecordDefaultOwner>
+    <siteTemplate>SiteTemplate</siteTemplate>
+    <siteType>Visualforce</siteType>
+    <subdomain>aperturacorreo</subdomain>
+    <urlPathPrefix>apertura</urlPathPrefix>
+</CustomSite>

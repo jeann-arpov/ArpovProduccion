@@ -1,0 +1,2 @@
+<apex:page controller="EnvioCorreoAperturaController" action="{!registrar}" contentType="image/gif" cache="false" expires="0" showHeader="false" sidebar="false" standardStylesheets="false" applyHtmlTag="false" applyBodyTag="false" docType="">
+</apex:page>

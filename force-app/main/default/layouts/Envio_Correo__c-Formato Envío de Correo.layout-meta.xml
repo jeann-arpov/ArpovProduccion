@@ -19,6 +19,18 @@
                 <field>Fecha_Envio__c</field>
             </layoutItems>
             <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Abierto__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Fecha_Primera_Apertura__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Fecha_Ultima_Apertura__c</field>
+            </layoutItems>
+            <layoutItems>
                 <behavior>Edit</behavior>
                 <field>De__c</field>
             </layoutItems>
@@ -123,10 +135,22 @@
         <layoutColumns/>
         <style>CustomLinks</style>
     </layoutSections>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Correo__c</fields>
+        <fields>Abierto__c</fields>
+        <fields>Fecha_Primera_Apertura__c</fields>
+        <fields>Fecha_Ultima_Apertura__c</fields>
+        <relatedList>Destinatario_Envio_Correo__c.Envio_Correo__c</relatedList>
+        <sortField>Correo__c</sortField>
+        <sortOrder>Asc</sortOrder>
+    </relatedLists>
     <miniLayout>
         <fields>Asunto__c</fields>
         <fields>Estado__c</fields>
         <fields>Fecha_Envio__c</fields>
+        <fields>Abierto__c</fields>
+        <fields>Fecha_Primera_Apertura__c</fields>
         <fields>Objeto__c</fields>
         <fields>Proceso__c</fields>
     </miniLayout>

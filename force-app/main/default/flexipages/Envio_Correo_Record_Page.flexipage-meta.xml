@@ -58,6 +58,36 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Abierto__c</fieldItem>
+                <identifier>RecordAbiertoField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Fecha_Primera_Apertura__c</fieldItem>
+                <identifier>RecordFechaPrimeraAperturaField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Fecha_Ultima_Apertura__c</fieldItem>
+                <identifier>RecordFechaUltimaAperturaField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.De__c</fieldItem>
@@ -192,6 +222,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Productor__c</fieldItem>
                 <identifier>RecordProductorField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Proceso__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>MBT inicial de campaña</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -202,6 +239,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.CUIT__c</fieldItem>
                 <identifier>RecordCuitField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Proceso__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>MBT inicial de campaña</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <name>Facet-origen-izq</name>
@@ -218,9 +262,9 @@
                 <identifier>RecordCampaniaField</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue>{!Record.Objeto__c}</leftValue>
+                        <leftValue>{!Record.Proceso__c}</leftValue>
                         <operator>EQUAL</operator>
-                        <rightValue>Movimiento_BolsaTech__c</rightValue>
+                        <rightValue>MBT inicial de campaña</rightValue>
                     </criteria>
                 </visibilityRule>
             </fieldInstance>
@@ -235,9 +279,9 @@
                 <identifier>RecordCultivoField</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue>{!Record.Objeto__c}</leftValue>
+                        <leftValue>{!Record.Proceso__c}</leftValue>
                         <operator>EQUAL</operator>
-                        <rightValue>Movimiento_BolsaTech__c</rightValue>
+                        <rightValue>MBT inicial de campaña</rightValue>
                     </criteria>
                 </visibilityRule>
             </fieldInstance>
@@ -250,6 +294,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Tecnologia__c</fieldItem>
                 <identifier>RecordTecnologiaField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Proceso__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>MBT inicial de campaña</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <name>Facet-origen-der</name>

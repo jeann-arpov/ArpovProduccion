@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Envio_Correo__c</fullName>
+    <label>Envío de correo</label>
+    <referenceTo>Envio_Correo__c</referenceTo>
+    <relationshipLabel>Destinatarios</relationshipLabel>
+    <relationshipName>Destinatarios</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>
