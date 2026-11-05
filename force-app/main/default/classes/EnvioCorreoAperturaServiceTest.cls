@@ -103,20 +103,39 @@ private class EnvioCorreoAperturaServiceTest {
 
         Test.startTest();
         EnvioCorreoAperturaService.registrar(tokenUno);
-        Test.stopTest();
-
-        Map<String, Destinatario_Envio_Correo__c> porCorreo = new Map<String, Destinatario_Envio_Correo__c>();
+        Map<String, Destinatario_Envio_Correo__c> parcial = new Map<String, Destinatario_Envio_Correo__c>();
         for (Destinatario_Envio_Correo__c fila : [
             SELECT Correo__c, Abierto__c
+            FROM Destinatario_Envio_Correo__c
+            WHERE Envio_Correo__c = :envio.Id
+        ]) {
+            parcial.put(fila.Correo__c, fila);
+        }
+        EnvioCorreoAperturaService.registrar(tokenDos);
+        Test.stopTest();
+
+        System.assertEquals(true, parcial.get('uno@firma.test').Abierto__c);
+        System.assertEquals(false, parcial.get('dos@firma.test').Abierto__c);
+        Map<String, Destinatario_Envio_Correo__c> porCorreo = new Map<String, Destinatario_Envio_Correo__c>();
+        for (Destinatario_Envio_Correo__c fila : [
+            SELECT Correo__c, Abierto__c, Fecha_Primera_Apertura__c
             FROM Destinatario_Envio_Correo__c
             WHERE Envio_Correo__c = :envio.Id
         ]) {
             porCorreo.put(fila.Correo__c, fila);
         }
         System.assertEquals(true, porCorreo.get('uno@firma.test').Abierto__c);
-        System.assertEquals(false, porCorreo.get('dos@firma.test').Abierto__c);
-        envio = [SELECT Abierto__c FROM Envio_Correo__c WHERE Id = :envio.Id];
+        System.assertEquals(true, porCorreo.get('dos@firma.test').Abierto__c);
+        System.assertNotEquals(null, porCorreo.get('uno@firma.test').Fecha_Primera_Apertura__c);
+        System.assertNotEquals(null, porCorreo.get('dos@firma.test').Fecha_Primera_Apertura__c);
+        envio = [
+            SELECT Abierto__c, Cantidad_Destinatarios__c, Cantidad_Abiertos__c
+            FROM Envio_Correo__c
+            WHERE Id = :envio.Id
+        ];
         System.assertEquals(true, envio.Abierto__c);
+        System.assertEquals(2, envio.Cantidad_Destinatarios__c);
+        System.assertEquals(2, envio.Cantidad_Abiertos__c);
     }
 
     private static Envio_Correo__c envio(String token) {

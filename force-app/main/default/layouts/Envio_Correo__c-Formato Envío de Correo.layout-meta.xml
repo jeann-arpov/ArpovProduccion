@@ -24,6 +24,14 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>
+                <field>Cantidad_Destinatarios__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Cantidad_Abiertos__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
                 <field>Fecha_Primera_Apertura__c</field>
             </layoutItems>
             <layoutItems>
