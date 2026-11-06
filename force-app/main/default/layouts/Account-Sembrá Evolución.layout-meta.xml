@@ -63,6 +63,10 @@
                 <behavior>Edit</behavior>
                 <field>ID_CTV__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Tiene_Expediente_Negativo_Abierto__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

@@ -63,6 +63,10 @@
                 <behavior>Edit</behavior>
                 <field>ID_CTV__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Tiene_Expediente_Negativo_Abierto__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -245,6 +249,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Type</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Habilitado_Importar_Ventas__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>

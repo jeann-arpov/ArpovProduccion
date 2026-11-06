@@ -7,7 +7,6 @@ import save from '@salesforce/apex/CesionPPH.save';
 import backToEnCurso from '@salesforce/apex/CesionPPH.backToEnCurso';
 import anular from '@salesforce/apex/CesionPPH.anular';
 import deleteFile from '@salesforce/apex/CesionPPH.deleteFile';
-import uploadContratoFile from '@salesforce/apex/CesionPPH.uploadContratoFile';
 import getNewCesionData from '@salesforce/apex/CesionPPH.getNewCesionData';
 
 import {errorEvent} from 'c/utils';
@@ -65,10 +64,6 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     hiding = {};
     licenses;
     files = [];
-    contratoUploading = false;
-    contratoUploadName = '';
-    contratoUploadPct = 0;
-    _contratoUploadTimer;
     doContinue = false;
     cultivos;
     cultivo;
@@ -84,7 +79,6 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
     }
 
     disconnectedCallback() {
-        this._stopContratoProgress();
         document.documentElement.classList.remove('se-inner', 'se-inner-wizard');
         document.body.classList.remove('se-inner', 'se-inner-wizard');
     }
@@ -404,6 +398,14 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         return ext ? `${ext} · Contrato adjunto` : 'Contrato adjunto';
     }
 
+    get contratoUploadLabel() {
+        return this.hasContrato ? 'Reemplazar contrato' : 'Subí el PDF del convenio de cesión';
+    }
+
+    get contratoPickerClass() {
+        return this.hasContrato ? 'se-contrato-picker se-contrato-picker--replace' : 'se-contrato-picker';
+    }
+
     get mobTitleBadge() {
         if (this.isWizardStep2 || this.isWizardStep3) return this.cultivoPillLabel;
         return '';
@@ -450,12 +452,8 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         }
     }
 
-    get contratoUploadBarStyle() {
-        return `width: ${this.contratoUploadPct}%`;
-    }
-
     get mobFooterContinuarDisabled() {
-        if (this.loading || this.contratoUploading) return true;
+        if (this.loading) return true;
         if (this.wizardStep === 1) return !this.cultivo || this.selectedCultivoSaldo <= 0;
         if (this.wizardStep === 2) return !this.wizardDestReady || !this.hasContrato;
         if (this.wizardStep === 3) return !this.wizardToneladasValid;
@@ -812,7 +810,8 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         return this.destinatarios.find(d => d.record?.Estado__c == 'En Curso') != null;
     }
 
-    /** Solo se edita En Curso/Borrador, o una Parcialmente Validada con destinatarios devueltos a En Curso. */
+    /** El resumen es solo lectura salvo En Curso/Borrador, o una Parcialmente Validada con destinatarios En Curso.
+     *  Pendiente de Validación se abre en el resumen y se edita con el botón (backToEnCurso). */
     get isSoloLectura() {
         if (this.isEnCurso) return false;
         return !(this.cesion.Estado__c == 'Parcialmente Validada' && this.hasDestinatarioEnCurso);
@@ -829,9 +828,10 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
 
     async edit(id) {
         this.closeModal();
+        const wasEnCurso = this.isEnCurso;
 
         await this.doRequest(async _ => {
-            if (!this.isEnCurso) await backToEnCurso({cesionId: this.cesion.Id}).then(data => this.loadData(data));
+            if (!wasEnCurso) await backToEnCurso({cesionId: this.cesion.Id}).then(data => this.loadData(data));
 
             this.hiding = {};
 
@@ -840,8 +840,10 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
                     this.hiding[destinatario.id] = true;
                 }
             }
-            
+
             this.step = "edit";
+            // Contrato (paso 2) y, al continuar, toneladas (paso 3).
+            if (!wasEnCurso) this.wizardStep = 2;
         })
     }
 
@@ -938,93 +940,26 @@ export default class CesionPph extends NavigationMixin(LightningElement) {
         return formmatedDate.toLocaleDateString('es-AR', {day: 'numeric', month: 'long'});
     }
 
-    handleUploadFinished(e) {
-        this.files = this.files.concat(e.detail.files.map(f => ({ContentDocument: {Id: f.documentId, Title: f.name.substring(0, f.name.lastIndexOf('.')), extension: f.name.split('.').pop().toUpperCase()}})));
-    }
-
-    handleContratoPick() {
-        this.template.querySelector('.se-file-input')?.click();
-    }
-
-    async handleContratoFileChange(event) {
-        const file = event.target.files?.[0];
-        event.target.value = '';
-
-        if (!file || !this.cesion?.Id) {
-            return;
-        }
-
-        const maxBytes = 10 * 1024 * 1024;
-        if (file.size > maxBytes) {
-            this.onError('El archivo no puede superar 10 MB.');
-            return;
-        }
-
-        this.contratoUploading = true;
-        this.contratoUploadName = file.name;
-        this.contratoUploadPct = 12;
-        this._startContratoProgress();
-
-        try {
-            if (this.hasContrato) {
-                const previous = this.files[0];
-                await deleteFile({ fileId: previous.ContentDocument.Id, cesionId: this.cesion.Id });
-            }
-
-            const base64Data = await this._readFileAsBase64(file);
-            this.contratoUploadPct = 55;
-
-            const uploaded = await uploadContratoFile({
-                cesionId: this.cesion.Id,
-                fileName: file.name,
-                base64Data
-            });
-
-            this.contratoUploadPct = 100;
-            this.files = [{
+    async handleContratoUploadFinished(event) {
+        const previousIds = (this.files || []).map((f) => f.ContentDocument?.Id).filter(Boolean);
+        const uploaded = (event.detail?.files || []).map((f) => {
+            const name = f.name || 'contrato';
+            const dot = name.lastIndexOf('.');
+            return {
                 ContentDocument: {
-                    Id: uploaded.documentId,
-                    Title: uploaded.title,
-                    extension: uploaded.extension
+                    Id: f.documentId,
+                    Title: dot > 0 ? name.substring(0, dot) : name,
+                    extension: dot > 0 ? name.substring(dot + 1).toUpperCase() : ''
                 }
-            }];
-        } catch (e) {
-            this.onError(e);
-        } finally {
-            this._stopContratoProgress();
-            this.contratoUploading = false;
-            this.contratoUploadName = '';
-            this.contratoUploadPct = 0;
-        }
-    }
-
-    _readFileAsBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const marker = 'base64,';
-                const idx = reader.result.indexOf(marker);
-                resolve(idx >= 0 ? reader.result.substring(idx + marker.length) : reader.result);
             };
-            reader.onerror = () => reject(reader.error);
-            reader.readAsDataURL(file);
         });
-    }
+        if (!uploaded.length) return;
 
-    _startContratoProgress() {
-        this._stopContratoProgress();
-        this._contratoUploadTimer = setInterval(() => {
-            if (this.contratoUploadPct < 88) {
-                this.contratoUploadPct += 4;
-            }
-        }, 180);
-    }
+        this.files = uploaded;
+        const cesionId = this.cesion?.Id;
+        if (!cesionId || !previousIds.length) return;
 
-    _stopContratoProgress() {
-        if (this._contratoUploadTimer) {
-            clearInterval(this._contratoUploadTimer);
-            this._contratoUploadTimer = null;
-        }
+        await Promise.all(previousIds.map((fileId) => deleteFile({ fileId, cesionId }).catch(() => {})));
     }
 
     handleFilePreview(e) {

@@ -127,3 +127,12 @@ export function buildErrorFuncionalParams(err, extras = {}) {
 export function trackErrorFuncional(err, extras = {}) {
     trackGa4Event('error_funcional', buildErrorFuncionalParams(err, extras));
 }
+
+export function trackGa4PageView(pageTitle, params = {}) {
+    const { content_group, ...rest } = params;
+    trackGa4Event('page_view', {
+        page_title: pageTitle,
+        content_group: content_group || 'Cuenta Granaria',
+        ...rest
+    });
+}

@@ -105,12 +105,72 @@ public class EntradaPrecioObtentorHandler {
 
     public static void afterUpdate(){
         List<Entrada_Precio_Obtentor__c> toProcess = new List<Entrada_Precio_Obtentor__c>();
+        Set<Id> entradasYaVigentes = new Set<Id>();
         Map<Id, Entrada_Precio_Obtentor__c> entradasOld = new Map<Id, Entrada_Precio_Obtentor__c>(getEntradasOld());
         for(Entrada_Precio_Obtentor__c entrada : getEntradasNew()){
-            if(entrada.Estado__c == 'Creada' && entradasOld.get(entrada.Id).Fecha_Inicio__c != entrada.Fecha_Inicio__c) toProcess.add(entrada);
+            if(entrada.Estado__c == 'Creada' && entradasOld.get(entrada.Id).Fecha_Inicio__c != entrada.Fecha_Inicio__c){
+                toProcess.add(entrada);
+                if(entrada.Fecha_Inicio__c != null && entrada.Fecha_Inicio__c <= Date.today()){
+                    entradasYaVigentes.add(entrada.Id);
+                }
+            }
         }
 
-        if(!toProcess.isEmpty() && !isRecursive) updateFechasFin(toProcess);
+        if(toProcess.isEmpty() || isRecursive){
+            return;
+        }
+        updateFechasFin(toProcess);
+        // El flow programado ya pudo haber corrido hoy: si la fecha inicio quedó en hoy o antes, se procesa en el momento.
+        procesarVigentes(entradasYaVigentes);
+    }
+
+    @InvocableMethod(label='Procesar entradas de precio vigentes' description='Aplica a la Lista de Precios Sembrá Evolución las entradas en estado Creada cuya fecha inicio ya llegó, solo si son la entrada más reciente del producto obtentor.')
+    public static void procesarEntradasVigentes(List<Id> entradaIds){
+        procesarVigentes(new Set<Id>(entradaIds));
+    }
+
+    private static void procesarVigentes(Set<Id> entradaIds){
+        if(entradaIds == null || entradaIds.isEmpty()){
+            return;
+        }
+        Date hoy = Date.today();
+
+        List<Entrada_Precio_Obtentor__c> candidatas = [
+            SELECT Id, Fecha_Inicio__c, Precio_Unitario__c, PrecioUnitario__c, Producto_Obtentor__c, Producto_Obtentor__r.ProductoId__c
+            FROM Entrada_Precio_Obtentor__c
+            WHERE Id IN :entradaIds
+            AND Estado__c = 'Creada'
+            AND Fecha_Inicio__c <= :hoy
+        ];
+        if(candidatas.isEmpty()){
+            return;
+        }
+
+        Set<Id> productoIds = new Set<Id>();
+        for(Entrada_Precio_Obtentor__c entrada : candidatas){
+            productoIds.add(entrada.Producto_Obtentor__c);
+        }
+
+        Map<Id, Date> fechaVigentePorProducto = new Map<Id, Date>();
+        for(AggregateResult ar : [
+            SELECT Producto_Obtentor__c productoId, MAX(Fecha_Inicio__c) fechaVigente
+            FROM Entrada_Precio_Obtentor__c
+            WHERE Producto_Obtentor__c IN :productoIds
+            AND Fecha_Inicio__c <= :hoy
+            GROUP BY Producto_Obtentor__c
+        ]){
+            fechaVigentePorProducto.put((Id) ar.get('productoId'), (Date) ar.get('fechaVigente'));
+        }
+
+        // Las entradas Creada que ya fueron reemplazadas por otra posterior no se aplican, para no pisar el precio vigente.
+        List<Entrada_Precio_Obtentor__c> vigentes = new List<Entrada_Precio_Obtentor__c>();
+        for(Entrada_Precio_Obtentor__c entrada : candidatas){
+            if(entrada.Fecha_Inicio__c == fechaVigentePorProducto.get(entrada.Producto_Obtentor__c)){
+                vigentes.add(entrada);
+            }
+        }
+
+        aplicarEntradas(vigentes);
     }
 
     public static void afterDelete(){
@@ -150,11 +210,17 @@ public class EntradaPrecioObtentorHandler {
             return;
         }
 
-        List<Entrada_Precio_Obtentor__c> entradasAProcesar = [
+        aplicarEntradas([
             SELECT Id, Precio_Unitario__c, PrecioUnitario__c, Producto_Obtentor__c, Producto_Obtentor__r.ProductoId__c
             FROM Entrada_Precio_Obtentor__c
             WHERE Id IN :entradaIds
-        ];
+        ]);
+    }
+
+    private static void aplicarEntradas(List<Entrada_Precio_Obtentor__c> entradasAProcesar){
+        if(entradasAProcesar.isEmpty()){
+            return;
+        }
 
         Id pricebookId = getSembraEvolucionPricebookId();
         Set<Id> product2Ids = new Set<Id>();
@@ -176,7 +242,7 @@ public class EntradaPrecioObtentorHandler {
             }
         }
 
-        List<PricebookEntry> pbesToUpdate = new List<PricebookEntry>();
+        Map<Id, PricebookEntry> pbesToUpdate = new Map<Id, PricebookEntry>();
         List<Entrada_Precio_Obtentor__c> entradasToUpdate = new List<Entrada_Precio_Obtentor__c>();
 
         for(Entrada_Precio_Obtentor__c entrada : entradasAProcesar){
@@ -192,20 +258,16 @@ public class EntradaPrecioObtentorHandler {
                 continue;
             }
 
-            pbesToUpdate.add(new PricebookEntry(
+            pbesToUpdate.put(pbe.Id, new PricebookEntry(
                 Id = pbe.Id,
                 UnitPrice = entrada.Precio_Unitario__c,
                 Unit_Price__c = entrada.PrecioUnitario__c
             ));
         }
 
-        if(entradasToUpdate.isEmpty()){
-            return;
-        }
-
         isRecursive = true;
         if(!pbesToUpdate.isEmpty()){
-            update pbesToUpdate;
+            update pbesToUpdate.values();
         }
         update entradasToUpdate;
         isRecursive = false;

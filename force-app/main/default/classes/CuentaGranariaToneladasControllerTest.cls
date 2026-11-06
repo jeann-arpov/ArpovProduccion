@@ -100,17 +100,32 @@ private class CuentaGranariaToneladasControllerTest {
 
         System.assertNotEquals(null, result);
 
-        // Toneladas
-        List<Object> toneladas = (List<Object>) result.get('toneladas');
-        System.assertEquals(3, toneladas.size(), 'Debe haber 3 toneladas');
+        List<Tonelada__c> esperadas = [
+            SELECT Cantidad_con_Signo__c
+            FROM Tonelada__c
+            WHERE Cuenta_Granaria__c = :cg.Id
+                AND Fecha_Inicio__c <= TODAY
+                AND Etapa__c != 'Pendiente'
+                AND Origen__c != 'Balance Anual'
+        ];
+        Decimal totalEsperado = 0;
+        Decimal positivoEsperado = 0;
+        Decimal negativoEsperado = 0;
+        for (Tonelada__c tn : esperadas) {
+            Decimal cantidad = tn.Cantidad_con_Signo__c == null ? 0 : tn.Cantidad_con_Signo__c;
+            totalEsperado += cantidad;
+            if (cantidad >= 0) {
+                positivoEsperado += cantidad;
+            } else {
+                negativoEsperado += cantidad;
+            }
+        }
 
-        // Totales
-        Decimal total = (Decimal) result.get('total');
-        Decimal totalPositivo = (Decimal) result.get('totalPositivo');
-        Decimal totalNegativo = (Decimal) result.get('totalNegativo');
-        System.assertEquals(120, total, 'Total debe ser 100+50-30=120');
-        System.assertEquals(150, totalPositivo, 'Positivo debe ser 100+50=150');
-        System.assertEquals(-30, totalNegativo, 'Negativo debe ser -30');
+        List<Object> toneladas = (List<Object>) result.get('toneladas');
+        System.assertEquals(esperadas.size(), toneladas.size(), 'Debe listar las toneladas vigentes');
+        System.assertEquals(totalEsperado, (Decimal) result.get('total'));
+        System.assertEquals(positivoEsperado, (Decimal) result.get('totalPositivo'));
+        System.assertEquals(negativoEsperado, (Decimal) result.get('totalNegativo'));
 
         // Info de cuenta
         Map<String, Object> cuenta = (Map<String, Object>) result.get('cuenta');
@@ -386,5 +401,189 @@ private class CuentaGranariaToneladasControllerTest {
                 AND Tonelada_Compra_HT__c = :loteManual.Id
         ];
         System.assertEquals(2, consumos.size(), 'Debe consumir del lote manual en la CG HT');
+    }
+
+    @isTest
+    static void testGetResumenAgrupaPorOrigen() {
+        Cuenta_Granaria__c cg = [
+            SELECT Id, Productor__c, Cultivo__c, Campania__c
+            FROM Cuenta_Granaria__c WHERE Campania__c != null LIMIT 1
+        ];
+        insert new Tonelada__c(
+            Productor__c = cg.Productor__c,
+            Cultivo__c = cg.Cultivo__c,
+            Campania__c = cg.Campania__c,
+            Biotecnologia__c = 'Enlist E3',
+            Cantidad__c = 20,
+            Signo__c = -1,
+            Fecha_Inicio__c = Date.today().addDays(-1),
+            Fecha_Fin__c = Date.today().addYears(1),
+            Etapa__c = 'Aplicada',
+            Origen__c = 'Compra SF',
+            Cuenta_Granaria__c = cg.Id
+        );
+
+        Test.startTest();
+        Map<String, Object> result = CuentaGranariaToneladasController.getResumen(cg.Id, null);
+        Test.stopTest();
+
+        Decimal credito = (Decimal) result.get('credito');
+        Decimal debito = (Decimal) result.get('debito');
+        System.assertEquals(150, credito);
+        System.assert(debito < 0);
+        System.assertEquals(credito + debito, (Decimal) result.get('saldo'));
+
+        Decimal sumaCreditos = 0;
+        Decimal sumaDebitos = 0;
+        Integer sumaMovimientos = 0;
+        Integer filasCompraSF = 0;
+        for (Object fila : (List<Object>) result.get('origenes')) {
+            Map<String, Object> row = (Map<String, Object>) fila;
+            if (row.get('tipo') == 'credito') {
+                sumaCreditos += (Decimal) row.get('toneladas');
+            } else {
+                sumaDebitos += (Decimal) row.get('toneladas');
+            }
+            sumaMovimientos += (Integer) row.get('movimientos');
+            if (row.get('origen') == 'Compra SF') {
+                filasCompraSF++;
+            }
+        }
+        System.assertEquals(credito, sumaCreditos, 'Las filas de crédito suman el Crédito total');
+        System.assertEquals(debito, sumaDebitos, 'Las filas de débito suman el Débito total');
+        System.assertEquals((Integer) result.get('movimientos'), sumaMovimientos);
+        System.assertEquals(2, filasCompraSF, 'El débito de Compra SF va en su propia fila');
+
+        Map<String, Object> cuenta = (Map<String, Object>) result.get('cuenta');
+        System.assertEquals('25/26', cuenta.get('campaniaPeriodo'));
+
+        Cuenta_Granaria__c cgHT = [SELECT Id FROM Cuenta_Granaria__c WHERE Campania__c = null LIMIT 1];
+        Map<String, Object> resumenHT = CuentaGranariaToneladasController.getResumen(cgHT.Id, null);
+        Map<String, Object> cuentaHT = (Map<String, Object>) resumenHT.get('cuenta');
+        System.assertEquals(true, cuentaHT.get('esCompraHT'));
+    }
+
+    @isTest
+    static void testResumenTrigoPorVariedad() {
+        Account prod = [SELECT Id FROM Account WHERE Name = 'productor' LIMIT 1];
+        Cultivo__c trigo = new Cultivo__c(
+            Name = 'TRIGO',
+            Tipo_de_Especie__c = 'Autógama',
+            Densidad_de_Siembra__c = 75,
+            Sembra_Evolucion__c = true
+        );
+        insert trigo;
+        Campana_Agricola__c campana = new Campana_Agricola__c(
+            Name = 'TRIGO 2025 CGT',
+            Ano__c = '2025',
+            Estado__c = 'Activa',
+            Cultivo__c = trigo.Id,
+            Fecha_de_Inicio__c = Date.today().addMonths(-3),
+            SKEY_CAMPANIA__c = 8800004127L,
+            Z9_Clave_Unica__c = 'CGT-TRIGO-2025',
+            Id_Externo__c = 'CGT-TRIGO-2025'
+        );
+        insert campana;
+        RecordType tipoObtentor = [
+            SELECT Id FROM RecordType WHERE SObjectType = 'Account' AND DeveloperName = 'Obtentor' LIMIT 1
+        ];
+        Account obtentor = new Account(
+            Name = 'Semillero CGT',
+            RecordTypeId = tipoObtentor.Id,
+            Id_Obtentor__c = 'T7',
+            Type = 'Obtentor',
+            Nombre_Obtentor__c = 'MARCA CGT'
+        );
+        insert obtentor;
+        Variedad__c negativa = new Variedad__c(
+            Name = 'Negativa CGT', Biotecnologia__c = 'Convencional',
+            Sembra_Evolucion__c = true, Obtentor_Comercializa__c = obtentor.Id
+        );
+        Variedad__c sinEntregas = new Variedad__c(
+            Name = 'Sin Entregas CGT', Biotecnologia__c = 'Convencional',
+            Sembra_Evolucion__c = true, Obtentor_Comercializa__c = obtentor.Id
+        );
+        insert new List<Variedad__c>{ negativa, sinEntregas };
+
+        Cuenta_Granaria__c cg = new Cuenta_Granaria__c(
+            Productor__c = prod.Id,
+            Cultivo__c = trigo.Id,
+            Campania__c = campana.Id,
+            Tecnologia__c = 'RR1/RR2 - BT/Convencional',
+            Clave_Unica__c = prod.Id + '|' + campana.Id + '|CGT'
+        );
+        insert cg;
+        insert new List<Tonelada__c>{
+            toneladaTrigo(prod.Id, trigo.Id, campana.Id, cg.Id, negativa.Id, 'Compra SF', 100, 1),
+            toneladaTrigo(prod.Id, trigo.Id, campana.Id, cg.Id, negativa.Id, 'Cesión HT', 120, -1),
+            toneladaTrigo(prod.Id, trigo.Id, campana.Id, cg.Id, sinEntregas.Id, 'Compra SF', 50, 1)
+        };
+
+        Test.startTest();
+        Map<String, Object> resumen = CuentaGranariaToneladasController.getResumen(cg.Id, null);
+        Map<String, Object> soloNegativa = CuentaGranariaToneladasController.getResumen(cg.Id, negativa.Id);
+        Test.stopTest();
+
+        System.assertEquals(true, resumen.get('esTrigo'));
+        Map<String, Map<String, Object>> porNombre = new Map<String, Map<String, Object>>();
+        for (Object fila : (List<Object>) resumen.get('variedades')) {
+            Map<String, Object> row = (Map<String, Object>) fila;
+            porNombre.put((String) row.get('nombre'), row);
+        }
+        System.assertEquals('Debe regularizar', porNombre.get('Negativa CGT').get('estado'));
+        System.assertEquals(-20, (Decimal) porNombre.get('Negativa CGT').get('saldo'));
+        System.assertEquals('MARCA CGT', porNombre.get('Negativa CGT').get('semillero'));
+        System.assertEquals('Sin entregas', porNombre.get('Sin Entregas CGT').get('estado'));
+
+        System.assertEquals(100, (Decimal) soloNegativa.get('credito'));
+        System.assertEquals(-120, (Decimal) soloNegativa.get('debito'));
+        System.assertEquals('Negativa CGT', soloNegativa.get('variedadNombre'));
+        System.assertEquals(0, ((List<Object>) soloNegativa.get('variedades')).size());
+
+        Map<String, Object> lista = CuentaGranariaToneladasController.getToneladas(cg.Id, negativa.Id);
+        System.assertEquals(2, ((List<Object>) lista.get('toneladas')).size(), 'Ver variedad filtra la lista de toneladas');
+        System.assertEquals('25/26', ((Map<String, Object>) lista.get('cuenta')).get('campaniaPeriodo'));
+        String csvTrigo = CuentaGranariaToneladasController.exportarCsv(cg.Id, 'Compra SF', 'credito', negativa.Id);
+        System.assert(csvTrigo.contains('Fecha creación'));
+        System.assert(csvTrigo.contains('Variedad'));
+        System.assert(csvTrigo.contains('Negativa CGT'));
+    }
+
+    private static Tonelada__c toneladaTrigo(
+        Id productorId, Id cultivoId, Id campanaId, Id cgId, Id variedadId,
+        String origen, Decimal cantidad, Integer signo
+    ) {
+        return new Tonelada__c(
+            Productor__c = productorId,
+            Cultivo__c = cultivoId,
+            Campania__c = campanaId,
+            Biotecnologia__c = 'Convencional',
+            Cantidad__c = cantidad,
+            Signo__c = signo,
+            Fecha_Inicio__c = Date.today().addDays(-3),
+            Fecha_Fin__c = Date.today().addYears(1),
+            Etapa__c = 'Aplicada',
+            Origen__c = origen,
+            Variedad__c = variedadId,
+            Cuenta_Granaria__c = cgId
+        );
+    }
+
+    @isTest
+    static void testDetallePaginadoYCsv() {
+        Cuenta_Granaria__c cg = [SELECT Id FROM Cuenta_Granaria__c WHERE Campania__c != null LIMIT 1];
+
+        Test.startTest();
+        Map<String, Object> detalle = CuentaGranariaToneladasController.getDetalle(
+            cg.Id, 'Compra SF', 'credito', null, null, null, null
+        );
+        String csv = CuentaGranariaToneladasController.exportarCsv(cg.Id, 'Compra SF', 'credito', null);
+        Test.stopTest();
+
+        List<Object> filas = (List<Object>) detalle.get('filas');
+        System.assertEquals(2, filas.size());
+        System.assertEquals(false, detalle.get('hayMas'));
+        System.assert(csv.contains('Compra Semilla Fiscalizada'));
+        System.assert(csv.contains('Nombre;Origen;Etapa;Fecha creación;Cantidad'));
     }
 }

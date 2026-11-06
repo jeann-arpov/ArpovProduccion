@@ -72,6 +72,37 @@ public class VentasInformadasControllerTest {
     }
 
     @IsTest
+    static void bolsas40SeRedondeanSinDecimales() {
+        Account acc = crearCuentaOriginante();
+
+        Ventas_Informadas__c mitad = crearVentaBase();
+        mitad.Originante__c = acc.Id;
+        mitad.Estado__c = 'Pendiente';
+        mitad.Cantidad_Bolsas_40__c = null;
+        mitad.Cantidad_de_Bolsas__c = 60;
+        mitad.N_de_Comprobante__c = 'RED-1';
+
+        Ventas_Informadas__c baja = crearVentaBase();
+        baja.Originante__c = acc.Id;
+        baja.Estado__c = 'Pendiente';
+        baja.Cantidad_Bolsas_40__c = null;
+        baja.Cantidad_de_Bolsas__c = 50;
+        baja.N_de_Comprobante__c = 'RED-2';
+        insert new List<Ventas_Informadas__c>{ mitad, baja };
+
+        Test.startTest();
+        List<Map<String, Object>> sinProcesar = VentasInformadasController.getVentasInformadasSinProcesar();
+        Test.stopTest();
+
+        Map<String, Decimal> bolsasPorComprobante = new Map<String, Decimal>();
+        for (Map<String, Object> row : sinProcesar) {
+            bolsasPorComprobante.put((String) row.get('numero'), (Decimal) row.get('bolsas40'));
+        }
+        System.assertEquals(2, bolsasPorComprobante.get('RED-1'), '60 kg / 40 = 1,5 se redondea a 2');
+        System.assertEquals(1, bolsasPorComprobante.get('RED-2'), '50 kg / 40 = 1,25 se redondea a 1');
+    }
+
+    @IsTest
     static void testGetVentasProcesadas_datosReales() {
         Account acc = crearCuentaOriginante();
 

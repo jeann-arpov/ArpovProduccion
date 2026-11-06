@@ -1,0 +1,125 @@
+<template>
+    <div class="rv">
+        <template if:false={abierto}>
+            <div class="rv-access">
+                <div>
+                    <p class="rv-kicker">Cuentas granarias</p>
+                    <h2 class="rv-title">Reporte varietal de trigo</h2>
+                    <p class="rv-sub">Posición del productor en todas sus variedades, con filtros por campaña, semillero y estado.</p>
+                </div>
+                <button type="button" class="rv-btn" onclick={abrir}>Reporte varietal</button>
+            </div>
+        </template>
+
+        <template if:true={abierto}>
+            <header class="rv-head">
+                <div>
+                    <p class="rv-kicker">Reporte</p>
+                    <h2 class="rv-title">Reporte varietal de trigo</h2>
+                </div>
+                <button type="button" class="rv-btn rv-btn-ghost" onclick={cerrar}>Cerrar</button>
+            </header>
+
+            <template if:true={cargando}>
+                <div class="rv-loading">
+                    <lightning-spinner alternative-text="Cargando reporte varietal" size="small"></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:true={error}>
+                <p class="rv-error">{error}</p>
+            </template>
+
+            <div class="rv-filters">
+                <label>
+                    <span>Campaña</span>
+                    <select value={campaniaId} onchange={cambiarCampania}>
+                        <template for:each={campanaOpciones} for:item="opcion">
+                            <option key={opcion.value} value={opcion.value} selected={opcion.selected}>{opcion.label}</option>
+                        </template>
+                    </select>
+                </label>
+                <label>
+                    <span>Semillero</span>
+                    <select value={semillero} onchange={cambiarSemillero}>
+                        <template for:each={semilleroOpciones} for:item="opcion">
+                            <option key={opcion.value} value={opcion.value}>{opcion.label}</option>
+                        </template>
+                    </select>
+                </label>
+                <label>
+                    <span>Estado</span>
+                    <select value={estado} onchange={cambiarEstado}>
+                        <template for:each={estados} for:item="opcion">
+                            <option key={opcion.value} value={opcion.value}>{opcion.label}</option>
+                        </template>
+                    </select>
+                </label>
+            </div>
+
+            <template if:true={reporte}>
+                <div class="rv-metrics">
+                    <article class="rv-metric">
+                        <span class="rv-metric-lbl">Total crédito</span>
+                        <span class="rv-metric-val rv-pos">{creditoFormatted}<span class="rv-unit"> tn</span></span>
+                    </article>
+                    <article class="rv-metric">
+                        <span class="rv-metric-lbl">Total débito</span>
+                        <span class="rv-metric-val rv-neg">{debitoFormatted}<span class="rv-unit"> tn</span></span>
+                    </article>
+                    <article class="rv-metric">
+                        <span class="rv-metric-lbl">Saldo neto</span>
+                        <span class={saldoClass}>{saldoFormatted}<span class="rv-unit"> tn</span></span>
+                    </article>
+                    <article class="rv-metric">
+                        <span class="rv-metric-lbl">Expedientes abiertos</span>
+                        <span class="rv-metric-val">{expedientesFormatted}</span>
+                    </article>
+                </div>
+
+                <section class="rv-panel">
+                    <h3>{tituloDesglose}</h3>
+                    <template if:true={tieneFilas}>
+                        <div class="rv-scroll">
+                            <table class="rv-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Variedad</th>
+                                        <th scope="col">Semillero</th>
+                                        <th scope="col" class="rv-num">Compra SF</th>
+                                        <th scope="col" class="rv-num" if:true={muestraCompraSfDebito}>Compra SF (débito)</th>
+                                        <th scope="col" class="rv-num">Compra HT</th>
+                                        <th scope="col" class="rv-num">Cesión</th>
+                                        <th scope="col" class="rv-num">Entregas</th>
+                                        <th scope="col" class="rv-num" if:true={muestraOtros}>Otros</th>
+                                        <th scope="col" class="rv-num">Saldo</th>
+                                        <th scope="col">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={filas} for:item="fila">
+                                        <tr key={fila.variedad} class={fila.rowClass}>
+                                            <td>{fila.variedad}</td>
+                                            <td>{fila.semillero}</td>
+                                            <td class="rv-num">{fila.compraSfFormatted}</td>
+                                            <td class="rv-num" if:true={muestraCompraSfDebito}>{fila.compraSfDebitoFormatted}</td>
+                                            <td class="rv-num">{fila.compraHtFormatted}</td>
+                                            <td class="rv-num">{fila.cesionFormatted}</td>
+                                            <td class="rv-num">{fila.entregasFormatted}</td>
+                                            <td class="rv-num" if:true={muestraOtros}>{fila.otrosFormatted}</td>
+                                            <td class="rv-num"><span class={fila.saldoClass}>{fila.saldoFormatted}</span></td>
+                                            <td><span class={fila.estadoClass}>{fila.estado}</span></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
+                    <template if:false={tieneFilas}>
+                        <p class="rv-empty">No hay variedades de trigo para los filtros seleccionados.</p>
+                    </template>
+                </section>
+            </template>
+        </template>
+    </div>
+</template>

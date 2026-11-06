@@ -30,7 +30,7 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
     }
 
     public Database.QueryLocator start(Database.BatchableContext BC) {
-        String qry = 'SELECT Venta_Interna__c,Rol_Destinatario__c,Rol_Originante__c,Categoria_Portal__c, Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Tipo_de_Material__c,Tipo_de_regalia_comercial__c,Variedad__c,Venta__c FROM Ventas_Informadas__c';
+        String qry = 'SELECT Venta_Interna__c,Validar_Autoventa__c,Rol_Destinatario__c,Rol_Originante__c,Categoria_Portal__c, Campana_Agricola__c,Campana_de_Ventas__c,Cantidad_de_Bolsas__c,Cantidad_Bolsas_40__c,Categoria__c,CreatedById,CreatedDate,CUIT_Destinatario__c,CUIT_Originante__c,Cultivo__c,Destinatario__c,Estado__c,Fecha_de_Facturacion__c,Id,IsDeleted,Kilos_por_Bolsa__c,LastActivityDate,LastModifiedById,LastModifiedDate,Linea_Facturacion__c,Name,N_de_Comprobante__c,Originante__c,OwnerId,Producto__c,Razon_Social_Destinatario__c,Resultado__c,SystemModstamp,Tipo_de_Comprobante__c,Tipo_de_Material__c,Tipo_de_regalia_comercial__c,Variedad__c,Venta__c FROM Ventas_Informadas__c';
         qry += ' WHERE Venta__c = null';
         if (recordIds != null && !recordIds.isEmpty()) {
             // Reproceso manual: solo los IDs elegidos por el usuario (sin filtrar por Resultado).
@@ -70,8 +70,12 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
         }
 
         Set<Id> omitirProcesamientoIds = new Set<Id>();
+        Map<Id, String> resultadoAntesDeReproceso = new Map<Id, String>();
 
         for(Ventas_Informadas__c vInformada : scope){
+            if (vInformada.Id != null) {
+                resultadoAntesDeReproceso.put(vInformada.Id, vInformada.Resultado__c);
+            }
             if (VentasInformadasExclusionUtil.esAutoventaCategoriaNoConvertible(vInformada)) {
                 VentasInformadasExclusionUtil.marcarPendienteValidarSiCorresponde(vInformada);
                 omitirProcesamientoIds.add(vInformada.Id);
@@ -277,6 +281,13 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
             );
         }
 
+        // Incidente 3593: avisar autoventa sin origen. Un OK ya validado no se pisa.
+        VentasInformadasAutoventaOrigenUtil.aplicarEnReproceso(
+            scope,
+            previoParaAutoventa(scope, resultadoAntesDeReproceso),
+            omitirProcesamientoIds
+        );
+
         List<Database.SaveResult> svsrs = Database.update(scope,false);
 
         Integer i = 0;
@@ -314,6 +325,38 @@ public without sharing class BatchApexProcesaVentasInformadas implements Databas
     public void finish(Database.BatchableContext BC) {
         BatchErrorHelper.sendEmail(BC.getJobId(), errors, 'Arpov: Errores en BatchApexProcesaVentasInformadas');
     } 
+
+    /**
+     * Foto previa al recálculo, con las claves ya resueltas, para no tomar
+     * como cambio el producto o la cuenta que completa este mismo reproceso.
+     */
+    private static Map<Id, Ventas_Informadas__c> previoParaAutoventa(
+        List<Ventas_Informadas__c> scope,
+        Map<Id, String> resultadoAntes
+    ) {
+        Map<Id, Ventas_Informadas__c> previo = new Map<Id, Ventas_Informadas__c>();
+        for (Ventas_Informadas__c venta : scope) {
+            if (venta == null || venta.Id == null) {
+                continue;
+            }
+            previo.put(
+                venta.Id,
+                new Ventas_Informadas__c(
+                    Id = venta.Id,
+                    Resultado__c = resultadoAntes.get(venta.Id),
+                    Originante__c = venta.Originante__c,
+                    Producto__c = venta.Producto__c,
+                    Campana_Agricola__c = venta.Campana_Agricola__c,
+                    CUIT_Originante__c = venta.CUIT_Originante__c,
+                    CUIT_Destinatario__c = venta.CUIT_Destinatario__c,
+                    Variedad__c = venta.Variedad__c,
+                    Categoria__c = venta.Categoria__c,
+                    Categoria_Portal__c = venta.Categoria_Portal__c
+                )
+            );
+        }
+        return previo;
+    }
 
     public static String key(Ventas_Informadas__c venta) {
         if (venta == null || venta.Cantidad_de_Bolsas__c == null) {

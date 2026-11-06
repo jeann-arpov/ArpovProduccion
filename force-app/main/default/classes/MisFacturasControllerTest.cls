@@ -256,4 +256,45 @@ public class MisFacturasControllerTest {
     System.assertEquals('NIDERA', vencimientos[0].obtentorMarca);
     System.assertEquals('30509292120', vencimientos[0].cuit);
   }
+
+  @isTest
+  static void getVencimientos_oppUsaPdfDelComprobante() {
+    Test_TestUtils.crearObtentor();
+    Id oppId = '0068K000006KW5rQAG';
+    EstadoDeCuentaAuraService.File archivo = (EstadoDeCuentaAuraService.File) JSON.deserialize(
+      '{"id":"00P000000000001AAA","name":"Factura A 1004-00003638.pdf"}',
+      EstadoDeCuentaAuraService.File.class
+    );
+    MisFacturasController.vencimientosTest = new List<ERPvs__Vencimientos__c>();
+    MisFacturasController.attachmentsTest = new List<Attachment>();
+    MisFacturasController.tipoCambioTest = new ERPvs__Tipo_de_cambio__c(
+      Erpvs__Vendedor__c = 1
+    );
+    MisFacturasController.oppsTest = new List<Opportunity>{
+      new Opportunity(
+        Id = oppId,
+        Tipo_de_Comprobante__c = 'FC',
+        N_de_Comprobante__c = 'A-1004-00003638'
+      )
+    };
+    MisFacturasController.facturaFilesByOppTest = new Map<Id, EstadoDeCuentaAuraService.File>{
+      oppId => archivo
+    };
+
+    List<MisFacturasController.Vencimiento> vencimientos = MisFacturasController.getVencimientos(
+      'Comercio'
+    );
+
+    System.assertEquals(1, vencimientos.size());
+    System.assertEquals('00P000000000001AAA', vencimientos[0].file.id);
+  }
+
+  @isTest
+  static void getAdjuntosPago_sinAccesoNoFalla() {
+    System.assertEquals(0, MisFacturasController.getAdjuntosPago(null).size());
+    System.assertEquals(
+      0,
+      MisFacturasController.getAdjuntosPago('0068K000006KW5rQAG').size()
+    );
+  }
 }

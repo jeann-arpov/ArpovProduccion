@@ -8499,6 +8499,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Movimientos__c.Campana__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Movimientos__c.Cultivo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Movimientos__c.Punto_de_Venta__c</field>
         <readable>true</readable>
     </fieldPermissions>

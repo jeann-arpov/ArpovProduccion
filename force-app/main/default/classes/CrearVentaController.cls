@@ -848,18 +848,37 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
       WHERE Id = :recordId
       LIMIT 1
     ];
-    if (venta.Estado__c == 'Pagada' || venta.Estado__c == 'Facturada') {
+    if (UtilsVentaHt.bloqueaSubirFactura(venta.Estado__c)) {
       throw new AuraHandledException(
         Label.VENTAHT_No_Subir_Factura_Estado + ' ' + venta.Estado__c + '.'
       );
     }
 
     Opportunity opp = [
-      SELECT id, AccountId, Total_Comprobante__c, CloseDate
+      SELECT id, AccountId, Total_Comprobante__c, CloseDate, StageName, N_de_Comprobante__c
       FROM Opportunity
       WHERE Compra_HT__r.Venta_HT__c = :recordId
       LIMIT 1
+      FOR UPDATE
     ];
+    if (UtilsVentaHt.bloqueaSubirFactura(opp.StageName)) {
+      throw new AuraHandledException(
+        Label.VENTAHT_No_Subir_Factura_Estado + ' ' + opp.StageName + '.'
+      );
+    }
+    if (String.isNotBlank(opp.N_de_Comprobante__c)) {
+      throw new AuraHandledException(Label.VENTAHT_Factura_Ya_Cargada);
+    }
+    Integer facturasExistentes = [
+      SELECT COUNT()
+      FROM Movimientos__c
+      WHERE Oportunidad__c = :opp.Id
+      AND Tipo_de_Movimiento__c = 'FC'
+      AND Comprobante__c = :numComprobante
+    ];
+    if (facturasExistentes > 0) {
+      throw new AuraHandledException(Label.VENTAHT_Factura_Ya_Cargada);
+    }
     Decimal TipoCambio = !Test.isRunningTest()
       ? [
           SELECT Tipo_de_Cambio__c

@@ -1080,6 +1080,14 @@
         <value>No se puede subir factura para una venta en estado</value>
     </labels>
     <labels>
+        <fullName>VENTAHT_Factura_Ya_Cargada</fullName>
+        <categories>CrearVenta</categories>
+        <language>es</language>
+        <protected>false</protected>
+        <shortDescription>Mensaje de validacion Venta HT</shortDescription>
+        <value>La factura ya fue cargada para esta venta</value>
+    </labels>
+    <labels>
         <fullName>VENTAHT_VentaId_Requerido</fullName>
         <categories>CrearVenta</categories>
         <language>es</language>

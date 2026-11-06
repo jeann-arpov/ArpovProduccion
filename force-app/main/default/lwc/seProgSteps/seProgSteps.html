@@ -9,9 +9,16 @@
         <div class="se-prog-bar se-mob-only" aria-hidden="true">
             <span class="se-prog-bar-fill" style={progressBarStyle}></span>
         </div>
-        <div class="se-mob-steps se-mob-only" aria-hidden="true">
+        <div class="se-mob-steps se-mob-only">
             <template for:each={mobSteps} for:item="s">
-                <span key={s.key} class={s.className}>{s.label}</span>
+                <button
+                    key={s.key}
+                    type="button"
+                    class={s.className}
+                    data-step={s.num}
+                    disabled={s.disabled}
+                    onclick={handleDeskStepClick}
+                >{s.label}</button>
             </template>
         </div>
 

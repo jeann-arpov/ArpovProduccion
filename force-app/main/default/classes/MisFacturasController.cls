@@ -7,6 +7,8 @@ public without sharing class MisFacturasController {
   private static List<Attachment> attachmentsTest;
   @testVisible
   private static List<Opportunity> oppsTest;
+  @testVisible
+  private static Map<Id, EstadoDeCuentaAuraService.File> facturaFilesByOppTest;
 
   public static List<ERPvs__Vencimientos__c> queryVencimientos(String type) {
     if (Test.isRunningTest() && vencimientosTest != null)
@@ -231,11 +233,20 @@ public without sharing class MisFacturasController {
     if (oportunidades.isEmpty() == false) {
       List<String> contentDocumentIds = new List<String>();
       Set<Id> oppIds = new Map<Id, Opportunity>(oportunidades).keySet();
-      for (ContentDocumentLink cdl : [
-        SELECT ContentDocumentId
-        FROM ContentDocumentLink
-        WHERE LinkedEntityId IN :oppIds
-      ]) {
+      Map<Id, EstadoDeCuentaAuraService.File> filesByOpp = loadFacturaFilesByOpportunity(
+        oppIds
+      );
+      List<ContentDocumentLink> links;
+      try {
+        links = [
+          SELECT ContentDocumentId
+          FROM ContentDocumentLink
+          WHERE LinkedEntityId IN :oppIds
+        ];
+      } catch (Exception e) {
+        links = new List<ContentDocumentLink>();
+      }
+      for (ContentDocumentLink cdl : links) {
         contentDocumentIds.add(cdl.ContentDocumentId);
       }
 
@@ -265,6 +276,8 @@ public without sharing class MisFacturasController {
 
         Vencimiento v = new Vencimiento(opp);
         v.facturaPVId = mapArchivos.get(mapFileNames.get(opp.Id));
+        if (filesByOpp.get(opp.Id) != null)
+          v.file = filesByOpp.get(opp.Id);
         System.debug(v.facturaPVId);
         results.add(v);
         if (opp.Id != null)
@@ -436,15 +449,22 @@ public without sharing class MisFacturasController {
     if (opportunityId == null)
       return result;
 
-    String fileBase = URL.getOrgDomainUrl()
-      .toExternalForm()
-      .replace('.my.salesforce.com', '.file.force.com');
+    List<ContentDocumentLink> links;
+    String fileBase;
+    try {
+      fileBase = URL.getOrgDomainUrl()
+        .toExternalForm()
+        .replace('.my.salesforce.com', '.file.force.com');
+      links = [
+        SELECT ContentDocumentId, ContentDocument.Title
+        FROM ContentDocumentLink
+        WHERE LinkedEntityId = :opportunityId
+      ];
+    } catch (Exception e) {
+      return result;
+    }
 
-    for (ContentDocumentLink cdl : [
-      SELECT ContentDocumentId, ContentDocument.Title
-      FROM ContentDocumentLink
-      WHERE LinkedEntityId = :opportunityId
-    ]) {
+    for (ContentDocumentLink cdl : links) {
       result.add(
         new AdjuntoPago(
           cdl.ContentDocumentId,
@@ -456,6 +476,47 @@ public without sharing class MisFacturasController {
       );
     }
     return result;
+  }
+
+  static Map<Id, EstadoDeCuentaAuraService.File> loadFacturaFilesByOpportunity(
+    Set<Id> oppIds
+  ) {
+    if (Test.isRunningTest() && facturaFilesByOppTest != null)
+      return facturaFilesByOppTest;
+
+    Map<Id, EstadoDeCuentaAuraService.File> filesByOpp = new Map<Id, EstadoDeCuentaAuraService.File>();
+    if (oppIds == null || oppIds.isEmpty())
+      return filesByOpp;
+
+    Map<Id, Id> cvToOpp = new Map<Id, Id>();
+    for (ERPvs__Comprobante_Venta__c cv : [
+      SELECT Id, Oportunidad__c
+      FROM ERPvs__Comprobante_Venta__c
+      WHERE Oportunidad__c IN :oppIds AND ERPvs__Tipo_Comp__c = 'Factura'
+    ]) {
+      cvToOpp.put(cv.Id, cv.Oportunidad__c);
+    }
+    if (cvToOpp.isEmpty())
+      return filesByOpp;
+
+    for (Attachment at : [
+      SELECT Id, ParentId, Name
+      FROM Attachment
+      WHERE ParentId IN :cvToOpp.keySet() AND Name LIKE 'Factura%'
+    ]) {
+      filesByOpp.put(
+        cvToOpp.get(at.ParentId),
+        (EstadoDeCuentaAuraService.File) JSON.deserialize(
+          '{"id":"' +
+            at.Id +
+            '","name":' +
+            JSON.serialize(at.Name) +
+            '}',
+          EstadoDeCuentaAuraService.File.class
+        )
+      );
+    }
+    return filesByOpp;
   }
 
   public class AdjuntoPago {

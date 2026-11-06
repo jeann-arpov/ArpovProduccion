@@ -27,6 +27,17 @@ function hasMoneyValue(value) {
     return value !== null && value !== undefined && value !== '';
 }
 
+/** En trigo el catálogo GA4 / CG usan el cultivar INASE, no el nombre comercial (ARAUCARIA vs DM ARAUCARIA). */
+function labelVariedadCompraHt(product) {
+    const variedad = product?.Variedad2__r;
+    const cultivo = (variedad?.Cultivo__r?.Name || '').toUpperCase();
+    const inase = String(variedad?.Cultivar_INASE__c || variedad?.Name || '').trim();
+    if (cultivo === 'TRIGO' && inase) {
+        return inase;
+    }
+    return String(product?.Nombre_Comercial__c || inase || '').trim();
+}
+
 const CSS = `
     lightning-record-edit-form:not(:first-of-type) lightning-helptext {
         display:none;
@@ -617,7 +628,7 @@ const CompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
             console.log(record.Product2.Id);
             console.log(record.Product2.Variedad2__c);
             byObtentor[key] = byObtentor[key] || [];
-            byObtentor[key].push({label: record.Product2.Nombre_Comercial__c, value: record.Id, record});
+            byObtentor[key].push({label: labelVariedadCompraHt(record.Product2), value: record.Id, record});
             tiposDeCompra.add(record.Product2.Tipo_de_Compra__c);
         }
 
@@ -1023,4 +1034,4 @@ const CompraVentaMixin = (cls) => class extends NavigationMixin(cls) {
 
 
 
-export {CSS, LineaCompraVentaMixin, CompraVentaMixin}
+export {CSS, LineaCompraVentaMixin, CompraVentaMixin, labelVariedadCompraHt}

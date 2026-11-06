@@ -13,7 +13,9 @@ import {
     hasActiveFilters,
     filterVentas,
     sortVentas,
-    exportVentas
+    exportVentas,
+    formatBolsas40,
+    roundBolsas40
 } from 'c/ventasInformadasExcelUtil';
 import {
     buildColumnColStyles,
@@ -399,11 +401,14 @@ export default class VentasInformadasList extends NavigationMixin(LightningEleme
             case UNIDADES.BIGBAGS:
                 return venta.cantidadBigBags ? venta.cantidadBigBags.toFixed(2) : '0';
             default:
-                return venta.bolsas40 || '0';
+                return formatBolsas40(venta.bolsas40);
         }
     }
 
     getCantidadFormateada(venta) {
+        if (this.unidadSeleccionada === UNIDADES.BOLSAS_40) {
+            return roundBolsas40(venta.bolsas40);
+        }
         return this.formatCantidad(venta);
     }
 

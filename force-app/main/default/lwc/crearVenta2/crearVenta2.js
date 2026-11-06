@@ -64,6 +64,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
   @track showObsModal = false;
   @track mostrarBoton = false; // habilita botones por cuenta (Apex)
   @track uploadFactura = true;
+  guardandoFactura = false;
+  archivoFacturaCargado = false;
   @track observaciones;
   @track DataCompra;
   @track isOpen = false;
@@ -122,7 +124,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
 
   get mostrarFacturaYObs() {
     const estado = this.data?.record?.Estado__c;
-    if (estado === "Pagada" || estado === "Facturada") {
+    if (estado === "Pagada" || estado === "Facturada" || estado === "Cancelada") {
       return false;
     }
     return Boolean(this.mostrarBoton);
@@ -911,7 +913,17 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
     });
   }
 
+  get deshabilitarGuardarFactura() {
+    return this.uploadFactura || this.guardandoFactura;
+  }
+
+  get deshabilitarArchivoFactura() {
+    return this.uploadFactura || this.archivoFacturaCargado;
+  }
+
   openFileUpload() {
+    this.guardandoFactura = false;
+    this.archivoFacturaCargado = false;
     this.showFileUploadModal = true;
   }
 
@@ -932,6 +944,8 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
         this.isLoading = false;
       })
       .catch(() => {
+        this.guardandoFactura = false;
+        this.isLoading = false;
         this.dispatchEvent(
           new ShowToastEvent({
             title: "error",
@@ -950,7 +964,11 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
   }
 
   handleSave() {
+    if (this.guardandoFactura) {
+      return;
+    }
     if (this.formattedDate != null && this.customCode != null) {
+      this.guardandoFactura = true;
       this.isLoading = true;
       this.updateOpp();
       this.closeFileUpload();
@@ -995,6 +1013,7 @@ export default class CrearVenta2 extends CompraVentaMixin(LightningElement) {
       return;
     }
 
+    this.archivoFacturaCargado = true;
     this.dispatchEvent(
       new ShowToastEvent({
         title: "Éxito",

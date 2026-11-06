@@ -15,7 +15,7 @@ import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import getAccountFromUserByVentas from '@salesforce/apex/UtilsVentaHt.getAccountFromUserByVentas';
 
 const ESTADO_HT_VENDIDAS = 'Pagada';
-const ESTADOS_SIN_SUBIR_FACTURA = new Set(['Pagada', 'Facturada']);
+const ESTADOS_SIN_SUBIR_FACTURA = new Set(['Pagada', 'Facturada', 'Cancelada']);
 
 export default class VentasHTList extends NavigationMixin(LightningElement) {
     iconVenderHTUrl = `${resourcePortal}/resourcePortal/images/icon-vender-ht.svg`;
@@ -30,6 +30,8 @@ export default class VentasHTList extends NavigationMixin(LightningElement) {
     @track showFileUploadModal = false;
     @track selectedRowId = null;
     @track uploadFactura = true;
+    guardandoFactura = false;
+    archivoFacturaCargado = false;
     formattedDate = null;
     customCode = null;
 
@@ -521,9 +523,19 @@ export default class VentasHTList extends NavigationMixin(LightningElement) {
             });
     }
 
+    get deshabilitarGuardarFactura() {
+        return this.uploadFactura || this.guardandoFactura;
+    }
+
+    get deshabilitarArchivoFactura() {
+        return this.uploadFactura || this.archivoFacturaCargado;
+    }
+
     handleSubirFactura(event) {
         console.log('event.currentTarget.dataset.id;: ', event.currentTarget.dataset.id);
         this.selectedRowId = event.currentTarget.dataset.id;;
+        this.guardandoFactura = false;
+        this.archivoFacturaCargado = false;
         this.showFileUploadModal = true;
     }
 
@@ -578,6 +590,8 @@ export default class VentasHTList extends NavigationMixin(LightningElement) {
             this.handleRefresh();
             })
             .catch(error => {
+                this.guardandoFactura = false;
+                this.isLoading = false;
                 this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'error',
@@ -589,7 +603,11 @@ export default class VentasHTList extends NavigationMixin(LightningElement) {
         }
 
     handleSave() {
+        if (this.guardandoFactura) {
+            return;
+        }
         if(this.formattedDate != null && this.customCode != null){
+            this.guardandoFactura = true;
             this.isLoading = true;
             this.updateOpp();
             this.closeFileUpload();
@@ -639,6 +657,7 @@ export default class VentasHTList extends NavigationMixin(LightningElement) {
                 return;
             }
 
+            this.archivoFacturaCargado = true;
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Éxito',

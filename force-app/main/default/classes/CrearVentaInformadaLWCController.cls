@@ -75,7 +75,8 @@ public without sharing class CrearVentaInformadaLWCController {
 
     /**
      * Campañas agrícolas para lookup con búsqueda en Nueva Venta.
-     * Rango: 2 años atrás y 1 adelante del actual (4 años por cultivo, ej. 2024–2027 si hoy es 2026).
+     * Rango: 2 años atrás y 1 adelante del actual (ej. 2024–2027 si hoy es 2026).
+     * SOJA no incluye el año siguiente: la campaña 2026/27 se informa como 2026.
      * Orden: SOJA, TRIGO, demás cultivos; dentro de cada cultivo año descendente (ej. 2026, 2025).
      */
     @AuraEnabled(Cacheable=true)
@@ -103,7 +104,8 @@ public without sharing class CrearVentaInformadaLWCController {
 
         List<CampanaSortable> ordenadas = new List<CampanaSortable>();
         for (Campana_Agricola__c c : campanas) {
-            if (campanaAnoEnRangoPicklist(c.Ano__c)) {
+            String cultivo = c.Cultivo__r != null ? c.Cultivo__r.Name : null;
+            if (campanaVisibleEnPicklist(c.Ano__c, cultivo)) {
                 ordenadas.add(new CampanaSortable(c));
             }
         }
@@ -212,19 +214,54 @@ public without sharing class CrearVentaInformadaLWCController {
         return Date.today().year() - 2;
     }
 
-    /** Año máximo del rango del picklist (actual + 1). */
+    /** Año máximo del rango del picklist (actual + 1). SOJA corta en el año actual. */
     @TestVisible
     private static Integer anoMaximoCampanaPicklist() {
         return Date.today().year() + 1;
     }
 
     @TestVisible
+    private static Integer anoMaximoCampanaPicklist(String cultivoName) {
+        if (cultivoGrupoOrden(cultivoName) == 0) {
+            return Date.today().year();
+        }
+        return anoMaximoCampanaPicklist();
+    }
+
+    @TestVisible
     private static Boolean campanaAnoEnRangoPicklist(String ano) {
+        return campanaAnoEnRangoPicklist(ano, null);
+    }
+
+    /**
+     * Nueva Venta y plantilla. SOJA no ofrece el año siguiente al actual:
+     * la campaña 2026/27 se carga como 2026, y 2027 generaba cargas incorrectas.
+     */
+    public static Boolean campanaVisibleEnPicklist(String ano, String cultivoName) {
+        return campanaAnoEnRangoPicklist(ano, cultivoName);
+    }
+
+    /** Mensaje si SOJA informa el año siguiente (2027 para la campaña 2026/27). */
+    public static String mensajeCampanaSojaNoVisible(String ano, String cultivoName) {
+        if (cultivoGrupoOrden(cultivoName) != 0 || campanaVisibleEnPicklist(ano, cultivoName)) {
+            return null;
+        }
+        Integer clave = anoClaveOrden(ano);
+        if (clave == 9999 || clave <= Date.today().year()) {
+            return null;
+        }
+        return 'Para SOJA informá el año de inicio de la campaña ('
+            + Date.today().year()
+            + '). No uses ' + clave + '.';
+    }
+
+    @TestVisible
+    private static Boolean campanaAnoEnRangoPicklist(String ano, String cultivoName) {
         Integer clave = anoClaveOrden(ano);
         if (clave == 9999) {
             return false;
         }
-        return clave >= anoMinimoCampanaPicklist() && clave <= anoMaximoCampanaPicklist();
+        return clave >= anoMinimoCampanaPicklist() && clave <= anoMaximoCampanaPicklist(cultivoName);
     }
 
     @TestVisible
@@ -436,15 +473,19 @@ public without sharing class CrearVentaInformadaLWCController {
             'Remito de Devolución'
         });
 
-        // Campañas agrícolas activas (formato Name: ej. "SOJA - 25/26").
+        // Campañas agrícolas (formato Name: ej. "2026 - SOJA"). SOJA sin el año siguiente.
         Set<String> campanasSet = new Set<String>();
         for (Campana_Agricola__c c : [
-            SELECT Name
+            SELECT Name, Ano__c, Cultivo__r.Name
             FROM Campana_Agricola__c
             WHERE Name != null
             ORDER BY Name DESC
             LIMIT 200
         ]) {
+            String cultivo = c.Cultivo__r != null ? c.Cultivo__r.Name : null;
+            if (!campanaVisibleEnPicklist(c.Ano__c, cultivo)) {
+                continue;
+            }
             campanasSet.add(c.Name);
         }
         List<String> campanas = new List<String>(campanasSet);
@@ -534,7 +575,7 @@ public without sharing class CrearVentaInformadaLWCController {
 
         String networkId = Network.getNetworkId();
         if (networkId != null) {
-            Account userAccont = [SELECT Account.N_CUIT__c, Account.RecordType.DeveloperName, Account.Type FROM User WHERE id =: UserInfo.getUserId()].Account;
+            Account userAccont = [SELECT Account.N_CUIT__c, Account.RecordType.DeveloperName, Account.Type, Account.Habilitado_Importar_Ventas__c FROM User WHERE id =: UserInfo.getUserId()].Account;
             Id accountId;
             
             if(userAccont == null) throw new AuraHandledException(Label.VENTA_INF_Usuario_Sin_Cuenta);
@@ -544,7 +585,7 @@ public without sharing class CrearVentaInformadaLWCController {
 
             if (isPortalObtentor && userAccont.RecordType.DeveloperName != 'Obtentor') throw new AuraHandledException(Label.VENTA_INF_Solo_Obtentor_Importa);
 
-            if (!isPortalObtentor && userAccont.RecordType.DeveloperName != 'Distribuidor' && userAccont.N_CUIT__c != '30500120882') throw new AuraHandledException(Label.VENTA_INF_Solo_Distribuidor_Importa);
+            if (!isPortalObtentor && userAccont.RecordType.DeveloperName != 'Distribuidor' && !userAccont.Habilitado_Importar_Ventas__c) throw new AuraHandledException(Label.VENTA_INF_Solo_Distribuidor_Importa);
 
             List<Account> cuentas = isPortalObtentor ? 
                 [
@@ -633,8 +674,17 @@ public without sharing class CrearVentaInformadaLWCController {
         }
 
 
-        List<Campana_Agricola__c> campana = [SELECT Id, Ano__c, Cultivo__c FROM Campana_Agricola__c WHERE Id = :venta.Campana_Agricola__c];
+        List<Campana_Agricola__c> campana = [
+            SELECT Id, Ano__c, Cultivo__c, Cultivo__r.Name
+            FROM Campana_Agricola__c
+            WHERE Id = :venta.Campana_Agricola__c
+        ];
         if(!campana.isEmpty()) {
+            String cultivoCampana = campana[0].Cultivo__r != null ? campana[0].Cultivo__r.Name : null;
+            String msgSoja = mensajeCampanaSojaNoVisible(campana[0].Ano__c, cultivoCampana);
+            if (msgSoja != null) {
+                throw new AuraHandledException(msgSoja);
+            }
             venta.Campana_de_Ventas__c = campana[0].Ano__c;
             venta.Cultivo__c = campana[0].Cultivo__c;
         }

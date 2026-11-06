@@ -413,4 +413,216 @@ private class VentasInformadasNcOrigenUtilTest {
         System.assert(variants.contains('30708500921'));
         System.assert(variants.contains('30-70850092-1'));
     }
+
+    @IsTest
+    static void mismaEjecucionRechazaLaNcQueSuperaElSaldo() {
+        Ventas_Informadas__c fc = venta('FC', 'VAR-MISMA-EJEC', 100);
+        insert fc;
+
+        Ventas_Informadas__c nc50 = venta('NC', 'VAR-MISMA-EJEC', 50);
+        Ventas_Informadas__c nc30 = venta('NC', 'VAR-MISMA-EJEC', 30);
+        Ventas_Informadas__c nc40 = venta('NC', 'VAR-MISMA-EJEC', 40);
+
+        VentasInformadasNcOrigenUtil.aplicar(
+            new List<Ventas_Informadas__c>{ nc50, nc30, nc40 }
+        );
+
+        System.assertEquals(fc.Id, nc50.FC_Origen__c);
+        System.assertEquals(fc.Id, nc30.FC_Origen__c);
+        System.assertEquals(null, nc40.FC_Origen__c, 'La tercera NC supera el saldo que dejaron las dos primeras');
+        System.assertEquals(true, VentasInformadasNcOrigenUtil.esNcSinOrigen(nc40));
+    }
+
+    @IsTest
+    static void cargasSeparadasNoReutilizanKilosYaTomados() {
+        Ventas_Informadas__c fc = venta('FC', 'VAR-CARGAS-SEP', 100);
+        insert fc;
+
+        Ventas_Informadas__c nc60 = venta('NC', 'VAR-CARGAS-SEP', 60);
+        insert nc60;
+        Ventas_Informadas__c nc40 = venta('NC', 'VAR-CARGAS-SEP', 40);
+        insert nc40;
+        Ventas_Informadas__c nc25 = venta('NC', 'VAR-CARGAS-SEP', 25);
+        insert nc25;
+
+        Map<Id, Ventas_Informadas__c> guardadas = new Map<Id, Ventas_Informadas__c>([
+            SELECT FC_Origen__c, Resultado__c
+            FROM Ventas_Informadas__c
+            WHERE Id IN :new Set<Id>{ nc60.Id, nc40.Id, nc25.Id }
+        ]);
+        System.assertEquals(fc.Id, guardadas.get(nc60.Id).FC_Origen__c);
+        System.assertEquals(fc.Id, guardadas.get(nc40.Id).FC_Origen__c, '40 entra en el saldo que queda');
+        System.assertEquals(
+            null,
+            guardadas.get(nc25.Id).FC_Origen__c,
+            'Una carga posterior no puede volver a usar los kilos de la FC'
+        );
+        System.assertEquals(
+            true,
+            VentasInformadasNcOrigenUtil.esNcSinOrigen(guardadas.get(nc25.Id))
+        );
+
+        List<Ventas_Informadas__c> reenlazadas =
+            VentasInformadasNcOrigenUtil.reenlazarNcsHuerfanas(
+                new List<Ventas_Informadas__c>{ fc },
+                null
+            );
+        System.assertEquals(0, reenlazadas.size(), 'El reenlace tampoco debe cubrir la NC con saldo ya tomado');
+    }
+
+    @IsTest
+    static void ncNegativaTambienConsumeElSaldo() {
+        Ventas_Informadas__c fc = venta('FC', 'VAR-NC-NEG', 100);
+        insert fc;
+
+        insert venta('NC', 'VAR-NC-NEG', -70);
+        Ventas_Informadas__c nc40 = venta('NC', 'VAR-NC-NEG', 40);
+        insert nc40;
+
+        nc40 = [
+            SELECT FC_Origen__c, Resultado__c
+            FROM Ventas_Informadas__c
+            WHERE Id = :nc40.Id
+        ];
+        System.assertEquals(null, nc40.FC_Origen__c);
+        System.assertEquals(true, VentasInformadasNcOrigenUtil.esNcSinOrigen(nc40));
+    }
+
+    @IsTest
+    static void saldoRestaNcCubiertaPorVariasFc() {
+        Ventas_Informadas__c fc1 = venta('FC', 'VAR-VARIAS-FC', 800);
+        insert fc1;
+        Ventas_Informadas__c fc2 = venta('FC', 'VAR-VARIAS-FC', 800);
+        insert fc2;
+
+        Ventas_Informadas__c nc1600 = venta('NC', 'VAR-VARIAS-FC', 1600);
+        insert nc1600;
+        nc1600 = [
+            SELECT FC_Origen__c
+            FROM Ventas_Informadas__c
+            WHERE Id = :nc1600.Id
+        ];
+        System.assertNotEquals(null, nc1600.FC_Origen__c, '1600 se cubre con las dos FC de 800');
+
+        Ventas_Informadas__c nc100 = venta('NC', 'VAR-VARIAS-FC', 100);
+        insert nc100;
+        nc100 = [
+            SELECT FC_Origen__c, Resultado__c
+            FROM Ventas_Informadas__c
+            WHERE Id = :nc100.Id
+        ];
+        System.assertEquals(
+            null,
+            nc100.FC_Origen__c,
+            'La segunda NC no puede usar de nuevo los kilos ya repartidos entre las FC'
+        );
+        System.assertEquals(true, VentasInformadasNcOrigenUtil.esNcSinOrigen(nc100));
+    }
+
+    /**
+     * Incidente 3665: la FC legacy guarda bolsas en Kilos Totales (30 y 30)
+     * y la NC nueva guarda kilos (400 kg = 10 bolsas de 40 kg).
+     */
+    @IsTest
+    static void fcLegacyEnBolsasCubreNcEnKilos() {
+        Product2 producto = productoUnidad40();
+        Ventas_Informadas__c fc = insertFcConProducto(producto.Id, 30, 30);
+
+        Ventas_Informadas__c nc = ncContra(producto.Id, 400, 10);
+
+        VentasInformadasNcOrigenUtil.aplicar(new List<Ventas_Informadas__c>{ nc });
+
+        System.assertEquals(
+            fc.Id,
+            nc.FC_Origen__c,
+            '30 bolsas legacy equivalen a 1200 kg y cubren la NC de 400 kg'
+        );
+        System.assertEquals('OK', nc.Resultado__c);
+    }
+
+    @IsTest
+    static void fcEnKilosRealesNoSeInflaPorLaUnidad() {
+        Product2 producto = productoUnidad40();
+        insertFcConProducto(producto.Id, 30, 1);
+
+        Ventas_Informadas__c nc = ncContra(producto.Id, 400, 10);
+
+        VentasInformadasNcOrigenUtil.aplicar(new List<Ventas_Informadas__c>{ nc });
+
+        System.assertEquals(
+            null,
+            nc.FC_Origen__c,
+            '30 kg reales (1 bolsa) no alcanzan para una NC de 400 kg'
+        );
+        System.assertEquals(true, VentasInformadasNcOrigenUtil.esNcSinOrigen(nc));
+    }
+
+    private static Product2 productoUnidad40() {
+        Test_TestUtils.disableFlows();
+        Account obtentor = Test_TestUtils.crearObtentor();
+        Cultivo__c cultivo = Test_TestUtils.crearCultivo('SOJA', 1);
+        Product2 producto = Test_TestUtils.crearProducto(
+            true,
+            'Prod NC Origen 3665',
+            '3665',
+            'VAR-3665',
+            cultivo,
+            'Semilla Fiscalizada',
+            1,
+            obtentor
+        );
+        producto.Unidad_de_Medida__c = '40';
+        update producto;
+        return producto;
+    }
+
+    private static Ventas_Informadas__c insertFcConProducto(Id productoId, Decimal kilos, Decimal bolsas) {
+        Ventas_Informadas__c fc = new Ventas_Informadas__c(
+            Tipo_de_Comprobante__c = 'FC',
+            Estado__c = 'Procesado',
+            CUIT_Originante__c = '30613985995',
+            CUIT_Destinatario__c = '20129235005',
+            Campana_de_Ventas__c = '2026',
+            Variedad__c = 'VAR-3665',
+            Categoria__c = 'Primera Multiplicación',
+            Cantidad_de_Bolsas__c = kilos,
+            Cantidad_Bolsas_40__c = bolsas,
+            Kilos_por_Bolsa__c = 1
+        );
+        insert fc;
+        fc.Producto__c = productoId;
+        update fc;
+        return fc;
+    }
+
+    private static Ventas_Informadas__c ncContra(Id productoId, Decimal kilos, Decimal bolsas) {
+        return new Ventas_Informadas__c(
+            Tipo_de_Comprobante__c = 'NC',
+            Estado__c = 'Preprocesado',
+            Resultado__c = VentasInformadasNcOrigenUtil.MSG_NC_SIN_ORIGEN,
+            CUIT_Originante__c = '30613985995',
+            CUIT_Destinatario__c = '20129235005',
+            Campana_de_Ventas__c = '2026',
+            Variedad__c = 'VAR-3665',
+            Categoria__c = 'Primera Multiplicación',
+            Cantidad_de_Bolsas__c = kilos,
+            Cantidad_Bolsas_40__c = bolsas,
+            Kilos_por_Bolsa__c = 1,
+            Producto__c = productoId
+        );
+    }
+
+    private static Ventas_Informadas__c venta(String tipo, String variedad, Decimal kilos) {
+        return new Ventas_Informadas__c(
+            Tipo_de_Comprobante__c = tipo,
+            Estado__c = 'Pendiente',
+            CUIT_Originante__c = '20333333334',
+            CUIT_Destinatario__c = '20444444445',
+            Campana_de_Ventas__c = '2026',
+            Variedad__c = variedad,
+            Categoria__c = 'Primera Multiplicación',
+            Cantidad_de_Bolsas__c = kilos,
+            Cantidad_Bolsas_40__c = 1
+        );
+    }
 }

@@ -299,6 +299,59 @@ private class ActualizarCuentaGranariaBatchTest {
 
         System.assert(true, 'No debe fallar cuando no hay toneladas iniciadas hoy');
     }
+
+    @isTest
+    static void testSchedulableRecuperaToneladasAtrasadasPaginando() {
+        Cultivo__c cultivo = [SELECT Id FROM Cultivo__c WHERE Name = 'Soja Test' LIMIT 1];
+        Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Cultivo__c = :cultivo.Id LIMIT 1];
+        List<Account> productores = [
+            SELECT Id FROM Account WHERE Name IN ('Productor Test 3', 'Productor Test 4') ORDER BY Name
+        ];
+
+        List<Tonelada__c> atrasadas = new List<Tonelada__c>();
+        for (Account productor : productores) {
+            atrasadas.add(new Tonelada__c(
+                Productor__c = productor.Id,
+                Cultivo__c = cultivo.Id,
+                Campania__c = campana.Id,
+                Biotecnologia__c = 'RR2 - BT',
+                Cantidad__c = 25,
+                Signo__c = 1,
+                Fecha_Inicio__c = Date.today().addDays(-3),
+                Fecha_Fin__c = Date.today().addYears(1),
+                Etapa__c = 'Pendiente',
+                Origen__c = 'Compra SF'
+            ));
+        }
+        insert atrasadas;
+
+        for (Tonelada__c tn : atrasadas) {
+            tn.Etapa__c = 'Aplicada';
+        }
+        update atrasadas;
+
+        Map<Id, Tonelada__c> sinCuenta = new Map<Id, Tonelada__c>([
+            SELECT Id, Cuenta_Granaria__c
+            FROM Tonelada__c
+            WHERE Id IN :atrasadas
+        ]);
+        for (Tonelada__c tn : sinCuenta.values()) {
+            System.assertEquals(null, tn.Cuenta_Granaria__c, 'La tonelada atrasada debe seguir sin cuenta antes del job');
+        }
+
+        ActualizarCuentaGranariaBatch.limiteFilasAggregate = 1;
+        Set<Id> encontrados = ActualizarCuentaGranariaBatch.productoresConToneladasSinCuenta();
+        System.assert(encontrados.contains(productores[0].Id), 'Debe incluir el primer productor de la página siguiente');
+        System.assert(encontrados.contains(productores[1].Id), 'Debe incluir el segundo productor aunque el tope sea 1');
+
+        Test.startTest();
+        new ActualizarCuentaGranariaBatch().execute((SchedulableContext)null);
+        Test.stopTest();
+
+        for (Tonelada__c tn : [SELECT Cuenta_Granaria__c FROM Tonelada__c WHERE Id IN :atrasadas]) {
+            System.assertNotEquals(null, tn.Cuenta_Granaria__c, 'El job debe crear la cuenta de las toneladas ya iniciadas');
+        }
+    }
     
     @isTest
     static void testProcesarToneladasEspecificas() {

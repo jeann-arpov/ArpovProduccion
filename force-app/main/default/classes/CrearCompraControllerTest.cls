@@ -56,18 +56,16 @@ public class CrearCompraControllerTest {
         update opp;
 
         String info = JSON.serialize(new Map<String, String>{'Id_Producto_de_Lista_de_Precio__c' => entry.id, 'Cantidad__c' => '1', 'Precio_de_Lista__c' => '10'});
-        
-        // El test se inicia aquí, limpiando los límites SOQL para probar el flujo principal
-        Test.startTest();
 
         CrearCompraController.saveItem(compra.id, info, cultivo.Id);
         CrearCompraController.saveItem(compra.id, info, cultivo.Id);
         CrearCompraController.getData(compra.id, true);
-
         CrearCompraController.anular(compra.id);
+
+        // Finalizar dispara getProducts; en prod eso solo entra en el límite si arranca con el contador en cero.
+        Test.startTest();
         CrearCompraController.finalizarCompra(compra.id, true, true);
         CrearCompraController.getProducts(cultivo.Id);
-        
         Test.stopTest();
     }
     

@@ -97,6 +97,84 @@ public class EntradaPrecioObtentorTest {
     }
 
     @isTest
+    static void testEdicionFechaInicioVigenteProcesaEnElMomento(){
+        Producto_Obtentor__c po = [SELECT Id FROM Producto_Obtentor__c LIMIT 1];
+        PricebookEntry pbe = crearListaSembraEvolucion(po, 10);
+        moverPrimeraEntradaAlPasado(po.Id, Date.today().addDays(-10));
+
+        Entrada_Precio_Obtentor__c entrada = new Entrada_Precio_Obtentor__c();
+        entrada.Producto_Obtentor__c = po.Id;
+        entrada.Precio_Unitario__c = 17;
+        entrada.Fecha_Inicio__c = Date.today().addDays(4);
+        insert entrada;
+
+        Test.startTest();
+        entrada.Fecha_Inicio__c = Date.today();
+        update entrada;
+        Test.stopTest();
+
+        entrada = [SELECT Estado__c FROM Entrada_Precio_Obtentor__c WHERE Id = :entrada.Id];
+        Assert.areEqual('Procesada', entrada.Estado__c);
+        Assert.areEqual(17, [SELECT UnitPrice FROM PricebookEntry WHERE Id = :pbe.Id].UnitPrice);
+    }
+
+    @isTest
+    static void testSoloSeAplicaLaEntradaVigenteMasReciente(){
+        Producto_Obtentor__c po = [SELECT Id FROM Producto_Obtentor__c LIMIT 1];
+        PricebookEntry pbe = crearListaSembraEvolucion(po, 10);
+        moverPrimeraEntradaAlPasado(po.Id, Date.today().addDays(-10));
+
+        Entrada_Precio_Obtentor__c reemplazada = new Entrada_Precio_Obtentor__c(
+            Producto_Obtentor__c = po.Id, Precio_Unitario__c = 17, Fecha_Inicio__c = Date.today().addDays(4)
+        );
+        Entrada_Precio_Obtentor__c vigente = new Entrada_Precio_Obtentor__c(
+            Producto_Obtentor__c = po.Id, Precio_Unitario__c = 20, Fecha_Inicio__c = Date.today().addDays(6)
+        );
+        insert new List<Entrada_Precio_Obtentor__c>{ reemplazada, vigente };
+
+        reemplazada.Fecha_Inicio__c = Date.today().addDays(-5);
+        vigente.Fecha_Inicio__c = Date.today().addDays(-2);
+        update new List<Entrada_Precio_Obtentor__c>{ reemplazada, vigente };
+
+        Test.startTest();
+        EntradaPrecioObtentorHandler.procesarEntradasVigentes(new List<Id>{ reemplazada.Id, vigente.Id });
+        Test.stopTest();
+
+        Map<Id, Entrada_Precio_Obtentor__c> entradas = new Map<Id, Entrada_Precio_Obtentor__c>([
+            SELECT Estado__c FROM Entrada_Precio_Obtentor__c WHERE Id IN :new List<Id>{ reemplazada.Id, vigente.Id }
+        ]);
+        Assert.areEqual('Creada', entradas.get(reemplazada.Id).Estado__c);
+        Assert.areEqual('Procesada', entradas.get(vigente.Id).Estado__c);
+        Assert.areEqual(20, [SELECT UnitPrice FROM PricebookEntry WHERE Id = :pbe.Id].UnitPrice);
+    }
+
+    private static PricebookEntry crearListaSembraEvolucion(Producto_Obtentor__c productoObtentor, Decimal precio){
+        Variedad__c variedad = [SELECT Id, Name FROM Variedad__c WHERE Id IN (SELECT Variedad__c FROM Producto_Obtentor__c WHERE Id = :productoObtentor.Id)];
+        Product2 producto = new Product2(Name = 'Producto EPO Test', IsActive = true, Variedad__c = variedad.Name, Variedad2__c = variedad.Id);
+        insert producto;
+        insert new PricebookEntry(Pricebook2Id = Test.getStandardPricebookId(), Product2Id = producto.Id, UnitPrice = precio, IsActive = true);
+
+        Pricebook2 listaSembra = new Pricebook2(Name = 'Lista de Precios Sembrá Evolución', IsActive = true);
+        insert listaSembra;
+        PricebookEntry pbe = new PricebookEntry(Pricebook2Id = listaSembra.Id, Product2Id = producto.Id, UnitPrice = precio, IsActive = true);
+        insert pbe;
+
+        productoObtentor.ProductoId__c = producto.Id;
+        update productoObtentor;
+        return pbe;
+    }
+
+    private static void moverPrimeraEntradaAlPasado(Id productoObtentorId, Date fechaInicio){
+        Entrada_Precio_Obtentor__c primera = [
+            SELECT Id FROM Entrada_Precio_Obtentor__c
+            WHERE Producto_Obtentor__c = :productoObtentorId
+            ORDER BY Fecha_Inicio__c ASC
+            LIMIT 1
+        ];
+        update new Entrada_Precio_Obtentor__c(Id = primera.Id, Fecha_Inicio__c = fechaInicio, Trigger_Update__c = true);
+    }
+
+    @isTest
     static void testBorrarEntrada(){
         Producto_Obtentor__c po = [SELECT Id FROM Producto_Obtentor__c LIMIT 1];
 

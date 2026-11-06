@@ -3,7 +3,7 @@
     <apiVersion>59.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Toneladas de Cuenta Granaria</masterLabel>
-    <description>Muestra las toneladas asociadas a una Cuenta Granaria con indicadores de positivos y negativos.</description>
+    <description>Resumen de la Cuenta Granaria agrupado por origen, con detalle paginado y descarga CSV.</description>
     <targets>
         <target>lightning__RecordPage</target>
     </targets>

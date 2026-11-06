@@ -398,5 +398,27 @@ private class UtilsVentaHtTest {
         }
         Test.stopTest();
     }
+
+    @isTest
+    static void getAccountFromUserByVentaCanceladaRetornaFalse() {
+        User cortevaUser = [SELECT Id FROM User WHERE Alias = 'tuser1' LIMIT 1];
+        Account cuentaComercio = [SELECT Id FROM Account WHERE Name = 'Test Account' LIMIT 1];
+        Account obtentorValido = [SELECT Id FROM Account WHERE Name = 'Parent Test Account' LIMIT 1];
+
+        Venta_HT__c venta = new Venta_HT__c(
+            Name = 'Venta Cancelada',
+            Estado__c = 'Cancelada',
+            Comercio__c = cuentaComercio.Id,
+            Obtentor__c = obtentorValido.Id
+        );
+        insert venta;
+
+        Test.startTest();
+        System.runAs(cortevaUser) {
+            Boolean result = UtilsVentaHt.getAccountFromUserByVenta(venta.Id);
+            System.assertEquals(false, result, 'Venta Cancelada no debe mostrar botón de factura');
+        }
+        Test.stopTest();
+    }
     
 }

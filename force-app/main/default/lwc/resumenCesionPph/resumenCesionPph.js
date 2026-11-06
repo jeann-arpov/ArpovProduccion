@@ -2,7 +2,8 @@ import { LightningElement, api, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { goToCommunityPage, PAGES } from 'c/seNav';
 
-const CESION_EDITABLE = ['En Curso', 'Borrador', 'Parcialmente Validada'];
+// Pendiente de Validación se edita igual que en el portal anterior: el botón vuelve la cesión a En Curso.
+const CESION_EDITABLE = ['En Curso', 'Borrador', 'Parcialmente Validada', 'Pendiente de Validación'];
 
 const mapTecnologias = {
     'RR1': 'RR',
@@ -93,7 +94,9 @@ export default class ResumenCesionPph extends NavigationMixin(LightningElement) 
                     };
                 });
             dest.collapsed = this.collapsed[e.id] === true;
-            dest.canEdit = e.record.Estado__c == 'En Curso' && CESION_EDITABLE.includes(this.info.cesion.Estado__c);
+            const destEstado = e.record.Estado__c;
+            dest.canEdit = (destEstado == 'En Curso' || destEstado == 'Pendiente de Validación')
+                && CESION_EDITABLE.includes(this.info.cesion.Estado__c);
             dest.enCurso = e.record.Estado__c == 'En Curso';
             return dest;
         });

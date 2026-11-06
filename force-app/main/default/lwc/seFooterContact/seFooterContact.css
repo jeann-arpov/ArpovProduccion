@@ -64,12 +64,19 @@
   background-color: #bfff00;
   color: #1c1c1c;
   border: none;
-  padding: 2px 24px;
+  padding: 10px 24px;
+  min-height: 44px;
   border-radius: 30px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin-top: 10px;
+}
+
+.contact-button:focus-visible,
+.faq-button:focus-visible {
+  outline: 2px solid #bfff00;
+  outline-offset: 3px;
 }
 
 .contact-button:hover {
@@ -85,7 +92,8 @@
   background-color: transparent;
   color: #bfff00;
   border: 2px solid #bfff00;
-  padding: 2px 24px;
+  padding: 10px 24px;
+  min-height: 44px;
   border-radius: 30px;
   font-weight: bold;
   cursor: pointer;

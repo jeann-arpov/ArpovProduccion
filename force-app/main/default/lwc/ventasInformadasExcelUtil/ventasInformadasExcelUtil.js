@@ -2,6 +2,24 @@ import xlsx from '@salesforce/resourceUrl/XLSX';
 import { loadScript } from 'lightning/platformResourceLoader';
 import { normalizeCuit } from 'c/utils';
 
+/** Entero como el campo Cantidad (Bolsas 40) en Salesforce. HALF_UP, también en negativos. */
+export function roundBolsas40(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) {
+        return 0;
+    }
+    const sign = n < 0 ? -1 : 1;
+    return sign * Math.round(Math.abs(n));
+}
+
+/** Sin decimales y con separador de miles es-AR (1.500), igual que Salesforce. */
+export function formatBolsas40(value) {
+    return roundBolsas40(value).toLocaleString('es-AR', {
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0
+    });
+}
+
 let xlsxLoadPromise;
 
 export function ensureXlsxLoaded(component) {

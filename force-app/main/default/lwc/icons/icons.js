@@ -1,6 +1,7 @@
 import SEMILLEROS_ICONS from '@salesforce/resourceUrl/Semilleros';
 import SVG_ICONS from '@salesforce/resourceUrl/iconos_SE';
 import MARCAS_ICONS from '@salesforce/resourceUrl/MarcasSE';
+import LG_JPG from '@salesforce/resourceUrl/LG';
 
 export default {
     semilleros: {
@@ -54,6 +55,7 @@ export default {
         '23': MARCAS_ICONS + '/Syngenta.jpg',
         '24': MARCAS_ICONS + '/Stine.jpg',
         '26': MARCAS_ICONS + '/ACA.jpg',
+        '12': LG_JPG,
         '16': MARCAS_ICONS + '/MacroSeed.jpg',
         '77': MARCAS_ICONS + '/BASF_Credenz.jpg',
         '06': MARCAS_ICONS + '/klein.jpg',

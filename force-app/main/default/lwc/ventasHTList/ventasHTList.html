@@ -150,7 +150,7 @@
                         name="fileUploader"
                         accept={acceptedFormats}
                         record-id={selectedRowId}
-                        disabled={uploadFactura}
+                        disabled={deshabilitarArchivoFactura}
                         onuploadfinished={handleUploadFinished}>
                     </lightning-file-upload><br>
                      <center><lightning-button 
@@ -158,7 +158,7 @@
                         title="Guardar"
                         onclick={handleSave}
                         variant="brand"
-                        disabled={isloading}
+                        disabled={deshabilitarGuardarFactura}
                         class="slds-m-top_medium">
                     </lightning-button></center>
                 </div>

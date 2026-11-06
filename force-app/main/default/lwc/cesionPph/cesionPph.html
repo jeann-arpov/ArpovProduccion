@@ -85,51 +85,39 @@
 
                         <p class="se-field-label">Contrato</p>
                         <div class="se-contrato-block">
-                            <input
-                                type="file"
-                                class="se-file-input"
-                                accept=".pdf,.png,.jpg,.jpeg"
-                                onchange={handleContratoFileChange}
-                            />
-                            <template if:true={contratoUploading}>
-                                <div class="se-upload-progress" role="status" aria-live="polite">
-                                    <div class="se-upload-progress__header">
-                                        <span class="se-upload-progress__badge" aria-hidden="true">
-                                            <lightning-icon icon-name="doctype:pdf" size="small"></lightning-icon>
-                                        </span>
-                                        <div class="se-upload-progress__meta">
-                                            <span class="se-upload-progress__name">{contratoUploadName}</span>
-                                            <span class="se-upload-progress__status">Subiendo contrato…</span>
-                                        </div>
-                                    </div>
-                                    <div class="se-upload-progress__track" aria-hidden="true">
-                                        <div class="se-upload-progress__fill" style={contratoUploadBarStyle}></div>
-                                    </div>
+                            <template if:true={hasContrato}>
+                                <div class="se-choice-card se-choice-card--row is-selected">
+                                    <span class="se-choice-body">
+                                        <span class="se-choice-title">{contratoTitle}</span>
+                                        <span class="se-choice-sub">{contratoSubtitle}</span>
+                                    </span>
+                                    <span class="se-choice-chevron" aria-hidden="true">›</span>
                                 </div>
                             </template>
-                            <template if:false={contratoUploading}>
+                            <div class={contratoPickerClass}>
                                 <template if:false={hasContrato}>
-                                    <button type="button" class="se-choice-card se-choice-card--row se-contrato-pick" onclick={handleContratoPick}>
+                                    <div class="se-choice-card se-choice-card--row se-contrato-pick" aria-hidden="true">
                                         <span class="se-choice-body">
                                             <span class="se-choice-title">Seleccioná el contrato</span>
                                             <span class="se-choice-sub">Subí el PDF del convenio de cesión</span>
                                         </span>
-                                        <span class="se-upload-icon" aria-hidden="true">
+                                        <span class="se-upload-icon">
                                             <lightning-icon icon-name="utility:upload" size="x-small"></lightning-icon>
                                         </span>
-                                    </button>
+                                    </div>
                                 </template>
                                 <template if:true={hasContrato}>
-                                    <div class="se-choice-card se-choice-card--row is-selected">
-                                        <span class="se-choice-body">
-                                            <span class="se-choice-title">{contratoTitle}</span>
-                                            <span class="se-choice-sub">{contratoSubtitle}</span>
-                                        </span>
-                                        <span class="se-choice-chevron" aria-hidden="true">›</span>
-                                    </div>
-                                    <button type="button" class="se-contrato-replace-btn" onclick={handleContratoPick}>Reemplazar contrato</button>
+                                    <span class="se-contrato-replace-btn" aria-hidden="true">Reemplazar contrato</span>
                                 </template>
-                            </template>
+                                <lightning-file-upload
+                                    class="se-contrato-upload"
+                                    label={contratoUploadLabel}
+                                    name="contratoCesion"
+                                    accept=".pdf,.png,.jpg,.jpeg"
+                                    record-id={cesion.Id}
+                                    onuploadfinished={handleContratoUploadFinished}
+                                ></lightning-file-upload>
+                            </div>
                         </div>
 
                         <div class="se-panel-actions se-desk-only">

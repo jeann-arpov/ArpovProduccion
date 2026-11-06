@@ -825,3 +825,491 @@ body.se-register-guest c-se-register {
   height: 100vh;
   pointer-events: auto;
 }
+
+/* Cesión: lightning-file-upload invisible sobre la tarjeta del contrato (cesionPph).
+   El interior tiene que cubrir toda la tarjeta para que cualquier toque abra el selector. */
+c-cesion-pph .se-contrato-upload lightning-input,
+c-cesion-pph .se-contrato-upload lightning-primitive-input-file,
+c-cesion-pph .se-contrato-upload .slds-form-element__control,
+c-cesion-pph .se-contrato-upload .slds-file-selector,
+c-cesion-pph .se-contrato-upload .slds-file-selector__dropzone,
+c-cesion-pph .se-contrato-upload .slds-file-selector__dropzone slot,
+c-cesion-pph .se-contrato-upload .slds-file-selector__body,
+c-cesion-pph .se-contrato-upload .slds-file-selector__button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+c-cesion-pph .se-contrato-upload .slds-form-element__label,
+c-cesion-pph .se-contrato-upload .slds-form-element__help {
+  display: none;
+}
+
+/* Modal estándar de carga (panel global de Aura): el theme lo deja con bordes lima y la fila desbordada en mobile. */
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__container {
+  width: calc(100% - 32px);
+  max-width: 480px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0;
+  justify-content: center;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__header {
+  position: relative;
+  padding: 20px 56px 12px 20px;
+  border: 0;
+  border-radius: 16px 16px 0 0;
+  text-align: left;
+  background: var(--se-white);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__header .title {
+  font-family: var(--se-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--se-black);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__close {
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--se-black);
+  border-radius: 50%;
+  background: var(--se-white);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__close svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--se-black);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__content {
+  overflow-x: hidden;
+  padding: 4px 20px 16px !important;
+  background: var(--se-white);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__content .slds-table--bordered,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-content .slds-table--bordered {
+  border: 1px solid #e5e7eb;
+  border-radius: var(--se-radius);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__content .slds-grid,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-content .slds-grid {
+  flex-wrap: wrap;
+  row-gap: 10px;
+  padding: 12px;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__content .slds-size_6-of-12,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-content .slds-size_6-of-12 {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__content .slds-size_1-of-12,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-content .slds-size_1-of-12 {
+  flex: 0 0 auto;
+  width: auto;
+  order: 2;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__content .slds-size_5-of-12,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-content .slds-size_5-of-12 {
+  flex: 0 0 100%;
+  width: 100%;
+  order: 3;
+  padding: 0;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__content .fileName,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-content .fileName {
+  font-weight: 600;
+  color: var(--se-black);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-progress-bar,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .slds-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-progress-bar__value,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .slds-progress-bar__value {
+  border-radius: 999px;
+  background: var(--se-black);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-icon-utility-success svg,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .slds-icon-utility-success svg {
+  fill: #2e844a;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer {
+  display: block;
+  padding: 0 20px 20px;
+  border: 0;
+  border-radius: 0 0 16px 16px;
+  background: var(--se-white);
+  box-shadow: none;
+}
+
+/* Mismo esquema que el panel de teléfono: X arriba y solo "Listo" a todo el ancho
+   (el panel de teléfono no trae el texto "Se ha cargado N de N"). */
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer .footerCmps {
+  display: flex;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer .header {
+  display: none;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer .footerCmps > span:last-child {
+  flex: 1;
+  padding: 0;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer button.ok {
+  width: 100%;
+  min-height: var(--se-touch);
+  padding: 0 24px;
+  border: 2px solid var(--se-black);
+  border-radius: 999px;
+  background: var(--se-lima);
+  color: var(--se-black);
+  font-weight: 700;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer button.ok .label {
+  color: var(--se-black);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer button.ok:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(191, 255, 0, 0.6);
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer button.ok[disabled] {
+  border-color: #d1d5db;
+  background: #f3f4f6;
+}
+
+body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer button.ok[disabled] .label {
+  color: #9ca3af;
+}
+
+/* Mobile: el modal de carga se muestra como bottom sheet. Aura agrega movefromcenter al abrir
+   y movetocenter al cerrar (quita el panel ~400 ms después), así que la salida dura menos. */
+@keyframes se-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal__container {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    justify-content: flex-end;
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal__header {
+    padding-top: 28px;
+    border-radius: 20px 20px 0 0;
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal__header::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 999px;
+    background: #d1d5db;
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal__close {
+    top: 20px;
+    right: 20px;
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal__footer {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    border-radius: 0;
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal.movefromcenter,
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal.movetocenter {
+    opacity: 1 !important;
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal.movefromcenter .slds-modal__container {
+    animation: se-sheet-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal.movetocenter .slds-modal__container {
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 1, 1);
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal.movefromcenter .slds-modal__container {
+    animation: none;
+  }
+
+  body.comm-page-custom-cesion-pph .uiModal .slds-modal.movetocenter .slds-modal__container {
+    transition: none;
+  }
+}
+
+/* Con user agent de teléfono Aura usa otro panel (forceMobileOverlay a pantalla completa con
+   Cancelar / título / Listo arriba). Se rearma como bottom sheet: título, archivo y botones abajo.
+   Aura anima el panel en movefrombottom / movetobottom y espera su animationend para quitarlo
+   (y recién ahí dispara uploadfinished): el panel tiene que tener una animación en ambos estados. */
+@keyframes se-backdrop-in {
+  from {
+    background-color: rgba(28, 28, 28, 0);
+  }
+}
+
+@keyframes se-backdrop-out {
+  to {
+    background-color: rgba(28, 28, 28, 0);
+  }
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-color: rgba(28, 28, 28, 0.55);
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay.movefrombottom {
+  animation: se-backdrop-in 0.25s ease-out;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay > .container {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "title cancel"
+    "content content"
+    "ok ok";
+  column-gap: 12px;
+  width: 100%;
+  height: auto;
+  max-height: 85vh;
+  box-sizing: border-box;
+  padding: 28px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius: 20px 20px 0 0;
+  background: var(--se-white);
+  animation: se-sheet-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay > .container::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 40px;
+  height: 4px;
+  margin-left: -20px;
+  border-radius: 999px;
+  background: #d1d5db;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-header,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-header .footerCmps {
+  display: contents;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-header .header {
+  grid-area: title;
+  margin: 0 0 12px;
+  padding: 0;
+  text-align: left;
+  font-family: var(--se-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--se-black);
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-content {
+  grid-area: content;
+  margin-bottom: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: transparent;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .panel-footer {
+  display: none;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps > span:first-child {
+  grid-area: cancel;
+  align-self: start;
+  margin-top: -8px;
+  padding: 0;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps > span:last-child {
+  grid-area: ok;
+  padding: 0;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--se-touch);
+  margin: 0;
+  padding: 0 16px;
+  border: 2px solid var(--se-black);
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button .label {
+  text-align: center;
+  color: var(--se-black);
+}
+
+/* "Cancelar" se muestra como la X redonda del modal de escritorio; el texto queda para lectores de pantalla. */
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.cancel {
+  position: relative;
+  box-sizing: border-box;
+  width: 36px;
+  min-width: 0;
+  min-height: 36px;
+  height: 36px;
+  padding: 0;
+  border-width: 1.5px;
+  border-radius: 50%;
+  background: var(--se-white);
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.cancel .label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.cancel::before,
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.cancel::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 2px;
+  margin: -1px 0 0 -7px;
+  border-radius: 1px;
+  background: var(--se-black);
+  transform: rotate(45deg);
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.cancel::after {
+  transform: rotate(-45deg);
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.ok {
+  background: var(--se-lima);
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.ok[disabled] {
+  border-color: #d1d5db;
+  background: #f3f4f6;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay .footerCmps button.ok[disabled] .label {
+  color: #9ca3af;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay.movetobottom {
+  opacity: 1 !important;
+  animation: se-backdrop-out 0.2s linear forwards;
+}
+
+body.comm-page-custom-cesion-pph .forceMobileOverlay.movetobottom > .container {
+  transform: translateY(100%);
+  transition: transform 0.18s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Aura elige el panel de teléfono por user agent, no por ancho (tablets, celular apaisado):
+   desde 768 px se muestra como tarjeta centrada, igual que el modal de escritorio. */
+@keyframes se-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+}
+
+@media (min-width: 768px) {
+  body.comm-page-custom-cesion-pph .forceMobileOverlay {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+
+  body.comm-page-custom-cesion-pph .forceMobileOverlay > .container {
+    max-width: 480px;
+    padding: 20px;
+    border-radius: 16px;
+    animation-name: se-card-in;
+    animation-duration: 0.22s;
+  }
+
+  body.comm-page-custom-cesion-pph .forceMobileOverlay > .container::before {
+    display: none;
+  }
+
+  body.comm-page-custom-cesion-pph .forceMobileOverlay.movetobottom > .container {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+    transition: opacity 0.18s ease-in, transform 0.18s ease-in;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.comm-page-custom-cesion-pph .forceMobileOverlay > .container {
+    animation: none;
+  }
+
+  body.comm-page-custom-cesion-pph .forceMobileOverlay.movetobottom > .container {
+    transition: none;
+  }
+}

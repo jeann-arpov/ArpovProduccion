@@ -1,14 +1,14 @@
 <!-- sldsValidatorIgnore -->
 <template>
-    <div class="cg-root">
-        <template if:true={loading}>
-            <div class="cg-spinner" role="status" aria-busy="true" aria-label="Cargando">
-                <c-se-brand-loader></c-se-brand-loader>
-            </div>
-        </template>
+    <div class={rootClass}>
+        <div class="cg-volver-fuera cg-volver-top se-mob-only" if:true={muestraVolverIngreso}>
+            <button type="button" class="cg-btn cg-btn-ghost" onclick={handleSubirNivel}>← Volver</button>
+        </div>
 
         <!-- Stepper compartido (seProgSteps): barra lima mobile + círculos/línea desktop -->
         <c-se-prog-steps
+            class="cg-prog-host"
+            if:false={mostrarEsqueleto}
             label-short={wizardProgressLabel}
             label-long={progressEyebrow}
             current-step={step}
@@ -18,8 +18,36 @@
             onstepclick={handleProgStepClick}
         ></c-se-prog-steps>
 
+        <section class="cg-panel cg-error" if:true={errorCarga} role="alert">
+            <p class="cg-error-tit">No pudimos cargar esta pantalla.</p>
+            <p class="cg-error-txt">Probá de nuevo. Si sigue fallando, escribinos a la Mesa de Ayuda.</p>
+            <div class="cg-panel-actions">
+                <a class="cg-btn cg-btn-ghost" href={mesaAyudaUrl} target="_blank" rel="noopener">Mesa de Ayuda</a>
+                <button type="button" class="cg-btn cg-btn-primary" onclick={handleReintentar}>Reintentar</button>
+            </div>
+        </section>
+
+        <div if:true={mostrarEsqueleto} aria-busy="true" aria-label="Cargando">
+            <div class="cg-skel-prog">
+                <div class="cg-skel-prog-steps">
+                    <span class="cg-skel-circle"></span>
+                    <span class="cg-skel-line"></span>
+                    <span class="cg-skel-circle"></span>
+                    <span class="cg-skel-line"></span>
+                    <span class="cg-skel-circle"></span>
+                </div>
+            </div>
+            <section class="cg-panel">
+                <div class="cg-skel-grid">
+                    <span class="cg-skel-bone"></span>
+                    <span class="cg-skel-bone"></span>
+                    <span class="cg-skel-bone"></span>
+                </div>
+            </section>
+        </div>
+
         <!-- Paso 1: Cultivo -->
-        <section class="cg-panel" if:true={isStep1Active}>
+        <section class="cg-panel" if:true={showStep1Panel}>
             <p class="cg-panel-sub">Solo se listan los cultivos con sub-cuenta granaria activa.</p>
             <div class="cg-cultivo-grid" role="radiogroup" aria-label="Cultivo">
                 <template for:each={decoratedCultivos} for:item="c">
@@ -71,7 +99,7 @@
                 </template>
             </div>
             <div class="cg-panel-actions">
-                <button type="button" class="cg-btn cg-btn-ghost" onclick={handleBackToPaso1}>Volver</button>
+                <button type="button" class="cg-btn cg-btn-ghost" onclick={handleSubirNivel}>← Volver a Cultivo</button>
                 <button
                     type="button"
                     class="cg-btn cg-btn-primary"
@@ -82,8 +110,10 @@
         </section>
 
         <!-- Paso 3: Campaña -->
-        <section class="cg-panel" if:true={showStep3Panel}>
-            <div class="cg-camp-layout">
+        <section class="cg-panel cg-camp-panel" if:true={showStep3Panel}>
+            <p class="cg-panel-sub" if:true={isTrigo}>Podés ingresar a la campaña actual. Las campañas anteriores se regularizan con la Mesa de Ayuda.</p>
+            <p class="cg-empty" if:true={sinCampanas}>No hay campañas para mostrar en este cultivo.</p>
+            <div class={campLayoutClass}>
                 <div class="cg-camp-grid">
                     <template for:each={decoratedCampanas} for:item="camp" for:index="index">
                         <article key={camp.id} class={camp.cssClass}>
@@ -91,7 +121,7 @@
                                 <div class="cg-camp-crop">
                                     <span>{camp.displayName}</span>
                                     <span class="cg-tipwrap" tabindex="0">
-                                        <span class="cg-info-i" aria-hidden="true">i</span>
+                                        <span class={camp.infoClass} aria-hidden="true">i</span>
                                         <span class="cg-tip" role="tooltip">
                                             <b>{camp.tipTitle}</b>
                                             {camp.tipBody}
@@ -111,20 +141,43 @@
                                         maximum-fraction-digits="0"
                                     ></lightning-formatted-number>
                                 </div>
-                                <div class="cg-camp-unit">toneladas</div>
+                                <div class={camp.unitClass}>{camp.unidad}</div>
                             </div>
 
                             <div class="cg-camp-figwrap" if:true={camp.showPPH}>
                                 <img src={pphRibbonUrl} alt="PPH" class="cg-pph-ribbon" />
                             </div>
 
+                            <div class="cg-camp-neg" if:true={camp.muestraNegativas}>
+                                <span class="cg-camp-neg-tit">{camp.textoNegativas}</span>
+                                <span class="cg-camp-neg-vars">{camp.nombresNegativas}</span>
+                            </div>
+
+                            <a
+                                if:true={camp.muestraMesaAyuda}
+                                class="cg-camp-ayuda"
+                                href={mesaAyudaUrl}
+                                target="_blank"
+                                rel="noopener"
+                                data-campana={camp.period}
+                                onclick={handleMesaAyuda}
+                            >Escribir a la Mesa de Ayuda</a>
+
                             <button
+                                if:true={camp.muestraComprarHT}
+                                type="button"
+                                class={camp.btnClass}
+                                onclick={handleComprarHTCampana}
+                            >Comprar HT →</button>
+                            <button
+                                if:true={camp.muestraIngresar}
                                 type="button"
                                 class={camp.btnClass}
                                 data-id={camp.id}
                                 data-index={index}
                                 onclick={handleSelectCampana}
                                 disabled={camp.ingresarDisabled}
+                                aria-disabled={camp.ariaDisabled}
                             >Ingresar</button>
                         </article>
                     </template>
@@ -166,10 +219,33 @@
                     </p>
                 </aside>
             </div>
-            <div class="cg-panel-actions">
-                <button type="button" class="cg-btn cg-btn-ghost" onclick={handleBackToPaso2}>Volver</button>
+            <div class="cg-panel-actions" if:false={isTrigo}>
+                <button type="button" class="cg-btn cg-btn-ghost" onclick={handleSubirNivel}>← Volver a Plataforma</button>
             </div>
         </section>
+
+        <div class="cg-volver-fuera" if:true={muestraVolverPlataforma}>
+            <button type="button" class="cg-btn cg-btn-ghost" onclick={handleSubirNivel}>{textoVolverPaso3}</button>
+        </div>
+
+        <!-- Trigo: marcas y variedades. Soja y cebada siguen con el resumen por origen. -->
+        <template if:true={mostrarVarietal}>
+            <div class={claseVarietal}>
+                <c-cuenta-granaria-varietal
+                    campania-id={campanaSeleccionada}
+                    campania-label={campanaSeleccionadaPeriod}
+                    tecnologias={biotecnologia}
+                    subsistema={biotecnologiaLabel}
+                    ondetallechange={handleDetalleChange}
+                    onvistachange={handleVistaChange}
+                    onlisto={handleVarietalListo}
+                ></c-cuenta-granaria-varietal>
+            </div>
+        </template>
+
+        <div class="cg-volver-fuera se-desk-only" if:true={muestraVolverCampanas}>
+            <button type="button" class="cg-btn cg-btn-ghost" onclick={handleSubirNivel}>← Volver a Campañas</button>
+        </div>
 
         <!-- Resumen de toneladas -->
         <template if:true={totales}>

@@ -253,6 +253,8 @@ public without sharing class VentasInformadasController extends ApexErrorHandler
         Decimal bolsas40 = v.Cantidad_Bolsas_40__c != null
             ? v.Cantidad_Bolsas_40__c
             : (kilosTotales > 0 ? (kilosTotales / 40) : 0);
+        // Mismo criterio que el campo en Salesforce (escala 0, HALF_UP): sin decimales.
+        bolsas40 = bolsas40.setScale(0, System.RoundingMode.HALF_UP);
         String destinatarioNombre = v.Destinatario__r != null
             ? v.Destinatario__r.Name
             : v.Razon_Social_Destinatario__c;

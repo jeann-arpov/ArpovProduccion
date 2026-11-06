@@ -5,6 +5,7 @@
     <columns>PPH_Adherida__c</columns>
     <columns>Campania__c</columns>
     <columns>Cultivo__c</columns>
+    <columns>Variedad__c</columns>
     <columns>Productor__c</columns>
     <columns>Saldo_Cuenta__c</columns>
     <columns>Tecnologia__c</columns>

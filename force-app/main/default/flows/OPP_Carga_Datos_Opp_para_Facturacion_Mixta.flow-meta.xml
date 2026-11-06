@@ -61,13 +61,6 @@
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
-            <conditions>
-                <leftValueReference>Buscar_Oportunidad.Obtentor__r.Factura_por_Cuenta_y_Orden_SE__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
             <connector>
                 <targetReference>Screen_Carga</targetReference>
             </connector>
@@ -104,7 +97,9 @@ V2: Se actualiza la fecha de pedido de facturación a &gt;= que la fecha de crea
 V3: Se actualiza campo fecha facturacion en validacion fecha recibo
 V4: Se agrega Confirmación de Pago
 V5: Se agrega la etapa Cancelada para evitar carga de datos.
-V6: Se Realizan Ajustes para precargar Datos</description>
+V6: Se Realizan Ajustes para precargar Datos
+V7: Permite carga de FC/RC en Opp Punto de Venta aunque el obtentor no sea CYO SE (p.ej. Klein).
+V8: Se agregan rutas de error que revierten los cambios y muestran el detalle del error.</description>
     <environments>Default</environments>
     <formulas>
         <name>fechaHoy</name>
@@ -158,6 +153,9 @@ V6: Se Realizan Ajustes para precargar Datos</description>
         <connector>
             <targetReference>Actualizar_Oportunidad_Factura</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Revertir_Cambios</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>Comprobante__c</field>
             <value>
@@ -223,6 +221,9 @@ V6: Se Realizan Ajustes para precargar Datos</description>
         <connector>
             <targetReference>Actualizar_Oportunidad_por_Pago</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Revertir_Cambios</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>Comprobante__c</field>
             <value>
@@ -289,6 +290,9 @@ V6: Se Realizan Ajustes para precargar Datos</description>
         <connector>
             <targetReference>Facturacion_mixta</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Screen_Fault</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -301,6 +305,16 @@ V6: Se Realizan Ajustes para precargar Datos</description>
         <object>Opportunity</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordRollbacks>
+        <description>Revierte el movimiento creado si falla algún paso posterior, para no dejar datos a medias.</description>
+        <name>Revertir_Cambios</name>
+        <label>Revertir Cambios</label>
+        <locationX>578</locationX>
+        <locationY>890</locationY>
+        <connector>
+            <targetReference>Screen_Fault</targetReference>
+        </connector>
+    </recordRollbacks>
     <recordUpdates>
         <name>Actualizar_Oportunidad_Factura</name>
         <label>Actualizar Oportunidad Factura</label>
@@ -309,6 +323,9 @@ V6: Se Realizan Ajustes para precargar Datos</description>
         <connector>
             <targetReference>Screen_Success</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Revertir_Cambios</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -405,6 +422,9 @@ V6: Se Realizan Ajustes para precargar Datos</description>
         <connector>
             <targetReference>Screen_Success</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Revertir_Cambios</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -1354,7 +1374,32 @@ V6: Se Realizan Ajustes para precargar Datos</description>
         <allowPause>false</allowPause>
         <fields>
             <name>Error_mixta</name>
-            <fieldText>&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong style=&quot;font-size: 16px; color: rgb(0, 0, 0);&quot;&gt;&lt;img src=&quot;https://arpov.lightning.force.com/sfc/servlet.shepherd/version/download/068Qk00000Io5uz?asPdf=false&amp;amp;operationContext=CHATTER&quot; alt=&quot;image.png&quot;&gt;&lt;/strong&gt;&lt;span style=&quot;font-size: 16px; color: rgb(0, 0, 0);&quot;&gt;{!$Label.Flow_Error_Message}La oportunidad no cumple las condiciones de ser Punto de Venta para un Obtentor de CYO de SE&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong style=&quot;font-size: 16px; color: rgb(0, 0, 0);&quot;&gt;&lt;img src=&quot;https://arpov.lightning.force.com/sfc/servlet.shepherd/version/download/068Qk00000Io5uz?asPdf=false&amp;amp;operationContext=CHATTER&quot; alt=&quot;image.png&quot;&gt;&lt;/strong&gt;&lt;span style=&quot;font-size: 16px; color: rgb(0, 0, 0);&quot;&gt;{!$Label.Flow_Error_Message}La oportunidad no es Punto de Venta. Este proceso es solo para oportunidades Punto de Venta.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <nextOrFinishButtonLabel>Finalizar</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Fault</name>
+        <label>Screen Fault</label>
+        <locationX>578</locationX>
+        <locationY>998</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Fault_Message</name>
+            <fieldText>&lt;p style=&quot;text-align: center;&quot;&gt;&lt;strong style=&quot;font-size: 16px; color: rgb(255, 0, 0);&quot;&gt;No se pudieron guardar los datos del comprobante. No se realizó ningún cambio en la oportunidad.&lt;/strong&gt;&lt;/p&gt;&lt;p style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;Detalle del error:&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;text-align: center;&quot;&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>

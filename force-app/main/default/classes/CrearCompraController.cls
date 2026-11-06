@@ -33,6 +33,8 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
                     Product2.Unidad_De_Medida__c,
                     Product2.Tipo_de_Compra__c,
                     Product2.Variedad2__c,
+                    Product2.Variedad2__r.Name,
+                    Product2.Variedad2__r.Cultivar_INASE__c,
                     Product2.Variedad2__r.Biotecnologia__c,
                     Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c,
                     Product2.Variedad2__r.Cultivo__r.Name,
@@ -51,7 +53,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
             ];
         }
         Set<Id> variedadesSreIds = UtilsCompraVentaHT.getVariedadesSreProductor(getAccount().Id);
-        return [SELECT id, Product2Id, Unit_Price__c, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__c, Product2.Variedad2__r.Biotecnologia__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND Product2.Variedad2__c NOT IN ('a6aQk0000008mQrIAI','a6aQk0000008qkbIAA','a6aQk0000008qmDIAQ') AND (Product2.Variedad2__r.Sembra_Evolucion__c = true OR Product2.Variedad2__c IN :variedadesSreIds) ORDER BY Product2.Nombre_Comercial__c ASC];
+        return [SELECT id, Product2Id, Unit_Price__c, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__c, Product2.Variedad2__r.Name, Product2.Variedad2__r.Cultivar_INASE__c, Product2.Variedad2__r.Biotecnologia__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND Product2.Variedad2__c NOT IN ('a6aQk0000008mQrIAI','a6aQk0000008qkbIAA','a6aQk0000008qmDIAQ') AND (Product2.Variedad2__r.Sembra_Evolucion__c = true OR Product2.Variedad2__c IN :variedadesSreIds) ORDER BY Product2.Nombre_Comercial__c ASC];
         //return [SELECT id, Product2.Nombre_Comercial__c, UnitPrice, Product2.Unidad_De_Medida__c, Product2.Tipo_de_Compra__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Nombre_Obtentor__c, Product2.Variedad2__r.Cultivo__r.Name, Product2.Variedad2__r.Obtentor_Comercializa__r.Factura_por_Cuenta_y_Orden_SE__c, Product2.Variedad2__r.Obtentor_Comercializa__r.Id_Obtentor__c from PricebookEntry WHERE Product2.IsActive = true AND Product2.Producto_Vigente__c = true AND Product2.Variedad2__r.Cultivo__c = :cultivoId AND IsActive = true AND Pricebook2.IsActive = true AND priceBook2.Name = 'Lista de Precios Sembrá Evolución' AND UnitPrice != 0 AND (Product2.Variedad2__r.Sembra_Evolucion__c = true ) ORDER BY Product2.Nombre_Comercial__c ASC];
     }
     
@@ -124,7 +126,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     private static Boolean esContactoGrabacionCompra() {
         if (contactoGrabacionCompra == null) {
             Id contactId = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
-            contactoGrabacionCompra = contactId == '003Qk00000t89WZIAY' || contactId == '003Qk00000t7qS1IAI' || contactId == '003Qk00000uVgE5IAK';
+            contactoGrabacionCompra = contactId == '003Qk00000t89WZIAY' || contactId == '003Qk00000t7qS1IAI' || contactId == '003Qk00000uVgE5IAK' || contactId == '003Qk00000vhKGaIAM';
         }
         return contactoGrabacionCompra;
     }
@@ -173,7 +175,7 @@ public without sharing class CrearCompraController extends ApexErrorHandler {
     }
 
     private static Compra_HT__c getCompraData(Id compraId){
-        return [select Obtentor__c, Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, Entidad_Bancaria__c, Plazo_maximo__c, Moneda__c, TNA__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c, Tipo_de_Pago__c, Tipo_de_Compra__c, Licencia__c, Licencia__r.Name, Producto__r.Name, Producto__r.Tipo_de_Compra__c, Producto__r.Variedad2__r.Name, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
+        return [select Obtentor__c, Obtentor__r.Id_Obtentor__c, Total_HT__c, Total_USD__c, Cuenta_Productor__r.Name, id, Estado__c, CreatedDate, Cultivo__c, Entidad_Bancaria__c, Plazo_maximo__c, Moneda__c, TNA__c, (select id, Estado__c, Id_Producto_de_Lista_de_Precio__c, Cantidad__c, Precio_de_Lista__c, Fecha_de_Activacion__c, Tipo_de_Pago__c, Tipo_de_Compra__c, Licencia__c, Licencia__r.Name, Producto__r.Name, Producto__r.Tipo_de_Compra__c, Producto__r.Variedad2__r.Name, Producto__r.Variedad2__r.Cultivar_INASE__c, Producto__r.Variedad2__r.Obtentor_Comercializa__c, Producto__r.Variedad2__r.Obtentor_Comercializa__r.ParentId, Producto__r.Variedad2__r.Obtentor_Comercializa__r.Name, Producto__r.Variedad2__r.Biotecnologia__c from Lineas_de_Compra_HT__r) from Compra_HT__c where id =: compraId];
     }
 
     private static Opportunity getOpp(Id compraId) {

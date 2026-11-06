@@ -349,7 +349,7 @@ public with sharing class CrearVentasInformadaLWCController_TEST {
         Assert.areEqual(0, r1.size(), 'Sin campañaId => lista vacía.');
     }
 
-    /** Picklist campañas: orden SOJA → TRIGO → demás; años en rango actual−2 … actual+1. */
+    /** Picklist campañas: orden SOJA → TRIGO → demás. SOJA no incluye el año siguiente. */
     @isTest
     static void getCampanasAgricolasParaPicklistOrdenTest() {
         Test_TestUtils.disableFlows();
@@ -391,11 +391,38 @@ public with sharing class CrearVentasInformadaLWCController_TEST {
             )
         };
 
+        insert new List<Campana_Agricola__c>{
+            new Campana_Agricola__c(
+                Name = 'VI SOJA MAX ' + yMax,
+                Ano__c = String.valueOf(yMax),
+                Id_Externo__c = 'VI_SOJA_MAX',
+                Z9_Clave_Unica__c = 'VI_Z9_SOJA_MAX',
+                SKEY_CAMPANIA__c = 8800106,
+                Cultivo__c = soja.Id
+            ),
+            new Campana_Agricola__c(
+                Name = 'VI TRIGO MAX ' + yMax,
+                Ano__c = String.valueOf(yMax),
+                Id_Externo__c = 'VI_TRIGO_MAX',
+                Z9_Clave_Unica__c = 'VI_Z9_TRIGO_MAX',
+                SKEY_CAMPANIA__c = 8800107,
+                Cultivo__c = trigo.Id
+            )
+        };
+
         Assert.areEqual(0, CrearVentaInformadaLWCController.cultivoGrupoOrden('SOJA'));
         Assert.areEqual(1, CrearVentaInformadaLWCController.cultivoGrupoOrden('TRIGO'));
         Assert.areEqual(2, CrearVentaInformadaLWCController.cultivoGrupoOrden('MAIZ'));
         Assert.isTrue(CrearVentaInformadaLWCController.campanaAnoEnRangoPicklist(String.valueOf(yMid)));
         Assert.isFalse(CrearVentaInformadaLWCController.campanaAnoEnRangoPicklist(String.valueOf(yFuera)));
+        Assert.isFalse(
+            CrearVentaInformadaLWCController.campanaVisibleEnPicklist(String.valueOf(yMax), 'SOJA'),
+            'SOJA no ofrece el a\u00f1o siguiente.'
+        );
+        Assert.isTrue(
+            CrearVentaInformadaLWCController.campanaVisibleEnPicklist(String.valueOf(yMax), 'TRIGO'),
+            'TRIGO conserva el a\u00f1o siguiente.'
+        );
 
         Test.startTest();
         List<LookupSearchResult> enRango =
@@ -403,6 +430,20 @@ public with sharing class CrearVentasInformadaLWCController_TEST {
         Test.stopTest();
 
         Assert.isTrue(enRango.size() >= 1, 'Debe listar campañas en rango tras insertar datos de prueba.');
+        String tituloSojaMax = String.valueOf(yMax) + ' - SOJA';
+        String tituloTrigoMax = String.valueOf(yMax) + ' - TRIGO';
+        Boolean vioSojaMax = false;
+        Boolean vioTrigoMax = false;
+        for (LookupSearchResult r : enRango) {
+            if (r.title == tituloSojaMax) {
+                vioSojaMax = true;
+            }
+            if (r.title == tituloTrigoMax) {
+                vioTrigoMax = true;
+            }
+        }
+        Assert.isFalse(vioSojaMax, 'Nueva Venta no debe ofrecer SOJA del a\u00f1o siguiente.');
+        Assert.isTrue(vioTrigoMax, 'Nueva Venta debe seguir ofreciendo TRIGO del a\u00f1o siguiente.');
     }
 
     @isTest
@@ -481,6 +522,12 @@ public with sharing class CrearVentasInformadaLWCController_TEST {
         Assert.isFalse(CrearVentaInformadaLWCController.campanaAnoEnRangoPicklist(String.valueOf(min - 1)));
         Assert.isFalse(CrearVentaInformadaLWCController.campanaAnoEnRangoPicklist(String.valueOf(max + 1)));
         Assert.isTrue(CrearVentaInformadaLWCController.campanaAnoEnRangoPicklist('2025/26'));
+        Assert.isFalse(CrearVentaInformadaLWCController.campanaVisibleEnPicklist(String.valueOf(max), 'SOJA'));
+        Assert.isTrue(CrearVentaInformadaLWCController.campanaVisibleEnPicklist(String.valueOf(Date.today().year()), 'SOJA'));
+        Assert.isTrue(CrearVentaInformadaLWCController.campanaVisibleEnPicklist(String.valueOf(max), 'TRIGO'));
+        String msgSoja = CrearVentaInformadaLWCController.mensajeCampanaSojaNoVisible(String.valueOf(max), 'SOJA');
+        Assert.isTrue(msgSoja != null && msgSoja.contains(String.valueOf(max)));
+        Assert.areEqual(null, CrearVentaInformadaLWCController.mensajeCampanaSojaNoVisible(String.valueOf(max), 'TRIGO'));
     }
 
     /** Cobertura: getDiccionariosPlantilla devuelve las 4 listas con contenido o vacías. */

@@ -312,6 +312,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>reporteVarietal</componentName>
+                <identifier>c_reporteVarietal</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>label</name>
                     <value>Tabs</value>

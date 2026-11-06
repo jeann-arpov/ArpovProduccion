@@ -3,6 +3,9 @@
  *
  * Base: StaticResource "Vtas_Informadas_Vacio" (planilla actualizada PLANIL-1).
  * Hojas: CARGA (datos), INSTRUCCIONES, REFERENCIAS (listas para desplegables).
+ * Los nombres CARGA, INSTRUCCIONES, REFERENCIAS y LOCALIDADES quedan fijos
+ * (estructura del libro protegida). CARGA sigue editable para cargar ventas.
+ * INSTRUCCIONES y LOCALIDADES quedan solo lectura.
  *
  * REFERENCIAS usa columnas B–F (Campaña, Categoría, Tipo, Variedad, Provincia Destino).
  * Geo estático: hoja LOCALIDADES (oculta) + desplegables K/L en CARGA vienen del Static Resource.
@@ -13,6 +16,11 @@
 public without sharing class PlantillaVtasInfXlsxBuilder extends ApexErrorHandler {
 
     @TestVisible private static final String NOMBRE_STATIC_RESOURCE = 'Vtas_Informadas_Vacio';
+    /**
+     * Contraseña para desproteger la estructura en Excel (Revisar > Proteger libro): SembraVtas.
+     * Hash OOXML legacy de esa contraseña (vector conocido: "password" => 83AF).
+     */
+    @TestVisible private static final String PASSWORD_ESTRUCTURA_HASH = '8D39';
     /** Fila de encabezados en hoja CARGA (1-based). */
     @TestVisible private static final Integer FILA_ENCABEZADOS_CARGA = 3;
     /** Primera fila de datos en hoja CARGA. */
@@ -106,6 +114,8 @@ public without sharing class PlantillaVtasInfXlsxBuilder extends ApexErrorHandle
                 workbookXml = patchWorkbookCompatibilidadLtsc(workbookXml);
             }
             entradas.put('xl/workbook.xml', Blob.valueOf(workbookXml));
+            fijarNombresYBloquearEstructura(entradas);
+            workbookXml = entradas.get('xl/workbook.xml').toString();
 
             if (entradas.containsKey('docProps/app.xml')) {
                 entradas.put(
@@ -357,6 +367,222 @@ public without sharing class PlantillaVtasInfXlsxBuilder extends ApexErrorHandle
         );
     }
 
+    /**
+     * Modelo nuevo: fuerza CARGA, INSTRUCCIONES, REFERENCIAS y LOCALIDADES,
+     * bloquea renombrar pestañas y deja INSTRUCCIONES/LOCALIDADES solo lectura.
+     */
+    @TestVisible
+    private static void fijarNombresYBloquearEstructura(Map<String, Blob> entradas) {
+        if (entradas == null || !entradas.containsKey('xl/workbook.xml')) {
+            return;
+        }
+        String workbookXml = entradas.get('xl/workbook.xml').toString();
+        if (entradas.containsKey('xl/worksheets/sheet3.xml')) {
+            String relsXml = entradas.containsKey('xl/_rels/workbook.xml.rels')
+                ? entradas.get('xl/_rels/workbook.xml.rels').toString()
+                : '';
+            Map<String, String> renombres = new Map<String, String>();
+            workbookXml = renombrarHojasCanonicas(workbookXml, relsXml, renombres);
+            if (!renombres.isEmpty()) {
+                aplicarRenombresFormulas(entradas, renombres);
+            }
+            protegerHojaSiExiste(entradas, 'xl/worksheets/sheet2.xml');
+            protegerHojaSiExiste(entradas, 'xl/worksheets/sheet4.xml');
+        }
+        entradas.put('xl/workbook.xml', Blob.valueOf(bloquearEstructuraLibro(workbookXml)));
+    }
+
+    @TestVisible
+    private static String renombrarHojasCanonicas(
+        String workbookXml,
+        String relsXml,
+        Map<String, String> renombres
+    ) {
+        if (String.isBlank(workbookXml)) {
+            return workbookXml;
+        }
+        Map<String, String> ridToFile = mapearRelacionesHojas(relsXml);
+        Matcher tags = Pattern.compile('<sheet\\b[^>]*/>').matcher(workbookXml);
+        String result = workbookXml;
+        while (tags.find()) {
+            String tag = tags.group();
+            String rid = extraerAtributo(tag, 'r:id');
+            if (rid == null) {
+                Matcher idGenerico = Pattern.compile('[\\w]+:id="([^"]+)"').matcher(tag);
+                if (idGenerico.find()) {
+                    rid = idGenerico.group(1);
+                }
+            }
+            String nuevoNombre = nombreCanonicoHoja(ridToFile.get(rid));
+            String viejoNombre = extraerAtributo(tag, 'name');
+            if (nuevoNombre == null || String.isBlank(viejoNombre) || viejoNombre == nuevoNombre) {
+                continue;
+            }
+            String tagNuevo = tag.replace(
+                'name="' + viejoNombre + '"',
+                'name="' + nuevoNombre + '"'
+            );
+            result = result.replace(tag, tagNuevo);
+            renombres.put(viejoNombre, nuevoNombre);
+        }
+        return reemplazarNombresHoja(result, renombres);
+    }
+
+    private static Map<String, String> mapearRelacionesHojas(String relsXml) {
+        Map<String, String> out = new Map<String, String>();
+        if (String.isBlank(relsXml)) {
+            return out;
+        }
+        Matcher relaciones = Pattern.compile('<Relationship\\b[^>]*>').matcher(relsXml);
+        while (relaciones.find()) {
+            String tag = relaciones.group();
+            String idRel = extraerAtributo(tag, 'Id');
+            String target = extraerAtributo(tag, 'Target');
+            if (idRel != null && target != null && target.contains('worksheets/sheet')) {
+                out.put(idRel, target);
+            }
+        }
+        return out;
+    }
+
+    private static String nombreCanonicoHoja(String archivo) {
+        if (String.isBlank(archivo)) {
+            return null;
+        }
+        if (archivo.endsWith('sheet1.xml')) {
+            return 'CARGA';
+        }
+        if (archivo.endsWith('sheet2.xml')) {
+            return 'INSTRUCCIONES';
+        }
+        if (archivo.endsWith('sheet3.xml')) {
+            return 'REFERENCIAS';
+        }
+        if (archivo.endsWith('sheet4.xml')) {
+            return 'LOCALIDADES';
+        }
+        return null;
+    }
+
+    private static String extraerAtributo(String tag, String atributo) {
+        if (String.isBlank(tag) || String.isBlank(atributo)) {
+            return null;
+        }
+        Matcher coincidencia = Pattern.compile(atributo + '="([^"]*)"').matcher(tag);
+        return coincidencia.find() ? coincidencia.group(1) : null;
+    }
+
+    private static void aplicarRenombresFormulas(Map<String, Blob> entradas, Map<String, String> renombres) {
+        List<String> claves = new List<String>(entradas.keySet());
+        for (String clave : claves) {
+            if (clave == 'xl/workbook.xml' || !clave.endsWith('.xml')) {
+                continue;
+            }
+            String xml = entradas.get(clave).toString();
+            String nuevo = reemplazarNombresHoja(xml, renombres);
+            if (nuevo != xml) {
+                entradas.put(clave, Blob.valueOf(nuevo));
+            }
+        }
+    }
+
+    private static String reemplazarNombresHoja(String xml, Map<String, String> renombres) {
+        if (String.isBlank(xml) || renombres == null || renombres.isEmpty()) {
+            return xml;
+        }
+        List<String> viejos = ordenarPorLargoDesc(new List<String>(renombres.keySet()));
+        String out = xml;
+        List<String> tokens = new List<String>();
+        Integer n = 0;
+        for (String viejo : viejos) {
+            String token = '##HOJA' + n + '##';
+            n++;
+            tokens.add(token);
+            out = Pattern.compile('(?<![A-Za-z0-9_])' + quoteRegex(viejo) + '!')
+                .matcher(out)
+                .replaceAll(Matcher.quoteReplacement(token + '!'));
+        }
+        for (Integer i = 0; i < viejos.size(); i++) {
+            out = out.replace(tokens[i], renombres.get(viejos[i]));
+        }
+        return out;
+    }
+
+    private static List<String> ordenarPorLargoDesc(List<String> valores) {
+        List<String> ordenados = new List<String>();
+        if (valores != null) {
+            ordenados.addAll(valores);
+        }
+        for (Integer i = 0; i < ordenados.size(); i++) {
+            for (Integer j = i + 1; j < ordenados.size(); j++) {
+                if (ordenados[j].length() > ordenados[i].length()) {
+                    String tmp = ordenados[i];
+                    ordenados[i] = ordenados[j];
+                    ordenados[j] = tmp;
+                }
+            }
+        }
+        return ordenados;
+    }
+
+    private static String quoteRegex(String valor) {
+        if (valor == null) {
+            return '';
+        }
+        String especiales = '\\.^$|?*+()[]{}';
+        String out = '';
+        for (Integer i = 0; i < valor.length(); i++) {
+            String ch = valor.substring(i, i + 1);
+            if (especiales.contains(ch)) {
+                out += '\\';
+            }
+            out += ch;
+        }
+        return out;
+    }
+
+    @TestVisible
+    private static String bloquearEstructuraLibro(String workbookXml) {
+        if (String.isBlank(workbookXml)) {
+            return workbookXml;
+        }
+        String protection = '<workbookProtection workbookPassword="'
+            + PASSWORD_ESTRUCTURA_HASH
+            + '" lockStructure="1"/>';
+        String sinProteccion = workbookXml;
+        if (sinProteccion.contains('<workbookProtection')) {
+            sinProteccion = sinProteccion.replaceAll(
+                '<workbookProtection\\b[\\s\\S]*?(?:/>|</workbookProtection>)',
+                ''
+            );
+        }
+        if (sinProteccion.contains('<bookViews')) {
+            return sinProteccion.replace('<bookViews', protection + '<bookViews');
+        }
+        if (sinProteccion.contains('<sheets')) {
+            return sinProteccion.replace('<sheets', protection + '<sheets');
+        }
+        return sinProteccion.replace('</workbook>', protection + '</workbook>');
+    }
+
+    private static void protegerHojaSiExiste(Map<String, Blob> entradas, String clave) {
+        if (entradas == null || !entradas.containsKey(clave)) {
+            return;
+        }
+        entradas.put(
+            clave,
+            Blob.valueOf(patchSheetConProteccion(entradas.get(clave).toString(), buildHojaFijaProtection()))
+        );
+    }
+
+    private static String buildHojaFijaProtection() {
+        return '<sheetProtection password="' + PASSWORD_ESTRUCTURA_HASH + '" sheet="1" objects="1" scenarios="1"'
+            + ' formatCells="1" formatColumns="1" formatRows="1"'
+            + ' insertColumns="1" insertRows="1" insertHyperlinks="1"'
+            + ' deleteColumns="1" deleteRows="1" selectLockedCells="0"'
+            + ' sort="1" autoFilter="1" pivotTables="1" selectUnlockedCells="0"/>';
+    }
+
     @TestVisible
     private static String patchSheetCargaActiva(String sheetXml) {
         if (String.isBlank(sheetXml) || sheetXml.contains('tabSelected="1"')) {
@@ -380,10 +606,13 @@ public without sharing class PlantillaVtasInfXlsxBuilder extends ApexErrorHandle
 
     @TestVisible
     private static String patchSheetReferenciasProtegida(String sheetXml) {
+        return patchSheetConProteccion(sheetXml, buildReferenciasSheetProtection());
+    }
+
+    private static String patchSheetConProteccion(String sheetXml, String protection) {
         if (String.isBlank(sheetXml)) {
             return sheetXml;
         }
-        String protection = buildReferenciasSheetProtection();
         if (sheetXml.contains('<sheetProtection')) {
             return sheetXml.replaceAll('<sheetProtection[^>]*/>', protection);
         }
@@ -811,11 +1040,12 @@ public without sharing class PlantillaVtasInfXlsxBuilder extends ApexErrorHandle
         }
     }
 
+    /** Años sueltos del desplegable: actual−2, actual−1 y actual. Sin cultivo. */
     @TestVisible
     public static List<String> buildAnosCampanaLista() {
         Integer anioActual = Date.today().year();
         List<String> anos = new List<String>();
-        for (Integer y = anioActual - 2; y <= anioActual + 1; y++) {
+        for (Integer y = anioActual - 2; y <= anioActual; y++) {
             anos.add(String.valueOf(y));
         }
         return anos;

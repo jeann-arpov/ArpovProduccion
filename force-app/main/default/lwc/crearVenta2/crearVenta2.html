@@ -359,7 +359,7 @@
                         name="fileUploader"
                         accept={acceptedFormats}
                         record-id={recordId}
-                        disabled={uploadFactura}
+                        disabled={deshabilitarArchivoFactura}
                         onuploadfinished={handleUploadFinished}>
                     </lightning-file-upload>
                     <br>
@@ -369,7 +369,7 @@
                             title="Guardar"
                             onclick={handleSave}
                             variant="brand"
-                            disabled={uploadFactura}
+                            disabled={deshabilitarGuardarFactura}
                             class="slds-m-top_medium">
                         </lightning-button>
                     </center>

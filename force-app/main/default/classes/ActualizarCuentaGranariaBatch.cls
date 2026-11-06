@@ -5,8 +5,8 @@
  * Productor + Cultivo + Tecnología sin campaña (toneladas Compra HT)
  * 
  * **SCHEDULABLE:** También implementa Schedulable para ejecutarse diariamente a las 12am
- * - El scheduler revisa automáticamente toneladas que iniciaron hoy
- * - Las suma en sus cuentas granarias correspondientes
+ * - El scheduler busca toneladas ya iniciadas que siguen sin Cuenta Granaria
+ * - Incluye una ventana hacia atrás para recuperar días en los que el job no llegó a correr
  * - Se puede programar con: System.schedule('ActualizarCuentaGranaria Diario', '0 0 0 * * ?', new ActualizarCuentaGranariaBatch());
  */
 global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject>, Database.Stateful, Schedulable {
@@ -18,6 +18,17 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
     /** En false no se insertan Expediente_de_Negativos__c en compensarSaldosNegativos (consumos HT siguen activos si HABILITAR_CONSUMOS_Y_EXPEDIENTES). */
     @TestVisible
     private static Boolean HABILITAR_CREACION_EXPEDIENTES_NEGATIVOS = true;
+
+    /**
+     * Una consulta agregada no puede devolver más de 2000 grupos: el for sobre AggregateResult
+     * llama a queryMore() y falla con "Aggregate query does not support queryMore()".
+     */
+    @TestVisible
+    private static Integer limiteFilasAggregate = 2000;
+
+    /** Días hacia atrás para recuperar toneladas que ya iniciaron y siguen sin Cuenta Granaria. */
+    @TestVisible
+    private static Integer diasRecuperacionCuentasPendientes = 90;
     
     // Parámetros configurables
     private Set<Id> campanasIds;
@@ -2653,24 +2664,93 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
         System.debug('=== SCHEDULED EXECUTION: ActualizarCuentaGranariaBatch ===');
         System.debug('Ejecutado por el Scheduler: ' + DateTime.now());
 
-        // Buscar productores que tengan toneladas iniciadas hoy y procesar solo ese subconjunto.
-        Set<Id> productoresConToneladasHoy = new Set<Id>();
-        for (AggregateResult ar : [
-            SELECT Productor__c productorId
-            FROM Tonelada__c
-            WHERE Fecha_Inicio__c = TODAY
-                AND Productor__c != null
-            GROUP BY Productor__c
-        ]) {
-            productoresConToneladasHoy.add((Id) ar.get('productorId'));
-        }
-
-        if (productoresConToneladasHoy.isEmpty()) {
-            System.debug('No hay productores con toneladas iniciadas hoy. No se ejecuta batch.');
+        Set<Id> productoresPendientes = productoresConToneladasSinCuenta();
+        if (productoresPendientes.isEmpty()) {
+            System.debug('No hay productores con toneladas iniciadas sin Cuenta Granaria. No se ejecuta batch.');
             return;
         }
 
-        System.debug('Productores con toneladas iniciadas hoy: ' + productoresConToneladasHoy.size());
-        Database.executeBatch(new ActualizarCuentaGranariaBatch(null, null, productoresConToneladasHoy), 200);
+        System.debug('Productores con toneladas sin Cuenta Granaria: ' + productoresPendientes.size());
+        Database.executeBatch(new ActualizarCuentaGranariaBatch(null, null, productoresPendientes), 200);
+    }
+
+    /**
+     * Productores con toneladas ya iniciadas y todavía sin Cuenta Granaria.
+     * Pagina de a 2000 grupos: una sola aggregate con más grupos tira
+     * "Aggregate query does not support queryMore()".
+     */
+    @TestVisible
+    private static Set<Id> productoresConToneladasSinCuenta() {
+        Set<Id> productores = new Set<Id>();
+        Integer dias = diasRecuperacionCuentasPendientes == null ? 90 : diasRecuperacionCuentasPendientes;
+        Date desde = Date.today().addDays(-dias);
+        Integer limite = limiteFilasAggregate == null || limiteFilasAggregate < 1
+            ? 2000
+            : Math.min(limiteFilasAggregate, 2000);
+        Id ultimoProductor = null;
+
+        // 24 páginas x 2000 = 48.000 filas, debajo del límite sincrónico de 50.000.
+        for (Integer pagina = 0; pagina < 24; pagina++) {
+            List<AggregateResult> resultados = consultarProductoresSinCuenta(desde, ultimoProductor, limite);
+            if (resultados.isEmpty()) {
+                break;
+            }
+            for (AggregateResult ar : resultados) {
+                Id productorId = (Id) ar.get('productorId');
+                if (productorId != null) {
+                    productores.add(productorId);
+                    ultimoProductor = productorId;
+                }
+            }
+            if (resultados.size() < limite) {
+                break;
+            }
+        }
+
+        return productores;
+    }
+
+    private static List<AggregateResult> consultarProductoresSinCuenta(Date desde, Id ultimoProductor, Integer limite) {
+        if (ultimoProductor == null) {
+            return [
+                SELECT Productor__c productorId
+                FROM Tonelada__c
+                WHERE Productor__c != null
+                    AND Fecha_Inicio__c <= TODAY
+                    AND Fecha_Inicio__c >= :desde
+                    AND Cuenta_Granaria__c = null
+                    AND Biotecnologia__c != null
+                    AND Cultivo__c != null
+                    AND Etapa__c != 'Pendiente'
+                    AND Origen__c != 'Balance Anual'
+                    AND (
+                        Origen__c IN ('Compra HT', 'Consumo')
+                        OR Campania__c != null
+                    )
+                GROUP BY Productor__c
+                ORDER BY Productor__c
+                LIMIT :limite
+            ];
+        }
+
+        return [
+            SELECT Productor__c productorId
+            FROM Tonelada__c
+            WHERE Productor__c > :ultimoProductor
+                AND Fecha_Inicio__c <= TODAY
+                AND Fecha_Inicio__c >= :desde
+                AND Cuenta_Granaria__c = null
+                AND Biotecnologia__c != null
+                AND Cultivo__c != null
+                AND Etapa__c != 'Pendiente'
+                AND Origen__c != 'Balance Anual'
+                AND (
+                    Origen__c IN ('Compra HT', 'Consumo')
+                    OR Campania__c != null
+                )
+            GROUP BY Productor__c
+            ORDER BY Productor__c
+            LIMIT :limite
+        ];
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Habilitado_Importar_Ventas__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Permite importar ventas informadas desde el portal de comercio aunque la cuenta no sea de tipo Distribuidor (por ejemplo, obtentores que también comercializan semilla).</description>
+    <inlineHelpText>Marcar para que los usuarios de esta cuenta puedan importar ventas desde el portal de comercio sin ser Distribuidor.</inlineHelpText>
+    <label>Habilitado para importar ventas</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

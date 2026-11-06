@@ -1,5 +1,15 @@
 public without sharing class UtilsVentaHt {
 
+    private static final Set<String> ESTADOS_SIN_SUBIR_FACTURA = new Set<String>{
+        'Cancelada',
+        'Facturada',
+        'Pagada'
+    };
+
+    public static Boolean bloqueaSubirFactura(String estado) {
+        return ESTADOS_SIN_SUBIR_FACTURA.contains(estado);
+    }
+
     @AuraEnabled(cacheable=true)
     public static List<Venta_HT__c> getVentasHT(String userId) {
         try {
@@ -77,7 +87,7 @@ public without sharing class UtilsVentaHt {
                 LIMIT 1
             ];
 
-            if (venta.Estado__c == 'Pagada' || venta.Estado__c == 'Facturada') {
+            if (bloqueaSubirFactura(venta.Estado__c) || oportunidadBloqueaSubirFactura(venta.Id)) {
                 return false;
             }
 
@@ -128,12 +138,14 @@ public without sharing class UtilsVentaHt {
                 }
             }
 
+            Set<Id> ventasConOppBloqueada = ventasConOportunidadBloqueada(result.keySet());
+
             for (Venta_HT__c venta : [
                 SELECT Id, Obtentor__r.N_CUIT__c, Estado__c
                 FROM Venta_HT__c
                 WHERE Id IN :result.keySet()
             ]) {
-                if (venta.Estado__c == 'Pagada' || venta.Estado__c == 'Facturada') {
+                if (bloqueaSubirFactura(venta.Estado__c) || ventasConOppBloqueada.contains(venta.Id)) {
                     result.put(venta.Id, false);
                     continue;
                 }
@@ -146,6 +158,28 @@ public without sharing class UtilsVentaHt {
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
+    }
+
+    private static Boolean oportunidadBloqueaSubirFactura(Id ventaId) {
+        return !ventasConOportunidadBloqueada(new Set<Id>{ ventaId }).isEmpty();
+    }
+
+    private static Set<Id> ventasConOportunidadBloqueada(Set<Id> ventaIds) {
+        Set<Id> bloqueadas = new Set<Id>();
+        if (ventaIds == null || ventaIds.isEmpty()) {
+            return bloqueadas;
+        }
+
+        for (Opportunity opp : [
+            SELECT StageName, N_de_Comprobante__c, Compra_HT__r.Venta_HT__c
+            FROM Opportunity
+            WHERE Compra_HT__r.Venta_HT__c IN :ventaIds
+        ]) {
+            if (bloqueaSubirFactura(opp.StageName) || String.isNotBlank(opp.N_de_Comprobante__c)) {
+                bloqueadas.add(opp.Compra_HT__r.Venta_HT__c);
+            }
+        }
+        return bloqueadas;
     }
 
     public static String normalizeCuit(String value) {

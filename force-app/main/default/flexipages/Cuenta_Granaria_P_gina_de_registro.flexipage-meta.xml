@@ -105,6 +105,22 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>cuentaGranariaToneladas</componentName>
+                <identifier>c_cuentaGranariaToneladas</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>modo</name>
+                    <value>trigo</value>
+                </componentInstanceProperties>
+                <componentName>cuentaGranariaToneladasLista</componentName>
+                <identifier>c_cuentaGranariaToneladasLista</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>label</name>
                     <value>Tabs</value>
@@ -162,8 +178,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>cuentaGranariaToneladas</componentName>
-                <identifier>c_cuentaGranariaToneladas</identifier>
+                <componentInstanceProperties>
+                    <name>modo</name>
+                    <value>otros</value>
+                </componentInstanceProperties>
+                <componentName>cuentaGranariaToneladasLista</componentName>
+                <identifier>c_cuentaGranariaToneladasLista_otros</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

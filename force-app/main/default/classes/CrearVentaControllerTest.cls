@@ -358,6 +358,81 @@ public class CrearVentaControllerTest {
     Test.stopTest();
   }
 
+  @IsTest
+  static void testUpdateOpportunityBloqueaVentaCancelada() {
+    TestContext ctx = setupFullContext();
+    ctx.venta.Estado__c = 'Cancelada';
+    update ctx.venta;
+
+    Test.startTest();
+    Boolean exceptionThrown = false;
+    try {
+      CrearVentaController.updateOpportunity(
+        ctx.venta.Id,
+        Date.today(),
+        'C-0001-34567654'
+      );
+    } catch (AuraHandledException e) {
+      exceptionThrown = true;
+    }
+    System.assert(exceptionThrown, 'Se esperaba una excepción para venta Cancelada');
+    Test.stopTest();
+  }
+
+  @IsTest
+  static void testUpdateOpportunityBloqueaOportunidadCancelada() {
+    TestContext ctx = setupFullContext();
+    ctx.opp.StageName = 'Cancelada';
+    update ctx.opp;
+
+    Test.startTest();
+    Boolean exceptionThrown = false;
+    try {
+      CrearVentaController.updateOpportunity(
+        ctx.venta.Id,
+        Date.today(),
+        'C-0001-34567654'
+      );
+    } catch (AuraHandledException e) {
+      exceptionThrown = true;
+    }
+    Test.stopTest();
+
+    System.assert(exceptionThrown, 'Se esperaba una excepción para oportunidad Cancelada');
+    Opportunity opp = [SELECT StageName FROM Opportunity WHERE Id = :ctx.opp.Id];
+    System.assertEquals('Cancelada', opp.StageName, 'No debe pasar a Pedido de Facturacion');
+  }
+
+  @IsTest
+  static void testUpdateOpportunityNoDuplicaFactura() {
+    TestContext ctx = setupFullContext();
+
+    Test.startTest();
+    CrearVentaController.updateOpportunity(
+      ctx.venta.Id,
+      Date.today(),
+      'C-0001-34567654'
+    );
+    Boolean exceptionThrown = false;
+    try {
+      CrearVentaController.updateOpportunity(
+        ctx.venta.Id,
+        Date.today(),
+        'C-0001-34567654'
+      );
+    } catch (AuraHandledException e) {
+      exceptionThrown = true;
+    }
+    Test.stopTest();
+
+    System.assert(exceptionThrown, 'La segunda carga de la misma factura debe rechazarse');
+    System.assertEquals(
+      1,
+      [SELECT COUNT() FROM Movimientos__c WHERE Oportunidad__c = :ctx.opp.Id AND Tipo_de_Movimiento__c = 'FC'],
+      'Debe quedar un solo movimiento FC'
+    );
+  }
+
   // ------- COBERTURA ADICIONAL ---------
 
   @isTest

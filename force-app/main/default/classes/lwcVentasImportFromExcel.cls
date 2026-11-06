@@ -143,7 +143,7 @@ public without sharing class lwcVentasImportFromExcel {
       accountId = u.AccountId != null ? u.AccountId : u.Contact?.AccountId;
       if (accountId != null) {
         userAccont = [
-          SELECT Id, N_CUIT__c, RecordType.DeveloperName, Type, Name
+          SELECT Id, N_CUIT__c, RecordType.DeveloperName, Type, Name, Habilitado_Importar_Ventas__c
           FROM Account
           WHERE Id = :accountId
           LIMIT 1
@@ -166,7 +166,7 @@ public without sharing class lwcVentasImportFromExcel {
         Test.isRunningTest() == false &&
         !isPortalObtentor &&
         userAccont.RecordType.DeveloperName != 'Distribuidor' &&
-        userAccont.N_CUIT__c != '30500120882'
+        !userAccont.Habilitado_Importar_Ventas__c
       )
         throw new AuraHandledException(
           Label.VENTA_INF_Solo_Distribuidor_Importa
