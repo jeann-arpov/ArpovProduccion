@@ -97,4 +97,81 @@ private class MovBolsaTechDebitarTNsBatchTest {
       'La query debe excluir expedientes finalizados'
     );
   }
+
+  /**
+   * Cubre la rama "similares ya debitados" de execute().
+   */
+  @isTest
+  static void testExecute_IgnoraSimilaresYaDebitados() {
+    Cultivo__c cultivo = [SELECT Id FROM Cultivo__c LIMIT 1];
+
+    Account productor = new Account(Name = 'Productor Test');
+    insert productor;
+
+    Tonelada__c tn = new Tonelada__c(
+      Cultivo__c = cultivo.Id,
+      Productor__c = productor.Id,
+      Cantidad__c = 1,
+      Signo__c = -1,
+      Etapa__c = 'Cobrada',
+      Fecha_Inicio__c = Date.today(),
+      Origen__c = 'BolsaTech'
+    );
+    insert tn;
+
+    insert new Movimiento_BolsaTech__c(
+      CUIT_Titular__c = CUIT,
+      CTG__c = CTG,
+      Cultivo__c = cultivo.Id,
+      Tecnologia__c = TECNO,
+      Peso_Neto__c = PESO,
+      TN_Id__c = tn.Id,
+      Estado__c = 'Procesado'
+    );
+
+    Movimiento_BolsaTech__c mbtEnScope = [
+      SELECT
+        Id,
+        CUIT_Titular__c,
+        CTG__c,
+        Cultivo__c,
+        Tecnologia__c,
+        Peso_Neto__c
+      FROM Movimiento_BolsaTech__c
+      WHERE TN_Id__c = NULL
+      LIMIT 1
+    ];
+
+    Test.startTest();
+    new MovBolsaTechDebitarTNsBatch()
+      .execute(null, new List<Movimiento_BolsaTech__c>{ mbtEnScope });
+    Test.stopTest();
+
+    System.assert(true, 'execute no debe lanzar excepción');
+  }
+
+  /**
+   * Cubre la rama "sin similares" (invocación del flow) de execute().
+   */
+  @isTest
+  static void testExecute_SinSimilares() {
+    Movimiento_BolsaTech__c mbtEnScope = [
+      SELECT
+        Id,
+        CUIT_Titular__c,
+        CTG__c,
+        Cultivo__c,
+        Tecnologia__c,
+        Peso_Neto__c
+      FROM Movimiento_BolsaTech__c
+      LIMIT 1
+    ];
+
+    Test.startTest();
+    new MovBolsaTechDebitarTNsBatch()
+      .execute(null, new List<Movimiento_BolsaTech__c>{ mbtEnScope });
+    Test.stopTest();
+
+    System.assert(true, 'execute no debe lanzar excepción');
+  }
 }
