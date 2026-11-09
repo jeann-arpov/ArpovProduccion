@@ -806,6 +806,114 @@ private class ActualizarCuentaGranariaBatchTest {
     }
     
     @isTest
+    static void testNoGeneraConsumoDeCompraHTCanceladaPorNC() {
+        // Regresión: una Compra HT Disponible en etapa 'Cancelada por NC'
+        // NO debe ser consumida para compensar un saldo negativo.
+        Test_TestUtils.disableFlows();
+        
+        Account productor = [SELECT Id FROM Account WHERE Name = 'Productor Test 0' LIMIT 1];
+        Cultivo__c cultivoSoja = [SELECT Id FROM Cultivo__c WHERE Name = 'SOJA' LIMIT 1];
+        
+        RecordType rtObtentor = [SELECT Id FROM RecordType WHERE SObjectType = 'Account' AND DeveloperName = 'Obtentor' LIMIT 1];
+        Account obtentor = new Account(
+            Name = 'Obtentor Test HT NC',
+            RecordTypeId = rtObtentor.Id,
+            Id_Obtentor__c = '98',
+            Type = 'Obtentor',
+            Nombre_Obtentor__c = 'Test'
+        );
+        insert obtentor;
+        
+        Variedad__c var1 = new Variedad__c(
+            Name = 'Var Test HT NC',
+            Biotecnologia__c = 'RR1',
+            Sembra_Evolucion__c = true,
+            Obtentor_Comercializa__c = obtentor.Id
+        );
+        insert var1;
+        
+        Product2 prod = new Product2(
+            Name = 'Producto Test HT NC',
+            IsActive = true,
+            Cultivo__c = cultivoSoja.Id,
+            Variedad__c = var1.Id,
+            Variedad2__c = var1.Id
+        );
+        insert prod;
+        
+        PricebookEntry entry = new PricebookEntry(
+            Pricebook2Id = Test.getStandardPricebookId(),
+            Product2Id = prod.Id,
+            UnitPrice = 100,
+            IsActive = true
+        );
+        insert entry;
+        
+        Compra_HT__c compra = new Compra_HT__c(
+            Lista_de_Precios__c = Test.getStandardPricebookId(),
+            Cuenta_Productor__c = productor.Id,
+            Estado__c = 'Creada'
+        );
+        insert compra;
+        
+        Licencia__c lic = new Licencia__c(Cuenta_Obtentor__c = obtentor.Id, Estado__c = 'Aprobada');
+        insert lic;
+        
+        Linea_de_Compra_HT__c linea = new Linea_de_Compra_HT__c(
+            Cantidad__c = 100,
+            Precio_de_Lista__c = 10,
+            Compra_HT__c = compra.Id,
+            Estado__c = 'Creada',
+            Licencia__c = lic.Id,
+            Tipo_de_cambio__c = 14,
+            Tipo_de_Compra__c = 'Disponible',
+            Id_Producto_de_Lista_de_Precio__c = entry.Id
+        );
+        insert linea;
+        
+        Hectareas_Tecnologicas__c ht = new Hectareas_Tecnologicas__c(
+            Linea_de_Compra_HT__c = linea.Id,
+            Productor__c = productor.Id,
+            Cultivo__c = cultivoSoja.Id,
+            Variedad__c = var1.Id,
+            Biotecnologia__c = 'RR1',
+            Cantidad__c = 100,
+            Signo__c = 1,
+            Origen__c = 'Compra HT',
+            Valor_Conversion__c = 3000
+        );
+        insert ht;
+        
+        // Compra HT Disponible positiva, en etapa Cancelada por NC
+        Tonelada__c tnHTCancelada = new Tonelada__c(
+            HT_Id__c = ht.Id,
+            Productor__c = productor.Id,
+            Cultivo__c = cultivoSoja.Id,
+            Biotecnologia__c = 'RR1',
+            Cantidad__c = 100,
+            Signo__c = 1,
+            Origen__c = 'Compra HT',
+            Fecha_Inicio__c = Date.today().addDays(-10),
+            Fecha_Fin__c = Date.today().addYears(1),
+            Etapa__c = 'Cancelada por NC',
+            Variedad__c = var1.Id,
+            N_CUIT__c = '20301234567'
+        );
+        insert tnHTCancelada;
+        
+        Test.startTest();
+        ActualizarCuentaGranariaBatch batch = new ActualizarCuentaGranariaBatch(null, cultivoSoja.Id, productor.Id);
+        Database.executeBatch(batch, 200);
+        Test.stopTest();
+        
+        Integer consumos = [SELECT COUNT() FROM Tonelada__c 
+                            WHERE Productor__c = :productor.Id 
+                            AND Cultivo__c = :cultivoSoja.Id 
+                            AND Origen__c = 'Consumo'];
+        System.assertEquals(0, consumos, 'No debe generarse consumo desde una Compra HT en etapa Cancelada por NC');
+    }
+    
+    @isTest
     static void testProcesarToneladasSOJANegativo() {
         // Cubre procesarToneladasEspecificas con SOJA negativo:
         // actualizarToneladasConCuenta, recalcularSaldosCuentas, compensarSaldosNegativos

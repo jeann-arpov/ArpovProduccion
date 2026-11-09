@@ -804,7 +804,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 AND Cultivo__c IN :cultivosIds
                 AND Biotecnologia__c != null
                 AND Fecha_Inicio__c <= TODAY
-                AND Etapa__c != 'Pendiente'
+                AND Etapa__c NOT IN ('Pendiente', 'Cancelada por NC')
                 AND Origen__c = 'Compra HT'
                 AND HT_Id__r.Linea_de_Compra_HT__r.Tipo_de_Compra__c = 'Disponible'
                 AND Campania__c != null
@@ -1489,7 +1489,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 AND Biotecnologia__c IN :biotechQuery
                 AND Origen__c = 'Compra HT'
                 AND HT_Id__r.Linea_de_Compra_HT__r.Tipo_de_Compra__c = 'Disponible'
-                AND Etapa__c != 'Pendiente'
+                AND Etapa__c NOT IN ('Pendiente', 'Cancelada por NC')
                 AND Fecha_Inicio__c <= TODAY
                 AND Campania__c != null
                 AND Campania__r.Ano__c >= '2025'
@@ -1531,7 +1531,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 AND Cultivo__c IN :cultIds
                 AND Biotecnologia__c IN :biotechQuery
                 AND Origen__c = 'Compra HT'
-                AND Etapa__c != 'Pendiente'
+                AND Etapa__c NOT IN ('Pendiente', 'Cancelada por NC')
                 AND Fecha_Inicio__c <= TODAY
                 AND Cantidad_con_Signo__c > 0
             ORDER BY Fecha_Fin__c ASC NULLS LAST, CreatedDate ASC
@@ -2205,7 +2205,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             FROM Tonelada__c
             WHERE Cuenta_Granaria__c IN :cuentasNoManuales
                 AND Fecha_Inicio__c <= TODAY
-                AND Etapa__c != 'Pendiente'
+                AND Etapa__c NOT IN ('Pendiente', 'Cancelada por NC')
                 AND Origen__c != 'Balance Anual'
             GROUP BY Cuenta_Granaria__c
         ]) {
