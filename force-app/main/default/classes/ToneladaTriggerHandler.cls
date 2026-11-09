@@ -228,6 +228,7 @@ public without sharing class ToneladaTriggerHandler {
             && tn.Productor__c != null
             && tn.Cultivo__c != null
             && tn.Etapa__c != 'Pendiente'
+            && tn.Etapa__c != 'Cancelada por NC'
             && tn.Fecha_Inicio__c != null
             && tn.Fecha_Inicio__c <= Date.today();
     }
@@ -346,7 +347,7 @@ public without sharing class ToneladaTriggerHandler {
             FROM Tonelada__c
             WHERE Cuenta_Granaria__c IN :cuentasQueProcesar
                 AND Fecha_Inicio__c <= TODAY
-                AND Etapa__c != 'Pendiente'
+                AND Etapa__c NOT IN ('Pendiente', 'Cancelada por NC')
                 AND Origen__c != 'Balance Anual'
             GROUP BY Cuenta_Granaria__c
         ]) {
