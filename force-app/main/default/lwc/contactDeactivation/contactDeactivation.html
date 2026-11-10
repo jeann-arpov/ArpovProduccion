@@ -1,0 +1,32 @@
+<template>
+    <lightning-card title="Gestión de baja de contacto">
+        <div class="slds-m-around_medium">
+            <p class="slds-text-body_small"><strong>Contacto:</strong> {contactName}</p>
+            <p class="slds-text-body_small">
+                <strong>Usuarios de portal activos:</strong> {usuariosPortalActivos}
+            </p>
+
+            <template if:true={activo}>
+                <lightning-button
+                    variant="destructive"
+                    label="Dar de baja"
+                    title="Desactiva el contacto y revoca su acceso al portal"
+                    onclick={handleBaja}
+                    disabled={loading}
+                    class="slds-m-top_small"
+                ></lightning-button>
+            </template>
+
+            <template if:false={activo}>
+                <lightning-button
+                    variant="brand"
+                    label="Reactivar"
+                    title="Reactiva el contacto y su acceso al portal"
+                    onclick={handleReactivar}
+                    disabled={loading}
+                    class="slds-m-top_small"
+                ></lightning-button>
+            </template>
+        </div>
+    </lightning-card>
+</template>
