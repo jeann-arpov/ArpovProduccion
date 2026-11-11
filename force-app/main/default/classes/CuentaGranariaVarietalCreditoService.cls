@@ -23,8 +23,26 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     'Compra HT'
   };
 
+  private static Boolean procesandoCreditos = false;
+
   // Recalcula y guarda el crédito y el saldo por variedad (crédito de HT + débito de CG).
   public static void recalcularCreditos(
+    Id productorId,
+    Id cultivoId,
+    Id campanaId
+  ) {
+    if (procesandoCreditos) {
+      return;
+    }
+    procesandoCreditos = true;
+    try {
+      recalcularCreditosInterno(productorId, cultivoId, campanaId);
+    } finally {
+      procesandoCreditos = false;
+    }
+  }
+
+  private static void recalcularCreditosInterno(
     Id productorId,
     Id cultivoId,
     Id campanaId
@@ -96,7 +114,52 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       Database.insert(aCrear, false);
     }
 
+    vincularHtsAlDetalle(cgId, productorId, cultivoId, campanaId);
+
     recalcularSaldoCuenta(cgId);
+  }
+
+  private static void vincularHtsAlDetalle(
+    Id cgId,
+    Id productorId,
+    Id cultivoId,
+    Id campanaId
+  ) {
+    Map<Id, Id> detallePorVariedad = new Map<Id, Id>();
+    for (Detalle_Variedad_CG__c sc : [
+      SELECT Id, Variedad__c
+      FROM Detalle_Variedad_CG__c
+      WHERE Cuenta_Granaria__c = :cgId
+    ]) {
+      detallePorVariedad.put(sc.Variedad__c, sc.Id);
+    }
+
+    List<Hectareas_Tecnologicas__c> htsAActualizar = new List<Hectareas_Tecnologicas__c>();
+    for (Hectareas_Tecnologicas__c ht : [
+      SELECT Id, Variedad__c, Detalle_Variedad_CG__c
+      FROM Hectareas_Tecnologicas__c
+      WHERE
+        Productor__c = :productorId
+        AND Cultivo__c = :cultivoId
+        AND Campania__c = :campanaId
+        AND Origen__c IN :ORIGENES_CREDITO
+        AND Signo__c = 1
+        AND Variedad__c != NULL
+    ]) {
+      Id detalleId = detallePorVariedad.get(ht.Variedad__c);
+      if (detalleId != null && ht.Detalle_Variedad_CG__c != detalleId) {
+        htsAActualizar.add(
+          new Hectareas_Tecnologicas__c(
+            Id = ht.Id,
+            Detalle_Variedad_CG__c = detalleId
+          )
+        );
+      }
+    }
+
+    if (!htsAActualizar.isEmpty()) {
+      Database.update(htsAActualizar, false);
+    }
   }
 
   public static void recalcularSaldoCuenta(Id cgId) {

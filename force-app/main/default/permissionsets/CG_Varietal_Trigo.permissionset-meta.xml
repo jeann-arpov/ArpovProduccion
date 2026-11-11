@@ -33,16 +33,6 @@
 
     <fieldPermissions>
         <editable>true</editable>
-        <field>Detalle_Variedad_CG__c.Porcentaje_Varietal__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Detalle_Variedad_CG__c.Kilos_Variedad__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Detalle_Variedad_CG__c.Saldo_Variedad__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -54,6 +44,12 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Detalle_Variedad_CG__c.Credito_Variedad__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Hectareas_Tecnologicas__c.Detalle_Variedad_CG__c</field>
         <readable>true</readable>
     </fieldPermissions>
 

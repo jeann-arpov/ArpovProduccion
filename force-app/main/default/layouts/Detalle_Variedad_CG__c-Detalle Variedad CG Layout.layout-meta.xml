@@ -66,6 +66,13 @@
         <layoutColumns />
         <style>CustomLinks</style>
     </layoutSections>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Origen__c</fields>
+        <fields>Cantidad__c</fields>
+        <fields>Toneladas__c</fields>
+        <relatedList>Hectareas_Tecnologicas__c.Detalle_Variedad_CG__c</relatedList>
+    </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
     <showInteractionLogPanel>false</showInteractionLogPanel>
