@@ -4,10 +4,12 @@ import getDetalleVarietal from '@salesforce/apex/CuentaGranaria.getDetalleVariet
 import getEntregasVarietal from '@salesforce/apex/CuentaGranaria.getEntregasVarietal';
 import { doRequest, errorEvent } from 'c/utils';
 import { trackGa4Event } from 'c/portalGa4Events';
-import { ensureXlsxLoaded, downloadVentasWorkbook } from 'c/ventasInformadasExcelUtil';
+import { ensureXlsxLoaded, downloadVentasWorkbook, downloadVentasWorkbookSheets } from 'c/ventasInformadasExcelUtil';
 import icons from 'c/icons';
 
 const ENTREGAS_HEADERS = ['Fecha', 'Marca', 'Variedad', 'CTG', 'Kg netos', 'Toneladas'];
+const MOVIMIENTO_HEADERS = ['Fecha', 'Origen', 'HT', 'Toneladas'];
+const MOVIMIENTO_ENTREGAS_HEADERS = ['Fecha', 'CTG', 'Kg netos', '% de la variedad', 'Toneladas'];
 
 const ESTADOS = ['Debe regularizar', 'En regla', 'Sin entregas'];
 const ESTADOS_GA4 = {
@@ -373,7 +375,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
                 };
             }),
             totalCreditosTexto: this.formatoFirmado(this.detalle.totalCreditos),
-            totalDebitosTexto: this.formato(this.totalDebitosNoEntrega(this.detalle)) + ' t',
+            totalDebitosTexto: this.formatoFirmado(-this.totalDebitosNoEntrega(this.detalle)),
             totalDebitadoTexto: this.formato(this.detalle.totalDebitado) + ' t',
             sinCreditos: !(this.detalle.creditos || []).length,
             sinDebitos: !(this.detalle.debitos || []).length,
@@ -384,13 +386,13 @@ export default class CuentaGranariaVarietal extends LightningElement {
     decorarMovimientosCredito(movimientos, prefijo) {
         return (movimientos || []).map((mov, index) => {
             const tn = Number(mov.toneladas) || 0;
-            const htTexto = mov.ht ? `${String(mov.ht).replace('-', '−')} HT` : '';
+            const htTexto = this.formatoHt(mov.ht);
             return {
                 ...mov,
                 key: `${prefijo}-${index}`,
                 fechaTexto: this.fecha(mov.fecha),
-                htTexto: mov.ht ? String(mov.ht).replace('-', '−') : '',
-                metaTexto: this.unirMeta([this.fecha(mov.fecha), htTexto]),
+                htTexto,
+                metaTexto: this.unirMeta([this.fecha(mov.fecha), htTexto ? `${htTexto} HT` : '']),
                 toneladasTexto: this.formatoFirmado(tn),
                 toneladasClass: 'cgv-r cgv-strong' + (tn < 0 ? ' is-neg' : tn > 0 ? ' is-pos' : ''),
                 montoClass: 'cgv-mov-amt' + (tn < 0 ? ' is-neg' : tn > 0 ? ' is-pos' : '')
@@ -494,6 +496,13 @@ export default class CuentaGranariaVarietal extends LightningElement {
     formato(value) {
         const numero = Math.round(Number(value) || 0);
         return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(Math.abs(numero));
+    }
+
+    formatoHt(value) {
+        const numero = Number(value);
+        if (!Number.isFinite(numero) || numero === 0) return '';
+        const texto = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 2 }).format(Math.abs(numero));
+        return numero < 0 ? `−${texto}` : texto;
     }
 
     formatoFirmado(value) {
@@ -836,29 +845,50 @@ export default class CuentaGranariaVarietal extends LightningElement {
     handleDescargar() {
         const vista = this.detalleVista;
         if (!vista) return;
-        const lineas = ['Fecha;Origen;HT;Toneladas'];
-        (vista.creditos || []).forEach((mov) => {
-            lineas.push(`${mov.fechaTexto};${mov.origen || ''};${mov.htTexto};${mov.toneladas}`);
+        doRequest.call(this, async () => {
+            await ensureXlsxLoaded(this);
+            const hojas = [];
+            const creditos = (vista.creditos || []).map((mov) => this.filaMovimientoExcel(mov));
+            const debitos = (vista.debitos || []).map((mov) => this.filaMovimientoExcel(mov));
+            const entregas = (vista.entregas || []).map((mov) => ({
+                Fecha: mov.fechaTexto,
+                CTG: mov.ctg || '',
+                'Kg netos': mov.kgNetos == null ? '' : mov.kgNetos,
+                '% de la variedad': this.porcentajeEntrega(mov),
+                Toneladas: mov.toneladas == null ? '' : mov.toneladas
+            }));
+            if (creditos.length) {
+                hojas.push({ name: 'Créditos', headers: MOVIMIENTO_HEADERS, rows: creditos });
+            }
+            if (debitos.length) {
+                hojas.push({ name: 'Débitos', headers: MOVIMIENTO_HEADERS, rows: debitos });
+            }
+            if (entregas.length) {
+                hojas.push({ name: 'Entregas', headers: MOVIMIENTO_ENTREGAS_HEADERS, rows: entregas });
+            }
+            if (!hojas.length) return;
+            const nombre = (vista.variedad || 'variedad').toLowerCase().replace(/\s+/g, '_');
+            downloadVentasWorkbookSheets(`movimientos_${nombre}.xlsx`, hojas);
+            const marca =
+                this.marcas.find((item) => item.id === this._detalleMarcaId) ||
+                this.buscarVariedad(vista.variedadId)?.marca;
+            trackGa4Event('reporte_generado', {
+                modulo: 'CuentaGranaria',
+                tipo_reporte: 'movimientos_variedad',
+                ...this.paramsGa4(),
+                semillero: this.semilleroGa4(marca),
+                variedad: vista.variedad
+            });
         });
-        (vista.debitos || []).forEach((mov) => {
-            lineas.push(`${mov.fechaTexto};${mov.origen || ''};${mov.htTexto};${mov.toneladas}`);
-        });
-        lineas.push('');
-        lineas.push('Fecha;CTG;Kg netos;% de la variedad;Toneladas');
-        (vista.entregas || []).forEach((mov) => {
-            lineas.push(`${mov.fechaTexto};${mov.ctg || ''};${mov.kgNetos || ''};;${mov.toneladas}`);
-        });
-        this.bajarCsv(lineas, `movimientos_${(vista.variedad || 'variedad').toLowerCase().replace(/\s+/g, '_')}.csv`);
-        const marca =
-            this.marcas.find((item) => item.id === this._detalleMarcaId) ||
-            this.buscarVariedad(vista.variedadId)?.marca;
-        trackGa4Event('reporte_generado', {
-            modulo: 'CuentaGranaria',
-            tipo_reporte: 'movimientos_variedad',
-            ...this.paramsGa4(),
-            semillero: this.semilleroGa4(marca),
-            variedad: vista.variedad
-        });
+    }
+
+    filaMovimientoExcel(mov) {
+        return {
+            Fecha: mov.fechaTexto,
+            Origen: mov.origen || '',
+            HT: mov.ht == null ? '' : mov.ht,
+            Toneladas: mov.toneladas == null ? '' : mov.toneladas
+        };
     }
 
     paramsGa4() {
@@ -935,10 +965,4 @@ export default class CuentaGranariaVarietal extends LightningElement {
         }
     }
 
-    bajarCsv(lineas, nombre) {
-        const enlace = document.createElement('a');
-        enlace.href = 'data:text/csv;charset=utf-8,' + encodeURI(lineas.join('\n'));
-        enlace.download = nombre;
-        enlace.click();
-    }
 }

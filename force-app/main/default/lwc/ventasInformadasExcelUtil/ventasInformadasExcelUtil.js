@@ -167,9 +167,15 @@ export function buildVentasExportRows(ventas, cantidadHeader, getCantidadValue) 
  * Descarga un workbook XLSX vía data URL + octet-stream (compatible con Locker / Experience Cloud).
  */
 export function downloadVentasWorkbook(fileName, rows, headers, sheetName = 'Ventas') {
-    const ws = XLSX.utils.json_to_sheet(rows, { header: headers });
+    downloadVentasWorkbookSheets(fileName, [{ name: sheetName, rows, headers }]);
+}
+
+export function downloadVentasWorkbookSheets(fileName, sheets) {
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    (sheets || []).forEach((sheet) => {
+        const ws = XLSX.utils.json_to_sheet(sheet.rows || [], { header: sheet.headers });
+        XLSX.utils.book_append_sheet(wb, ws, (sheet.name || 'Hoja').slice(0, 31));
+    });
 
     const base64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
     const safeName = fileName.endsWith('.xlsx') ? fileName : `${fileName}.xlsx`;

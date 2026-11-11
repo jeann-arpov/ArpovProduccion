@@ -158,6 +158,7 @@ private class CuentaGranariaVarietalTest {
         System.assertEquals(1, cesion.debitos.size());
         System.assertEquals('Cesión a otro productor', cesion.debitos[0].origen);
         System.assertEquals(-10, cesion.debitos[0].toneladas);
+        System.assertEquals(-2.5, cesion.debitos[0].ht, '1 HT = 4 t, sin redondear');
         System.assertEquals(true, cesion.tieneCesionSaliente);
         System.assertEquals(10, cesion.debito);
         System.assertEquals(0, cesion.credito);

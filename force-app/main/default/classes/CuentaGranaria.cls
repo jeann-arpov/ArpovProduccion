@@ -618,7 +618,8 @@ public without sharing class CuentaGranaria {
         movimiento.origen = etiquetaCredito(origen, toneladas);
         movimiento.toneladas = toneladas;
         if (toneladas != 0) {
-            movimiento.ht = Integer.valueOf((toneladas / 4).setScale(0, System.RoundingMode.HALF_UP));
+            // 1 HT = 4 t. Sin redondear: 25 t son 6,25 HT, no 6 HT.
+            movimiento.ht = toneladas / 4;
         }
         return movimiento;
     }
@@ -746,7 +747,7 @@ public without sharing class CuentaGranaria {
         @AuraEnabled public String origen;
         @AuraEnabled public String marca;
         @AuraEnabled public String variedad;
-        @AuraEnabled public Integer ht;
+        @AuraEnabled public Decimal ht;
         @AuraEnabled public String ctg;
         @AuraEnabled public Decimal kgNetos;
         @AuraEnabled public Decimal toneladas;
