@@ -748,12 +748,16 @@ export default class CuentaGranariaNew extends LightningElement {
                     'cg-btn cg-btn-block' +
                     (isSelected ? ' cg-btn-camp-sel' : ' cg-btn-primary'),
                 tipTitle: showPPH
-                    ? 'Campaña Adherida a PPH'
+                    ? isCurrent
+                      ? 'Campaña Adherida a PPH'
+                      : 'Campaña con PPH'
                     : conRegularizar && !sinHT
                       ? 'Toneladas a regularizar'
                       : 'Saldo disponible de esta campaña',
                 tipBody: showPPH
-                    ? 'Podés entregar tu grano sin segregar tecnologías en función del plan de siembra informado.'
+                    ? isCurrent
+                      ? 'Podés entregar tu grano sin segregar tecnologías en función del plan de siembra informado.'
+                      : 'En esta campaña estuviste adherido al PPH, así que no hizo falta segregar tecnologías. Tus entregas se tomaron según tu plan de siembra.'
                     : conRegularizar && !sinHT
                       ? 'Es lo que te falta en las variedades que deben regularizar en esta campaña (saldo menor a −1 HT, o sea −4 t). Un saldo positivo no compensa el negativo de otra variedad.'
                       : 'Es el saldo que se usa primero cuando realizás una entrega de grano de esta campaña. Si tenés saldo suficiente, se debita automáticamente. Si no alcanza, el sistema utilizará tus HT disponibles.',

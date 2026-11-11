@@ -1104,7 +1104,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleMobBack() {
-        if (this.step === 4 && this.irACuentaGranariaSiHayVuelta()) return;
+        if (this.step !== 5 && this.irACuentaGranariaSiHayVuelta()) return;
         if (this.compraRetomada && this.step <= 2) {
             this.close();
             return;
@@ -1409,6 +1409,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleVolverPaso3() {
+        if (this.irACuentaGranariaSiHayVuelta()) return;
         this.step = 2;
     }
 
@@ -1936,6 +1937,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleVolverPaso2() {
+        if (this.irACuentaGranariaSiHayVuelta()) return;
         if (this.compraRetomada) {
             this.close();
             return;
