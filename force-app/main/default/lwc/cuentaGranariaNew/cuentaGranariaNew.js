@@ -439,6 +439,7 @@ export default class CuentaGranariaNew extends LightningElement {
             if (limpiarMarcas || (!preservarDestino && (this.step < 3 || !this.campanaIngresada))) {
                 url.searchParams.delete('marcas');
                 url.searchParams.delete('variedad');
+                url.searchParams.delete('vista');
             }
             const href = `${url.pathname}${url.search}${url.hash}`;
             if (empujar) {
@@ -475,7 +476,13 @@ export default class CuentaGranariaNew extends LightningElement {
     }
 
     handlePopState() {
-        if (this.campanaIngresada && (this.detalleAbierto || this.vistaVariedades)) {
+        if (
+            this.campanaIngresada &&
+            (this.detalleAbierto ||
+                this.vistaVariedades ||
+                this.leerParametro('vista') ||
+                this.leerParametro('variedad'))
+        ) {
             this.template.querySelector('c-cuenta-granaria-varietal')?.sincronizarDesdeUrl();
             this.restaurarScroll();
             return;

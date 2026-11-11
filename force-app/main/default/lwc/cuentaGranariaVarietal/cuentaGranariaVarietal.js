@@ -126,17 +126,15 @@ export default class CuentaGranariaVarietal extends LightningElement {
         const variedad = this.leerParametro('variedad');
         if (variedad) return;
         if (this.detalle) {
-            this.detalle = null;
-            this._detalleMarcaId = null;
-            this._detalleEmpujado = false;
-            this.avisarDetalle(false);
-            this.restaurarScroll(this.vistaMovil ? 'variedades' : 'marcas');
+            this.cerrarDetalle({ desdeHistorial: true });
+        }
+        if (this.leerParametro('vista') === 'variedades') {
+            this.abrirVariedades({ desdeHistorial: true });
+            this.restaurarScroll('variedades');
             return;
         }
         if (this.vistaMovil) {
-            this.vistaMovil = false;
-            this._variedadesEmpujadas = false;
-            this.dispatchEvent(new CustomEvent('vistachange', { detail: { vista: 'marcas' } }));
+            this.cerrarVariedades({ desdeHistorial: true });
             this.restaurarScroll('marcas');
         }
     }
@@ -152,6 +150,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
             this.aplicarMarcasUrl();
             const abierta = await this.aplicarVariedadUrl();
             if (!abierta) {
+                this.aplicarVistaUrl();
                 this.escribirUrl();
             }
             trackGa4Event('cuenta_granaria_creditos', this.paramsCreditosGa4());
@@ -612,6 +611,45 @@ export default class CuentaGranariaVarietal extends LightningElement {
         return true;
     }
 
+    aplicarVistaUrl() {
+        if (this.leerParametro('vista') !== 'variedades' || !this.elegidas.length) return;
+        this.abrirVariedades({ desdeHistorial: true });
+    }
+
+    abrirVariedades({ desdeHistorial } = {}) {
+        if (this.vistaMovil) return;
+        this.vistaMovil = true;
+        this._variedadesEmpujadas = !desdeHistorial;
+        this.dispatchEvent(new CustomEvent('vistachange', { detail: { vista: 'variedades' } }));
+    }
+
+    cerrarVariedades({ desdeHistorial } = {}) {
+        this.vistaMovil = false;
+        this._variedadesEmpujadas = false;
+        this.dispatchEvent(new CustomEvent('vistachange', { detail: { vista: 'marcas' } }));
+        if (!desdeHistorial) this.escribirUrl();
+    }
+
+    cerrarDetalle({ desdeHistorial } = {}) {
+        this.detalle = null;
+        this._detalleMarcaId = null;
+        this._detalleEmpujado = false;
+        this.avisarDetalle(false);
+        if (!desdeHistorial) this.escribirUrl();
+    }
+
+    subirConHistorial(empujado, cerrar) {
+        if (empujado) {
+            try {
+                window.history.back();
+                return;
+            } catch (e) {
+                // Si el history no está disponible, cierra la vista en memoria.
+            }
+        }
+        cerrar();
+    }
+
     escribirUrl({ empujar } = {}) {
         try {
             const url = new URL(window.location.href);
@@ -637,6 +675,11 @@ export default class CuentaGranariaVarietal extends LightningElement {
                 } else {
                     url.searchParams.delete('marcas');
                 }
+            }
+            if (!this.detalle && this.vistaMovil) {
+                url.searchParams.set('vista', 'variedades');
+            } else {
+                url.searchParams.delete('vista');
             }
             const href = `${url.pathname}${url.search}${url.hash}`;
             if (empujar) {
@@ -722,25 +765,22 @@ export default class CuentaGranariaVarietal extends LightningElement {
     handleVerVariedades() {
         if (!this.elegidas.length) return;
         this.guardarScroll('marcas');
-        this.vistaMovil = true;
-        this.dispatchEvent(new CustomEvent('vistachange', { detail: { vista: 'variedades' } }));
-        if (!this._variedadesEmpujadas) {
-            this._variedadesEmpujadas = true;
-            try {
-                window.history.pushState(window.history.state, document.title, `${window.location.pathname}${window.location.search}${window.location.hash}`);
-            } catch (e) {
-                // Si el history no está disponible, la vista igual cambia en memoria.
-            }
+        const yaAbierta = this.vistaMovil;
+        this.abrirVariedades();
+        if (!yaAbierta && this._variedadesEmpujadas) {
+            this.escribirUrl({ empujar: true });
+        } else {
+            this.escribirUrl();
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
         this.trackVariedadesGa4();
     }
 
     handleVolverMarcas() {
-        this.vistaMovil = false;
-        this._variedadesEmpujadas = false;
-        this.dispatchEvent(new CustomEvent('vistachange', { detail: { vista: 'marcas' } }));
-        this.restaurarScroll('marcas');
+        this.subirConHistorial(this._variedadesEmpujadas, () => {
+            this.cerrarVariedades();
+            this.restaurarScroll('marcas');
+        });
     }
 
     handleDetalle(event) {
@@ -759,12 +799,10 @@ export default class CuentaGranariaVarietal extends LightningElement {
             event.preventDefault();
             event.stopPropagation();
         }
-        this.detalle = null;
-        this._detalleMarcaId = null;
-        this._detalleEmpujado = false;
-        this.escribirUrl();
-        this.avisarDetalle(false);
-        this.restaurarScroll(this.vistaMovil ? 'variedades' : 'marcas');
+        this.subirConHistorial(this._detalleEmpujado, () => {
+            this.cerrarDetalle();
+            this.restaurarScroll(this.vistaMovil ? 'variedades' : 'marcas');
+        });
     }
 
     avisarDetalle(abierto) {
