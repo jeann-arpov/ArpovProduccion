@@ -325,7 +325,7 @@ public without sharing class CuentaGranaria {
             marca.aRegularizar = negativas;
             if (negativas > 0) {
                 marca.estado = 'regularizar';
-                marca.etiqueta = negativas == 1 ? '1 variedad a regularizar' : negativas + ' variedades a regularizar';
+                marca.etiqueta = negativas + ' a regularizar';
             } else if (sinEntregas == marca.variedades.size()) {
                 marca.estado = 'Sin entregas';
                 marca.etiqueta = 'Sin entregas';

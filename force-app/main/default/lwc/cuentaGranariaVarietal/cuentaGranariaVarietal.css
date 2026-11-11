@@ -1099,13 +1099,22 @@
         gap: 8px;
     }
 
+    .cgv-panel.cgv-marcas {
+        padding-bottom: 88px;
+    }
+
     .cgv-ver,
     .cgv-ver-btn {
-        position: static;
-        margin: 12px 0 0;
-        padding: 0;
-        background: transparent;
-        box-shadow: none;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: calc(var(--se-bottom, 72px) + env(safe-area-inset-bottom, 0px));
+        z-index: 50;
+        margin: 0;
+        padding: 12px 16px;
+        background: #fff;
+        border-top: 1px solid #dde2eb;
+        box-shadow: 0 -4px 12px rgba(28, 28, 28, 0.06);
     }
 
     .cgv-dl-foot {

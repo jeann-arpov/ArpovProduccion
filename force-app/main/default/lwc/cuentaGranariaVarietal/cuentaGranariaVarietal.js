@@ -437,6 +437,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
             chipClass,
             chipDeskClass: chipClass + ' cgv-solo-desk',
             chipMovilClass: chipClass + ' cgv-solo-movil',
+            etiqueta: negativas > 0 ? `${negativas} a regularizar` : marca.etiqueta,
             etiquetaCorta: negativas > 0 ? `${negativas} a regularizar` : marca.etiqueta,
             iniciales: this.iniciales(marca.nombre),
             logo: this.logo(marca.idObtentor),
