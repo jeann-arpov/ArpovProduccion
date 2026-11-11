@@ -58,11 +58,20 @@ export default class SeProgSteps extends LightningElement {
             this.mobStepLabels && this.mobStepLabels.length
                 ? this.mobStepLabels
                 : this.stepLabels || [];
-        return labels.map((label, index) => ({
-            key: `mob-step-${index}`,
-            label,
-            className: 'se-mob-step' + (index + 1 === current ? ' is-active' : '')
-        }));
+        return labels.map((label, index) => {
+            const num = index + 1;
+            const isDone = num < current;
+            return {
+                key: `mob-step-${index}`,
+                num,
+                label,
+                disabled: num >= current,
+                className:
+                    'se-mob-step' +
+                    (num === current ? ' is-active' : '') +
+                    (isDone ? ' is-done' : '')
+            };
+        });
     }
 
     get deskSteps() {

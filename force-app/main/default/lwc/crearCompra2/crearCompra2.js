@@ -12,7 +12,7 @@ import saveItem from '@salesforce/apex/CrearCompraController.saveItem';
 import deleteItem from '@salesforce/apex/CrearCompraController.deleteItem';
 import findCompraEnProceso from '@salesforce/apex/CrearCompraController.findCompraEnProceso';
 import verificarExpedienteEnHTDisponible from '@salesforce/apex/ExpedientesController.verificarExpedienteEnHTDisponible';
-import { CompraVentaMixin } from 'c/utilsHTNew';
+import { CompraVentaMixin, labelVariedadCompraHt } from 'c/utilsHTNew';
 import { NavigationMixin } from 'lightning/navigation';
 import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
 import basePath from '@salesforce/community/basePath';
@@ -39,12 +39,12 @@ import { lockPortalModal, unlockPortalModal, fitFixedLayer } from 'c/seModalLaye
 
 /** Temporal: true = no se muestra el modal de expediente negativo en HT disponible ni se detiene finalizar. */
 const OMITIR_MODAL_ALERTA_EXPEDIENTE_NEGATIVO = true;
-const FECHA_INICIO_STINE_DEFAULT = '2026-09-21';
-const FECHA_FIN_STINE_DEFAULT = '2026-10-31';
+const FECHA_INICIO_STINE_DEFAULT = "2026-09-21T00:00:00-03:00"; // Inicio del día en Argentina
+const FECHA_FIN_STINE_DEFAULT = "2026-11-02T23:59:59-03:00"; // Final del día 2 de Noviembre en Argentina
 const MAX_HT_POR_VARIEDAD = 999999;
 
-/** BASF/Credenz solo trae un <symbol> en el SVG (no se ve en <img>) y ACA no tiene SVG. */
-const SEMILLEROS_LOGO_JPG = ['77', '26'];
+/** BASF/Credenz y LG: el SVG no entra bien en <img> (symbol / sin viewBox). ACA no tiene SVG. */
+const SEMILLEROS_LOGO_JPG = ['77', '26', '12'];
 
 function semilleroLogoUrl(idObtentor) {
     if (SEMILLEROS_LOGO_JPG.includes(idObtentor)) {
@@ -283,6 +283,140 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         return new URL(window.location.href).searchParams.get("cultivoId");
     }
 
+    /** Variedad que llega por URL desde la Cuenta Granaria: se marca y se muestra primero en el paso 4. */
+    variedadDestacada = null;
+
+    /** Path de vuelta a Cuenta Granaria (propiedad `volver` de se_compra_ht_entrada). Sin esto, Volver es el wizard normal. */
+    urlVolver = null;
+
+    async init() {
+        await super.init();
+        if (!this.pageRecordId) {
+            await this.aplicarParametrosEntrada();
+        }
+    }
+
+    /**
+     * Entrada con datos elegidos (SE-346), p.ej. desde la Cuenta Granaria vía sessionStorage
+     * (clave se_compra_ht_entrada). Avanza mientras cada dato aplique; si uno no aplica, se queda ahí.
+     */
+    async aplicarParametrosEntrada() {
+        const params = this.leerEntradaCompra();
+        if (!params) return;
+        const cultivoParam = (params.cultivo || params.cultivoId || '').trim();
+        if (!cultivoParam) return;
+
+        try {
+            const cultivo = (this.cultivos || []).find(
+                (c) => c.value === cultivoParam || String(c.label || '').toUpperCase() === cultivoParam.toUpperCase()
+            );
+            if (!cultivo) return;
+            this.cultivo = cultivo.value;
+            this.cultivoSeleccionadoId = cultivo.value;
+            await this.getProductos();
+
+            const tipoParam = (params.tipo || '').trim().toLowerCase();
+            const tipo = this.tiposCompraDisponibles.find((t) => t.toLowerCase() === tipoParam);
+            if (!tipo) return;
+            this.tipoCompraSeleccionado = tipo;
+            this.handleContinuarPaso2();
+
+            const marcaParam = (params.marca || '').trim();
+            const marca = (this.filteredSemilleros || []).find(
+                (s) => s.value === marcaParam || String(s.label || '').toUpperCase() === marcaParam.toUpperCase()
+            );
+            if (!marca) return;
+            this.semillero = marca.value;
+
+            const paso = (params.paso || 'variedad').trim().toLowerCase();
+            if (paso === 'variedad') {
+                this.variedadDestacada = (params.variedad || '').trim() || null;
+                await this.confirmMarcaAndContinue({ registrarSeleccion: false });
+            }
+        } finally {
+            this.registrarEntrada(params);
+        }
+    }
+
+    /** Lee y limpia el contexto dejado por Cuenta Granaria (u otro origen) en sessionStorage. */
+    leerEntradaCompra() {
+        try {
+            const raw = sessionStorage.getItem('se_compra_ht_entrada');
+            if (!raw) return null;
+            sessionStorage.removeItem('se_compra_ht_entrada');
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object') return null;
+            this.urlVolver = this.normalizarUrlVolver(parsed.volver);
+            return parsed;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    normalizarUrlVolver(url) {
+        if (!url || typeof url !== 'string') return null;
+        const limpia = url.trim();
+        if (!limpia.startsWith('/') || limpia.startsWith('//')) return null;
+        return limpia;
+    }
+
+    irACuentaGranariaSiHayVuelta() {
+        const url = this.normalizarUrlVolver(this.urlVolver);
+        if (!url) return false;
+        this.urlVolver = null;
+        window.location.href = url;
+        return true;
+    }
+
+    close() {
+        if (this.irACuentaGranariaSiHayVuelta()) return;
+        if (window.opener != null || window.history.length == 1) window.close();
+        else window.history.back();
+    }
+
+    registrarEntrada(params) {
+        const origen = params.origen;
+        if (!origen) return;
+        const detalle = { portal: 'Productor', origen, accion: params.accion || 'comprar' };
+        const cultivo = this.cultivoNombre || params.cultivo || '';
+        if (cultivo) {
+            detalle.cultivo = cultivo;
+        }
+        const tipoHt = this.tipoCompraSeleccionado || params.tipo || '';
+        if (tipoHt) {
+            detalle.tipo_ht = tipoHt;
+        }
+        if (this.semillero) {
+            detalle.semillero = resolveSemilleroLabel(this.semilleros, this.semillero, this.semilleroData);
+        }
+        const cantidad = Number(params.cantidad_variedades);
+        if (cantidad > 0) {
+            detalle.cantidad_variedades = cantidad;
+        }
+        const variedad = this.nombreVariedadDestacada;
+        if (variedad) {
+            detalle.variedad = variedad;
+        }
+        trackGa4Event('ht_compra_iniciada', detalle);
+    }
+
+    esVariedadDestacada(rec) {
+        if (!this.variedadDestacada || !rec) return false;
+        const destacada = this.variedadDestacada.toUpperCase();
+        const v = rec.Product2?.Variedad2__r;
+        return (
+            (rec.Product2?.Variedad2__c || '').toUpperCase() === destacada ||
+            (rec.Product2?.Nombre_Comercial__c || '').toUpperCase() === destacada ||
+            (v?.Cultivar_INASE__c || '').toUpperCase() === destacada ||
+            (v?.Name || '').toUpperCase() === destacada
+        );
+    }
+
+    get nombreVariedadDestacada() {
+        const entry = (this.variedades || []).find((v) => this.esVariedadDestacada(v.record));
+        return entry ? entry.label || labelVariedadCompraHt(entry.record?.Product2) : null;
+    }
+
     get community() {
         return 'Compra';
     }
@@ -308,15 +442,33 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     estaEnRangoFechasStine() {
-        const inicio = this.fechaInicioEfectiva;
-        const fin = this.fechaFinEfectiva;
-        if (!inicio || !fin) return false;
+        const inicioStr = this.fechaInicioEfectiva;
+        const finStr = this.fechaFinEfectiva;
+
+        // Si por alguna razón no hay fechas, no bloquea ni muestra modal
+        if (!inicioStr || !finStr) {
+            return false;
+        }
+
+        // Si la Comunidad envió valores válidos en esta vista, actualizamos el almacenamiento local
         if (this.fechaInicioStine) sessionStorage.setItem('stine_fechaInicio', this.fechaInicioStine);
         if (this.fechaFinStine) sessionStorage.setItem('stine_fechaFin', this.fechaFinStine);
-        const hoy = new Date();
-        const hoyStr =
-            `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
-        return hoyStr >= inicio && hoyStr <= fin;
+
+        // Normalizamos las fechas a objetos Date. 
+        // Si viene sin hora (formato YYYY-MM-DD de la comunidad), le forzamos la hora de Argentina.
+        const fechaInicio = inicioStr.includes('T') 
+            ? new Date(inicioStr) 
+            : new Date(`${inicioStr}T00:00:00-03:00`);
+        
+        const fechaFin = finStr.includes('T') 
+            ? new Date(finStr) 
+            : new Date(`${finStr}T23:59:59-03:00`);
+
+        // Obtenemos el instante actual (new Date() siempre compara en milisegundos universales)
+        const ahora = new Date();
+
+        // Comparamos los timestamps
+        return ahora >= fechaInicio && ahora <= fechaFin;
     }
 
     async evaluarEsStineFutura() {
@@ -359,6 +511,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         if (lineas.length) {
             this.modalItems = lineas.map((rec, index) => {
                 let variedadNombre =
+                    rec.Producto__r?.Variedad2__r?.Cultivar_INASE__c ||
                     rec.Producto__r?.Variedad2__r?.Name ||
                     rec.Producto__r?.Name ||
                     `Variedad ${index + 1}`;
@@ -951,6 +1104,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleMobBack() {
+        if (this.step === 4 && this.irACuentaGranariaSiHayVuelta()) return;
         if (this.compraRetomada && this.step <= 2) {
             this.close();
             return;
@@ -1263,7 +1417,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         await this.confirmMarcaAndContinue();
     }
 
-    async confirmMarcaAndContinue() {
+    async confirmMarcaAndContinue({ registrarSeleccion = true } = {}) {
         let blocked = false;
         await this.requestWrap(async () => {
             this.semilleroData = await this.getSemilleroData();
@@ -1285,9 +1439,11 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
         this.semilleroCantidades = this.semillero;
         this.variedadSearch = '';
         this.step = 4;
-        trackGa4Event('ht_seleccion_semillero', {
-            semillero: resolveSemilleroLabel(this.semilleros, this.semillero, this.semilleroData)
-        });
+        if (registrarSeleccion) {
+            trackGa4Event('ht_seleccion_semillero', {
+                semillero: resolveSemilleroLabel(this.semilleros, this.semillero, this.semilleroData)
+            });
+        }
     }
 
     get variedadStepEyebrow() {
@@ -1342,9 +1498,11 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 const biotech = rec.Product2?.Variedad2__r?.Biotecnologia__c || '';
                 const hasLicencia = this.varietyHasLicencia(biotech);
                 const subtotal = qty * unitPrice;
-                const name = entry.label || rec.Product2?.Nombre_Comercial__c || 'Variedad';
+                const name = entry.label || labelVariedadCompraHt(rec.Product2) || 'Variedad';
+                const destacada = this.esVariedadDestacada(rec);
                 return {
                     id,
+                    destacada,
                     product2Id: rec.Product2Id || rec.Product2?.Id,
                     name,
                     category: biotech || '',
@@ -1363,7 +1521,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     subtotalLabel: this.formatUsd(subtotal),
                     badgeLabel: hasLicencia ? 'Con Licencia' : 'Sin Licencia',
                     badgeTone: hasLicencia ? 'ok' : 'warn',
-                    cssClass: 'se-var-card'
+                    cssClass: 'se-var-card' + (destacada ? ' is-destacada' : '')
                 };
             })
             .filter((v) => {
@@ -1372,7 +1530,8 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                     (v.name && v.name.toLowerCase().includes(q)) ||
                     (v.category && v.category.toLowerCase().includes(q))
                 );
-            });
+            })
+            .sort((a, b) => Number(b.destacada) - Number(a.destacada));
     }
 
     handleVariedadSearch(event) {
@@ -1408,6 +1567,7 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
     }
 
     handleVolverPaso4() {
+        if (this.irACuentaGranariaSiHayVuelta()) return;
         this.step = 3;
     }
 
@@ -1502,8 +1662,9 @@ export default class CrearCompra2 extends CompraVentaMixin(LightningElement) {
                 );
                 const product = pbe?.record?.Product2;
                 const name =
-                    product?.Nombre_Comercial__c ||
-                    rec.Producto__r?.Nombre_Comercial__c ||
+                    pbe?.label ||
+                    labelVariedadCompraHt(product) ||
+                    labelVariedadCompraHt(rec.Producto__r) ||
                     rec.Name ||
                     '—';
                 const biotech =

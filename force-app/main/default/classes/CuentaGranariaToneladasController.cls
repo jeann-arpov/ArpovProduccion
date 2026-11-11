@@ -17,31 +17,38 @@ public with sharing class CuentaGranariaToneladasController {
         @AuraEnabled public String message;
     }
 
-    @AuraEnabled(cacheable=true)
     public static Map<String, Object> getToneladas(Id cuentaGranariaId) {
+        return getToneladas(cuentaGranariaId, null);
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static Map<String, Object> getToneladas(Id cuentaGranariaId, Id variedadId) {
         List<ToneladaWrapper> toneladas = new List<ToneladaWrapper>();
         Decimal total = 0;
         Decimal totalPositivo = 0;
         Decimal totalNegativo = 0;
 
         Cuenta_Granaria__c cuenta = [
-            SELECT Id, Name, Productor__c, Productor__r.Name, Campania__c, Campania__r.Name,
+            SELECT Id, Name, Productor__c, Productor__r.Name, Campania__c, Campania__r.Name, Campania__r.Ano__c,
                    Cultivo__c, Cultivo__r.Name, Tecnologia__c, Saldo_Cuenta__c, Es_Carga_Manual__c
             FROM Cuenta_Granaria__c
             WHERE Id = :cuentaGranariaId
             LIMIT 1
         ];
 
-        for (Tonelada__c tn : [
-            SELECT Id, Name, Origen__c, Cantidad_con_Signo__c,
-                   Fecha_Inicio__c, Etapa__c, CreatedDate
-            FROM Tonelada__c
-            WHERE Cuenta_Granaria__c = :cuentaGranariaId
-                AND Fecha_Inicio__c <= TODAY
-                AND Etapa__c != 'Pendiente'
-                AND Origen__c != 'Balance Anual'
-            ORDER BY CreatedDate DESC
-        ]) {
+        String consulta = 'SELECT Id, Name, Origen__c, Cantidad_con_Signo__c, '
+            + 'Fecha_Inicio__c, Etapa__c, CreatedDate '
+            + 'FROM Tonelada__c '
+            + 'WHERE Cuenta_Granaria__c = :cuentaGranariaId '
+            + 'AND Fecha_Inicio__c <= TODAY '
+            + 'AND Etapa__c != \'Pendiente\' '
+            + 'AND Origen__c != \'Balance Anual\' ';
+        if (variedadId != null) {
+            consulta += 'AND Variedad__c = :variedadId ';
+        }
+        consulta += 'ORDER BY CreatedDate DESC';
+
+        for (Tonelada__c tn : Database.query(consulta)) {
             ToneladaWrapper wrapper = new ToneladaWrapper();
             wrapper.id = tn.Id;
             wrapper.nombre = tn.Name != null ? tn.Name : 'Sin nombre';
@@ -117,8 +124,10 @@ public with sharing class CuentaGranariaToneladasController {
                 'nombre' => cuenta.Name,
                 'productor' => cuenta.Productor__r.Name,
                 'campania' => cuenta.Campania__c != null ? cuenta.Campania__r.Name : null,
+                'campaniaPeriodo' => periodoCampania(cuenta.Campania__c != null ? cuenta.Campania__r.Ano__c : null),
                 'cultivo' => cuenta.Cultivo__r.Name,
                 'tecnologia' => cuenta.Tecnologia__c,
+                'tecnologiaEtiqueta' => etiquetaTecnologia(cuenta.Tecnologia__c, cuenta.Cultivo__r?.Name),
                 'saldo' => cuenta.Saldo_Cuenta__c,
                 'esCompraHT' => cuenta.Campania__c == null,
                 'esCargaManual' => cuenta.Es_Carga_Manual__c == true,
@@ -445,5 +454,526 @@ public with sharing class CuentaGranariaToneladasController {
                 AND Origen__c != 'Balance Anual'
         ];
         return ar.get('total') != null ? (Decimal) ar.get('total') : 0;
+    }
+
+    private static final Integer DETALLE_PAGE = 40;
+    private static final Integer CSV_MAX = 10000;
+
+    private static final List<String> ORDEN_ORIGEN = new List<String>{
+        'Compra SF',
+        'Compra HT',
+        'Cesión HT',
+        'Semilla Original',
+        'BolsaTech',
+        'Escáner varietal',
+        'Regalía Enlist',
+        'Semilla Pre Básica',
+        'Ensayo',
+        'PPH',
+        'Aplicada',
+        'Consumo',
+        'Transferencia'
+    };
+
+    private static final Map<String, String> ETIQUETA_ORIGEN = new Map<String, String>{
+        'Compra SF' => 'Compra Semilla Fiscalizada',
+        'Compra HT' => 'Compra HT',
+        'Cesión HT' => 'Cesión',
+        'Semilla Original' => 'Semilla Original',
+        'BolsaTech' => 'Entregas (Bolsatech)',
+        'Escáner varietal' => 'Entregas (escáner varietal)',
+        'Regalía Enlist' => 'Regalía pagada'
+    };
+
+    @AuraEnabled(cacheable=true)
+    public static Map<String, Object> getResumen(Id cuentaGranariaId, Id variedadId) {
+        Cuenta_Granaria__c cuenta = consultarCuenta(cuentaGranariaId);
+        String filtroVariedad = variedadId == null ? '' : ' AND Variedad__c = :variedadId';
+        String base = 'SELECT Origen__c origen, COUNT(Id) movimientos, SUM(Cantidad_con_Signo__c) toneladas'
+            + ' FROM Tonelada__c WHERE ' + String.join(filtrosBase(), ' AND ') + filtroVariedad;
+
+        List<OrigenAcum> creditos = ordenarOrigenes(acumular(
+            Database.query(base + ' AND Cantidad_con_Signo__c >= 0 GROUP BY Origen__c'), TIPO_CREDITO
+        ));
+        List<OrigenAcum> debitos = ordenarOrigenes(acumular(
+            Database.query(base + ' AND Cantidad_con_Signo__c < 0 GROUP BY Origen__c'), TIPO_DEBITO
+        ));
+
+        Decimal credito = 0;
+        Decimal debito = 0;
+        Integer movimientos = 0;
+        List<Map<String, Object>> origenes = new List<Map<String, Object>>();
+        for (OrigenAcum acum : creditos) {
+            credito += acum.toneladas;
+            movimientos += acum.movimientos;
+            origenes.add(acum.toMap());
+        }
+        for (OrigenAcum acum : debitos) {
+            debito += acum.toneladas;
+            movimientos += acum.movimientos;
+            origenes.add(acum.toMap());
+        }
+
+        Boolean esTrigo = cuenta.Cultivo__r != null && cuenta.Cultivo__r.Name == 'TRIGO';
+        String variedadNombre = null;
+        if (variedadId != null) {
+            for (Variedad__c v : [SELECT Name FROM Variedad__c WHERE Id = :variedadId LIMIT 1]) {
+                variedadNombre = v.Name;
+            }
+        }
+
+        return new Map<String, Object>{
+            'origenes' => origenes,
+            'credito' => credito,
+            'debito' => debito,
+            'saldo' => credito + debito,
+            'movimientos' => movimientos,
+            'esTrigo' => esTrigo,
+            'variedades' => esTrigo && variedadId == null ? resumirVariedades(cuentaGranariaId) : new List<Map<String, Object>>(),
+            'variedadNombre' => variedadNombre,
+            'cuenta' => armarCuenta(cuenta)
+        };
+    }
+
+    private static final String TIPO_CREDITO = 'credito';
+    private static final String TIPO_DEBITO = 'debito';
+
+    private static Map<String, OrigenAcum> acumular(List<AggregateResult> filas, String tipo) {
+        Map<String, OrigenAcum> porOrigen = new Map<String, OrigenAcum>();
+        for (AggregateResult ar : filas) {
+            String origen = (String) ar.get('origen');
+            if (String.isBlank(origen)) {
+                origen = 'Sin origen';
+            }
+            OrigenAcum acum = new OrigenAcum(origen, tipo);
+            acum.toneladas = ar.get('toneladas') == null ? 0 : (Decimal) ar.get('toneladas');
+            acum.movimientos = (Integer) ar.get('movimientos');
+            porOrigen.put(origen, acum);
+        }
+        return porOrigen;
+    }
+
+    private static List<OrigenAcum> ordenarOrigenes(Map<String, OrigenAcum> porOrigen) {
+        List<OrigenAcum> ordenados = new List<OrigenAcum>();
+        for (String clave : ORDEN_ORIGEN) {
+            if (porOrigen.containsKey(clave)) {
+                ordenados.add(porOrigen.remove(clave));
+            }
+        }
+        List<String> restantes = new List<String>(porOrigen.keySet());
+        restantes.sort();
+        for (String clave : restantes) {
+            ordenados.add(porOrigen.get(clave));
+        }
+        return ordenados;
+    }
+
+    private static List<Map<String, Object>> resumirVariedades(Id cuentaGranariaId) {
+        Map<Id, VariedadAcum> porVariedad = new Map<Id, VariedadAcum>();
+        VariedadAcum sinVariedad = null;
+        String base = 'SELECT Variedad__c variedadId, SUM(Cantidad_con_Signo__c) toneladas'
+            + ' FROM Tonelada__c WHERE ' + String.join(filtrosBase(), ' AND ');
+
+        for (AggregateResult ar : Database.query(base + ' AND Cantidad_con_Signo__c >= 0 GROUP BY Variedad__c')) {
+            VariedadAcum acum = variedadAcum(porVariedad, (Id) ar.get('variedadId'));
+            if (acum == null) {
+                sinVariedad = sinVariedad == null ? new VariedadAcum(null) : sinVariedad;
+                acum = sinVariedad;
+            }
+            acum.credito += ar.get('toneladas') == null ? 0 : (Decimal) ar.get('toneladas');
+        }
+        for (AggregateResult ar : Database.query(base + ' AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c')) {
+            VariedadAcum acum = variedadAcum(porVariedad, (Id) ar.get('variedadId'));
+            if (acum == null) {
+                sinVariedad = sinVariedad == null ? new VariedadAcum(null) : sinVariedad;
+                acum = sinVariedad;
+            }
+            acum.debito += ar.get('toneladas') == null ? 0 : (Decimal) ar.get('toneladas');
+        }
+        Set<String> origenesEntrega = EstadoVarietal.ORIGENES_ENTREGA;
+        for (AggregateResult ar : Database.query(base + ' AND Origen__c IN :origenesEntrega GROUP BY Variedad__c')) {
+            VariedadAcum acum = variedadAcum(porVariedad, (Id) ar.get('variedadId'));
+            if (acum == null) {
+                acum = sinVariedad;
+            }
+            if (acum != null) {
+                acum.entregas += ar.get('toneladas') == null ? 0 : (Decimal) ar.get('toneladas');
+            }
+        }
+
+        try {
+            for (SObject hijo : Database.query(
+                'SELECT Variedad__c FROM Detalle_Variedad_CG__c WHERE Cuenta_Granaria__c = :cuentaGranariaId AND Variedad__c != null'
+            )) {
+                variedadAcum(porVariedad, (Id) hijo.get('Variedad__c'));
+            }
+        } catch (QueryException e) {
+            System.debug(LoggingLevel.WARN, 'Detalle_Variedad_CG__c no disponible: ' + e.getMessage());
+        }
+
+        if (!porVariedad.isEmpty()) {
+            for (Variedad__c v : [
+                SELECT Id, Name, Nombre_Obtentor__c, Obtentor_Comercializa__r.Nombre_Obtentor__c
+                FROM Variedad__c
+                WHERE Id IN :porVariedad.keySet()
+            ]) {
+                VariedadAcum acum = porVariedad.get(v.Id);
+                acum.nombre = v.Name;
+                String comercial = v.Obtentor_Comercializa__r?.Nombre_Obtentor__c;
+                acum.semillero = String.isNotBlank(comercial) ? comercial : v.Nombre_Obtentor__c;
+            }
+        }
+
+        List<VariedadAcum> lista = new List<VariedadAcum>(porVariedad.values());
+        if (sinVariedad != null) {
+            sinVariedad.nombre = 'Sin variedad';
+            lista.add(sinVariedad);
+        }
+        lista.sort();
+
+        List<Map<String, Object>> salida = new List<Map<String, Object>>();
+        for (VariedadAcum acum : lista) {
+            salida.add(acum.toMap());
+        }
+        return salida;
+    }
+
+    private static VariedadAcum variedadAcum(Map<Id, VariedadAcum> porVariedad, Id variedadId) {
+        if (variedadId == null) {
+            return null;
+        }
+        if (!porVariedad.containsKey(variedadId)) {
+            porVariedad.put(variedadId, new VariedadAcum(variedadId));
+        }
+        return porVariedad.get(variedadId);
+    }
+
+    @AuraEnabled
+    public static Map<String, Object> getDetalle(
+        Id cuentaGranariaId,
+        String origen,
+        String tipo,
+        Id variedadId,
+        String buscar,
+        String cursorFecha,
+        String cursorId
+    ) {
+        Datetime cursorDt = parseCursor(cursorFecha);
+        Id cursorRecordId = String.isBlank(cursorId) ? null : (Id) cursorId;
+        String buscarLike = likeTerm(buscar);
+
+        List<String> filtros = filtrosBase();
+        if (String.isNotBlank(origen)) {
+            filtros.add('Origen__c = :origen');
+        }
+        agregarFiltrosTipoVariedad(filtros, tipo, variedadId);
+        if (buscarLike != null) {
+            filtros.add('Name LIKE :buscarLike');
+        }
+        if (cursorDt != null && cursorRecordId != null) {
+            filtros.add('(CreatedDate < :cursorDt OR (CreatedDate = :cursorDt AND Id < :cursorRecordId))');
+        }
+
+        String soql = 'SELECT Id, Name, Origen__c, Cantidad_con_Signo__c, Fecha_Inicio__c, Etapa__c, CreatedDate'
+            + ' FROM Tonelada__c WHERE ' + String.join(filtros, ' AND ')
+            + ' ORDER BY CreatedDate DESC, Id DESC LIMIT ' + String.valueOf(DETALLE_PAGE + 1);
+
+        List<Tonelada__c> filas = Database.query(soql);
+        Boolean hayMas = filas.size() > DETALLE_PAGE;
+        if (hayMas) {
+            filas.remove(filas.size() - 1);
+        }
+
+        List<ToneladaWrapper> wrappers = new List<ToneladaWrapper>();
+        for (Tonelada__c tn : filas) {
+            wrappers.add(toWrapper(tn));
+        }
+
+        String nextFecha;
+        String nextId;
+        if (!filas.isEmpty()) {
+            Tonelada__c ultima = filas[filas.size() - 1];
+            nextFecha = ultima.CreatedDate.formatGmt('yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'');
+            nextId = ultima.Id;
+        }
+
+        return new Map<String, Object>{
+            'filas' => wrappers,
+            'hayMas' => hayMas,
+            'cursorFecha' => nextFecha,
+            'cursorId' => nextId
+        };
+    }
+
+    @AuraEnabled
+    public static String exportarCsv(Id cuentaGranariaId, String origen, String tipo, Id variedadId) {
+        if (String.isBlank(origen)) {
+            throw new AuraHandledException('Elegí un origen para descargar el CSV.');
+        }
+
+        List<String> filtros = filtrosBase();
+        filtros.add('Origen__c = :origen');
+        agregarFiltrosTipoVariedad(filtros, tipo, variedadId);
+        String condicion = ' FROM Tonelada__c WHERE ' + String.join(filtros, ' AND ');
+
+        Integer total = Database.countQuery('SELECT COUNT()' + condicion);
+        if (total > CSV_MAX) {
+            throw new AuraHandledException(
+                'Ese origen tiene ' + total + ' movimientos. El CSV admite hasta ' + CSV_MAX + '. Usá Ver detalle para recorrerlo.'
+            );
+        }
+
+        Cuenta_Granaria__c cuenta = consultarCuenta(cuentaGranariaId);
+        Boolean trigo = cuenta.Cultivo__r != null && cuenta.Cultivo__r.Name == 'TRIGO';
+        String campos = 'SELECT Name, Origen__c, Etapa__c, CreatedDate, Cantidad_con_Signo__c'
+            + (trigo ? ', Variedad__r.Name' : '');
+        List<Tonelada__c> filas = Database.query(
+            campos + condicion
+            + ' ORDER BY CreatedDate DESC, Id DESC LIMIT ' + String.valueOf(CSV_MAX)
+        );
+
+        String sep = ';';
+        List<String> lineas = new List<String>();
+        lineas.add(
+            trigo
+                ? 'Nombre' + sep + 'Origen' + sep + 'Etapa' + sep + 'Fecha creación' + sep + 'Variedad' + sep + 'Cantidad'
+                : 'Nombre' + sep + 'Origen' + sep + 'Etapa' + sep + 'Fecha creación' + sep + 'Cantidad'
+        );
+        for (Tonelada__c tn : filas) {
+            Decimal cantidad = tn.Cantidad_con_Signo__c == null ? 0 : tn.Cantidad_con_Signo__c;
+            String fila = csvCampo(tn.Name) + sep
+                + csvCampo(etiquetaOrigen(tn.Origen__c)) + sep
+                + csvCampo(tn.Etapa__c) + sep
+                + csvCampo(tn.CreatedDate == null ? '' : tn.CreatedDate.format('dd/MM/yyyy')) + sep;
+            if (trigo) {
+                fila += csvCampo(tn.Variedad__r == null ? '' : tn.Variedad__r.Name) + sep;
+            }
+            fila += String.valueOf(cantidad);
+            lineas.add(fila);
+        }
+        return '\uFEFF' + String.join(lineas, '\n');
+    }
+
+    private static Cuenta_Granaria__c consultarCuenta(Id cuentaGranariaId) {
+        return [
+            SELECT Id, Name, Productor__c, Productor__r.Name, Campania__c, Campania__r.Name, Campania__r.Ano__c,
+                   Cultivo__c, Cultivo__r.Name, Tecnologia__c, Saldo_Cuenta__c, Es_Carga_Manual__c,
+                   Variedad__c, Variedad__r.Name, N_CUIT__c
+            FROM Cuenta_Granaria__c
+            WHERE Id = :cuentaGranariaId
+            LIMIT 1
+        ];
+    }
+
+    private static Map<String, Object> armarCuenta(Cuenta_Granaria__c cuenta) {
+        Decimal saldoCompraHT = 0;
+        Id compraHTId = null;
+        List<Map<String, Object>> cuentasRelacionadas = new List<Map<String, Object>>();
+
+        if (cuenta.Campania__c != null) {
+            List<Cuenta_Granaria__c> cuentasHT = [
+                SELECT Id, Saldo_Cuenta__c
+                FROM Cuenta_Granaria__c
+                WHERE Productor__c = :cuenta.Productor__c
+                    AND Cultivo__c = :cuenta.Cultivo__c
+                    AND Tecnologia__c = :cuenta.Tecnologia__c
+                    AND Campania__c = null
+                LIMIT 1
+            ];
+            if (!cuentasHT.isEmpty()) {
+                saldoCompraHT = cuentasHT[0].Saldo_Cuenta__c != null ? cuentasHT[0].Saldo_Cuenta__c : 0;
+                compraHTId = cuentasHT[0].Id;
+            }
+        } else {
+            Integer anio = Date.today().year();
+            Set<String> anosPermitidos = new Set<String>();
+            for (Integer i = 0; i < 5; i++) {
+                anosPermitidos.add(String.valueOf(anio - i));
+            }
+            for (Cuenta_Granaria__c cg : [
+                SELECT Id, Campania__r.Name, Campania__r.Ano__c, Tecnologia__c, Saldo_Cuenta__c
+                FROM Cuenta_Granaria__c
+                WHERE Productor__c = :cuenta.Productor__c
+                    AND Cultivo__c = :cuenta.Cultivo__c
+                    AND Campania__c != null
+                    AND Campania__r.Ano__c IN :anosPermitidos
+                ORDER BY Campania__r.Ano__c DESC, Tecnologia__c ASC
+            ]) {
+                cuentasRelacionadas.add(new Map<String, Object>{
+                    'id' => cg.Id,
+                    'campania' => cg.Campania__r.Name,
+                    'saldo' => cg.Saldo_Cuenta__c != null ? cg.Saldo_Cuenta__c : 0
+                });
+            }
+        }
+
+        return new Map<String, Object>{
+            'nombre' => cuenta.Name,
+            'productor' => cuenta.Productor__r.Name,
+            'cuit' => cuenta.N_CUIT__c,
+            'campania' => cuenta.Campania__c != null ? cuenta.Campania__r.Name : null,
+            'campaniaPeriodo' => periodoCampania(cuenta.Campania__c != null ? cuenta.Campania__r.Ano__c : null),
+            'cultivo' => cuenta.Cultivo__r.Name,
+            'variedad' => cuenta.Variedad__r == null ? null : cuenta.Variedad__r.Name,
+            'tecnologia' => cuenta.Tecnologia__c,
+            'tecnologiaEtiqueta' => etiquetaTecnologia(cuenta.Tecnologia__c, cuenta.Cultivo__r?.Name),
+            'saldo' => cuenta.Saldo_Cuenta__c,
+            'esCompraHT' => cuenta.Campania__c == null,
+            'esCargaManual' => cuenta.Es_Carga_Manual__c == true,
+            'puedeGenerarConsumo' => evaluarPuedeGenerarConsumo(cuenta, saldoCompraHT),
+            'saldoCompraHT' => saldoCompraHT,
+            'compraHTId' => compraHTId,
+            'cuentasRelacionadas' => cuentasRelacionadas
+        };
+    }
+
+    private static String etiquetaTecnologia(String tecnologia, String cultivo) {
+        if (tecnologia == 'Enlist E3/Conkesta E3') {
+            return 'Enlist / Conkesta';
+        }
+        if (tecnologia == 'RR1/RR2 - BT/Convencional') {
+            return cultivo == 'CEBADA' ? 'Convencional' : 'Aporte genético';
+        }
+        return tecnologia;
+    }
+
+    private static String periodoCampania(String ano) {
+        if (String.isBlank(ano) || !ano.isNumeric() || ano.length() != 4) {
+            return ano;
+        }
+        Integer anio = Integer.valueOf(ano);
+        return String.valueOf(anio).right(2) + '/' + String.valueOf(anio + 1).right(2);
+    }
+
+    private static ToneladaWrapper toWrapper(Tonelada__c tn) {
+        ToneladaWrapper wrapper = new ToneladaWrapper();
+        wrapper.id = tn.Id;
+        wrapper.nombre = tn.Name != null ? tn.Name : 'Sin nombre';
+        wrapper.origen = etiquetaOrigen(tn.Origen__c);
+        wrapper.cantidad = tn.Cantidad_con_Signo__c != null ? tn.Cantidad_con_Signo__c : 0;
+        wrapper.esPositivo = wrapper.cantidad >= 0;
+        wrapper.fechaInicio = tn.Fecha_Inicio__c != null ? String.valueOf(tn.Fecha_Inicio__c) : '';
+        wrapper.fechaCreacion = tn.CreatedDate != null ? tn.CreatedDate.format('dd/MM/yyyy') : '';
+        wrapper.etapa = tn.Etapa__c;
+        return wrapper;
+    }
+
+    private static String etiquetaOrigen(String origen) {
+        if (String.isBlank(origen)) {
+            return 'Sin origen';
+        }
+        return ETIQUETA_ORIGEN.containsKey(origen) ? ETIQUETA_ORIGEN.get(origen) : origen;
+    }
+
+    private static List<String> filtrosBase() {
+        return new List<String>{
+            'Cuenta_Granaria__c = :cuentaGranariaId',
+            'Fecha_Inicio__c <= TODAY',
+            'Etapa__c != \'Pendiente\'',
+            'Origen__c != \'Balance Anual\''
+        };
+    }
+
+    private static void agregarFiltrosTipoVariedad(List<String> filtros, String tipo, Id variedadId) {
+        if (tipo == TIPO_CREDITO) {
+            filtros.add('Cantidad_con_Signo__c >= 0');
+        } else if (tipo == TIPO_DEBITO) {
+            filtros.add('Cantidad_con_Signo__c < 0');
+        }
+        if (variedadId != null) {
+            filtros.add('Variedad__c = :variedadId');
+        }
+    }
+
+    private static Datetime parseCursor(String cursorFecha) {
+        if (String.isBlank(cursorFecha)) {
+            return null;
+        }
+        return (Datetime) JSON.deserialize('"' + cursorFecha + '"', Datetime.class);
+    }
+
+    private static String likeTerm(String buscar) {
+        if (String.isBlank(buscar)) {
+            return null;
+        }
+        String clean = buscar.trim().replace('\\', '').replace('%', '').replace('_', '');
+        return String.isBlank(clean) ? null : '%' + clean + '%';
+    }
+
+    private static String csvCampo(String valor) {
+        String texto = valor == null ? '' : valor;
+        if (texto.contains(';') || texto.contains('"') || texto.contains('\n')) {
+            return '"' + texto.replace('"', '""') + '"';
+        }
+        return texto;
+    }
+
+    private class OrigenAcum {
+        String origen;
+        String tipo;
+        Decimal toneladas = 0;
+        Integer movimientos = 0;
+
+        OrigenAcum(String origen, String tipo) {
+            this.origen = origen;
+            this.tipo = tipo;
+        }
+
+        Map<String, Object> toMap() {
+            return new Map<String, Object>{
+                'clave' => origen + '|' + tipo,
+                'origen' => origen,
+                'tipo' => tipo,
+                'etiqueta' => etiquetaOrigen(origen),
+                'toneladas' => toneladas,
+                'movimientos' => movimientos,
+                'esNegativo' => tipo == TIPO_DEBITO
+            };
+        }
+    }
+
+    private class VariedadAcum implements Comparable {
+        Id variedadId;
+        String nombre;
+        String semillero;
+        Decimal credito = 0;
+        Decimal debito = 0;
+        Decimal entregas = 0;
+
+        VariedadAcum(Id variedadId) {
+            this.variedadId = variedadId;
+        }
+
+        Decimal saldo() {
+            return credito + debito;
+        }
+
+        String estado() {
+            return EstadoVarietal.calcular(saldo(), entregas);
+        }
+
+        Integer grupo() {
+            String e = estado();
+            return e == 'Debe regularizar' ? 0 : (e == 'En regla' ? 1 : 2);
+        }
+
+        public Integer compareTo(Object otro) {
+            VariedadAcum v = (VariedadAcum) otro;
+            if (grupo() != v.grupo()) return grupo() - v.grupo();
+            if (grupo() == 0 && saldo() != v.saldo()) return saldo() < v.saldo() ? -1 : 1;
+            return (nombre == null ? '' : nombre).compareTo(v.nombre == null ? '' : v.nombre);
+        }
+
+        Map<String, Object> toMap() {
+            return new Map<String, Object>{
+                'variedadId' => variedadId,
+                'nombre' => nombre,
+                'semillero' => semillero,
+                'credito' => credito,
+                'debito' => debito,
+                'saldo' => saldo(),
+                'estado' => estado()
+            };
+        }
     }
 }

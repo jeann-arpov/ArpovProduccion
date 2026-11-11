@@ -82,10 +82,10 @@ const getRecordsFromForms = (elem) => {
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { trackErrorFuncional } from 'c/portalGa4Events';
 
-const errorEvent = (err) => {
+const errorEvent = (err, extras = {}) => {
     try {
         const messages = reduceErrors(err);
-        trackErrorFuncional(err, { messages });
+        trackErrorFuncional(err, { messages, ...extras });
     } catch (e) {
         // no bloquear UX por analytics
     }

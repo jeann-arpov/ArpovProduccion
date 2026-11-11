@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Lista de Toneladas de Cuenta Granaria</masterLabel>
+    <description>Lista las toneladas de una Cuenta Granaria. Modo trigo: solo CG de trigo, con scroll. Modo otros: el resto de cultivos, como en producción.</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <property name="modo" type="String" label="Modo" datasource="trigo,otros" description="trigo: solo CG de trigo, con scroll. otros: CG de otros cultivos, como en producción."/>
+            <objects>
+                <object>Cuenta_Granaria__c</object>
+            </objects>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

@@ -175,4 +175,89 @@ public class CuentaGranariaTest {
         String result = CuentaGranaria.getDetalleBT(new List<String>());
         System.assertNotEquals(null, result);
     }
+
+    @isTest
+    static void pphSaleDelPlanVigenteNoDelFlag() {
+        Account productor = [SELECT Id FROM Account WHERE Name = 'productor' ORDER BY CreatedDate DESC LIMIT 1];
+        CrearCompraController.acc = productor;
+        Cultivo__c cultivo = [SELECT Id FROM Cultivo__c WHERE Name = 'SOJA' LIMIT 1];
+        Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Cultivo__c = :cultivo.Id AND Ano__c = '2025' LIMIT 1];
+
+        List<Cuenta_Granaria__c> cuentas = [
+            SELECT Id, PPH_Adherida__c
+            FROM Cuenta_Granaria__c
+            WHERE Productor__c = :productor.Id AND Campania__c = :campana.Id
+            LIMIT 1
+        ];
+        if (cuentas.isEmpty()) {
+            insert new Cuenta_Granaria__c(
+                Productor__c = productor.Id,
+                Cultivo__c = cultivo.Id,
+                Campania__c = campana.Id,
+                Tecnologia__c = 'Enlist E3/Conkesta E3',
+                PPH_Adherida__c = true,
+                Clave_Unica__c = productor.Id + '|' + campana.Id + '|' + cultivo.Id + '|PPHTEST'
+            );
+        } else {
+            cuentas[0].PPH_Adherida__c = true;
+            update cuentas;
+        }
+
+        Test.startTest();
+        CuentaGranaria.CampanaConTotales sinPlan = campana2025(
+            CuentaGranaria.getCampanasConTotales(cultivo.Id, 'Enlist E3/Conkesta E3')
+        );
+        System.assertEquals(false, sinPlan.pphAdherida, 'Sin plan vigente no marca PPH aunque el flag esté en true');
+
+        Parametro_PPH__c parametro = new Parametro_PPH__c(
+            Cultivo__c = cultivo.Id,
+            Campana__c = campana.Id,
+            Fecha_Inicio_Adhesion_PPH__c = Date.today().addMonths(-6),
+            Fecha_Fin_Adhesion_PPH__c = Date.today().addMonths(-1),
+            Fecha_Inicio_Rectificacion_1__c = Date.today().addDays(30),
+            Fecha_Inicio_Rectificacion_2__c = Date.today().addDays(50),
+            Fecha_Fin_Rectificacion_1__c = Date.today().addDays(40),
+            Fecha_Fin_Rectificacion_2__c = Date.today().addDays(60),
+            Fecha_Vencimiento_PPH__c = Date.today().addMonths(6)
+        );
+        insert parametro;
+        Plan_de_Siembra__c plan = new Plan_de_Siembra__c(
+            Productor__c = productor.Id,
+            Parametro_PPH__c = parametro.Id,
+            Estado__c = 'Vencido',
+            Version__c = 'Original',
+            Name = 'Plan PPH vencido test'
+        );
+        insert plan;
+
+        CuentaGranaria.CampanaConTotales vencido = campana2025(
+            CuentaGranaria.getCampanasConTotales(cultivo.Id, 'Enlist E3/Conkesta E3')
+        );
+        System.assertEquals(true, vencido.pphAdherida, 'Plan Vencido sigue siendo PPH de esa campaña');
+
+        plan.Estado__c = 'Cancelado';
+        update plan;
+        CuentaGranaria.CampanaConTotales cancelado = campana2025(
+            CuentaGranaria.getCampanasConTotales(cultivo.Id, 'Enlist E3/Conkesta E3')
+        );
+        System.assertEquals(false, cancelado.pphAdherida, 'Plan cancelado no bloquea Ingresar');
+
+        plan.Estado__c = 'Rectificado';
+        update plan;
+        CuentaGranaria.CampanaConTotales rectificado = campana2025(
+            CuentaGranaria.getCampanasConTotales(cultivo.Id, 'Enlist E3/Conkesta E3')
+        );
+        System.assertEquals(true, rectificado.pphAdherida, 'Plan Rectificado cuenta como adherido');
+        Test.stopTest();
+    }
+
+    private static CuentaGranaria.CampanaConTotales campana2025(List<CuentaGranaria.CampanaConTotales> campanas) {
+        for (CuentaGranaria.CampanaConTotales campana : campanas) {
+            if (campana.ano == '2025') {
+                return campana;
+            }
+        }
+        System.assert(false, 'No está la campaña 2025');
+        return null;
+    }
 }
