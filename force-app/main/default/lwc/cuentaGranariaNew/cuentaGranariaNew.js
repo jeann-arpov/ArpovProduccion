@@ -13,6 +13,8 @@ import { doRequest, errorEvent, warningEvent } from 'c/utils';
 import { trackGa4Event, trackGa4PageView } from 'c/portalGa4Events';
 import MESA_AYUDA_EMAIL from '@salesforce/label/c.Mesa_Ayuda_Email';
 
+let vistaGa4Enviada = false;
+
 export default class CuentaGranariaNew extends LightningElement {
 
     mesaAyudaEmail = MESA_AYUDA_EMAIL;
@@ -226,7 +228,7 @@ export default class CuentaGranariaNew extends LightningElement {
     }
 
     goToStep(clickedStep) {
-        if (!clickedStep || clickedStep > this.step) return;
+        if (!clickedStep || clickedStep >= this.step) return;
         this.guardarScroll();
         this.step = clickedStep;
         if (clickedStep < 3) {
@@ -442,10 +444,12 @@ export default class CuentaGranariaNew extends LightningElement {
                 url.searchParams.delete('vista');
             }
             const href = `${url.pathname}${url.search}${url.hash}`;
+            const actual = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            if (href === actual) return;
             if (empujar) {
-                window.history.pushState(window.history.state, document.title, href);
+                window.history.pushState(window.history.state, '', href);
             } else {
-                window.history.replaceState(window.history.state, document.title, href);
+                window.history.replaceState(window.history.state, '', href);
             }
         } catch (e) {
             // Si el history no está disponible, el wizard igual avanza en memoria.
@@ -535,7 +539,10 @@ export default class CuentaGranariaNew extends LightningElement {
             this.errorCarga = false;
             const data = await getLoadData();
             this.cultivos = data.cultivos;
-            trackGa4Event('cuenta_granaria_vista', { portal: 'Productor' });
+            if (!vistaGa4Enviada) {
+                vistaGa4Enviada = true;
+                trackGa4Event('cuenta_granaria_vista', { portal: 'Productor' });
+            }
             const elegido = this.resolverCultivoDesdeUrl();
             if (elegido) {
                 this.cultivo = elegido.Id;
@@ -583,10 +590,7 @@ export default class CuentaGranariaNew extends LightningElement {
 
     emitirPageViewGa4() {
         const title = this.tituloPageViewGa4();
-        if (!title) {
-            this._pageViewGa4 = null;
-            return;
-        }
+        if (!title) return;
         if (title === this._pageViewGa4) return;
         this._pageViewGa4 = title;
         trackGa4PageView(title);
@@ -802,6 +806,7 @@ export default class CuentaGranariaNew extends LightningElement {
         const campanaId = event.currentTarget.dataset.id;
         this.campanaSeleccionada = campanaId;
         this._scrollToResumen = true;
+        trackGa4Event('cuenta_granaria_creditos', this.paramsGa4());
         if (this.isTrigo) {
             this.totales = null;
             this.varietalCargado = false;
@@ -882,7 +887,6 @@ export default class CuentaGranariaNew extends LightningElement {
             console.log('totales',JSON.stringify(totales));
 
             this.totales = Object.values(totales);
-            trackGa4Event('cuenta_granaria_creditos', this.paramsGa4());
         });
     }
 

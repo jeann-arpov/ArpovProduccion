@@ -129,6 +129,7 @@ export function trackErrorFuncional(err, extras = {}) {
 }
 
 export function trackGa4PageView(pageTitle, params = {}) {
+    if (!pageTitle) return;
     const { content_group, ...rest } = params;
     trackGa4Event('page_view', {
         page_title: pageTitle,

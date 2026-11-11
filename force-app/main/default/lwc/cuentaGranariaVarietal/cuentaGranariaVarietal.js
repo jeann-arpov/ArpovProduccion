@@ -153,7 +153,6 @@ export default class CuentaGranariaVarietal extends LightningElement {
                 this.aplicarVistaUrl();
                 this.escribirUrl();
             }
-            trackGa4Event('cuenta_granaria_creditos', this.paramsCreditosGa4());
             this.avisarListo();
         });
     }
@@ -682,10 +681,12 @@ export default class CuentaGranariaVarietal extends LightningElement {
                 url.searchParams.delete('vista');
             }
             const href = `${url.pathname}${url.search}${url.hash}`;
+            const actual = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            if (href === actual) return;
             if (empujar) {
-                window.history.pushState(window.history.state, document.title, href);
+                window.history.pushState(window.history.state, '', href);
             } else {
-                window.history.replaceState(window.history.state, document.title, href);
+                window.history.replaceState(window.history.state, '', href);
             }
         } catch (e) {
             // Si el history no está disponible, la selección igual queda en memoria.
@@ -734,6 +735,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
         this.escribirUrl({ empujar: !!opciones.empujar });
         this._detalleEmpujado = !!opciones.empujar;
         this.avisarDetalle(true);
+        if (!opciones.empujar) return;
         const marca = this.buscarVariedad(variedadId)?.marca;
         trackGa4Event('cuenta_granaria_variedad', {
             ...this.paramsGa4(),
@@ -931,13 +933,6 @@ export default class CuentaGranariaVarietal extends LightningElement {
 
     paramsGa4() {
         return { cultivo: 'TRIGO', campaña: this.campaniaLabel };
-    }
-
-    paramsCreditosGa4() {
-        return {
-            ...this.paramsGa4(),
-            subsistema: this.subsistema || 'Aporte Genético'
-        };
     }
 
     semilleroGa4(marca) {
