@@ -41,7 +41,9 @@ public without sharing class ToneladaTriggerHandler {
             System.debug('⚠ Recursión detectada - saliendo para evitar loop infinito');
             return;
         }
-        
+
+        CuentaGranariaVarietalCreditoService.acreditarToneladasCredito(newToneladas);
+
         Set<Id> toneladasIds = new Set<Id>();
         Set<Id> toneladasConMbt = new Set<Id>();
         for (Tonelada__c tn : newToneladas) {

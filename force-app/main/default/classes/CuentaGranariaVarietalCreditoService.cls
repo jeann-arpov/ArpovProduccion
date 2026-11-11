@@ -114,6 +114,22 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       Database.insert(aCrear, false);
     }
 
+    List<Detalle_Variedad_CG__c> aResetear = new List<Detalle_Variedad_CG__c>();
+    for (Id vId : subCuentaPorVariedad.keySet()) {
+      if (!variedades.contains(vId)) {
+        aResetear.add(
+          new Detalle_Variedad_CG__c(
+            Id = subCuentaPorVariedad.get(vId).Id,
+            Credito_Variedad__c = 0,
+            Saldo_Variedad__c = 0
+          )
+        );
+      }
+    }
+    if (!aResetear.isEmpty()) {
+      Database.update(aResetear, false);
+    }
+
     vincularHtsAlDetalle(cgId, productorId, cultivoId, campanaId);
 
     recalcularSaldoCuenta(cgId);
@@ -159,6 +175,72 @@ public with sharing class CuentaGranariaVarietalCreditoService {
 
     if (!htsAActualizar.isEmpty()) {
       Database.update(htsAActualizar, false);
+    }
+  }
+
+  /**
+   * Acredita las toneladas de crédito varietal (Compra HT / Compra SF):
+   * asigna la Cuenta Granaria correspondiente y las pasa a etapa Cobrada,
+   * para que queden visibles en el resumen de la cuenta granaria.
+   */
+  public static void acreditarToneladasCredito(List<Tonelada__c> toneladas) {
+    Set<Id> cultivoIds = new Set<Id>();
+    for (Tonelada__c tn : toneladas) {
+      if (
+        (tn.Origen__c == 'Compra HT' || tn.Origen__c == 'Compra SF') &&
+        tn.Cultivo__c != null
+      ) {
+        cultivoIds.add(tn.Cultivo__c);
+      }
+    }
+    if (cultivoIds.isEmpty()) {
+      return;
+    }
+
+    Set<String> varietales = obtenerCultivosVarietales();
+    Map<Id, String> cultivoNombrePorId = new Map<Id, String>();
+    for (Cultivo__c c : [
+      SELECT Id, Name
+      FROM Cultivo__c
+      WHERE Id IN :cultivoIds
+    ]) {
+      cultivoNombrePorId.put(c.Id, c.Name);
+    }
+
+    List<Tonelada__c> aActualizar = new List<Tonelada__c>();
+    for (Tonelada__c tn : toneladas) {
+      if (tn.Origen__c != 'Compra HT' && tn.Origen__c != 'Compra SF') {
+        continue;
+      }
+      if (tn.Cultivo__c == null || tn.Productor__c == null || tn.Campania__c == null) {
+        continue;
+      }
+      String nombreCultivo = cultivoNombrePorId.get(tn.Cultivo__c);
+      if (
+        nombreCultivo == null ||
+        !varietales.contains(nombreCultivo.toUpperCase())
+      ) {
+        continue;
+      }
+
+      Id cgId = obtenerCuentaGranariaId(
+        tn.Productor__c,
+        tn.Cultivo__c,
+        tn.Campania__c
+      );
+      if (cgId != null) {
+        aActualizar.add(
+          new Tonelada__c(
+            Id = tn.Id,
+            Cuenta_Granaria__c = cgId,
+            Etapa__c = 'Cobrada'
+          )
+        );
+      }
+    }
+
+    if (!aActualizar.isEmpty()) {
+      Database.update(aActualizar, false);
     }
   }
 
@@ -241,6 +323,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         AND Campania__c = :campanaId
         AND Origen__c IN :ORIGENES_CREDITO
         AND Signo__c = 1
+        AND Etapa__c NOT IN ('Pendiente', 'Cancelada por NC')
         AND Variedad__c != NULL
       ORDER BY Fecha_de_la_Transaccion__c DESC, CreatedDate DESC
     ]) {
@@ -274,6 +357,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         AND Campania__c = :campanaId
         AND Origen__c IN :ORIGENES_CREDITO
         AND Signo__c = 1
+        AND Etapa__c NOT IN ('Pendiente', 'Cancelada por NC')
         AND Variedad__c != NULL
       GROUP BY Variedad__c
     ]) {

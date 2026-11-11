@@ -125,4 +125,8 @@
         <object>Cuenta_Granaria__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
+    <tabSettings>
+        <tab>Detalle_Variedad_CG__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>
