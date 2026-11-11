@@ -670,14 +670,15 @@
 .cgv-detalle-title-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 10px;
     flex-wrap: wrap;
 }
 
 .cgv-detalle-title-row .cgv-title-xl {
     margin: 0;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
+    width: auto;
     min-width: 0;
 }
 
