@@ -575,6 +575,7 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Campa_a__c</fields>
         <fields>Es_NC__c</fields>
         <fields>CREATED_DATE</fields>
         <fields>Cultivo__c</fields>
@@ -588,6 +589,7 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Campa_a__c</fields>
         <fields>Compra_HT__c</fields>
         <fields>CREATED_DATE</fields>
         <fields>Es_NC__c</fields>
@@ -615,6 +617,7 @@
     </relatedLists>
     <relatedLists>
         <fields>OPPORTUNITY.NAME</fields>
+        <fields>Campa_a__c</fields>
         <fields>N_de_Comprobante__c</fields>
         <fields>Fecha_Vencimiento_Comprobante__c</fields>
         <fields>OPPORTUNITY.STAGE_NAME</fields>

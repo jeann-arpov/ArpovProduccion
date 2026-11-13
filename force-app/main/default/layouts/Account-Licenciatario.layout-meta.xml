@@ -551,6 +551,7 @@
     </relatedLists>
     <relatedLists>
         <fields>OPPORTUNITY.NAME</fields>
+        <fields>Campa_a__c</fields>
         <fields>N_de_Comprobante__c</fields>
         <fields>Fecha_Vencimiento_Comprobante__c</fields>
         <fields>OPPORTUNITY.STAGE_NAME</fields>
