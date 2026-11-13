@@ -192,15 +192,16 @@ public with sharing class CuentaGranariaVarietalCreditoService {
 
   /**
    * Vincula a su Cuenta Granaria las toneladas de crédito varietal
-   * (Compra HT / Compra SF) que ya están en etapa Cobrada.
-   * No modifica la etapa: solo verifica que esté Cobrada para acreditar.
+   * (Compra HT / Compra SF) que están en una etapa de crédito varietal.
+   * No modifica la etapa: solo verifica que participe del crédito.
    */
   public static void acreditarToneladasCredito(List<Tonelada__c> toneladas) {
     Set<Id> cultivoIds = new Set<Id>();
     for (Tonelada__c tn : toneladas) {
       if (
         (tn.Origen__c == 'Compra HT' || tn.Origen__c == 'Compra SF') &&
-        tn.Etapa__c == 'Cobrada' &&
+        tn.Etapa__c != null &&
+        ETAPAS_VARIETALES.contains(tn.Etapa__c) &&
         tn.Cultivo__c != null
       ) {
         cultivoIds.add(tn.Cultivo__c);
@@ -225,7 +226,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       if (tn.Origen__c != 'Compra HT' && tn.Origen__c != 'Compra SF') {
         continue;
       }
-      if (tn.Etapa__c != 'Cobrada') {
+      if (tn.Etapa__c == null || !ETAPAS_VARIETALES.contains(tn.Etapa__c)) {
         continue;
       }
       if (tn.Cultivo__c == null || tn.Productor__c == null || tn.Campania__c == null) {
