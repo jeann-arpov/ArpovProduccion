@@ -54,17 +54,17 @@ public with sharing class RegisterCommunityControllerTest {
 
     public static testmethod void verifyUserCreation() {
         UserRole userrole = [Select Id, DeveloperName From UserRole where DeveloperName = 'Desarrollo' Limit 1];
-
         User adminUser = new User(Id = UserInfo.getUserId());
 
-        adminUser.UserRoleId = userRole.Id;
-        update adminUser;
-
         System.runAs(adminUser) {
-            System.assertEquals([select id from contact where firstName = 'nombre' and lastname = 'apellido'].size(), 0);
-            RegisterCommunityController.verifyUserCreation('20166297932@test.com', '20166297932', 'nombre', 'apellido', '12345678');   
-            //System.assertEquals([select id from contact where firstName = 'nombre' and lastname = 'apellido'].size(), 1);
+            adminUser.UserRoleId = userrole.Id;
+            update adminUser;
         }
+
+        System.assertEquals([select id from contact where firstName = 'nombre' and lastname = 'apellido'].size(), 0);
+        Test.startTest();
+        RegisterCommunityController.verifyUserCreation('20166297932@test.com', '20166297932', 'nombre', 'apellido', '12345678');
+        Test.stopTest();
         
         RegisterCommunityController.login('20166297932@test.com', '20166297932');
 
