@@ -189,4 +189,70 @@ public with sharing class RegisterCommunityControllerTest {
         
         System.assert(true, 'El método debería manejar usuarios no encontrados sin errores');
     }
+
+    @isTest
+    static void copiesPortalUserDataOntoContact() {
+        Contact contact = [SELECT Id FROM Contact WHERE Email = '20166297932@test2.com' LIMIT 1];
+        User portalUser = new User(FirstName = 'Diego', LastName = 'Rivera', MobilePhone = '+54987876565');
+
+        RegisterCommunityController.applyPortalUserToContact(contact.Id, portalUser);
+
+        contact = [
+            SELECT Es_Usuario_de_Portal__c, FirstName, LastName, MobilePhone
+            FROM Contact
+            WHERE Id = :contact.Id
+        ];
+        System.assertEquals(true, contact.Es_Usuario_de_Portal__c);
+        System.assertEquals('Diego', contact.FirstName);
+        System.assertEquals('Rivera', contact.LastName);
+        System.assertEquals('+54987876565', contact.MobilePhone);
+    }
+
+    @isTest
+    static void keepsPortalFlagWhenNameDoesNotFit() {
+        Contact contact = [SELECT Id, FirstName FROM Contact WHERE Email = '20166297932@test.com' LIMIT 1];
+        User portalUser = new User(
+            FirstName = 'ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJA',
+            LastName = 'Perez'
+        );
+
+        RegisterCommunityController.applyPortalUserToContact(contact.Id, portalUser);
+
+        contact = [SELECT Es_Usuario_de_Portal__c, FirstName FROM Contact WHERE Id = :contact.Id];
+        System.assertEquals(true, contact.Es_Usuario_de_Portal__c);
+        System.assertNotEquals('ABCDEFGHIJABCDEFGHIJABCDEFGHIJABCDEFGHIJA', contact.FirstName);
+    }
+
+    @isTest
+    static void updateContactAsyncMarksPortalContact() {
+        Contact contact = [SELECT Id FROM Contact WHERE Email = '20166297932@test.com' LIMIT 1];
+        Profile testProfile = [SELECT Id FROM Profile WHERE Name LIKE '%Obtentor%' LIMIT 1];
+        String suffix = String.valueOf(System.now().getTime());
+
+        User portalUser = new User(
+            FirstName = 'Flag',
+            LastName = 'Portal',
+            Email = '20166297932@test.com',
+            Username = 'portalflag' + suffix + '@test.com',
+            Alias = 'pflag',
+            CommunityNickname = 'pflag' + suffix,
+            ContactId = contact.Id,
+            ProfileId = testProfile.Id,
+            TimeZoneSidKey = 'America/Argentina/Buenos_Aires',
+            LocaleSidKey = 'es_AR',
+            EmailEncodingKey = 'UTF-8',
+            LanguageLocaleKey = 'es',
+            MobilePhone = '+54911112222'
+        );
+        insert portalUser;
+
+        Test.startTest();
+        RegisterCommunityController.updateContactAsync(contact.Id, portalUser.Id);
+        Test.stopTest();
+
+        contact = [SELECT Es_Usuario_de_Portal__c, FirstName, LastName FROM Contact WHERE Id = :contact.Id];
+        System.assertEquals(true, contact.Es_Usuario_de_Portal__c);
+        System.assertEquals('Flag', contact.FirstName);
+        System.assertEquals('Portal', contact.LastName);
+    }
 }

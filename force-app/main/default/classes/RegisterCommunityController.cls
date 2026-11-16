@@ -138,11 +138,9 @@ public without sharing class RegisterCommunityController {
             
             insert u;
             System.debug('✅ Usuario insertado con ID: ' + u.Id);
-            
-            // **ACTUALIZAR CONTACTO INMEDIATAMENTE (ANTES DEL EMAIL)**
-            System.debug('🎯 Actualizando Contacto inmediatamente...');
-            updateContactImmediately(u.ContactId, u.Id);
-            System.debug('✅ Contacto actualizado');
+
+            // El contacto se marca en tg_User y en updateContactAsync.
+            // No se puede actualizar Contact en esta transacción: User es un objeto de setup.
             
             // PRIMERO procesar el usuario para establecer la contraseña
             System.debug('🎯 Procesando usuario (estableciendo contraseña)...');
@@ -285,44 +283,6 @@ public without sharing class RegisterCommunityController {
             System.debug('❌ Mensaje: ' + e.getMessage());
             System.debug('❌ Línea: ' + e.getLineNumber());
             System.debug('❌ StackTrace: ' + e.getStackTraceString());
-        }
-    }
-
-   /**
-     * Actualiza contacto INMEDIATAMENTE (síncrono)
-     * @param contactId ID del contacto
-     * @param userId ID del usuario
-     */
-    private static void updateContactImmediately(Id contactId, Id userId){
-        try {
-            System.debug('👤 Actualizando contacto inmediatamente...');
-            System.debug('👤 ContactId: ' + contactId);
-            System.debug('👤 UserId: ' + userId);
-            
-            Contact contact = [SELECT Id, FirstName, LastName, Es_Usuario_de_Portal__c, MobilePhone 
-                              FROM Contact WHERE Id = :contactId];
-            User u = [SELECT FirstName, LastName, ProfileId, MobilePhone FROM User WHERE Id = :userId];
-
-            System.debug('👤 Contacto antes de actualizar:');
-            System.debug('👤 Contacto FirstName: ' + contact.FirstName);
-            System.debug('👤 Contacto LastName: ' + contact.LastName);
-            System.debug('👤 Usuario FirstName: ' + u.FirstName);
-            System.debug('👤 Usuario LastName: ' + u.LastName);
-            
-            contact.FirstName = u.FirstName;
-            contact.LastName = u.LastName;
-            contact.Es_Usuario_de_Portal__c = true;
-            contact.MobilePhone = u.MobilePhone;
-            
-            update contact;
-            
-            System.debug('✅ Contacto actualizado exitosamente');
-            System.debug('✅ Contacto FirstName ahora: ' + contact.FirstName);
-            System.debug('✅ Contacto LastName ahora: ' + contact.LastName);
-            
-        } catch(Exception e) {
-            System.debug('❌ Error actualizando contacto: ' + e.getMessage());
-            // No lanzamos excepción para no interrumpir el flujo
         }
     }
 
@@ -494,24 +454,44 @@ public without sharing class RegisterCommunityController {
     }
 
     /**
-     * Actualiza contacto de forma asíncrona (para mantener compatibilidad)
+     * Copia los datos del usuario al contacto y lo marca como usuario de portal.
+     * La marca no depende del nombre, del teléfono ni de la automatización de comprobantes.
      * @param contactId ID del contacto
      * @param userId ID del usuario
      */
     @future
     public static void updateContactAsync(Id contactId, Id userId){
-        // Este método se mantiene para compatibilidad, pero ya no se usa en doCreateUser
-        Contact contact = [SELECT Id FROM Contact WHERE Id = :contactId];
         User u = [SELECT FirstName, LastName, ProfileId, MobilePhone FROM User WHERE Id = :userId];
+        applyPortalUserToContact(contactId, u);
 
-        contact.FirstName = u.FirstName;
-        contact.LastName = u.LastName;
-        contact.Es_Usuario_de_Portal__c = true;
-        contact.MobilePhone = u.MobilePhone;
-        
-        update contact;
+        try {
+            addAutomatizacion(u);
+        } catch (Exception e) {
+            System.debug('No se pudo crear la automatización de comprobantes para ' + userId + ': ' + e.getMessage());
+        }
+    }
 
-        addAutomatizacion(u);
+    @TestVisible
+    private static void applyPortalUserToContact(Id contactId, User portalUser) {
+        Contact fullUpdate = new Contact(
+            Id = contactId,
+            Es_Usuario_de_Portal__c = true,
+            FirstName = portalUser.FirstName,
+            LastName = portalUser.LastName
+        );
+        if (String.isNotBlank(portalUser.MobilePhone)) {
+            fullUpdate.MobilePhone = portalUser.MobilePhone;
+        }
+
+        Database.SaveResult result = Database.update(fullUpdate, false);
+        if (result.isSuccess()) {
+            return;
+        }
+
+        for (Database.Error err : result.getErrors()) {
+            System.debug('No se pudo copiar el usuario al contacto ' + contactId + ': ' + err.getMessage());
+        }
+        Database.update(new Contact(Id = contactId, Es_Usuario_de_Portal__c = true), false);
     }
 
     /**
