@@ -1,5 +1,6 @@
 <template>
     <article class={blockClass}>
+        <template if:true={showSeleccion}>
         <header class="p-block-h">
             <span class="t">
                 <small>Establecimiento</small>
@@ -109,6 +110,7 @@
                 </div>
             </template>
         </section>
+        </template>
 
         <section class={infoClass}>
             <div class="p-ha-col">
@@ -125,7 +127,7 @@
 
             <div class="p-main">
                 <div class="p-area">
-                    <p class="p-step"><span class="n">2</span>{step2Label}</p>
+                    <p class="p-step"><span class="n" if:true={showSeleccion}>2</span>{step2Label}</p>
                     <template if:true={showVariedades}>
                         <div class="p-vhead" aria-hidden="true">
                             <span>Marca</span>
@@ -153,7 +155,7 @@
                 </div>
 
                 <div class="p-area">
-                    <p class="p-step"><span class="n">3</span>{step3Label}</p>
+                    <p class="p-step"><span class="n" if:true={showSeleccion}>3</span>{step3Label}</p>
                     <label class="p-label" for="nose">Hectáreas que NO utilizan Sembrá Evolución<span class="req">*</span></label>
                     <input
                         id="nose"

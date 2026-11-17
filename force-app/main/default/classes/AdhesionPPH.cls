@@ -271,6 +271,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
                 Establecimiento__r.Coordenadas__latitude__s,
                 Establecimiento__r.Coordenadas__longitude__s,
                 Establecimiento__r.Name,
+                Establecimiento__r.Origen__c,
                 Establecimiento__r.Provincia__c,
                 Establecimiento__r.Localidad__r.Name,
                 Name,
