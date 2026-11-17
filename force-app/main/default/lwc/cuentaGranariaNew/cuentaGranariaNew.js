@@ -89,12 +89,13 @@ export default class CuentaGranariaNew extends LightningElement {
     }
 
     get showStep2Panel() {
-        return this.isStep2Active && this.showFilterTech && this.mostrarContenido;
+        return this.isStep2Active && this.showFilterTech && this.mostrarContenido && !this.isTrigo;
     }
 
     get showStep3Panel() {
         return (
             this.isStep3Active &&
+            !this.isTrigo &&
             this.cultivo &&
             this.biotecnologia &&
             Array.isArray(this.campanas) &&
@@ -111,7 +112,7 @@ export default class CuentaGranariaNew extends LightningElement {
     get mostrarEsqueleto() {
         if (this.errorCarga) return false;
         if (!this.cultivos) return true;
-        if (this.step === 3 && this.campanas == null) return true;
+        if (this.step === this.pasoCampana && this.campanas == null) return true;
         if (this.mostrarVarietal && !this.varietalCargado) return true;
         if (this.loading && this.campanaSeleccionada && !this.isTrigo && !this.totales) return true;
         return false;
@@ -166,15 +167,25 @@ export default class CuentaGranariaNew extends LightningElement {
         this.varietalCargado = false;
     }
 
+    get pasoCampana() {
+        return this.isTrigo ? 2 : 3;
+    }
+
     get wizardStepsTotal() {
-        return 3;
+        return this.isTrigo ? 2 : 3;
     }
 
     get wizardStepLabels() {
-        return ['Cultivo', 'Plataforma', 'Campaña'];
+        return this.isTrigo ? ['Cultivo', 'Campaña'] : ['Cultivo', 'Plataforma', 'Campaña'];
     }
 
     get wizardStepLabelList() {
+        if (this.isTrigo) {
+            return [
+                this.cultivoName ? `Cultivo · ${this.cultivoName}` : 'Cultivo',
+                this.campanaSeleccionadaPeriod ? `Campaña · ${this.campanaSeleccionadaPeriod}` : 'Campaña'
+            ];
+        }
         return [
             this.cultivoName ? `Cultivo · ${this.cultivoName}` : 'Cultivo',
             this.step >= 2 && this.biotecnologiaLabel
@@ -182,6 +193,14 @@ export default class CuentaGranariaNew extends LightningElement {
                 : 'Plataforma',
             this.campanaSeleccionadaPeriod ? `Campaña · ${this.campanaSeleccionadaPeriod}` : 'Campaña'
         ];
+    }
+
+    get esqueletoTresPasos() {
+        return !this.isTrigo;
+    }
+
+    get textoVolverCampanas() {
+        return this.isTrigo ? '← Volver a Cultivo' : '← Volver a Campañas';
     }
 
     get wizardProgressLabel() {
@@ -231,7 +250,7 @@ export default class CuentaGranariaNew extends LightningElement {
         if (!clickedStep || clickedStep >= this.step) return;
         this.guardarScroll();
         this.step = clickedStep;
-        if (clickedStep < 3) {
+        if (clickedStep < this.pasoCampana) {
             this.totales = null;
             this.campanaSeleccionada = null;
             this.mostrarVarietal = false;
@@ -278,6 +297,11 @@ export default class CuentaGranariaNew extends LightningElement {
     aplicarSubida() {
         if (this.campanaIngresada) {
             this.cerrarCampanaSinHistorial();
+            if (this.isTrigo) {
+                this.step = 1;
+                this.biotecnologia = null;
+                this.campanas = null;
+            }
             return;
         }
         if (this.step === 3) {
@@ -344,6 +368,11 @@ export default class CuentaGranariaNew extends LightningElement {
         const plats = this.plataformasDelCultivo;
         if (plats.length === 1) {
             this.biotecnologia = plats[0].value;
+        }
+        if (this.isTrigo) {
+            this.cargarCampanas(this.cultivo, { entrarSiHayUrl: true, entrarActual: true });
+            this.step = 2;
+            return;
         }
         const hayDestino = !!desdeUrl && (this.leerParametro('campana') || this.tieneMarcasUrl());
         if (hayDestino) {
@@ -438,7 +467,7 @@ export default class CuentaGranariaNew extends LightningElement {
             } else if (!preservarDestino) {
                 url.searchParams.delete('campana');
             }
-            if (limpiarMarcas || (!preservarDestino && (this.step < 3 || !this.campanaIngresada))) {
+            if (limpiarMarcas || (!preservarDestino && (this.step < this.pasoCampana || !this.campanaIngresada))) {
                 url.searchParams.delete('marcas');
                 url.searchParams.delete('variedad');
                 url.searchParams.delete('vista');
@@ -461,6 +490,11 @@ export default class CuentaGranariaNew extends LightningElement {
         const campanaUrl = this.leerParametro('campana');
         if (this.campanaIngresada && !campanaUrl) {
             this.cerrarCampanaSinHistorial();
+            if (this.isTrigo) {
+                this.step = 1;
+                this.biotecnologia = null;
+                this.campanas = null;
+            }
             return;
         }
         if (!cultivoUrl) {
@@ -579,10 +613,9 @@ export default class CuentaGranariaNew extends LightningElement {
         const cultivo = this.cultivoNameDisplay;
         if (!cultivo || this.mostrarEsqueleto || this.errorCarga) return null;
         const base = `Cuenta Granaria · ${cultivo}`;
-        if (this.detalleAbierto) return `${base} · Detalle de variedad`;
         if (this.vistaVariedades) return `${base} · Variedades`;
         if (this.campanaIngresada && this.isTrigo) return `${base} · Resumen varietal`;
-        if (this.step === 3 && Array.isArray(this.campanas) && !this.campanaIngresada) {
+        if (this.step === 3 && !this.isTrigo && Array.isArray(this.campanas) && !this.campanaIngresada) {
             return `${base} · Campañas`;
         }
         return null;
@@ -661,6 +694,9 @@ export default class CuentaGranariaNew extends LightningElement {
             if (opciones.entrarSiHayUrl && !this.campanaSeleccionada) {
                 this.entrarCampanaDesdeUrl();
             }
+            if (opciones.entrarActual && !this.campanaSeleccionada) {
+                this.entrarCampanaActual();
+            }
         });
     }
 
@@ -668,12 +704,21 @@ export default class CuentaGranariaNew extends LightningElement {
         const idUrl = this.leerParametro('campana');
         let camp = idUrl ? this.decoratedCampanas.find((item) => item.id === idUrl) : null;
         if (!camp && this.tieneMarcasUrl()) {
-            camp = this.decoratedCampanas.find(
-                (item) => item.isCurrent && !item.ingresarDisabled && !item.muestraComprarHT
-            );
+            camp = this.decoratedCampanas.find((item) => item.isCurrent);
         }
-        if (!camp || camp.ingresarDisabled) return;
-        this.campanaSeleccionada = camp.id;
+        if (!camp) return;
+        if (!this.isTrigo && camp.ingresarDisabled) return;
+        this.aplicarIngresoCampana(camp.id);
+    }
+
+    entrarCampanaActual() {
+        const camp = this.decoratedCampanas.find((item) => item.isCurrent);
+        if (!camp) return;
+        this.aplicarIngresoCampana(camp.id);
+    }
+
+    aplicarIngresoCampana(campanaId) {
+        this.campanaSeleccionada = campanaId;
         if (this.isTrigo) {
             this.varietalCargado = false;
             this.mostrarVarietal = true;
@@ -978,7 +1023,7 @@ export default class CuentaGranariaNew extends LightningElement {
     handleReintentar() {
         this.errorCarga = false;
         if (this._reintento === 'campanas' && this.cultivo) {
-            this.cargarCampanas(this.cultivo, { entrarSiHayUrl: true });
+            this.cargarCampanas(this.cultivo, { entrarSiHayUrl: true, entrarActual: this.isTrigo });
             return;
         }
         if (this._reintento === 'varietal') {
@@ -1019,6 +1064,32 @@ export default class CuentaGranariaNew extends LightningElement {
         if (!this.campanas || !this.campanaSeleccionada) return '';
         const camp = this.campanas.find(c => c.id === this.campanaSeleccionada);
         return camp ? this.getCampanaPeriod(camp.ano) : '';
+    }
+
+    get campanaVista() {
+        if (!this.campanas || !this.campanaSeleccionada) return null;
+        return this.decoratedCampanas.find((item) => item.id === this.campanaSeleccionada) || null;
+    }
+
+    get varietalEsPph() {
+        return !!this.campanaVista?.showPPH;
+    }
+
+    get varietalCifra() {
+        return this.campanaVista?.displayToneladas ?? 0;
+    }
+
+    get varietalCifraCompletar() {
+        return !!this.campanaVista?.muestraNegativas;
+    }
+
+    get varietalNombresCompletar() {
+        const lista = this.regularizarPorCampana?.[this.campanaSeleccionada]?.variedades || [];
+        return lista.join(' · ');
+    }
+
+    get varietalCantidadCompletar() {
+        return (this.regularizarPorCampana?.[this.campanaSeleccionada]?.variedades || []).length;
     }
 
     get showFilterTech() { return this.cultivo; }

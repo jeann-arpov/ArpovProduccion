@@ -8,6 +8,89 @@
     margin-top: 16px;
 }
 
+.cgv-camp-hero {
+    background: #2e2e2e;
+    border: 1.5px solid #4a5261;
+    border-radius: 10px;
+    padding: 24px 20px 22px;
+    margin-bottom: 16px;
+    text-align: center;
+    color: #fff;
+}
+
+.cgv-camp-hero-crop {
+    margin: 0 0 12px;
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.cgv-camp-fig {
+    font-family: "Montserrat", "Roboto", Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1;
+    color: #bfff00;
+}
+
+.cgv-camp-fig lightning-formatted-number {
+    color: inherit;
+    font: inherit;
+}
+
+.cgv-camp-fig.is-neg {
+    color: #ff8a3d;
+}
+
+.cgv-camp-unit {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #bfff00;
+}
+
+.cgv-camp-unit.is-neg {
+    color: #ff8a3d;
+}
+
+.cgv-camp-names {
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.cgv-camp-note {
+    margin: 10px auto 0;
+    max-width: 520px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.cgv-camp-pph {
+    margin: 12px auto 0;
+    max-width: 520px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.cgv-pph-ribbon {
+    width: 72px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.cgv-help-link {
+    color: inherit;
+    font-weight: 700;
+}
+
 .cgv-error-tit {
     margin: 0 0 8px;
     font-size: 18px;
@@ -447,43 +530,72 @@
     color: #6b7280;
 }
 
-.cgv-pills {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin: 14px 0;
+.cgv-chip.is-ready {
+    background: #fff;
+    color: #1c1c1c;
+    border: 1.5px solid #bfff00;
+}
+
+.cgv-chip.is-ready::before {
+    background: #bfff00;
+    opacity: 1;
 }
 
 .cgv-pills-lbl {
+    margin: 14px 0 6px;
     font-size: 13px;
     font-weight: 700;
-    margin-right: 4px;
+}
+
+.cgv-pills {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin: 14px 0;
+    padding: 4px;
+    width: fit-content;
+    max-width: 100%;
+    background: #f3f4f6;
+    border-radius: 999px;
 }
 
 .cgv-pill {
-    border: 1.5px solid #1c1c1c;
+    border: 0;
     background: transparent;
     border-radius: 999px;
     min-height: 36px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     font: inherit;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+    color: #1c1c1c;
 }
 
 .cgv-pill.is-on {
     background: #bfff00;
-    border-color: #bfff00;
 }
 
 .cgv-pill.is-off,
 .cgv-pill:disabled {
-    background: #f3f4f6;
-    border-color: #e5e7eb;
+    background: transparent;
     color: #9ca3af;
     cursor: not-allowed;
+}
+
+.cgv-marca-table {
+    margin-top: 22px;
+}
+
+.cgv-marca-table .cgv-grupo-head {
+    margin-bottom: 0;
+    padding-bottom: 10px;
+}
+
+.cgv-marca-table .cgv-table-wrap {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .cgv-grupo {
@@ -941,6 +1053,7 @@
 }
 
 .cgv-root.is-variedades .cgv-marcas,
+.cgv-root.is-variedades .cgv-camp-hero,
 .cgv-root.is-variedades .cgv-ver-btn {
     display: none;
 }
@@ -1372,20 +1485,24 @@
         font-size: 22px;
     }
 
-    .cgv-pills {
-        margin: 8px 0 4px;
-        gap: 6px;
+    .cgv-camp-hero {
+        margin: 0 8px 16px;
+        padding: 20px 16px;
     }
 
-    .cgv-pills-lbl {
-        font-size: 12px;
-        margin-right: 2px;
+    .cgv-pills {
+        margin: 8px 0 4px;
+        gap: 4px;
+        width: 100%;
+        border-radius: 14px;
     }
 
     .cgv-pill {
-        min-height: 44px;
-        padding: 8px 12px;
-        font-size: 13px;
+        min-height: 40px;
+        padding: 6px 10px;
+        font-size: 12px;
+        flex: 1 1 calc(50% - 4px);
+        line-height: 1.25;
     }
 
     .cgv-grupo {
@@ -1535,7 +1652,8 @@
         display: none;
     }
 
-    .cgv-root.is-variedades .cgv-marcas {
+    .cgv-root.is-variedades .cgv-marcas,
+    .cgv-root.is-variedades .cgv-camp-hero {
         display: block;
     }
 }

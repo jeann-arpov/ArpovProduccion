@@ -33,8 +33,10 @@
                     <span class="cg-skel-circle"></span>
                     <span class="cg-skel-line"></span>
                     <span class="cg-skel-circle"></span>
-                    <span class="cg-skel-line"></span>
-                    <span class="cg-skel-circle"></span>
+                    <template if:true={esqueletoTresPasos}>
+                        <span class="cg-skel-line"></span>
+                        <span class="cg-skel-circle"></span>
+                    </template>
                 </div>
             </div>
             <section class="cg-panel">
@@ -236,6 +238,12 @@
                     campania-label={campanaSeleccionadaPeriod}
                     tecnologias={biotecnologia}
                     subsistema={biotecnologiaLabel}
+                    es-pph={varietalEsPph}
+                    cifra-campana={varietalCifra}
+                    cifra-completar={varietalCifraCompletar}
+                    nombres-completar={varietalNombresCompletar}
+                    cantidad-completar={varietalCantidadCompletar}
+                    pph-ribbon-url={pphRibbonUrl}
                     ondetallechange={handleDetalleChange}
                     onvistachange={handleVistaChange}
                     onlisto={handleVarietalListo}
@@ -244,7 +252,7 @@
         </template>
 
         <div class="cg-volver-fuera se-desk-only" if:true={muestraVolverCampanas}>
-            <button type="button" class="cg-btn cg-btn-ghost" onclick={handleSubirNivel}>← Volver a Campañas</button>
+            <button type="button" class="cg-btn cg-btn-ghost" onclick={handleSubirNivel}>{textoVolverCampanas}</button>
         </div>
 
         <!-- Resumen de toneladas -->

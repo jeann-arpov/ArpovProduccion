@@ -214,19 +214,42 @@
         </template>
 
         <template if:false={esDetalle}>
+            <section class="cgv-camp-hero">
+                <p class="cgv-camp-hero-crop">{heroCrop}</p>
+                <template if:true={esPph}>
+                    <img src={pphRibbonUrl} alt="PPH" class="cgv-pph-ribbon" if:true={pphRibbonUrl} />
+                    <p class="cgv-camp-pph">Tu campaña está adherida al PPH, así que todas tus variedades quedan respaldadas. Acá ves cuáles son.</p>
+                </template>
+                <template if:false={esPph}>
+                    <div class={cifraHeroClass}>
+                        <lightning-formatted-number
+                            value={cifraCampana}
+                            locale="es-AR"
+                            format-style="decimal"
+                            minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"
+                        ></lightning-formatted-number>
+                    </div>
+                    <div class={unidadHeroClass}>{unidadHero}</div>
+                    <p class="cgv-camp-names" if:true={muestraNombresCompletar}>{textoHeroNombres}</p>
+                    <p class="cgv-camp-note">Cada variedad lleva su propio saldo, así que lo que sobra en una no cubre lo que falta en otra.</p>
+                </template>
+            </section>
+
             <section class="cgv-panel cgv-marcas">
                 <header class="cgv-head">
                     <div>
-                        <h2 class="cgv-title">Resumen varietal · Trigo {campaniaLabel}</h2>
+                        <h2 class="cgv-title">Tus marcas en esta campaña</h2>
                         <p class="cgv-sub">{textoMetaResumen}</p>
                     </div>
-                    <button type="button" class="cgv-btn cgv-btn-ghost cgv-solo-desk" onclick={handleDescargarEntregas}>Descargar entregas</button>
                 </header>
+
+                <p class="cgv-note">Solo aparecen las marcas de las que compraste HT o entregaste grano en esta campaña. Elegí una, varias o todas para ver sus variedades.</p>
+                <p class="cgv-note">¿Tenés dudas sobre alguna variedad o querés revisar una campaña anterior? Escribinos a la <a class="cgv-help-link" href="https://wa.me/5491131172022" target="_blank" rel="noopener">Mesa de Ayuda</a> y lo vemos juntos.</p>
 
                 <div class="cgv-marcas-head">
                     <div>
                         <h3 class="cgv-h3 cgv-h3-first">Marcas</h3>
-                        <p class="cgv-sub">Solo aparecen las marcas de las que compraste HT o entregaste grano en esta campaña. Elegí una, varias o todas para ver sus variedades.</p>
                     </div>
                     <label class="cgv-search-wrap">
                         <span class="cgv-search-ico" aria-hidden="true">
@@ -284,8 +307,8 @@
                                     <span class="cgv-marca-meta">{marca.textoVariedades}</span>
                                 </span>
                             </span>
-                            <span class={marca.chipDeskClass}>{marca.etiqueta}</span>
-                            <span class={marca.chipMovilClass}>{marca.etiquetaCorta}</span>
+                            <span class={marca.chipDeskClass} if:false={esPph}>{marca.etiqueta}</span>
+                            <span class={marca.chipMovilClass} if:false={esPph}>{marca.etiquetaCorta}</span>
                             <span class="cgv-box" aria-hidden="true"></span>
                         </button>
                     </template>
@@ -296,14 +319,6 @@
                         {textoVerVariedades}
                     </button>
                 </div>
-                <button type="button" class="cgv-link cgv-dl-foot cgv-solo-movil" onclick={handleDescargarEntregas}>
-                    <svg class="cgv-dl-ico-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 3v12"></path>
-                        <path d="m7 11 5 5 5-5"></path>
-                        <path d="M5 19h14"></path>
-                    </svg>
-                    <span>Descargar entregas Bolsatech</span>
-                </button>
             </section>
 
             <section class="cgv-panel cgv-variedades">
@@ -322,10 +337,10 @@
                             <p class="cgv-sub">{encabezadoVariedades}</p>
                         </div>
                     </header>
-                    <p class="cgv-note cgv-solo-desk">Los saldos se calculan por variedad: un saldo positivo no compensa el negativo de otra.</p>
+                    <p class="cgv-note cgv-solo-desk" if:true={mostrarCifras}>Cada variedad lleva su propio saldo, así que lo que sobra en una no cubre lo que falta en otra.</p>
 
-                    <div class="cgv-pills">
-                        <span class="cgv-pills-lbl">Mostrar</span>
+                    <p class="cgv-pills-lbl" if:true={mostrarFiltroEstado}>Filtrar por estado</p>
+                    <div class="cgv-pills" if:true={mostrarFiltroEstado} role="tablist" aria-label="Filtrar por estado">
                         <template for:each={pills} for:item="pill">
                             <button
                                 key={pill.estado}
@@ -340,76 +355,55 @@
                     </div>
 
                     <template if:true={filtrosApagados}>
-                        <p class="cgv-empty">No hay variedades con los estados elegidos.</p>
+                        <p class="cgv-empty">No hay variedades con ese estado.</p>
                         <button type="button" class="cgv-btn cgv-btn-ghost" onclick={handleMostrarTodas}>Mostrar todas</button>
                     </template>
 
-                    <div class="cgv-table-wrap cgv-solo-desk">
-                        <table class="cgv-table cgv-table-grupos">
-                            <colgroup>
-                                <col class="cgv-col-var" />
-                                <col class="cgv-col-est" />
-                                <col class="cgv-col-num" />
-                                <col class="cgv-col-num" />
-                                <col class="cgv-col-num" />
-                                <col class="cgv-col-acc" />
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th>Variedad</th>
-                                    <th>Estado</th>
-                                    <th class="cgv-r">Crédito</th>
-                                    <th class="cgv-r">Débito</th>
-                                    <th class="cgv-r">Saldo</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <template for:each={grupos} for:item="marca">
-                                <tbody key={marca.id}>
-                                    <tr class="cgv-grupo-sep">
-                                        <td colspan="6">
-                                            <div class="cgv-grupo-head">
-                                                <div class="cgv-grupo-id">
-                                                    <span class={marca.logoClass} aria-hidden="true">
-                                                        <template if:true={marca.logo}>
-                                                            <img src={marca.logo} alt="" data-obtentor={marca.idObtentor} onerror={handleLogoError} />
-                                                        </template>
-                                                        <template if:false={marca.logo}>{marca.iniciales}</template>
-                                                    </span>
-                                                    <div>
-                                                        <h3 class="cgv-grupo-name">{marca.nombre}</h3>
-                                                        <p class="cgv-sub">{marca.subtitulo}</p>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    if:true={marca.puedeRegularizar}
-                                                    type="button"
-                                                    class="cgv-btn cgv-btn-primary"
-                                                    data-id={marca.id}
-                                                    onclick={handleRegularizarMarca}
-                                                >{marca.textoRegularizar}</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <template for:each={marca.variedades} for:item="variedad">
-                                        <tr key={variedad.id}>
-                                            <td>{variedad.nombre}</td>
-                                            <td><span class={variedad.chipClass}>{variedad.estado}</span></td>
-                                            <td class="cgv-r">{variedad.creditoTexto}</td>
-                                            <td class="cgv-r">{variedad.debitoTexto}</td>
-                                            <td class="cgv-r"><span class={variedad.saldoClass}>{variedad.saldoTexto}</span></td>
-                                            <td class="cgv-r">
-                                                <button type="button" class="cgv-btn cgv-btn-ghost cgv-btn-sm" data-id={variedad.id} data-marca={variedad.marcaId} onclick={handleDetalle}>Ver detalle</button>
-                                            </td>
+                    <template for:each={grupos} for:item="marca">
+                        <div key={marca.keyDesk} class="cgv-marca-table cgv-solo-desk">
+                            <div class="cgv-grupo-head">
+                                <div class="cgv-grupo-id">
+                                    <span class={marca.logoClass} aria-hidden="true">
+                                        <template if:true={marca.logo}>
+                                            <img src={marca.logo} alt="" data-obtentor={marca.idObtentor} onerror={handleLogoError} />
+                                        </template>
+                                        <template if:false={marca.logo}>{marca.iniciales}</template>
+                                    </span>
+                                    <div>
+                                        <h3 class="cgv-grupo-name">{marca.nombre}</h3>
+                                        <p class="cgv-sub">{marca.subtitulo}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cgv-table-wrap">
+                                <table class="cgv-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Variedad</th>
+                                            <th>Estado</th>
+                                            <th class="cgv-r" if:true={mostrarCifras}>Acreditado</th>
+                                            <th class="cgv-r" if:true={mostrarCifras}>Entregado</th>
+                                            <th class="cgv-r" if:true={mostrarCifras}>Saldo</th>
                                         </tr>
-                                    </template>
-                                </tbody>
-                            </template>
-                        </table>
-                    </div>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={marca.variedades} for:item="variedad">
+                                            <tr key={variedad.id}>
+                                                <td>{variedad.nombre}</td>
+                                                <td><span class={variedad.chipClass}>{variedad.estadoLabel}</span></td>
+                                                <td class="cgv-r" if:true={mostrarCifras}>{variedad.creditoTexto}</td>
+                                                <td class="cgv-r" if:true={mostrarCifras}>{variedad.debitoTexto}</td>
+                                                <td class="cgv-r" if:true={mostrarCifras}><span class={variedad.saldoClass}>{variedad.saldoTexto}</span></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </template>
 
                     <template for:each={grupos} for:item="marca">
-                        <article key={marca.id} class="cgv-grupo cgv-solo-movil">
+                        <article key={marca.keyMovil} class="cgv-grupo cgv-solo-movil">
                             <header class="cgv-grupo-head">
                                 <div class="cgv-grupo-id">
                                     <span class={marca.logoClass} aria-hidden="true">
@@ -424,28 +418,20 @@
                                     </div>
                                 </div>
                             </header>
-                            <button
-                                if:true={marca.puedeRegularizar}
-                                type="button"
-                                class="cgv-btn cgv-btn-primary cgv-btn-block"
-                                data-id={marca.id}
-                                onclick={handleRegularizarMarca}
-                            >{marca.textoRegularizar}</button>
-                            <p class="cgv-note cgv-grupo-ayuda" if:true={marca.puedeRegularizar}>{marca.textoAyudaRegularizar}</p>
                             <template for:each={marca.variedades} for:item="variedad">
                                 <article key={variedad.id} class="cgv-vcard">
                                     <div class="cgv-vcard-head">
                                         <span class="cgv-vcard-name">{variedad.nombre}</span>
-                                        <span class={variedad.chipClass}>{variedad.estado}</span>
+                                        <span class={variedad.chipClass}>{variedad.estadoLabel}</span>
                                     </div>
-                                    <div class="cgv-vcard-body">
+                                    <div class="cgv-vcard-body" if:true={mostrarCifras}>
                                         <div class="cgv-vcard-grid">
                                             <div class="cgv-vcard-metric">
-                                                <span class="cgv-vcard-k">Crédito</span>
+                                                <span class="cgv-vcard-k">Acreditado</span>
                                                 <span class="cgv-vcard-v">{variedad.creditoTexto}</span>
                                             </div>
                                             <div class="cgv-vcard-metric">
-                                                <span class="cgv-vcard-k">Débito</span>
+                                                <span class="cgv-vcard-k">Entregado</span>
                                                 <span class="cgv-vcard-v">{variedad.debitoTexto}</span>
                                             </div>
                                             <div class="cgv-vcard-metric">
@@ -453,13 +439,12 @@
                                                 <span class={variedad.saldoClass}>{variedad.saldoTexto}</span>
                                             </div>
                                         </div>
-                                        <button type="button" class="cgv-btn cgv-btn-ghost cgv-btn-block" data-id={variedad.id} data-marca={variedad.marcaId} onclick={handleDetalle}>Ver detalle ›</button>
                                     </div>
                                 </article>
                             </template>
                         </article>
                     </template>
-                    <p class="cgv-note cgv-note-foot cgv-solo-movil">Los saldos se calculan por variedad: un saldo positivo no compensa el negativo de otra.</p>
+                    <p class="cgv-note cgv-note-foot cgv-solo-movil" if:true={mostrarCifras}>Cada variedad lleva su propio saldo, así que lo que sobra en una no cubre lo que falta en otra.</p>
                 </template>
             </section>
         </template>
