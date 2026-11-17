@@ -12,7 +12,7 @@ import singleLicenseJWTSigner from '@salesforce/apex/CustomJWTSigner.singleLicen
 import uId from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
-import { redirectToSglWithToken } from 'c/utils';
+import { redirectToSglWithToken, buildSglLicenseHref } from 'c/utils';
 import { trackGa4Event, buildHtCompraConfirmadaParams } from 'c/portalGa4Events';
 import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
 
@@ -63,7 +63,7 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
 
     columns = [
         { label: 'Fecha', fieldName: 'fecha' },
-        { label: 'Código', fieldName: 'name', type: 'link' },
+        { label: 'Código', fieldName: 'name', type: 'link', hrefField: 'sglHref' },
         { label: 'CUIT', fieldName: 'cuit' },
         { label: 'Razón social', fieldName: 'productor' },
         { label: 'Marca', fieldName: 'marca' },
@@ -523,7 +523,8 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
                 statusTone: licenseStatusTone(estadoVisual),
                 emailDisplay: email || '—',
                 telefonoDisplay: telefono || '—',
-                emailValueClass: email ? 'email-link' : ''
+                emailValueClass: email ? 'email-link' : '',
+                sglHref: buildSglLicenseHref(l.id || l.Id)
             };
         });
     }

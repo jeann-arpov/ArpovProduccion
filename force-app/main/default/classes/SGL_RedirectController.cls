@@ -5,12 +5,14 @@ public class SGL_RedirectController {
   public String userId { get; set; }
   public String contactId { get; set; }
   public String licenseId { get; set; }
+  public String returnUrl { get; set; }
 
   public SGL_RedirectController() {
     // obtener los parámetros desde la URL
     userId = ApexPages.currentPage().getParameters().get('userId');
     contactId = ApexPages.currentPage().getParameters().get('contactId');
     licenseId = ApexPages.currentPage().getParameters().get('licenseId');
+    returnUrl = ApexPages.currentPage().getParameters().get('returnUrl');
     targetUrl = getUrl();
   }
 
@@ -32,7 +34,23 @@ public class SGL_RedirectController {
   }
 
   public void init() {
-    jwtToken = singleLicenseJWTSigner(userId, contactId, licenseId);
+    String uid = userId;
+    String cid = contactId;
+    if (String.isBlank(uid) || String.isBlank(cid)) {
+      User runningUser = [
+        SELECT Id, ContactId
+        FROM User
+        WHERE Id = :UserInfo.getUserId()
+        LIMIT 1
+      ];
+      if (String.isBlank(uid)) {
+        uid = runningUser.Id;
+      }
+      if (String.isBlank(cid)) {
+        cid = runningUser.ContactId;
+      }
+    }
+    jwtToken = singleLicenseJWTSigner(uid, cid, licenseId);
   }
 
   @AuraEnabled
