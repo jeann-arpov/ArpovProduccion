@@ -186,6 +186,11 @@
     overflow-wrap: anywhere;
 }
 
+a.lic-code {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .lic-grid {
     display: flex;
     flex-direction: column;

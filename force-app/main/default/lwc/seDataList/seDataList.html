@@ -55,6 +55,9 @@
                             <tr key={row.key}>
                                 <template for:each={row.cells} for:item="cell">
                                     <td key={cell.key} class={cell.tdClass}>
+                                        <template if:true={cell.isHrefLink}>
+                                            <a class="link" href={cell.linkHref} data-key={row.key} onclick={handleOpen}>{cell.value}</a>
+                                        </template>
                                         <template if:true={cell.isLink}>
                                             <button class="link" type="button" data-key={row.key} disabled={row.actionDisabled} onclick={handleOpen}>
                                                 {cell.value}
@@ -121,7 +124,12 @@
                 <template for:each={items} for:item="row">
                     <article class="lic-card" key={row.mobileKey}>
                         <div class="lic-head">
-                            <span class="lic-code">{row.title}</span>
+                            <template if:true={row.titleHref}>
+                                <a class="lic-code" href={row.titleHref} data-key={row.key} onclick={handleOpen}>{row.title}</a>
+                            </template>
+                            <template if:false={row.titleHref}>
+                                <span class="lic-code">{row.title}</span>
+                            </template>
                             <span class="badge-cell">
                                 <c-se-badge label={row.badgeLabel} tone={row.badgeTone} show-dot></c-se-badge>
                                 <template if:true={row.badgeHint}>

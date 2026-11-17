@@ -8,13 +8,22 @@
   <script>
     var token = "{!JSENCODE(jwtToken)}";
     var targetUrl = "{!JSENCODE(targetUrl)}";
+    var returnUrl = "{!JSENCODE(returnUrl)}";
+    var back = window.location.href;
+    if (returnUrl) {
+      try {
+        if (new URL(returnUrl, window.location.origin).origin === window.location.origin) {
+          back = returnUrl;
+        }
+      } catch (e) {}
+    }
     if (token && targetUrl) {
       var redirectUrl =
         targetUrl +
         "?token=" +
         encodeURIComponent(token) +
         "&url=" +
-        encodeURIComponent(window.location.href);
+        encodeURIComponent(back);
       window.location.replace(redirectUrl);
     }
   </script>

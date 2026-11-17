@@ -120,7 +120,7 @@ Incluye funcionalidades de filtrado, búsqueda, paginación y generación de rep
                                 <td>{l.fecha}</td>
                                 <td>
                                     <!-- Enlace para ver detalles de la licencia -->
-                                    <a href="javascript:void(0)"
+                                    <a href={l.sglHref}
                                     class="compra-link"
                                     data-id={l.id}
                                     onclick={handleRowAction}>

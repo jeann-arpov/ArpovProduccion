@@ -8,6 +8,8 @@ export default class SeDataList extends LightningElement {
     @api columns = [];
     @api mobileFields = [];
     @api titleField = 'title';
+    /** Campo de la fila con una URL real para el título mobile (código). */
+    @api titleHrefField = '';
     @api badgeField = 'statusLabel';
     @api badgeToneField = 'statusTone';
     @api keyField = 'id';
@@ -139,6 +141,7 @@ export default class SeDataList extends LightningElement {
                 key,
                 mobileKey: `m-${key}`,
                 title: record[this.titleField],
+                titleHref: this.titleHrefField ? record[this.titleHrefField] || '' : '',
                 badgeLabel: record[this.badgeField],
                 badgeTone: tone,
                 badgeHint: this.badgeHintField ? String(record[this.badgeHintField] || '').trim() : '',
@@ -156,11 +159,15 @@ export default class SeDataList extends LightningElement {
                     const rawValue = record[col.fieldName];
                     const mailtoHref =
                         type === 'mailto' && rawValue ? `mailto:${String(rawValue).trim()}` : '';
+                    const linkHref =
+                        type === 'link' && col.hrefField ? record[col.hrefField] || '' : '';
                     const isAction = type === 'action';
                     return {
                         key: `${key}-c${index}`,
                         value: rawValue,
-                        isLink: type === 'link',
+                        isLink: type === 'link' && !linkHref,
+                        isHrefLink: type === 'link' && Boolean(linkHref),
+                        linkHref,
                         isMailto: type === 'mailto' && Boolean(mailtoHref),
                         mailtoHref,
                         isBadge: type === 'badge',
@@ -263,6 +270,18 @@ export default class SeDataList extends LightningElement {
     }
 
     handleOpen(event) {
+        const modified =
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey ||
+            (typeof event.button === 'number' && event.button !== 0);
+        if (event.currentTarget.tagName === 'A' && modified) {
+            return;
+        }
+        if (event.currentTarget.tagName === 'A') {
+            event.preventDefault();
+        }
         this.dispatchRowAction('open', event.currentTarget.dataset.key);
     }
 

@@ -159,6 +159,38 @@ function getMobilePhoneError(value) {
     return '';
 }
 
+function isModifiedClick(event) {
+    if (!event) return false;
+    return Boolean(
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        (typeof event.button === 'number' && event.button !== 0)
+    );
+}
+
+/**
+ * Vínculo real a la licencia. La página Visualforce arma el token con la sesión
+ * y redirige a SGL, así el navegador puede abrirla en otra pestaña.
+ */
+function buildSglLicenseHref(licenseId, returnUrl) {
+    if (!licenseId) return '';
+    const path = window.location.pathname || '';
+    const nested = path.indexOf('/s/');
+    let prefix = '';
+    if (nested >= 0) {
+        prefix = path.substring(0, nested);
+    } else if (path.endsWith('/s')) {
+        prefix = path.slice(0, -2);
+    }
+    const params = new URLSearchParams({
+        licenseId: String(licenseId),
+        returnUrl: returnUrl || window.location.href
+    });
+    return `${prefix}/apex/SGL_Redirectpage?${params.toString()}`;
+}
+
 /**
  * Redirige a SGL por GET con el token cifrado.
  * Misma pestaña: standard__webPage abre URLs externas en ventana nueva.
@@ -174,4 +206,4 @@ function redirectToSglWithToken(navContext, actionUrl, token, returnUrl) {
     window.open(url, '_self');
 }
 
-export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, redirectToSglWithToken, getMobilePhoneError}
+export {reduceErrors, validateInputs, getRecordFromInputs, getRecordsFromForms, errorEvent, warningEvent, getPageParameter, doRequest, normalizeCuit, formatCuit, redirectToSglWithToken, getMobilePhoneError, isModifiedClick, buildSglLicenseHref}
