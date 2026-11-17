@@ -87,6 +87,7 @@ private class CuentaGranariaVarietalTest {
         Account productor = [SELECT Id, Name, N_CUIT__c FROM Account WHERE Name = 'productor' ORDER BY CreatedDate DESC LIMIT 1];
         CrearCompraController.acc = productor;
         Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Z9_Clave_Unica__c = 'CGV-TRIGO-2025' LIMIT 1];
+        CuentaGranaria.usarCreditoVarietalGuardado = false;
 
         Test.startTest();
         CuentaGranaria.ResumenVarietal resumen = CuentaGranaria.getResumenVarietal(campana.Id, 'RR1/RR2 - BT/Convencional');
@@ -178,6 +179,100 @@ private class CuentaGranariaVarietalTest {
         System.assertEquals(resumen.toneladasARegularizar, regularizar.toneladas);
         System.assert(regularizar.variedades.contains('Meteoro CGV'));
         System.assertEquals(0, CuentaGranaria.getRegularizarPorCampana(new List<Id>(), null).size());
+    }
+
+    @isTest
+    static void usaCreditoGuardadoDeDetalle() {
+        Account productor = [SELECT Id FROM Account WHERE Name = 'productor' ORDER BY CreatedDate DESC LIMIT 1];
+        CrearCompraController.acc = productor;
+        Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Z9_Clave_Unica__c = 'CGV-TRIGO-2025' LIMIT 1];
+        Variedad__c donMario = [SELECT Id FROM Variedad__c WHERE Name = 'Don Mario CGV' LIMIT 1];
+        Variedad__c meteoro = [SELECT Id FROM Variedad__c WHERE Name = 'Meteoro CGV' LIMIT 1];
+        Cuenta_Granaria__c cg = [SELECT Id FROM Cuenta_Granaria__c WHERE Campania__c = :campana.Id LIMIT 1];
+        CuentaGranaria.usarCreditoVarietalGuardado = true;
+
+        insert new List<Detalle_Variedad_CG__c>{
+            new Detalle_Variedad_CG__c(
+                Cuenta_Granaria__c = cg.Id,
+                Variedad__c = donMario.Id,
+                Credito_Variedad__c = 48,
+                Clave_Varietal__c = String.valueOf(cg.Id) + '|' + String.valueOf(donMario.Id)
+            ),
+            new Detalle_Variedad_CG__c(
+                Cuenta_Granaria__c = cg.Id,
+                Variedad__c = meteoro.Id,
+                Credito_Variedad__c = -10,
+                Clave_Varietal__c = String.valueOf(cg.Id) + '|' + String.valueOf(meteoro.Id)
+            )
+        };
+
+        Test.startTest();
+        CuentaGranaria.ResumenVarietal resumen = CuentaGranaria.getResumenVarietal(campana.Id, 'RR1/RR2 - BT/Convencional');
+        CuentaGranaria.DetalleVariedad detalle = CuentaGranaria.getDetalleVarietal(
+            campana.Id,
+            donMario.Id,
+            'RR1/RR2 - BT/Convencional'
+        );
+        Map<Id, CuentaGranaria.RegularizarCampana> porCampana = CuentaGranaria.getRegularizarPorCampana(
+            new List<Id>{ campana.Id },
+            'RR1/RR2 - BT/Convencional'
+        );
+        Test.stopTest();
+
+        CuentaGranaria.VariedadPortal donMarioPortal;
+        for (CuentaGranaria.MarcaPortal marca : resumen.marcas) {
+            for (CuentaGranaria.VariedadPortal variedad : marca.variedades) {
+                if (variedad.nombre == 'Don Mario CGV') {
+                    donMarioPortal = variedad;
+                }
+            }
+        }
+        System.assertNotEquals(null, donMarioPortal);
+        System.assertEquals(48, donMarioPortal.credito);
+        System.assertEquals(200, donMarioPortal.debito, 'La anulación SF entra como débito aunque el crédito salga del detalle guardado');
+        System.assertEquals(-152, donMarioPortal.saldo);
+        System.assertEquals(500, detalle.credito, 'El detalle cierra con las filas, no con el crédito guardado');
+        System.assertEquals(200, detalle.debito);
+        System.assertEquals(300, detalle.saldo);
+        System.assertNotEquals(null, porCampana.get(campana.Id));
+        System.assert(porCampana.get(campana.Id).variedades.contains('Meteoro CGV'));
+        System.assert(porCampana.get(campana.Id).variedades.contains('Don Mario CGV'));
+    }
+
+    @isTest
+    static void creditosUsaFechaDeCreacionYOrden() {
+        Account productor = [SELECT Id FROM Account WHERE Name = 'productor' ORDER BY CreatedDate DESC LIMIT 1];
+        CrearCompraController.acc = productor;
+        Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Z9_Clave_Unica__c = 'CGV-TRIGO-2025' LIMIT 1];
+        Variedad__c catalpa = [SELECT Id FROM Variedad__c WHERE Name = 'Catalpa CGV' LIMIT 1];
+        CuentaGranaria.usarCreditoVarietalGuardado = false;
+
+        Tonelada__c compraSf = [
+            SELECT Id, CreatedDate, Fecha_Inicio__c
+            FROM Tonelada__c
+            WHERE Variedad__c = :catalpa.Id
+                AND Origen__c = 'Compra SF'
+                AND Cantidad_con_Signo__c > 0
+            LIMIT 1
+        ];
+
+        Test.startTest();
+        CuentaGranaria.DetalleVariedad detalle = CuentaGranaria.getDetalleVarietal(
+            campana.Id,
+            catalpa.Id,
+            'RR1/RR2 - BT/Convencional'
+        );
+        Test.stopTest();
+
+        CuentaGranaria.MovimientoPortal creditoSf;
+        for (CuentaGranaria.MovimientoPortal mov : detalle.creditos) {
+            if (mov.origen == 'Semilla Fiscalizada' && mov.toneladas == 1000) {
+                creditoSf = mov;
+            }
+        }
+        System.assertNotEquals(null, creditoSf);
+        System.assertEquals(compraSf.CreatedDate.date(), creditoSf.fecha, 'La lista usa la fecha de creación');
+        System.assertNotEquals(compraSf.Fecha_Inicio__c, creditoSf.fecha, 'No usa Fecha Inicio de la vigencia');
     }
 
     @isTest

@@ -374,7 +374,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
             }),
             totalCreditosTexto: this.formatoFirmado(this.detalle.totalCreditos),
             totalDebitosTexto: this.formatoFirmado(-this.totalDebitosNoEntrega(this.detalle)),
-            totalDebitadoTexto: this.formato(this.detalle.totalDebitado) + ' t',
+            totalDebitadoTexto: this.formatoFirmado(-(Number(this.detalle.totalDebitado) || 0)),
             sinCreditos: !(this.detalle.creditos || []).length,
             sinDebitos: !(this.detalle.debitos || []).length,
             sinEntregas: !(this.detalle.entregas || []).length
@@ -860,12 +860,12 @@ export default class CuentaGranariaVarietal extends LightningElement {
             });
             await ensureXlsxLoaded(this);
             const rows = (filas || []).map((mov) => ({
-                Fecha: this.fecha(mov.fecha),
+                Fecha: this.fechaExcel(mov.fecha),
                 Marca: mov.marca || '',
                 Variedad: mov.variedad || '',
                 CTG: mov.ctg || '',
-                'Kg netos': mov.kgNetos == null ? '' : mov.kgNetos,
-                Toneladas: mov.toneladas == null ? '' : mov.toneladas
+                'Kg netos': mov.kgNetos == null ? '' : Number(mov.kgNetos),
+                Toneladas: mov.toneladas == null ? '' : Number(mov.toneladas)
             }));
             const periodo = (this.campaniaLabel || 'campania').replace(/\//g, '-');
             downloadVentasWorkbook(
@@ -891,11 +891,11 @@ export default class CuentaGranariaVarietal extends LightningElement {
             const creditos = (vista.creditos || []).map((mov) => this.filaMovimientoExcel(mov));
             const debitos = (vista.debitos || []).map((mov) => this.filaMovimientoExcel(mov));
             const entregas = (vista.entregas || []).map((mov) => ({
-                Fecha: mov.fechaTexto,
+                Fecha: this.fechaExcel(mov.fecha),
                 CTG: mov.ctg || '',
-                'Kg netos': mov.kgNetos == null ? '' : mov.kgNetos,
+                'Kg netos': mov.kgNetos == null ? '' : Number(mov.kgNetos),
                 '% de la variedad': this.porcentajeEntrega(mov),
-                Toneladas: mov.toneladas == null ? '' : mov.toneladas
+                Toneladas: mov.toneladas == null ? '' : Number(mov.toneladas)
             }));
             if (creditos.length) {
                 hojas.push({ name: 'Créditos', headers: MOVIMIENTO_HEADERS, rows: creditos });
@@ -924,11 +924,23 @@ export default class CuentaGranariaVarietal extends LightningElement {
 
     filaMovimientoExcel(mov) {
         return {
-            Fecha: mov.fechaTexto,
+            Fecha: this.fechaExcel(mov.fecha),
             Origen: mov.origen || '',
-            HT: mov.ht == null ? '' : mov.ht,
-            Toneladas: mov.toneladas == null ? '' : mov.toneladas
+            HT: mov.ht == null || mov.ht === '' ? '' : Number(mov.ht),
+            Toneladas: mov.toneladas == null || mov.toneladas === '' ? '' : Number(mov.toneladas)
         };
+    }
+
+    fechaExcel(value) {
+        if (!value) return '';
+        if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+        const partes = String(value).slice(0, 10).split('-');
+        if (partes.length < 3) return value;
+        const anio = Number(partes[0]);
+        const mes = Number(partes[1]);
+        const dia = Number(partes[2]);
+        if (!anio || !mes || !dia) return value;
+        return new Date(anio, mes - 1, dia);
     }
 
     paramsGa4() {
