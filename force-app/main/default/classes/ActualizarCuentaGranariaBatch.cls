@@ -371,7 +371,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 WHERE IsDeleted = false
                     AND ParentId = null
                     AND (RecordType.Name = 'Productor' OR RecordType.Name = 'Distribuidor'
-                        OR RecordType.Name = 'Comercio')
+                        OR RecordType.Name = 'Comercio' OR RecordType.Name = 'Obtentor')
                     AND Id IN :this.productoresIds
             ]);
         }
@@ -384,7 +384,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 WHERE IsDeleted = false
                     AND ParentId = null
                     AND (RecordType.Name = 'Productor' OR RecordType.Name = 'Distribuidor'
-                        OR RecordType.Name = 'Comercio')
+                        OR RecordType.Name = 'Comercio' OR RecordType.Name = 'Obtentor')
                     AND Id = :this.productorId
             ]);
         }
@@ -396,12 +396,17 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             WHERE IsDeleted = false
                 AND ParentId = null
                 AND (RecordType.Name = 'Productor' OR RecordType.Name = 'Distribuidor'
-                    OR RecordType.Name = 'Comercio')
+                    OR RecordType.Name = 'Comercio' OR RecordType.Name = 'Obtentor')
         ]);
     }
     
     global void execute(Database.BatchableContext bc, List<Account> productores) {
         System.debug('=== EXECUTE - Procesando ' + productores.size() + ' productores ===');
+        productores = filtrarCuentasParaCuentaGranaria(productores);
+        if (productores.isEmpty()) {
+            System.debug('No quedan cuentas habilitadas para cuenta granaria');
+            return;
+        }
         
         try {
             // 1. Obtener campañas a procesar
@@ -503,6 +508,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             List<Cuenta_Granaria__c> cuentasAUpsert = prepararCuentasGranarias(todosSaldos);
             
             System.debug('Cuentas a hacer upsert: ' + cuentasAUpsert.size());
+            completarClaveEnCuentasExistentes(cuentasAUpsert);
             
             // 6. Ejecutar upsert
             if (!cuentasAUpsert.isEmpty()) {
@@ -1930,6 +1936,121 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
         return productorId + '||' + cultivoId + '|' + tecnologia;
     }
 
+    /**
+     * Obtentor de SRE: tiene variedades con Sembra_Evolucion__c = false
+     * y ninguna con Sembra_Evolucion__c = true. El obtentor de Sembrá Evolución queda afuera.
+     */
+    private Set<Id> obtentoresSre(Set<Id> accountIds) {
+        Set<Id> obtentores = new Set<Id>();
+        if (accountIds == null || accountIds.isEmpty()) {
+            return obtentores;
+        }
+        for (Account cuenta : [
+            SELECT Id
+            FROM Account
+            WHERE Id IN :accountIds
+                AND ParentId = null
+                AND RecordType.Name = 'Obtentor'
+        ]) {
+            obtentores.add(cuenta.Id);
+        }
+        if (obtentores.isEmpty()) {
+            return obtentores;
+        }
+
+        Set<Id> conSe = new Set<Id>();
+        Set<Id> conSre = new Set<Id>();
+        for (Variedad__c variedad : [
+            SELECT Obtentor_Comercializa__c, Sembra_Evolucion__c
+            FROM Variedad__c
+            WHERE Obtentor_Comercializa__c IN :obtentores
+        ]) {
+            if (variedad.Sembra_Evolucion__c == true) {
+                conSe.add(variedad.Obtentor_Comercializa__c);
+            } else if (variedad.Sembra_Evolucion__c == false) {
+                conSre.add(variedad.Obtentor_Comercializa__c);
+            }
+        }
+        conSre.removeAll(conSe);
+        return conSre;
+    }
+
+    private List<Account> filtrarCuentasParaCuentaGranaria(List<Account> cuentas) {
+        List<Account> habilitadas = new List<Account>();
+        if (cuentas == null || cuentas.isEmpty()) {
+            return habilitadas;
+        }
+        Set<Id> ids = new Map<Id, Account>(cuentas).keySet();
+        Set<Id> sre = obtentoresSre(ids);
+        for (Account cuenta : [
+            SELECT Id, Name, RecordType.Name
+            FROM Account
+            WHERE Id IN :ids
+                AND ParentId = null
+        ]) {
+            String tipo = cuenta.RecordType.Name;
+            if (tipo == 'Productor' || tipo == 'Distribuidor' || tipo == 'Comercio' || sre.contains(cuenta.Id)) {
+                habilitadas.add(cuenta);
+            }
+        }
+        return habilitadas;
+    }
+
+    /**
+     * CG viejas de obtentor quedaron sin Clave_Unica__c. Si el upsert no la encuentra,
+     * crea otra cuenta para el mismo productor, campaña, cultivo y tecnología.
+     */
+    private void completarClaveEnCuentasExistentes(List<Cuenta_Granaria__c> cuentas) {
+        if (cuentas == null || cuentas.isEmpty()) {
+            return;
+        }
+        Set<Id> prodIds = new Set<Id>();
+        Set<Id> cultIds = new Set<Id>();
+        for (Cuenta_Granaria__c cuenta : cuentas) {
+            if (cuenta.Productor__c != null) {
+                prodIds.add(cuenta.Productor__c);
+            }
+            if (cuenta.Cultivo__c != null) {
+                cultIds.add(cuenta.Cultivo__c);
+            }
+        }
+        if (prodIds.isEmpty() || cultIds.isEmpty()) {
+            return;
+        }
+
+        Map<String, Cuenta_Granaria__c> sinClavePorClave = new Map<String, Cuenta_Granaria__c>();
+        for (Cuenta_Granaria__c cg : [
+            SELECT Id, Productor__c, Campania__c, Cultivo__c, Tecnologia__c
+            FROM Cuenta_Granaria__c
+            WHERE Productor__c IN :prodIds
+                AND Cultivo__c IN :cultIds
+                AND Clave_Unica__c = null
+        ]) {
+            String clave = cg.Productor__c + '|'
+                + (cg.Campania__c == null ? '' : String.valueOf(cg.Campania__c)) + '|'
+                + cg.Cultivo__c + '|' + cg.Tecnologia__c;
+            if (!sinClavePorClave.containsKey(clave)) {
+                sinClavePorClave.put(clave, cg);
+            }
+        }
+        if (sinClavePorClave.isEmpty()) {
+            return;
+        }
+
+        List<Cuenta_Granaria__c> aActualizar = new List<Cuenta_Granaria__c>();
+        for (Cuenta_Granaria__c cuenta : cuentas) {
+            Cuenta_Granaria__c existente = sinClavePorClave.remove(cuenta.Clave_Unica__c);
+            if (existente == null) {
+                continue;
+            }
+            existente.Clave_Unica__c = cuenta.Clave_Unica__c;
+            aActualizar.add(existente);
+        }
+        if (!aActualizar.isEmpty()) {
+            update aActualizar;
+        }
+    }
+
     global void finish(Database.BatchableContext bc) {
         System.debug('=== FINISH ActualizarCuentaGranariaBatch ===');
         System.debug('========================================');
@@ -1980,27 +2101,30 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
                 if (tn.Cultivo__c != null) cultivosIds.add(tn.Cultivo__c);
             }
             
-            // Excluir Obtentor y sucursales (ParentId / Cuenta principal != null):
-            // no se les crea CG ni expedientes
+            // Sucursal y obtentor de Sembrá Evolución no generan CG.
+            // El obtentor SRE (variedades con Sembra_Evolucion__c = false y ninguna en true)
+            // se procesa igual que un productor: se crea la CG y se asigna la TN.
             if (!productoresIds.isEmpty()) {
+                Set<Id> obtentoresSreIds = obtentoresSre(productoresIds);
                 Set<Id> cuentasAExcluir = new Set<Id>();
                 for (Account cuenta : [
-                    SELECT Id
+                    SELECT Id, RecordType.Name, ParentId
                     FROM Account
                     WHERE Id IN :productoresIds
-                        AND (
-                            RecordType.Name = 'Obtentor'
-                            OR ParentId != null
-                        )
                 ]) {
-                    cuentasAExcluir.add(cuenta.Id);
+                    Boolean sucursal = cuenta.ParentId != null;
+                    Boolean obtentorNoSre = cuenta.RecordType.Name == 'Obtentor'
+                        && !obtentoresSreIds.contains(cuenta.Id);
+                    if (sucursal || obtentorNoSre) {
+                        cuentasAExcluir.add(cuenta.Id);
+                    }
                 }
                 if (!cuentasAExcluir.isEmpty()) {
                     productoresIds.removeAll(cuentasAExcluir);
-                    System.debug('Cuentas Obtentor/sucursal excluidas del procesamiento: ' + cuentasAExcluir.size());
+                    System.debug('Cuentas SE/sucursal excluidas del procesamiento: ' + cuentasAExcluir.size());
                 }
                 if (productoresIds.isEmpty()) {
-                    System.debug('No quedan productores válidos tras excluir Obtentor/sucursales');
+                    System.debug('No quedan productores válidos tras excluir obtentores SE y sucursales');
                     return;
                 }
             }
@@ -2082,6 +2206,7 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
             // 6. Preparar cuentas para upsert
             List<Cuenta_Granaria__c> cuentasAUpsert = prepararCuentasGranarias(todosSaldos);
             System.debug('Cuentas a upsert: ' + cuentasAUpsert.size());
+            completarClaveEnCuentasExistentes(cuentasAUpsert);
             
             // 7. Ejecutar upsert
             if (!cuentasAUpsert.isEmpty()) {
