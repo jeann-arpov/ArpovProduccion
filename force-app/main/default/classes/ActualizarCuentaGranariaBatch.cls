@@ -730,6 +730,8 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
         Set<Id> cultivosIds
     ) {
         Map<String, Decimal> saldosPorClave = new Map<String, Decimal>();
+        // SE-345: excluye cultivos varietales (trigo varietal) del recálculo de
+        // saldos legacy; esos saldos los maneja CuentaGranariaVarietalCreditoService.
         Set<String> cultivosVarietales = CuentaGranariaVarietalCreditoService.obtenerCultivosVarietales();
         System.debug('=== calcularSaldosToneladas ===');
         System.debug('Productores: ' + productoresIds + ' | Campañas: ' + campanasIds + ' | Cultivos: ' + cultivosIds);
@@ -2172,6 +2174,8 @@ global class ActualizarCuentaGranariaBatch implements Database.Batchable<SObject
     private void recalcularSaldosCuentas(Map<String, Id> claveACuentaId) {
         System.debug('========== recalcularSaldosCuentas ==========');
         System.debug('Claves recibidas: ' + claveACuentaId.size());
+        // SE-345: las cuentas varietales (cultivo varietal + tecnología
+        // RR1/RR2 - BT/Convencional) se excluyen de este recálculo legacy.
         Set<String> cultivosVarietales = CuentaGranariaVarietalCreditoService.obtenerCultivosVarietales();
         String tecnologiaVarietal = CuentaGranariaVarietalCreditoService.TECNOLOGIA;
         Set<Id> cuentaIds = new Set<Id>(claveACuentaId.values());

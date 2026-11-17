@@ -1,3 +1,7 @@
+/**
+ * Test del backfill de crédito/saldo varietal (RecalcularCreditoVarietalBatch):
+ * 5 HT x 4 t = crédito y saldo de 20 t.
+ */
 @isTest
 private class RecalcularCreditoVarietalBatchTest {
   @isTest

@@ -1,5 +1,12 @@
+/**
+ * Tests del servicio de expedientes de negativos varietales: apertura con saldo
+ * por debajo del umbral y cierre al regularizar.
+ */
 @isTest
 private class CuentaGranariaVarietalExpedienteTest {
+  /**
+   * Datos base: cultivo, campaña, productor, variedad y sub-cuenta con saldo -20.
+   */
   @testSetup
   static void setup() {
     Test_TestUtils.disableFlows();
@@ -48,6 +55,10 @@ private class CuentaGranariaVarietalExpedienteTest {
     );
   }
 
+  /**
+   * Verifica que se abra un expediente con nombre EXP-<CUIT>... para la
+   * sub-cuenta con saldo negativo.
+   */
   @isTest
   static void testAperturaExpedienteVarietal() {
     Variedad__c variedad = [SELECT Id FROM Variedad__c LIMIT 1];
@@ -78,6 +89,9 @@ private class CuentaGranariaVarietalExpedienteTest {
     System.assertEquals('No empezado', exps[0].Estado_de_la_Etapa__c);
   }
 
+  /**
+   * Verifica que al regularizar el saldo (>= umbral) el expediente se finalice.
+   */
   @isTest
   static void testCierreExpedienteRegularizado() {
     Detalle_Variedad_CG__c subCuenta = [

@@ -1,7 +1,27 @@
+/**
+ * Batch que procesa el DÉBITO varietal (SE-345).
+ *
+ * Recorre los camiones de Movimiento_BolsaTech__c de cultivos varietales
+ * (Cultivo_Varietal__c = true) que están 'A procesar' y sin No_Debitar__c,
+ * y por cada uno:
+ *   1. Levanta sus líneas varietales (Detalle_Variedad_MBT__c).
+ *   2. Resuelve cultivo y campaña agrícola.
+ *   3. Delega en CuentaGranariaVarietalDebitService.procesarDebito() la
+ *      creación de Tonelada__c negativas por variedad (Origen 'Escáner varietal').
+ *   4. Marca el camión 'Procesado' (o 'Con error' si falla).
+ *   5. Al final del execute, dispara la apertura/cierre de expedientes de
+ *      negativos varietales (CuentaGranariaVarietalExpedienteService).
+ *
+ * También es Schedulable: al ejecutarse encola el batch con scope 200.
+ */
 public with sharing class ActualizarCuentaGranariaVarietalBatch implements Database.Batchable<SObject>, Database.Stateful, Schedulable {
   private Integer camionesProcesados = 0;
   private Integer errores = 0;
 
+  /**
+   * QueryLocator de camiones a debitar.
+   * En test trae todos; en producción filtra varietales 'A procesar' sin No_Debitar.
+   */
   public Database.QueryLocator start(Database.BatchableContext bc) {
     if (Test.isRunningTest()) {
       return Database.getQueryLocator(
@@ -23,6 +43,11 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
     );
   }
 
+  /**
+   * Procesa cada scope de camiones: arma las líneas varietales, resuelve
+   * cultivo/campaña, invoca el débito y actualiza el estado de cada camión.
+   * Al final dispara apertura/cierre de expedientes varietales.
+   */
   public void execute(
     Database.BatchableContext bc,
     List<Movimiento_BolsaTech__c> movimientos
@@ -132,6 +157,9 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
     CuentaGranariaVarietalExpedienteService.procesarAperturasYCierres();
   }
 
+  /**
+   * Log de cierre del batch con los contadores de camiones procesados y errores.
+   */
   public void finish(Database.BatchableContext bc) {
     System.debug(
       'ActualizarCuentaGranariaVarietalBatch: procesados=' +
@@ -141,10 +169,17 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
     );
   }
 
+  /**
+   * Implementación Schedulable: encola el batch con scope 200.
+   */
   public void execute(SchedulableContext sc) {
     Database.executeBatch(new ActualizarCuentaGranariaVarietalBatch(), 200);
   }
 
+  /**
+   * Resuelve la Campana_Agricola__c a partir del cultivo y el año de cosecha
+   * (texto), devolviendo null si no se encuentra.
+   */
   private static Id resolverCampana(Id cultivoId, String anio) {
     if (String.isBlank(anio)) {
       return null;

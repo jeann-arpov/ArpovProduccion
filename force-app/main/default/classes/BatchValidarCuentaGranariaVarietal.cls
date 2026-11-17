@@ -1,6 +1,17 @@
+/**
+ * Batch de VALIDACIÓN de camiones varietales (trigo, SE-345).
+ *
+ * Toma los Movimiento_BolsaTech__c varietales en estado 'Creado' (o 'Con error'
+ * modificado en las últimas 24hs para reintentar) y delega en
+ * CuentaGranariaVarietalValidator.validate(). Al terminar encadena el débito
+ * lanzando ActualizarCuentaGranariaVarietalBatch, y envía email con los errores.
+ */
 public class BatchValidarCuentaGranariaVarietal implements Database.Batchable<SObject>, Database.Stateful {
   List<String> errors = new List<String>();
 
+  /**
+   * QueryLocator de camiones varietales a validar.
+   */
   public Database.QueryLocator start(Database.BatchableContext bc) {
     return Database.getQueryLocator(
       [
@@ -23,6 +34,9 @@ public class BatchValidarCuentaGranariaVarietal implements Database.Batchable<SO
     );
   }
 
+  /**
+   * Valida cada camión del scope y acumula los errores del update.
+   */
   public void execute(
     Database.BatchableContext bc,
     List<Movimiento_BolsaTech__c> scope
@@ -33,6 +47,10 @@ public class BatchValidarCuentaGranariaVarietal implements Database.Batchable<SO
     );
   }
 
+  /**
+   * Envía email con los errores acumulados y encadena el débito varietal
+   * (ActualizarCuentaGranariaVarietalBatch) para los camiones que quedaron 'A procesar'.
+   */
   public void finish(Database.BatchableContext bc) {
     BatchErrorHelper.sendEmail(
       bc.getJobId(),

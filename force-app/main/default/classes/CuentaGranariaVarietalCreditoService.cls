@@ -1,4 +1,20 @@
+/**
+ * Servicio de CRÉDITO por variedad (SE-345).
+ *
+ * Centraliza el cálculo y persistencia del crédito varietal de una Cuenta
+ * Granaria, que surge de las Hectáreas Tecnológicas (HT) en etapas de crédito
+ * (Cobrada, Cancelada por NC, Acreditada, Reacreditada, Recibida, Cedida) y de
+ * la devolución por Nota de Crédito (Aplicada + HT original Cancelada por NC).
+ *
+ * El saldo por variedad se guarda en Detalle_Variedad_CG__c
+ * (Saldo_Variedad__c = crédito + débito) y el Saldo_Cuenta__c de la CG
+ * = débito del escáner varietal + crédito total de las sub-cuentas.
+ */
 public with sharing class CuentaGranariaVarietalCreditoService {
+  /**
+   * DTO que representa un movimiento de crédito para la lista del front
+   * (fecha, origen, HT, tipo y toneladas).
+   */
   public class CreditoVariedad {
     @AuraEnabled
     public String variedadId;
@@ -37,7 +53,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
 
   private static Boolean procesandoCreditos = false;
 
-  // Recalcula y guarda el crédito y el saldo por variedad (crédito de HT + débito de CG).
+  /**
+   * Orquesta el recálculo de crédito y saldo por variedad para una
+   * productor/cultivo/campaña, con protección anti-recursión
+   * (flag procesandoCreditos). Delega el trabajo en recalcularCreditosInterno.
+   */
   public static void recalcularCreditos(
     Id productorId,
     Id cultivoId,
@@ -54,6 +74,14 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     }
   }
 
+  /**
+   * Lógica real del recálculo:
+   *  - Obtiene la Cuenta Granaria varietal del productor/cultivo/campaña.
+   *  - Calcula crédito por variedad (HT) y débito por variedad (escáner).
+   *  - Crea/actualiza/resetea las sub-cuentas Detalle_Variedad_CG__c.
+   *  - Vincula las HT de crédito a su Detalle (related list).
+   *  - Recalcula el Saldo_Cuenta__c de la CG.
+   */
   private static void recalcularCreditosInterno(
     Id productorId,
     Id cultivoId,
@@ -147,6 +175,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     recalcularSaldoCuenta(cgId);
   }
 
+  /**
+   * Vincula las HT de crédito (Compra HT / Compra SF, Signo=1, con variedad)
+   * del productor/cultivo/campaña a su Detalle_Variedad_CG__c correspondiente,
+   * para poblar la related list de compras de la sub-cuenta.
+   */
   private static void vincularHtsAlDetalle(
     Id cgId,
     Id productorId,
@@ -260,6 +293,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     }
   }
 
+  /**
+   * Recalcula el Saldo_Cuenta__c de una CG varietal:
+   * débito del escáner varietal (Tonelada__c negativas, Origen 'Escáner varietal')
+   * + crédito total de sus sub-cuentas (Detalle_Variedad_CG__c.Credito_Variedad__c).
+   */
   public static void recalcularSaldoCuenta(Id cgId) {
     if (cgId == null) {
       return;
@@ -294,6 +332,10 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     );
   }
 
+  /**
+   * Suma el débito por variedad (Tonelada__c negativas de escáner varietal)
+   * de una CG, agrupando por Variedad__c.
+   */
   private static Map<Id, Decimal> calcularDebitoPorVariedad(Id cgId) {
     Map<Id, Decimal> debitoPorVariedad = new Map<Id, Decimal>();
     for (AggregateResult ar : [
@@ -317,7 +359,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     return debitoPorVariedad;
   }
 
-  // Lista de créditos por variedad: fecha, origen, HT, tipo, toneladas.
+  /**
+   * Construye la lista de créditos (CreditoVariedad) para mostrar en el front.
+   * Para devoluciones (Aplicada con HT original) usa la variedad de la original
+   * y aplica el signo a las toneladas.
+   */
   public static List<CreditoVariedad> obtenerCreditos(
     Id productorId,
     Id cultivoId,
@@ -368,6 +414,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     return creditos;
   }
 
+  /**
+   * Calcula el crédito total por variedad sumando Toneladas__c * Signo__c de las
+   * HT en etapas de crédito. Para la devolución (Aplicada + original Cancelada
+   * por NC) usa la variedad de la HT original (resta).
+   */
   private static Map<Id, Decimal> calcularCreditoPorVariedad(
     Id productorId,
     Id cultivoId,
@@ -405,6 +456,10 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     return creditoPorVariedad;
   }
 
+  /**
+   * Localiza la Cuenta Granaria varietal (tecnología RR1/RR2 - BT/Convencional)
+   * del productor/cultivo/campaña; devuelve null si no existe.
+   */
   private static Id obtenerCuentaGranariaId(
     Id productorId,
     Id cultivoId,
@@ -423,6 +478,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     return cgs.isEmpty() ? null : cgs[0].Id;
   }
 
+  /**
+   * Devuelve el conjunto de nombres de cultivos varietales (en mayúsculas)
+   * leídos del Custom Metadata Type Configuracion_Varietal__mdt
+   * (campo Cultivos_Varietales__c separado por comas).
+   */
   public static Set<String> obtenerCultivosVarietales() {
     Set<String> cultivos = new Set<String>();
     for (

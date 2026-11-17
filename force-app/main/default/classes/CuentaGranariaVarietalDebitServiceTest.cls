@@ -1,5 +1,12 @@
+/**
+ * Tests del servicio de débito varietal: umbral de presencia y creación de
+ * débitos por variedad.
+ */
 @isTest
 private class CuentaGranariaVarietalDebitServiceTest {
+  /**
+   * Datos base: cultivo trigo, campaña, productor, tres variedades y CG varietal.
+   */
   @testSetup
   static void setup() {
     Test_TestUtils.disableFlows();
@@ -60,6 +67,9 @@ private class CuentaGranariaVarietalDebitServiceTest {
     );
   }
 
+  /**
+   * Una variedad por debajo del umbral (5%) no genera débito; las otras dos sí.
+   */
   @isTest
   static void testUmbralUnaVariedadNoDebita() {
     Cultivo__c cultivo = [SELECT Id FROM Cultivo__c LIMIT 1];
@@ -119,6 +129,10 @@ private class CuentaGranariaVarietalDebitServiceTest {
     System.assert(!variedadesDebitadas.contains(variedadC.Id));
   }
 
+  /**
+   * Con ambas variedades sobre el umbral, se debitan las dos y el saldo de la
+   * sub-cuenta refleja el débito (50 t → -50).
+   */
   @isTest
   static void testDebitoAmbasSobreUmbral() {
     Cultivo__c cultivo = [SELECT Id FROM Cultivo__c LIMIT 1];

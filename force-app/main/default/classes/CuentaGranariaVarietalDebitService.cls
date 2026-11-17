@@ -1,9 +1,27 @@
+/**
+ * Servicio de DÉBITO varietal (SE-345).
+ *
+ * A partir del peso neto de un camión (escáner varietal) y sus líneas de
+ * variedad con porcentaje, crea las Tonelada__c negativas correspondientes
+ * (Origen 'Escáner varietal', Signo -1, Etapa 'Cobrada') sobre la Cuenta
+ * Granaria varietal del productor/cultivo/campaña.
+ *
+ * Reglas:
+ *  - Umbral de presencia configurable (Configuracion_Varietal__mdt,
+ *    default 10%): variedades por debajo no se debitan.
+ *  - Idempotente por camión: no vuelve a debitar variedades ya debitadas
+ *    para el mismo Mov_BolsaTech__c.
+ *  - Al final recalcula Saldo_Variedad__c de las sub-cuentas y Saldo_Cuenta__c.
+ */
 public with sharing class CuentaGranariaVarietalDebitService {
   private static final String TECNOLOGIA_TRIGO = 'RR1/RR2 - BT/Convencional';
   private static final String BIOTECNOLOGIA_TRIGO = 'Convencional';
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
   private static final Decimal UMBRAL_DEFAULT = 10;
 
+  /**
+   * Representa una línea del escáner: variedad y porcentaje varietal.
+   */
   public class LineaVarietal {
     public Id variedadId;
     public Decimal porcentaje;
@@ -13,6 +31,10 @@ public with sharing class CuentaGranariaVarietalDebitService {
     }
   }
 
+  /**
+   * Resultado del débito: exitoso, sinDebito (ninguna variedad supera umbral),
+   * CG afectada, cantidad de débitos creados, total en toneladas y mensaje.
+   */
   public class ResultadoDebito {
     public Boolean exitoso = false;
     public Boolean sinDebito = false;
@@ -22,6 +44,9 @@ public with sharing class CuentaGranariaVarietalDebitService {
     public String mensaje;
   }
 
+  /**
+   * Sobrecarga sin Mov_BolsaTech__c (delega en la versión completa con mbtId=null).
+   */
   public static ResultadoDebito procesarDebito(
     Id productorId,
     Id campanaId,
@@ -39,6 +64,11 @@ public with sharing class CuentaGranariaVarietalDebitService {
     );
   }
 
+  /**
+   * Núcleo del débito: resuelve CG varietal, aplica umbral de presencia,
+   * descarta variedades ya debitadas para el camión, crea Tonelada__c negativas
+   * por variedad y recalcula Saldo_Variedad__c + Saldo_Cuenta__c.
+   */
   public static ResultadoDebito procesarDebito(
     Id productorId,
     Id campanaId,
@@ -167,12 +197,19 @@ public with sharing class CuentaGranariaVarietalDebitService {
     return resultado;
   }
 
+  /**
+   * Obtiene la Configuracion_Varietal__mdt (o null si no hay registros).
+   */
   private static Configuracion_Varietal__mdt obtenerConfiguracion() {
     List<Configuracion_Varietal__mdt> cfgs = Configuracion_Varietal__mdt.getAll()
       .values();
     return cfgs.isEmpty() ? null : cfgs[0];
   }
 
+  /**
+   * Localiza la Cuenta Granaria varietal (tecnología RR1/RR2 - BT/Convencional)
+   * para el productor/cultivo, priorizando la de la campaña y, si no, la sin campaña.
+   */
   private static Cuenta_Granaria__c obtenerCuentaGranaria(
     Id productorId,
     Id campanaId,
@@ -193,6 +230,9 @@ public with sharing class CuentaGranariaVarietalDebitService {
     return cgs.isEmpty() ? null : cgs[0];
   }
 
+  /**
+   * Devuelve la biotecnología de cada variedad de las líneas (default Convencional).
+   */
   private static Map<Id, String> obtenerBiotecnologiaPorVariedad(
     List<LineaVarietal> lineas
   ) {
@@ -219,6 +259,10 @@ public with sharing class CuentaGranariaVarietalDebitService {
     return resultado;
   }
 
+  /**
+   * Asegura que exista una sub-cuenta Detalle_Variedad_CG__c por variedad
+   * (upsert por Clave_Varietal__c) y devuelve el mapa variedad -> Id de sub-cuenta.
+   */
   private static Map<Id, Id> sincronizarSubCuentas(
     Id cgId,
     List<LineaVarietal> lineas
@@ -257,6 +301,10 @@ public with sharing class CuentaGranariaVarietalDebitService {
     return subCuentaPorVariedad;
   }
 
+  /**
+   * Recalcula el Saldo_Variedad__c de las sub-cuentas debitadas:
+   * débito (Tonelada__c negativas de escáner) + crédito previo (Credito_Variedad__c).
+   */
   private static void recalcularSaldoVariedad(
     Id cgId,
     Set<Id> variedadesDebitadas

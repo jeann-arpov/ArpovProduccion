@@ -1,3 +1,12 @@
+/**
+ * Batch de backfill del crédito/saldo varietal en forma BULKIFICADA (SE-345).
+ *
+ * A diferencia de RecalcularCreditoVarietalBatch (que llama al servicio por cada
+ * CG), éste procesa el scope con pocas queries: calcula crédito por variedad
+ * (desde HT), débito por variedad (desde Tonelada__c de escáner), crea/actualiza/
+ * resetea Detalle_Variedad_CG__c, recalcula Saldo_Cuenta__c y vincula las HT de
+ * crédito a su Detalle. Recomendado para volúmenes altos de datos.
+ */
 public with sharing class RecalcularCreditoVarietalBulkBatch implements Database.Batchable<SObject>, Database.Stateful {
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
   private static final Set<String> ORIGENES_CREDITO = new Set<String>{
@@ -16,6 +25,9 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
   private Integer cuentasProcesadas = 0;
   private Integer errores = 0;
 
+  /**
+   * QueryLocator de cuentas varietales con productor y cultivo.
+   */
   public Database.QueryLocator start(Database.BatchableContext bc) {
     return Database.getQueryLocator(
       [
@@ -29,6 +41,11 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
     );
   }
 
+  /**
+   * Recalcula crédito/saldo de todas las cuentas del scope en bloque:
+   * crédito por variedad, débito por variedad, persistencia de Detalle_Variedad_CG__c,
+   * Saldo_Cuenta__c de cada CG y vínculo de HT de crédito a su Detalle.
+   */
   public void execute(
     Database.BatchableContext bc,
     List<Cuenta_Granaria__c> scope
@@ -283,6 +300,9 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
     cuentasProcesadas += scope.size();
   }
 
+  /**
+   * Log de cierre del batch.
+   */
   public void finish(Database.BatchableContext bc) {
     System.debug(
       'RecalcularCreditoVarietalBulkBatch finalizado: cuentas=' +
@@ -290,6 +310,9 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
     );
   }
 
+  /**
+   * Clave compuesta de una Cuenta Granaria: productor|cultivo|campaña.
+   */
   private static String claveCg(Id productor, Id cultivo, Id campania) {
     return String.valueOf(productor) +
       '|' +
@@ -298,6 +321,9 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
       String.valueOf(campania);
   }
 
+  /**
+   * Clave compuesta de una sub-cuenta por variedad: cgId|variedadId.
+   */
   private static String claveVariedad(Id cgId, Id variedadId) {
     return String.valueOf(cgId) + '|' + String.valueOf(variedadId);
   }

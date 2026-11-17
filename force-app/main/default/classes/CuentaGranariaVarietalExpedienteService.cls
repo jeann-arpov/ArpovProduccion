@@ -1,10 +1,24 @@
+/**
+ * Servicio de EXPEDIENTES DE NEGATIVOS varietales (SE-345).
+ *
+ * Abre expedientes para las sub-cuentas (Detalle_Variedad_CG__c) cuyo
+ * Saldo_Variedad__c cae por debajo del umbral configurable
+ * (Configuracion_Varietal__mdt.Umbral_Apertura_Expediente__c, default -4) y
+ * cierra (Finalizado) aquellos cuyo saldo se regularizó (>= umbral).
+ */
 public with sharing class CuentaGranariaVarietalExpedienteService {
+  /**
+   * Resultado del procesamiento: expedientes creados, cerrados y errores.
+   */
   public class ResultadoExpedientes {
     public Integer expedientesCreados = 0;
     public Integer expedientesCerrados = 0;
     public Integer errores = 0;
   }
 
+  /**
+   * Ejecuta cierre y apertura de expedientes en un solo paso.
+   */
   public static ResultadoExpedientes procesarAperturasYCierres() {
     ResultadoExpedientes resultado = new ResultadoExpedientes();
     resultado.expedientesCerrados = cerrarExpedientesRegularizados();
@@ -12,6 +26,11 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     return resultado;
   }
 
+  /**
+   * Abre expedientes de negativos para sub-cuentas con Saldo_Variedad__c < umbral
+   * y sin expediente activo. El nombre sigue la forma EXP-CUIT-Campaña-Variedad.
+   * Devuelve la cantidad creada.
+   */
   public static Integer abrirExpedientesVarietales() {
     Set<Id> subCuentasConExpedienteActivo = obtenerSubCuentasConExpedienteActivo();
     Decimal umbral = obtenerUmbralExpediente();
@@ -65,6 +84,10 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     return creados;
   }
 
+  /**
+   * Cierra (Finalizado) los expedientes varietales cuyo saldo actual ya es >= umbral.
+   * Devuelve la cantidad cerrada.
+   */
   public static Integer cerrarExpedientesRegularizados() {
     Decimal umbral = obtenerUmbralExpediente();
     List<Expediente_de_Negativos__c> aCerrar = new List<Expediente_de_Negativos__c>();
@@ -103,6 +126,10 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     return cerrados;
   }
 
+  /**
+   * Sub-cuentas (Detalle_Variedad_CG__c) que ya tienen un expediente varietal
+   * activo (no Finalizado ni Vencido).
+   */
   private static Set<Id> obtenerSubCuentasConExpedienteActivo() {
     Set<Id> ids = new Set<Id>();
     for (Expediente_de_Negativos__c exp : [
@@ -117,6 +144,10 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     return ids;
   }
 
+  /**
+   * Umbral de apertura/cierre de expediente desde Configuracion_Varietal__mdt
+   * (default -4 si no está configurado).
+   */
   private static Decimal obtenerUmbralExpediente() {
     List<Configuracion_Varietal__mdt> cfgs = Configuracion_Varietal__mdt.getAll()
       .values();
@@ -126,6 +157,9 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     return cfgs[0].Umbral_Apertura_Expediente__c;
   }
 
+  /**
+   * Arma el nombre del expediente: EXP-<CUIT>-<Campaña>-<Variedad>.
+   */
   private static String construirNombre(Detalle_Variedad_CG__c sc) {
     String cuit = sc.Cuenta_Granaria__r.Productor__r.N_CUIT__c != null
       ? sc.Cuenta_Granaria__r.Productor__r.N_CUIT__c

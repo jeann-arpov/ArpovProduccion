@@ -5,6 +5,13 @@ public with sharing class CuentaGranariaVarietalValidator {
    * PERO sin la deduplicación por Codigo_de_Muestra__c + CTG__c (no compatible con variedad),
    * y agrega la validación de las líneas varietales + MD-11.
    */
+  /**
+   * Valida una lista de camiones varietales en tres pasos:
+   *  1. Campos obligatorios del camión + CUIT.
+   *  2. Resolución de Account por CUIT (titular y destinatario).
+   *  3. Líneas varietales + regla MD-11 (suma de porcentajes = 100 con tolerancia).
+   * Deja cada camión en 'A procesar' (Resultado 'OK') o 'Con error' (mensajes).
+   */
   public static void validate(List<Movimiento_BolsaTech__c> movimientos) {
     if (movimientos == null || movimientos.isEmpty()) {
       return;
@@ -155,6 +162,10 @@ public with sharing class CuentaGranariaVarietalValidator {
     }
   }
 
+  /**
+   * Validación puntual de un registro desde el front (@AuraEnabled).
+   * Solo permite validar camiones en estado 'Creado' o 'Con error'.
+   */
   @AuraEnabled
   public static void validate(Id recordId) {
     Movimiento_BolsaTech__c movimiento = [
@@ -176,6 +187,9 @@ public with sharing class CuentaGranariaVarietalValidator {
     update movimiento;
   }
 
+  /**
+   * Obtiene la Configuracion_Varietal__mdt (o null si no hay registros).
+   */
   private static Configuracion_Varietal__mdt obtenerConfiguracion() {
     List<Configuracion_Varietal__mdt> cfgs = Configuracion_Varietal__mdt.getAll()
       .values();

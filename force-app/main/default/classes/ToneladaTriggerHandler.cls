@@ -252,11 +252,20 @@ public without sharing class ToneladaTriggerHandler {
             && tn.Fecha_Inicio__c <= Date.today();
     }
 
+    /**
+     * Dispara el reproceso de compensación cuando la tonelada cumple criterios
+     * de Compra HT manual o de negativo consumible.
+     */
     private static Boolean debeDispararReprocesoPorCg(Tonelada__c tn) {
         return cumpleCriteriosReprocesoPorCgManual(tn)
             || cumpleCriteriosReprocesoPorNegativoConsumible(tn);
     }
 
+    /**
+     * Re-consulta las toneladas indicadas y delega en
+     * ActualizarCuentaGranariaBatch.procesarToneladasEspecificas(), con guarda
+     * anti-recursión (procesandoCompensaciones).
+     */
     private static void ejecutarReprocesamiento(Set<Id> toneladasIds) {
         if (toneladasIds.isEmpty() || procesandoCompensaciones) {
             return;
@@ -315,9 +324,10 @@ public without sharing class ToneladaTriggerHandler {
     }
     
     /**
-     * Recalcula los saldos de las Cuentas_Granarias indicadas
-     * 
-     * Excluye cuentas de carga manual (Es_Carga_Manual__c = true).
+     * Recalcula los saldos de las Cuentas_Granarias indicadas.
+     * Excluye cuentas de carga manual (Es_Carga_Manual__c = true) y las cuentas
+     * varietales (cultivo varietal con tecnología RR1/RR2 - BT/Convencional),
+     * cuyo saldo es manejado por CuentaGranariaVarietalCreditoService.
      */
     private static void recalcularSaldos(Set<Id> cuentaIds) {
         // Filtrar cuentas que NO son de carga manual

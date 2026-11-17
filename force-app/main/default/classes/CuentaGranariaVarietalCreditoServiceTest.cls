@@ -1,5 +1,12 @@
+/**
+ * Tests del servicio de crédito varietal: vínculo de HT a Detalle,
+ * acreditación de toneladas de crédito y cálculo de crédito por etapa.
+ */
 @isTest
 private class CuentaGranariaVarietalCreditoServiceTest {
+  /**
+   * Verifica que recalcularCreditos vincule la HT de crédito a su Detalle_Variedad_CG.
+   */
   @isTest
   static void testVincularHtAlDetalleVariedad() {
     Test_TestUtils.disableFlows();
@@ -85,6 +92,10 @@ private class CuentaGranariaVarietalCreditoServiceTest {
     );
   }
 
+  /**
+   * Verifica que acreditarToneladasCredito vincule a la CG solo las toneladas
+   * en etapa de crédito (Cobrada), sin modificar etapa y dejando Pendiente fuera.
+   */
   @isTest
   static void testAcreditarToneladasCredito() {
     Test_TestUtils.disableFlows();
@@ -189,6 +200,11 @@ private class CuentaGranariaVarietalCreditoServiceTest {
     );
   }
 
+  /**
+   * Verifica el crédito por etapa incluyendo la devolución por NC:
+   * Cobrada + Cancelada por NC acreditan; Aplicada relacionada resta;
+   * Aplicada suelta no participa.
+   */
   @isTest
   static void testCalcularCreditoPorEtapa() {
     Test_TestUtils.disableFlows();

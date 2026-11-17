@@ -1,5 +1,13 @@
+/**
+ * Test del débito varietal end-to-end: un camión varietal 'A procesar' con
+ * líneas varietales debe quedar 'Procesado' y generar su Tonelada__c de débito
+ * (Origen 'Escáner varietal').
+ */
 @isTest
 private class ActualizarCGVarietalBatchTest {
+  /**
+   * Verifica que el batch procese el MBT varietal y cree el débito.
+   */
   @isTest
   static void testDebitoMarcaMbtProcesado() {
     Test_TestUtils.disableFlows();

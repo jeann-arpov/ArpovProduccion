@@ -1,8 +1,18 @@
+/**
+ * Batch de backfill del crédito/saldo varietal (SE-345).
+ *
+ * Recorre todas las Cuenta_Granaria__c con tecnología RR1/RR2 - BT/Convencional
+ * y, por cada una, invoca CuentaGranariaVarietalCreditoService.recalcularCreditos()
+ * para regenerar el crédito y saldo por variedad desde cero.
+ */
 public with sharing class RecalcularCreditoVarietalBatch implements Database.Batchable<SObject>, Database.Stateful {
   private Integer cuentasProcesadas = 0;
   private Integer cuentasSinDatos = 0;
   private Integer cuentasConError = 0;
 
+  /**
+   * QueryLocator de cuentas varietales a recalcular.
+   */
   public Database.QueryLocator start(Database.BatchableContext bc) {
     return Database.getQueryLocator(
       [
@@ -13,6 +23,10 @@ public with sharing class RecalcularCreditoVarietalBatch implements Database.Bat
     );
   }
 
+  /**
+   * Recalcula crédito/saldo de cada CG del scope (ignora las que no tienen
+   * productor o cultivo), acumulando contadores de éxito/error.
+   */
   public void execute(
     Database.BatchableContext bc,
     List<Cuenta_Granaria__c> scope
@@ -41,6 +55,9 @@ public with sharing class RecalcularCreditoVarietalBatch implements Database.Bat
     }
   }
 
+  /**
+   * Log de cierre del batch con los contadores.
+   */
   public void finish(Database.BatchableContext bc) {
     System.debug(
       'RecalcularCreditoVarietalBatch finalizado: procesadas=' +

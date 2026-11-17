@@ -15,6 +15,10 @@
  */
 global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>, Schedulable {
   // ── Schedulable ──────────────────────────────────────────────────────────
+  /**
+   * Implementación Schedulable: encola el batch con scope 1 para que cada
+   * invocación del flow corra en su propia transacción.
+   */
   global void execute(SchedulableContext sc) {
     // Batch size = 1: cada ejecución es su propia transacción,
     // lo que evita conflictos de límites entre invocaciones de Flow.
@@ -22,6 +26,10 @@ global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>,
   }
 
   // ── Batchable ────────────────────────────────────────────────────────────
+  /**
+   * QueryLocator de movimientos a debitar. En test trae todos; en producción
+   * filtra Procesar__c=true, No_Debitar__c=false, sin TN y excluye varietales.
+   */
   global Database.QueryLocator start(Database.BatchableContext bc) {
     if (Test.isRunningTest()) {
       return Database.getQueryLocator(
@@ -57,6 +65,11 @@ global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>,
     );
   }
 
+  /**
+   * Por cada movimiento (scope 1), verifica si ya existe otro similar con
+   * TN_Id__c seteada; si no, invoca el subflow MovBolsaTech_Crear_Debito_de_TNs
+   * para generar los débitos de TNs.
+   */
   global void execute(
     Database.BatchableContext bc,
     List<Movimiento_BolsaTech__c> scope
@@ -105,6 +118,9 @@ global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>,
     }
   }
 
+  /**
+   * Log de finalización del batch.
+   */
   global void finish(Database.BatchableContext bc) {
     System.debug('MovBolsaTechDebitarTNsBatch: proceso finalizado.');
   }

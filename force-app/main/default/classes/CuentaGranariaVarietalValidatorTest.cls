@@ -1,3 +1,6 @@
+/**
+ * Tests del validador varietal: regla MD-11 (suma de porcentajes = 100).
+ */
 @isTest
 private class CuentaGranariaVarietalValidatorTest {
   private static Cultivo__c cultivo;
@@ -6,6 +9,9 @@ private class CuentaGranariaVarietalValidatorTest {
   private static Variedad__c variedadB;
   private static Variedad__c variedadC;
 
+  /**
+   * Prepara cultivo, productor y tres variedades.
+   */
   private static void prepararDatos() {
     Test_TestUtils.disableFlows();
 
@@ -42,6 +48,9 @@ private class CuentaGranariaVarietalValidatorTest {
     insert new List<Variedad__c>{ variedadA, variedadB, variedadC };
   }
 
+  /**
+   * Crea un camión varietal con las líneas indicadas (porcentajes) y sufijo único.
+   */
   private static Movimiento_BolsaTech__c crearMbt(
     List<Decimal> porcentajes,
     String sufijo
@@ -82,6 +91,9 @@ private class CuentaGranariaVarietalValidatorTest {
     return mbt;
   }
 
+  /**
+   * Suma de porcentajes > 100 debe dejar el camión 'Con error' reportando MD-11.
+   */
   @isTest
   static void testSumaMayorA100QuedaConError() {
     prepararDatos();
@@ -103,6 +115,9 @@ private class CuentaGranariaVarietalValidatorTest {
     );
   }
 
+  /**
+   * Suma de porcentajes = 100 debe dejar el camión 'A procesar' con resultado OK.
+   */
   @isTest
   static void testSuma100QuedaAProcesar() {
     prepararDatos();
