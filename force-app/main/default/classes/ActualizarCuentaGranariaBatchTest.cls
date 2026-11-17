@@ -1315,4 +1315,133 @@ private class ActualizarCuentaGranariaBatchTest {
         ];
         System.assert(consumosDespues >= consumosAntes, 'Debe permitir crear consumos con expediente activo');
     }
+
+    @isTest
+    static void testObtentorSreAsignaCgYReusaLaExistenteSinClave() {
+        Test_TestUtils.disableFlows();
+        RecordType rtObtentor = [
+            SELECT Id FROM RecordType
+            WHERE SObjectType = 'Account' AND DeveloperName = 'Obtentor'
+            LIMIT 1
+        ];
+        Account obtentor = new Account(
+            Name = 'Obtentor SRE 3958',
+            RecordTypeId = rtObtentor.Id,
+            Type = 'Obtentor',
+            Id_Obtentor__c = '81',
+            Nombre_Obtentor__c = 'SRE 3958'
+        );
+        insert obtentor;
+
+        Cultivo__c cultivo = [SELECT Id FROM Cultivo__c WHERE Name = 'SOJA' LIMIT 1];
+        Campana_Agricola__c campana = [
+            SELECT Id FROM Campana_Agricola__c
+            WHERE Cultivo__c = :cultivo.Id AND Ano__c >= '2025'
+            LIMIT 1
+        ];
+        insert new Variedad__c(
+            Name = 'Variedad SRE 3958',
+            Sembra_Evolucion__c = false,
+            Obtentor_Comercializa__c = obtentor.Id,
+            Cultivo__c = cultivo.Id,
+            Biotecnologia__c = 'Enlist E3'
+        );
+
+        Cuenta_Granaria__c cg = new Cuenta_Granaria__c(
+            Productor__c = obtentor.Id,
+            Cultivo__c = cultivo.Id,
+            Campania__c = campana.Id,
+            Tecnologia__c = 'Enlist E3/Conkesta E3',
+            Saldo_Cuenta__c = 0
+        );
+        insert cg;
+
+        Test.startTest();
+        insert new Tonelada__c(
+            Productor__c = obtentor.Id,
+            Cultivo__c = cultivo.Id,
+            Campania__c = campana.Id,
+            Biotecnologia__c = 'Enlist E3',
+            Cantidad__c = 35,
+            Signo__c = 1,
+            Fecha_Inicio__c = Date.today().addDays(-1),
+            Fecha_Fin__c = Date.today().addYears(1),
+            Etapa__c = 'Cobrada',
+            Origen__c = 'Compra SF'
+        );
+        Test.stopTest();
+
+        Tonelada__c tn = [
+            SELECT Cuenta_Granaria__c
+            FROM Tonelada__c
+            WHERE Productor__c = :obtentor.Id
+            LIMIT 1
+        ];
+        Cuenta_Granaria__c cgActual = [
+            SELECT Clave_Unica__c
+            FROM Cuenta_Granaria__c
+            WHERE Id = :cg.Id
+        ];
+        System.assertEquals(cg.Id, tn.Cuenta_Granaria__c, 'La TN del obtentor SRE debe quedar en la CG existente');
+        System.assertEquals(1, [SELECT COUNT() FROM Cuenta_Granaria__c WHERE Productor__c = :obtentor.Id AND Campania__c = :campana.Id],
+            'No debe crear una segunda CG');
+        System.assertEquals(
+            obtentor.Id + '|' + campana.Id + '|' + cultivo.Id + '|Enlist E3/Conkesta E3',
+            cgActual.Clave_Unica__c
+        );
+    }
+
+    @isTest
+    static void testObtentorSeNoCreaCg() {
+        Test_TestUtils.disableFlows();
+        RecordType rtObtentor = [
+            SELECT Id FROM RecordType
+            WHERE SObjectType = 'Account' AND DeveloperName = 'Obtentor'
+            LIMIT 1
+        ];
+        Account obtentor = new Account(
+            Name = 'Obtentor SE 3958',
+            RecordTypeId = rtObtentor.Id,
+            Type = 'Obtentor',
+            Id_Obtentor__c = '82',
+            Nombre_Obtentor__c = 'SE 3958'
+        );
+        insert obtentor;
+
+        Cultivo__c cultivo = [SELECT Id FROM Cultivo__c WHERE Name = 'SOJA' LIMIT 1];
+        Campana_Agricola__c campana = [
+            SELECT Id FROM Campana_Agricola__c
+            WHERE Cultivo__c = :cultivo.Id AND Ano__c >= '2025'
+            LIMIT 1
+        ];
+        insert new Variedad__c(
+            Name = 'Variedad SE 3958',
+            Sembra_Evolucion__c = true,
+            Obtentor_Comercializa__c = obtentor.Id,
+            Cultivo__c = cultivo.Id,
+            Biotecnologia__c = 'Enlist E3'
+        );
+
+        Test.startTest();
+        insert new Tonelada__c(
+            Productor__c = obtentor.Id,
+            Cultivo__c = cultivo.Id,
+            Campania__c = campana.Id,
+            Biotecnologia__c = 'Enlist E3',
+            Cantidad__c = 10,
+            Signo__c = 1,
+            Fecha_Inicio__c = Date.today().addDays(-1),
+            Fecha_Fin__c = Date.today().addYears(1),
+            Etapa__c = 'Cobrada',
+            Origen__c = 'Compra SF'
+        );
+        Test.stopTest();
+
+        System.assertEquals(
+            null,
+            [SELECT Cuenta_Granaria__c FROM Tonelada__c WHERE Productor__c = :obtentor.Id LIMIT 1].Cuenta_Granaria__c,
+            'El obtentor de Sembrá Evolución no recibe CG'
+        );
+        System.assertEquals(0, [SELECT COUNT() FROM Cuenta_Granaria__c WHERE Productor__c = :obtentor.Id]);
+    }
 }
