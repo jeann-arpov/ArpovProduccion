@@ -388,7 +388,20 @@ public class HomeMulticultivoTest {
         System.assertEquals('enCurso', HomeMulticultivo.resolveVersion(param, new Plan_de_Siembra__c(Estado__c = 'En Preparación'), hoy),
             'Un plan En Preparación se muestra con su estado, igual que en Mis PPH');
         System.assertEquals('enCurso', HomeMulticultivo.resolveVersion(param, new Plan_de_Siembra__c(Estado__c = 'Rectificado'), hoy));
-        System.assertEquals('comprar', HomeMulticultivo.resolveVersion(param, adherido, hoy.addDays(121)));
+        System.assertEquals('adherido', HomeMulticultivo.resolveVersion(param, adherido, hoy.addDays(121)),
+            'Un plan Adherido sigue en la home después del fin del ciclo, igual que en Mis PPH');
+        System.assertEquals('revision', HomeMulticultivo.resolveVersion(param, revision, hoy.addDays(121)));
+        System.assertEquals('enCurso', HomeMulticultivo.resolveVersion(param, new Plan_de_Siembra__c(Estado__c = 'Rechazado'), hoy.addDays(121)));
+
+        Parametro_PPH__c trigo2026 = new Parametro_PPH__c(
+            Fecha_Inicio_Adhesion_PPH__c = Date.newInstance(2026, 5, 1),
+            Fecha_Fin_Adhesion_PPH__c = Date.newInstance(2026, 8, 31)
+        );
+        System.assertEquals(
+            'adherido',
+            HomeMulticultivo.resolveVersion(trigo2026, adherido, Date.newInstance(2026, 11, 18)),
+            'Trigo 2026 adherido se muestra aunque cerró la adhesión y no hay rectificación 2'
+        );
         System.assertEquals(true, HomeMulticultivo.isInPphLifecycle(param, hoy.addDays(60)));
 
         // Fin de rectificación 2 posterior: el adherido se sigue mostrando, pero ya no se puede adherir

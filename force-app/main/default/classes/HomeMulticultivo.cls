@@ -192,7 +192,7 @@ public without sharing class HomeMulticultivo {
             t.htFuturas = htFuturas;
             t.htAdquirida = htAdquirida;
             t.version = version;
-            t.pphEstado = plan != null && version != 'comprar' ? plan.Estado__c : null;
+            t.pphEstado = plan != null ? plan.Estado__c : null;
             t.cgNeedsRegularizar = cultivosConDeuda.contains(cultivoId);
 
             Campana_Agricola__c camp = campanaPorCultivo.get(cultivoId);
@@ -275,21 +275,20 @@ public without sharing class HomeMulticultivo {
 
     /**
      * Sin plan: se puede adherir entre el inicio y el fin de adhesión (mismo criterio que AdhesionPPH).
-     * Con plan (cualquier estado salvo Cancelado, igual que Mis PPH): se muestra hasta el fin del ciclo
-     * (adhesión o rectificación 2, la que sea posterior). 'enCurso' = En Preparación, Rectificado, Rechazado, etc.
+     * Con plan (cualquier estado salvo Cancelado): el estado de la home es el del plan, igual que Mis PPH,
+     * aunque la ventana de adhesión o rectificación ya haya cerrado.
+     * 'enCurso' = En Preparación, Rectificado, Rechazado, Vencido, etc.
      */
     @TestVisible
     private static String resolveVersion(Parametro_PPH__c param, Plan_de_Siembra__c plan, Date today) {
-        Boolean empezo = param.Fecha_Inicio_Adhesion_PPH__c == null || today >= param.Fecha_Inicio_Adhesion_PPH__c;
-        if (!empezo) return 'comprar';
-
         if (plan != null) {
-            Date finCiclo = getFinCiclo(param);
-            if (finCiclo != null && today > finCiclo) return 'comprar';
             if (plan.Estado__c == 'Adherido') return 'adherido';
             if (plan.Estado__c == 'En Revisión') return 'revision';
             return 'enCurso';
         }
+
+        Boolean empezo = param.Fecha_Inicio_Adhesion_PPH__c == null || today >= param.Fecha_Inicio_Adhesion_PPH__c;
+        if (!empezo) return 'comprar';
 
         Date finAdhesion = getFinAdhesion(param);
         if (finAdhesion != null && today > finAdhesion) return 'comprar';
