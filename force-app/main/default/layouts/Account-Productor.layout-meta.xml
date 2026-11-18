@@ -1162,6 +1162,14 @@
     </quickActionList>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Nombre__c</fields>
+        <fields>Apellido__c</fields>
+        <fields>Correo__c</fields>
+        <fields>Celular__c</fields>
+        <relatedList>UsuariosdeCorteva__c.Cuenta__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
         <fields>Campania__c</fields>
         <fields>PPH_Adherida__c</fields>
         <fields>Saldo_Cuenta__c</fields>
