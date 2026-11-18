@@ -21,7 +21,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>Detalle_Variedad_MBT__c.Kilos_Variedad__c</field>
         <readable>true</readable>
     </fieldPermissions>

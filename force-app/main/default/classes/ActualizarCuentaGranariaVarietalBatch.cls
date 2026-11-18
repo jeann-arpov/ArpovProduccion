@@ -177,13 +177,16 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
   }
 
   /**
-   * Resuelve la Campana_Agricola__c a partir del cultivo y el año de cosecha
-   * (texto), devolviendo null si no se encuentra.
+   * Resuelve la Campana_Agricola__c a partir del cultivo y la cosecha (texto),
+   * normalizando el año: "2025" -> "2025", "25" -> "2025", "2627" -> "2026".
    */
-  private static Id resolverCampana(Id cultivoId, String anio) {
-    if (String.isBlank(anio)) {
+  private static Id resolverCampana(Id cultivoId, String cosecha) {
+    if (String.isBlank(cosecha) || cosecha.length() < 2) {
       return null;
     }
+    String anio = (cosecha.length() == 4 && cosecha.startsWith('20'))
+      ? cosecha
+      : '20' + cosecha.substring(0, 2);
     List<Campana_Agricola__c> camps = [
       SELECT Id
       FROM Campana_Agricola__c
