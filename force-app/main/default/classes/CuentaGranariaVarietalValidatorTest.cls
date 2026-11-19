@@ -25,25 +25,51 @@ private class CuentaGranariaVarietalValidatorTest {
       LIMIT 1
     ]
     .Id;
+    productor.Type = 'Productor';
+    productor.ParentId = null;
+    update productor;
+
+    // Un workflow ("Carga Datos Proveedor") cambia el RecordType a 'Proveedor';
+    // lo forzamos de vuelta a 'Productor' para que la resolución por CUIT lo encuentre.
+    productor = [
+      SELECT Id, N_CUIT__c, RecordTypeId, Type, ParentId
+      FROM Account
+      WHERE Id = :productor.Id
+    ];
+    productor.RecordTypeId = [
+      SELECT Id
+      FROM RecordType
+      WHERE SObjectType = 'Account' AND DeveloperName = 'Productor'
+      LIMIT 1
+    ]
+    .Id;
+    productor.Type = 'Productor';
+    productor.ParentId = null;
     update productor;
 
     variedadA = new Variedad__c(
       Name = 'CATALPA',
       Cultivo__c = cultivo.Id,
       Biotecnologia__c = 'Convencional',
-      Uso_Comercial_Dureza__c = 'PAN'
+      Uso_Comercial_Dureza__c = 'PAN',
+      Sembra_Evolucion__c = true,
+      Cultivar_Inase__c = 'CATALPA'
     );
     variedadB = new Variedad__c(
       Name = 'TIPANA',
       Cultivo__c = cultivo.Id,
       Biotecnologia__c = 'Convencional',
-      Uso_Comercial_Dureza__c = 'PAN'
+      Uso_Comercial_Dureza__c = 'PAN',
+      Sembra_Evolucion__c = true,
+      Cultivar_Inase__c = 'TIPANA'
     );
     variedadC = new Variedad__c(
       Name = 'BAGUETTE',
       Cultivo__c = cultivo.Id,
       Biotecnologia__c = 'Convencional',
-      Uso_Comercial_Dureza__c = 'PAN'
+      Uso_Comercial_Dureza__c = 'PAN',
+      Sembra_Evolucion__c = true,
+      Cultivar_Inase__c = 'BAGUETTE'
     );
     insert new List<Variedad__c>{ variedadA, variedadB, variedadC };
   }
@@ -81,9 +107,9 @@ private class CuentaGranariaVarietalValidatorTest {
       lineas.add(
         new Detalle_Variedad_MBT__c(
           Movimiento_BolsaTech__c = mbt.Id,
-          Variedad__c = variedades[i].Id,
+          Cultivar__c = variedades[i].Cultivar_Inase__c,
           Porcentaje_Varietal__c = porcentajes[i],
-          Clave_Linea__c = mbt.Id + '|' + variedades[i].Id
+          Clave_Linea__c = mbt.Id + '|' + variedades[i].Cultivar_Inase__c
         )
       );
     }
@@ -132,7 +158,73 @@ private class CuentaGranariaVarietalValidatorTest {
     );
     Test.stopTest();
 
-    System.assertEquals('A procesar', mbt.Estado__c);
+    System.assertEquals(
+      'A procesar',
+      mbt.Estado__c,
+      'Resultado__c=' + mbt.Resultado__c
+    );
     System.assertEquals('OK', mbt.Resultado__c);
+  }
+
+  /**
+   * Validación desde el front (@AuraEnabled validate(Id)): si el camión no está
+   * en 'Creado' ni 'Con error', debe lanzar excepción.
+   */
+  @isTest
+  static void testValidateDesdeFrontEstadoNoPermitido() {
+    prepararDatos();
+    Movimiento_BolsaTech__c mbt = crearMbt(
+      new List<Decimal>{ 50, 30, 20 },
+      'UC5'
+    );
+    mbt.Estado__c = 'Procesado';
+    update mbt;
+
+    Test.startTest();
+    try {
+      CuentaGranariaVarietalValidator.validate(mbt.Id);
+      System.assert(false, 'Debe lanzar excepción por estado no permitido');
+    } catch (AuraHandledException e) {
+      System.assert(true);
+    }
+    Test.stopTest();
+  }
+
+  /**
+   * Cultivar inexistente debe dejar el camión 'Con error' reportando el cultivar
+   * y el código de muestra.
+   */
+  @isTest
+  static void testCultivarNoEncontrado() {
+    prepararDatos();
+    Movimiento_BolsaTech__c mbt = crearMbt(
+      new List<Decimal>{ 50, 30, 20 },
+      'UC6'
+    );
+
+    Detalle_Variedad_MBT__c linea = [
+      SELECT Id, Cultivar__c
+      FROM Detalle_Variedad_MBT__c
+      WHERE Movimiento_BolsaTech__c = :mbt.Id
+      LIMIT 1
+    ];
+    linea.Cultivar__c = 'CULTIVAR_INEXISTENTE';
+    update linea;
+
+    Test.startTest();
+    CuentaGranariaVarietalValidator.validate(
+      new List<Movimiento_BolsaTech__c>{ mbt }
+    );
+    Test.stopTest();
+
+    System.assertEquals('Con error', mbt.Estado__c);
+    System.assert(
+      mbt.Resultado__c.contains('Cultivar no encontrado'),
+      'Debe reportar cultivar no encontrado: ' + mbt.Resultado__c
+    );
+    System.assert(
+      mbt.Resultado__c.contains('MUESTRA-UC6'),
+      'Debe incluir el código de muestra: ' + mbt.Resultado__c
+    );
   }
 }

@@ -9,7 +9,8 @@ public with sharing class CuentaGranariaVarietalValidator {
    * Valida una lista de camiones varietales en tres pasos:
    *  1. Campos obligatorios del camión + CUIT.
    *  2. Resolución de Account por CUIT (titular y destinatario).
-   *  3. Líneas varietales + regla MD-11 (suma de porcentajes = 100 con tolerancia).
+   *  3. Resolución de Variedad__c por cultivar (catálogo Sembra Evolución) + MD-11
+   *     (suma de porcentajes = 100 con tolerancia).
    * Deja cada camión en 'A procesar' (Resultado 'OK') o 'Con error' (mensajes).
    */
   public static void validate(List<Movimiento_BolsaTech__c> movimientos) {
@@ -94,15 +95,21 @@ public with sharing class CuentaGranariaVarietalValidator {
         : null;
     }
 
-    // ===== 3. Líneas varietales + MD-11 (específico varietal) =====
+    // ===== 3. Resolución de variedad por cultivar + MD-11 =====
     Set<Id> mbtIds = new Set<Id>();
+    Map<Id, String> cultivoPorMbt = new Map<Id, String>();
     for (Movimiento_BolsaTech__c m : movimientos) {
       mbtIds.add(m.Id);
+      cultivoPorMbt.put(
+        m.Id,
+        String.isNotBlank(m.Cultivo__c) ? m.Cultivo__c.trim().toUpperCase() : ''
+      );
     }
 
     Map<Id, List<Detalle_Variedad_MBT__c>> lineasPorMbt = new Map<Id, List<Detalle_Variedad_MBT__c>>();
+    Set<String> cultivares = new Set<String>();
     for (Detalle_Variedad_MBT__c linea : [
-      SELECT Id, Movimiento_BolsaTech__c, Variedad__c, Porcentaje_Varietal__c
+      SELECT Id, Movimiento_BolsaTech__c, Variedad__c, Cultivar__c, Porcentaje_Varietal__c
       FROM Detalle_Variedad_MBT__c
       WHERE Movimiento_BolsaTech__c IN :mbtIds
     ]) {
@@ -113,6 +120,26 @@ public with sharing class CuentaGranariaVarietalValidator {
         );
       }
       lineasPorMbt.get(linea.Movimiento_BolsaTech__c).add(linea);
+      if (String.isNotBlank(linea.Cultivar__c)) {
+        cultivares.add(linea.Cultivar__c.trim().toUpperCase());
+      }
+    }
+
+    // Resolución de Variedad__c por cultivar dentro del catálogo Sembra Evolución.
+    // Clave: CULTIVO|CULTIVAR (mayúsculas), sin fallback: si no matchea, la línea queda con error.
+    Map<String, Id> variedadPorClave = new Map<String, Id>();
+    if (!cultivares.isEmpty()) {
+      for (Variedad__c v : [
+        SELECT Id, Cultivar_Inase__c, Cultivo__r.Name
+        FROM Variedad__c
+        WHERE Sembra_Evolucion__c = TRUE AND Cultivar_Inase__c IN :cultivares
+      ]) {
+        String clave =
+          (v.Cultivo__r.Name != null ? v.Cultivo__r.Name.trim().toUpperCase() : '') +
+          '|' +
+          v.Cultivar_Inase__c.trim().toUpperCase();
+        variedadPorClave.put(clave, v.Id);
+      }
     }
 
     Configuracion_Varietal__mdt cfg = obtenerConfiguracion();
@@ -121,8 +148,11 @@ public with sharing class CuentaGranariaVarietalValidator {
       ? cfg.Tolerancia_Suma_MD11__c
       : 0;
 
+    List<Detalle_Variedad_MBT__c> lineasAActualizar = new List<Detalle_Variedad_MBT__c>();
+
     for (Movimiento_BolsaTech__c m : movimientos) {
       List<String> errors = errorsById.get(m.Id);
+      String cultivoMbt = cultivoPorMbt.get(m.Id);
 
       List<Detalle_Variedad_MBT__c> lineas = lineasPorMbt.containsKey(m.Id)
         ? lineasPorMbt.get(m.Id)
@@ -133,8 +163,29 @@ public with sharing class CuentaGranariaVarietalValidator {
       } else {
         Decimal suma = 0;
         for (Detalle_Variedad_MBT__c l : lineas) {
-          if (l.Variedad__c == null) {
-            errors.add('Variedad vacía en línea varietal');
+          if (String.isBlank(l.Cultivar__c)) {
+            errors.add(
+              'Cultivar vacío en línea varietal (muestra: ' +
+              m.Codigo_de_Muestra__c +
+              ')'
+            );
+          } else {
+            String clave = cultivoMbt + '|' + l.Cultivar__c.trim().toUpperCase();
+            Id variedadId = variedadPorClave.get(clave);
+            if (variedadId != null) {
+              l.Variedad__c = variedadId;
+              lineasAActualizar.add(
+                new Detalle_Variedad_MBT__c(Id = l.Id, Variedad__c = variedadId)
+              );
+            } else {
+              errors.add(
+                'Cultivar no encontrado en el catálogo: ' +
+                l.Cultivar__c +
+                ' (muestra: ' +
+                m.Codigo_de_Muestra__c +
+                ')'
+              );
+            }
           }
           if (l.Porcentaje_Varietal__c == null) {
             errors.add('Porcentaje varietal vacío');
@@ -160,6 +211,11 @@ public with sharing class CuentaGranariaVarietalValidator {
         ? 'OK'
         : String.join(errors, ',').abbreviate(255);
     }
+
+    // Persiste la variedad resuelta en las líneas.
+    if (!lineasAActualizar.isEmpty()) {
+      Database.update(lineasAActualizar, false);
+    }
   }
 
   /**
@@ -169,7 +225,18 @@ public with sharing class CuentaGranariaVarietalValidator {
   @AuraEnabled
   public static void validate(Id recordId) {
     Movimiento_BolsaTech__c movimiento = [
-      SELECT Id, Estado__c, Cultivo_Varietal__c
+      SELECT
+        Id,
+        Estado__c,
+        Cultivo_Varietal__c,
+        Codigo_de_Muestra__c,
+        CUIT_Titular__c,
+        Cuit_Destinatario__c,
+        Peso_Neto__c,
+        Fecha_de_Analisis__c,
+        Cultivo__c,
+        Tecnologia__c,
+        CTG__c
       FROM Movimiento_BolsaTech__c
       WHERE Id = :recordId
     ];
