@@ -178,7 +178,14 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
 
   /**
    * Resuelve la Campana_Agricola__c a partir del cultivo y la cosecha (texto),
-   * normalizando el año: "2025" -> "2025", "25" -> "2025", "2627" -> "2026".
+   * normalizando el año al formato de 4 dígitos:
+   *  - "2025" -> "2025" (ya es año completo)
+   *  - "25"   -> "2025" (año de 2 dígitos)
+   *  - "2627" -> "2026" (campaña de dos años: se toma el primer año)
+   *
+   * @param cultivoId Id del Cultivo__c.
+   * @param cosecha   Valor de Cosecha__c del MBT (texto, formato variable).
+   * @return Id de la Campana_Agricola__c coincidente, o null si no se encuentra.
    */
   private static Id resolverCampana(Id cultivoId, String cosecha) {
     if (String.isBlank(cosecha) || cosecha.length() < 2) {

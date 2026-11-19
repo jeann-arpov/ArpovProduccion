@@ -157,6 +157,13 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     return ids;
   }
 
+  /**
+   * Construye el mapa cultivo -> umbral de apertura de expediente a partir de
+   * Configuracion_Varietal__mdt. Cada registro declara uno o más cultivos
+   * (Cultivos_Varietales__c, separados por coma) con su umbral.
+   *
+   * @return Mapa {NOMBRE_CULTIVO_EN_MAYUSCULAS -> Umbral_Apertura_Expediente__c}.
+   */
   private static Map<String, Decimal> obtenerUmbralPorCultivo() {
     Map<String, Decimal> umbralPorCultivo = new Map<String, Decimal>();
     for (
@@ -179,6 +186,13 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     return umbralPorCultivo;
   }
 
+  /**
+   * Busca el umbral de expediente para un cultivo dado en el mapa.
+   *
+   * @param umbralPorCultivo Mapa cultivo -> umbral.
+   * @param cultivoNombre    Nombre del cultivo (se normaliza a mayúsculas).
+   * @return Umbral configurado, o null si el cultivo no está configurado.
+   */
   private static Decimal obtenerUmbralParaCultivo(
     Map<String, Decimal> umbralPorCultivo,
     String cultivoNombre
