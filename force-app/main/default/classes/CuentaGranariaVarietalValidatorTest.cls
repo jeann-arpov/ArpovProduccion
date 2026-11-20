@@ -83,7 +83,6 @@ private class CuentaGranariaVarietalValidatorTest {
   ) {
     Movimiento_BolsaTech__c mbt = new Movimiento_BolsaTech__c(
       Estado__c = 'Con error',
-      Cultivo_Varietal__c = true,
       No_Debitar__c = false,
       Peso_Neto__c = 100000,
       Cultivo__c = 'TRIGO',
