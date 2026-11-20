@@ -781,4 +781,8 @@ export default class AdhesionPph extends LightningElement {
       variant: "sg"
     });
   }
+
+  get planId() {
+    return this.plan?.Id || null;
+  }
 }

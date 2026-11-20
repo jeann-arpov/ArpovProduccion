@@ -266,8 +266,13 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             }
         }
         
-        data.put('establecimientos', [
+        List<Establecimiento_PPH__c> establecimientosUnicos = new List<Establecimiento_PPH__c>();
+        Set<Id> establecimientosVistos = new Set<Id>();
+
+        for (Establecimiento_PPH__c establecimiento : [
             select
+                Id,
+                Establecimiento__c,
                 Establecimiento__r.Coordenadas__latitude__s,
                 Establecimiento__r.Coordenadas__longitude__s,
                 Establecimiento__r.Name,
@@ -278,6 +283,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
                 Cantidad_Variedad_No_SE__c,
                 (
                     Select
+                        Id,
                         Variedad__c,
                         Variedad__r.Name,
                         Variedad__r.Obtentor_Comercializa__r.Id_Obtentor__c,
@@ -289,7 +295,13 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
             where Establecimiento__r.productor__c =: CrearCompraController.getAccount().id
             and plan_de_siembra__c =: planId
             order by createddate asc
-        ]);
+        ]) {
+            if (establecimientosVistos.add(establecimiento.Establecimiento__c)) {
+                establecimientosUnicos.add(establecimiento);
+            }
+        }
+
+        data.put('establecimientos', establecimientosUnicos);
 
         return data;
     }
@@ -925,9 +937,27 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     }
 
     @AuraEnabled(cacheable=true)
-  public static List<LookupSearchResult> searchEstablecimientos(
-    String searchTerm
-  ) {
+  public static List<LookupSearchResult> searchEstablecimientos(String searchTerm) {
+        return searchEstablecimientosDisponibles(searchTerm, null);
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<LookupSearchResult> searchEstablecimientosDisponibles(
+        String searchTerm,
+        Id planId
+    ) {
+    Set<Id> establecimientosUsados = new Set<Id>();
+
+    if (planId != null) {
+      for (Establecimiento_PPH__c establecimientoPph : [
+        SELECT Establecimiento__c
+        FROM Establecimiento_PPH__c
+        WHERE Plan_de_siembra__c = :planId
+      ]) {
+        establecimientosUsados.add(establecimientoPph.Establecimiento__c);
+      }
+    }
+
     List<Establecimiento__c> establecimientos = [
       SELECT Id, Name, Coordenadas__latitude__s, Coordenadas__longitude__s
       FROM Establecimiento__c
@@ -936,14 +966,19 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
         AND Productor__c = :CrearCompraController.getAccount().Id
         AND Origen__c = 'Propio'
         AND Vigente__c = TRUE
+        AND Id NOT IN :establecimientosUsados
     ];
 
         List<LookupSearchResult> results = new List<LookupSearchResult>();
+        Set<Id> establecimientosVistos = new Set<Id>();
 
         String icon = 'standard:address';
 
         for (Establecimiento__c establecimiento : establecimientos) {
-      results.add(
+            if (!establecimientosVistos.add(establecimiento.Id)) {
+                continue;
+            }
+            results.add(
         new LookupSearchResult(
           establecimiento.Id,
           'Establecimiento__c',
@@ -968,6 +1003,7 @@ public without sharing class AdhesionPPH extends ApexErrorHandler {
     public static List<EstablecimientoOption> listEstablecimientosDisponibles() {
         Id accountId = CrearCompraController.getAccount().Id;
         List<EstablecimientoOption> options = new List<EstablecimientoOption>();
+        Set<Id> establecimientosVistos = new Set<Id>();
 
         for (Establecimiento__c e : [
             SELECT

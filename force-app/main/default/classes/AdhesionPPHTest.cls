@@ -233,4 +233,66 @@ public class AdhesionPPHTest {
         AdhesionPPH.save(JSON.serialize(AdhesionPPH.getTestData(var.id)), planId);
         return planId;
     }
+
+    @isTest
+    static void establecimientosPPHDuplicadosSeMuestranUnaVez() {
+        Test_TestUtils.disableFlows();
+
+        Cultivo__c cultivo = new Cultivo__c(
+            Name = 'Test',
+            Densidad_de_Siembra__c = 5,
+            Fecha_Vencimiento_Tonelada__c = Date.today()
+        );
+        insert cultivo;
+
+        Parametro_PPH__c parametro = new Parametro_PPH__c(
+            Name = 'Test',
+            cultivo__c = cultivo.Id,
+            Biotecnologia__c = 'Enlist E3'
+        );
+        parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today().addDays(-2);
+        parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today().addDays(2);
+        insert parametro;
+
+        Account productor = Test_TestUtils.crearProductor();
+        Establecimiento__c establecimiento = new Establecimiento__c(
+            Name = 'Campo duplicado',
+            Coordenadas__latitude__s = -31.9,
+            Coordenadas__longitude__s = -64.2,
+            Origen__c = 'Propio',
+            Vigente__c = true,
+            Productor__c = productor.Id
+        );
+        insert establecimiento;
+
+        Plan_de_siembra__c plan = new Plan_de_siembra__c(
+            Productor__c = productor.Id,
+            Estado__c = 'En Preparación',
+            Parametro_PPH__c = parametro.Id,
+            Name = 'Test 30500689443 Original',
+            Version__c = 'Original'
+        );
+        insert plan;
+
+        insert new List<Establecimiento_PPH__c>{
+            new Establecimiento_PPH__c(
+                Name = 'Campo duplicado',
+                Establecimiento__c = establecimiento.Id,
+                Plan_de_siembra__c = plan.Id
+            ),
+            new Establecimiento_PPH__c(
+                Name = 'Campo duplicado',
+                Establecimiento__c = establecimiento.Id,
+                Plan_de_siembra__c = plan.Id
+            )
+        };
+
+        Map<String, Object> data = AdhesionPPH.getLoadData(parametro.Id);
+        List<Establecimiento_PPH__c> establecimientos = (List<Establecimiento_PPH__c>) data.get('establecimientos');
+
+        System.assertEquals(1, establecimientos.size(), 'Un establecimiento no debe mostrarse más de una vez');
+
+        List<LookupSearchResult> resultados = AdhesionPPH.searchEstablecimientosDisponibles('Campo duplicado', plan.Id);
+        System.assertEquals(0, resultados.size(), 'El establecimiento usado no debe volver a aparecer como opción');
+    }
 }
