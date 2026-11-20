@@ -236,7 +236,7 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get showAddButton() {
-    return this.isAdhesion;
+    return this.isAdhesion && !this.grandesCuentas;
   }
 
   get cultivo() {
@@ -274,6 +274,10 @@ export default class AdhesionPph extends LightningElement {
 
   get grandesCuentas() {
     return this.account?.Grandes_Cuentas__c === true;
+  }
+
+  get gcEstablecimientoName() {
+    return this.account.N_CUIT__c + " - " + this.plan.Parametro_PPH__r.Name;
   }
 
   addRow() {
@@ -435,17 +439,30 @@ export default class AdhesionPph extends LightningElement {
 
     for (const establecimiento of this.template.querySelectorAll("c-establecimiento-pph")) {
       const est = establecimiento.getData();
-      est.origen = "Propio";
 
       if (establecimiento.info.record.Establecimiento__r) {
         est.id = establecimiento.info.record.Establecimiento__r.Id;
         est.pphId = establecimiento.info.id;
       }
 
+      // Grandes Cuentas no informa establecimiento: uno nuevo sale como CUIT - parámetro.
+      // Si ya existe, se conserva el nombre y el origen (no pisar un propio reutilizado).
+      const hasExistingEstId = this.isSalesforceId(est.id);
+      if (this.grandesCuentas === true && !hasExistingEstId) {
+        est.name = this.gcEstablecimientoName;
+        est.origen = "Grandes Cuentas";
+      } else if (this.grandesCuentas === true) {
+        est.origen =
+          establecimiento.info.record?.Establecimiento__r?.Origen__c || "Grandes Cuentas";
+      } else {
+        est.origen = "Propio";
+      }
+
       data.establecimientos.push(est);
     }
 
     data.total = this.totalHtCultivo;
+    data.grandesCuentas = this.grandesCuentas;
     data.saldoPph = this.saldoPph;
     return data;
   }
@@ -763,5 +780,9 @@ export default class AdhesionPph extends LightningElement {
       accountId: this.account.Id,
       variant: "sg"
     });
+  }
+
+  get planId() {
+    return this.plan?.Id || null;
   }
 }

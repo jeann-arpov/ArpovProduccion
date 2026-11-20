@@ -82,16 +82,27 @@ const getRecordsFromForms = (elem) => {
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { trackErrorFuncional } from 'c/portalGa4Events';
 
-const errorEvent = (err) => {
+const CORTE_DE_RED =
+    /disconnected or canceled|request aborted|the request was canceled|failed to fetch|networkerror|error fetching|net::err/i;
+
+function mensajeToastError(err) {
+    const texto = reduceErrors(err).join('\n');
+    if (!texto || CORTE_DE_RED.test(texto)) {
+        return 'Se cortó la conexión. Probá de nuevo.';
+    }
+    return texto;
+}
+
+const errorEvent = (err, extras = {}) => {
     try {
         const messages = reduceErrors(err);
-        trackErrorFuncional(err, { messages });
+        trackErrorFuncional(err, { messages, ...extras });
     } catch (e) {
         // no bloquear UX por analytics
     }
     return new ShowToastEvent({
         title: 'Error',
-        message: reduceErrors(err).join('\n'),
+        message: extras.mensaje || mensajeToastError(err),
         variant: 'error',
         mode: 'sticky'
     });

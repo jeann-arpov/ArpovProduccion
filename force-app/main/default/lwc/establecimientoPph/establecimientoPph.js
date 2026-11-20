@@ -1,5 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
-import searchEstablecimientos from '@salesforce/apex/AdhesionPPH.searchEstablecimientos';
+import searchEstablecimientosDisponibles from '@salesforce/apex/AdhesionPPH.searchEstablecimientosDisponibles';
 import { reduceErrors } from 'c/utils';
 import { PAGES, communityPageUrl } from 'c/seNav';
 import { coordenadasError } from 'c/seGeo';
@@ -15,6 +15,8 @@ export default class EstablecimientoPph extends LightningElement {
     @api hiding;
     @api cultivo;
     @api totalHt;
+    @api grandesCuentas;
+    @api planId;
 
     name = '';
     cantidadNoSEInput = '';
@@ -58,6 +60,14 @@ export default class EstablecimientoPph extends LightningElement {
         clearTimeout(this.searchTimer);
     }
 
+    get isGrandesCuentas() {
+        return this.grandesCuentas === true;
+    }
+
+    get showSeleccion() {
+        return !this.isGrandesCuentas;
+    }
+
     get cultivoName() {
         return this.cultivo?.Name || '';
     }
@@ -75,7 +85,7 @@ export default class EstablecimientoPph extends LightningElement {
     }
 
     get showCrear() {
-        return !this.establecimiento;
+        return !this.isGrandesCuentas && !this.establecimiento;
     }
 
     get establecimientosUrl() {
@@ -131,7 +141,11 @@ export default class EstablecimientoPph extends LightningElement {
     }
 
     get disabled() {
-        return !this.establecimiento && (this.name.trim() === '' || !this.hasCoordinates);
+        return (
+            !this.isGrandesCuentas &&
+            !this.establecimiento &&
+            (this.name.trim() === '' || !this.hasCoordinates)
+        );
     }
 
     get infoClass() {
@@ -206,7 +220,7 @@ export default class EstablecimientoPph extends LightningElement {
     async runSearch(term) {
         this.searching = true;
         try {
-            const res = await searchEstablecimientos({ searchTerm: term });
+            const res = await searchEstablecimientosDisponibles({ searchTerm: term, planId: this.planId });
             if (term !== this.searchTerm.trim()) return;
             this.searchResults = (res || []).map((r) => ({
                 id: r.id,
