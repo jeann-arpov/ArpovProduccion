@@ -166,6 +166,31 @@ private class CuentaGranariaVarietalValidatorTest {
   }
 
   /**
+   * Suma de porcentajes < 100 debe aceptarse (solo es error si supera 100).
+   */
+  @isTest
+  static void testSumaMenorA100QuedaAProcesar() {
+    prepararDatos();
+    Movimiento_BolsaTech__c mbt = crearMbt(
+      new List<Decimal>{ 40, 30, 20 },
+      'UC7'
+    );
+
+    Test.startTest();
+    CuentaGranariaVarietalValidator.validate(
+      new List<Movimiento_BolsaTech__c>{ mbt }
+    );
+    Test.stopTest();
+
+    System.assertEquals(
+      'A procesar',
+      mbt.Estado__c,
+      'Resultado__c=' + mbt.Resultado__c
+    );
+    System.assertEquals('OK', mbt.Resultado__c);
+  }
+
+  /**
    * Validación desde el front (@AuraEnabled validate(Id)): si el camión no está
    * en 'Creado' ni 'Con error', debe lanzar excepción.
    */
