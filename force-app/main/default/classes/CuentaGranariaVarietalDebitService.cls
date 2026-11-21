@@ -7,17 +7,14 @@
  * Granaria varietal del productor/cultivo/campaña.
  *
  * Reglas:
- *  - Umbral de presencia configurable (Configuracion_Varietal__mdt,
- *    default 10%): variedades por debajo no se debitan.
+ *  - Configuración por Configuracion_Varietal__mdt: umbral de presencia,
+ *    tecnología de la CG y biotecnología (sin valores hardcodeados).
  *  - Idempotente por camión: no vuelve a debitar variedades ya debitadas
  *    para el mismo Mov_BolsaTech__c.
  *  - Al final recalcula Saldo_Variedad__c de las sub-cuentas y Saldo_Cuenta__c.
  */
 public with sharing class CuentaGranariaVarietalDebitService {
-  private static final String TECNOLOGIA_TRIGO = 'RR1/RR2 - BT/Convencional';
-  private static final String BIOTECNOLOGIA_TRIGO = 'Convencional';
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
-  private static final Decimal UMBRAL_DEFAULT = 10;
 
   /**
    * Representa una línea del escáner: variedad y porcentaje varietal.
@@ -90,15 +87,20 @@ public with sharing class CuentaGranariaVarietalDebitService {
     }
 
     Configuracion_Varietal__mdt cfg = obtenerConfiguracion();
-    Decimal umbral = (cfg != null &&
-      cfg.Umbral_Presencia__c != null)
-      ? cfg.Umbral_Presencia__c
-      : UMBRAL_DEFAULT;
+    Decimal umbral = cfg != null ? cfg.Umbral_Presencia__c : null;
+    String tecnologia = cfg != null ? cfg.Tecnologia__c : null;
+    String biotecnologia = cfg != null ? cfg.Biotecnologia__c : null;
+
+    if (umbral == null) {
+      resultado.mensaje = 'Umbral de presencia no configurado (Configuracion_Varietal__mdt).';
+      return resultado;
+    }
 
     Cuenta_Granaria__c cg = obtenerCuentaGranaria(
       productorId,
       campanaId,
-      cultivoId
+      cultivoId,
+      tecnologia
     );
     if (cg == null) {
       resultado.mensaje = 'No se encontró Cuenta Granaria para el productor/campaña/cultivo.';
@@ -107,7 +109,8 @@ public with sharing class CuentaGranariaVarietalDebitService {
     resultado.cgId = cg.Id;
 
     Map<Id, String> biotecnologiaPorVariedad = obtenerBiotecnologiaPorVariedad(
-      lineas
+      lineas,
+      biotecnologia
     );
 
     Set<Id> variedadesYaDebitadas = new Set<Id>();
@@ -151,7 +154,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
               linea.variedadId
             )
             ? biotecnologiaPorVariedad.get(linea.variedadId)
-            : BIOTECNOLOGIA_TRIGO,
+            : biotecnologia,
           Variedad__c = linea.variedadId,
           Detalle_Variedad_CG__c = subCuentaPorVariedad.get(linea.variedadId),
           Cantidad__c = debitoTn,
@@ -207,13 +210,15 @@ public with sharing class CuentaGranariaVarietalDebitService {
   }
 
   /**
-   * Localiza la Cuenta Granaria varietal (tecnología RR1/RR2 - BT/Convencional)
-   * para el productor/cultivo, priorizando la de la campaña y, si no, la sin campaña.
+   * Localiza la Cuenta Granaria varietal (según la tecnología configurada en
+   * Configuracion_Varietal__mdt) para el productor/cultivo, priorizando la de la
+   * campaña y, si no, la sin campaña.
    */
   private static Cuenta_Granaria__c obtenerCuentaGranaria(
     Id productorId,
     Id campanaId,
-    Id cultivoId
+    Id cultivoId,
+    String tecnologia
   ) {
     List<Cuenta_Granaria__c> cgs = [
       SELECT Id
@@ -221,7 +226,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
       WHERE
         Productor__c = :productorId
         AND Cultivo__c = :cultivoId
-        AND Tecnologia__c = :TECNOLOGIA_TRIGO
+        AND Tecnologia__c = :tecnologia
         AND (Campania__c = :campanaId
         OR Campania__c = NULL)
       ORDER BY Campania__c DESC NULLS LAST
@@ -231,10 +236,12 @@ public with sharing class CuentaGranariaVarietalDebitService {
   }
 
   /**
-   * Devuelve la biotecnología de cada variedad de las líneas (default Convencional).
+   * Devuelve la biotecnología de cada variedad de las líneas, usando la
+   * biotecnología configurada en Configuracion_Varietal__mdt como respaldo.
    */
   private static Map<Id, String> obtenerBiotecnologiaPorVariedad(
-    List<LineaVarietal> lineas
+    List<LineaVarietal> lineas,
+    String biotecnologiaDefault
   ) {
     Set<Id> ids = new Set<Id>();
     for (LineaVarietal linea : lineas) {
@@ -253,7 +260,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
     ]) {
       resultado.put(
         v.Id,
-        v.Biotecnologia__c != null ? v.Biotecnologia__c : BIOTECNOLOGIA_TRIGO
+        v.Biotecnologia__c != null ? v.Biotecnologia__c : biotecnologiaDefault
       );
     }
     return resultado;

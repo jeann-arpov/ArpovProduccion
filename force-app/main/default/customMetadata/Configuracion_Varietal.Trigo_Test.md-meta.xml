@@ -22,4 +22,12 @@
         <field>Umbral_Apertura_Expediente__c</field>
         <value xsi:type="xsd:double">-4</value>
     </values>
+    <values>
+        <field>Tecnologia__c</field>
+        <value xsi:type="xsd:string">RR1/RR2 - BT/Convencional</value>
+    </values>
+    <values>
+        <field>Biotecnologia__c</field>
+        <value xsi:type="xsd:string">Convencional</value>
+    </values>
 </CustomMetadata>

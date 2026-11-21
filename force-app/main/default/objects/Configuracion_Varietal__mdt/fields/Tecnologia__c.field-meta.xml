@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tecnologia__c</fullName>
+    <description
+  >Tecnología de la Cuenta Granaria varietal, usada para resolver la CG en el débito.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Tecnología</label>
+    <length>80</length>
+    <required>false</required>
+    <type>Text</type>
+</CustomField>
