@@ -1,533 +1,1020 @@
 @isTest
 public class PlantillaVtasInfXlsxBuilder_TEST {
+  @testSetup
+  static void setup() {
+    Test_TestUtils.disableFlows();
+    insert new List<Variedad__c>{
+      new Variedad__c(Cultivar_Inase__c = 'SOJA DM 4615'),
+      new Variedad__c(Cultivar_Inase__c = 'SOJA DM 5040'),
+      new Variedad__c(Cultivar_Inase__c = 'TRIGO BIOINTA 3005')
+    };
+  }
 
-    @testSetup
-    static void setup() {
-        Test_TestUtils.disableFlows();
-        insert new List<Variedad__c>{
-            new Variedad__c(Cultivar_Inase__c = 'SOJA DM 4615'),
-            new Variedad__c(Cultivar_Inase__c = 'SOJA DM 5040'),
-            new Variedad__c(Cultivar_Inase__c = 'TRIGO BIOINTA 3005')
-        };
+  @isTest
+  static void generaPlantillaBase64EsZipValido() {
+    Test.startTest();
+    String b64 = PlantillaVtasInfXlsxBuilder.generarPlantillaBase64(false);
+    Test.stopTest();
+
+    System.assertNotEquals(null, b64);
+    System.assert(
+      b64.length() > 5000,
+      'El xlsx generado debe heredar el peso de la plantilla base.'
+    );
+
+    Blob z = EncodingUtil.base64Decode(b64);
+    String hexHeader = EncodingUtil.convertToHex(z)
+      .substring(0, 8)
+      .toLowerCase();
+    System.assertEquals('504b0304', hexHeader, 'Debe ser un ZIP v\u00e1lido.');
+  }
+
+  @isTest
+  static void diccionariosTienenContenidoEsperado() {
+    Test.startTest();
+    Map<String, List<String>> dicc = PlantillaVtasInfXlsxBuilder.loadDiccionarios();
+    Test.stopTest();
+
+    System.assert(
+      !dicc.get('VARIEDADES').isEmpty(),
+      'Debe traer variedades del setup.'
+    );
+    System.assertEquals(
+      5,
+      dicc.get('CATEGORIAS').size(),
+      'Categor\u00edas INASE fijas.'
+    );
+    System.assert(
+      dicc.get('CATEGORIAS').contains('Original o Fundadora'),
+      'La plantilla debe mostrar Original o Fundadora como una sola categor\u00eda.'
+    );
+    System.assert(
+      !dicc.get('CATEGORIAS').contains('Original'),
+      'No debe listar Original por separado en la plantilla.'
+    );
+    System.assertEquals(
+      4,
+      dicc.get('TIPO_COMP').size(),
+      'FC, NC, Remito, Remito de Devoluci\u00f3n.'
+    );
+    System.assert(
+      !dicc.get('TIPO_COMP').contains('ND'),
+      'ND ya no debe estar en la lista de Tipo de Comprobante (ticket 1874).'
+    );
+    System.assert(
+      dicc.get('TIPO_COMP').contains('Remito'),
+      'Remito debe estar en Tipo de Comprobante.'
+    );
+    List<String> anos = dicc.get('CAMPANAS');
+    Integer y = Date.today().year();
+    System.assertEquals(
+      3,
+      anos.size(),
+      'Años sueltos: actual-2, actual-1 y actual. El siguiente no va como número.'
+    );
+    System.assert(
+      anos.contains(String.valueOf(y - 2)),
+      'Debe incluir 2 a\u00f1os atr\u00e1s.'
+    );
+    System.assert(
+      anos.contains(String.valueOf(y)),
+      'Debe incluir el a\u00f1o actual.'
+    );
+    System.assert(
+      !anos.contains(String.valueOf(y + 1)),
+      '2027 (a\u00f1o siguiente) no va suelto: en SOJA se informa el a\u00f1o de inicio.'
+    );
+  }
+
+  @isTest
+  static void buildAnosCampanaListaTest() {
+    List<String> anos = PlantillaVtasInfXlsxBuilder.buildAnosCampanaLista();
+    Integer y = Date.today().year();
+    System.assertEquals(String.valueOf(y - 2), anos[0]);
+    System.assertEquals(String.valueOf(y), anos[2]);
+    System.assert(!anos.contains(String.valueOf(y + 1)));
+  }
+
+  @isTest
+  static void buildAnosCampanaListaIgnoraNombresDeCampana() {
+    Test_TestUtils.disableFlows();
+    Integer y = Date.today().year();
+    String siguiente = String.valueOf(y + 1);
+    Cultivo__c soja = new Cultivo__c(Name = 'SOJA', Densidad_de_Siembra__c = 1);
+    Cultivo__c trigo = new Cultivo__c(
+      Name = 'TRIGO',
+      Densidad_de_Siembra__c = 1
+    );
+    insert new List<Cultivo__c>{ soja, trigo };
+
+    String nombreTrigo = siguiente + ' - TRIGO';
+    String nombreSoja = siguiente + ' - SOJA';
+    insert new List<Campana_Agricola__c>{
+      new Campana_Agricola__c(
+        Name = nombreSoja,
+        Ano__c = siguiente,
+        Id_Externo__c = 'PLT_SOJA_SIG',
+        Z9_Clave_Unica__c = 'PLT_Z9_SOJA_SIG',
+        SKEY_CAMPANIA__c = 8800401,
+        Cultivo__c = soja.Id
+      ),
+      new Campana_Agricola__c(
+        Name = nombreTrigo,
+        Ano__c = siguiente,
+        Id_Externo__c = 'PLT_TRIGO_SIG',
+        Z9_Clave_Unica__c = 'PLT_Z9_TRIGO_SIG',
+        SKEY_CAMPANIA__c = 8800402,
+        Cultivo__c = trigo.Id
+      )
+    };
+
+    List<String> anos = PlantillaVtasInfXlsxBuilder.buildAnosCampanaLista();
+    System.assertEquals(
+      3,
+      anos.size(),
+      'La plantilla lista solo tres a\u00f1os, sin cultivo.'
+    );
+    System.assert(
+      !anos.contains(nombreTrigo),
+      'No mezcla el nombre de la campa\u00f1a.'
+    );
+    System.assert(
+      !anos.contains(nombreSoja),
+      'No mezcla el nombre de la campa\u00f1a.'
+    );
+    System.assert(
+      !anos.contains(siguiente),
+      'El a\u00f1o siguiente no entra en la plantilla.'
+    );
+  }
+
+  @isTest
+  static void referenciasSheetIncluyeVariedadesYCampanas() {
+    Map<String, List<String>> dicc = new Map<String, List<String>>{
+      'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
+      'TIPO_COMP' => new List<String>{
+        'FC',
+        'NC',
+        'Remito',
+        'Remito de Devolución'
+      },
+      'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2' },
+      'CAMPANAS' => new List<String>{ '2025', '2026' }
+    };
+
+    String base =
+      '<?xml version="1.0"?>' +
+      '<worksheet><sheetPr><tabColor rgb="FFFFC000"/></sheetPr>' +
+      '<dimension ref="B1:E7"/><sheetData>' +
+      '<row r="1" spans="2:5"><c r="C1" s="31" t="s"><v>0</v></c></row>' +
+      '<row r="2" spans="2:5"><c r="B2" s="2" t="s"><v>1</v></c></row>' +
+      '<row r="3" spans="2:5"><c r="B3" s="20"/></row>' +
+      '</sheetData><mergeCells count="1"><mergeCell ref="C1:E1"/></mergeCells></worksheet>';
+
+    Test.startTest();
+    String xml = PlantillaVtasInfXlsxBuilder.patchReferenciasSheet(base, dicc);
+    Test.stopTest();
+
+    System.assert(xml.contains('VAR-1'), 'Variedad debe estar en REFERENCIAS.');
+    System.assert(
+      xml.contains('Remito de Devoluci'),
+      'Remito de Devoluci\u00f3n debe estar.'
+    );
+    System.assert(xml.contains('2026'), 'Campa\u00f1a debe estar.');
+    System.assert(
+      xml.contains('tabColor rgb="FFFFC000"'),
+      'Debe conservar color de pesta\u00f1a.'
+    );
+    System.assert(
+      xml.contains('s="31"') || xml.contains('s="2"'),
+      'Debe conservar estilos del template.'
+    );
+    System.assert(xml.contains('r="B3"'), 'Campa\u00f1as en columna B.');
+    System.assert(
+      xml.contains('r="E3"') || xml.contains('r="E4"'),
+      'Variedades en columna E.'
+    );
+  }
+
+  @isTest
+  static void referenciasNoDuplicaCeldaF2SiYaExiste() {
+    Map<String, List<String>> dicc = new Map<String, List<String>>{
+      'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
+      'TIPO_COMP' => new List<String>{ 'FC', 'NC' },
+      'VARIEDADES' => new List<String>{ 'VAR-1' },
+      'CAMPANAS' => new List<String>{ '2025' }
+    };
+
+    // Como la plantilla geo real: F2 ya está por sharedStrings (sin texto "Provincia Destino").
+    String base =
+      '<?xml version="1.0"?>' +
+      '<worksheet><sheetData>' +
+      '<row r="1" spans="2:6"><c r="C1" s="31" t="s"><v>0</v></c></row>' +
+      '<row r="2" spans="2:6">' +
+      '<c r="B2" s="2" t="s"><v>1</v></c>' +
+      '<c r="F2" s="2" t="s"><v>12</v></c>' +
+      '</row>' +
+      '<row r="3" spans="2:6"><c r="F3" s="1" t="s"><v>43</v></c></row>' +
+      '</sheetData></worksheet>';
+
+    String xml = PlantillaVtasInfXlsxBuilder.patchReferenciasSheet(base, dicc);
+    Integer f2Count = xml.split('r="F2"', -1).size() - 1;
+    System.assertEquals(
+      1,
+      f2Count,
+      'No debe duplicar la celda F2 del encabezado.'
+    );
+    System.assert(
+      xml.contains('r="F3"'),
+      'Debe conservar provincias existentes.'
+    );
+  }
+
+  @isTest
+  static void comentariosSheetIncluyeVariedadesYCampanas() {
+    Map<String, List<String>> dicc = new Map<String, List<String>>{
+      'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
+      'TIPO_COMP' => new List<String>{
+        'FC',
+        'NC',
+        'Remito',
+        'Remito de Devolución'
+      },
+      'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2' },
+      'CAMPANAS' => new List<String>{ '2025', '2026' }
+    };
+
+    Test.startTest();
+    String xml = PlantillaVtasInfXlsxBuilder.buildComentariosSheet(dicc);
+    Test.stopTest();
+
+    System.assert(
+      xml.contains('VAR-1'),
+      'Variedad debe estar en el sheet de Comentarios.'
+    );
+    System.assert(
+      xml.contains('Remito de Devoluci'),
+      'Remito de Devoluci\u00f3n debe estar.'
+    );
+    System.assert(xml.contains('2026'), 'Campa\u00f1a debe estar.');
+    System.assert(!xml.contains('>ND<'), 'ND no debe aparecer.');
+    System.assert(xml.contains('Variedad__c'), 'Header Variedad__c presente.');
+    System.assert(
+      xml.contains('Campana_Agricola__c'),
+      'Header Campana_Agricola__c presente.'
+    );
+  }
+
+  @isTest
+  static void patchSheet1NuevoModeloActualizaReferencias() {
+    String sheet1 =
+      '<worksheet>' +
+      '<dataValidations count="1">' +
+      '<dataValidation sqref="D4:E1048576"/>' +
+      '</dataValidations>' +
+      '<extLst><ext><x14:dataValidations count="4">' +
+      '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$B$3:$B$7</xm:f></x14:formula1></x14:dataValidation>' +
+      '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$C$3:$C$6</xm:f></x14:formula1></x14:dataValidation>' +
+      '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$D$3:$D$6</xm:f></x14:formula1></x14:dataValidation>' +
+      '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$E$3:$E$1504</xm:f></x14:formula1></x14:dataValidation>' +
+      '</x14:dataValidations></ext></extLst>' +
+      '</worksheet>';
+
+    Map<String, List<String>> dicc = new Map<String, List<String>>{
+      'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
+      'TIPO_COMP' => new List<String>{
+        'FC',
+        'NC',
+        'Remito',
+        'Remito de Devolución'
+      },
+      'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2', 'VAR-3' },
+      'CAMPANAS' => new List<String>{ '2025', '2026' }
+    };
+
+    Test.startTest();
+    String resultado = PlantillaVtasInfXlsxBuilder.patchSheet1DataValidations(
+      sheet1,
+      dicc
+    );
+    Test.stopTest();
+
+    System.assert(
+      resultado.contains('sqref="D4:D1048576"'),
+      'CUIT solo columna D.'
+    );
+    System.assert(
+      resultado.contains('REFERENCIAS!$B$3:$B$4'),
+      'Campa\u00f1as din\u00e1micas en col B.'
+    );
+    System.assert(
+      resultado.contains('REFERENCIAS!$E$3:$E$5'),
+      'Variedades din\u00e1micas en col E.'
+    );
+    System.assert(
+      resultado.contains('REFERENCIAS!$D$3:$D$6'),
+      'Tipo comprobante 4 valores en col D.'
+    );
+  }
+
+  @isTest
+  static void patchSheet1AgregaValidacionesNuevas() {
+    String sheet1 =
+      '<worksheet>' +
+      '<dataValidations count="1">' +
+      '<dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1"' +
+      ' prompt="Kilos totales de la línea de facturación" sqref="B2:B23"' +
+      ' xr:uid="{00000000-0002-0000-0000-000002000000}"/>' +
+      '</dataValidations>' +
+      '<extLst><ext><x14:dataValidations count="2" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">' +
+      '<x14:dataValidation type="list"><x14:formula1><xm:f>Comentarios!$D$5:$D$7</xm:f></x14:formula1>' +
+      '<xm:sqref>K2:K23</xm:sqref></x14:dataValidation>' +
+      '</x14:dataValidations></ext></extLst>' +
+      '</worksheet>';
+
+    Map<String, List<String>> dicc = new Map<String, List<String>>{
+      'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
+      'TIPO_COMP' => new List<String>{
+        'FC',
+        'NC',
+        'Remito',
+        'Remito de Devolución'
+      },
+      'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2', 'VAR-3' },
+      'CAMPANAS' => new List<String>{ '2025', '2026' }
+    };
+
+    Test.startTest();
+    String resultado = PlantillaVtasInfXlsxBuilder.patchSheet1DataValidations(
+      sheet1,
+      dicc
+    );
+    Test.stopTest();
+
+    System.assert(
+      !resultado.contains(
+        'Kilos Totales debe ser un entero mayor o igual a 20'
+      ),
+      'Kilos Totales ya no debe imponer mínimo 20 kg en plantilla.'
+    );
+    System.assert(
+      !resultado.contains('<formula1>20</formula1>'),
+      'No debe forzar formula1=20 en validación de kilos.'
+    );
+    System.assert(
+      resultado.contains('Comentarios!$D$5:$D$8'),
+      'Tipo Comprobante debe abarcar hasta D8 (4 valores).'
+    );
+    System.assert(
+      resultado.contains('Comentarios!$F$5:$F$6'),
+      'Campa\u00f1a debe apuntar a F5:F6 (2 campa\u00f1as).'
+    );
+    System.assert(
+      resultado.contains('Comentarios!$E$5:$E$7'),
+      'Variedad debe apuntar a E5:E7 (3 variedades).'
+    );
+    System.assert(
+      resultado.contains('<x14:dataValidations count="4"'),
+      'Debe haber 4 validaciones x14 ahora.'
+    );
+    System.assert(
+      resultado.contains('A2:A23'),
+      'Campa\u00f1a debe tener desplegable hasta fila 23.'
+    );
+    System.assert(
+      resultado.contains('J2:J23'),
+      'Variedad debe tener desplegable hasta fila 23 (col J).'
+    );
+    System.assert(
+      resultado.contains('I2:I23'),
+      'Tipo comprobante en columna I.'
+    );
+    System.assert(
+      resultado.contains('B2:B23'),
+      'Kilos Totales debe validar hasta fila 23.'
+    );
+  }
+
+  @isTest
+  static void remapValidacionesLayoutAJTest() {
+    String xml =
+      '<dataValidation type="textLength" sqref="I2:I23"/>' +
+      '<xm:sqref>K2:K23</xm:sqref><dataValidation sqref="D2:E23"/>' +
+      '<dataValidation type="whole" operator="equal" sqref="G2:G23"><formula1>1</formula1></dataValidation>';
+    String out = PlantillaVtasInfXlsxBuilder.remapValidacionesLayoutAJ(xml);
+    System.assert(
+      out.contains('sqref="G2:G23"') == false ||
+      !out.contains('operator="equal"'),
+      'Quita validaci\u00f3n kilos/bolsa=1 en G.'
+    );
+    System.assert(out.contains('sqref="D2:D23"'), 'CUIT solo columna D.');
+    System.assert(
+      !out.contains('type="textLength"'),
+      'Se quita la validaci\u00f3n de 16 d\u00edgitos del N\u00b0 de Comprobante.'
+    );
+    System.assert(out.contains('<xm:sqref>I2:I23</xm:sqref>'), 'Tipo en I.');
+  }
+
+  @isTest
+  static void pegarDatosSheetYWorkbookTest() {
+    String pegar = PlantillaVtasInfXlsxBuilder.buildPegarDatosSheet();
+    System.assert(
+      pegar.contains('Pegá aquí los datos'),
+      'Debe instruir pegar en esta hoja.'
+    );
+    System.assert(
+      pegar.contains('Campaña Agrícola'),
+      'Debe repetir encabezados de Datos.'
+    );
+    System.assert(
+      pegar.contains('A1:L'),
+      'Hoja Pegar datos con 12 columnas A-L (incluye Provincia/Localidad Destino).'
+    );
+    System.assert(
+      pegar.contains('Provincia Destino'),
+      'Debe incluir encabezado Provincia Destino.'
+    );
+    System.assert(
+      pegar.contains('Localidad Destino'),
+      'Debe incluir encabezado Localidad Destino.'
+    );
+
+    Map<String, Blob> entradasNuevo = new Map<String, Blob>{
+      'xl/worksheets/sheet3.xml' => Blob.valueOf(
+        '<worksheet>CampanaAgricola</worksheet>'
+      )
+    };
+    PlantillaVtasInfXlsxBuilder.addPegarDatosToWorkbook(entradasNuevo);
+    System.assert(
+      entradasNuevo.get('xl/worksheets/sheet3.xml')
+        .toString()
+        .contains('CampanaAgricola'),
+      'Modelo nuevo con REFERENCIAS no reemplaza sheet3.'
+    );
+  }
+
+  @isTest
+  static void patchSheet1HeadersRenombraCampana() {
+    String sheet1 = '<c r="A1" t="inlineStr"><is><t>Campana_de_Ventas__c</t></is></c>';
+    String out = PlantillaVtasInfXlsxBuilder.patchSheet1Headers(sheet1);
+    System.assert(
+      out.contains('Campaña Agrícola'),
+      'Col A debe mostrar el label del Pop Up.'
+    );
+    System.assert(
+      !out.contains('Campana_de_Ventas__c'),
+      'No debe quedar el API name viejo en A1.'
+    );
+  }
+
+  @isTest
+  static void patchSheet1HeadersUsaLabelsComprobante() {
+    String sheet1 =
+      '<c r="E1" t="inlineStr"><is><t>Fecha_de_Facturacion__c</t></is></c>' +
+      '<c r="F1" t="inlineStr"><is><t>Linea_Facturacion__c</t></is></c>';
+    String out = PlantillaVtasInfXlsxBuilder.patchSheet1Headers(sheet1);
+    System.assert(
+      out.contains('Fecha Comprobante'),
+      'Fecha debe usar label Comprobante.'
+    );
+    System.assert(
+      out.contains('Línea del Comprobante'),
+      'Línea debe usar label Comprobante.'
+    );
+    System.assert(
+      !out.contains('Facturacion'),
+      'No debe quedar Facturacion en encabezados.'
+    );
+  }
+
+  @isTest
+  static void patchSheet1QuitaValidacionFecha() {
+    String sheet1 =
+      '<dataValidations count="2">' +
+      '<dataValidation type="date" sqref="E2:E23" xr:uid="{abc}"/>' +
+      '<dataValidation sqref="B2:B23" xr:uid="{def}"/>' +
+      '</dataValidations>';
+    Map<String, List<String>> dicc = PlantillaVtasInfXlsxBuilder.loadDiccionarios();
+    String out = PlantillaVtasInfXlsxBuilder.patchSheet1DataValidations(
+      sheet1,
+      dicc
+    );
+    System.assert(
+      !out.contains('sqref="E2:E23"'),
+      'No debe forzar formato fecha en Excel.'
+    );
+  }
+
+  @isTest
+  static void escapeXmlTest() {
+    System.assertEquals('', PlantillaVtasInfXlsxBuilder.escapeXml(null));
+    System.assertEquals(
+      'a &amp; b',
+      PlantillaVtasInfXlsxBuilder.escapeXml('a & b')
+    );
+    System.assertEquals(
+      '&lt;tag&gt;',
+      PlantillaVtasInfXlsxBuilder.escapeXml('<tag>')
+    );
+  }
+
+  @isTest
+  static void xlsxGeneradoContieneVariedadesYValidacionesNuevas() {
+    Test.startTest();
+    String b64 = PlantillaVtasInfXlsxBuilder.generarPlantillaBase64(false);
+    Test.stopTest();
+
+    Blob zipBlob = EncodingUtil.base64Decode(b64);
+    Compression.ZipReader zr = new Compression.ZipReader(zipBlob);
+
+    String sheet2 = null;
+    String sheet1 = null;
+    String sheet3 = null;
+    String workbook = null;
+    Boolean tieneLocalidades = false;
+    for (Compression.ZipEntry e : zr.getEntries()) {
+      if (e.getName() == 'xl/worksheets/sheet2.xml')
+        sheet2 = e.getContent().toString();
+      if (e.getName() == 'xl/worksheets/sheet1.xml')
+        sheet1 = e.getContent().toString();
+      if (e.getName() == 'xl/worksheets/sheet3.xml')
+        sheet3 = e.getContent().toString();
+      if (e.getName() == 'xl/worksheets/sheet4.xml')
+        tieneLocalidades = true;
+      if (e.getName() == 'xl/workbook.xml')
+        workbook = e.getContent().toString();
     }
 
-    @isTest
-    static void generaPlantillaBase64EsZipValido() {
-        Test.startTest();
-        String b64 = PlantillaVtasInfXlsxBuilder.generarPlantillaBase64(false);
-        Test.stopTest();
+    System.assertNotEquals(
+      null,
+      sheet1,
+      'sheet1.xml debe estar en el zip generado.'
+    );
 
-        System.assertNotEquals(null, b64);
-        System.assert(b64.length() > 5000, 'El xlsx generado debe heredar el peso de la plantilla base.');
-
-        Blob z = EncodingUtil.base64Decode(b64);
-        String hexHeader = EncodingUtil.convertToHex(z).substring(0, 8).toLowerCase();
-        System.assertEquals('504b0304', hexHeader, 'Debe ser un ZIP v\u00e1lido.');
-    }
-
-    @isTest
-    static void diccionariosTienenContenidoEsperado() {
-        Test.startTest();
-        Map<String, List<String>> dicc = PlantillaVtasInfXlsxBuilder.loadDiccionarios();
-        Test.stopTest();
-
-        System.assert(!dicc.get('VARIEDADES').isEmpty(), 'Debe traer variedades del setup.');
-        System.assertEquals(5, dicc.get('CATEGORIAS').size(), 'Categor\u00edas INASE fijas.');
+    if (sheet1.contains('REFERENCIAS!')) {
+      System.assertNotEquals(
+        null,
+        sheet3,
+        'sheet3 REFERENCIAS debe estar en el zip generado.'
+      );
+      System.assert(
+        sheet3.contains('SOJA DM 4615'),
+        'Variedad SOJA DM 4615 debe estar en REFERENCIAS.'
+      );
+      System.assert(
+        sheet3.contains('Remito de Devoluci'),
+        'Remito de Devoluci\u00f3n debe estar en REFERENCIAS.'
+      );
+      System.assert(
+        sheet3.contains('tabColor'),
+        'REFERENCIAS debe conservar color de pesta\u00f1a.'
+      );
+      System.assert(
+        sheet3.contains('<sheetProtection'),
+        'REFERENCIAS debe estar protegida.'
+      );
+      System.assert(
+        sheet3.contains('selectLockedCells="0"'),
+        'REFERENCIAS debe permitir seleccionar/copiar (selectLockedCells=0 en OOXML).'
+      );
+      System.assert(
+        sheet1.contains('tabSelected="1"'),
+        'CARGA debe ser la hoja activa.'
+      );
+      System.assertNotEquals(
+        null,
+        workbook,
+        'workbook.xml debe estar en el zip.'
+      );
+      System.assert(
+        workbook.contains('activeTab="0"'),
+        'Excel debe abrir en pesta\u00f1a CARGA.'
+      );
+      System.assert(
+        workbook.contains('lockStructure="1"'),
+        'La estructura del libro debe impedir renombrar pesta\u00f1as.'
+      );
+      System.assert(
+        workbook.contains('name="CARGA"'),
+        'La pesta\u00f1a de datos debe llamarse CARGA.'
+      );
+      System.assert(
+        workbook.contains('name="INSTRUCCIONES"'),
+        'La pesta\u00f1a de instrucciones debe llamarse INSTRUCCIONES.'
+      );
+      System.assert(
+        workbook.contains('name="REFERENCIAS"'),
+        'La pesta\u00f1a de listas debe llamarse REFERENCIAS.'
+      );
+      System.assert(
+        !sheet1.contains('<sheetProtection'),
+        'CARGA debe seguir editable.'
+      );
+      System.assert(
+        sheet2 == null || sheet2.contains('<sheetProtection'),
+        'INSTRUCCIONES debe quedar solo lectura.'
+      );
+      if (tieneLocalidades) {
         System.assert(
-            dicc.get('CATEGORIAS').contains('Original o Fundadora'),
-            'La plantilla debe mostrar Original o Fundadora como una sola categor\u00eda.'
+          workbook.contains('name="LOCALIDADES"'),
+          'La pesta\u00f1a de localidades debe llamarse LOCALIDADES.'
         );
-        System.assert(
-            !dicc.get('CATEGORIAS').contains('Original'),
-            'No debe listar Original por separado en la plantilla.'
-        );
-        System.assertEquals(4, dicc.get('TIPO_COMP').size(), 'FC, NC, Remito, Remito de Devoluci\u00f3n.');
-        System.assert(
-            !dicc.get('TIPO_COMP').contains('ND'),
-            'ND ya no debe estar en la lista de Tipo de Comprobante (ticket 1874).'
-        );
-        System.assert(
-            dicc.get('TIPO_COMP').contains('Remito'),
-            'Remito debe estar en Tipo de Comprobante.'
-        );
-        List<String> anos = dicc.get('CAMPANAS');
-        System.assertEquals(4, anos.size(), 'Rango: actual-2, actual-1, actual, actual+1.');
-        Integer y = Date.today().year();
-        System.assert(anos.contains(String.valueOf(y - 2)), 'Debe incluir 2 a\u00f1os atr\u00e1s.');
-        System.assert(anos.contains(String.valueOf(y + 1)), 'Debe incluir 1 a\u00f1o adelante.');
+      }
+      System.assert(
+        sheet2 == null || !sheet2.contains('tabSelected="1"'),
+        'INSTRUCCIONES no debe quedar como hoja activa.'
+      );
+      System.assert(
+        sheet3 == null || !sheet3.contains('tabSelected="1"'),
+        'REFERENCIAS no debe quedar como hoja activa.'
+      );
+      System.assert(
+        sheet1.contains('REFERENCIAS!$E$3:$E$'),
+        'Debe haber data validation de Variedad apuntando a REFERENCIAS col E.'
+      );
+      System.assert(
+        sheet1.contains('REFERENCIAS!$B$3:$B$'),
+        'Debe haber data validation de Campa\u00f1a apuntando a REFERENCIAS col B.'
+      );
+      System.assert(
+        sheet1.contains('J4:J'),
+        'Variedad en columna J desde fila 4.'
+      );
+      System.assert(
+        sheet1.contains('A4:A') && sheet1.contains('C4:C'),
+        'Desplegables deben cubrir desde fila 4.'
+      );
+    } else {
+      System.assertNotEquals(
+        null,
+        sheet2,
+        'sheet2.xml legacy debe estar en el zip generado.'
+      );
+      System.assert(
+        sheet2.contains('SOJA DM 4615'),
+        'Variedad SOJA DM 4615 debe estar en Comentarios.'
+      );
+      System.assert(
+        sheet1.contains('Comentarios!$E$5:$E$'),
+        'Debe haber data validation de Variedad apuntando a Comentarios col E.'
+      );
+      System.assert(
+        sheet1.contains('J2:J23'),
+        'Variedad en columna J hasta fila 23.'
+      );
     }
 
-    @isTest
-    static void buildAnosCampanaListaTest() {
-        List<String> anos = PlantillaVtasInfXlsxBuilder.buildAnosCampanaLista();
-        Integer y = Date.today().year();
-        System.assertEquals(String.valueOf(y - 2), anos[0]);
-        System.assertEquals(String.valueOf(y + 1), anos[3]);
-    }
+    System.assert(
+      !sheet1.contains('Kilos Totales debe ser un entero mayor o igual a 20'),
+      'Kilos Totales ya no debe imponer mínimo 20 kg en plantilla.'
+    );
+    System.assert(
+      !sheet1.contains('hidden="1"'),
+      'No debe ocultar columnas: el SR ya define el layout A-L.'
+    );
+  }
 
-    @isTest
-    static void referenciasSheetIncluyeVariedadesYCampanas() {
-        Map<String, List<String>> dicc = new Map<String, List<String>>{
-            'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
-            'TIPO_COMP'  => new List<String>{ 'FC', 'NC', 'Remito', 'Remito de Devolución' },
-            'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2' },
-            'CAMPANAS'   => new List<String>{ '2025', '2026' }
-        };
+  @isTest
+  static void referenciasProtegidaPermiteCopiarYReemplazaProteccionExistente() {
+    String xml =
+      '<worksheet><mergeCells count="1"/>' +
+      '<sheetProtection sheet="1" selectLockedCells="1" selectUnlockedCells="1"/>' +
+      '<pageMargins/></worksheet>';
+    String patched = PlantillaVtasInfXlsxBuilder.patchSheetReferenciasProtegida(
+      xml
+    );
 
-        String base = '<?xml version="1.0"?>'
-            + '<worksheet><sheetPr><tabColor rgb="FFFFC000"/></sheetPr>'
-            + '<dimension ref="B1:E7"/><sheetData>'
-            + '<row r="1" spans="2:5"><c r="C1" s="31" t="s"><v>0</v></c></row>'
-            + '<row r="2" spans="2:5"><c r="B2" s="2" t="s"><v>1</v></c></row>'
-            + '<row r="3" spans="2:5"><c r="B3" s="20"/></row>'
-            + '</sheetData><mergeCells count="1"><mergeCell ref="C1:E1"/></mergeCells></worksheet>';
+    System.assertEquals(
+      1,
+      patched.split('sheetProtection').size() - 1,
+      'Debe quedar una sola etiqueta sheetProtection.'
+    );
+    System.assert(
+      patched.contains('selectLockedCells="0"'),
+      'Debe permitir seleccionar celdas bloqueadas para copiar.'
+    );
+    System.assert(
+      patched.contains('insertRows="1"'),
+      'Debe bloquear inserción de filas.'
+    );
+  }
 
-        Test.startTest();
-        String xml = PlantillaVtasInfXlsxBuilder.patchReferenciasSheet(base, dicc);
-        Test.stopTest();
+  @isTest
+  static void stripRichDataFromPackageEliminaPartes365() {
+    Map<String, Blob> entradas = new Map<String, Blob>{
+      'xl/metadata.xml' => Blob.valueOf('<metadata/>'),
+      'xl/richData/rdrichvalue.xml' => Blob.valueOf('<rv/>'),
+      '[Content_Types].xml' => Blob.valueOf(
+        '<Types>' +
+          '<Override PartName="/xl/metadata.xml" ContentType="x"/>' +
+          '<Override PartName="/xl/richData/rdrichvalue.xml" ContentType="y"/>' +
+          '<Override PartName="/xl/workbook.xml" ContentType="z"/>' +
+          '</Types>'
+      ),
+      'xl/_rels/workbook.xml.rels' => Blob.valueOf(
+        '<Relationships>' +
+          '<Relationship Id="rId7" Type="sheetMetadata" Target="metadata.xml"/>' +
+          '<Relationship Id="rId1" Type="worksheet" Target="worksheets/sheet1.xml"/>' +
+          '</Relationships>'
+      ),
+      'xl/worksheets/sheet1.xml' => Blob.valueOf('<worksheet/>')
+    };
 
-        System.assert(xml.contains('VAR-1'), 'Variedad debe estar en REFERENCIAS.');
-        System.assert(xml.contains('Remito de Devoluci'), 'Remito de Devoluci\u00f3n debe estar.');
-        System.assert(xml.contains('2026'), 'Campa\u00f1a debe estar.');
-        System.assert(xml.contains('tabColor rgb="FFFFC000"'), 'Debe conservar color de pesta\u00f1a.');
-        System.assert(xml.contains('s="31"') || xml.contains('s="2"'),
-            'Debe conservar estilos del template.');
-        System.assert(xml.contains('r="B3"'), 'Campa\u00f1as en columna B.');
-        System.assert(xml.contains('r="E3"') || xml.contains('r="E4"'),
-            'Variedades en columna E.');
-    }
+    PlantillaVtasInfXlsxBuilder.stripRichDataFromPackage(entradas);
 
-    @isTest
-    static void referenciasNoDuplicaCeldaF2SiYaExiste() {
-        Map<String, List<String>> dicc = new Map<String, List<String>>{
-            'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
-            'TIPO_COMP'  => new List<String>{ 'FC', 'NC' },
-            'VARIEDADES' => new List<String>{ 'VAR-1' },
-            'CAMPANAS'   => new List<String>{ '2025' }
-        };
+    System.assert(!entradas.containsKey('xl/metadata.xml'));
+    System.assert(!entradas.containsKey('xl/richData/rdrichvalue.xml'));
+    System.assert(
+      !entradas.get('[Content_Types].xml')
+        .toString()
+        .contains('/xl/metadata.xml')
+    );
+    System.assert(
+      !entradas.get('xl/_rels/workbook.xml.rels')
+        .toString()
+        .contains('sheetMetadata')
+    );
+  }
 
-        // Como la plantilla geo real: F2 ya está por sharedStrings (sin texto "Provincia Destino").
-        String base = '<?xml version="1.0"?>'
-            + '<worksheet><sheetData>'
-            + '<row r="1" spans="2:6"><c r="C1" s="31" t="s"><v>0</v></c></row>'
-            + '<row r="2" spans="2:6">'
-            + '<c r="B2" s="2" t="s"><v>1</v></c>'
-            + '<c r="F2" s="2" t="s"><v>12</v></c>'
-            + '</row>'
-            + '<row r="3" spans="2:6"><c r="F3" s="1" t="s"><v>43</v></c></row>'
-            + '</sheetData></worksheet>';
+  @isTest
+  static void sanitizeXmlTextQuitaCaracteresInvalidos() {
+    System.assertEquals(
+      'ABCD',
+      PlantillaVtasInfXlsxBuilder.sanitizeXmlText('AB\u0007CD')
+    );
+    System.assertEquals('', PlantillaVtasInfXlsxBuilder.sanitizeXmlText(null));
+  }
 
-        String xml = PlantillaVtasInfXlsxBuilder.patchReferenciasSheet(base, dicc);
-        Integer f2Count = xml.split('r="F2"', -1).size() - 1;
-        System.assertEquals(1, f2Count, 'No debe duplicar la celda F2 del encabezado.');
-        System.assert(xml.contains('r="F3"'), 'Debe conservar provincias existentes.');
-    }
+  @isTest
+  static void patchSheet1EncabezadosYColumnasDestino() {
+    String sheet1 =
+      '<worksheet><sheetData>' +
+      '<row r="3"><c r="A3" t="inlineStr"><is><t>H1</t></is></c></row>' +
+      '</sheetData><dataValidations count="1">' +
+      '<dataValidation sqref="A1"/></dataValidations>REFERENCIAS!$B$3</worksheet>';
+    String headers = PlantillaVtasInfXlsxBuilder.patchSheet1EncabezadosDestino(
+      sheet1
+    );
+    System.assert(headers.contains('Provincia Destino'));
+    System.assert(headers.contains('Localidad Destino'));
 
-    @isTest
-    static void comentariosSheetIncluyeVariedadesYCampanas() {
-        Map<String, List<String>> dicc = new Map<String, List<String>>{
-            'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
-            'TIPO_COMP'  => new List<String>{ 'FC', 'NC', 'Remito', 'Remito de Devolución' },
-            'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2' },
-            'CAMPANAS'   => new List<String>{ '2025', '2026' }
-        };
+    Map<String, List<String>> dicc = new Map<String, List<String>>{
+      'PROVINCIAS' => new List<String>{ 'Buenos Aires', 'Cordoba' }
+    };
+    String out = PlantillaVtasInfXlsxBuilder.patchSheet1ColumnasDestino(
+      sheet1,
+      dicc
+    );
+    System.assert(out.contains('Provincia de destino'));
+    System.assert(out.contains('REFERENCIAS!$F$3:$F$4'));
 
-        Test.startTest();
-        String xml = PlantillaVtasInfXlsxBuilder.buildComentariosSheet(dicc);
-        Test.stopTest();
+    // Openpyxl geo: no modifica.
+    System.assertEquals(
+      'INDIRECT("Loc_")',
+      PlantillaVtasInfXlsxBuilder.patchSheet1ColumnasDestino(
+        'INDIRECT("Loc_")',
+        dicc
+      )
+    );
+  }
 
-        System.assert(xml.contains('VAR-1'), 'Variedad debe estar en el sheet de Comentarios.');
-        System.assert(xml.contains('Remito de Devoluci'), 'Remito de Devoluci\u00f3n debe estar.');
-        System.assert(xml.contains('2026'), 'Campa\u00f1a debe estar.');
-        System.assert(!xml.contains('>ND<'), 'ND no debe aparecer.');
-        System.assert(xml.contains('Variedad__c'), 'Header Variedad__c presente.');
-        System.assert(xml.contains('Campana_Agricola__c'), 'Header Campana_Agricola__c presente.');
-    }
+  @isTest
+  static void helpersReferenciasYCelda() {
+    String data =
+      '<row r="3"><c r="F3" t="inlineStr"><is><t>Cordoba</t></is></c></row>' +
+      '<row r="4"><c r="F4" t="inlineStr"><is><t>Santa Fe</t></is></c></row>';
+    String cell = PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(data, 3, 'F');
+    System.assertNotEquals(null, cell);
+    System.assert(cell.contains('Cordoba'));
+    System.assertEquals(
+      2,
+      PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(data, 'F')
+    );
+    System.assertEquals(
+      0,
+      PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(null, 'F')
+    );
+    System.assertEquals(
+      null,
+      PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(null, 3, 'F')
+    );
+  }
 
-    @isTest
-    static void patchSheet1NuevoModeloActualizaReferencias() {
-        String sheet1 = '<worksheet>'
-            + '<dataValidations count="1">'
-            + '<dataValidation sqref="D4:E1048576"/>'
-            + '</dataValidations>'
-            + '<extLst><ext><x14:dataValidations count="4">'
-            + '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$B$3:$B$7</xm:f></x14:formula1></x14:dataValidation>'
-            + '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$C$3:$C$6</xm:f></x14:formula1></x14:dataValidation>'
-            + '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$D$3:$D$6</xm:f></x14:formula1></x14:dataValidation>'
-            + '<x14:dataValidation><x14:formula1><xm:f>REFERENCIAS!$E$3:$E$1504</xm:f></x14:formula1></x14:dataValidation>'
-            + '</x14:dataValidations></ext></extLst>'
-            + '</worksheet>';
+  @isTest
+  static void buildReferenciasYLegacySheets() {
+    Map<String, List<String>> dicc = new Map<String, List<String>>{
+      'CATEGORIAS' => new List<String>{ 'A', 'B' },
+      'TIPO_COMP' => new List<String>{ 'FC', 'NC' },
+      'VARIEDADES' => new List<String>{ 'VAR-1' },
+      'CAMPANAS' => new List<String>{ '2025', '2026' }
+    };
+    String refs = PlantillaVtasInfXlsxBuilder.buildReferenciasSheet(dicc);
+    System.assert(refs.contains('VAR-1'));
+    System.assert(refs.contains('CampanaAgricola') || refs.contains('Campa'));
 
-        Map<String, List<String>> dicc = new Map<String, List<String>>{
-            'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
-            'TIPO_COMP'  => new List<String>{ 'FC', 'NC', 'Remito', 'Remito de Devolución' },
-            'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2', 'VAR-3' },
-            'CAMPANAS'   => new List<String>{ '2025', '2026' }
-        };
+    String legacy = PlantillaVtasInfXlsxBuilder.buildReferenciasSheetLegacy(
+      dicc
+    );
+    System.assert(legacy.contains('VAR-1'));
 
-        Test.startTest();
-        String resultado = PlantillaVtasInfXlsxBuilder.patchSheet1DataValidations(sheet1, dicc);
-        Test.stopTest();
+    String patchedLegacy = PlantillaVtasInfXlsxBuilder.patchReferenciasSheetLegacy(
+      '<?xml version="1.0"?><worksheet><sheetData>' +
+      '<row r="4"><c r="B4"/></row></sheetData></worksheet>',
+      dicc
+    );
+    System.assert(patchedLegacy.contains('VAR-1'));
+    System.assert(
+      PlantillaVtasInfXlsxBuilder.patchReferenciasSheetLegacy(null, dicc)
+        .contains('VAR-1')
+    );
+  }
 
-        System.assert(resultado.contains('sqref="D4:D1048576"'), 'CUIT solo columna D.');
-        System.assert(resultado.contains('REFERENCIAS!$B$3:$B$4'), 'Campa\u00f1as din\u00e1micas en col B.');
-        System.assert(resultado.contains('REFERENCIAS!$E$3:$E$5'), 'Variedades din\u00e1micas en col E.');
-        System.assert(resultado.contains('REFERENCIAS!$D$3:$D$6'), 'Tipo comprobante 4 valores en col D.');
-    }
+  @isTest
+  static void patchWorkbookLtscYDocPropsApp() {
+    String wb =
+      '<workbook><sheets>' +
+      '<sheet name="CARGA" sheetId="1"/>' +
+      '<sheet name="INSTRUCCIONES" sheetId="2"/>' +
+      '</sheets>' +
+      '<mc:AlternateContent><mc:Choice/></mc:AlternateContent>' +
+      '<ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}"><x/></ext>' +
+      '</workbook>';
+    String outWb = PlantillaVtasInfXlsxBuilder.patchWorkbookCompatibilidadLtsc(
+      wb
+    );
+    System.assert(!outWb.contains('AlternateContent'));
+    System.assert(!outWb.contains('B58B0392'));
 
-    @isTest
-    static void patchSheet1AgregaValidacionesNuevas() {
-        String sheet1 = '<worksheet>'
-            + '<dataValidations count="1">'
-            +   '<dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1"'
-            +     ' prompt="Kilos totales de la línea de facturación" sqref="B2:B23"'
-            +     ' xr:uid="{00000000-0002-0000-0000-000002000000}"/>'
-            + '</dataValidations>'
-            + '<extLst><ext><x14:dataValidations count="2" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">'
-            +   '<x14:dataValidation type="list"><x14:formula1><xm:f>Comentarios!$D$5:$D$7</xm:f></x14:formula1>'
-            +     '<xm:sqref>K2:K23</xm:sqref></x14:dataValidation>'
-            + '</x14:dataValidations></ext></extLst>'
-            + '</worksheet>';
+    String app =
+      '<Properties><HeadingPairs><vt:vector size="2" baseType="variant">' +
+      '<vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant>' +
+      '<vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs>' +
+      '<TitlesOfParts><vt:vector size="1" baseType="lpstr">' +
+      '<vt:lpstr>Old</vt:lpstr></vt:vector></TitlesOfParts></Properties>';
+    String outApp = PlantillaVtasInfXlsxBuilder.patchDocPropsApp(app, wb);
+    System.assert(outApp.contains('CARGA'));
+    System.assert(outApp.contains('<vt:i4>2</vt:i4>'));
 
-        Map<String, List<String>> dicc = new Map<String, List<String>>{
-            'CATEGORIAS' => new List<String>{ 'A', 'B', 'C', 'D', 'E' },
-            'TIPO_COMP'  => new List<String>{ 'FC', 'NC', 'Remito', 'Remito de Devolución' },
-            'VARIEDADES' => new List<String>{ 'VAR-1', 'VAR-2', 'VAR-3' },
-            'CAMPANAS'   => new List<String>{ '2025', '2026' }
-        };
+    System.assertEquals(
+      true,
+      PlantillaVtasInfXlsxBuilder.esPlantillaOpenpyxlBase('INDIRECT("Loc_")')
+    );
+    System.assertEquals(
+      true,
+      PlantillaVtasInfXlsxBuilder.esPlantillaConGeoEstatica(
+        new Map<String, Blob>{ 'xl/worksheets/sheet4.xml' => Blob.valueOf('x') }
+      )
+    );
+  }
 
-        Test.startTest();
-        String resultado = PlantillaVtasInfXlsxBuilder.patchSheet1DataValidations(sheet1, dicc);
-        Test.stopTest();
+  @isTest
+  static void migrarX14YRecalcularCount() {
+    String xml =
+      '<worksheet><dataValidations count="1"><dataValidation sqref="A1"/>' +
+      '</dataValidations><extLst><ext uri="{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}">' +
+      '<x14:dataValidations xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">' +
+      '<x14:dataValidation type="list" allowBlank="1">' +
+      '<x14:formula1><xm:f>REFERENCIAS!$E$3:$E$10</xm:f></x14:formula1>' +
+      '<xm:sqref>J4:J1048576</xm:sqref></x14:dataValidation>' +
+      '</x14:dataValidations></ext></extLst><pageMargins/></worksheet>';
+    String out = PlantillaVtasInfXlsxBuilder.patchSheet1MigrarX14Legacy(xml);
+    System.assert(out.contains('sqref="J4:J1048576"'));
+    System.assert(!out.contains('<x14:dataValidation'));
 
-        System.assert(!resultado.contains('Kilos Totales debe ser un entero mayor o igual a 20'),
-            'Kilos Totales ya no debe imponer mínimo 20 kg en plantilla.');
-        System.assert(!resultado.contains('<formula1>20</formula1>'),
-            'No debe forzar formula1=20 en validación de kilos.');
-        System.assert(resultado.contains('Comentarios!$D$5:$D$8'),
-            'Tipo Comprobante debe abarcar hasta D8 (4 valores).');
-        System.assert(resultado.contains('Comentarios!$F$5:$F$6'),
-            'Campa\u00f1a debe apuntar a F5:F6 (2 campa\u00f1as).');
-        System.assert(resultado.contains('Comentarios!$E$5:$E$7'),
-            'Variedad debe apuntar a E5:E7 (3 variedades).');
-        System.assert(resultado.contains('<x14:dataValidations count="4"'),
-            'Debe haber 4 validaciones x14 ahora.');
-        System.assert(resultado.contains('A2:A23'),
-            'Campa\u00f1a debe tener desplegable hasta fila 23.');
-        System.assert(resultado.contains('J2:J23'),
-            'Variedad debe tener desplegable hasta fila 23 (col J).');
-        System.assert(resultado.contains('I2:I23'),
-            'Tipo comprobante en columna I.');
-        System.assert(resultado.contains('B2:B23'),
-            'Kilos Totales debe validar hasta fila 23.');
-    }
+    String counted = PlantillaVtasInfXlsxBuilder.recalcularDataValidationsCount(
+      '<dataValidations count="1"><dataValidation sqref="A1"/>' +
+      '<dataValidation sqref="B1"/></dataValidations>'
+    );
+    System.assert(counted.contains('count="2"'));
 
-    @isTest
-    static void remapValidacionesLayoutAJTest() {
-        String xml = '<dataValidation type="textLength" sqref="I2:I23"/>'
-            + '<xm:sqref>K2:K23</xm:sqref><dataValidation sqref="D2:E23"/>'
-            + '<dataValidation type="whole" operator="equal" sqref="G2:G23"><formula1>1</formula1></dataValidation>';
-        String out = PlantillaVtasInfXlsxBuilder.remapValidacionesLayoutAJ(xml);
-        System.assert(out.contains('sqref="G2:G23"') == false || !out.contains('operator="equal"'),
-            'Quita validaci\u00f3n kilos/bolsa=1 en G.');
-        System.assert(out.contains('sqref="D2:D23"'), 'CUIT solo columna D.');
-        System.assert(!out.contains('type="textLength"'), 'Se quita la validaci\u00f3n de 16 d\u00edgitos del N\u00b0 de Comprobante.');
-        System.assert(out.contains('<xm:sqref>I2:I23</xm:sqref>'), 'Tipo en I.');
-    }
+    String sanit = PlantillaVtasInfXlsxBuilder.patchSheet1SanitizarValidacionesLegacy(
+      '<dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1"' +
+        ' prompt="Kilos totales" sqref="B4:B503" xr:uid="{abc}"/>' +
+        ' horizontalDpi="4294967292" verticalDpi="4294967292"'
+    );
+    System.assert(!sanit.contains('xr:uid'));
+    System.assert(!sanit.contains('4294967292'));
+  }
 
-    @isTest
-    static void pegarDatosSheetYWorkbookTest() {
-        String pegar = PlantillaVtasInfXlsxBuilder.buildPegarDatosSheet();
-        System.assert(pegar.contains('Pegá aquí los datos'), 'Debe instruir pegar en esta hoja.');
-        System.assert(pegar.contains('Campaña Agrícola'), 'Debe repetir encabezados de Datos.');
-        System.assert(pegar.contains('A1:L'), 'Hoja Pegar datos con 12 columnas A-L (incluye Provincia/Localidad Destino).');
-        System.assert(pegar.contains('Provincia Destino'), 'Debe incluir encabezado Provincia Destino.');
-        System.assert(pegar.contains('Localidad Destino'), 'Debe incluir encabezado Localidad Destino.');
+  @isTest
+  static void patchSheetCargaYProteccionSinMerge() {
+    String sheet =
+      '<worksheet><sheetViews><sheetView workbookViewId="0"/></sheetViews>' +
+      '<sheetData/><pageMargins/></worksheet>';
+    String activa = PlantillaVtasInfXlsxBuilder.patchSheetCargaActiva(sheet);
+    System.assert(activa.contains('tabSelected="1"'));
 
-        Map<String, Blob> entradasNuevo = new Map<String, Blob>{
-            'xl/worksheets/sheet3.xml' => Blob.valueOf('<worksheet>CampanaAgricola</worksheet>')
-        };
-        PlantillaVtasInfXlsxBuilder.addPegarDatosToWorkbook(entradasNuevo);
-        System.assert(entradasNuevo.get('xl/worksheets/sheet3.xml').toString().contains('CampanaAgricola'),
-            'Modelo nuevo con REFERENCIAS no reemplaza sheet3.');
-    }
+    String prot = PlantillaVtasInfXlsxBuilder.patchSheetReferenciasProtegida(
+      '<worksheet><sheetData/></worksheet>'
+    );
+    System.assert(prot.contains('<sheetProtection'));
+    System.assert(prot.contains('selectLockedCells="0"'));
+  }
 
-    @isTest
-    static void patchSheet1HeadersRenombraCampana() {
-        String sheet1 = '<c r="A1" t="inlineStr"><is><t>Campana_de_Ventas__c</t></is></c>';
-        String out = PlantillaVtasInfXlsxBuilder.patchSheet1Headers(sheet1);
-        System.assert(out.contains('Campaña Agrícola'), 'Col A debe mostrar el label del Pop Up.');
-        System.assert(!out.contains('Campana_de_Ventas__c'), 'No debe quedar el API name viejo en A1.');
-    }
+  @isTest
+  static void fijaNombresYBloqueaEstructura() {
+    Map<String, Blob> entradas = new Map<String, Blob>{
+      'xl/workbook.xml' => Blob.valueOf(
+        '<workbook><bookViews><workbookView activeTab="0"/></bookViews><sheets>' +
+          '<sheet name="Datos" sheetId="1" r:id="rId1"/>' +
+          '<sheet name="Ayuda" sheetId="2" r:id="rId2"/>' +
+          '<sheet name="Listas" sheetId="3" r:id="rId3"/>' +
+          '<sheet name="Geo" sheetId="4" state="hidden" r:id="rId4"/>' +
+          '</sheets><definedNames><definedName name="Loc">Geo!$A$1</definedName></definedNames></workbook>'
+      ),
+      'xl/_rels/workbook.xml.rels' => Blob.valueOf(
+        '<Relationships>' +
+          '<Relationship Id="rId1" Type="worksheet" Target="worksheets/sheet1.xml"/>' +
+          '<Relationship Id="rId2" Type="worksheet" Target="worksheets/sheet2.xml"/>' +
+          '<Relationship Id="rId3" Type="worksheet" Target="worksheets/sheet3.xml"/>' +
+          '<Relationship Id="rId4" Type="worksheet" Target="worksheets/sheet4.xml"/>' +
+          '</Relationships>'
+      ),
+      'xl/worksheets/sheet1.xml' => Blob.valueOf(
+        '<worksheet>Listas!$B$3 Ayuda!A1</worksheet>'
+      ),
+      'xl/worksheets/sheet2.xml' => Blob.valueOf(
+        '<worksheet><sheetData/></worksheet>'
+      ),
+      'xl/worksheets/sheet3.xml' => Blob.valueOf('<worksheet/>'),
+      'xl/worksheets/sheet4.xml' => Blob.valueOf(
+        '<worksheet><pageMargins/></worksheet>'
+      )
+    };
 
-    @isTest
-    static void patchSheet1HeadersUsaLabelsComprobante() {
-        String sheet1 =
-              '<c r="E1" t="inlineStr"><is><t>Fecha_de_Facturacion__c</t></is></c>'
-            + '<c r="F1" t="inlineStr"><is><t>Linea_Facturacion__c</t></is></c>';
-        String out = PlantillaVtasInfXlsxBuilder.patchSheet1Headers(sheet1);
-        System.assert(out.contains('Fecha Comprobante'), 'Fecha debe usar label Comprobante.');
-        System.assert(out.contains('Línea del Comprobante'), 'Línea debe usar label Comprobante.');
-        System.assert(!out.contains('Facturacion'), 'No debe quedar Facturacion en encabezados.');
-    }
+    PlantillaVtasInfXlsxBuilder.fijarNombresYBloquearEstructura(entradas);
 
-    @isTest
-    static void patchSheet1QuitaValidacionFecha() {
-        String sheet1 = '<dataValidations count="2">'
-            + '<dataValidation type="date" sqref="E2:E23" xr:uid="{abc}"/>'
-            + '<dataValidation sqref="B2:B23" xr:uid="{def}"/>'
-            + '</dataValidations>';
-        Map<String, List<String>> dicc = PlantillaVtasInfXlsxBuilder.loadDiccionarios();
-        String out = PlantillaVtasInfXlsxBuilder.patchSheet1DataValidations(sheet1, dicc);
-        System.assert(!out.contains('sqref="E2:E23"'), 'No debe forzar formato fecha en Excel.');
-    }
+    String wb = entradas.get('xl/workbook.xml').toString();
+    System.assert(wb.contains('name="CARGA"'));
+    System.assert(wb.contains('name="INSTRUCCIONES"'));
+    System.assert(wb.contains('name="REFERENCIAS"'));
+    System.assert(wb.contains('name="LOCALIDADES"'));
+    System.assert(wb.contains('LOCALIDADES!$A$1'));
+    System.assert(wb.contains('lockStructure="1"'));
+    System.assert(wb.contains('workbookPassword="8D39"'));
+    System.assert(
+      entradas.get('xl/worksheets/sheet1.xml')
+        .toString()
+        .contains('REFERENCIAS!$B$3')
+    );
+    System.assert(
+      entradas.get('xl/worksheets/sheet1.xml')
+        .toString()
+        .contains('INSTRUCCIONES!A1')
+    );
+    System.assert(
+      !entradas.get('xl/worksheets/sheet1.xml')
+        .toString()
+        .contains('<sheetProtection')
+    );
+    System.assert(
+      entradas.get('xl/worksheets/sheet2.xml')
+        .toString()
+        .contains('password="8D39"')
+    );
+    System.assert(
+      entradas.get('xl/worksheets/sheet4.xml')
+        .toString()
+        .contains('<sheetProtection')
+    );
+  }
 
-    @isTest
-    static void escapeXmlTest() {
-        System.assertEquals('', PlantillaVtasInfXlsxBuilder.escapeXml(null));
-        System.assertEquals('a &amp; b', PlantillaVtasInfXlsxBuilder.escapeXml('a & b'));
-        System.assertEquals('&lt;tag&gt;', PlantillaVtasInfXlsxBuilder.escapeXml('<tag>'));
-    }
+  @isTest
+  static void legacySoloBloqueaEstructuraSinRenombrar() {
+    Map<String, Blob> entradas = new Map<String, Blob>{
+      'xl/workbook.xml' => Blob.valueOf(
+        '<workbook><sheets><sheet name="Planilla" sheetId="1" r:id="rId1"/>' +
+        '<sheet name="Comentarios" sheetId="2" r:id="rId2"/></sheets></workbook>'
+      ),
+      'xl/_rels/workbook.xml.rels' => Blob.valueOf(
+        '<Relationships>' +
+          '<Relationship Id="rId1" Target="worksheets/sheet1.xml"/>' +
+          '<Relationship Id="rId2" Target="worksheets/sheet2.xml"/>' +
+          '</Relationships>'
+      ),
+      'xl/worksheets/sheet1.xml' => Blob.valueOf(
+        '<worksheet>Comentarios!$E$5</worksheet>'
+      ),
+      'xl/worksheets/sheet2.xml' => Blob.valueOf(
+        '<worksheet><sheetData/></worksheet>'
+      )
+    };
 
-    @isTest
-    static void xlsxGeneradoContieneVariedadesYValidacionesNuevas() {
-        Test.startTest();
-        String b64 = PlantillaVtasInfXlsxBuilder.generarPlantillaBase64(false);
-        Test.stopTest();
+    PlantillaVtasInfXlsxBuilder.fijarNombresYBloquearEstructura(entradas);
 
-        Blob zipBlob = EncodingUtil.base64Decode(b64);
-        Compression.ZipReader zr = new Compression.ZipReader(zipBlob);
-
-        String sheet2 = null;
-        String sheet1 = null;
-        String sheet3 = null;
-        String workbook = null;
-        for (Compression.ZipEntry e : zr.getEntries()) {
-            if (e.getName() == 'xl/worksheets/sheet2.xml') sheet2 = e.getContent().toString();
-            if (e.getName() == 'xl/worksheets/sheet1.xml') sheet1 = e.getContent().toString();
-            if (e.getName() == 'xl/worksheets/sheet3.xml') sheet3 = e.getContent().toString();
-            if (e.getName() == 'xl/workbook.xml') workbook = e.getContent().toString();
-        }
-
-        System.assertNotEquals(null, sheet1, 'sheet1.xml debe estar en el zip generado.');
-
-        if (sheet1.contains('REFERENCIAS!')) {
-            System.assertNotEquals(null, sheet3, 'sheet3 REFERENCIAS debe estar en el zip generado.');
-            System.assert(sheet3.contains('SOJA DM 4615'), 'Variedad SOJA DM 4615 debe estar en REFERENCIAS.');
-            System.assert(sheet3.contains('Remito de Devoluci'), 'Remito de Devoluci\u00f3n debe estar en REFERENCIAS.');
-            System.assert(sheet3.contains('tabColor'), 'REFERENCIAS debe conservar color de pesta\u00f1a.');
-            System.assert(sheet3.contains('<sheetProtection'), 'REFERENCIAS debe estar protegida.');
-            System.assert(sheet3.contains('selectLockedCells="0"'),
-                'REFERENCIAS debe permitir seleccionar/copiar (selectLockedCells=0 en OOXML).');
-            System.assert(sheet1.contains('tabSelected="1"'), 'CARGA debe ser la hoja activa.');
-            System.assertNotEquals(null, workbook, 'workbook.xml debe estar en el zip.');
-            System.assert(workbook.contains('activeTab="0"'), 'Excel debe abrir en pesta\u00f1a CARGA.');
-            System.assert(sheet2 == null || !sheet2.contains('tabSelected="1"'),
-                'INSTRUCCIONES no debe quedar como hoja activa.');
-            System.assert(sheet3 == null || !sheet3.contains('tabSelected="1"'),
-                'REFERENCIAS no debe quedar como hoja activa.');
-            System.assert(sheet1.contains('REFERENCIAS!$E$3:$E$'),
-                'Debe haber data validation de Variedad apuntando a REFERENCIAS col E.');
-            System.assert(sheet1.contains('REFERENCIAS!$B$3:$B$'),
-                'Debe haber data validation de Campa\u00f1a apuntando a REFERENCIAS col B.');
-            System.assert(sheet1.contains('J4:J'), 'Variedad en columna J desde fila 4.');
-            System.assert(sheet1.contains('A4:A') && sheet1.contains('C4:C'),
-                'Desplegables deben cubrir desde fila 4.');
-        } else {
-            System.assertNotEquals(null, sheet2, 'sheet2.xml legacy debe estar en el zip generado.');
-            System.assert(sheet2.contains('SOJA DM 4615'), 'Variedad SOJA DM 4615 debe estar en Comentarios.');
-            System.assert(sheet1.contains('Comentarios!$E$5:$E$'),
-                'Debe haber data validation de Variedad apuntando a Comentarios col E.');
-            System.assert(sheet1.contains('J2:J23'),
-                'Variedad en columna J hasta fila 23.');
-        }
-
-        System.assert(!sheet1.contains('Kilos Totales debe ser un entero mayor o igual a 20'),
-            'Kilos Totales ya no debe imponer mínimo 20 kg en plantilla.');
-        System.assert(!sheet1.contains('hidden="1"'),
-            'No debe ocultar columnas: el SR ya define el layout A-L.');
-    }
-
-    @isTest
-    static void referenciasProtegidaPermiteCopiarYReemplazaProteccionExistente() {
-        String xml = '<worksheet><mergeCells count="1"/>'
-            + '<sheetProtection sheet="1" selectLockedCells="1" selectUnlockedCells="1"/>'
-            + '<pageMargins/></worksheet>';
-        String patched = PlantillaVtasInfXlsxBuilder.patchSheetReferenciasProtegida(xml);
-
-        System.assertEquals(1, patched.split('sheetProtection').size() - 1,
-            'Debe quedar una sola etiqueta sheetProtection.');
-        System.assert(patched.contains('selectLockedCells="0"'),
-            'Debe permitir seleccionar celdas bloqueadas para copiar.');
-        System.assert(patched.contains('insertRows="1"'),
-            'Debe bloquear inserción de filas.');
-    }
-
-    @isTest
-    static void stripRichDataFromPackageEliminaPartes365() {
-        Map<String, Blob> entradas = new Map<String, Blob>{
-            'xl/metadata.xml' => Blob.valueOf('<metadata/>'),
-            'xl/richData/rdrichvalue.xml' => Blob.valueOf('<rv/>'),
-            '[Content_Types].xml' => Blob.valueOf(
-                '<Types>'
-                + '<Override PartName="/xl/metadata.xml" ContentType="x"/>'
-                + '<Override PartName="/xl/richData/rdrichvalue.xml" ContentType="y"/>'
-                + '<Override PartName="/xl/workbook.xml" ContentType="z"/>'
-                + '</Types>'
-            ),
-            'xl/_rels/workbook.xml.rels' => Blob.valueOf(
-                '<Relationships>'
-                + '<Relationship Id="rId7" Type="sheetMetadata" Target="metadata.xml"/>'
-                + '<Relationship Id="rId1" Type="worksheet" Target="worksheets/sheet1.xml"/>'
-                + '</Relationships>'
-            ),
-            'xl/worksheets/sheet1.xml' => Blob.valueOf('<worksheet/>')
-        };
-
-        PlantillaVtasInfXlsxBuilder.stripRichDataFromPackage(entradas);
-
-        System.assert(!entradas.containsKey('xl/metadata.xml'));
-        System.assert(!entradas.containsKey('xl/richData/rdrichvalue.xml'));
-        System.assert(!entradas.get('[Content_Types].xml').toString().contains('/xl/metadata.xml'));
-        System.assert(!entradas.get('xl/_rels/workbook.xml.rels').toString().contains('sheetMetadata'));
-    }
-
-    @isTest
-    static void sanitizeXmlTextQuitaCaracteresInvalidos() {
-        System.assertEquals('ABCD', PlantillaVtasInfXlsxBuilder.sanitizeXmlText('AB\u0007CD'));
-        System.assertEquals('', PlantillaVtasInfXlsxBuilder.sanitizeXmlText(null));
-    }
-
-    @isTest
-    static void patchSheet1EncabezadosYColumnasDestino() {
-        String sheet1 = '<worksheet><sheetData>'
-            + '<row r="3"><c r="A3" t="inlineStr"><is><t>H1</t></is></c></row>'
-            + '</sheetData><dataValidations count="1">'
-            + '<dataValidation sqref="A1"/></dataValidations>REFERENCIAS!$B$3</worksheet>';
-        String headers = PlantillaVtasInfXlsxBuilder.patchSheet1EncabezadosDestino(sheet1);
-        System.assert(headers.contains('Provincia Destino'));
-        System.assert(headers.contains('Localidad Destino'));
-
-        Map<String, List<String>> dicc = new Map<String, List<String>>{
-            'PROVINCIAS' => new List<String>{ 'Buenos Aires', 'Cordoba' }
-        };
-        String out = PlantillaVtasInfXlsxBuilder.patchSheet1ColumnasDestino(sheet1, dicc);
-        System.assert(out.contains('Provincia de destino'));
-        System.assert(out.contains('REFERENCIAS!$F$3:$F$4'));
-
-        // Openpyxl geo: no modifica.
-        System.assertEquals(
-            'INDIRECT("Loc_")',
-            PlantillaVtasInfXlsxBuilder.patchSheet1ColumnasDestino('INDIRECT("Loc_")', dicc)
-        );
-    }
-
-    @isTest
-    static void helpersReferenciasYCelda() {
-        String data = '<row r="3"><c r="F3" t="inlineStr"><is><t>Cordoba</t></is></c></row>'
-            + '<row r="4"><c r="F4" t="inlineStr"><is><t>Santa Fe</t></is></c></row>';
-        String cell = PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(data, 3, 'F');
-        System.assertNotEquals(null, cell);
-        System.assert(cell.contains('Cordoba'));
-        System.assertEquals(2, PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(data, 'F'));
-        System.assertEquals(0, PlantillaVtasInfXlsxBuilder.contarFilasConDatosColumna(null, 'F'));
-        System.assertEquals(null, PlantillaVtasInfXlsxBuilder.extraerCeldaColumna(null, 3, 'F'));
-    }
-
-    @isTest
-    static void buildReferenciasYLegacySheets() {
-        Map<String, List<String>> dicc = new Map<String, List<String>>{
-            'CATEGORIAS' => new List<String>{ 'A', 'B' },
-            'TIPO_COMP'  => new List<String>{ 'FC', 'NC' },
-            'VARIEDADES' => new List<String>{ 'VAR-1' },
-            'CAMPANAS'   => new List<String>{ '2025', '2026' }
-        };
-        String refs = PlantillaVtasInfXlsxBuilder.buildReferenciasSheet(dicc);
-        System.assert(refs.contains('VAR-1'));
-        System.assert(refs.contains('CampanaAgricola') || refs.contains('Campa'));
-
-        String legacy = PlantillaVtasInfXlsxBuilder.buildReferenciasSheetLegacy(dicc);
-        System.assert(legacy.contains('VAR-1'));
-
-        String patchedLegacy = PlantillaVtasInfXlsxBuilder.patchReferenciasSheetLegacy(
-            '<?xml version="1.0"?><worksheet><sheetData>'
-            + '<row r="4"><c r="B4"/></row></sheetData></worksheet>',
-            dicc
-        );
-        System.assert(patchedLegacy.contains('VAR-1'));
-        System.assert(PlantillaVtasInfXlsxBuilder.patchReferenciasSheetLegacy(null, dicc).contains('VAR-1'));
-    }
-
-    @isTest
-    static void patchWorkbookLtscYDocPropsApp() {
-        String wb = '<workbook><sheets>'
-            + '<sheet name="CARGA" sheetId="1"/>'
-            + '<sheet name="INSTRUCCIONES" sheetId="2"/>'
-            + '</sheets>'
-            + '<mc:AlternateContent><mc:Choice/></mc:AlternateContent>'
-            + '<ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}"><x/></ext>'
-            + '</workbook>';
-        String outWb = PlantillaVtasInfXlsxBuilder.patchWorkbookCompatibilidadLtsc(wb);
-        System.assert(!outWb.contains('AlternateContent'));
-        System.assert(!outWb.contains('B58B0392'));
-
-        String app = '<Properties><HeadingPairs><vt:vector size="2" baseType="variant">'
-            + '<vt:variant><vt:lpstr>Worksheets</vt:lpstr></vt:variant>'
-            + '<vt:variant><vt:i4>1</vt:i4></vt:variant></vt:vector></HeadingPairs>'
-            + '<TitlesOfParts><vt:vector size="1" baseType="lpstr">'
-            + '<vt:lpstr>Old</vt:lpstr></vt:vector></TitlesOfParts></Properties>';
-        String outApp = PlantillaVtasInfXlsxBuilder.patchDocPropsApp(app, wb);
-        System.assert(outApp.contains('CARGA'));
-        System.assert(outApp.contains('<vt:i4>2</vt:i4>'));
-
-        System.assertEquals(true, PlantillaVtasInfXlsxBuilder.esPlantillaOpenpyxlBase('INDIRECT("Loc_")'));
-        System.assertEquals(
-            true,
-            PlantillaVtasInfXlsxBuilder.esPlantillaConGeoEstatica(
-                new Map<String, Blob>{ 'xl/worksheets/sheet4.xml' => Blob.valueOf('x') }
-            )
-        );
-    }
-
-    @isTest
-    static void migrarX14YRecalcularCount() {
-        String xml = '<worksheet><dataValidations count="1"><dataValidation sqref="A1"/>'
-            + '</dataValidations><extLst><ext uri="{CCE6A557-97BC-4b89-ADB6-D9C93CAAB3DF}">'
-            + '<x14:dataValidations xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">'
-            + '<x14:dataValidation type="list" allowBlank="1">'
-            + '<x14:formula1><xm:f>REFERENCIAS!$E$3:$E$10</xm:f></x14:formula1>'
-            + '<xm:sqref>J4:J1048576</xm:sqref></x14:dataValidation>'
-            + '</x14:dataValidations></ext></extLst><pageMargins/></worksheet>';
-        String out = PlantillaVtasInfXlsxBuilder.patchSheet1MigrarX14Legacy(xml);
-        System.assert(out.contains('sqref="J4:J1048576"'));
-        System.assert(!out.contains('<x14:dataValidation'));
-
-        String counted = PlantillaVtasInfXlsxBuilder.recalcularDataValidationsCount(
-            '<dataValidations count="1"><dataValidation sqref="A1"/>'
-            + '<dataValidation sqref="B1"/></dataValidations>'
-        );
-        System.assert(counted.contains('count="2"'));
-
-        String sanit = PlantillaVtasInfXlsxBuilder.patchSheet1SanitizarValidacionesLegacy(
-            '<dataValidation allowBlank="1" showInputMessage="1" showErrorMessage="1"'
-            + ' prompt="Kilos totales" sqref="B4:B503" xr:uid="{abc}"/>'
-            + ' horizontalDpi="4294967292" verticalDpi="4294967292"'
-        );
-        System.assert(!sanit.contains('xr:uid'));
-        System.assert(!sanit.contains('4294967292'));
-    }
-
-    @isTest
-    static void patchSheetCargaYProteccionSinMerge() {
-        String sheet = '<worksheet><sheetViews><sheetView workbookViewId="0"/></sheetViews>'
-            + '<sheetData/><pageMargins/></worksheet>';
-        String activa = PlantillaVtasInfXlsxBuilder.patchSheetCargaActiva(sheet);
-        System.assert(activa.contains('tabSelected="1"'));
-
-        String prot = PlantillaVtasInfXlsxBuilder.patchSheetReferenciasProtegida(
-            '<worksheet><sheetData/></worksheet>'
-        );
-        System.assert(prot.contains('<sheetProtection'));
-        System.assert(prot.contains('selectLockedCells="0"'));
-    }
+    String wb = entradas.get('xl/workbook.xml').toString();
+    System.assert(wb.contains('name="Planilla"'));
+    System.assert(wb.contains('name="Comentarios"'));
+    System.assert(wb.contains('lockStructure="1"'));
+    System.assert(
+      entradas.get('xl/worksheets/sheet1.xml')
+        .toString()
+        .contains('Comentarios!$E$5')
+    );
+    System.assert(
+      !entradas.get('xl/worksheets/sheet2.xml')
+        .toString()
+        .contains('sheetProtection')
+    );
+  }
 }

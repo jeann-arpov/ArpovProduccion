@@ -1,221 +1,314 @@
 <template>
-    <c-se-list-page loading={isLoading}>
-        <header slot="header" class="lic-header">
-            <div class="se-desk-only lic-header-desk">
-                <p class="eyebrow">Licencias / Mis Licencias</p>
+  <c-se-list-page loading={isLoading}>
+    <header slot="header" class="lic-header">
+      <div class="se-desk-only lic-header-desk">
+        <p class="eyebrow">Licencias / Mis Licencias</p>
 
-                <template lwc:if={renderFilters}>
-                    <div class="lic-title-row">
-                        <h1 class="title">Mis Licencias</h1>
-                        <div class="lic-actions">
-                            <button
-                                type="button"
-                                class="filt-toggle"
-                                aria-expanded={filtersPanelOpen}
-                                onclick={handleToggleFiltersPanel}
-                            >
-                                <svg class="filt-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                                    <path d="M3 6h18M6 12h12M10 18h4"></path>
-                                </svg>
-                                Filtros
-                                <template if:true={showFilterBadge}>
-                                    <span class="filt-badge">{activeFilterCount}</span>
-                                </template>
-                                <svg class={filterToggleChevronClass} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">
-                                    <path d="M6 9l6 6 6-6"></path>
-                                </svg>
-                            </button>
-                            <button type="button" class="btn-solicitar" onclick={handleSolicitarLicencia}>
-                                Solicitar Licencia
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="lic-meta-row">
-                        <div class="lic-meta">
-                            <p class="lic-meta-line">
-                                <strong>{totalRegistros} elementos</strong>
-                                <span> (máximo {metaMaxElementos} elementos) · Ordenado por </span>
-                                <strong>Fecha de creación</strong>
-                            </p>
-                            <p class="lic-meta-line">
-                                <span>Filtrado por </span>
-                                <strong>{filtroResumen}</strong>
-                            </p>
-                        </div>
-                        <label class="lic-search">
-                            <span class="sr-only">Buscar</span>
-                            <input
-                                type="search"
-                                placeholder="Buscar..."
-                                value={searchTerm}
-                                oninput={handleSearchChange}
-                            />
-                            <span class="search-icon">
-                                <img src={iconSearchUrl} alt="" class="icon-svg" />
-                            </span>
-                        </label>
-                    </div>
+        <template lwc:if={renderFilters}>
+          <div class="lic-title-row">
+            <h1 class="title">Mis Licencias</h1>
+            <div class="lic-actions">
+              <button
+                type="button"
+                class="filt-toggle"
+                aria-expanded={filtersPanelOpen}
+                onclick={handleToggleFiltersPanel}
+              >
+                <svg
+                  class="filt-icon"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 6h18M6 12h12M10 18h4"></path>
+                </svg>
+                Filtros
+                <template if:true={showFilterBadge}>
+                  <span class="filt-badge">{activeFilterCount}</span>
                 </template>
-
-                <template lwc:else>
-                    <h1 class="title">Mis Licencias</h1>
-                </template>
+                <svg
+                  class={filterToggleChevronClass}
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9l6 6 6-6"></path>
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="btn-solicitar"
+                onclick={handleSolicitarLicencia}
+              >
+                Solicitar Licencia
+              </button>
             </div>
+          </div>
 
-            <div class="se-mob-only lic-header-mob">
-                <p class="eyebrow">Módulos</p>
-                <h1 class="title">Licencias</h1>
-
-                <template lwc:if={renderFilters}>
-                    <div class="lic-mob-tools">
-                        <button
-                            type="button"
-                            class="filt-toggle"
-                            aria-expanded={filtersPanelOpen}
-                            onclick={handleToggleFiltersPanel}
-                        >
-                            Filtros
-                            <template if:true={showFilterBadge}>
-                                <span class="filt-badge">{activeFilterCount}</span>
-                            </template>
-                        </button>
-                        <button type="button" class="btn-solicitar btn-solicitar-mob" onclick={handleSolicitarLicencia}>
-                            + Solicitar Licencia
-                        </button>
-                    </div>
-                    <p class="lic-meta-mobile">
-                        <strong>{totalRegistros} elementos</strong>
-                        <span> · </span>
-                        <strong>{filtroResumen}</strong>
-                    </p>
-                </template>
+          <div class="lic-meta-row">
+            <div class="lic-meta">
+              <p class="lic-meta-line">
+                <strong>{totalRegistros} elementos</strong>
+                <span>
+                  (máximo {metaMaxElementos} elementos) · Ordenado por
+                </span>
+                <strong>Fecha de creación</strong>
+              </p>
+              <p class="lic-meta-line">
+                <span>Filtrado por </span>
+                <strong>{filtroResumen}</strong>
+              </p>
             </div>
-        </header>
-
-        <template if:true={filtersPanelOpen}>
-            <section slot="filters" class="filt-panel">
-                <div class="filt-panel-head">
-                    <span class="filt-panel-title">Filtros</span>
-                    <button type="button" class="filt-link" onclick={handleClearFilters}>Limpiar</button>
-                    <button type="button" class="filt-close" onclick={handleCloseFiltersPanel}>Cerrar</button>
-                </div>
-                <div class="filt-grid">
-                    <div class="filt-group">
-                        <p class="filt-label">Estado</p>
-                        <div class="filt-options">
-                            <template for:each={estadoFilterItems} for:item="item">
-                                <button key={item.value} type="button" class="filt-option" data-group="estado" data-value={item.value} onclick={handleFilterToggle}>
-                                    <span class={item.boxClass} aria-hidden="true"></span>
-                                    <span>{item.label}</span>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="filt-group">
-                        <p class="filt-label">Tipo</p>
-                        <div class="filt-options">
-                            <template for:each={tipoFilterItems} for:item="item">
-                                <button key={item.value} type="button" class="filt-option" data-group="tipo" data-value={item.value} onclick={handleFilterToggle}>
-                                    <span class={item.boxClass} aria-hidden="true"></span>
-                                    <span>{item.label}</span>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="filt-group">
-                        <p class="filt-label">Tecnología</p>
-                        <div class="filt-options">
-                            <template for:each={origenFilterItems} for:item="item">
-                                <button key={item.value} type="button" class="filt-option" data-group="origen" data-value={item.value} onclick={handleFilterToggle}>
-                                    <span class={item.boxClass} aria-hidden="true"></span>
-                                    <span>{item.label}</span>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <label class="lic-search">
+              <span class="sr-only">Buscar</span>
+              <input
+                type="search"
+                placeholder="Buscar..."
+                value={searchTerm}
+                oninput={handleSearchChange}
+              />
+              <span class="search-icon">
+                <img src={iconSearchUrl} alt="" class="icon-svg" />
+              </span>
+            </label>
+          </div>
         </template>
 
-        <template if:true={renderList}>
-            <div class="lic-list-panel">
-                <c-se-data-list
-                    records={decoratedLicencias}
-                    columns={columns}
-                    mobile-fields={mobileFields}
-                    title-field="name"
-                    badge-field="statusLabel"
-                    badge-tone-field="statusTone"
-                    key-field="id"
-                    action-label="Ver"
-                    mobile-action-label="Ver detalle →"
-                    mobile-action-variant="link"
-                    empty-text="No hay licencias para mostrar."
-                    page-size={listPageSize}
-                    loading={isLoading}
-                    onrowaction={handleRowAction}
-                ></c-se-data-list>
-
-                <c-se-pager
-                    page={currentPage}
-                    disable-prev={disablePrev}
-                    disable-next={disableNext}
-                    onprevious={handlePrev}
-                    onnext={handleNext}
-                ></c-se-pager>
-
-                <div class="boton-reporte">
-                    <button type="button" class="btn-generar" onclick={openModal}>Generar Reporte</button>
-                </div>
-            </div>
+        <template lwc:else>
+          <h1 class="title">Mis Licencias</h1>
         </template>
-    </c-se-list-page>
+      </div>
 
-    <template if:true={showModal}>
-        <section class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="report-modal-title" onclick={handleReportBackdrop}>
-            <div class="modal" onclick={stopPropagation}>
-                <header class="modal-header">
-                    <h3 id="report-modal-title" class="modal-title">Generar reporte</h3>
-                    <button type="button" class="close-button" onclick={closeModal} aria-label="Cerrar" disabled={isReportLoading}>×</button>
-                </header>
-                <div class="modal-body">
-                    <template if:true={isReportConfirm}>
-                        <p>Vamos a generar un reporte con todos los datos de tu tabla de licencias.</p>
-                        <p>¿Querés continuar?</p>
-                    </template>
-                    <template if:true={isReportLoading}>
-                        <div class="report-loading">
-                            <c-se-brand-loader></c-se-brand-loader>
-                            <p>Generando el reporte…</p>
-                        </div>
-                    </template>
-                    <template if:true={isReportSuccess}>
-                        <p>El reporte se generó correctamente.</p>
-                    </template>
-                    <template if:true={isReportError}>
-                        <p class="report-error">{reportErrorMessage}</p>
-                    </template>
-                </div>
-                <footer class="modal-footer">
-                    <template if:true={isReportConfirm}>
-                        <button type="button" class="btn-ghost" onclick={closeModal}>Cancelar</button>
-                        <button type="button" class="btn-dark" onclick={handleCall}>Generar</button>
-                    </template>
-                    <template if:true={isReportLoading}>
-                        <button type="button" class="btn-ghost" disabled>Cancelar</button>
-                    </template>
-                    <template if:true={isReportSuccess}>
-                        <button type="button" class="btn-dark" onclick={closeModal}>Listo</button>
-                    </template>
-                    <template if:true={isReportError}>
-                        <button type="button" class="btn-ghost" onclick={closeModal}>Cerrar</button>
-                        <template if:true={showRetryButton}>
-                            <button type="button" class="btn-dark" onclick={handleRetryReport}>Reintentar</button>
-                        </template>
-                    </template>
-                </footer>
+      <div class="se-mob-only lic-header-mob">
+        <p class="eyebrow">Módulos</p>
+        <h1 class="title">Licencias</h1>
+
+        <template lwc:if={renderFilters}>
+          <div class="lic-mob-tools">
+            <button
+              type="button"
+              class="filt-toggle"
+              aria-expanded={filtersPanelOpen}
+              onclick={handleToggleFiltersPanel}
+            >
+              Filtros
+              <template if:true={showFilterBadge}>
+                <span class="filt-badge">{activeFilterCount}</span>
+              </template>
+            </button>
+            <button
+              type="button"
+              class="btn-solicitar btn-solicitar-mob"
+              onclick={handleSolicitarLicencia}
+            >
+              + Solicitar Licencia
+            </button>
+          </div>
+          <p class="lic-meta-mobile">
+            <strong>{totalRegistros} elementos</strong>
+            <span> · </span>
+            <strong>{filtroResumen}</strong>
+          </p>
+        </template>
+      </div>
+    </header>
+
+    <template if:true={filtersPanelOpen}>
+      <section slot="filters" class="filt-panel">
+        <div class="filt-panel-head">
+          <span class="filt-panel-title">Filtros</span>
+          <button type="button" class="filt-link" onclick={handleClearFilters}>
+            Limpiar
+          </button>
+          <button
+            type="button"
+            class="filt-close"
+            onclick={handleCloseFiltersPanel}
+          >
+            Cerrar
+          </button>
+        </div>
+        <div class="filt-grid">
+          <div class="filt-group">
+            <p class="filt-label">Estado</p>
+            <div class="filt-options">
+              <template for:each={estadoFilterItems} for:item="item">
+                <button
+                  key={item.value}
+                  type="button"
+                  class="filt-option"
+                  data-group="estado"
+                  data-value={item.value}
+                  onclick={handleFilterToggle}
+                >
+                  <span class={item.boxClass} aria-hidden="true"></span>
+                  <span>{item.label}</span>
+                </button>
+              </template>
             </div>
-        </section>
+          </div>
+          <div class="filt-group">
+            <p class="filt-label">Tipo</p>
+            <div class="filt-options">
+              <template for:each={tipoFilterItems} for:item="item">
+                <button
+                  key={item.value}
+                  type="button"
+                  class="filt-option"
+                  data-group="tipo"
+                  data-value={item.value}
+                  onclick={handleFilterToggle}
+                >
+                  <span class={item.boxClass} aria-hidden="true"></span>
+                  <span>{item.label}</span>
+                </button>
+              </template>
+            </div>
+          </div>
+          <div class="filt-group">
+            <p class="filt-label">Tecnología</p>
+            <div class="filt-options">
+              <template for:each={origenFilterItems} for:item="item">
+                <button
+                  key={item.value}
+                  type="button"
+                  class="filt-option"
+                  data-group="origen"
+                  data-value={item.value}
+                  onclick={handleFilterToggle}
+                >
+                  <span class={item.boxClass} aria-hidden="true"></span>
+                  <span>{item.label}</span>
+                </button>
+              </template>
+            </div>
+          </div>
+        </div>
+      </section>
     </template>
+
+    <template if:true={renderList}>
+      <div class="lic-list-panel">
+        <c-se-data-list
+          records={decoratedLicencias}
+          columns={columns}
+          mobile-fields={mobileFields}
+          title-field="name"
+          title-href-field="sglHref"
+          badge-field="statusLabel"
+          badge-tone-field="statusTone"
+          key-field="id"
+          action-label="Ver"
+          mobile-action-label="Ver detalle →"
+          mobile-action-variant="link"
+          empty-text="No hay licencias para mostrar."
+          page-size={listPageSize}
+          loading={isLoading}
+          onrowaction={handleRowAction}
+        ></c-se-data-list>
+
+        <c-se-pager
+          page={currentPage}
+          disable-prev={disablePrev}
+          disable-next={disableNext}
+          onprevious={handlePrev}
+          onnext={handleNext}
+        ></c-se-pager>
+
+        <div class="boton-reporte">
+          <button type="button" class="btn-generar" onclick={openModal}>
+            Generar Reporte
+          </button>
+        </div>
+      </div>
+    </template>
+  </c-se-list-page>
+
+  <template if:true={showModal}>
+    <section
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-modal-title"
+      onclick={handleReportBackdrop}
+    >
+      <div class="modal" onclick={stopPropagation}>
+        <header class="modal-header">
+          <h3 id="report-modal-title" class="modal-title">Generar reporte</h3>
+          <button
+            type="button"
+            class="close-button"
+            onclick={closeModal}
+            aria-label="Cerrar"
+            disabled={isReportLoading}
+          >
+            ×
+          </button>
+        </header>
+        <div class="modal-body">
+          <template if:true={isReportConfirm}>
+            <p>
+              Vamos a generar un reporte con todos los datos de tu tabla de
+              licencias.
+            </p>
+            <p>¿Querés continuar?</p>
+          </template>
+          <template if:true={isReportLoading}>
+            <div class="report-loading">
+              <c-se-brand-loader></c-se-brand-loader>
+              <p>Generando el reporte…</p>
+            </div>
+          </template>
+          <template if:true={isReportSuccess}>
+            <p>El reporte se generó correctamente.</p>
+          </template>
+          <template if:true={isReportError}>
+            <p class="report-error">{reportErrorMessage}</p>
+          </template>
+        </div>
+        <footer class="modal-footer">
+          <template if:true={isReportConfirm}>
+            <button type="button" class="btn-ghost" onclick={closeModal}>
+              Cancelar
+            </button>
+            <button type="button" class="btn-dark" onclick={handleCall}>
+              Generar
+            </button>
+          </template>
+          <template if:true={isReportLoading}>
+            <button type="button" class="btn-ghost" disabled>Cancelar</button>
+          </template>
+          <template if:true={isReportSuccess}>
+            <button type="button" class="btn-dark" onclick={closeModal}>
+              Listo
+            </button>
+          </template>
+          <template if:true={isReportError}>
+            <button type="button" class="btn-ghost" onclick={closeModal}>
+              Cerrar
+            </button>
+            <template if:true={showRetryButton}>
+              <button
+                type="button"
+                class="btn-dark"
+                onclick={handleRetryReport}
+              >
+                Reintentar
+              </button>
+            </template>
+          </template>
+        </footer>
+      </div>
+    </section>
+  </template>
 </template>

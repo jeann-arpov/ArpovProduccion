@@ -27,42 +27,25 @@ global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>,
 
   // ── Batchable ────────────────────────────────────────────────────────────
   /**
-   * QueryLocator de movimientos a debitar. En test trae todos; en producción
-   * filtra Procesar__c=true, No_Debitar__c=false, sin TN y excluye varietales.
+   * QueryLocator de movimientos a debitar. Excluye varietales (los procesa el
+   * débito varietal) y los vinculados a expedientes PRI/SEC finalizados.
    */
   global Database.QueryLocator start(Database.BatchableContext bc) {
-    if (Test.isRunningTest()) {
-      return Database.getQueryLocator(
-        [
-          SELECT
-            Id,
-            CUIT_Titular__c,
-            CTG__c,
-            Cultivo__c,
-            Tecnologia__c,
-            Peso_Neto__c
-          FROM Movimiento_BolsaTech__c
-        ]
-      );
-    }
-    return Database.getQueryLocator(
-      [
-        SELECT
-          Id,
-          CUIT_Titular__c,
-          CTG__c,
-          Cultivo__c,
-          Tecnologia__c,
-          Peso_Neto__c
-        FROM Movimiento_BolsaTech__c
-        WHERE
-          Procesar__c = TRUE
-          AND No_Debitar__c = FALSE
-          AND TN_Id__c = NULL
-          AND Estado__c = 'A procesar'
-          AND Cultivo_Varietal__c = FALSE
-      ]
-    );
+    return Database.getQueryLocator(buildQuery());
+  }
+
+  @TestVisible
+  private static String buildQuery() {
+    return 'SELECT Id, CUIT_Titular__c, CTG__c, Cultivo__c, Tecnologia__c, Peso_Neto__c ' +
+      'FROM Movimiento_BolsaTech__c ' +
+      'WHERE Procesar__c = TRUE ' +
+      'AND No_Debitar__c = FALSE ' +
+      'AND TN_Id__c = NULL ' +
+      'AND Estado__c = \'A procesar\' ' +
+      'AND Cultivo_Varietal__c = FALSE ' +
+      'AND (Expediente_de_Negativos__c = NULL ' +
+      'OR Expediente_de_Negativos__r.Tipo_expendiente__c NOT IN (\'PRI\', \'SEC\') ' +
+      'OR Expediente_de_Negativos__r.Estado_de_la_Etapa__c != \'Finalizado\')';
   }
 
   /**
