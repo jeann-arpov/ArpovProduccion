@@ -27,6 +27,10 @@
         <value xsi:type="xsd:double">-4</value>
     </values>
     <values>
+        <field>Umbral_Estado__c</field>
+        <value xsi:type="xsd:double">0</value>
+    </values>
+    <values>
         <field>Tecnologia__c</field>
         <value xsi:type="xsd:string">RR1/RR2 - BT/Convencional</value>
     </values>
