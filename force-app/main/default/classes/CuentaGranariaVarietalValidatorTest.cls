@@ -83,7 +83,6 @@ private class CuentaGranariaVarietalValidatorTest {
   ) {
     Movimiento_BolsaTech__c mbt = new Movimiento_BolsaTech__c(
       Estado__c = 'Con error',
-      Cultivo_Varietal__c = true,
       No_Debitar__c = false,
       Peso_Neto__c = 100000,
       Cultivo__c = 'TRIGO',
@@ -150,6 +149,31 @@ private class CuentaGranariaVarietalValidatorTest {
     Movimiento_BolsaTech__c mbt = crearMbt(
       new List<Decimal>{ 50, 30, 20 },
       'UC4'
+    );
+
+    Test.startTest();
+    CuentaGranariaVarietalValidator.validate(
+      new List<Movimiento_BolsaTech__c>{ mbt }
+    );
+    Test.stopTest();
+
+    System.assertEquals(
+      'A procesar',
+      mbt.Estado__c,
+      'Resultado__c=' + mbt.Resultado__c
+    );
+    System.assertEquals('OK', mbt.Resultado__c);
+  }
+
+  /**
+   * Suma de porcentajes < 100 debe aceptarse (solo es error si supera 100).
+   */
+  @isTest
+  static void testSumaMenorA100QuedaAProcesar() {
+    prepararDatos();
+    Movimiento_BolsaTech__c mbt = crearMbt(
+      new List<Decimal>{ 40, 30, 20 },
+      'UC7'
     );
 
     Test.startTest();

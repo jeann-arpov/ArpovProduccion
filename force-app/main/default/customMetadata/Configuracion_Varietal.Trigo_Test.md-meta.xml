@@ -19,6 +19,10 @@
         <value xsi:type="xsd:double">0</value>
     </values>
     <values>
+        <field>Suma_Maxima_MD11__c</field>
+        <value xsi:type="xsd:double">100</value>
+    </values>
+    <values>
         <field>Umbral_Apertura_Expediente__c</field>
         <value xsi:type="xsd:double">-4</value>
     </values>

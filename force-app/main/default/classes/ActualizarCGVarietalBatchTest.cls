@@ -48,7 +48,6 @@ private class ActualizarCGVarietalBatchTest {
 
     Movimiento_BolsaTech__c mbt = new Movimiento_BolsaTech__c(
       Estado__c = 'A procesar',
-      Cultivo_Varietal__c = true,
       No_Debitar__c = false,
       Peso_Neto__c = 100000,
       Titular__c = productor.Id,

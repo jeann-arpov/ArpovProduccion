@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Suma_Maxima_MD11__c</fullName>
+    <description>Tope máximo permitido de la suma de porcentajes varietales (MD-11). Solo es error si la suma supera este valor.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Suma Máxima MD-11</label>
+    <precision>5</precision>
+    <scale>2</scale>
+    <required>false</required>
+    <type>Percent</type>
+</CustomField>

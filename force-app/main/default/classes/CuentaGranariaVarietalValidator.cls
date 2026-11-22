@@ -10,7 +10,7 @@ public with sharing class CuentaGranariaVarietalValidator {
    *  1. Campos obligatorios del camión + CUIT.
    *  2. Resolución de Account por CUIT (titular y destinatario).
    *  3. Resolución de Variedad__c por cultivar (catálogo Sembra Evolución) + MD-11
-   *     (suma de porcentajes = 100 con tolerancia).
+   *     (la suma de porcentajes no debe superar Suma_Maxima_MD11__c, default 100).
    * Deja cada camión en 'A procesar' (Resultado 'OK') o 'Con error' (mensajes).
    */
   public static void validate(List<Movimiento_BolsaTech__c> movimientos) {
@@ -143,10 +143,7 @@ public with sharing class CuentaGranariaVarietalValidator {
     }
 
     Configuracion_Varietal__mdt cfg = obtenerConfiguracion();
-    Decimal tolerancia = (cfg != null &&
-      cfg.Tolerancia_Suma_MD11__c != null)
-      ? cfg.Tolerancia_Suma_MD11__c
-      : 0;
+    Decimal sumaMaxima = cfg != null ? cfg.Suma_Maxima_MD11__c : null;
 
     List<Detalle_Variedad_MBT__c> lineasAActualizar = new List<Detalle_Variedad_MBT__c>();
 
@@ -200,9 +197,11 @@ public with sharing class CuentaGranariaVarietalValidator {
           }
         }
 
-        // MD-11: la suma de porcentajes del camión debe ser 100
-        if (Math.abs(suma - 100) > tolerancia) {
-          errors.add('La suma de porcentajes no es 100 (MD-11)');
+        // MD-11: la suma de porcentajes no debe superar el tope configurado
+        if (sumaMaxima != null && suma > sumaMaxima) {
+          errors.add(
+            'La suma de porcentajes supera el tope de ' + sumaMaxima + '% (MD-11)'
+          );
         }
       }
 
