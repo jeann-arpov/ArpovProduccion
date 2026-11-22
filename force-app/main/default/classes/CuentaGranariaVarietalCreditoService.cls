@@ -173,6 +173,33 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     vincularHtsAlDetalle(cgId, productorId, cultivoId, campanaId);
 
     recalcularSaldoCuenta(cgId);
+
+    cerrarExpedientesRegularizados(aActualizar, aResetear);
+  }
+
+  /**
+   * Cierra (de forma dirigida y síncrona) los expedientes de las sub-cuentas
+   * cuyo saldo quedó regularizado tras el recálculo del crédito, para que el
+   * cierre se refleje al instante y no dependa del scheduler global.
+   */
+  private static void cerrarExpedientesRegularizados(
+    List<Detalle_Variedad_CG__c> aActualizar,
+    List<Detalle_Variedad_CG__c> aResetear
+  ) {
+    Set<Id> subCuentaIds = new Set<Id>();
+    for (Detalle_Variedad_CG__c sc : aActualizar) {
+      if (sc.Id != null) {
+        subCuentaIds.add(sc.Id);
+      }
+    }
+    for (Detalle_Variedad_CG__c sc : aResetear) {
+      if (sc.Id != null) {
+        subCuentaIds.add(sc.Id);
+      }
+    }
+    CuentaGranariaVarietalExpedienteService.cerrarExpedientesRegularizadosPorSubCuentas(
+      subCuentaIds
+    );
   }
 
   /**
@@ -232,7 +259,8 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     Set<Id> cultivoIds = new Set<Id>();
     for (Tonelada__c tn : toneladas) {
       if (
-        (tn.Origen__c == 'Compra HT' || tn.Origen__c == 'Compra SF') &&
+        (tn.Origen__c == 'Compra HT' ||
+        tn.Origen__c == 'Compra SF') &&
         tn.Etapa__c != null &&
         ETAPAS_VARIETALES.contains(tn.Etapa__c) &&
         tn.Cultivo__c != null
@@ -262,7 +290,11 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       if (tn.Etapa__c == null || !ETAPAS_VARIETALES.contains(tn.Etapa__c)) {
         continue;
       }
-      if (tn.Cultivo__c == null || tn.Productor__c == null || tn.Campania__c == null) {
+      if (
+        tn.Cultivo__c == null ||
+        tn.Productor__c == null ||
+        tn.Campania__c == null
+      ) {
         continue;
       }
       String nombreCultivo = cultivoNombrePorId.get(tn.Cultivo__c);
@@ -279,12 +311,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         tn.Campania__c
       );
       if (cgId != null) {
-        aActualizar.add(
-          new Tonelada__c(
-            Id = tn.Id,
-            Cuenta_Granaria__c = cgId
-          )
-        );
+        aActualizar.add(new Tonelada__c(Id = tn.Id, Cuenta_Granaria__c = cgId));
       }
     }
 
@@ -389,16 +416,19 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         AND Cultivo__c = :cultivoId
         AND Campania__c = :campanaId
         AND Origen__c IN :ORIGENES_CREDITO
-        AND (
-          Etapa__c IN :ETAPAS_VARIETALES
-          OR (Etapa__c = 'Aplicada' AND HT_Original__r.Etapa__c = 'Cancelada por NC')
-        )
+        AND (Etapa__c IN :ETAPAS_VARIETALES
+        OR (Etapa__c = 'Aplicada'
+        AND HT_Original__r.Etapa__c = 'Cancelada por NC'))
         AND Variedad__c != NULL
       ORDER BY Fecha_de_la_Transaccion__c DESC, CreatedDate DESC
     ]) {
-      Boolean esDevolucion = ht.Etapa__c == 'Aplicada' && ht.HT_Original__c != null;
+      Boolean esDevolucion =
+        ht.Etapa__c == 'Aplicada' &&
+        ht.HT_Original__c != null;
       CreditoVariedad c = new CreditoVariedad();
-      c.variedadId = esDevolucion ? ht.HT_Original__r.Variedad__c : ht.Variedad__c;
+      c.variedadId = esDevolucion
+        ? ht.HT_Original__r.Variedad__c
+        : ht.Variedad__c;
       c.variedadNombre = esDevolucion
         ? ht.HT_Original__r.Variedad__r.Name
         : ht.Variedad__r.Name;
@@ -426,26 +456,32 @@ public with sharing class CuentaGranariaVarietalCreditoService {
   ) {
     Map<Id, Decimal> creditoPorVariedad = new Map<Id, Decimal>();
     for (Hectareas_Tecnologicas__c ht : [
-      SELECT Variedad__c, HT_Original__r.Variedad__c, Toneladas__c, Signo__c, Etapa__c
+      SELECT
+        Variedad__c,
+        HT_Original__r.Variedad__c,
+        Toneladas__c,
+        Signo__c,
+        Etapa__c
       FROM Hectareas_Tecnologicas__c
       WHERE
         Productor__c = :productorId
         AND Cultivo__c = :cultivoId
         AND Campania__c = :campanaId
         AND Origen__c IN :ORIGENES_CREDITO
-        AND (
-          Etapa__c IN :ETAPAS_VARIETALES
-          OR (Etapa__c = 'Aplicada' AND HT_Original__r.Etapa__c = 'Cancelada por NC')
-        )
+        AND (Etapa__c IN :ETAPAS_VARIETALES
+        OR (Etapa__c = 'Aplicada'
+        AND HT_Original__r.Etapa__c = 'Cancelada por NC'))
         AND Variedad__c != NULL
     ]) {
-      Id variedadId = ht.Etapa__c == 'Aplicada' && ht.HT_Original__c != null
+      Id variedadId = ht.Etapa__c == 'Aplicada' &&
+        ht.HT_Original__c != null
         ? ht.HT_Original__r.Variedad__c
         : ht.Variedad__c;
       if (variedadId == null) {
         continue;
       }
-      Decimal toneladas = ht.Toneladas__c != null && ht.Signo__c != null
+      Decimal toneladas = ht.Toneladas__c != null &&
+        ht.Signo__c != null
         ? ht.Toneladas__c * ht.Signo__c
         : 0;
       Decimal previo = creditoPorVariedad.containsKey(variedadId)
@@ -487,7 +523,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     Set<String> cultivos = new Set<String>();
     for (
       Configuracion_Varietal__mdt cfg : Configuracion_Varietal__mdt.getAll()
-      .values()
+        .values()
     ) {
       if (String.isNotBlank(cfg.Cultivos_Varietales__c)) {
         for (String nombre : cfg.Cultivos_Varietales__c.split(',')) {

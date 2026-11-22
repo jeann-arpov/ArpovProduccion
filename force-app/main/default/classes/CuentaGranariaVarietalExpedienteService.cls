@@ -140,6 +140,63 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
   }
 
   /**
+   * Cierra (Finalizado) los expedientes varietales de un conjunto puntual de
+   * sub-cuentas cuyo saldo actual ya es >= umbral. Versión dirigida (barata)
+   * para ejecutar de forma síncrona cuando cambia el saldo por un crédito,
+   * sin barrer todas las sub-cuentas.
+   *
+   * @param subCuentaIds Sub-cuentas (Detalle_Variedad_CG__c) a evaluar.
+   * @return Cantidad de expedientes cerrados.
+   */
+  public static Integer cerrarExpedientesRegularizadosPorSubCuentas(
+    Set<Id> subCuentaIds
+  ) {
+    if (subCuentaIds == null || subCuentaIds.isEmpty()) {
+      return 0;
+    }
+    Map<String, Decimal> umbralPorCultivo = obtenerUmbralPorCultivo();
+    List<Expediente_de_Negativos__c> aCerrar = new List<Expediente_de_Negativos__c>();
+    for (Expediente_de_Negativos__c exp : [
+      SELECT
+        Id,
+        Detalle_Variedad_CG__c,
+        Detalle_Variedad_CG__r.Saldo_Variedad__c,
+        Detalle_Variedad_CG__r.Cuenta_Granaria__r.Cultivo__r.Name
+      FROM Expediente_de_Negativos__c
+      WHERE
+        Detalle_Variedad_CG__c IN :subCuentaIds
+        AND Estado_de_la_Etapa__c NOT IN ('Finalizado', 'Vencido')
+    ]) {
+      Decimal saldo = exp.Detalle_Variedad_CG__r.Saldo_Variedad__c;
+      Decimal umbral = obtenerUmbralParaCultivo(
+        umbralPorCultivo,
+        exp.Detalle_Variedad_CG__r.Cuenta_Granaria__r.Cultivo__r.Name
+      );
+      if (saldo != null && umbral != null && saldo >= umbral) {
+        aCerrar.add(
+          new Expediente_de_Negativos__c(
+            Id = exp.Id,
+            Estado_de_la_Etapa__c = 'Finalizado',
+            Fecha_de_finalizacion__c = Date.today(),
+            Saldo_del_Expediente_al_Cierre__c = saldo
+          )
+        );
+      }
+    }
+
+    Integer cerrados = 0;
+    if (!aCerrar.isEmpty()) {
+      List<Database.SaveResult> saves = Database.update(aCerrar, false);
+      for (Database.SaveResult sr : saves) {
+        if (sr.isSuccess()) {
+          cerrados++;
+        }
+      }
+    }
+    return cerrados;
+  }
+
+  /**
    * Sub-cuentas (Detalle_Variedad_CG__c) que ya tienen un expediente varietal
    * activo (no Finalizado ni Vencido).
    */
