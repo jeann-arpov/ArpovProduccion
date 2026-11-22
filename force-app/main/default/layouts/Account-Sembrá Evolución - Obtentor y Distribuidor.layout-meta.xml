@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
     <customButtons>ERPvs__Consulta_Saldo</customButtons>
     <customButtons>ERPvs__Consulta_Comprobantes</customButtons>
@@ -555,9 +555,9 @@
         <detailHeading>true</detailHeading>
         <editHeading>false</editHeading>
         <label>Custom Links</label>
-        <layoutColumns/>
-        <layoutColumns/>
-        <layoutColumns/>
+        <layoutColumns />
+        <layoutColumns />
+        <layoutColumns />
         <style>CustomLinks</style>
     </layoutSections>
     <platformActionList>
@@ -645,6 +645,7 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Campa_a__c</fields>
         <fields>Comercio__c</fields>
         <fields>Es_NC__c</fields>
         <fields>Punto_de_Venta__c</fields>
@@ -658,6 +659,7 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Campa_a__c</fields>
         <fields>Cuenta_Productor__c</fields>
         <fields>Variedades__c</fields>
         <fields>Total_HT__c</fields>
@@ -670,6 +672,7 @@
     </relatedLists>
     <relatedLists>
         <fields>OPPORTUNITY.NAME</fields>
+        <fields>Campa_a__c</fields>
         <fields>N_de_Comprobante__c</fields>
         <fields>Fecha_Vencimiento_Comprobante__c</fields>
         <fields>OPPORTUNITY.STAGE_NAME</fields>

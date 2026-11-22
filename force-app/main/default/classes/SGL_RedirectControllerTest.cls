@@ -106,6 +106,9 @@ private class SGL_RedirectControllerTest {
     ApexPages.currentPage().getParameters().put('userId', usr.Id);
     ApexPages.currentPage().getParameters().put('contactId', ctc.Id);
     ApexPages.currentPage().getParameters().put('licenseId', lic.Id);
+    ApexPages.currentPage()
+      .getParameters()
+      .put('returnUrl', 'https://portal.example/s/licencias');
 
     SGL_RedirectController ctrl = new SGL_RedirectController();
     ctrl.init();
@@ -119,6 +122,11 @@ private class SGL_RedirectControllerTest {
       null,
       ctrl.jwtToken,
       'El token JWT debe estar generado'
+    );
+    System.assertEquals(
+      'https://portal.example/s/licencias',
+      ctrl.returnUrl,
+      'La URL de regreso debe conservarse para SGL'
     );
   }
 }

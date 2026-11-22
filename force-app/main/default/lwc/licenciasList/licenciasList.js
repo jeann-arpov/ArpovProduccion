@@ -17,6 +17,7 @@ import {
   resolveSemilleroLabel,
   buildHtCompraConfirmadaParams
 } from "c/portalGa4Events";
+import { buildSglLicenseHref, isModifiedClick } from "c/utils";
 
 export default class LicenciasList extends NavigationMixin(LightningElement) {
   iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
@@ -302,7 +303,8 @@ export default class LicenciasList extends NavigationMixin(LightningElement) {
   get decoratedLicencias() {
     return (this.licencias || []).map((l) => ({
       ...l,
-      estadoVisual: this.ESTADO_MAP[l.estado] || l.estado
+      estadoVisual: this.ESTADO_MAP[l.estado] || l.estado,
+      sglHref: buildSglLicenseHref(l.id || l.Id)
     }));
   }
 
@@ -327,6 +329,10 @@ export default class LicenciasList extends NavigationMixin(LightningElement) {
   // ========== HANDLERS DE ACCIONES ==========
 
   handleRowAction(event) {
+    if (isModifiedClick(event)) {
+      return;
+    }
+    event.preventDefault();
     const licenseId = event.currentTarget.dataset.id;
     console.log("Acción en fila, ID:", licenseId);
 

@@ -13,6 +13,7 @@ import uId from "@salesforce/user/Id";
 import { getRecord } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
 import esUsuarioEspecial from "@salesforce/apex/LicenciasController.esUsuarioEspecial";
+import { buildSglLicenseHref, isModifiedClick } from "c/utils";
 
 /**
  * Componente LWC para listar y gestionar licencias de obtentores
@@ -606,7 +607,10 @@ export default class LicenciasListObtentor extends NavigationMixin(
    * Getter para licencias decoradas (asegura array)
    */
   get decoratedLicencias() {
-    return this.licencias || [];
+    return (this.licencias || []).map((l) => ({
+      ...l,
+      sglHref: buildSglLicenseHref(l.id || l.Id)
+    }));
   }
 
   // ========== HANDLERS DE ACCIONES ==========
@@ -615,6 +619,10 @@ export default class LicenciasListObtentor extends NavigationMixin(
    * Handler para acción en fila (clic en licencia)
    */
   handleRowAction(event) {
+    if (isModifiedClick(event)) {
+      return;
+    }
+    event.preventDefault();
     const licenseId = event.currentTarget.dataset.id;
     console.log("Acción en fila, ID:", licenseId);
     this.isLoading = true;
