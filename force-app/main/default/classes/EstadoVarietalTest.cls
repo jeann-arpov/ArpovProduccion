@@ -34,11 +34,11 @@ private class EstadoVarietalTest {
         .values()
     ) {
       if (
-        cfg.Umbral_Apertura_Expediente__c != null &&
+        cfg.Umbral_Estado__c != null &&
         (String.isBlank(cfg.Cultivos_Varietales__c) ||
         cfg.Cultivos_Varietales__c.toUpperCase().contains('TRIGO'))
       ) {
-        esperado = cfg.Umbral_Apertura_Expediente__c;
+        esperado = cfg.Umbral_Estado__c;
         break;
       }
     }

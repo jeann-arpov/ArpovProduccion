@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Umbral_Estado__c</fullName>
+    <description
+  >Umbral de saldo (t) por debajo del cual la variedad queda "Debe regularizar" (trigo: 0, es decir saldo &lt; 0). Independiente del umbral de apertura de expediente.</description>
+    <label>Umbral Estado</label>
+    <precision>18</precision>
+    <scale>2</scale>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+</CustomField>
