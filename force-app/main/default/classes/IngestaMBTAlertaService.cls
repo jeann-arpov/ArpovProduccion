@@ -3,6 +3,8 @@
  *
  * Lógica:
  *  - Solo evalúa en días hábiles (no feriado + dentro de BusinessHours).
+ *  - Solo espera archivo de lunes a jueves: el viernes (con sábado y domingo)
+ *    se informa el lunes, así que ese día no se controla.
  *  - Si no hay Ingesta_MBT__c con Fecha_Ingesta__c del día, avisa a la cola
  *    de Operaciones configurada en Custom Metadata (Configuracion_Ingesta_MBT__mdt):
  *      1. Email a los miembros activos de la cola.
@@ -33,7 +35,7 @@ public with sharing class IngestaMBTAlertaService {
    */
   @TestVisible
   private static void verificarIngesta(Date fecha, Datetime momento) {
-    if (!esDiaHabil(fecha, momento)) {
+    if (!esDiaHabil(fecha, momento) || !esDiaConArchivoEsperado(fecha)) {
       return;
     }
     Datetime inicio = Datetime.newInstance(
@@ -47,7 +49,8 @@ public with sharing class IngestaMBTAlertaService {
     Integer ingestas = [
       SELECT COUNT()
       FROM Ingesta_MBT__c
-      WHERE Fecha_Ingesta__c >= :inicio
+      WHERE
+        Fecha_Ingesta__c >= :inicio
         AND Fecha_Ingesta__c < :inicio.addDays(1)
     ];
     if (ingestas == 0) {
@@ -66,13 +69,11 @@ public with sharing class IngestaMBTAlertaService {
 
       List<String> correos = new List<String>();
       if (!userIds.isEmpty()) {
-        for (
-          User u : [
-            SELECT Email
-            FROM User
-            WHERE Id IN :userIds AND IsActive = TRUE
-          ]
-        ) {
+        for (User u : [
+          SELECT Email
+          FROM User
+          WHERE Id IN :userIds AND IsActive = TRUE
+        ]) {
           if (String.isNotBlank(u.Email)) {
             correos.add(u.Email);
           }
@@ -102,7 +103,7 @@ public with sharing class IngestaMBTAlertaService {
    * Determina si la fecha/momento dados son día hábil:
    *  1. No debe ser feriado (objeto estándar Holiday).
    *  2. Debe estar dentro del horario laboral (BusinessHours, configurable en la org).
-   *  3. Fallback sin BusinessHours configurado: lunes a viernes.
+   * Sin BusinessHours activo configurado no se considera día hábil (sin fallback).
    *
    * @param fecha   Fecha a evaluar.
    * @param momento Momento (hora) a evaluar dentro del horario laboral.
@@ -126,12 +127,32 @@ public with sharing class IngestaMBTAlertaService {
       ORDER BY IsDefault DESC, CreatedDate ASC
       LIMIT 1
     ];
-    if (!bhs.isEmpty()) {
-      return BusinessHours.isWithin(bhs[0].Id, momento);
+    if (bhs.isEmpty()) {
+      return false;
     }
+    return BusinessHours.isWithin(bhs[0].Id, momento);
+  }
 
-    Integer diaSemana = Integer.valueOf(momento.format('u'));
-    return diaSemana >= 1 && diaSemana <= 5;
+  /**
+   * Determina si la fecha es un día con archivo esperado: lunes a jueves.
+   * El viernes (junto con sábado y domingo) se informa el lunes,
+   * por lo que ese día no se espera archivo.
+   *
+   * @param fecha Fecha a evaluar.
+   * @return true si es lunes, martes, miércoles o jueves.
+   */
+  @TestVisible
+  private static Boolean esDiaConArchivoEsperado(Date fecha) {
+    Datetime momento = Datetime.newInstance(
+      fecha.year(),
+      fecha.month(),
+      fecha.day(),
+      12,
+      0,
+      0
+    );
+    Integer diaSemana = Integer.valueOf(momento.format('u')); // 1=lun .. 7=dom
+    return diaSemana >= 1 && diaSemana <= 4;
   }
 
   /**
@@ -152,13 +173,11 @@ public with sharing class IngestaMBTAlertaService {
     if (colas.isEmpty()) {
       return userIds;
     }
-    for (
-      GroupMember gm : [
-        SELECT UserOrGroupId
-        FROM GroupMember
-        WHERE GroupId = :colas[0].Id
-      ]
-    ) {
+    for (GroupMember gm : [
+      SELECT UserOrGroupId
+      FROM GroupMember
+      WHERE GroupId = :colas[0].Id
+    ]) {
       userIds.add(gm.UserOrGroupId);
     }
     return userIds;
@@ -179,7 +198,10 @@ public with sharing class IngestaMBTAlertaService {
       'No se registró ninguna ingesta de MBT en el día ' + fecha.format() + '.'
     );
     mensaje.setSaveAsActivity(false);
-    Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mensaje }, false);
+    Messaging.sendEmail(
+      new List<Messaging.SingleEmailMessage>{ mensaje },
+      false
+    );
   }
 
   /**
@@ -205,7 +227,9 @@ public with sharing class IngestaMBTAlertaService {
     Messaging.CustomNotification notif = new Messaging.CustomNotification();
     notif.setTitle(ASUNTO_ALERTA);
     notif.setBody(
-      'No se registró ingesta de archivo varietal en el día ' + fecha.format() + '.'
+      'No se registró ingesta de archivo varietal en el día ' +
+        fecha.format() +
+        '.'
     );
     notif.setNotificationTypeId(tipos[0].Id);
     notif.setTargetPageRef(
