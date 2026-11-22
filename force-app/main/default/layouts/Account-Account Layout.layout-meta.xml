@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
     <excludeButtons>DataDotComAccountInsights</excludeButtons>
     <excludeButtons>DataDotComClean</excludeButtons>
@@ -336,7 +336,7 @@
                 <field>Zona_C_G__c</field>
             </layoutItems>
         </layoutColumns>
-        <layoutColumns/>
+        <layoutColumns />
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
     <layoutSections>
@@ -403,9 +403,9 @@
         <detailHeading>true</detailHeading>
         <editHeading>false</editHeading>
         <label>Custom Links</label>
-        <layoutColumns/>
-        <layoutColumns/>
-        <layoutColumns/>
+        <layoutColumns />
+        <layoutColumns />
+        <layoutColumns />
         <style>CustomLinks</style>
     </layoutSections>
     <miniLayout>
@@ -459,7 +459,8 @@
         <fields>ERPvs__Nro_cuenta_bancaria__c</fields>
         <fields>ERPvs__CBU__c</fields>
         <fields>ERPvs__Por_defecto__c</fields>
-        <relatedList>ERPvs__Datos_cuentas_bancarias__c.ERPvs__Cuenta__c</relatedList>
+        <relatedList
+    >ERPvs__Datos_cuentas_bancarias__c.ERPvs__Cuenta__c</relatedList>
         <sortField>NAME</sortField>
         <sortOrder>Asc</sortOrder>
     </relatedLists>

@@ -1,298 +1,395 @@
 @isTest
 public class AdhesionPPHTest {
-    public static testmethod void main() {
-        Test_TestUtils.disableFlows();
+  public static testMethod void main() {
+    Test_TestUtils.disableFlows();
 
-        Cultivo__c cultivo = new Cultivo__c(Name = 'Test', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today());
-        insert cultivo;
+    Cultivo__c cultivo = new Cultivo__c(
+      Name = 'Test',
+      Densidad_de_Siembra__c = 5,
+      Fecha_Vencimiento_Tonelada__c = Date.today()
+    );
+    insert cultivo;
 
-        Parametro_PPH__c parametro = new Parametro_PPH__c(Name = 'Test', cultivo__c = cultivo.id, Biotecnologia__c = 'Enlist E3');
-        parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today().addDays(-2);
-        parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today().addDays(2);
-        insert parametro;
+    Parametro_PPH__c parametro = new Parametro_PPH__c(
+      Name = 'Test',
+      cultivo__c = cultivo.id,
+      Biotecnologia__c = 'Enlist E3'
+    );
+    parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today()
+      .addDays(-2);
+    parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today()
+      .addDays(2);
+    insert parametro;
 
-        Account productor = Test_TestUtils.crearProductor();
+    Account productor = Test_TestUtils.crearProductor();
 
-        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
-        insert var;
+    Variedad__c var = new Variedad__c(
+      Name = 'test',
+      Biotecnologia__c = 'Enlist E3'
+    );
+    insert var;
 
-        Hectareas_Tecnologicas__c hectarea = new Hectareas_Tecnologicas__c(Fecha_Inicio__c = Date.today().addDays(-5), Fecha_Fin__c = Date.today().addDays(30), Signo__c = 1, Cantidad__c = 3, Productor__c = productor.id, Biotecnologia__c = 'Enlist E3', Cultivo__c = cultivo.id, Variedad__c = var.id, Origen__c = 'Compra HT', Saldo_PPH__c = false);
-        insert hectarea;
+    Hectareas_Tecnologicas__c hectarea = new Hectareas_Tecnologicas__c(
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(30),
+      Signo__c = 1,
+      Cantidad__c = 3,
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Cultivo__c = cultivo.id,
+      Variedad__c = var.id,
+      Origen__c = 'Compra HT',
+      Saldo_PPH__c = false
+    );
+    insert hectarea;
 
-        AdhesionPPH.getLoadData(parametro.id);
+    AdhesionPPH.getLoadData(parametro.id);
 
-        List<Plan_de_siembra__c> planes = [select id from Plan_de_siembra__c];
-        System.assertEquals(1, planes.size());
+    List<Plan_de_siembra__c> planes = [SELECT id FROM Plan_de_siembra__c];
+    System.assertEquals(1, planes.size());
 
-        AdhesionPPH.Data data = AdhesionPPH.getTestData(var.id);
+    AdhesionPPH.Data data = AdhesionPPH.getTestData(var.id);
 
-        AdhesionPPH.save(JSON.serialize(data), planes[0].id);
+    AdhesionPPH.save(JSON.serialize(data), planes[0].id);
 
-        List<Establecimiento_PPH__c> establecimientosPPH = [select Establecimiento__c from Establecimiento_PPH__c];
+    List<Establecimiento_PPH__c> establecimientosPPH = [
+      SELECT Establecimiento__c
+      FROM Establecimiento_PPH__c
+    ];
 
-        System.assertEquals(1, establecimientosPPH.size());
-        
-        AdhesionPPH.hasHT();
+    System.assertEquals(1, establecimientosPPH.size());
 
-        AdhesionPPH.acceptTerms(planes[0].id);
-        AdhesionPPH.sendAdhesion(planes[0].id);
-        AdhesionPPH.rectificarAdhesion(planes[0].id);
-        AdhesionPPH.rectificarAdhesion2(planes[0].id);
+    AdhesionPPH.hasHT();
 
-        System.assertEquals(1, [select id from plan_de_siembra__c].size());
+    AdhesionPPH.acceptTerms(planes[0].id);
+    AdhesionPPH.sendAdhesion(planes[0].id);
+    AdhesionPPH.rectificarAdhesion(planes[0].id);
+    AdhesionPPH.rectificarAdhesion2(planes[0].id);
 
-        //AdhesionPPH.deleteEstablecimiento([select Establecimiento__c from Establecimiento_PPH__c where plan_de_siembra__r.Estado__c = 'Rectificado' limit 1].Establecimiento__c);
+    System.assertEquals(1, [SELECT id FROM plan_de_siembra__c].size());
+
+    //AdhesionPPH.deleteEstablecimiento([select Establecimiento__c from Establecimiento_PPH__c where plan_de_siembra__r.Estado__c = 'Rectificado' limit 1].Establecimiento__c);
+  }
+
+  @isTest
+  static void establecimientosDisponibles() {
+    Test_TestUtils.disableFlows();
+
+    Test_TestUtils.crearProductor();
+    Account productor = CrearCompraController.getAccount();
+
+    Establecimiento__c establecimiento = new Establecimiento__c(
+      Name = 'Campo Test',
+      Coordenadas__latitude__s = -34.4566543,
+      Coordenadas__longitude__s = -60.2355443,
+      Origen__c = 'Propio',
+      Productor__c = productor.Id
+    );
+    insert establecimiento;
+
+    List<AdhesionPPH.EstablecimientoOption> opciones = AdhesionPPH.listEstablecimientosDisponibles();
+    List<LookupSearchResult> resultados = AdhesionPPH.searchEstablecimientos(
+      'Campo'
+    );
+    Set<String> tecnologias = AdhesionPPH.tecnologiasEquivalentes('Enlist E3');
+    AdhesionPPH.tecnologiasEquivalentes('Conkesta E3');
+
+    System.assertNotEquals(null, opciones);
+    System.assertNotEquals(null, resultados);
+    System.assert(tecnologias.contains('Conkesta E3'));
+  }
+
+  @isTest
+  static void dosEstablecimientosNuevosSeGuardan() {
+    Test_TestUtils.disableFlows();
+
+    Cultivo__c cultivo = new Cultivo__c(
+      Name = 'Test',
+      Densidad_de_Siembra__c = 5,
+      Fecha_Vencimiento_Tonelada__c = Date.today()
+    );
+    insert cultivo;
+
+    Parametro_PPH__c parametro = new Parametro_PPH__c(
+      Name = 'Test',
+      cultivo__c = cultivo.id,
+      Biotecnologia__c = 'Enlist E3'
+    );
+    parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today()
+      .addDays(-2);
+    parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today()
+      .addDays(2);
+    insert parametro;
+
+    Account productor = Test_TestUtils.crearProductor();
+
+    Variedad__c var = new Variedad__c(
+      Name = 'test',
+      Biotecnologia__c = 'Enlist E3'
+    );
+    insert var;
+
+    insert new Hectareas_Tecnologicas__c(
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(30),
+      Signo__c = 1,
+      Cantidad__c = 3,
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Cultivo__c = cultivo.id,
+      Variedad__c = var.id,
+      Origen__c = 'Compra HT',
+      Saldo_PPH__c = false
+    );
+
+    AdhesionPPH.getLoadData(parametro.id);
+    Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
+
+    String variedades = '{"' + var.Id + '":{"cantidad":1}}';
+    String js =
+      '{"establecimientos":[' +
+      '{"latitude":-37.194142,"longitude":-61.116293,"cantidadNoSE":0,"name":"San Juan","origen":"Propio","variedades":' +
+      variedades +
+      '},' +
+      '{"latitude":-37.204497,"longitude":-61.135457,"cantidadNoSE":0,"name":"Juan","origen":"Propio","variedades":' +
+      variedades +
+      '}' +
+      ']}';
+
+    AdhesionPPH.save(js, planId);
+
+    System.assertEquals(2, [SELECT COUNT() FROM Establecimiento_PPH__c]);
+  }
+
+  @isTest
+  static void mismoEstablecimientoSeRechaza() {
+    Test_TestUtils.disableFlows();
+
+    Cultivo__c cultivo = new Cultivo__c(
+      Name = 'Test',
+      Densidad_de_Siembra__c = 5,
+      Fecha_Vencimiento_Tonelada__c = Date.today()
+    );
+    insert cultivo;
+
+    Parametro_PPH__c parametro = new Parametro_PPH__c(
+      Name = 'Test',
+      cultivo__c = cultivo.id,
+      Biotecnologia__c = 'Enlist E3'
+    );
+    parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today()
+      .addDays(-2);
+    parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today()
+      .addDays(2);
+    insert parametro;
+
+    Account productor = Test_TestUtils.crearProductor();
+
+    Variedad__c var = new Variedad__c(
+      Name = 'test',
+      Biotecnologia__c = 'Enlist E3'
+    );
+    insert var;
+
+    insert new Hectareas_Tecnologicas__c(
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(30),
+      Signo__c = 1,
+      Cantidad__c = 3,
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Cultivo__c = cultivo.id,
+      Variedad__c = var.id,
+      Origen__c = 'Compra HT',
+      Saldo_PPH__c = false
+    );
+
+    Establecimiento__c establecimiento = new Establecimiento__c(
+      Name = 'Juan',
+      Coordenadas__latitude__s = -37.204497,
+      Coordenadas__longitude__s = -61.135457,
+      Origen__c = 'Propio',
+      Productor__c = productor.Id,
+      Vigente__c = true
+    );
+    insert establecimiento;
+
+    AdhesionPPH.getLoadData(parametro.id);
+    Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
+
+    String est =
+      '{"id":"' +
+      establecimiento.Id +
+      '","latitude":-37.204497,"longitude":-61.135457,"cantidadNoSE":0,"name":"Juan","origen":"Propio","variedades":{"' +
+      var.Id +
+      '":{"cantidad":1}}}';
+    String js = '{"establecimientos":[' + est + ',' + est + ']}';
+
+    Boolean rechazo = false;
+    try {
+      AdhesionPPH.save(js, planId);
+    } catch (AuraHandledException e) {
+      rechazo = true;
     }
 
-    @isTest
-    static void establecimientosDisponibles() {
-        Test_TestUtils.disableFlows();
+    System.assert(rechazo);
+    System.assertEquals(0, [SELECT COUNT() FROM Establecimiento_PPH__c]);
+  }
 
-        Test_TestUtils.crearProductor();
-        Account productor = CrearCompraController.getAccount();
+  @isTest
+  static void ultimoDiaDeAdhesionPermiteEnviar() {
+    Id planId = crearPlanConHectareas(System.today());
 
-        Establecimiento__c establecimiento = new Establecimiento__c(
-            Name = 'Campo Test',
-            Coordenadas__latitude__s = -34.4566543,
-            Coordenadas__longitude__s = -60.2355443,
-            Origen__c = 'Propio',
-            Productor__c = productor.Id
-        );
-        insert establecimiento;
+    AdhesionPPH.acceptTerms(planId);
+    AdhesionPPH.sendAdhesion(planId);
 
-        List<AdhesionPPH.EstablecimientoOption> opciones = AdhesionPPH.listEstablecimientosDisponibles();
-        List<LookupSearchResult> resultados = AdhesionPPH.searchEstablecimientos('Campo');
-        Set<String> tecnologias = AdhesionPPH.tecnologiasEquivalentes('Enlist E3');
-        AdhesionPPH.tecnologiasEquivalentes('Conkesta E3');
+    System.assertEquals(
+      'En Revisión',
+      [SELECT Estado__c FROM Plan_de_siembra__c WHERE Id = :planId].Estado__c
+    );
+  }
 
-        System.assertNotEquals(null, opciones);
-        System.assertNotEquals(null, resultados);
-        System.assert(tecnologias.contains('Conkesta E3'));
+  @isTest
+  static void periodoFinalizadoMuestraElMotivo() {
+    Id planId = crearPlanConHectareas(System.today());
+    Parametro_PPH__c parametro = [SELECT Id FROM Parametro_PPH__c LIMIT 1];
+    parametro.Fecha_Fin_Adhesion_PPH__c = System.today().addDays(-1);
+    update parametro;
+
+    String mensaje;
+    try {
+      AdhesionPPH.sendAdhesion(planId);
+    } catch (AuraHandledException e) {
+      mensaje = e.getMessage();
     }
 
-    @isTest
-    static void dosEstablecimientosNuevosSeGuardan() {
-        Test_TestUtils.disableFlows();
+    System.assertEquals(Label.PPH_Periodo_Adhesion_Finalizado, mensaje);
+    System.assertEquals(
+      'En Preparación',
+      [SELECT Estado__c FROM Plan_de_siembra__c WHERE Id = :planId].Estado__c
+    );
+  }
 
-        Cultivo__c cultivo = new Cultivo__c(Name = 'Test', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today());
-        insert cultivo;
+  private static Id crearPlanConHectareas(Date finAdhesion) {
+    Test_TestUtils.disableFlows();
 
-        Parametro_PPH__c parametro = new Parametro_PPH__c(Name = 'Test', cultivo__c = cultivo.id, Biotecnologia__c = 'Enlist E3');
-        parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today().addDays(-2);
-        parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today().addDays(2);
-        insert parametro;
+    Cultivo__c cultivo = new Cultivo__c(
+      Name = 'Test',
+      Densidad_de_Siembra__c = 5,
+      Fecha_Vencimiento_Tonelada__c = Date.today()
+    );
+    insert cultivo;
 
-        Account productor = Test_TestUtils.crearProductor();
+    Parametro_PPH__c parametro = new Parametro_PPH__c(
+      Name = 'Test',
+      cultivo__c = cultivo.id,
+      Biotecnologia__c = 'Enlist E3'
+    );
+    parametro.Fecha_Inicio_Adhesion_PPH__c = System.today().addDays(-2);
+    parametro.Fecha_Fin_Adhesion_PPH__c = finAdhesion;
+    insert parametro;
 
-        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
-        insert var;
+    Account productor = Test_TestUtils.crearProductor();
 
-        insert new Hectareas_Tecnologicas__c(
-            Fecha_Inicio__c = Date.today().addDays(-5),
-            Fecha_Fin__c = Date.today().addDays(30),
-            Signo__c = 1,
-            Cantidad__c = 3,
-            Productor__c = productor.id,
-            Biotecnologia__c = 'Enlist E3',
-            Cultivo__c = cultivo.id,
-            Variedad__c = var.id,
-            Origen__c = 'Compra HT',
-            Saldo_PPH__c = false
-        );
+    Variedad__c var = new Variedad__c(
+      Name = 'test',
+      Biotecnologia__c = 'Enlist E3'
+    );
+    insert var;
 
-        AdhesionPPH.getLoadData(parametro.id);
-        Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
+    insert new Hectareas_Tecnologicas__c(
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(30),
+      Signo__c = 1,
+      Cantidad__c = 3,
+      Productor__c = productor.id,
+      Biotecnologia__c = 'Enlist E3',
+      Cultivo__c = cultivo.id,
+      Variedad__c = var.id,
+      Origen__c = 'Compra HT',
+      Saldo_PPH__c = false
+    );
 
-        String variedades = '{"' + var.Id + '":{"cantidad":1}}';
-        String js = '{"establecimientos":['
-            + '{"latitude":-37.194142,"longitude":-61.116293,"cantidadNoSE":0,"name":"San Juan","origen":"Propio","variedades":' + variedades + '},'
-            + '{"latitude":-37.204497,"longitude":-61.135457,"cantidadNoSE":0,"name":"Juan","origen":"Propio","variedades":' + variedades + '}'
-            + ']}';
+    AdhesionPPH.getLoadData(parametro.id);
+    Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
+    AdhesionPPH.save(JSON.serialize(AdhesionPPH.getTestData(var.id)), planId);
+    return planId;
+  }
 
-        AdhesionPPH.save(js, planId);
+  @isTest
+  static void establecimientosPPHDuplicadosSeMuestranUnaVez() {
+    Test_TestUtils.disableFlows();
 
-        System.assertEquals(2, [SELECT COUNT() FROM Establecimiento_PPH__c]);
-    }
+    Cultivo__c cultivo = new Cultivo__c(
+      Name = 'Test',
+      Densidad_de_Siembra__c = 5,
+      Fecha_Vencimiento_Tonelada__c = Date.today()
+    );
+    insert cultivo;
 
-    @isTest
-    static void mismoEstablecimientoSeRechaza() {
-        Test_TestUtils.disableFlows();
+    Parametro_PPH__c parametro = new Parametro_PPH__c(
+      Name = 'Test',
+      cultivo__c = cultivo.Id,
+      Biotecnologia__c = 'Enlist E3'
+    );
+    parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today()
+      .addDays(-2);
+    parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today()
+      .addDays(2);
+    insert parametro;
 
-        Cultivo__c cultivo = new Cultivo__c(Name = 'Test', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today());
-        insert cultivo;
+    Account productor = Test_TestUtils.crearProductor();
+    Establecimiento__c establecimiento = new Establecimiento__c(
+      Name = 'Campo duplicado',
+      Coordenadas__latitude__s = -31.9,
+      Coordenadas__longitude__s = -64.2,
+      Origen__c = 'Propio',
+      Vigente__c = true,
+      Productor__c = productor.Id
+    );
+    insert establecimiento;
 
-        Parametro_PPH__c parametro = new Parametro_PPH__c(Name = 'Test', cultivo__c = cultivo.id, Biotecnologia__c = 'Enlist E3');
-        parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today().addDays(-2);
-        parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today().addDays(2);
-        insert parametro;
+    Plan_de_siembra__c plan = new Plan_de_siembra__c(
+      Productor__c = productor.Id,
+      Estado__c = 'En Preparación',
+      Parametro_PPH__c = parametro.Id,
+      Name = 'Test 30500689443 Original',
+      Version__c = 'Original'
+    );
+    insert plan;
 
-        Account productor = Test_TestUtils.crearProductor();
+    insert new List<Establecimiento_PPH__c>{
+      new Establecimiento_PPH__c(
+        Name = 'Campo duplicado',
+        Establecimiento__c = establecimiento.Id,
+        Plan_de_siembra__c = plan.Id
+      ),
+      new Establecimiento_PPH__c(
+        Name = 'Campo duplicado',
+        Establecimiento__c = establecimiento.Id,
+        Plan_de_siembra__c = plan.Id
+      )
+    };
 
-        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
-        insert var;
+    Map<String, Object> data = AdhesionPPH.getLoadData(parametro.Id);
+    List<Establecimiento_PPH__c> establecimientos = (List<Establecimiento_PPH__c>) data.get(
+      'establecimientos'
+    );
 
-        insert new Hectareas_Tecnologicas__c(
-            Fecha_Inicio__c = Date.today().addDays(-5),
-            Fecha_Fin__c = Date.today().addDays(30),
-            Signo__c = 1,
-            Cantidad__c = 3,
-            Productor__c = productor.id,
-            Biotecnologia__c = 'Enlist E3',
-            Cultivo__c = cultivo.id,
-            Variedad__c = var.id,
-            Origen__c = 'Compra HT',
-            Saldo_PPH__c = false
-        );
+    System.assertEquals(
+      1,
+      establecimientos.size(),
+      'Un establecimiento no debe mostrarse más de una vez'
+    );
 
-        Establecimiento__c establecimiento = new Establecimiento__c(
-            Name = 'Juan',
-            Coordenadas__latitude__s = -37.204497,
-            Coordenadas__longitude__s = -61.135457,
-            Origen__c = 'Propio',
-            Productor__c = productor.Id,
-            Vigente__c = true
-        );
-        insert establecimiento;
-
-        AdhesionPPH.getLoadData(parametro.id);
-        Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
-
-        String est = '{"id":"' + establecimiento.Id + '","latitude":-37.204497,"longitude":-61.135457,"cantidadNoSE":0,"name":"Juan","origen":"Propio","variedades":{"' + var.Id + '":{"cantidad":1}}}';
-        String js = '{"establecimientos":[' + est + ',' + est + ']}';
-
-        Boolean rechazo = false;
-        try {
-            AdhesionPPH.save(js, planId);
-        } catch (AuraHandledException e) {
-            rechazo = true;
-        }
-
-        System.assert(rechazo);
-        System.assertEquals(0, [SELECT COUNT() FROM Establecimiento_PPH__c]);
-    }
-
-    @isTest
-    static void ultimoDiaDeAdhesionPermiteEnviar() {
-        Id planId = crearPlanConHectareas(System.today());
-
-        AdhesionPPH.acceptTerms(planId);
-        AdhesionPPH.sendAdhesion(planId);
-
-        System.assertEquals('En Revisión', [SELECT Estado__c FROM Plan_de_siembra__c WHERE Id = :planId].Estado__c);
-    }
-
-    @isTest
-    static void periodoFinalizadoMuestraElMotivo() {
-        Id planId = crearPlanConHectareas(System.today());
-        Parametro_PPH__c parametro = [SELECT Id FROM Parametro_PPH__c LIMIT 1];
-        parametro.Fecha_Fin_Adhesion_PPH__c = System.today().addDays(-1);
-        update parametro;
-
-        String mensaje;
-        try {
-            AdhesionPPH.sendAdhesion(planId);
-        } catch (AuraHandledException e) {
-            mensaje = e.getMessage();
-        }
-
-        System.assertEquals(Label.PPH_Periodo_Adhesion_Finalizado, mensaje);
-        System.assertEquals('En Preparación', [SELECT Estado__c FROM Plan_de_siembra__c WHERE Id = :planId].Estado__c);
-    }
-
-    private static Id crearPlanConHectareas(Date finAdhesion) {
-        Test_TestUtils.disableFlows();
-
-        Cultivo__c cultivo = new Cultivo__c(Name = 'Test', Densidad_de_Siembra__c = 5, Fecha_Vencimiento_Tonelada__c = Date.today());
-        insert cultivo;
-
-        Parametro_PPH__c parametro = new Parametro_PPH__c(Name = 'Test', cultivo__c = cultivo.id, Biotecnologia__c = 'Enlist E3');
-        parametro.Fecha_Inicio_Adhesion_PPH__c = System.today().addDays(-2);
-        parametro.Fecha_Fin_Adhesion_PPH__c = finAdhesion;
-        insert parametro;
-
-        Account productor = Test_TestUtils.crearProductor();
-
-        Variedad__c var = new Variedad__c(Name = 'test', Biotecnologia__c = 'Enlist E3');
-        insert var;
-
-        insert new Hectareas_Tecnologicas__c(
-            Fecha_Inicio__c = Date.today().addDays(-5),
-            Fecha_Fin__c = Date.today().addDays(30),
-            Signo__c = 1,
-            Cantidad__c = 3,
-            Productor__c = productor.id,
-            Biotecnologia__c = 'Enlist E3',
-            Cultivo__c = cultivo.id,
-            Variedad__c = var.id,
-            Origen__c = 'Compra HT',
-            Saldo_PPH__c = false
-        );
-
-        AdhesionPPH.getLoadData(parametro.id);
-        Id planId = [SELECT Id FROM Plan_de_siembra__c LIMIT 1].Id;
-        AdhesionPPH.save(JSON.serialize(AdhesionPPH.getTestData(var.id)), planId);
-        return planId;
-    }
-
-    @isTest
-    static void establecimientosPPHDuplicadosSeMuestranUnaVez() {
-        Test_TestUtils.disableFlows();
-
-        Cultivo__c cultivo = new Cultivo__c(
-            Name = 'Test',
-            Densidad_de_Siembra__c = 5,
-            Fecha_Vencimiento_Tonelada__c = Date.today()
-        );
-        insert cultivo;
-
-        Parametro_PPH__c parametro = new Parametro_PPH__c(
-            Name = 'Test',
-            cultivo__c = cultivo.Id,
-            Biotecnologia__c = 'Enlist E3'
-        );
-        parametro.Fecha_Inicio_Adhesion_PPH__c = parametro.Fecha_Inicio_Rectificacion_1__c = parametro.Fecha_Inicio_Rectificacion_2__c = System.today().addDays(-2);
-        parametro.Fecha_Fin_Adhesion_PPH__c = parametro.Fecha_Fin_Rectificacion_1__c = parametro.Fecha_Fin_Rectificacion_2__c = System.today().addDays(2);
-        insert parametro;
-
-        Account productor = Test_TestUtils.crearProductor();
-        Establecimiento__c establecimiento = new Establecimiento__c(
-            Name = 'Campo duplicado',
-            Coordenadas__latitude__s = -31.9,
-            Coordenadas__longitude__s = -64.2,
-            Origen__c = 'Propio',
-            Vigente__c = true,
-            Productor__c = productor.Id
-        );
-        insert establecimiento;
-
-        Plan_de_siembra__c plan = new Plan_de_siembra__c(
-            Productor__c = productor.Id,
-            Estado__c = 'En Preparación',
-            Parametro_PPH__c = parametro.Id,
-            Name = 'Test 30500689443 Original',
-            Version__c = 'Original'
-        );
-        insert plan;
-
-        insert new List<Establecimiento_PPH__c>{
-            new Establecimiento_PPH__c(
-                Name = 'Campo duplicado',
-                Establecimiento__c = establecimiento.Id,
-                Plan_de_siembra__c = plan.Id
-            ),
-            new Establecimiento_PPH__c(
-                Name = 'Campo duplicado',
-                Establecimiento__c = establecimiento.Id,
-                Plan_de_siembra__c = plan.Id
-            )
-        };
-
-        Map<String, Object> data = AdhesionPPH.getLoadData(parametro.Id);
-        List<Establecimiento_PPH__c> establecimientos = (List<Establecimiento_PPH__c>) data.get('establecimientos');
-
-        System.assertEquals(1, establecimientos.size(), 'Un establecimiento no debe mostrarse más de una vez');
-
-        List<LookupSearchResult> resultados = AdhesionPPH.searchEstablecimientosDisponibles('Campo duplicado', plan.Id);
-        System.assertEquals(0, resultados.size(), 'El establecimiento usado no debe volver a aparecer como opción');
-    }
+    List<LookupSearchResult> resultados = AdhesionPPH.searchEstablecimientosDisponibles(
+      'Campo duplicado',
+      plan.Id
+    );
+    System.assertEquals(
+      0,
+      resultados.size(),
+      'El establecimiento usado no debe volver a aparecer como opción'
+    );
+  }
 }

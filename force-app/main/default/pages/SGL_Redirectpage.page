@@ -12,7 +12,10 @@
     var back = window.location.href;
     if (returnUrl) {
       try {
-        if (new URL(returnUrl, window.location.origin).origin === window.location.origin) {
+        if (
+          new URL(returnUrl, window.location.origin).origin ===
+          window.location.origin
+        ) {
           back = returnUrl;
         }
       } catch (e) {}

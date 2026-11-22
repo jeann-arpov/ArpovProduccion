@@ -1,213 +1,303 @@
 <template>
-    <div class="cgv" if:true={mostrarResumen}>
-        <template if:true={isLoading}>
-            <div class="cgv-loading">
-                <lightning-spinner alternative-text="Cargando cuenta granaria" size="small"></lightning-spinner>
-            </div>
+  <div class="cgv" if:true={mostrarResumen}>
+    <template if:true={isLoading}>
+      <div class="cgv-loading">
+        <lightning-spinner
+          alternative-text="Cargando cuenta granaria"
+          size="small"
+        ></lightning-spinner>
+      </div>
+    </template>
+
+    <template if:true={error}>
+      <p class="cgv-error">{error}</p>
+    </template>
+
+    <template if:true={listo}>
+      <header class="cgv-head">
+        <p class="cgv-kicker">Cuenta Granaria {cuentaInfo.nombre}</p>
+        <h2 class="cgv-title">{encabezado}</h2>
+        <p class="cgv-sub" if:true={subtitulo}>{subtitulo}</p>
+      </header>
+
+      <div class="cgv-metrics">
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Crédito total</span>
+          <span class="cgv-metric-val cgv-pos"
+            >{creditoFormatted}<span class="cgv-unit"> t</span></span
+          >
+        </article>
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Débito total</span>
+          <span class="cgv-metric-val cgv-neg"
+            >{debitoFormatted}<span class="cgv-unit"> t</span></span
+          >
+        </article>
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Saldo</span>
+          <span class={saldoClass}
+            >{saldoFormatted}<span class="cgv-unit"> t</span></span
+          >
+        </article>
+        <article class="cgv-metric">
+          <span class="cgv-metric-lbl">Movimientos</span>
+          <span class="cgv-metric-val">{movimientosFormatted}</span>
+        </article>
+      </div>
+
+      <div class="cgv-filtro-variedad" if:true={filtrandoVariedad}>
+        <span>Viendo solo la variedad <strong>{variedadNombre}</strong></span>
+        <button type="button" class="cgv-link" onclick={verTodasLasVariedades}>
+          Ver todas las variedades
+        </button>
+      </div>
+
+      <section class="cgv-panel" if:true={esResumen}>
+        <div class="cgv-panel-head">
+          <h3>Resumen por origen</h3>
+          <button
+            type="button"
+            class="cgv-link"
+            onclick={verDetalleGeneral}
+            if:true={tieneOrigenes}
+          >
+            Ver detalle
+          </button>
+        </div>
+
+        <template if:true={tieneOrigenes}>
+          <table class="cgv-table">
+            <thead>
+              <tr>
+                <th scope="col">Origen</th>
+                <th scope="col" class="cgv-num">Toneladas</th>
+                <th scope="col" class="cgv-num">Movimientos</th>
+                <th scope="col">
+                  <span class="slds-assistive-text">Descargar</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={origenes} for:item="row">
+                <tr key={row.clave}>
+                  <td>{row.etiquetaFila}</td>
+                  <td class="cgv-num">
+                    <span class={row.valorClass}>{row.toneladasFormatted}</span>
+                  </td>
+                  <td class="cgv-num">{row.movimientosFormatted}</td>
+                  <td class="cgv-actions">
+                    <button
+                      type="button"
+                      class="cgv-csv"
+                      data-clave={row.clave}
+                      data-etiqueta={row.etiqueta}
+                      onclick={descargarCsv}
+                    >
+                      CSV
+                    </button>
+                    <button
+                      type="button"
+                      class="cgv-link"
+                      data-clave={row.clave}
+                      onclick={verDetalleOrigen}
+                    >
+                      Ver detalle
+                    </button>
+                  </td>
+                </tr>
+              </template>
+              <tr class="cgv-total">
+                <td>Total</td>
+                <td class="cgv-num">{saldoFormatted}</td>
+                <td class="cgv-num">{movimientosFormatted}</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
+        <p class="cgv-empty" if:false={tieneOrigenes}>
+          No hay toneladas asociadas a esta cuenta granaria.
+        </p>
+      </section>
+
+      <section class="cgv-panel" if:true={muestraVariedades}>
+        <div class="cgv-panel-head">
+          <h3>Variedades</h3>
+        </div>
+        <template if:true={tieneVariedades}>
+          <table class="cgv-table">
+            <thead>
+              <tr>
+                <th scope="col">Variedad</th>
+                <th scope="col">Semillero</th>
+                <th scope="col" class="cgv-num">Crédito</th>
+                <th scope="col" class="cgv-num">Débito</th>
+                <th scope="col" class="cgv-num">Saldo</th>
+                <th scope="col">Estado</th>
+                <th scope="col">
+                  <span class="slds-assistive-text">Acción</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={variedades} for:item="v">
+                <tr key={v.key}>
+                  <td class="cgv-strong">{v.nombre}</td>
+                  <td>{v.semillero}</td>
+                  <td class="cgv-num cgv-pos">{v.creditoFormatted}</td>
+                  <td class="cgv-num cgv-neg">{v.debitoFormatted}</td>
+                  <td class="cgv-num">
+                    <span class={v.saldoClass}>{v.saldoFormatted}</span>
+                  </td>
+                  <td><span class={v.estadoClass}>{v.estado}</span></td>
+                  <td class="cgv-actions">
+                    <button
+                      if:true={v.puedeVer}
+                      type="button"
+                      class="cgv-link"
+                      data-id={v.variedadId}
+                      onclick={verVariedad}
+                    >
+                      Ver variedad ›
+                    </button>
+                  </td>
+                </tr>
+              </template>
+              <tr class="cgv-total">
+                <td>Total</td>
+                <td></td>
+                <td class="cgv-num">{totalVariedades.credito}</td>
+                <td class="cgv-num">{totalVariedades.debito}</td>
+                <td class="cgv-num">{totalVariedades.saldo}</td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </template>
+        <p class="cgv-empty" if:false={tieneVariedades}>
+          Esta cuenta granaria no tiene variedades cargadas.
+        </p>
+      </section>
+
+      <section class="cgv-panel" if:true={esDetalle}>
+        <div class="cgv-panel-head">
+          <h3>Detalle de movimientos</h3>
+          <button type="button" class="cgv-link" onclick={volverAlResumen}>
+            Volver al resumen
+          </button>
+        </div>
+
+        <div class="cgv-filters">
+          <lightning-combobox
+            label="Origen"
+            value={filtroOrigen}
+            options={opcionesOrigen}
+            onchange={handleFiltroOrigen}
+            variant="label-hidden"
+            placeholder="Origen"
+          ></lightning-combobox>
+          <input
+            class="cgv-search"
+            type="search"
+            placeholder="Buscar por número (TN-…)"
+            value={filtroBuscar}
+            oninput={handleFiltroBuscar}
+            onkeydown={handleBuscarKey}
+          />
+          <button
+            type="button"
+            class="cgv-btn cgv-btn-small"
+            onclick={aplicarBusqueda}
+          >
+            Filtrar
+          </button>
+        </div>
+
+        <template if:true={detalleCargando}>
+          <div class="cgv-loading cgv-loading-inline">
+            <lightning-spinner
+              alternative-text="Cargando detalle"
+              size="small"
+            ></lightning-spinner>
+          </div>
         </template>
 
-        <template if:true={error}>
-            <p class="cgv-error">{error}</p>
-        </template>
-
-        <template if:true={listo}>
-            <header class="cgv-head">
-                <p class="cgv-kicker">Cuenta Granaria {cuentaInfo.nombre}</p>
-                <h2 class="cgv-title">{encabezado}</h2>
-                <p class="cgv-sub" if:true={subtitulo}>{subtitulo}</p>
-            </header>
-
-            <div class="cgv-metrics">
-                <article class="cgv-metric">
-                    <span class="cgv-metric-lbl">Crédito total</span>
-                    <span class="cgv-metric-val cgv-pos">{creditoFormatted}<span class="cgv-unit"> t</span></span>
-                </article>
-                <article class="cgv-metric">
-                    <span class="cgv-metric-lbl">Débito total</span>
-                    <span class="cgv-metric-val cgv-neg">{debitoFormatted}<span class="cgv-unit"> t</span></span>
-                </article>
-                <article class="cgv-metric">
-                    <span class="cgv-metric-lbl">Saldo</span>
-                    <span class={saldoClass}>{saldoFormatted}<span class="cgv-unit"> t</span></span>
-                </article>
-                <article class="cgv-metric">
-                    <span class="cgv-metric-lbl">Movimientos</span>
-                    <span class="cgv-metric-val">{movimientosFormatted}</span>
-                </article>
+        <template if:false={detalleCargando}>
+          <template if:true={detalleVacio}>
+            <p class="cgv-empty">No hay movimientos para ese filtro.</p>
+          </template>
+          <template if:false={detalleVacio}>
+            <table class="cgv-table">
+              <thead>
+                <tr>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Origen</th>
+                  <th scope="col">Etapa</th>
+                  <th scope="col">Creación</th>
+                  <th scope="col" class="cgv-num">Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={detalleFilas} for:item="tn">
+                  <tr key={tn.id}>
+                    <td>
+                      <a href="#" data-id={tn.id} onclick={navigateToRecord}
+                        >{tn.nombre}</a
+                      >
+                    </td>
+                    <td>{tn.origen}</td>
+                    <td>{tn.etapa}</td>
+                    <td>{tn.fechaCreacion}</td>
+                    <td class="cgv-num">
+                      <span class={tn.cantidadClass}
+                        >{tn.cantidadFormatted}</span
+                      >
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+            <div class="cgv-pager">
+              <button
+                type="button"
+                class="cgv-btn cgv-btn-ghost"
+                onclick={paginaAnterior}
+                disabled={anteriorDisabled}
+              >
+                Anterior
+              </button>
+              <span>{paginaLabel}</span>
+              <button
+                type="button"
+                class="cgv-btn cgv-btn-ghost"
+                onclick={paginaSiguiente}
+                disabled={siguienteDisabled}
+              >
+                Siguiente
+              </button>
             </div>
-
-            <div class="cgv-filtro-variedad" if:true={filtrandoVariedad}>
-                <span>Viendo solo la variedad <strong>{variedadNombre}</strong></span>
-                <button type="button" class="cgv-link" onclick={verTodasLasVariedades}>Ver todas las variedades</button>
-            </div>
-
-            <section class="cgv-panel" if:true={esResumen}>
-                <div class="cgv-panel-head">
-                    <h3>Resumen por origen</h3>
-                    <button type="button" class="cgv-link" onclick={verDetalleGeneral} if:true={tieneOrigenes}>Ver detalle</button>
-                </div>
-
-                <template if:true={tieneOrigenes}>
-                    <table class="cgv-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Origen</th>
-                                <th scope="col" class="cgv-num">Toneladas</th>
-                                <th scope="col" class="cgv-num">Movimientos</th>
-                                <th scope="col"><span class="slds-assistive-text">Descargar</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template for:each={origenes} for:item="row">
-                                <tr key={row.clave}>
-                                    <td>{row.etiquetaFila}</td>
-                                    <td class="cgv-num">
-                                        <span class={row.valorClass}>{row.toneladasFormatted}</span>
-                                    </td>
-                                    <td class="cgv-num">{row.movimientosFormatted}</td>
-                                    <td class="cgv-actions">
-                                        <button type="button" class="cgv-csv" data-clave={row.clave} data-etiqueta={row.etiqueta} onclick={descargarCsv}>CSV</button>
-                                        <button type="button" class="cgv-link" data-clave={row.clave} onclick={verDetalleOrigen}>Ver detalle</button>
-                                    </td>
-                                </tr>
-                            </template>
-                            <tr class="cgv-total">
-                                <td>Total</td>
-                                <td class="cgv-num">{saldoFormatted}</td>
-                                <td class="cgv-num">{movimientosFormatted}</td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </template>
-                <p class="cgv-empty" if:false={tieneOrigenes}>No hay toneladas asociadas a esta cuenta granaria.</p>
-            </section>
-
-            <section class="cgv-panel" if:true={muestraVariedades}>
-                <div class="cgv-panel-head">
-                    <h3>Variedades</h3>
-                </div>
-                <template if:true={tieneVariedades}>
-                    <table class="cgv-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Variedad</th>
-                                <th scope="col">Semillero</th>
-                                <th scope="col" class="cgv-num">Crédito</th>
-                                <th scope="col" class="cgv-num">Débito</th>
-                                <th scope="col" class="cgv-num">Saldo</th>
-                                <th scope="col">Estado</th>
-                                <th scope="col"><span class="slds-assistive-text">Acción</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template for:each={variedades} for:item="v">
-                                <tr key={v.key}>
-                                    <td class="cgv-strong">{v.nombre}</td>
-                                    <td>{v.semillero}</td>
-                                    <td class="cgv-num cgv-pos">{v.creditoFormatted}</td>
-                                    <td class="cgv-num cgv-neg">{v.debitoFormatted}</td>
-                                    <td class="cgv-num"><span class={v.saldoClass}>{v.saldoFormatted}</span></td>
-                                    <td><span class={v.estadoClass}>{v.estado}</span></td>
-                                    <td class="cgv-actions">
-                                        <button if:true={v.puedeVer} type="button" class="cgv-link" data-id={v.variedadId} onclick={verVariedad}>Ver variedad ›</button>
-                                    </td>
-                                </tr>
-                            </template>
-                            <tr class="cgv-total">
-                                <td>Total</td>
-                                <td></td>
-                                <td class="cgv-num">{totalVariedades.credito}</td>
-                                <td class="cgv-num">{totalVariedades.debito}</td>
-                                <td class="cgv-num">{totalVariedades.saldo}</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </template>
-                <p class="cgv-empty" if:false={tieneVariedades}>Esta cuenta granaria no tiene variedades cargadas.</p>
-            </section>
-
-            <section class="cgv-panel" if:true={esDetalle}>
-                <div class="cgv-panel-head">
-                    <h3>Detalle de movimientos</h3>
-                    <button type="button" class="cgv-link" onclick={volverAlResumen}>Volver al resumen</button>
-                </div>
-
-                <div class="cgv-filters">
-                    <lightning-combobox
-                        label="Origen"
-                        value={filtroOrigen}
-                        options={opcionesOrigen}
-                        onchange={handleFiltroOrigen}
-                        variant="label-hidden"
-                        placeholder="Origen"
-                    ></lightning-combobox>
-                    <input
-                        class="cgv-search"
-                        type="search"
-                        placeholder="Buscar por número (TN-…)"
-                        value={filtroBuscar}
-                        oninput={handleFiltroBuscar}
-                        onkeydown={handleBuscarKey}
-                    />
-                    <button type="button" class="cgv-btn cgv-btn-small" onclick={aplicarBusqueda}>Filtrar</button>
-                </div>
-
-                <template if:true={detalleCargando}>
-                    <div class="cgv-loading cgv-loading-inline">
-                        <lightning-spinner alternative-text="Cargando detalle" size="small"></lightning-spinner>
-                    </div>
-                </template>
-
-                <template if:false={detalleCargando}>
-                    <template if:true={detalleVacio}>
-                        <p class="cgv-empty">No hay movimientos para ese filtro.</p>
-                    </template>
-                    <template if:false={detalleVacio}>
-                        <table class="cgv-table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Nombre</th>
-                                    <th scope="col">Origen</th>
-                                    <th scope="col">Etapa</th>
-                                    <th scope="col">Creación</th>
-                                    <th scope="col" class="cgv-num">Cantidad</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template for:each={detalleFilas} for:item="tn">
-                                    <tr key={tn.id}>
-                                        <td><a href="#" data-id={tn.id} onclick={navigateToRecord}>{tn.nombre}</a></td>
-                                        <td>{tn.origen}</td>
-                                        <td>{tn.etapa}</td>
-                                        <td>{tn.fechaCreacion}</td>
-                                        <td class="cgv-num"><span class={tn.cantidadClass}>{tn.cantidadFormatted}</span></td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                        <div class="cgv-pager">
-                            <button type="button" class="cgv-btn cgv-btn-ghost" onclick={paginaAnterior} disabled={anteriorDisabled}>Anterior</button>
-                            <span>{paginaLabel}</span>
-                            <button type="button" class="cgv-btn cgv-btn-ghost" onclick={paginaSiguiente} disabled={siguienteDisabled}>Siguiente</button>
-                        </div>
-                    </template>
-                </template>
-            </section>
-
-            <template if:true={tieneCuentasRelacionadas}>
-                <section class="cgv-related">
-                    <h3>Cuentas por campaña</h3>
-                    <template for:each={cuentasRelacionadas} for:item="cg">
-                        <button type="button" key={cg.id} class="cgv-related-item" data-id={cg.id} onclick={navigateToCuentaGranaria}>
-                            <span>{cg.campania}</span>
-                            <strong class={cg.saldoClass}>{cg.saldoFormatted} t</strong>
-                        </button>
-                    </template>
-                </section>
-            </template>
+          </template>
         </template>
-    </div>
+      </section>
+
+      <template if:true={tieneCuentasRelacionadas}>
+        <section class="cgv-related">
+          <h3>Cuentas por campaña</h3>
+          <template for:each={cuentasRelacionadas} for:item="cg">
+            <button
+              type="button"
+              key={cg.id}
+              class="cgv-related-item"
+              data-id={cg.id}
+              onclick={navigateToCuentaGranaria}
+            >
+              <span>{cg.campania}</span>
+              <strong class={cg.saldoClass}>{cg.saldoFormatted} t</strong>
+            </button>
+          </template>
+        </section>
+      </template>
+    </template>
+  </div>
 </template>

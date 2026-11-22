@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
     <customButtons>Activa_Desactiva_CYO</customButtons>
     <customButtons>ERPvs__Consulta_Saldo</customButtons>
@@ -704,8 +704,8 @@
                 <customLink>GoogleMaps</customLink>
             </layoutItems>
         </layoutColumns>
-        <layoutColumns/>
-        <layoutColumns/>
+        <layoutColumns />
+        <layoutColumns />
         <style>CustomLinks</style>
     </layoutSections>
     <miniLayout>
@@ -866,7 +866,8 @@
         <fields>ERPvs__Nro_cuenta_bancaria__c</fields>
         <fields>ERPvs__CBU__c</fields>
         <fields>ERPvs__Por_defecto__c</fields>
-        <relatedList>ERPvs__Datos_cuentas_bancarias__c.ERPvs__Cuenta__c</relatedList>
+        <relatedList
+    >ERPvs__Datos_cuentas_bancarias__c.ERPvs__Cuenta__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
@@ -959,7 +960,8 @@
         <fields>Saldo_MO__c</fields>
         <fields>Saldo_MN__c</fields>
         <fields>ERPvs__Estado__c</fields>
-        <relatedList>ERPvs__Comprobante_Compra__c.ERPvs__Proveedor__c</relatedList>
+        <relatedList
+    >ERPvs__Comprobante_Compra__c.ERPvs__Proveedor__c</relatedList>
         <sortField>ERPvs__Fecha__c</sortField>
         <sortOrder>Desc</sortOrder>
     </relatedLists>
@@ -1010,7 +1012,8 @@
         <fields>ERPvs__Suma_afectada_haber__c</fields>
         <fields>ERPvs__Estado_Imagen__c</fields>
         <fields>ERPvs__Observaciones__c</fields>
-        <relatedList>ERPvs__Afectacion_de_documentos__c.ERPvs__Cuenta__c</relatedList>
+        <relatedList
+    >ERPvs__Afectacion_de_documentos__c.ERPvs__Cuenta__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
@@ -1124,7 +1127,8 @@
         <fields>ERPvs__Provincia__c</fields>
         <fields>ERPvs__Tipo__c</fields>
         <fields>ERPvs__Productor_primario__c</fields>
-        <relatedList>ERPvs__Inscripciones_Ingresos_Brutos__c.ERPvs__Cuenta__c</relatedList>
+        <relatedList
+    >ERPvs__Inscripciones_Ingresos_Brutos__c.ERPvs__Cuenta__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
@@ -1147,7 +1151,8 @@
         <fields>ERPvs__Padron_de_riesgo__c</fields>
         <fields>Tratamiento_NC__c</fields>
         <fields>ERPvs__Devoluciones__c</fields>
-        <relatedList>ERPvs__Percepciones__c.ERPvs__A_cuenta_y_orden_de__c</relatedList>
+        <relatedList
+    >ERPvs__Percepciones__c.ERPvs__A_cuenta_y_orden_de__c</relatedList>
         <sortField>Jurisdiccion__c</sortField>
         <sortOrder>Asc</sortOrder>
     </relatedLists>

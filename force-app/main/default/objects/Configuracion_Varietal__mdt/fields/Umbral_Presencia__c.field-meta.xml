@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Umbral_Presencia__c</fullName>
+    <description
+  >Umbral de presencia (%) por encima del cual se debita la variedad en primera campaña.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Umbral Presencia</label>
+    <precision>5</precision>
+    <scale>2</scale>
+    <required>false</required>
+    <type>Percent</type>
+</CustomField>

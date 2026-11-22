@@ -1,104 +1,118 @@
-import { LightningElement, track, wire } from 'lwc';
-import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
-import getLicencias from '@salesforce/apex/LicenciasController.getLicenciasProductor';
-import getEstadosLicencia from '@salesforce/apex/LicenciasController.getEstadosLicencia';
-import getOrigenesLicencia from '@salesforce/apex/LicenciasController.getOrigenesLicenciaProductor';
-import getTiposLicencia from '@salesforce/apex/LicenciasController.getTiposLicencia';
-import getLicensesReport from '@salesforce/apex/LicenseReportService.getLicensesReport';
-import resourcePortal from '@salesforce/resourceUrl/resourcePortal';
-import getUrl from '@salesforce/apex/SolicitarLicencia.getUrl';
-import singleNewLicenseRequestJWTSigner from '@salesforce/apex/CustomJWTSigner.singleNewLicenseRequestJWTSigner';
-import singleLicenseJWTSigner from '@salesforce/apex/CustomJWTSigner.singleLicenseJWTSigner';
-import uId from '@salesforce/user/Id';
+import { LightningElement, track, wire } from "lwc";
+import { NavigationMixin, CurrentPageReference } from "lightning/navigation";
+import getLicencias from "@salesforce/apex/LicenciasController.getLicenciasProductor";
+import getEstadosLicencia from "@salesforce/apex/LicenciasController.getEstadosLicencia";
+import getOrigenesLicencia from "@salesforce/apex/LicenciasController.getOrigenesLicenciaProductor";
+import getTiposLicencia from "@salesforce/apex/LicenciasController.getTiposLicencia";
+import getLicensesReport from "@salesforce/apex/LicenseReportService.getLicensesReport";
+import resourcePortal from "@salesforce/resourceUrl/resourcePortal";
+import getUrl from "@salesforce/apex/SolicitarLicencia.getUrl";
+import singleNewLicenseRequestJWTSigner from "@salesforce/apex/CustomJWTSigner.singleNewLicenseRequestJWTSigner";
+import singleLicenseJWTSigner from "@salesforce/apex/CustomJWTSigner.singleLicenseJWTSigner";
+import uId from "@salesforce/user/Id";
 import { getRecord, getFieldValue } from "lightning/uiRecordApi";
 import CONTACT_ID from "@salesforce/schema/User.ContactId";
-import { redirectToSglWithToken, buildSglLicenseHref } from 'c/utils';
-import { trackGa4Event, buildHtCompraConfirmadaParams } from 'c/portalGa4Events';
-import { syncPortalModal, releasePortalModal } from 'c/seModalLayer';
+import { redirectToSglWithToken, buildSglLicenseHref } from "c/utils";
+import {
+  trackGa4Event,
+  buildHtCompraConfirmadaParams
+} from "c/portalGa4Events";
+import { syncPortalModal, releasePortalModal } from "c/seModalLayer";
 
 function licenseStatusTone(estadoVisual) {
-    const s = (estadoVisual || '').toLowerCase();
-    if (/aprob/.test(s)) return 'ok';
-    if (/rechaz/.test(s)) return 'danger';
-    if (/curso/.test(s)) return 'warn';
-    return 'info';
+  const s = (estadoVisual || "").toLowerCase();
+  if (/aprob/.test(s)) return "ok";
+  if (/rechaz/.test(s)) return "danger";
+  if (/curso/.test(s)) return "warn";
+  return "info";
 }
 
-export default class LicenciasListProductor extends NavigationMixin(LightningElement) {
-    iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
+export default class LicenciasListProductor extends NavigationMixin(
+  LightningElement
+) {
+  iconSearchUrl = `${resourcePortal}/resourcePortal/images/icon-search.svg`;
 
-    @track licencias = [];
-    @track estados = [];
-    @track origenes = [];
-    @track tipos = [];
+  @track licencias = [];
+  @track estados = [];
+  @track origenes = [];
+  @track tipos = [];
 
-    @track selectedEstado = '';
-    @track selectedOrigen = '';
-    @track selectedTipo = '';
-    @track searchTerm = '';
-    @track selectedCarta = '';
-    @track filterEstados = [];
-    @track filterTipos = [];
-    @track filterOrigenes = [];
-    @track filtersPanelOpen = false;
+  @track selectedEstado = "";
+  @track selectedOrigen = "";
+  @track selectedTipo = "";
+  @track searchTerm = "";
+  @track selectedCarta = "";
+  @track filterEstados = [];
+  @track filterTipos = [];
+  @track filterOrigenes = [];
+  @track filtersPanelOpen = false;
 
-    @track totalRegistros = 0;
-    @track showModal = false;
-    @track reportStep = 'confirm';
-    @track reportResponse = {
-        success: false,
+  @track totalRegistros = 0;
+  @track showModal = false;
+  @track reportStep = "confirm";
+  @track reportResponse = {
+    success: false,
     message: "",
-        data: null,
-        statusCode: null
-    };
-    @track isLoading = true;
-    @track renderFilters = false;
-    initialized = false;
+    data: null,
+    statusCode: null
+  };
+  @track isLoading = true;
+  @track renderFilters = false;
+  initialized = false;
 
-    // Configuración de paginación
-    pageSize = 50;
-    listPageSize = 0;
-    currentPage = 1;
-    totalPages = 1;
+  // Configuración de paginación
+  pageSize = 50;
+  listPageSize = 0;
+  currentPage = 1;
+  totalPages = 1;
 
-    columns = [
-        { label: 'Fecha', fieldName: 'fecha' },
-        { label: 'Código', fieldName: 'name', type: 'link', hrefField: 'sglHref' },
-        { label: 'CUIT', fieldName: 'cuit' },
-        { label: 'Razón social', fieldName: 'productor' },
-        { label: 'Marca', fieldName: 'marca' },
-        { label: 'Tecnología', fieldName: 'origen' },
-        { label: 'Origen', fieldName: 'tipo' },
-        { label: 'Estado', fieldName: 'statusLabel', type: 'badge', toneField: 'statusTone' },
-        { label: 'Comercio', fieldName: 'comercio' },
-        { label: 'Email', fieldName: 'emailDisplay', type: 'mailto' },
-        { label: 'Teléfono', fieldName: 'telefonoDisplay' }
-    ];
+  columns = [
+    { label: "Fecha", fieldName: "fecha" },
+    { label: "Código", fieldName: "name", type: "link", hrefField: "sglHref" },
+    { label: "CUIT", fieldName: "cuit" },
+    { label: "Razón social", fieldName: "productor" },
+    { label: "Marca", fieldName: "marca" },
+    { label: "Tecnología", fieldName: "origen" },
+    { label: "Origen", fieldName: "tipo" },
+    {
+      label: "Estado",
+      fieldName: "statusLabel",
+      type: "badge",
+      toneField: "statusTone"
+    },
+    { label: "Comercio", fieldName: "comercio" },
+    { label: "Email", fieldName: "emailDisplay", type: "mailto" },
+    { label: "Teléfono", fieldName: "telefonoDisplay" }
+  ];
 
-    mobileFields = [
-        { label: 'Fecha', fieldName: 'fecha' },
-        { label: 'CUIT', fieldName: 'cuit' },
-        { label: 'Razón social', fieldName: 'productor' },
-        { label: 'Marca', fieldName: 'marca' },
-        { label: 'Tecnología', fieldName: 'origen' },
-        { label: 'Origen', fieldName: 'tipo' },
-        { label: 'Comercio', fieldName: 'comercio' },
-        { label: 'Email', fieldName: 'emailDisplay', valueClassField: 'emailValueClass' }
-    ];
-    
-    // URLs y IDs
-    url;
-    currentUserId = uId;
-    currentContactId;
-    
-    // Debounce para búsqueda
-    searchTimeout;
-    
-    // Almacenamiento de filtros actuales
-    currentFilters = {};
+  mobileFields = [
+    { label: "Fecha", fieldName: "fecha" },
+    { label: "CUIT", fieldName: "cuit" },
+    { label: "Razón social", fieldName: "productor" },
+    { label: "Marca", fieldName: "marca" },
+    { label: "Tecnología", fieldName: "origen" },
+    { label: "Origen", fieldName: "tipo" },
+    { label: "Comercio", fieldName: "comercio" },
+    {
+      label: "Email",
+      fieldName: "emailDisplay",
+      valueClassField: "emailValueClass"
+    }
+  ];
 
-    // Mapeo de estados para visualización
-    ESTADO_MAP = {
+  // URLs y IDs
+  url;
+  currentUserId = uId;
+  currentContactId;
+
+  // Debounce para búsqueda
+  searchTimeout;
+
+  // Almacenamiento de filtros actuales
+  currentFilters = {};
+
+  // Mapeo de estados para visualización
+  ESTADO_MAP = {
     Creada: "En curso",
     "A validar": "En curso",
     Validada: "En curso",
@@ -107,9 +121,9 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
     "En Proceso de Aprobacion": "En curso",
     Aprobada: "Aprobada",
     Rechazada: "Rechazada"
-    };
+  };
 
-    BUCKETS = {
+  BUCKETS = {
     "En curso": [
       "Creada",
       "A validar",
@@ -117,565 +131,574 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
       "Solicitada",
       "Licencia Firmada",
       "En Proceso de Aprobacion"
-        ],
+    ],
     Aprobada: ["Aprobada"],
     Rechazada: ["Rechazada"]
-    };
+  };
 
-    connectedCallback() {
-        document.documentElement.classList.add('se-inner');
-        document.body.classList.add('se-inner');
+  connectedCallback() {
+    document.documentElement.classList.add("se-inner");
+    document.body.classList.add("se-inner");
+  }
+
+  renderedCallback() {
+    syncPortalModal(this, this.showModal, ".modal-backdrop");
+  }
+
+  disconnectedCallback() {
+    releasePortalModal(this);
+    document.documentElement.classList.remove("se-inner");
+    document.body.classList.remove("se-inner");
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
     }
+  }
 
-    renderedCallback() {
-        syncPortalModal(this, this.showModal, '.modal-backdrop');
-    }
-
-    disconnectedCallback() {
-        releasePortalModal(this);
-        document.documentElement.classList.remove('se-inner');
-        document.body.classList.remove('se-inner');
-        if (this.searchTimeout) {
-            clearTimeout(this.searchTimeout);
-        }
-    }
-
-    @wire(getUrl, {})
-    wiredGetUrl({error, data}) {
-        if (data) {
-            this.url = data;
-        } else if (error) {
+  @wire(getUrl, {})
+  wiredGetUrl({ error, data }) {
+    if (data) {
+      this.url = data;
+    } else if (error) {
       console.error("Error getting URL:", error);
-        }
     }
+  }
 
   @wire(getRecord, { recordId: "$currentUserId", fields: [CONTACT_ID] })
-    wiredContactId({ error, data }) {
-        if (data) {
-            try {
-                this.currentContactId = data.fields.ContactId.value;
+  wiredContactId({ error, data }) {
+    if (data) {
+      try {
+        this.currentContactId = data.fields.ContactId.value;
         console.log("Contact ID obtenido:", this.currentContactId);
-                this.loadInitialData();
-            } catch (e) {
+        this.loadInitialData();
+      } catch (e) {
         console.error("Error getting contact:", e);
-                this.isLoading = false;
-            }
-        } else if (error) {
+        this.isLoading = false;
+      }
+    } else if (error) {
       console.error("Error:", error);
-            this.isLoading = false;
-        }
+      this.isLoading = false;
     }
+  }
 
-    async loadInitialData() {
-        if (this.initialized) {
-            return;
-        }
-        this.initialized = true;
-        this.isLoading = true;
-
-        try {
-            await this.loadFilters();
-            this.loadSessionFilters();
-
-            await this.loadLicencias({ manageLoading: false });
-
-            this.renderFilters = true;
-        } catch (error) {
-            console.error('Error cargando datos iniciales:', error);
-        } finally {
-            this.isLoading = false;
-        }
+  async loadInitialData() {
+    if (this.initialized) {
+      return;
     }
+    this.initialized = true;
+    this.isLoading = true;
 
-    async loadFilters() {
-        try {
+    try {
+      await this.loadFilters();
+      this.loadSessionFilters();
+
+      await this.loadLicencias({ manageLoading: false });
+
+      this.renderFilters = true;
+    } catch (error) {
+      console.error("Error cargando datos iniciales:", error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async loadFilters() {
+    try {
       console.log("Cargando filtros...");
-            
-            const promises = [
-                getEstadosLicencia(),
-                getOrigenesLicencia(),
-                getTiposLicencia()
-            ];
-            
+
+      const promises = [
+        getEstadosLicencia(),
+        getOrigenesLicencia(),
+        getTiposLicencia()
+      ];
+
       const [estadosData, origenesData, tiposData] =
         await Promise.all(promises);
-            
-            this.estados = estadosData || [];
-            this.origenes = origenesData || [];
-            this.tipos = tiposData || [];
-            
-      console.log("Filtros cargados:", {
-                estados: this.estados.length,
-                origenes: this.origenes.length,
-                tipos: this.tipos.length
-            });
-        } catch (error) {
-      console.error("Error cargando filtros:", error);
-            this.estados = [];
-            this.origenes = [];
-            this.tipos = [];
-        }
-    }
 
-    loadSessionFilters() {
+      this.estados = estadosData || [];
+      this.origenes = origenesData || [];
+      this.tipos = tiposData || [];
+
+      console.log("Filtros cargados:", {
+        estados: this.estados.length,
+        origenes: this.origenes.length,
+        tipos: this.tipos.length
+      });
+    } catch (error) {
+      console.error("Error cargando filtros:", error);
+      this.estados = [];
+      this.origenes = [];
+      this.tipos = [];
+    }
+  }
+
+  loadSessionFilters() {
     console.log("Cargando filtros de sesión...");
-        
+
     const estado = sessionStorage.getItem("selectedBucketProductor");
     const origen = sessionStorage.getItem("selectedOrigenProductor");
     const tipo = sessionStorage.getItem("selectedTipoProductor");
     const carta = sessionStorage.getItem("cartaOptionProductor");
-        
-        if (estado) {
-            this.selectedEstado = estado;
-            this.filterEstados = estado ? [estado] : [];
-            console.log('Estado de sesión:', estado);
-        }
-        if (origen) {
-            this.selectedOrigen = origen;
-            this.filterOrigenes = origen ? [origen] : [];
-            console.log('Origen de sesión:', origen);
-        }
-        if (tipo) {
-            this.selectedTipo = tipo;
-            this.filterTipos = tipo ? [tipo] : [];
-            console.log('Tipo de sesión:', tipo);
-        }
-        if (carta) {
-            this.selectedCarta = carta;
+
+    if (estado) {
+      this.selectedEstado = estado;
+      this.filterEstados = estado ? [estado] : [];
+      console.log("Estado de sesión:", estado);
+    }
+    if (origen) {
+      this.selectedOrigen = origen;
+      this.filterOrigenes = origen ? [origen] : [];
+      console.log("Origen de sesión:", origen);
+    }
+    if (tipo) {
+      this.selectedTipo = tipo;
+      this.filterTipos = tipo ? [tipo] : [];
+      console.log("Tipo de sesión:", tipo);
+    }
+    if (carta) {
+      this.selectedCarta = carta;
       console.log("Carta de sesión:", carta);
-        }
+    }
+  }
+
+  async loadLicencias(options = {}) {
+    const { manageLoading = true } = options;
+    if (manageLoading) {
+      this.isLoading = true;
     }
 
-    async loadLicencias(options = {}) {
-        const { manageLoading = true } = options;
-        if (manageLoading) {
-            this.isLoading = true;
-        }
+    try {
+      const filters = {};
+      if (this.filterEstados?.length) {
+        filters.estados = [...this.filterEstados];
+      } else if (this.selectedEstado) {
+        filters.estado = this.selectedEstado;
+      }
+      if (this.filterOrigenes?.length) {
+        filters.origenes = [...this.filterOrigenes];
+      } else if (this.selectedOrigen) {
+        filters.origen = this.selectedOrigen;
+      }
+      if (this.filterTipos?.length) {
+        filters.tipos = [...this.filterTipos];
+      } else if (this.selectedTipo) {
+        filters.tipo = this.selectedTipo;
+      }
+      if (this.selectedCarta) filters.carta = this.selectedCarta;
+      if (this.searchTerm) filters.searchTerm = this.searchTerm;
 
-        try {
-            const filters = {};
-            if (this.filterEstados?.length) {
-                filters.estados = [...this.filterEstados];
-            } else if (this.selectedEstado) {
-                filters.estado = this.selectedEstado;
-            }
-            if (this.filterOrigenes?.length) {
-                filters.origenes = [...this.filterOrigenes];
-            } else if (this.selectedOrigen) {
-                filters.origen = this.selectedOrigen;
-            }
-            if (this.filterTipos?.length) {
-                filters.tipos = [...this.filterTipos];
-            } else if (this.selectedTipo) {
-                filters.tipo = this.selectedTipo;
-            }
-            if (this.selectedCarta) filters.carta = this.selectedCarta;
-            if (this.searchTerm) filters.searchTerm = this.searchTerm;
+      this.currentFilters = filters;
 
-            this.currentFilters = filters;
+      const result = await getLicencias({
+        pageNumber: this.currentPage,
+        pageSize: this.pageSize,
+        filtersJSON: JSON.stringify(filters)
+      });
 
-            const result = await getLicencias({
-                pageNumber: this.currentPage,
-                pageSize: this.pageSize,
-                filtersJSON: JSON.stringify(filters)
-            });
-
-            this.licencias = result.licencias || [];
-            this.totalRegistros = result.totalRecords || 0;
-            this.totalPages = result.totalPages || 1;
-        } catch (error) {
+      this.licencias = result.licencias || [];
+      this.totalRegistros = result.totalRecords || 0;
+      this.totalPages = result.totalPages || 1;
+    } catch (error) {
       console.error("Error loading licenses:", error);
-            this.licencias = [];
-            this.totalRegistros = 0;
-            this.totalPages = 1;
-        } finally {
-            if (manageLoading) {
-                this.isLoading = false;
-            }
-        }
+      this.licencias = [];
+      this.totalRegistros = 0;
+      this.totalPages = 1;
+    } finally {
+      if (manageLoading) {
+        this.isLoading = false;
+      }
+    }
+  }
+
+  // ========== HANDLERS DE FILTROS ==========
+
+  get metaMaxElementos() {
+    return 200;
+  }
+
+  get renderList() {
+    return this.renderFilters;
+  }
+
+  get filtroResumen() {
+    const partes = [];
+    if (this.filterEstados?.length) partes.push(...this.filterEstados);
+    else if (this.selectedEstado) partes.push(this.selectedEstado);
+    if (this.filterTipos?.length) partes.push(...this.filterTipos);
+    else if (this.selectedTipo) partes.push(this.selectedTipo);
+    if (this.filterOrigenes?.length) partes.push(...this.filterOrigenes);
+    else if (this.selectedOrigen) partes.push(this.selectedOrigen);
+    if (this.searchTerm) partes.push(`"${this.searchTerm}"`);
+    return partes.length ? partes.join(" · ") : "Todas las licencias";
+  }
+
+  get activeFilterCount() {
+    return (
+      (this.filterEstados?.length || 0) +
+      (this.filterTipos?.length || 0) +
+      (this.filterOrigenes?.length || 0)
+    );
+  }
+
+  get showFilterBadge() {
+    return this.activeFilterCount > 0;
+  }
+
+  get filterToggleChevronClass() {
+    return this.filtersPanelOpen ? "filt-chevron is-open" : "filt-chevron";
+  }
+
+  get estadoFilterItems() {
+    return this.withChecked(
+      [
+        { value: "En curso", label: "En curso" },
+        { value: "Aprobada", label: "Aprobada" },
+        { value: "Rechazada", label: "Rechazada" }
+      ],
+      this.filterEstados
+    );
+  }
+
+  get tipoFilterItems() {
+    return this.withChecked(
+      (this.tipos || []).map((item) => ({ value: item, label: item })),
+      this.filterTipos
+    );
+  }
+
+  get origenFilterItems() {
+    return this.withChecked(
+      (this.origenes || []).map((item) => ({ value: item, label: item })),
+      this.filterOrigenes
+    );
+  }
+
+  withChecked(items, selected) {
+    const set = new Set(selected || []);
+    return (items || []).map((item) => ({
+      ...item,
+      boxClass: set.has(item.value) ? "filt-check filt-check-on" : "filt-check"
+    }));
+  }
+
+  toggleInList(list, value) {
+    const next = [...(list || [])];
+    const idx = next.indexOf(value);
+    if (idx >= 0) next.splice(idx, 1);
+    else next.push(value);
+    return next;
+  }
+
+  handleToggleFiltersPanel() {
+    this.filtersPanelOpen = !this.filtersPanelOpen;
+  }
+
+  handleCloseFiltersPanel() {
+    this.filtersPanelOpen = false;
+  }
+
+  handleClearFilters() {
+    this.filterEstados = [];
+    this.filterTipos = [];
+    this.filterOrigenes = [];
+    this.selectedEstado = "";
+    this.selectedTipo = "";
+    this.selectedOrigen = "";
+    sessionStorage.removeItem("selectedBucketProductor");
+    sessionStorage.removeItem("selectedOrigenProductor");
+    sessionStorage.removeItem("selectedTipoProductor");
+    this.currentPage = 1;
+    this.loadLicencias();
+  }
+
+  handleFilterToggle(event) {
+    const group = event.currentTarget?.dataset?.group;
+    const value = event.currentTarget?.dataset?.value;
+    if (!group || !value) return;
+    if (group === "estado") {
+      this.filterEstados = this.toggleInList(this.filterEstados, value);
+      this.selectedEstado = this.filterEstados[0] || "";
+      sessionStorage.setItem("selectedBucketProductor", this.selectedEstado);
+    } else if (group === "tipo") {
+      this.filterTipos = this.toggleInList(this.filterTipos, value);
+      this.selectedTipo = this.filterTipos[0] || "";
+      sessionStorage.setItem("selectedTipoProductor", this.selectedTipo);
+    } else if (group === "origen") {
+      this.filterOrigenes = this.toggleInList(this.filterOrigenes, value);
+      this.selectedOrigen = this.filterOrigenes[0] || "";
+      sessionStorage.setItem("selectedOrigenProductor", this.selectedOrigen);
+    }
+    this.currentPage = 1;
+    this.applyFiltersWithDebounce();
+  }
+
+  get estadoOptions() {
+    return [
+      { value: "", label: "Estado" },
+      { value: "En curso", label: "En curso" },
+      { value: "Aprobada", label: "Aprobada" },
+      { value: "Rechazada", label: "Rechazada" }
+    ];
+  }
+
+  get tipoOptions() {
+    return [
+      { value: "", label: "Tipo" },
+      ...(this.tipos || []).map((item) => ({ value: item, label: item }))
+    ];
+  }
+
+  get origenOptions() {
+    return [
+      { value: "", label: "Tecnología" },
+      ...(this.origenes || []).map((item) => ({ value: item, label: item }))
+    ];
+  }
+
+  handleEstadoChange(event) {
+    this.selectedEstado = event.detail.value || "";
+    sessionStorage.setItem("selectedBucketProductor", this.selectedEstado);
+    this.applyFiltersWithDebounce();
+  }
+
+  handleOrigenChange(event) {
+    this.selectedOrigen = event.detail.value || "";
+    sessionStorage.setItem("selectedOrigenProductor", this.selectedOrigen);
+    this.applyFiltersWithDebounce();
+  }
+
+  handleTipoChange(event) {
+    this.selectedTipo = event.detail.value || "";
+    sessionStorage.setItem("selectedTipoProductor", this.selectedTipo);
+    this.applyFiltersWithDebounce();
+  }
+
+  handleCartaChange(event) {
+    this.selectedCarta = event.detail?.value || event.target.value;
+    console.log("Carta cambiada a:", this.selectedCarta);
+    sessionStorage.setItem("cartaOptionProductor", this.selectedCarta);
+    this.applyFiltersWithDebounce();
+  }
+
+  handleSearchChange(event) {
+    this.searchTerm = event.detail?.value ?? event.target?.value ?? "";
+    console.log("Término de búsqueda:", this.searchTerm);
+    this.applyFiltersWithDebounce();
+  }
+
+  applyFiltersWithDebounce() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
     }
 
-    // ========== HANDLERS DE FILTROS ==========
-
-    get metaMaxElementos() {
-        return 200;
-    }
-
-    get renderList() {
-        return this.renderFilters;
-    }
-
-    get filtroResumen() {
-        const partes = [];
-        if (this.filterEstados?.length) partes.push(...this.filterEstados);
-        else if (this.selectedEstado) partes.push(this.selectedEstado);
-        if (this.filterTipos?.length) partes.push(...this.filterTipos);
-        else if (this.selectedTipo) partes.push(this.selectedTipo);
-        if (this.filterOrigenes?.length) partes.push(...this.filterOrigenes);
-        else if (this.selectedOrigen) partes.push(this.selectedOrigen);
-        if (this.searchTerm) partes.push(`"${this.searchTerm}"`);
-        return partes.length ? partes.join(' · ') : 'Todas las licencias';
-    }
-
-    get activeFilterCount() {
-        return (
-            (this.filterEstados?.length || 0) +
-            (this.filterTipos?.length || 0) +
-            (this.filterOrigenes?.length || 0)
-        );
-    }
-
-    get showFilterBadge() {
-        return this.activeFilterCount > 0;
-    }
-
-    get filterToggleChevronClass() {
-        return this.filtersPanelOpen ? 'filt-chevron is-open' : 'filt-chevron';
-    }
-
-    get estadoFilterItems() {
-        return this.withChecked(
-            [
-                { value: 'En curso', label: 'En curso' },
-                { value: 'Aprobada', label: 'Aprobada' },
-                { value: 'Rechazada', label: 'Rechazada' }
-            ],
-            this.filterEstados
-        );
-    }
-
-    get tipoFilterItems() {
-        return this.withChecked(
-            (this.tipos || []).map((item) => ({ value: item, label: item })),
-            this.filterTipos
-        );
-    }
-
-    get origenFilterItems() {
-        return this.withChecked(
-            (this.origenes || []).map((item) => ({ value: item, label: item })),
-            this.filterOrigenes
-        );
-    }
-
-    withChecked(items, selected) {
-        const set = new Set(selected || []);
-        return (items || []).map((item) => ({
-            ...item,
-            boxClass: set.has(item.value) ? 'filt-check filt-check-on' : 'filt-check'
-        }));
-    }
-
-    toggleInList(list, value) {
-        const next = [...(list || [])];
-        const idx = next.indexOf(value);
-        if (idx >= 0) next.splice(idx, 1);
-        else next.push(value);
-        return next;
-    }
-
-    handleToggleFiltersPanel() {
-        this.filtersPanelOpen = !this.filtersPanelOpen;
-    }
-
-    handleCloseFiltersPanel() {
-        this.filtersPanelOpen = false;
-    }
-
-    handleClearFilters() {
-        this.filterEstados = [];
-        this.filterTipos = [];
-        this.filterOrigenes = [];
-        this.selectedEstado = '';
-        this.selectedTipo = '';
-        this.selectedOrigen = '';
-        sessionStorage.removeItem('selectedBucketProductor');
-        sessionStorage.removeItem('selectedOrigenProductor');
-        sessionStorage.removeItem('selectedTipoProductor');
-        this.currentPage = 1;
-        this.loadLicencias();
-    }
-
-    handleFilterToggle(event) {
-        const group = event.currentTarget?.dataset?.group;
-        const value = event.currentTarget?.dataset?.value;
-        if (!group || !value) return;
-        if (group === 'estado') {
-            this.filterEstados = this.toggleInList(this.filterEstados, value);
-            this.selectedEstado = this.filterEstados[0] || '';
-            sessionStorage.setItem('selectedBucketProductor', this.selectedEstado);
-        } else if (group === 'tipo') {
-            this.filterTipos = this.toggleInList(this.filterTipos, value);
-            this.selectedTipo = this.filterTipos[0] || '';
-            sessionStorage.setItem('selectedTipoProductor', this.selectedTipo);
-        } else if (group === 'origen') {
-            this.filterOrigenes = this.toggleInList(this.filterOrigenes, value);
-            this.selectedOrigen = this.filterOrigenes[0] || '';
-            sessionStorage.setItem('selectedOrigenProductor', this.selectedOrigen);
-        }
-        this.currentPage = 1;
-        this.applyFiltersWithDebounce();
-    }
-
-    get estadoOptions() {
-        return [
-            { value: '', label: 'Estado' },
-            { value: 'En curso', label: 'En curso' },
-            { value: 'Aprobada', label: 'Aprobada' },
-            { value: 'Rechazada', label: 'Rechazada' }
-        ];
-    }
-
-    get tipoOptions() {
-        return [
-            { value: '', label: 'Tipo' },
-            ...(this.tipos || []).map((item) => ({ value: item, label: item }))
-        ];
-    }
-
-    get origenOptions() {
-        return [
-            { value: '', label: 'Tecnología' },
-            ...(this.origenes || []).map((item) => ({ value: item, label: item }))
-        ];
-    }
-
-    handleEstadoChange(event) {
-        this.selectedEstado = event.detail.value || '';
-        sessionStorage.setItem('selectedBucketProductor', this.selectedEstado);
-        this.applyFiltersWithDebounce();
-    }
-
-    handleOrigenChange(event) {
-        this.selectedOrigen = event.detail.value || '';
-        sessionStorage.setItem('selectedOrigenProductor', this.selectedOrigen);
-        this.applyFiltersWithDebounce();
-    }
-
-    handleTipoChange(event) {
-        this.selectedTipo = event.detail.value || '';
-        sessionStorage.setItem('selectedTipoProductor', this.selectedTipo);
-        this.applyFiltersWithDebounce();
-    }
-
-    handleCartaChange(event) {
-        this.selectedCarta = event.detail?.value || event.target.value;
-        console.log('Carta cambiada a:', this.selectedCarta);
-        sessionStorage.setItem('cartaOptionProductor', this.selectedCarta);
-        this.applyFiltersWithDebounce();
-    }
-
-    handleSearchChange(event) {
-        this.searchTerm = event.detail?.value ?? event.target?.value ?? '';
-        console.log('Término de búsqueda:', this.searchTerm);
-        this.applyFiltersWithDebounce();
-    }
-
-    applyFiltersWithDebounce() {
-        if (this.searchTimeout) {
-            clearTimeout(this.searchTimeout);
-        }
-        
-        this.searchTimeout = setTimeout(() => {
+    this.searchTimeout = setTimeout(() => {
       console.log("Aplicando filtros después de debounce...");
-            this.currentPage = 1;
-            this.loadLicencias();
-        }, 300);
-    }
+      this.currentPage = 1;
+      this.loadLicencias();
+    }, 300);
+  }
 
-    // ========== PAGINACIÓN ==========
+  // ========== PAGINACIÓN ==========
 
-    handlePrev() {
-        if (this.currentPage > 1) {
-            this.currentPage--;
+  handlePrev() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
       console.log("Página anterior:", this.currentPage);
-            this.loadLicencias();
-        }
+      this.loadLicencias();
     }
+  }
 
-    handleNext() {
-        if (this.currentPage < this.totalPages) {
-            this.currentPage++;
+  handleNext() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
       console.log("Página siguiente:", this.currentPage);
-            this.loadLicencias();
-        }
+      this.loadLicencias();
     }
+  }
 
-    get disablePrev() {
-        return this.currentPage <= 1;
-    }
+  get disablePrev() {
+    return this.currentPage <= 1;
+  }
 
-    get disableNext() {
-        return this.currentPage >= this.totalPages;
-    }
+  get disableNext() {
+    return this.currentPage >= this.totalPages;
+  }
 
-    // ========== GETTERS PARA DATOS ==========
+  // ========== GETTERS PARA DATOS ==========
 
-    get decoratedLicencias() {
-        return (this.licencias || []).map((l) => {
-            const estadoVisual = this.ESTADO_MAP[l.estado] || l.estado;
-            const email = (l.email || '').trim();
-            const telefono = (l.telefono || '').trim();
-            return {
-                ...l,
-                estadoVisual,
-                statusLabel: estadoVisual,
-                statusTone: licenseStatusTone(estadoVisual),
-                emailDisplay: email || '—',
-                telefonoDisplay: telefono || '—',
-                emailValueClass: email ? 'email-link' : '',
-                sglHref: buildSglLicenseHref(l.id || l.Id)
-            };
-        });
-    }
+  get decoratedLicencias() {
+    return (this.licencias || []).map((l) => {
+      const estadoVisual = this.ESTADO_MAP[l.estado] || l.estado;
+      const email = (l.email || "").trim();
+      const telefono = (l.telefono || "").trim();
+      return {
+        ...l,
+        estadoVisual,
+        statusLabel: estadoVisual,
+        statusTone: licenseStatusTone(estadoVisual),
+        emailDisplay: email || "—",
+        telefonoDisplay: telefono || "—",
+        emailValueClass: email ? "email-link" : "",
+        sglHref: buildSglLicenseHref(l.id || l.Id)
+      };
+    });
+  }
 
-    // ========== MÉTODOS DE MODAL ==========
+  // ========== MÉTODOS DE MODAL ==========
 
-    openModal() {
-        this.reportStep = 'confirm';
-        this.showModal = true;
-    }
+  openModal() {
+    this.reportStep = "confirm";
+    this.showModal = true;
+  }
 
-    closeModal() {
-        if (this.isReportLoading) return;
-        this.showModal = false;
-        this.reportStep = 'confirm';
-    }
+  closeModal() {
+    if (this.isReportLoading) return;
+    this.showModal = false;
+    this.reportStep = "confirm";
+  }
 
-    handleReportBackdrop() {
-        this.closeModal();
-    }
+  handleReportBackdrop() {
+    this.closeModal();
+  }
 
-    stopPropagation(event) {
-        event.stopPropagation();
-    }
+  stopPropagation(event) {
+    event.stopPropagation();
+  }
 
-    // ========== HANDLERS DE ACCIONES ==========
+  // ========== HANDLERS DE ACCIONES ==========
 
-    handleRowAction(event) {
-        const row = event.detail?.row;
-        const licenseId = row?.id || event.currentTarget?.dataset?.id;
-        if (!licenseId) return;
+  handleRowAction(event) {
+    const row = event.detail?.row;
+    const licenseId = row?.id || event.currentTarget?.dataset?.id;
+    if (!licenseId) return;
 
-        const licencia = row || (this.licencias || []).find((lic) => lic.id === licenseId || lic.Id === licenseId);
-        if (licencia) {
-            trackGa4Event(
-                'licencia_vista',
-                buildHtCompraConfirmadaParams({
-                    semilleros: licencia.marca,
-                    subsistema: licencia.origen
-                })
-            );
-        }
-
-        console.log('Acción en fila, ID:', licenseId);
-        this.isLoading = true;
-        
-        singleLicenseJWTSigner({
-            userId: this.currentUserId,
-            contactId: this.currentContactId,
-            licenseId
+    const licencia =
+      row ||
+      (this.licencias || []).find(
+        (lic) => lic.id === licenseId || lic.Id === licenseId
+      );
+    if (licencia) {
+      trackGa4Event(
+        "licencia_vista",
+        buildHtCompraConfirmadaParams({
+          semilleros: licencia.marca,
+          subsistema: licencia.origen
         })
-        .then(response => {
-            redirectToSglWithToken(this, this.url, response, window.location.href);
-        })
+      );
+    }
+
+    console.log("Acción en fila, ID:", licenseId);
+    this.isLoading = true;
+
+    singleLicenseJWTSigner({
+      userId: this.currentUserId,
+      contactId: this.currentContactId,
+      licenseId
+    })
+      .then((response) => {
+        redirectToSglWithToken(this, this.url, response, window.location.href);
+      })
       .catch((error) => {
         console.error("Error:", error);
-            this.isLoading = false;
-        });
-    }
+        this.isLoading = false;
+      });
+  }
 
-    handleSolicitarLicencia() {
+  handleSolicitarLicencia() {
     console.log("Solicitando nueva licencia");
-        this.isLoading = true;
-        trackGa4Event('licencia_firma_iniciada', buildHtCompraConfirmadaParams({}));
-        
-        singleNewLicenseRequestJWTSigner({
-            userId: this.currentUserId,
-            contactId: this.currentContactId
-        })
-        .then(response => {
-            redirectToSglWithToken(this, this.url + '/NewLicenseRequest', response, window.location.href);
-        })
+    this.isLoading = true;
+    trackGa4Event("licencia_firma_iniciada", buildHtCompraConfirmadaParams({}));
+
+    singleNewLicenseRequestJWTSigner({
+      userId: this.currentUserId,
+      contactId: this.currentContactId
+    })
+      .then((response) => {
+        redirectToSglWithToken(
+          this,
+          this.url + "/NewLicenseRequest",
+          response,
+          window.location.href
+        );
+      })
       .catch((error) => {
         console.error("Error:", error);
-            this.isLoading = false;
-        });
-    }
+        this.isLoading = false;
+      });
+  }
 
-    // ========== LIFECYCLE HOOKS ==========
+  // ========== LIFECYCLE HOOKS ==========
 
-    @wire(CurrentPageReference)
-    getStateParameters(currentPageReference) {
+  @wire(CurrentPageReference)
+  getStateParameters(currentPageReference) {
     console.log("CurrentPageReference: ", currentPageReference);
-        if (currentPageReference) {
-            const estadoParam = currentPageReference.state?.estado;
+    if (currentPageReference) {
+      const estadoParam = currentPageReference.state?.estado;
       console.log("estadoParam: ", estadoParam);
-            if (estadoParam) {
-                this.selectedEstado = estadoParam;
+      if (estadoParam) {
+        this.selectedEstado = estadoParam;
         sessionStorage.setItem("selectedBucketProductor", estadoParam);
-                
-                // Si ya tenemos los datos cargados, aplicar filtros
-                if (this.renderFilters) {
-                    this.applyFiltersWithDebounce();
-                }
-            }
+
+        // Si ya tenemos los datos cargados, aplicar filtros
+        if (this.renderFilters) {
+          this.applyFiltersWithDebounce();
         }
+      }
     }
+  }
 
-    // ========== REPORTE ==========
+  // ========== REPORTE ==========
 
-    async handleCall(event) {
-        if (event) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
+  async handleCall(event) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
 
     console.warn(
       "[LicenciasListProductor - Reporte] handleCall: click recibido"
     );
     console.log("[LicenciasListProductor - Reporte] handleCall", {
-            userId: this.currentUserId,
-            contactId: this.currentContactId
-        });
+      userId: this.currentUserId,
+      contactId: this.currentContactId
+    });
 
-        try {
-            await this.callReportService();
-        } catch (error) {
+    try {
+      await this.callReportService();
+    } catch (error) {
       console.error(
         "[LicenciasListProductor - Reporte] Error en handleCall:",
         error
       );
-        }
     }
+  }
 
-    logReportError(context, errorOrResponse) {
-        const label = `[LicenciasListProductor - Reporte] ${context}`;
-        console.group(label);
+  logReportError(context, errorOrResponse) {
+    const label = `[LicenciasListProductor - Reporte] ${context}`;
+    console.group(label);
 
-        if (errorOrResponse?.success === false) {
-            const { message, statusCode, data } = errorOrResponse;
+    if (errorOrResponse?.success === false) {
+      const { message, statusCode, data } = errorOrResponse;
       console.error("Tipo: respuesta del servicio con error");
       console.error("Mensaje:", message);
       console.error("Status code:", statusCode);
       console.error("Data:", data);
-            try {
+      try {
         console.error(
           "Respuesta completa:",
           JSON.stringify(errorOrResponse, null, 2)
         );
-            } catch (e) {
+      } catch (e) {
         console.error("No se pudo serializar la respuesta:", e);
-            }
-        } else {
-            const error = errorOrResponse;
+      }
+    } else {
+      const error = errorOrResponse;
       console.error("Tipo: excepción al invocar Apex");
       console.error("message:", error?.message);
       console.error("statusCode:", error?.statusCode);
       console.error("statusText:", error?.statusText);
 
-            if (error?.body) {
-                const body = error.body;
+      if (error?.body) {
+        const body = error.body;
         console.error("body.message:", body.message);
         console.error("body.exceptionType:", body.exceptionType);
         console.error("body.stackTrace:", body.stackTrace);
@@ -683,145 +706,145 @@ export default class LicenciasListProductor extends NavigationMixin(LightningEle
         console.error("body.fieldErrors:", body.fieldErrors);
         console.error("body.output:", body.output);
         console.error("body (completo):", body);
-            }
+      }
 
-            try {
-                console.error(
+      try {
+        console.error(
           "Error completo (JSON):",
-                    JSON.stringify(error, Object.getOwnPropertyNames(error ?? {}), 2)
-                );
-            } catch (e) {
+          JSON.stringify(error, Object.getOwnPropertyNames(error ?? {}), 2)
+        );
+      } catch (e) {
         console.error("No se pudo serializar el error:", e);
         console.error("Objeto error:", error);
-            }
-        }
-
-        console.groupEnd();
+      }
     }
 
-    extractReportErrorMessage(error) {
-        if (!error) {
+    console.groupEnd();
+  }
+
+  extractReportErrorMessage(error) {
+    if (!error) {
       return "Error inesperado al consultar el servicio";
-        }
-        if (error.body?.message) {
-            return error.body.message;
-        }
-        if (error.body?.pageErrors?.length) {
-      return error.body.pageErrors.map((e) => e.message).join("; ");
-        }
-        if (error.body?.output?.errors?.length) {
-      return error.body.output.errors.map((e) => e.message).join("; ");
-        }
-        if (error.message) {
-            return error.message;
-        }
-    return "Error inesperado al consultar el servicio";
     }
+    if (error.body?.message) {
+      return error.body.message;
+    }
+    if (error.body?.pageErrors?.length) {
+      return error.body.pageErrors.map((e) => e.message).join("; ");
+    }
+    if (error.body?.output?.errors?.length) {
+      return error.body.output.errors.map((e) => e.message).join("; ");
+    }
+    if (error.message) {
+      return error.message;
+    }
+    return "Error inesperado al consultar el servicio";
+  }
 
-    async callReportService() {
+  async callReportService() {
     console.warn(
       "[LicenciasListProductor - Reporte] callReportService: inicio"
     );
 
-        this.reportResponse = {
-            success: false,
+    this.reportResponse = {
+      success: false,
       message: "",
-            data: null,
-            statusCode: null
-        };
-        if (this.sinLicenciasParaReporte) {
-            this.reportStep = 'empty';
-            return;
-        }
-        this.reportStep = 'loading';
+      data: null,
+      statusCode: null
+    };
+    if (this.sinLicenciasParaReporte) {
+      this.reportStep = "empty";
+      return;
+    }
+    this.reportStep = "loading";
 
     console.log("[LicenciasListProductor - Reporte] Iniciando solicitud", {
-            userId: this.currentUserId,
-            contactId: this.currentContactId
-        });
+      userId: this.currentUserId,
+      contactId: this.currentContactId
+    });
 
-        try {
-            const result = await getLicensesReport({
-                userId: this.currentUserId,
-                contactId: this.currentContactId
-            });
+    try {
+      const result = await getLicensesReport({
+        userId: this.currentUserId,
+        contactId: this.currentContactId
+      });
 
       console.log("[LicenciasListProductor - Reporte] Respuesta Apex recibida");
       console.log("Result completo:", JSON.stringify(result, null, 2));
 
-            this.reportResponse = {
-                success: result.success || false,
+      this.reportResponse = {
+        success: result.success || false,
         message: result.message || "Sin mensaje",
-                data: result.data || null,
-                statusCode: result.statusCode ?? null
-            };
+        data: result.data || null,
+        statusCode: result.statusCode ?? null
+      };
 
-            if (this.reportResponse.success) {
+      if (this.reportResponse.success) {
         console.log("[LicenciasListProductor - Reporte] OK", {
-                    message: this.reportResponse.message,
-                    statusCode: this.reportResponse.statusCode
-                });
-                trackGa4Event('reporte_generado', {
-                    modulo: 'Licencias',
-                    tipo_reporte: 'licencias_productor'
-                });
-            } else {
+          message: this.reportResponse.message,
+          statusCode: this.reportResponse.statusCode
+        });
+        trackGa4Event("reporte_generado", {
+          modulo: "Licencias",
+          tipo_reporte: "licencias_productor"
+        });
+      } else {
         this.logReportError(
           "Error en respuesta del servicio",
           this.reportResponse
         );
-            }
-        } catch (error) {
+      }
+    } catch (error) {
       this.logReportError("Excepción al llamar getLicensesReport", error);
 
-            this.reportResponse = {
-                success: false,
-                message: this.extractReportErrorMessage(error),
-                data: error?.body ?? error,
-                statusCode: error?.statusCode ?? null
-            };
-        } finally {
-            this.reportStep = this.reportResponse.success ? 'success' : 'error';
-        }
+      this.reportResponse = {
+        success: false,
+        message: this.extractReportErrorMessage(error),
+        data: error?.body ?? error,
+        statusCode: error?.statusCode ?? null
+      };
+    } finally {
+      this.reportStep = this.reportResponse.success ? "success" : "error";
     }
+  }
 
-    handleRetryReport() {
-        this.callReportService();
-    }
+  handleRetryReport() {
+    this.callReportService();
+  }
 
-    get sinLicenciasParaReporte() {
-        return (
-            !this.isLoading &&
-            this.totalRegistros === 0 &&
-            this.activeFilterCount === 0 &&
-            !(this.searchTerm || '').trim()
-        );
-    }
+  get sinLicenciasParaReporte() {
+    return (
+      !this.isLoading &&
+      this.totalRegistros === 0 &&
+      this.activeFilterCount === 0 &&
+      !(this.searchTerm || "").trim()
+    );
+  }
 
-    get isReportConfirm() {
-        return this.reportStep === 'confirm';
-    }
+  get isReportConfirm() {
+    return this.reportStep === "confirm";
+  }
 
-    get isReportLoading() {
-        return this.reportStep === 'loading';
-    }
+  get isReportLoading() {
+    return this.reportStep === "loading";
+  }
 
-    get isReportSuccess() {
-        return this.reportStep === 'success';
-    }
+  get isReportSuccess() {
+    return this.reportStep === "success";
+  }
 
-    get isReportError() {
-        return this.reportStep === 'error' || this.reportStep === 'empty';
-    }
+  get isReportError() {
+    return this.reportStep === "error" || this.reportStep === "empty";
+  }
 
-    get reportErrorMessage() {
-        if (this.reportStep === 'empty') {
-            return 'Todavía no tenés licencias para incluir en el reporte.';
-        }
-        return 'No pudimos generar el reporte en este momento. Intentá de nuevo en unos minutos.';
+  get reportErrorMessage() {
+    if (this.reportStep === "empty") {
+      return "Todavía no tenés licencias para incluir en el reporte.";
     }
+    return "No pudimos generar el reporte en este momento. Intentá de nuevo en unos minutos.";
+  }
 
-    get showRetryButton() {
-        return this.reportStep === 'error';
-    }
+  get showRetryButton() {
+    return this.reportStep === "error";
+  }
 }

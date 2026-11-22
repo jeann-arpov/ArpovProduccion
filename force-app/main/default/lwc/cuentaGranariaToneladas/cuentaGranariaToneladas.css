@@ -1,348 +1,348 @@
 :host {
-    display: block;
-    font-family: "Roboto", Arial, sans-serif;
-    color: #1c1c1c;
+  display: block;
+  font-family: "Roboto", Arial, sans-serif;
+  color: #1c1c1c;
 }
 
 .cgv {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-top: 3px solid #bfff00;
-    border-radius: 14px;
-    padding: 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-top: 3px solid #bfff00;
+  border-radius: 14px;
+  padding: 20px;
 }
 
 .cgv-loading {
-    min-height: 80px;
-    position: relative;
+  min-height: 80px;
+  position: relative;
 }
 
 .cgv-loading-inline {
-    min-height: 48px;
+  min-height: 48px;
 }
 
 .cgv-error {
-    color: #b91c1c;
-    margin: 0;
+  color: #b91c1c;
+  margin: 0;
 }
 
 .cgv-head {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .cgv-kicker {
-    margin: 0 0 4px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #6b7280;
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
 }
 
 .cgv-title {
-    margin: 0;
-    font-size: 20px;
-    line-height: 1.3;
-    font-weight: 700;
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 700;
 }
 
 .cgv-sub {
-    margin: 6px 0 0;
-    color: #4b5563;
-    font-size: 13px;
+  margin: 6px 0 0;
+  color: #4b5563;
+  font-size: 13px;
 }
 
 .cgv-metrics {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .cgv-metric {
-    background: #fff;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 14px 16px;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
 }
 
 .cgv-metric-lbl {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #6b7280;
-    margin-bottom: 6px;
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 6px;
 }
 
 .cgv-metric-val {
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 1.1;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .cgv-unit {
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
 }
 
 .cgv-pos {
-    color: #15803d;
+  color: #15803d;
 }
 
 .cgv-neg {
-    color: #dc2626;
+  color: #dc2626;
 }
 
 .cgv-panel {
-    margin-top: 8px;
+  margin-top: 8px;
 }
 
 .cgv-panel-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .cgv-panel-head h3,
 .cgv-related h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .cgv-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
 .cgv-table th {
-    text-align: left;
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #6b7280;
-    padding: 8px 10px;
-    border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .cgv-table td {
-    padding: 10px;
-    border-bottom: 1px solid #f3f4f6;
-    vertical-align: middle;
+  padding: 10px;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
 }
 
 .cgv-num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .cgv-row-neg td {
-    background: #fef2f2;
+  background: #fef2f2;
 }
 
 .cgv-total td {
-    font-weight: 700;
-    border-top: 1px solid #1c1c1c;
-    border-bottom: none;
+  font-weight: 700;
+  border-top: 1px solid #1c1c1c;
+  border-bottom: none;
 }
 
 .cgv-grupo td {
-    font-weight: 700;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
+  font-weight: 700;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .cgv-indent {
-    padding-left: 24px !important;
+  padding-left: 24px !important;
 }
 
 .cgv-estado {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    padding: 2px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    background: #eef0f6;
-    border: 1px solid #c7cbe0;
-    color: #1c1c1c;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #eef0f6;
+  border: 1px solid #c7cbe0;
+  color: #1c1c1c;
 }
 
 .cgv-estado.is-warn {
-    background: #ffedd5;
-    border-color: #fb923c;
+  background: #ffedd5;
+  border-color: #fb923c;
 }
 
 .cgv-estado.is-ok {
-    background: #f7ffe6;
-    border-color: #84cc16;
+  background: #f7ffe6;
+  border-color: #84cc16;
 }
 
 .cgv-strong {
-    font-weight: 700;
+  font-weight: 700;
 }
 .cgv-filtro-variedad {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    background: #f7ffe6;
-    border: 1.5px solid #bfff00;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f7ffe6;
+  border: 1.5px solid #bfff00;
 }
 
 .cgv-actions {
-    text-align: right;
-    white-space: nowrap;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .cgv-link {
-    appearance: none;
-    border: none;
-    background: transparent;
-    color: #1c1c1c;
-    font: inherit;
-    font-weight: 700;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-    padding: 0 0 0 10px;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: #1c1c1c;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 0 0 0 10px;
 }
 
 .cgv-csv,
 .cgv-btn {
-    appearance: none;
-    border-radius: 999px;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
+  appearance: none;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .cgv-csv {
-    border: 1.5px solid #1c1c1c;
-    background: #fff;
-    padding: 1px 10px;
-    font-size: 12px;
+  border: 1.5px solid #1c1c1c;
+  background: #fff;
+  padding: 1px 10px;
+  font-size: 12px;
 }
 
 .cgv-csv:hover,
 .cgv-btn:hover {
-    border-color: #bfff00;
+  border-color: #bfff00;
 }
 
 .cgv-btn {
-    background: #1c1c1c;
-    color: #fff;
-    border: 2px solid #bfff00;
-    padding: 8px 14px;
+  background: #1c1c1c;
+  color: #fff;
+  border: 2px solid #bfff00;
+  padding: 8px 14px;
 }
 
 .cgv-btn-small {
-    padding: 6px 12px;
+  padding: 6px 12px;
 }
 
 .cgv-btn-ghost {
-    background: #fff;
-    color: #1c1c1c;
-    border: 1.5px solid #e5e7eb;
+  background: #fff;
+  color: #1c1c1c;
+  border: 1.5px solid #e5e7eb;
 }
 
 .cgv-btn:disabled {
-    opacity: 0.45;
-    cursor: default;
+  opacity: 0.45;
+  cursor: default;
 }
 
 .cgv-empty {
-    margin: 8px 0 0;
-    color: #6b7280;
+  margin: 8px 0 0;
+  color: #6b7280;
 }
 
 .cgv-filters {
-    display: grid;
-    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) auto;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .cgv-search {
-    width: 100%;
-    box-sizing: border-box;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 8px 12px;
-    font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font: inherit;
 }
 
 .cgv-search:focus {
-    outline: none;
-    border-color: #1c1c1c;
+  outline: none;
+  border-color: #1c1c1c;
 }
 
 .cgv-pager {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-    margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .cgv-consumo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .cgv-consumo p {
-    margin: 0;
-    color: #6b7280;
-    font-size: 13px;
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
 }
 
 .cgv-ht,
 .cgv-related-item {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-top: 12px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1.5px solid #e5e7eb;
-    background: #fff;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .cgv-ht:hover,
 .cgv-related-item:hover {
-    border-color: #1c1c1c;
+  border-color: #1c1c1c;
 }
 
 .cgv-related h3 {
-    margin-top: 16px;
+  margin-top: 16px;
 }
 
 .cgv-table a {
-    color: #1c1c1c;
-    font-weight: 700;
+  color: #1c1c1c;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {
-    .cgv-metrics,
-    .cgv-filters {
-        grid-template-columns: 1fr 1fr;
-    }
+  .cgv-metrics,
+  .cgv-filters {
+    grid-template-columns: 1fr 1fr;
+  }
 }

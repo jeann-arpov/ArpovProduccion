@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
     <customButtons>ERPvs__Consulta_Saldo</customButtons>
     <customButtons>ERPvs__Consulta_Comprobantes</customButtons>
@@ -758,9 +758,9 @@
         <detailHeading>true</detailHeading>
         <editHeading>false</editHeading>
         <label>Custom Links</label>
-        <layoutColumns/>
-        <layoutColumns/>
-        <layoutColumns/>
+        <layoutColumns />
+        <layoutColumns />
+        <layoutColumns />
         <style>CustomLinks</style>
     </layoutSections>
     <relatedLists>
@@ -902,7 +902,8 @@
         <fields>ERPvs__Provincia__c</fields>
         <fields>ERPvs__Tipo__c</fields>
         <fields>ERPvs__Productor_primario__c</fields>
-        <relatedList>ERPvs__Inscripciones_Ingresos_Brutos__c.ERPvs__Cuenta__c</relatedList>
+        <relatedList
+    >ERPvs__Inscripciones_Ingresos_Brutos__c.ERPvs__Cuenta__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
