@@ -29,12 +29,13 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
    * QueryLocator de cuentas varietales con productor y cultivo.
    */
   public Database.QueryLocator start(Database.BatchableContext bc) {
+    String tecnologia = CuentaGranariaVarietalCreditoService.obtenerTecnologiaVarietal();
     return Database.getQueryLocator(
       [
         SELECT Id, Productor__c, Cultivo__c, Campania__c
         FROM Cuenta_Granaria__c
         WHERE
-          Tecnologia__c = 'RR1/RR2 - BT/Convencional'
+          Tecnologia__c = :tecnologia
           AND Productor__c != NULL
           AND Cultivo__c != NULL
       ]
@@ -81,13 +82,9 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
         Productor__c IN :productorIds
         AND Cultivo__c IN :cultivoIds
         AND Origen__c IN :ORIGENES_CREDITO
-        AND (
-          Etapa__c IN :ETAPAS_VARIETALES
-          OR (
-            Etapa__c = 'Aplicada'
-            AND HT_Original__r.Etapa__c = 'Cancelada por NC'
-          )
-        )
+        AND (Etapa__c IN :ETAPAS_VARIETALES
+        OR (Etapa__c = 'Aplicada'
+        AND HT_Original__r.Etapa__c = 'Cancelada por NC'))
         AND Variedad__c != NULL
     ]) {
       Id cgId = cgIdPorClave.get(
@@ -96,10 +93,10 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
       if (cgId == null) {
         continue;
       }
-      Id variedadId =
-        ht.Etapa__c == 'Aplicada' && ht.HT_Original__c != null
-          ? ht.HT_Original__r.Variedad__c
-          : ht.Variedad__c;
+      Id variedadId = ht.Etapa__c == 'Aplicada' &&
+        ht.HT_Original__c != null
+        ? ht.HT_Original__r.Variedad__c
+        : ht.Variedad__c;
       if (variedadId == null) {
         continue;
       }

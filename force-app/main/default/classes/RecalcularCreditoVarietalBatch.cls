@@ -1,8 +1,9 @@
 /**
  * Batch de backfill del crédito/saldo varietal (SE-345).
  *
- * Recorre todas las Cuenta_Granaria__c con tecnología RR1/RR2 - BT/Convencional
- * y, por cada una, invoca CuentaGranariaVarietalCreditoService.recalcularCreditos()
+ * Recorre todas las Cuenta_Granaria__c varietales (tecnología configurada en
+ * Configuracion_Varietal__mdt) y, por cada una, invoca
+ * CuentaGranariaVarietalCreditoService.recalcularCreditos()
  * para regenerar el crédito y saldo por variedad desde cero.
  */
 public with sharing class RecalcularCreditoVarietalBatch implements Database.Batchable<SObject>, Database.Stateful {
@@ -14,11 +15,12 @@ public with sharing class RecalcularCreditoVarietalBatch implements Database.Bat
    * QueryLocator de cuentas varietales a recalcular.
    */
   public Database.QueryLocator start(Database.BatchableContext bc) {
+    String tecnologia = CuentaGranariaVarietalCreditoService.obtenerTecnologiaVarietal();
     return Database.getQueryLocator(
       [
         SELECT Id, Productor__c, Cultivo__c, Campania__c
         FROM Cuenta_Granaria__c
-        WHERE Tecnologia__c = 'RR1/RR2 - BT/Convencional'
+        WHERE Tecnologia__c = :tecnologia
       ]
     );
   }
@@ -47,9 +49,9 @@ public with sharing class RecalcularCreditoVarietalBatch implements Database.Bat
         cuentasConError++;
         System.debug(
           'RecalcularCreditoVarietalBatch error en CG ' +
-          cg.Id +
-          ': ' +
-          e.getMessage()
+            cg.Id +
+            ': ' +
+            e.getMessage()
         );
       }
     }
@@ -61,11 +63,11 @@ public with sharing class RecalcularCreditoVarietalBatch implements Database.Bat
   public void finish(Database.BatchableContext bc) {
     System.debug(
       'RecalcularCreditoVarietalBatch finalizado: procesadas=' +
-      cuentasProcesadas +
-      ', sin productor/cultivo=' +
-      cuentasSinDatos +
-      ', errores=' +
-      cuentasConError
+        cuentasProcesadas +
+        ', sin productor/cultivo=' +
+        cuentasSinDatos +
+        ', errores=' +
+        cuentasConError
     );
   }
 }
