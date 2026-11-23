@@ -231,6 +231,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         AND Campania__c = :campanaId
         AND Origen__c IN :ORIGENES_CREDITO
         AND Signo__c = 1
+        AND Etapa__c != 'Cancelada por NC'
         AND Variedad__c != NULL
     ]) {
       Id detalleId = detallePorVariedad.get(ht.Variedad__c);
@@ -246,6 +247,23 @@ public with sharing class CuentaGranariaVarietalCreditoService {
 
     if (!htsAActualizar.isEmpty()) {
       Database.update(htsAActualizar, false);
+    }
+
+    Set<Id> subCuentaIds = new Set<Id>(detallePorVariedad.values());
+    List<Hectareas_Tecnologicas__c> htsADesvincular = new List<Hectareas_Tecnologicas__c>();
+    for (Hectareas_Tecnologicas__c ht : [
+      SELECT Id
+      FROM Hectareas_Tecnologicas__c
+      WHERE
+        Detalle_Variedad_CG__c IN :subCuentaIds
+        AND Etapa__c = 'Cancelada por NC'
+    ]) {
+      htsADesvincular.add(
+        new Hectareas_Tecnologicas__c(Id = ht.Id, Detalle_Variedad_CG__c = null)
+      );
+    }
+    if (!htsADesvincular.isEmpty()) {
+      Database.update(htsADesvincular, false);
     }
   }
 
