@@ -332,9 +332,9 @@ private class ReporteVarietalControllerTest {
       'Saldo negativo sin entregas regulariza'
     );
     System.assertEquals(
-      'En regla',
+      'Debe regularizar',
       filas.get('Pequena RV').estado,
-      'Hasta -1 HT no regulariza'
+      'Saldo menor a 0 regulariza (umbral 0)'
     );
     System.assertEquals(
       'Araucaria RV',
