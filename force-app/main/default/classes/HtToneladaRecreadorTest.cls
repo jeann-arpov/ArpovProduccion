@@ -2,19 +2,21 @@
 private class HtToneladaRecreadorTest {
   @isTest
   static void recreaToneladaAlRestaurarHt() {
+    Test_TestUtils.disableFlows();
+
     Cultivo__c cultivo = new Cultivo__c(
       Name = 'TRIGO',
       Densidad_de_Siembra__c = 75
     );
     insert cultivo;
 
-    Account productor = new Account(Name = 'Productor Test');
-    insert productor;
+    Account productor = Test_TestUtils.crearProductor();
 
     Variedad__c variedad = new Variedad__c(
       Name = 'VAR TEST',
       Cultivar_Inase__c = 'VAR TEST',
       Cultivo__c = cultivo.Id,
+      Biotecnologia__c = 'Convencional',
       Uso_Comercial_Dureza__c = 'PAN'
     );
     insert variedad;
@@ -58,14 +60,15 @@ private class HtToneladaRecreadorTest {
 
   @isTest
   static void noRecreaToneladaParaPph() {
+    Test_TestUtils.disableFlows();
+
     Cultivo__c cultivo = new Cultivo__c(
       Name = 'SOJA',
       Densidad_de_Siembra__c = 75
     );
     insert cultivo;
 
-    Account productor = new Account(Name = 'Productor PPH');
-    insert productor;
+    Account productor = Test_TestUtils.crearProductor();
 
     Hectareas_Tecnologicas__c ht = new Hectareas_Tecnologicas__c(
       Productor__c = productor.Id,

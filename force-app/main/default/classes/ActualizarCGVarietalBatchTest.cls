@@ -13,6 +13,13 @@ private class ActualizarCGVarietalBatchTest {
     Test_TestUtils.disableFlows();
 
     Cultivo__c cultivo = Test_TestUtils.crearCultivo('TRIGO', 1, true);
+    // El flow "Creacion de Expedientes PRI Y SEC" (SOJA) se dispara al insertar
+    // el MBT y necesita encontrar un Cultivo__c con Name='SOJA'.
+    insert new Cultivo__c(
+      Name = 'SOJA',
+      Densidad_de_Siembra__c = 75,
+      Sembra_Evolucion__c = true
+    );
     Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola(
       '2025',
       cultivo,
