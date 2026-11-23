@@ -22,13 +22,31 @@ public with sharing class CuentaGranariaTriggerHandler extends TriggerHandler {
   private static void recalcularCreditosVarietales(
     List<Cuenta_Granaria__c> cuentas
   ) {
+    Set<Id> cgIds = new Set<Id>();
+    for (Cuenta_Granaria__c cg : cuentas) {
+      if (cg.Id != null) {
+        cgIds.add(cg.Id);
+      }
+    }
+    if (cgIds.isEmpty()) {
+      return;
+    }
+
     Set<String> cultivosVarietales = CuentaGranariaVarietalCreditoService.obtenerCultivosVarietales();
     if (cultivosVarietales.isEmpty()) {
       return;
     }
 
+    // Re-consulta la CG completa (con Productor/Cultivo/Campaña) para no
+    // depender de los lookups de Trigger.new en afterInsert.
+    List<Cuenta_Granaria__c> cgs = [
+      SELECT Id, Productor__c, Cultivo__c, Campania__c
+      FROM Cuenta_Granaria__c
+      WHERE Id IN :cgIds
+    ];
+
     Set<Id> cultivoIds = new Set<Id>();
-    for (Cuenta_Granaria__c cg : cuentas) {
+    for (Cuenta_Granaria__c cg : cgs) {
       if (cg.Cultivo__c != null) {
         cultivoIds.add(cg.Cultivo__c);
       }
@@ -49,7 +67,7 @@ public with sharing class CuentaGranariaTriggerHandler extends TriggerHandler {
       return;
     }
 
-    for (Cuenta_Granaria__c cg : cuentas) {
+    for (Cuenta_Granaria__c cg : cgs) {
       if (
         cg.Productor__c != null &&
         cg.Cultivo__c != null &&
