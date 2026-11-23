@@ -386,7 +386,7 @@ public without sharing class ToneladaTriggerHandler {
   private static void recalcularSaldos(Set<Id> cuentaIds) {
     // Filtrar cuentas que NO son de carga manual
     Set<String> cultivosVarietales = CuentaGranariaVarietalCreditoService.obtenerCultivosVarietales();
-    String tecnologiaVarietal = CuentaGranariaVarietalCreditoService.TECNOLOGIA;
+    String tecnologiaVarietal = CuentaGranariaVarietalCreditoService.obtenerTecnologiaVarietal();
     Set<Id> cuentasQueProcesar = new Set<Id>();
     for (Cuenta_Granaria__c cg : [
       SELECT Id

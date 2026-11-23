@@ -32,7 +32,6 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     public Decimal toneladas;
   }
 
-  public static final String TECNOLOGIA = 'RR1/RR2 - BT/Convencional';
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
   private static final Set<String> ORIGENES_CREDITO = new Set<String>{
     'Compra SF',
@@ -493,14 +492,19 @@ public with sharing class CuentaGranariaVarietalCreditoService {
   }
 
   /**
-   * Localiza la Cuenta Granaria varietal (tecnología RR1/RR2 - BT/Convencional)
-   * del productor/cultivo/campaña; devuelve null si no existe.
+   * Localiza la Cuenta Granaria varietal (tecnología configurada en
+   * Configuracion_Varietal__mdt) del productor/cultivo/campaña;
+   * devuelve null si no existe.
    */
   private static Id obtenerCuentaGranariaId(
     Id productorId,
     Id cultivoId,
     Id campanaId
   ) {
+    String tecnologia = obtenerTecnologiaVarietal();
+    if (tecnologia == null) {
+      return null;
+    }
     List<Cuenta_Granaria__c> cgs = [
       SELECT Id
       FROM Cuenta_Granaria__c
@@ -508,7 +512,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         Productor__c = :productorId
         AND Cultivo__c = :cultivoId
         AND Campania__c = :campanaId
-        AND Tecnologia__c = :TECNOLOGIA
+        AND Tecnologia__c = :tecnologia
       LIMIT 1
     ];
     return cgs.isEmpty() ? null : cgs[0].Id;
@@ -534,5 +538,21 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       }
     }
     return cultivos;
+  }
+
+  /**
+   * Devuelve la tecnología varietal configurada en Configuracion_Varietal__mdt
+   * (campo Tecnologia__c). Devuelve null si no hay configuración.
+   */
+  public static String obtenerTecnologiaVarietal() {
+    for (
+      Configuracion_Varietal__mdt cfg : Configuracion_Varietal__mdt.getAll()
+        .values()
+    ) {
+      if (String.isNotBlank(cfg.Tecnologia__c)) {
+        return cfg.Tecnologia__c;
+      }
+    }
+    return null;
   }
 }
