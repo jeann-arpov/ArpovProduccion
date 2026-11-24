@@ -15,6 +15,10 @@ import MESA_AYUDA_EMAIL from '@salesforce/label/c.Mesa_Ayuda_Email';
 
 let vistaGa4Enviada = false;
 
+function tnEntera(value) {
+    return Math.round(Number(value) || 0);
+}
+
 export default class CuentaGranariaNew extends LightningElement {
 
     mesaAyudaEmail = MESA_AYUDA_EMAIL;
@@ -798,7 +802,7 @@ export default class CuentaGranariaNew extends LightningElement {
                 ...c,
                 period: this.getCampanaPeriod(c.ano),
                 displayName: this.cultivoName,
-                displayToneladas: cifra,
+                displayToneladas: tnEntera(cifra),
                 unidad: conRegularizar && !sinHT ? 't a regularizar' : 'toneladas',
                 unitClass: 'cg-camp-unit' + (conRegularizar && !sinHT ? ' is-neg' : ''),
                 infoClass: 'cg-info-i' + (conRegularizar && !sinHT ? ' is-warn' : ''),
@@ -1176,7 +1180,7 @@ export default class CuentaGranariaNew extends LightningElement {
         const rows = (this.totales || []).map((t) => ({
             key: `origen-${t.label}`,
             label: t.label,
-            value: t.value,
+            value: tnEntera(t.value),
             origen: t.origen,
             canDownload: false,
             rowClass: '',
@@ -1186,7 +1190,7 @@ export default class CuentaGranariaNew extends LightningElement {
         rows.push({
             key: 'bolsatech',
             label: this.totalBolsatech.label,
-            value: this.totalBolsatech.value,
+            value: tnEntera(this.totalBolsatech.value),
             origen: this.totalBolsatech.origen,
             canDownload: true,
             rowClass: '',
@@ -1197,7 +1201,7 @@ export default class CuentaGranariaNew extends LightningElement {
             rows.push({
                 key: 'regalia-pagada',
                 label: this.totalRegaliaEnlistPagada.label,
-                value: this.totalRegaliaEnlistPagada.value,
+                value: tnEntera(this.totalRegaliaEnlistPagada.value),
                 origen: this.totalRegaliaEnlistPagada.origen,
                 canDownload: false,
                 rowClass: '',
@@ -1209,7 +1213,7 @@ export default class CuentaGranariaNew extends LightningElement {
             rows.push({
                 key: 'transferencia',
                 label: this.totalTransferencia.label,
-                value: this.totalTransferencia.value,
+                value: tnEntera(this.totalTransferencia.value),
                 origen: this.totalTransferencia.origen,
                 canDownload: false,
                 rowClass: '',
@@ -1251,9 +1255,11 @@ export default class CuentaGranariaNew extends LightningElement {
     }
 
     get totalTodo() {
-        return this.totales.reduce((total, t) => total += t.value, 0) +
+        return tnEntera(
+            this.totales.reduce((total, t) => total += t.value, 0) +
             this.totalBolsatech.value + this.totalRegaliaEnlistPagada.value +
-            this.totalTransferencia.value;
+            this.totalTransferencia.value
+        );
     }
 
     /* COMENTADO - Toneladas disponibles para entregar
@@ -1282,13 +1288,15 @@ export default class CuentaGranariaNew extends LightningElement {
 
     get totalToneladasRegularizar() {
         const total = this.toneladas.reduce((total, tn) => total += tn.Cantidad_con_Signo__c, 0);
-        return total < 0 ? total * -1 : 0;
+        return total < 0 ? tnEntera(total * -1) : 0;
     }
 
     get totalRegaliaEnlistPendientes() {
-        return this.toneladas
-            .filter(tn => tn.Origen__c == 'Regalía Enlist' && tn.Etapa__c == 'Facturada')
-            .reduce((total, tn) => total += tn.Cantidad_con_Signo__c, 0);
+        return tnEntera(
+            this.toneladas
+                .filter(tn => tn.Origen__c == 'Regalía Enlist' && tn.Etapa__c == 'Facturada')
+                .reduce((total, tn) => total += tn.Cantidad_con_Signo__c, 0)
+        );
     }
 
     // ====== FECHAS ======

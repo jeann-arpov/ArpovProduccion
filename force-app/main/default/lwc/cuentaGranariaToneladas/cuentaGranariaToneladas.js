@@ -268,13 +268,15 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
     }
 
     formatearNumero(valor) {
-        const numero = parseFloat(valor);
-        if (valor === null || valor === undefined || isNaN(numero)) {
+        if (valor === null || valor === undefined) {
+            return '0';
+        }
+        const numero = Math.round(Number(valor));
+        if (!Number.isFinite(numero)) {
             return '0';
         }
         return numero.toLocaleString('es-AR', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 0
         });
     }
 
