@@ -41,6 +41,7 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
         Id,
         Variedad__c,
         Variedad__r.Name,
+        Variedad__r.Obtentor_Comercializa__c,
         Cuenta_Granaria__c,
         Saldo_Variedad__c,
         Cuenta_Granaria__r.Productor__c,
@@ -67,6 +68,7 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
           Detalle_Variedad_CG__c = sc.Id,
           Cuenta_Granaria__c = sc.Cuenta_Granaria__c,
           Variedad__c = sc.Variedad__c,
+          Obtentor__c = sc.Variedad__r.Obtentor_Comercializa__c,
           Campania__c = sc.Cuenta_Granaria__r.Campania__c,
           Cuenta__c = sc.Cuenta_Granaria__r.Productor__c,
           Tipo_expendiente__c = 'EXP',
@@ -81,15 +83,53 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     }
 
     Integer creados = 0;
+    Map<Id, Id> expedientePorSubCuenta = new Map<Id, Id>();
     if (!expedientes.isEmpty()) {
       List<Database.SaveResult> saves = Database.insert(expedientes, false);
-      for (Database.SaveResult sr : saves) {
-        if (sr.isSuccess()) {
+      for (Integer i = 0; i < saves.size(); i++) {
+        if (saves[i].isSuccess()) {
           creados++;
+          Id subCuentaId = expedientes[i].Detalle_Variedad_CG__c;
+          if (subCuentaId != null) {
+            expedientePorSubCuenta.put(subCuentaId, saves[i].getId());
+          }
         }
       }
     }
+
+    vincularToneladasAExpedientes(expedientePorSubCuenta);
+
     return creados;
+  }
+
+  /**
+   * Vincula las Toneladas (débito por variedad) de cada sub-cuenta al expediente
+   * de negativos recién abierto, para que la Tonelada quede relacionada al EXP.
+   */
+  private static void vincularToneladasAExpedientes(
+    Map<Id, Id> expedientePorSubCuenta
+  ) {
+    if (expedientePorSubCuenta.isEmpty()) {
+      return;
+    }
+    List<Tonelada__c> aVincular = new List<Tonelada__c>();
+    for (Tonelada__c tn : [
+      SELECT Id, Detalle_Variedad_CG__c
+      FROM Tonelada__c
+      WHERE
+        Detalle_Variedad_CG__c IN :expedientePorSubCuenta.keySet()
+        AND Expediente_de_Negativos__c = NULL
+    ]) {
+      Id expedienteId = expedientePorSubCuenta.get(tn.Detalle_Variedad_CG__c);
+      if (expedienteId != null) {
+        aVincular.add(
+          new Tonelada__c(Id = tn.Id, Expediente_de_Negativos__c = expedienteId)
+        );
+      }
+    }
+    if (!aVincular.isEmpty()) {
+      Database.update(aVincular, false);
+    }
   }
 
   /**
