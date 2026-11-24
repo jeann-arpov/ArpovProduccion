@@ -167,27 +167,35 @@ export default class CuentaGranariaNew extends LightningElement {
         this.varietalCargado = false;
     }
 
+    get usaStepperCorto() {
+        return !this.cultivoName || this.isTrigo;
+    }
+
     get pasoCampana() {
-        return this.isTrigo ? 2 : 3;
+        return this.usaStepperCorto ? 2 : 3;
     }
 
     get wizardStepsTotal() {
-        return this.isTrigo ? 2 : 3;
+        return this.usaStepperCorto ? 2 : 3;
     }
 
     get wizardStepLabels() {
-        return this.isTrigo ? ['Cultivo', 'Campaña'] : ['Cultivo', 'Plataforma', 'Campaña'];
+        if (!this.cultivoName) return ['Cultivo'];
+        return this.usaStepperCorto ? ['Cultivo', 'Campaña'] : ['Cultivo', 'Plataforma', 'Campaña'];
     }
 
     get wizardStepLabelList() {
-        if (this.isTrigo) {
+        if (!this.cultivoName) {
+            return ['Cultivo'];
+        }
+        if (this.usaStepperCorto) {
             return [
-                this.cultivoName ? `Cultivo · ${this.cultivoName}` : 'Cultivo',
+                `Cultivo · ${this.cultivoName}`,
                 this.campanaSeleccionadaPeriod ? `Campaña · ${this.campanaSeleccionadaPeriod}` : 'Campaña'
             ];
         }
         return [
-            this.cultivoName ? `Cultivo · ${this.cultivoName}` : 'Cultivo',
+            `Cultivo · ${this.cultivoName}`,
             this.step >= 2 && this.biotecnologiaLabel
                 ? `Plataforma · ${this.biotecnologiaLabel}`
                 : 'Plataforma',
@@ -196,7 +204,7 @@ export default class CuentaGranariaNew extends LightningElement {
     }
 
     get esqueletoTresPasos() {
-        return !this.isTrigo;
+        return !this.usaStepperCorto;
     }
 
     get textoVolverCampanas() {
@@ -204,10 +212,12 @@ export default class CuentaGranariaNew extends LightningElement {
     }
 
     get wizardProgressLabel() {
+        if (!this.cultivoName) return `Paso ${this.step}`;
         return `Paso ${this.step} de ${this.wizardStepsTotal}`;
     }
 
     get progressEyebrow() {
+        if (!this.cultivoName) return `Cuenta Granaria · Paso ${this.step}`;
         return `Cuenta Granaria · Paso ${this.step} de ${this.wizardStepsTotal}`;
     }
 

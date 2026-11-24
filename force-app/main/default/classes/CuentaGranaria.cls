@@ -18,10 +18,21 @@ public without sharing class CuentaGranaria {
     private static final Set<String> ESTADOS_VISIBLES = new Set<String>{ 'Activa', 'Completa', 'En Preparación' };
     private static final Set<String> ESTADOS_PPH = new Set<String>{ 'Adherido', 'Vencido', 'Rectificado' };
     private static final Integer CAMPANAS_ANTERIORES_VISIBLES = 2;
-    // true: crédito desde Detalle_Variedad_CG__c.Credito_Variedad__c (Jean).
-    // false: cálculo actual sobre Tonelada__c (positivo = crédito, negativo = débito).
+    // true: crédito y saldo desde Detalle_Variedad_CG__c (Jean; solo TEST hoy).
+    // El débito guardado no tiene campo propio: Saldo_Variedad__c = crédito + débito (el débito va con signo).
+    // false: cálculo sobre Tonelada__c. Default false: el objeto no está en prod.
     @TestVisible
-    static Boolean usarCreditoVarietalGuardado = true;
+    static Boolean usarCreditoVarietalGuardado = false;
+
+    private static Boolean usaCreditoVarietalGuardado() {
+        return usarCreditoVarietalGuardado
+            && Schema.getGlobalDescribe().containsKey('Detalle_Variedad_CG__c');
+    }
+
+    private static Boolean detalleTieneSaldoVariedad() {
+        Schema.SObjectType tipo = Schema.getGlobalDescribe().get('Detalle_Variedad_CG__c');
+        return tipo != null && tipo.getDescribe().fields.getMap().containsKey('Saldo_Variedad__c');
+    }
 
     /**
      * Campañas que muestra Cuenta Granaria por cultivo: la actual primero y luego las 2 anteriores.
@@ -282,7 +293,7 @@ public without sharing class CuentaGranaria {
     }
 
     // Vista varietal de trigo del portal. El productor no ve expedientes.
-    // Estados según EstadoVarietal (mismo criterio que el CRM).
+    // Estados de pantalla: EstadoVarietal.calcularVista (D-26, saldo < 0). El CRM sigue con calcular().
     @AuraEnabled
     public static ResumenVarietal getResumenVarietal(Id campaniaId, String tecnologias) {
         if (campaniaId == null) {
@@ -419,8 +430,8 @@ public without sharing class CuentaGranaria {
         }
         detalle.debito += detalle.totalDebitado;
         detalle.saldo = detalle.credito - detalle.debito;
-        detalle.estado = EstadoVarietal.calcular(detalle.saldo, entregasNetas);
-        detalle.toneladasARegularizar = EstadoVarietal.debeRegularizar(detalle.saldo) ? -detalle.saldo : 0;
+        detalle.estado = EstadoVarietal.calcularVista(detalle.saldo, entregasNetas);
+        detalle.toneladasARegularizar = EstadoVarietal.saldoNegativo(detalle.saldo) ? -detalle.saldo : 0;
         return detalle;
     }
 
@@ -432,7 +443,7 @@ public without sharing class CuentaGranaria {
         }
         Id productorId = CrearCompraController.getAccount().Id;
         List<String> bios = biotecnologias(tecnologias);
-        if (usarCreditoVarietalGuardado) {
+        if (usaCreditoVarietalGuardado()) {
             return regularizarPorCreditoGuardado(productorId, campaniaIds, bios);
         }
         String consulta = 'SELECT Campania__c campaniaId, Variedad__c variedadId, SUM(Cantidad_con_Signo__c) saldo '
@@ -449,7 +460,7 @@ public without sharing class CuentaGranaria {
         Set<Id> variedadIds = new Set<Id>();
         for (AggregateResult fila : Database.query(consulta)) {
             Decimal saldo = fila.get('saldo') == null ? 0 : (Decimal) fila.get('saldo');
-            if (!EstadoVarietal.debeRegularizar(saldo)) {
+            if (!EstadoVarietal.saldoNegativo(saldo)) {
                 continue;
             }
             Id campaniaId = (Id) fila.get('campaniaId');
@@ -524,7 +535,7 @@ public without sharing class CuentaGranaria {
     // y las Compra SF negativas (anulaciones) desaparecen del débito. Las tarjetas
     // dejan de cerrar con las tablas (IS BANDURRIA 25/26: +1504 y −548 → 956/0). SE-157.
     private static Map<Id, VariedadPortal> agruparVariedades(Id productorId, Id campaniaId, List<String> bios, Id variedadId) {
-        if (usarCreditoVarietalGuardado) {
+        if (usaCreditoVarietalGuardado()) {
             return agruparVariedadesGuardadas(productorId, campaniaId, bios, variedadId);
         }
         String base = 'SELECT Variedad__c variedadId, Origen__c origen, SUM(Cantidad_con_Signo__c) toneladas '
@@ -544,7 +555,7 @@ public without sharing class CuentaGranaria {
         acumularPorSigno(porVariedad, Database.query(base + 'AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c'));
         for (VariedadPortal variedad : porVariedad.values()) {
             variedad.saldo = variedad.credito - variedad.debito;
-            variedad.estado = EstadoVarietal.calcular(variedad.saldo, variedad.entregas);
+            variedad.estado = EstadoVarietal.calcularVista(variedad.saldo, variedad.entregas);
         }
         return porVariedad;
     }
@@ -556,16 +567,27 @@ public without sharing class CuentaGranaria {
         Id variedadId
     ) {
         Map<Id, VariedadPortal> porVariedad = new Map<Id, VariedadPortal>();
-        String creditos = 'SELECT Variedad__c, Credito_Variedad__c FROM Detalle_Variedad_CG__c '
+        Boolean usaSaldo = detalleTieneSaldoVariedad();
+        Set<Id> conSaldoGuardado = new Set<Id>();
+        String creditos = 'SELECT Variedad__c, Credito_Variedad__c'
+            + (usaSaldo ? ', Saldo_Variedad__c' : '')
+            + ' FROM Detalle_Variedad_CG__c '
             + 'WHERE Cuenta_Granaria__r.Productor__c = :productorId '
             + 'AND Cuenta_Granaria__r.Campania__c = :campaniaId '
             + 'AND Variedad__c != null';
         if (variedadId != null) {
             creditos += ' AND Variedad__c = :variedadId';
         }
-        for (Detalle_Variedad_CG__c detalle : Database.query(creditos)) {
-            VariedadPortal actual = variedadPortal(porVariedad, detalle.Variedad__c);
-            actual.credito = detalle.Credito_Variedad__c == null ? 0 : detalle.Credito_Variedad__c;
+        for (SObject detalle : Database.query(creditos)) {
+            Id idVariedad = (Id) detalle.get('Variedad__c');
+            VariedadPortal actual = variedadPortal(porVariedad, idVariedad);
+            Decimal credito = (Decimal) detalle.get('Credito_Variedad__c');
+            actual.credito = credito == null ? 0 : credito;
+            if (usaSaldo && detalle.get('Saldo_Variedad__c') != null) {
+                actual.saldo = (Decimal) detalle.get('Saldo_Variedad__c');
+                actual.debito = actual.credito - actual.saldo;
+                conSaldoGuardado.add(idVariedad);
+            }
         }
 
         String movs = 'SELECT Variedad__c variedadId, Origen__c origen, SUM(Cantidad_con_Signo__c) toneladas '
@@ -584,18 +606,26 @@ public without sharing class CuentaGranaria {
             Id idVariedad = (Id) fila.get('variedadId');
             VariedadPortal actual = variedadPortal(porVariedad, idVariedad);
             Decimal toneladas = fila.get('toneladas') == null ? 0 : (Decimal) fila.get('toneladas');
-            actual.entregas += toneladas;
+            actual.entregas += toneladas < 0 ? -toneladas : toneladas;
         }
         String debitos = movs + 'AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c';
         for (AggregateResult fila : Database.query(debitos)) {
             Id idVariedad = (Id) fila.get('variedadId');
             VariedadPortal actual = variedadPortal(porVariedad, idVariedad);
+            if ((String) fila.get('origen') == 'Cesión HT') {
+                actual.tieneCesionSaliente = true;
+            }
+            if (conSaldoGuardado.contains(idVariedad)) {
+                continue;
+            }
             Decimal toneladas = fila.get('toneladas') == null ? 0 : (Decimal) fila.get('toneladas');
             actual.debito += -toneladas;
         }
         for (VariedadPortal variedad : porVariedad.values()) {
-            variedad.saldo = variedad.credito - variedad.debito;
-            variedad.estado = EstadoVarietal.calcular(variedad.saldo, variedad.entregas);
+            if (!conSaldoGuardado.contains(variedad.id)) {
+                variedad.saldo = variedad.credito - variedad.debito;
+            }
+            variedad.estado = EstadoVarietal.calcularVista(variedad.saldo, variedad.entregas);
         }
         return porVariedad;
     }
@@ -607,19 +637,31 @@ public without sharing class CuentaGranaria {
     ) {
         Map<Id, RegularizarCampana> porCampana = new Map<Id, RegularizarCampana>();
         Map<Id, Map<Id, Decimal>> saldoPorCampana = new Map<Id, Map<Id, Decimal>>();
-        for (Detalle_Variedad_CG__c detalle : [
-            SELECT Variedad__c, Credito_Variedad__c, Cuenta_Granaria__r.Campania__c
-            FROM Detalle_Variedad_CG__c
-            WHERE Cuenta_Granaria__r.Productor__c = :productorId
-            AND Cuenta_Granaria__r.Campania__c IN :campaniaIds
-            AND Variedad__c != null
-        ]) {
-            Id campaniaId = detalle.Cuenta_Granaria__r.Campania__c;
+        Boolean usaSaldo = detalleTieneSaldoVariedad();
+        Set<String> conSaldoGuardado = new Set<String>();
+        String creditos = 'SELECT Variedad__c, Credito_Variedad__c, Cuenta_Granaria__r.Campania__c'
+            + (usaSaldo ? ', Saldo_Variedad__c' : '')
+            + ' FROM Detalle_Variedad_CG__c '
+            + 'WHERE Cuenta_Granaria__r.Productor__c = :productorId '
+            + 'AND Cuenta_Granaria__r.Campania__c IN :campaniaIds '
+            + 'AND Variedad__c != null';
+        for (SObject detalle : Database.query(creditos)) {
+            SObject cuenta = detalle.getSObject('Cuenta_Granaria__r');
+            if (cuenta == null) {
+                continue;
+            }
+            Id campaniaId = (Id) cuenta.get('Campania__c');
+            Id idVariedad = (Id) detalle.get('Variedad__c');
             if (!saldoPorCampana.containsKey(campaniaId)) {
                 saldoPorCampana.put(campaniaId, new Map<Id, Decimal>());
             }
-            Decimal credito = detalle.Credito_Variedad__c == null ? 0 : detalle.Credito_Variedad__c;
-            saldoPorCampana.get(campaniaId).put(detalle.Variedad__c, credito);
+            Decimal credito = (Decimal) detalle.get('Credito_Variedad__c');
+            Decimal saldo = credito == null ? 0 : credito;
+            if (usaSaldo && detalle.get('Saldo_Variedad__c') != null) {
+                saldo = (Decimal) detalle.get('Saldo_Variedad__c');
+                conSaldoGuardado.add(String.valueOf(campaniaId) + ':' + String.valueOf(idVariedad));
+            }
+            saldoPorCampana.get(campaniaId).put(idVariedad, saldo);
         }
         String consulta = 'SELECT Campania__c campaniaId, Variedad__c variedadId, SUM(Cantidad_con_Signo__c) tn '
             + 'FROM Tonelada__c WHERE Productor__c = :productorId AND Campania__c IN :campaniaIds '
@@ -634,6 +676,9 @@ public without sharing class CuentaGranaria {
         for (AggregateResult fila : Database.query(consulta)) {
             Id campaniaId = (Id) fila.get('campaniaId');
             Id variedadId = (Id) fila.get('variedadId');
+            if (conSaldoGuardado.contains(String.valueOf(campaniaId) + ':' + String.valueOf(variedadId))) {
+                continue;
+            }
             Decimal tn = fila.get('tn') == null ? 0 : (Decimal) fila.get('tn');
             if (!saldoPorCampana.containsKey(campaniaId)) {
                 saldoPorCampana.put(campaniaId, new Map<Id, Decimal>());
@@ -649,7 +694,7 @@ public without sharing class CuentaGranaria {
         for (Id campaniaId : saldoPorCampana.keySet()) {
             for (Id variedadId : saldoPorCampana.get(campaniaId).keySet()) {
                 Decimal saldo = saldoPorCampana.get(campaniaId).get(variedadId);
-                if (!EstadoVarietal.debeRegularizar(saldo)) {
+                if (!EstadoVarietal.saldoNegativo(saldo)) {
                     continue;
                 }
                 if (!negativas.containsKey(campaniaId)) {
@@ -708,13 +753,14 @@ public without sharing class CuentaGranaria {
             }
             Decimal toneladas = fila.get('toneladas') == null ? 0 : (Decimal) fila.get('toneladas');
             String origen = (String) fila.get('origen');
-            if (toneladas > 0) {
-                actual.credito += toneladas;
-            } else if (toneladas < 0) {
-                actual.debito += -toneladas;
-            }
             if (EstadoVarietal.esEntrega(origen)) {
-                actual.entregas += toneladas;
+                actual.entregas += toneladas < 0 ? -toneladas : toneladas;
+                actual.debito += -toneladas;
+            } else {
+                actual.credito += toneladas;
+                if (origen == 'Cesión HT' && toneladas < 0) {
+                    actual.tieneCesionSaliente = true;
+                }
             }
         }
     }
@@ -897,6 +943,7 @@ public without sharing class CuentaGranaria {
         @AuraEnabled public Decimal debito = 0;
         @AuraEnabled public Decimal saldo = 0;
         @AuraEnabled public Decimal entregas = 0;
+        @AuraEnabled public Boolean tieneCesionSaliente = false;
         @AuraEnabled public String estado;
 
         public Integer compareTo(Object otro) {

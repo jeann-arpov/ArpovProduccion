@@ -22,8 +22,23 @@ public inherited sharing class EstadoVarietal {
         return EN_REGLA;
     }
 
+    // Vista del portal (D-26): "Entregaste de más" desde saldo < 0. El CRM y el expediente siguen con umbral().
+    public static String calcularVista(Decimal saldo, Decimal entregas) {
+        if (saldoNegativo(saldo)) {
+            return DEBE_REGULARIZAR;
+        }
+        if (entregas == null || entregas == 0) {
+            return SIN_ENTREGAS;
+        }
+        return EN_REGLA;
+    }
+
     public static Boolean debeRegularizar(Decimal saldo) {
         return saldo != null && saldo < umbral();
+    }
+
+    public static Boolean saldoNegativo(Decimal saldo) {
+        return saldo != null && saldo < 0;
     }
 
     public static Boolean esEntrega(String origen) {
