@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>MuleSoft Ingesta MBT Varietal</label>
-    <description>Permisos de lectura/escritura para la integración MuleSoft: MBT varietal, detalle por variedad e ingesta.</description>
+    <description
+  >Permisos de lectura/escritura para la integración MuleSoft: MBT varietal, detalle por variedad e ingesta.</description>
     <hasActivationRequired>false</hasActivationRequired>
 
     <objectPermissions>
@@ -97,6 +98,11 @@
         <field>Movimiento_BolsaTech__c.Contrato__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Movimiento_BolsaTech__c.Hash__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 
     <fieldPermissions>
         <editable>true</editable>
@@ -142,6 +148,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Ingesta_MBT__c.Con_Error__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Ingesta_MBT__c.Resultado__c</field>
         <readable>true</readable>
     </fieldPermissions>
 </PermissionSet>
