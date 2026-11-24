@@ -83,14 +83,45 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { trackErrorFuncional } from 'c/portalGa4Events';
 
 const CORTE_DE_RED =
-    /disconnected or canceled|request aborted|the request was canceled|failed to fetch|networkerror|error fetching|net::err/i;
+    /disconnected or cancel+ed|request aborted|\baborted\b|the request was canceled|failed to fetch|networkerror|error fetching|net::err|status"?\s*:\s*0/i;
+const MSG_CORTE = 'Se cortó la conexión. Probá de nuevo.';
+
+function textoDeError(err) {
+    const partes = [];
+    try {
+        partes.push(reduceErrors(err).join('\n'));
+    } catch (e) {
+        // el shape del error de Apex no siempre es el de reduceErrors
+    }
+    if (typeof err === 'string') {
+        partes.push(err);
+        return partes.filter(Boolean).join('\n');
+    }
+    if (err && typeof err === 'object') {
+        if (typeof err.statusText === 'string') partes.push(err.statusText);
+        if (typeof err.body === 'string') partes.push(err.body);
+        if (err.body && typeof err.body.message === 'string') partes.push(err.body.message);
+        if (typeof err.message === 'string') partes.push(err.message);
+        try {
+            partes.push(JSON.stringify(err));
+        } catch (e) {
+            // circular o no serializable
+        }
+    }
+    return partes.filter(Boolean).join('\n');
+}
+
+function esCorteDeRed(err) {
+    if (err && (err.status === 0 || err.statusText === '')) return true;
+    const texto = textoDeError(err);
+    return !texto || CORTE_DE_RED.test(texto);
+}
 
 function mensajeToastError(err) {
-    const texto = reduceErrors(err).join('\n');
-    if (!texto || CORTE_DE_RED.test(texto)) {
-        return 'Se cortó la conexión. Probá de nuevo.';
+    if (esCorteDeRed(err)) {
+        return MSG_CORTE;
     }
-    return texto;
+    return reduceErrors(err).join('\n') || MSG_CORTE;
 }
 
 const errorEvent = (err, extras = {}) => {
@@ -100,8 +131,9 @@ const errorEvent = (err, extras = {}) => {
     } catch (e) {
         // no bloquear UX por analytics
     }
+    const corte = !extras.mensaje && esCorteDeRed(err);
     return new ShowToastEvent({
-        title: 'Error',
+        title: corte ? '' : 'Error',
         message: extras.mensaje || mensajeToastError(err),
         variant: 'error',
         mode: 'sticky'

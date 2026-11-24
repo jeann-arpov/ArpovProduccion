@@ -26,7 +26,7 @@
                         <p class="cgv-eyebrow">{detalleVista.marca} · Trigo {campaniaLabel}</p>
                         <div class="cgv-detalle-title-row">
                             <h2 class="cgv-title cgv-title-xl">{detalleVista.variedad}</h2>
-                            <span class={detalleVista.chipClass}>{detalleVista.estado}</span>
+                            <span class={detalleVista.chipClass}>{detalleVista.estadoLabel}</span>
                         </div>
                     </div>
                     <button type="button" class="cgv-btn cgv-btn-ghost cgv-solo-desk" onclick={handleDescargar}>
@@ -232,7 +232,7 @@
                     </div>
                     <div class={unidadHeroClass}>{unidadHero}</div>
                     <p class="cgv-camp-names" if:true={muestraNombresCompletar}>{textoHeroNombres}</p>
-                    <p class="cgv-camp-note">Cada variedad lleva su propio saldo, así que lo que sobra en una no cubre lo que falta en otra.</p>
+                    <p class="cgv-camp-note" if:true={mostrarCifras}>Abajo ves el detalle de cada una.</p>
                 </template>
             </section>
 
@@ -331,13 +331,11 @@
                 <template if:false={sinMarcasElegidas}>
                     <header class="cgv-var-head">
                         <div>
-                            <p class="cgv-eyebrow cgv-solo-movil">Trigo · Campaña {campaniaLabel}</p>
-                            <h2 class="cgv-title cgv-solo-desk">Variedades de las marcas elegidas</h2>
-                            <h2 class="cgv-title cgv-solo-movil">Variedades</h2>
+                            <h2 class="cgv-title cgv-solo-desk">{tituloVariedades}</h2>
+                            <h2 class="cgv-title cgv-solo-movil">{tituloVariedadesCorto}</h2>
                             <p class="cgv-sub">{encabezadoVariedades}</p>
                         </div>
                     </header>
-                    <p class="cgv-note cgv-solo-desk" if:true={mostrarCifras}>Cada variedad lleva su propio saldo, así que lo que sobra en una no cubre lo que falta en otra.</p>
 
                     <p class="cgv-pills-lbl" if:true={mostrarFiltroEstado}>Filtrar por estado</p>
                     <div class="cgv-pills" if:true={mostrarFiltroEstado} role="tablist" aria-label="Filtrar por estado">
@@ -380,7 +378,7 @@
                                     <thead>
                                         <tr>
                                             <th>Variedad</th>
-                                            <th>Estado</th>
+                                            <th if:false={esPph}>Estado</th>
                                             <th class="cgv-r" if:true={mostrarCifras}>Acreditado</th>
                                             <th class="cgv-r" if:true={mostrarCifras}>Entregado</th>
                                             <th class="cgv-r" if:true={mostrarCifras}>Saldo</th>
@@ -389,8 +387,13 @@
                                     <tbody>
                                         <template for:each={marca.variedades} for:item="variedad">
                                             <tr key={variedad.id}>
-                                                <td>{variedad.nombre}</td>
-                                                <td><span class={variedad.chipClass}>{variedad.estadoLabel}</span></td>
+                                                <td>
+                                                    <span class="cgv-var-name">
+                                                        <span class="cgv-pph-tick" if:true={esPph} aria-hidden="true"></span>
+                                                        {variedad.nombre}
+                                                    </span>
+                                                </td>
+                                                <td if:false={esPph}><span class={variedad.chipClass}>{variedad.estadoLabel}</span></td>
                                                 <td class="cgv-r" if:true={mostrarCifras}>{variedad.creditoTexto}</td>
                                                 <td class="cgv-r" if:true={mostrarCifras}>{variedad.debitoTexto}</td>
                                                 <td class="cgv-r" if:true={mostrarCifras}><span class={variedad.saldoClass}>{variedad.saldoTexto}</span></td>
@@ -421,8 +424,11 @@
                             <template for:each={marca.variedades} for:item="variedad">
                                 <article key={variedad.id} class="cgv-vcard">
                                     <div class="cgv-vcard-head">
-                                        <span class="cgv-vcard-name">{variedad.nombre}</span>
-                                        <span class={variedad.chipClass}>{variedad.estadoLabel}</span>
+                                        <span class="cgv-vcard-name">
+                                            <span class="cgv-pph-tick" if:true={esPph} aria-hidden="true"></span>
+                                            {variedad.nombre}
+                                        </span>
+                                        <span class={variedad.chipClass} if:false={esPph}>{variedad.estadoLabel}</span>
                                     </div>
                                     <div class="cgv-vcard-body" if:true={mostrarCifras}>
                                         <div class="cgv-vcard-grid">
@@ -444,7 +450,6 @@
                             </template>
                         </article>
                     </template>
-                    <p class="cgv-note cgv-note-foot cgv-solo-movil" if:true={mostrarCifras}>Cada variedad lleva su propio saldo, así que lo que sobra en una no cubre lo que falta en otra.</p>
                 </template>
             </section>
         </template>

@@ -385,7 +385,7 @@
 
 .cgv-marca-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 12px;
 }
 
@@ -454,6 +454,10 @@
     object-fit: contain;
 }
 
+.cgv-marca-id {
+    min-width: 0;
+}
+
 .cgv-marca-name {
     display: block;
     font-family: "Montserrat", "Roboto", Arial, sans-serif;
@@ -503,6 +507,36 @@
     font-weight: 700;
     background: #e5e7eb;
     color: #1c1c1c;
+    white-space: nowrap;
+}
+
+.cgv-var-name,
+.cgv-vcard-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cgv-pph-tick {
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 50%;
+    background: #bfff00;
+    position: relative;
+}
+
+.cgv-pph-tick::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 3px;
+    width: 5px;
+    height: 9px;
+    border: solid #1c1c1c;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
 }
 
 .cgv-chip::before {
@@ -564,6 +598,8 @@
     border: 0;
     background: transparent;
     border-radius: 999px;
+    box-sizing: border-box;
+    height: auto;
     min-height: 36px;
     padding: 6px 14px;
     font: inherit;
@@ -1159,9 +1195,13 @@
 
     .cgv-marca {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto auto;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "top box"
+            "chip box";
         align-items: center;
-        gap: 10px;
+        column-gap: 10px;
+        row-gap: 6px;
         min-height: 76px;
         margin: 0;
         padding: 16px 14px;
@@ -1170,6 +1210,23 @@
         border-top: 1px solid #eef0f4;
         background: #fff;
         box-shadow: none;
+    }
+
+    .cgv-marca-top {
+        grid-area: top;
+    }
+
+    .cgv-marca > .cgv-chip {
+        grid-area: chip;
+        justify-self: start;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .cgv-marca > .cgv-box {
+        grid-area: box;
+        align-self: center;
     }
 
     .cgv-marca:first-child {
@@ -1498,9 +1555,10 @@
     }
 
     .cgv-pill {
-        min-height: 40px;
-        padding: 6px 10px;
-        font-size: 12px;
+        height: auto;
+        min-height: 44px;
+        padding: 8px 12px;
+        font-size: 13px;
         flex: 1 1 calc(50% - 4px);
         line-height: 1.25;
     }
@@ -1576,12 +1634,12 @@
         border: 1px solid #e5e7eb;
         border-radius: 12px;
         overflow: hidden;
-        padding: 0 0 10px;
+        padding: 0;
     }
 
     .cgv-vcard-grid {
         gap: 0;
-        margin: 0 0 10px;
+        margin: 0;
         background: #fff;
         border: 0;
         border-bottom: 1px solid #eef0f4;

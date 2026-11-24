@@ -19,12 +19,26 @@ private class CuentaGranariaVarietalTest {
             Ano__c = '2025',
             Estado__c = 'Activa',
             Cultivo__c = cultivo.Id,
-            Fecha_de_Inicio__c = Date.today().addMonths(-2),
+            Fecha_de_Inicio__c = Date.today().addMonths(-14),
+            Fecha_Inicio_SE__c = Date.today().addMonths(-14),
+            Fecha_Fin_SE__c = Date.today().addDays(-2),
             SKEY_CAMPANIA__c = 8800004125L,
             Z9_Clave_Unica__c = 'CGV-TRIGO-2025',
             Id_Externo__c = 'CGV-TRIGO-2025'
         );
-        insert campana;
+        Campana_Agricola__c campanaActual = new Campana_Agricola__c(
+            Name = 'TRIGO 2026 CGV',
+            Ano__c = '2026',
+            Estado__c = 'Activa',
+            Cultivo__c = cultivo.Id,
+            Fecha_de_Inicio__c = Date.today().addDays(-1),
+            Fecha_Inicio_SE__c = Date.today().addDays(-1),
+            Fecha_Fin_SE__c = Date.today().addMonths(6),
+            SKEY_CAMPANIA__c = 8800004126L,
+            Z9_Clave_Unica__c = 'CGV-TRIGO-2026',
+            Id_Externo__c = 'CGV-TRIGO-2026'
+        );
+        insert new List<Campana_Agricola__c>{ campana, campanaActual };
 
         RecordType tipoObtentor = [
             SELECT Id FROM RecordType
@@ -51,7 +65,8 @@ private class CuentaGranariaVarietalTest {
         Variedad__c donMario = variedad('Don Mario CGV', beta.Id);
         Variedad__c araucaria = variedad('Araucaria CGV', alfa.Id);
         Variedad__c meteoro = variedad('Meteoro CGV', beta.Id);
-        insert new List<Variedad__c>{ catalpa, donMario, araucaria, meteoro };
+        Variedad__c radal = variedad('Radal CGV', alfa.Id);
+        insert new List<Variedad__c>{ catalpa, donMario, araucaria, meteoro, radal };
 
         Cuenta_Granaria__c cg = new Cuenta_Granaria__c(
             Productor__c = productor.Id,
@@ -73,7 +88,8 @@ private class CuentaGranariaVarietalTest {
             tonelada(productor, cultivo, campana, cg, donMario, 'Compra SF', 200, -1),
             tonelada(productor, cultivo, campana, cg, araucaria, 'Compra SF', 100, 1),
             tonelada(productor, cultivo, campana, cg, araucaria, 'BolsaTech', 400, -1),
-            tonelada(productor, cultivo, campana, cg, meteoro, 'Cesión HT', 10, -1)
+            tonelada(productor, cultivo, campana, cg, meteoro, 'Cesión HT', 10, -1),
+            tonelada(productor, cultivo, campana, cg, radal, 'Cesión HT', 2, -1)
         };
         Tonelada__c pendiente = tonelada(productor, cultivo, campana, cg, donMario, 'Compra SF', 9999, 1);
         pendiente.Etapa__c = 'Pendiente';
@@ -118,14 +134,25 @@ private class CuentaGranariaVarietalTest {
         ];
         System.assertEquals((Date) ultimaFila.get('ultima'), resumen.ultimaEntrega);
         System.assertEquals('Sin entregas', porNombre.get('Don Mario CGV').estado);
-        System.assertEquals(500, porNombre.get('Don Mario CGV').credito, 'Compra SF positiva no se netea con la anulación');
-        System.assertEquals(200, porNombre.get('Don Mario CGV').debito, 'Compra SF negativa es débito, no resta del crédito');
+        System.assertEquals(300, porNombre.get('Don Mario CGV').credito, 'Acreditado netea Compra SF y su anulación');
+        System.assertEquals(0, porNombre.get('Don Mario CGV').debito, 'Entregado solo cuenta Bolsatech');
         System.assertEquals(300, porNombre.get('Don Mario CGV').saldo);
         System.assertEquals(0, porNombre.get('Don Mario CGV').entregas);
-        // Saldo negativo sin entregas es Debe regularizar, no Sin entregas.
         System.assertEquals('Debe regularizar', porNombre.get('Meteoro CGV').estado);
+        System.assertEquals(-10, porNombre.get('Meteoro CGV').credito, 'La cesión resta en Acreditado');
+        System.assertEquals(0, porNombre.get('Meteoro CGV').debito, 'Cesión sin Bolsatech: Entregado 0');
         System.assertEquals(-10, porNombre.get('Meteoro CGV').saldo);
         System.assertEquals(0, porNombre.get('Meteoro CGV').entregas);
+        System.assertEquals('Debe regularizar', porNombre.get('Radal CGV').estado, 'D-26: saldo −2 t es Entregaste de más');
+        System.assertEquals(-2, porNombre.get('Radal CGV').saldo);
+        System.assertEquals(-2, porNombre.get('Radal CGV').credito);
+        System.assertEquals(0, porNombre.get('Radal CGV').debito);
+        System.assertEquals(true, porNombre.get('Meteoro CGV').tieneCesionSaliente, 'Cesión saliente sin entrega');
+        System.assertEquals(true, porNombre.get('Radal CGV').tieneCesionSaliente, 'Cesión saliente sin entrega');
+        System.assertEquals(false, porNombre.get('Catalpa CGV').tieneCesionSaliente, 'La cesión entrante no cuenta');
+        System.assertEquals('Debe regularizar', porNombre.get('Araucaria CGV').estado);
+        System.assertEquals(false, porNombre.get('Araucaria CGV').tieneCesionSaliente, 'Negativo solo por Bolsatech');
+        System.assertNotEquals(0, porNombre.get('Araucaria CGV').entregas);
 
         CuentaGranaria.VariedadPortal catalpa = porNombre.get('Catalpa CGV');
         if (catalpa.entregas == 0) {
@@ -178,6 +205,7 @@ private class CuentaGranariaVarietalTest {
         System.assertNotEquals(null, regularizar);
         System.assertEquals(resumen.toneladasARegularizar, regularizar.toneladas);
         System.assert(regularizar.variedades.contains('Meteoro CGV'));
+        System.assert(regularizar.variedades.contains('Radal CGV'), 'D-26: −2 t entra al total del bloque oscuro');
         System.assertEquals(0, CuentaGranaria.getRegularizarPorCampana(new List<Id>(), null).size());
     }
 
@@ -189,22 +217,28 @@ private class CuentaGranariaVarietalTest {
         Variedad__c donMario = [SELECT Id FROM Variedad__c WHERE Name = 'Don Mario CGV' LIMIT 1];
         Variedad__c meteoro = [SELECT Id FROM Variedad__c WHERE Name = 'Meteoro CGV' LIMIT 1];
         Cuenta_Granaria__c cg = [SELECT Id FROM Cuenta_Granaria__c WHERE Campania__c = :campana.Id LIMIT 1];
+        Schema.SObjectType tipoDetalle = Schema.getGlobalDescribe().get('Detalle_Variedad_CG__c');
+        if (tipoDetalle == null) {
+            return;
+        }
+        Boolean usaSaldo = tipoDetalle.getDescribe().fields.getMap().containsKey('Saldo_Variedad__c');
         CuentaGranaria.usarCreditoVarietalGuardado = true;
 
-        insert new List<Detalle_Variedad_CG__c>{
-            new Detalle_Variedad_CG__c(
-                Cuenta_Granaria__c = cg.Id,
-                Variedad__c = donMario.Id,
-                Credito_Variedad__c = 48,
-                Clave_Varietal__c = String.valueOf(cg.Id) + '|' + String.valueOf(donMario.Id)
-            ),
-            new Detalle_Variedad_CG__c(
-                Cuenta_Granaria__c = cg.Id,
-                Variedad__c = meteoro.Id,
-                Credito_Variedad__c = -10,
-                Clave_Varietal__c = String.valueOf(cg.Id) + '|' + String.valueOf(meteoro.Id)
-            )
-        };
+        SObject donMarioDetalle = tipoDetalle.newSObject();
+        donMarioDetalle.put('Cuenta_Granaria__c', cg.Id);
+        donMarioDetalle.put('Variedad__c', donMario.Id);
+        donMarioDetalle.put('Credito_Variedad__c', 48);
+        donMarioDetalle.put('Clave_Varietal__c', String.valueOf(cg.Id) + '|' + String.valueOf(donMario.Id));
+        SObject meteoroDetalle = tipoDetalle.newSObject();
+        meteoroDetalle.put('Cuenta_Granaria__c', cg.Id);
+        meteoroDetalle.put('Variedad__c', meteoro.Id);
+        meteoroDetalle.put('Credito_Variedad__c', -10);
+        meteoroDetalle.put('Clave_Varietal__c', String.valueOf(cg.Id) + '|' + String.valueOf(meteoro.Id));
+        if (usaSaldo) {
+            donMarioDetalle.put('Saldo_Variedad__c', 33);
+            meteoroDetalle.put('Saldo_Variedad__c', -25);
+        }
+        insert new List<SObject>{ donMarioDetalle, meteoroDetalle };
 
         Test.startTest();
         CuentaGranaria.ResumenVarietal resumen = CuentaGranaria.getResumenVarietal(campana.Id, 'RR1/RR2 - BT/Convencional');
@@ -229,14 +263,60 @@ private class CuentaGranariaVarietalTest {
         }
         System.assertNotEquals(null, donMarioPortal);
         System.assertEquals(48, donMarioPortal.credito);
-        System.assertEquals(200, donMarioPortal.debito, 'La anulación SF entra como débito aunque el crédito salga del detalle guardado');
-        System.assertEquals(-152, donMarioPortal.saldo);
         System.assertEquals(500, detalle.credito, 'El detalle cierra con las filas, no con el crédito guardado');
         System.assertEquals(200, detalle.debito);
         System.assertEquals(300, detalle.saldo);
         System.assertNotEquals(null, porCampana.get(campana.Id));
         System.assert(porCampana.get(campana.Id).variedades.contains('Meteoro CGV'));
-        System.assert(porCampana.get(campana.Id).variedades.contains('Don Mario CGV'));
+        CuentaGranaria.VariedadPortal meteoroPortal;
+        for (CuentaGranaria.MarcaPortal marca : resumen.marcas) {
+            for (CuentaGranaria.VariedadPortal variedad : marca.variedades) {
+                if (variedad.nombre == 'Meteoro CGV') {
+                    meteoroPortal = variedad;
+                }
+            }
+        }
+        System.assertEquals(true, meteoroPortal.tieneCesionSaliente, 'El crédito guardado también marca la cesión saliente');
+        if (usaSaldo) {
+            System.assertEquals(15, donMarioPortal.debito, 'Débito = Crédito − Saldo_Variedad, no la anulación de toneladas');
+            System.assertEquals(33, donMarioPortal.saldo);
+            System.assertEquals(15, meteoroPortal.debito);
+            System.assertEquals(-25, meteoroPortal.saldo);
+            System.assertEquals(false, porCampana.get(campana.Id).variedades.contains('Don Mario CGV'));
+        } else {
+            System.assertEquals(200, donMarioPortal.debito, 'Sin Saldo_Variedad el débito sigue saliendo de las toneladas negativas');
+            System.assertEquals(-152, donMarioPortal.saldo);
+            System.assert(porCampana.get(campana.Id).variedades.contains('Don Mario CGV'));
+        }
+    }
+
+    @isTest
+    static void negativoMixtoMarcaCesionYEntrega() {
+        Account productor = [SELECT Id FROM Account WHERE Name = 'productor' ORDER BY CreatedDate DESC LIMIT 1];
+        CrearCompraController.acc = productor;
+        Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Z9_Clave_Unica__c = 'CGV-TRIGO-2025' LIMIT 1];
+        Cultivo__c cultivo = [SELECT Id FROM Cultivo__c WHERE Name = 'TRIGO' ORDER BY CreatedDate DESC LIMIT 1];
+        Cuenta_Granaria__c cg = [SELECT Id FROM Cuenta_Granaria__c WHERE Campania__c = :campana.Id LIMIT 1];
+        Variedad__c radal = [SELECT Id FROM Variedad__c WHERE Name = 'Radal CGV' LIMIT 1];
+        CuentaGranaria.usarCreditoVarietalGuardado = false;
+        insert tonelada(productor, cultivo, campana, cg, radal, 'BolsaTech', 8, -1);
+
+        Test.startTest();
+        CuentaGranaria.ResumenVarietal resumen = CuentaGranaria.getResumenVarietal(campana.Id, 'RR1/RR2 - BT/Convencional');
+        Test.stopTest();
+
+        CuentaGranaria.VariedadPortal radalPortal;
+        for (CuentaGranaria.MarcaPortal marca : resumen.marcas) {
+            for (CuentaGranaria.VariedadPortal variedad : marca.variedades) {
+                if (variedad.nombre == 'Radal CGV') {
+                    radalPortal = variedad;
+                }
+            }
+        }
+        System.assertNotEquals(null, radalPortal);
+        System.assertEquals('Debe regularizar', radalPortal.estado);
+        System.assertEquals(true, radalPortal.tieneCesionSaliente);
+        System.assertNotEquals(0, radalPortal.entregas);
     }
 
     @isTest

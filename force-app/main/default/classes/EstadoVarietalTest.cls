@@ -11,6 +11,13 @@ private class EstadoVarietalTest {
         System.assertEquals('Sin entregas', EstadoVarietal.calcular(500, 0));
         System.assertEquals('Sin entregas', EstadoVarietal.calcular(500, null));
         System.assertEquals('En regla', EstadoVarietal.calcular(100, -80));
+        System.assertEquals('Sin entregas', EstadoVarietal.calcular(-2, 0), 'CRM: entre −4 t y 0 no regulariza');
+        System.assertEquals('Debe regularizar', EstadoVarietal.calcularVista(-2, 0), 'Portal D-26: cualquier negativo');
+        System.assertEquals('Debe regularizar', EstadoVarietal.calcularVista(-2, -10));
+        System.assertEquals('Sin entregas', EstadoVarietal.calcularVista(0, 0));
+        System.assertEquals('En regla', EstadoVarietal.calcularVista(100, -80));
+        System.assertEquals(true, EstadoVarietal.saldoNegativo(-2));
+        System.assertEquals(false, EstadoVarietal.saldoNegativo(0));
         System.assertEquals(true, EstadoVarietal.esEntrega('Escáner varietal'));
         System.assertEquals(true, EstadoVarietal.esEntrega('BolsaTech'));
         System.assertEquals(false, EstadoVarietal.esEntrega('Compra SF'));

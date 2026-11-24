@@ -1265,7 +1265,7 @@
     }
 
     .cg-root.is-ingresada .cg-prog-host {
-        display: none;
+        display: block;
     }
 
     .cg-root.is-ingresada .cg-camp-card:not(.is-selected) {
