@@ -185,21 +185,18 @@ export default class CuentaGranariaToneladasLista extends NavigationMixin(Lightn
         return this.isLoading || this.isGenerandoConsumo;
     }
 
-    // Formatear números con 2 decimales y separadores
     formatearNumero(valor) {
         if (valor === null || valor === undefined) {
-            return '0.00';
+            return '0';
         }
-        
-        const numero = parseFloat(valor);
-        
-        if (isNaN(numero)) {
-            return '0.00';
+
+        const numero = Math.round(Number(valor));
+        if (!Number.isFinite(numero)) {
+            return '0';
         }
 
         return numero.toLocaleString('es-AR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 0
         });
     }
 
