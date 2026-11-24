@@ -266,15 +266,14 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
 
   /**
    * Arma el nombre del expediente: EXP-<CUIT>-<Campaña>-<Variedad>.
+   * Sin fallback: los datos (CUIT, campaña y variedad) siempre vienen completos.
    */
   private static String construirNombre(Detalle_Variedad_CG__c sc) {
-    String cuit = sc.Cuenta_Granaria__r.Productor__r.N_CUIT__c != null
-      ? sc.Cuenta_Granaria__r.Productor__r.N_CUIT__c
-      : String.valueOf(sc.Cuenta_Granaria__r.Productor__c);
-    String campana = sc.Cuenta_Granaria__r.Campania__r.Ano__c != null
-      ? sc.Cuenta_Granaria__r.Campania__r.Ano__c
-      : '';
-    String variedad = sc.Variedad__r.Name != null ? sc.Variedad__r.Name : '';
-    return 'EXP-' + cuit + '-' + campana + '-' + variedad;
+    return 'EXP-' +
+      sc.Cuenta_Granaria__r.Productor__r.N_CUIT__c +
+      '-' +
+      sc.Cuenta_Granaria__r.Campania__r.Ano__c +
+      '-' +
+      sc.Variedad__r.Name;
   }
 }

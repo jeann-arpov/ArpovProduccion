@@ -174,4 +174,92 @@ private class CuentaGranariaVarietalExpedienteTest {
 
     System.assertEquals(1, cerrados);
   }
+
+  /**
+   * Cubre procesarAperturasYCierres (cierre + apertura en un solo paso).
+   */
+  @isTest
+  static void testProcesarAperturasYCierres() {
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
+
+    Test.startTest();
+    CuentaGranariaVarietalExpedienteService.ResultadoExpedientes apertura = CuentaGranariaVarietalExpedienteService.procesarAperturasYCierres();
+
+    subCuenta.Saldo_Variedad__c = 5;
+    update subCuenta;
+
+    CuentaGranariaVarietalExpedienteService.ResultadoExpedientes cierre = CuentaGranariaVarietalExpedienteService.procesarAperturasYCierres();
+    Test.stopTest();
+
+    System.assertEquals(1, apertura.expedientesCreados);
+    System.assertEquals(0, apertura.expedientesCerrados);
+    System.assertEquals(0, cierre.expedientesCreados);
+    System.assertEquals(1, cierre.expedientesCerrados);
+  }
+
+  /**
+   * No abre un segundo expediente si la sub-cuenta ya tiene uno activo.
+   */
+  @isTest
+  static void testNoDuplicaExpedienteActivo() {
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
+
+    Test.startTest();
+    Integer primeros = CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+    Integer segundos = CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+    Test.stopTest();
+
+    System.assertEquals(1, primeros);
+    System.assertEquals(0, segundos);
+    System.assertEquals(
+      1,
+      [
+        SELECT COUNT()
+        FROM Expediente_de_Negativos__c
+        WHERE Detalle_Variedad_CG__c = :subCuenta.Id
+      ],
+      'No debe duplicar el expediente activo'
+    );
+  }
+
+  /**
+   * Cubre cerrarExpedientesRegularizadosPorSubCuentas (null, vacío y dirigido).
+   */
+  @isTest
+  static void testCerrarExpedientesRegularizadosPorSubCuentas() {
+    Detalle_Variedad_CG__c subCuenta = [
+      SELECT Id
+      FROM Detalle_Variedad_CG__c
+      LIMIT 1
+    ];
+    CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+
+    Test.startTest();
+    Integer vacio1 = CuentaGranariaVarietalExpedienteService.cerrarExpedientesRegularizadosPorSubCuentas(
+      null
+    );
+    Integer vacio2 = CuentaGranariaVarietalExpedienteService.cerrarExpedientesRegularizadosPorSubCuentas(
+      new Set<Id>()
+    );
+
+    subCuenta.Saldo_Variedad__c = 5;
+    update subCuenta;
+
+    Integer cerrados = CuentaGranariaVarietalExpedienteService.cerrarExpedientesRegularizadosPorSubCuentas(
+      new Set<Id>{ subCuenta.Id }
+    );
+    Test.stopTest();
+
+    System.assertEquals(0, vacio1);
+    System.assertEquals(0, vacio2);
+    System.assertEquals(1, cerrados);
+  }
 }
