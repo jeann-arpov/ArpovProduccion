@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>EstadoVarietal</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ReporteVarietalController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Clases nuevas de Cuenta Granaria varietal: helper del portal y reporte CRM.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>CG Varietal Clases</label>
+</PermissionSet>
