@@ -66,6 +66,7 @@ private class CuentaGranariaVarietalTest {
         Variedad__c araucaria = variedad('Araucaria CGV', alfa.Id);
         Variedad__c meteoro = variedad('Meteoro CGV', beta.Id);
         Variedad__c radal = variedad('Radal CGV', alfa.Id);
+        radal.Cultivar_INASE__c = '460';
         insert new List<Variedad__c>{ catalpa, donMario, araucaria, meteoro, radal };
 
         Cuenta_Granaria__c cg = new Cuenta_Granaria__c(
@@ -143,6 +144,7 @@ private class CuentaGranariaVarietalTest {
         System.assertEquals(0, porNombre.get('Meteoro CGV').debito, 'Cesión sin Bolsatech: Entregado 0');
         System.assertEquals(-10, porNombre.get('Meteoro CGV').saldo);
         System.assertEquals(0, porNombre.get('Meteoro CGV').entregas);
+        System.assertEquals('Radal CGV', porNombre.get('Radal CGV').nombre, 'El portal usa el Name de Salesforce, no el INASE');
         System.assertEquals('Debe regularizar', porNombre.get('Radal CGV').estado, 'D-26: saldo −2 t es Entregaste de más');
         System.assertEquals(-2, porNombre.get('Radal CGV').saldo);
         System.assertEquals(-2, porNombre.get('Radal CGV').credito);

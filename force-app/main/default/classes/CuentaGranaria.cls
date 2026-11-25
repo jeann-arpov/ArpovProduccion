@@ -790,10 +790,10 @@ public without sharing class CuentaGranaria {
         if (registro == null) {
             return 'Sin variedad';
         }
-        if (String.isNotBlank(registro.Cultivar_INASE__c)) {
-            return registro.Cultivar_INASE__c;
+        if (String.isNotBlank(registro.Name)) {
+            return registro.Name;
         }
-        return String.isBlank(registro.Name) ? 'Sin variedad' : registro.Name;
+        return String.isBlank(registro.Cultivar_INASE__c) ? 'Sin variedad' : registro.Cultivar_INASE__c;
     }
 
     private static String nombreMarca(Variedad__c registro) {
