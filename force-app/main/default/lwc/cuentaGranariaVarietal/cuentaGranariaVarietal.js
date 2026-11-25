@@ -24,72 +24,28 @@ const ESTADOS_GA4 = {
     'Sin entregas': 'sin_entregas'
 };
 
-const MOTIVO_LABEL = {
-    cesion: 'Cediste de más',
-    mixto: 'Entregaste y cediste de más',
-    entrega: 'Entregaste de más',
-    saldo: 'Saldo negativo'
-};
-
-const MOTIVO_FRASE = {
-    cesion: 'Cediste más toneladas de las que compraste',
-    mixto: 'Entregaste y cediste más toneladas de las que compraste',
-    entrega: 'Entregaste más toneladas de las que compraste',
-    saldo: 'Tenés saldo negativo'
-};
-
-const ORDEN_MOTIVO = ['cesion', 'mixto', 'entrega', 'saldo'];
-
-function motivoNegativo(variedad) {
-    if (!variedad || variedad.estado !== 'Debe regularizar') return null;
-    const entregas = variedad.entregas;
-    const hayEntrega = Array.isArray(entregas) ? entregas.length > 0 : Number(entregas) !== 0;
-    const hayCesion = variedad.tieneCesionSaliente === true;
-    if (hayCesion && hayEntrega) return 'mixto';
-    if (hayCesion) return 'cesion';
-    if (hayEntrega) return 'entrega';
-    return 'saldo';
-}
-
 function etiquetaVariedad(variedad) {
-    const motivo = motivoNegativo(variedad);
-    if (motivo) return MOTIVO_LABEL[motivo];
     return ESTADO_LABEL[variedad?.estado] || variedad?.estado || '';
 }
 
-function etiquetaGrupo(variedades) {
-    const motivos = new Set();
-    (variedades || []).forEach((variedad) => {
-        const motivo = motivoNegativo(variedad);
-        if (motivo) motivos.add(motivo);
-    });
-    if (motivos.size === 1) return MOTIVO_LABEL[[...motivos][0]];
-    if (motivos.size > 1) return 'Saldo negativo';
+function etiquetaGrupo() {
     return ESTADO_LABEL['Debe regularizar'];
 }
 
 function fraseNegativas(variedades) {
-    const grupos = {};
-    (variedades || []).forEach((variedad) => {
-        const motivo = motivoNegativo(variedad);
-        if (!motivo) return;
-        if (!grupos[motivo]) grupos[motivo] = [];
-        grupos[motivo].push(variedad);
-    });
-    return ORDEN_MOTIVO
-        .filter((motivo) => grupos[motivo] && grupos[motivo].length)
-        .map((motivo) => {
-            const lista = grupos[motivo].slice().sort((a, b) => {
-                const saldo = (Number(a.saldo) || 0) - (Number(b.saldo) || 0);
-                if (saldo !== 0) return saldo;
-                return String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es');
-            });
-            const n = lista.length;
-            const cuantas = n === 1 ? '1 variedad' : `${n} variedades`;
-            const nombres = lista.map((variedad) => variedad.nombre).filter(Boolean).join(' · ');
-            return `${MOTIVO_FRASE[motivo]} en ${cuantas}: ${nombres}`;
-        })
-        .join(' ');
+    const lista = (variedades || [])
+        .filter((variedad) => variedad && variedad.estado === 'Debe regularizar')
+        .slice()
+        .sort((a, b) => {
+            const saldo = (Number(a.saldo) || 0) - (Number(b.saldo) || 0);
+            if (saldo !== 0) return saldo;
+            return String(a.nombre || '').localeCompare(String(b.nombre || ''), 'es');
+        });
+    if (!lista.length) return '';
+    const n = lista.length;
+    const cuantas = n === 1 ? '1 variedad' : `${n} variedades`;
+    const nombres = lista.map((variedad) => variedad.nombre).filter(Boolean).join(' · ');
+    return `Entregaste más toneladas de las que compraste en ${cuantas}: ${nombres}`;
 }
 
 /** BASF/Credenz y LG: el SVG no entra bien en <img> (symbol / sin viewBox). ACA no tiene SVG. */
@@ -300,10 +256,17 @@ export default class CuentaGranariaVarietal extends LightningElement {
         return 'cgv-camp-unit' + (this.negativasCampana.length ? ' is-neg' : '');
     }
 
+    get cifraHeroTexto() {
+        const numero = Math.round(Number(this.cifraCampana) || 0);
+        if (this.negativasCampana.length) {
+            return this.formatoAcreditado(-Math.abs(numero));
+        }
+        return this.formatoAcreditado(numero);
+    }
+
     get unidadHero() {
-        const negativas = this.negativasCampana;
-        if (!negativas.length) return 'Podés seguir entregando';
-        return etiquetaGrupo(negativas);
+        if (!this.negativasCampana.length) return 'Podés seguir entregando';
+        return etiquetaGrupo();
     }
 
     get textoHeroNombres() {
@@ -414,7 +377,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
                 estado,
                 conteo: conteos[estado] || 0,
                 label: estado === 'Debe regularizar'
-                    ? `${etiquetaGrupo(this.variedadesElegidas)} ${conteos[estado] || 0}`
+                    ? `${etiquetaGrupo()} ${conteos[estado] || 0}`
                     : `${ESTADO_LABEL[estado]} ${conteos[estado] || 0}`
             }))
         ];
@@ -447,9 +410,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
         if (this.esPph) {
             return `${textoMarcas} · ${textoVariedades}`;
         }
-        const etiqueta = etiquetaGrupo(
-            this.variedadesElegidas.filter((variedad) => variedad.estado === 'Debe regularizar')
-        ).toLowerCase();
+        const etiqueta = etiquetaGrupo().toLowerCase();
         const textoEstado = completar === 1 ? `1 ${etiqueta}` : `${completar} ${etiqueta}`;
         return `${textoMarcas} · ${textoVariedades} · ${textoEstado}`;
     }
@@ -547,17 +508,6 @@ export default class CuentaGranariaVarietal extends LightningElement {
 
     notaRegularizar(detalle) {
         const nombre = detalle?.variedad || 'esta variedad';
-        const hayCesion = detalle?.tieneCesionSaliente === true;
-        const hayEntregas = (detalle?.entregas || []).length > 0;
-        if (hayCesion && hayEntregas) {
-            return `Entregaste y cediste más grano de ${nombre} que el crédito que tenés.`;
-        }
-        if (hayCesion) {
-            return `Cediste más grano de ${nombre} que el crédito que tenés.`;
-        }
-        if (!hayEntregas) {
-            return `Tenés saldo negativo de ${nombre} y todavía no entregaste grano.`;
-        }
         return `Entregaste más grano de ${nombre} que el crédito que tenés.`;
     }
 
@@ -575,8 +525,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
         let etiqueta = '';
         if (!this.esPph && total > 0) {
             if (negativas > 0) {
-                const porRegularizar = variedades.filter((variedad) => variedad.estado === 'Debe regularizar');
-                etiqueta = `${negativas} de ${total} · ${etiquetaGrupo(porRegularizar)}`;
+                etiqueta = `${negativas} de ${total} · ${etiquetaGrupo()}`;
             } else if (positivas > 0) {
                 etiqueta = `${positivas} de ${total} · Podés seguir entregando`;
             } else {
