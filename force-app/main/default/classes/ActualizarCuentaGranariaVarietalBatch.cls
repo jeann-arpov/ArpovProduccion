@@ -77,24 +77,6 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
       lineasPorMbt.get(det.Movimiento_BolsaTech__c).add(det);
     }
 
-    // Obtentor (comercializa) por variedad, para completar el MBT
-    Set<Id> variedadIds = new Set<Id>();
-    for (List<Detalle_Variedad_MBT__c> lineas : lineasPorMbt.values()) {
-      for (Detalle_Variedad_MBT__c l : lineas) {
-        if (l.Variedad__c != null) {
-          variedadIds.add(l.Variedad__c);
-        }
-      }
-    }
-    Map<Id, Id> obtentorPorVariedad = new Map<Id, Id>();
-    for (Variedad__c v : [
-      SELECT Id, Obtentor_Comercializa__c
-      FROM Variedad__c
-      WHERE Id IN :variedadIds
-    ]) {
-      obtentorPorVariedad.put(v.Id, v.Obtentor_Comercializa__c);
-    }
-
     // Resolver cultivo (texto) -> Id
     Set<String> cultivoNombres = new Set<String>();
     for (Movimiento_BolsaTech__c m : movimientos) {
@@ -148,23 +130,11 @@ public with sharing class ActualizarCuentaGranariaVarietalBatch implements Datab
         m.Id
       );
       if (r.exitoso || r.sinDebito) {
-        Id obtentorId = null;
-        for (Detalle_Variedad_MBT__c l : lineas) {
-          if (
-            l.Variedad__c != null &&
-            obtentorPorVariedad.containsKey(l.Variedad__c)
-          ) {
-            obtentorId = obtentorPorVariedad.get(l.Variedad__c);
-            break;
-          }
-        }
         aProcesado.add(
           new Movimiento_BolsaTech__c(
             Id = m.Id,
             Estado__c = 'Procesado',
-            Cuenta_Granaria__c = r.cgId,
-            TN_Id__c = r.toneladaId,
-            Obtentor__c = obtentorId
+            Cuenta_Granaria__c = r.cgId
           )
         );
         camionesProcesados++;
