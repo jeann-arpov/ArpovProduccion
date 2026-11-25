@@ -163,7 +163,7 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         }
 
         Map<Id, Account> accountsById = new Map<Id, Account>([
-            SELECT Id, Type, RecordType.DeveloperName, Name
+            SELECT Id, N_CUIT__c, Type, RecordType.DeveloperName, Name
             FROM Account
             WHERE Id IN :accountIds
         ]);

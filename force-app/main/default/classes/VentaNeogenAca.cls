@@ -86,9 +86,14 @@ public class VentaNeogenAca {
         if (!cuentasCargadas.contains(obtentorComercializaId)) {
             precargar(new List<Ventas_Informadas__c>{ venta }, new Set<Id>{ obtentorComercializaId });
         }
-        String cuit = originante != null && String.isNotBlank(originante.N_CUIT__c)
-            ? originante.N_CUIT__c
-            : venta.CUIT_Originante__c;
+        String cuit = venta.CUIT_Originante__c;
+        if (
+            originante != null &&
+            originante.getPopulatedFieldsAsMap().containsKey('N_CUIT__c') &&
+            String.isNotBlank(originante.N_CUIT__c)
+        ) {
+            cuit = originante.N_CUIT__c;
+        }
         String cultivo = String.isNotBlank(venta.Variedad__c)
             ? cultivoPorVariedad.get(venta.Variedad__c)
             : null;
