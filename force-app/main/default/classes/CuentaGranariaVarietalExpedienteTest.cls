@@ -58,6 +58,10 @@ private class CuentaGranariaVarietalExpedienteTest {
     );
   }
 
+  private static void habilitarExpedientes() {
+    CuentaGranariaVarietalExpedienteService.forzarExpedientesHabilitados = true;
+  }
+
   /**
    * Verifica que se abra un expediente con nombre EXP-<CUIT>... para la
    * sub-cuenta con saldo negativo.
@@ -69,6 +73,7 @@ private class CuentaGranariaVarietalExpedienteTest {
       FROM Variedad__c
       LIMIT 1
     ];
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -107,6 +112,7 @@ private class CuentaGranariaVarietalExpedienteTest {
    */
   @isTest
   static void testCierreExpedienteRegularizado() {
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -134,6 +140,7 @@ private class CuentaGranariaVarietalExpedienteTest {
 
   @isTest
   static void testNoAbreConSaldoIgualAlUmbral() {
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -151,6 +158,7 @@ private class CuentaGranariaVarietalExpedienteTest {
 
   @isTest
   static void testNoAbreConSaldoSobreElUmbral() {
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -168,6 +176,7 @@ private class CuentaGranariaVarietalExpedienteTest {
 
   @isTest
   static void testCierraConSaldoIgualAlUmbral() {
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -193,6 +202,7 @@ private class CuentaGranariaVarietalExpedienteTest {
    */
   @isTest
   static void testProcesarAperturasYCierres() {
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -219,6 +229,7 @@ private class CuentaGranariaVarietalExpedienteTest {
    */
   @isTest
   static void testNoDuplicaExpedienteActivo() {
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -248,6 +259,7 @@ private class CuentaGranariaVarietalExpedienteTest {
    */
   @isTest
   static void testCerrarExpedientesRegularizadosPorSubCuentas() {
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c
@@ -287,6 +299,7 @@ private class CuentaGranariaVarietalExpedienteTest {
     Account productor = [SELECT Id FROM Account LIMIT 1];
     Variedad__c variedad = [SELECT Id FROM Variedad__c LIMIT 1];
     Cuenta_Granaria__c cg = [SELECT Id FROM Cuenta_Granaria__c LIMIT 1];
+    habilitarExpedientes();
     Detalle_Variedad_CG__c subCuenta = [
       SELECT Id
       FROM Detalle_Variedad_CG__c

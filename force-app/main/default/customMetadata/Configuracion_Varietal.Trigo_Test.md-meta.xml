@@ -38,4 +38,8 @@
         <field>Biotecnologia__c</field>
         <value xsi:type="xsd:string">Convencional</value>
     </values>
+    <values>
+        <field>Habilitar_Expedientes__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
 </CustomMetadata>
