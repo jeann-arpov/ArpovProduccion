@@ -221,7 +221,15 @@
                     <p class="cgv-camp-pph">Tu campaña está adherida al PPH, así que todas tus variedades quedan respaldadas. Acá ves cuáles son.</p>
                 </template>
                 <template if:false={esPph}>
-                    <div class={cifraHeroClass}>{cifraHeroTexto}</div>
+                    <div class={cifraHeroClass}>
+                        <lightning-formatted-number
+                            value={cifraCampana}
+                            locale="es-AR"
+                            format-style="decimal"
+                            minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"
+                        ></lightning-formatted-number>
+                    </div>
                     <div class={unidadHeroClass}>{unidadHero}</div>
                     <p class="cgv-camp-names" if:true={muestraNombresCompletar}>{textoHeroNombres}</p>
                     <p class="cgv-camp-note" if:true={mostrarCifras}>Abajo ves el detalle de cada una.</p>
@@ -236,7 +244,7 @@
                     </div>
                 </header>
 
-                <p class="cgv-note">Solo aparecen las acreditaciones de la campaña actual. Elegí la que corresponda para ver sus variedades.</p>
+                <p class="cgv-note">Solo aparecen las marcas de las que compraste HT o entregaste grano en esta campaña. Elegí una, varias o todas para ver sus variedades.</p>
                 <p class="cgv-note">¿Tenés dudas sobre alguna variedad o querés revisar una campaña anterior? Escribinos a la <a class="cgv-help-link" href="https://wa.me/5491131172022" target="_blank" rel="noopener">Mesa de Ayuda</a> y lo vemos juntos.</p>
 
                 <div class="cgv-marcas-head">

@@ -464,24 +464,4 @@ public class HomeMulticultivoTest {
         System.assert(HomeMulticultivo.getCultivosConDeuda(cultivos, productor.Id).contains(cultivo.Id),
             'Una campaña visible sin PPH en negativo dispara la alerta');
     }
-
-    @isTest
-    static void testNoMuestraPrecampanaSojaEnInicio() {
-        Campana_Agricola__c precampana = new Campana_Agricola__c(
-            Estado__c = 'En Preparación',
-            Ano__c = '2026',
-            Fecha_de_Inicio__c = Date.today()
-        );
-
-        HomeMulticultivo.Tarjeta soja = new HomeMulticultivo.Tarjeta();
-        soja.cultivo = new Cultivo__c(Name = 'SOJA');
-        HomeMulticultivo.applyFase(soja, precampana);
-        System.assertNotEquals(true, soja.hasFase, 'Inicio no muestra Precampaña Soja');
-
-        HomeMulticultivo.Tarjeta trigo = new HomeMulticultivo.Tarjeta();
-        trigo.cultivo = new Cultivo__c(Name = 'TRIGO');
-        HomeMulticultivo.applyFase(trigo, precampana);
-        System.assertEquals(true, trigo.hasFase);
-        System.assertEquals('Precampaña 26/27', trigo.faseLabel);
-    }
 }

@@ -355,7 +355,6 @@ public without sharing class HomeMulticultivo {
         t.faseHito = 'Cierra la adhesión PPH el ' + formatDate(param.Fecha_Fin_Adhesion_PPH__c);
     }
 
-    @TestVisible
     private static void applyFase(Tarjeta t, Campana_Agricola__c camp) {
         t.hasFase = false;
         t.faseUrgent = false;
@@ -363,12 +362,8 @@ public without sharing class HomeMulticultivo {
         if (camp == null) return;
 
         String period = formatPeriod(camp.Ano__c);
-        String cultivo = t.cultivo != null ? t.cultivo.Name : null;
 
         if (camp.Estado__c == 'En Preparación' && camp.Fecha_de_Inicio__c != null) {
-            if (cultivo != null && cultivo.equalsIgnoreCase('SOJA')) {
-                return;
-            }
             t.hasFase = true;
             t.faseLabel = 'Precampaña ' + period;
         } else if (camp.Estado__c == 'Activa') {
