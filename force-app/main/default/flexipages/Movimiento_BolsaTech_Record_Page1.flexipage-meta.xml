@@ -48,6 +48,10 @@
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
+                    <name>hideSlackAction</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>numVisibleActions</name>
                     <value>3</value>
                 </componentInstanceProperties>
@@ -231,6 +235,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.TN_Id__c</fieldItem>
                 <identifier>RecordTN_Id_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Cultivo_Varietal__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>false</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -464,6 +475,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Tonelada_MBT__c</fieldItem>
                 <identifier>RecordTonelada_MBT_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Cultivo_Varietal__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -688,6 +706,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Obtentor__c</fieldItem>
                 <identifier>RecordObtentor_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Cultivo_Varietal__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>false</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
