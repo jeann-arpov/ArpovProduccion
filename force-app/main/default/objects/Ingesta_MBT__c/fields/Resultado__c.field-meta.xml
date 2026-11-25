@@ -4,8 +4,10 @@
     <description
   >Resultado devuelto por MuleSoft al procesar la ingesta.</description>
     <label>Resultado</label>
-    <length>255</length>
+    <length>32768</length>
     <required>false</required>
+    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
-    <type>Text</type>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
 </CustomField>
