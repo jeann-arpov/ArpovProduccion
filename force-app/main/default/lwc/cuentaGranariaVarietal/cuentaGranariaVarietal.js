@@ -415,6 +415,10 @@ export default class CuentaGranariaVarietal extends LightningElement {
         return `${textoMarcas} · ${textoVariedades} · ${textoEstado}`;
     }
 
+    get tablaMarcaClass() {
+        return 'cgv-table cgv-table-marca' + (this.esPph ? ' is-pph' : '');
+    }
+
     get grupos() {
         const filtro = this.filtroEstado;
         return this.marcasElegidas
@@ -521,7 +525,6 @@ export default class CuentaGranariaVarietal extends LightningElement {
         const positivas = variedades.filter((variedad) => variedad.estado === 'En regla').length;
         const elegida = this.elegidas.includes(marca.id);
         const total = variedades.length;
-        const textoVariedades = total === 1 ? '1 variedad' : `${total} variedades`;
         let etiqueta = '';
         if (!this.esPph && total > 0) {
             if (negativas > 0) {
@@ -539,7 +542,6 @@ export default class CuentaGranariaVarietal extends LightningElement {
                 : positivas > 0
                     ? 'cgv-chip is-ok'
                     : 'cgv-chip is-ready';
-        const subtitulo = textoVariedades;
         return {
             ...marca,
             elegida,
@@ -553,8 +555,6 @@ export default class CuentaGranariaVarietal extends LightningElement {
             iniciales: this.iniciales(marca.nombre),
             logo: this.logo(marca.idObtentor),
             logoClass: 'cgv-logo' + (this.logo(marca.idObtentor) ? ' has-logo' : ''),
-            textoVariedades,
-            subtitulo,
             puedeRegularizar: false
         };
     }

@@ -294,9 +294,8 @@
                                     </template>
                                     <template if:false={marca.logo}>{marca.iniciales}</template>
                                 </span>
-                                <span>
+                                <span class="cgv-marca-id">
                                     <span class="cgv-marca-name">{marca.nombre}</span>
-                                    <span class="cgv-marca-meta">{marca.textoVariedades}</span>
                                 </span>
                             </span>
                             <span class={marca.chipDeskClass} if:false={esPph}>{marca.etiqueta}</span>
@@ -359,21 +358,25 @@
                                         </template>
                                         <template if:false={marca.logo}>{marca.iniciales}</template>
                                     </span>
-                                    <div>
-                                        <h3 class="cgv-grupo-name">{marca.nombre}</h3>
-                                        <p class="cgv-sub">{marca.subtitulo}</p>
-                                    </div>
+                                    <h3 class="cgv-grupo-name">{marca.nombre}</h3>
                                 </div>
                             </div>
                             <div class="cgv-table-wrap">
-                                <table class="cgv-table">
+                                <table class={tablaMarcaClass}>
+                                    <colgroup>
+                                        <col class="cgv-col-var" />
+                                        <col class="cgv-col-est" if:false={esPph} />
+                                        <col class="cgv-col-num" if:true={mostrarCifras} />
+                                        <col class="cgv-col-num" if:true={mostrarCifras} />
+                                        <col class="cgv-col-num" if:true={mostrarCifras} />
+                                    </colgroup>
                                     <thead>
                                         <tr>
-                                            <th>Variedad</th>
-                                            <th if:false={esPph}>Estado</th>
-                                            <th class="cgv-r" if:true={mostrarCifras}>Acreditado</th>
-                                            <th class="cgv-r" if:true={mostrarCifras}>Entregado</th>
-                                            <th class="cgv-r" if:true={mostrarCifras}>Saldo</th>
+                                            <th class="cgv-col-var">Variedad</th>
+                                            <th class="cgv-col-est" if:false={esPph}>Estado</th>
+                                            <th class="cgv-r cgv-col-num" if:true={mostrarCifras}>Acreditado</th>
+                                            <th class="cgv-r cgv-col-num" if:true={mostrarCifras}>Entregado</th>
+                                            <th class="cgv-r cgv-col-num" if:true={mostrarCifras}>Saldo</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -407,10 +410,7 @@
                                         </template>
                                         <template if:false={marca.logo}>{marca.iniciales}</template>
                                     </span>
-                                    <div>
-                                        <h3 class="cgv-grupo-name">{marca.nombre}</h3>
-                                        <p class="cgv-sub">{marca.subtitulo}</p>
-                                    </div>
+                                    <h3 class="cgv-grupo-name">{marca.nombre}</h3>
                                 </div>
                             </header>
                             <template for:each={marca.variedades} for:item="variedad">

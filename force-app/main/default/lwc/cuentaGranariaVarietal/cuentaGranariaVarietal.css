@@ -655,24 +655,35 @@
     box-sizing: border-box;
 }
 
+.cgv-marca-table .cgv-table,
 .cgv-table-grupos {
     table-layout: fixed;
+    width: 100%;
 }
 
 .cgv-col-var {
-    width: 26%;
+    width: 30%;
 }
 
 .cgv-col-est {
-    width: 20%;
+    width: 25%;
 }
 
 .cgv-col-num {
-    width: 13%;
+    width: 15%;
 }
 
-.cgv-col-acc {
-    width: 15%;
+.cgv-table-marca.is-pph .cgv-col-var {
+    width: 100%;
+}
+
+.cgv-marca-table .cgv-table th,
+.cgv-marca-table .cgv-table td {
+    overflow-wrap: anywhere;
+}
+
+.cgv-marca-table .cgv-chip {
+    max-width: 100%;
 }
 
 .cgv-grupo-sep td {

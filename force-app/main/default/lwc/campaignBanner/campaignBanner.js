@@ -11,6 +11,7 @@ export default class CampaignBanner extends LightningElement {
   @api endDate;
 
   get isVisible() {
+    if (this.esPrecampanaSoja) return false;
     if (!this.startDate) return false;
 
     const now = new Date();
@@ -24,6 +25,15 @@ export default class CampaignBanner extends LightningElement {
     }
 
     return true;
+  }
+
+  get esPrecampanaSoja() {
+    const texto = `${this.title || ''} ${this.highlightText || ''} ${this.description || ''}`
+      .replace(/<[^>]+>/g, ' ')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+    return texto.includes('SOJA') && texto.includes('PRECAMPANA');
   }
 
   handleButtonClick() {

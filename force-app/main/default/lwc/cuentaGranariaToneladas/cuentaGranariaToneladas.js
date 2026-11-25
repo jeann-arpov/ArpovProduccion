@@ -101,6 +101,60 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
         };
     }
 
+    get filasVariedades() {
+        const grupos = new Map();
+        this.variedades.forEach((row) => {
+            const nombre = row.semillero || '—';
+            if (!grupos.has(nombre)) {
+                grupos.set(nombre, []);
+            }
+            grupos.get(nombre).push(row);
+        });
+        const orden = Array.from(grupos.keys()).sort((a, b) =>
+            a.localeCompare(b, 'es', { sensitivity: 'base' })
+        );
+        const filas = [];
+        orden.forEach((nombre) => {
+            const items = grupos.get(nombre);
+            const slug = String(nombre).replace(/\s+/g, '-');
+            filas.push({
+                key: 'g-' + slug,
+                esGrupo: true,
+                esVariedad: false,
+                esSubtotal: false,
+                esCifras: false,
+                rowClass: 'cgv-grupo',
+                nombre: String(nombre).toUpperCase()
+            });
+            items.forEach((row) => {
+                filas.push({
+                    ...row,
+                    esGrupo: false,
+                    esVariedad: true,
+                    esSubtotal: false,
+                    esCifras: true,
+                    rowClass: ''
+                });
+            });
+            const suma = (campo) => items.reduce((total, row) => total + (Number(row[campo]) || 0), 0);
+            const saldo = suma('saldo');
+            filas.push({
+                key: 's-' + slug,
+                esGrupo: false,
+                esVariedad: false,
+                esSubtotal: true,
+                esCifras: true,
+                rowClass: 'cgv-subtotal',
+                nombre: 'Subtotal',
+                creditoFormatted: this.formatearConSigno(suma('credito')),
+                debitoFormatted: this.formatearConSigno(suma('debito')),
+                saldoFormatted: this.formatearConSigno(saldo),
+                saldoClass: 'cgv-strong ' + (saldo < 0 ? 'cgv-neg' : 'cgv-pos')
+            });
+        });
+        return filas;
+    }
+
     get muestraVariedades() {
         return this.esTrigo && !this.variedadId && this.esResumen;
     }
