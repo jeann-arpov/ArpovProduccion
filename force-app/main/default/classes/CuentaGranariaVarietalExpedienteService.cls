@@ -17,10 +17,35 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
   }
 
   /**
+   * Indica si la apertura/cierre automático de expedientes está habilitado
+   * (Configuracion_Varietal__mdt.Habilitar_Expedientes__c).
+   */
+  @TestVisible
+  private static Boolean forzarExpedientesHabilitados = null;
+
+  private static Boolean expedientesHabilitados() {
+    if (forzarExpedientesHabilitados != null) {
+      return forzarExpedientesHabilitados;
+    }
+    for (
+      Configuracion_Varietal__mdt cfg : Configuracion_Varietal__mdt.getAll()
+        .values()
+    ) {
+      if (cfg.Habilitar_Expedientes__c == true) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Ejecuta cierre y apertura de expedientes en un solo paso.
    */
   public static ResultadoExpedientes procesarAperturasYCierres() {
     ResultadoExpedientes resultado = new ResultadoExpedientes();
+    if (!expedientesHabilitados()) {
+      return resultado;
+    }
     resultado.expedientesCerrados = cerrarExpedientesRegularizados();
     resultado.expedientesCreados = abrirExpedientesVarietales();
     return resultado;
@@ -32,6 +57,9 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
    * Devuelve la cantidad creada.
    */
   public static Integer abrirExpedientesVarietales() {
+    if (!expedientesHabilitados()) {
+      return 0;
+    }
     Set<Id> subCuentasConExpedienteActivo = obtenerSubCuentasConExpedienteActivo();
     Map<String, Decimal> umbralPorCultivo = obtenerUmbralPorCultivo();
 
@@ -137,6 +165,9 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
    * Devuelve la cantidad cerrada.
    */
   public static Integer cerrarExpedientesRegularizados() {
+    if (!expedientesHabilitados()) {
+      return 0;
+    }
     Map<String, Decimal> umbralPorCultivo = obtenerUmbralPorCultivo();
     List<Expediente_de_Negativos__c> aCerrar = new List<Expediente_de_Negativos__c>();
     for (Expediente_de_Negativos__c exp : [
@@ -192,6 +223,9 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     Set<Id> subCuentaIds
   ) {
     if (subCuentaIds == null || subCuentaIds.isEmpty()) {
+      return 0;
+    }
+    if (!expedientesHabilitados()) {
       return 0;
     }
     Map<String, Decimal> umbralPorCultivo = obtenerUmbralPorCultivo();

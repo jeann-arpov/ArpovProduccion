@@ -36,6 +36,7 @@ public with sharing class CuentaGranariaVarietalDebitService {
     public Boolean exitoso = false;
     public Boolean sinDebito = false;
     public Id cgId;
+    public Id toneladaId;
     public Integer debitosCreados = 0;
     public Decimal debitoTotalTn = 0;
     public String mensaje;
@@ -184,6 +185,9 @@ public with sharing class CuentaGranariaVarietalDebitService {
     for (Database.SaveResult sr : saves) {
       if (sr.isSuccess()) {
         resultado.debitosCreados++;
+        if (resultado.toneladaId == null) {
+          resultado.toneladaId = sr.getId();
+        }
       } else {
         for (Database.Error err : sr.getErrors()) {
           resultado.mensaje =

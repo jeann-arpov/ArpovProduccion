@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Habilitar_Expedientes__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description
+  >Habilita la apertura y cierre automático de expedientes de negativos varietales.</description>
+    <externalId>false</externalId>
+    <label>Habilitar Expedientes</label>
+    <type>Checkbox</type>
+</CustomField>
