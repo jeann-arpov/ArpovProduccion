@@ -652,6 +652,10 @@ public without sharing class CrearVentaInformadaLWCController {
         if(ventas.size() > 0) {
             venta.Resultado__c = 'Ya existe una venta con mismo cuit/variedad/cantidad/campaña';
             venta.Estado__c = 'Preprocesado';
+        } else {
+            VentasInformadasDuplicateUtil.marcarDuplicadoCruzadoNeogen(
+                new List<Ventas_Informadas__c>{ venta }
+            );
         }
         
         insert venta;

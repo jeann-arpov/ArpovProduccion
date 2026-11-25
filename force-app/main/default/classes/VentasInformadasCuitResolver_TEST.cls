@@ -373,6 +373,28 @@ private class VentasInformadasCuitResolver_TEST {
     );
 
     System.assertEquals(aca.Id, v.Originante__c);
+    System.assertEquals('Obtentor', v.Rol_Originante__c, 'SE-332: A.C.A informa NEOGEN como Obtentor');
+  }
+
+  @IsTest
+  static void acaVariedadDeOtroObtentorSigueDistribuidor() {
+    Account casaMatriz = crearObtentor('30600000019', '01');
+    Account aca = crearObtentorHijo(casaMatriz.Id, '30500120882', '02');
+    Account otro = crearObtentor('30715468294', '99');
+
+    Ventas_Informadas__c v = new Ventas_Informadas__c(
+      CUIT_Originante__c = '30500120882',
+      CUIT_Destinatario__c = '20144462980',
+      Originante__c = aca.Id,
+      Rol_Originante__c = 'Obtentor',
+      Variedad__c = 'VARIEDAD AJENA'
+    );
+
+    VentasInformadasCuitResolver.aplicarOriginanteYDestinatarioBulk(
+      new List<Ventas_Informadas__c>{ v },
+      new Map<String, Id>{ 'VARIEDAD AJENA' => otro.Id }
+    );
+
     System.assertEquals('Distribuidor', v.Rol_Originante__c);
   }
 

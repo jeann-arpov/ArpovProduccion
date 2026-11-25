@@ -583,6 +583,7 @@ public without sharing class lwcVentasImportFromExcel {
         processedKeys.add(ventaKey);
       }
     }
+    VentasInformadasDuplicateUtil.marcarDuplicadoCruzadoNeogen(ventas);
   }
 
   @testVisible

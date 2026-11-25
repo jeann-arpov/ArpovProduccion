@@ -559,4 +559,70 @@ private class Test_UtilsVentas {
         UtilsVentas.agregaOrigen(new List<Venta__c>{venta});
 
     }
+
+    @isTest
+    static void acaNeogenSojaUsaLaReglaDeVariedadPropia() {
+        Account gdm = Test_TestUtils.crearObtentor();
+        gdm.Clave_Unica__c = 'gdm-85-se332';
+        gdm.Id_Obtentor__c = '85';
+        gdm.N_CUIT__c = '30616275905';
+        update gdm;
+
+        Account aca = Test_TestUtils.crearObtentor();
+        aca.Clave_Unica__c = 'aca-se332';
+        aca.N_CUIT__c = '30500120882';
+        aca.Id_Obtentor__c = '26';
+        update aca;
+
+        Account otro = Test_TestUtils.crearObtentor();
+        otro.Clave_Unica__c = 'otro-se332';
+        otro.N_CUIT__c = '30111111117';
+        otro.Id_Obtentor__c = '77';
+        update otro;
+
+        Cultivo__c soja = Test_TestUtils.crearCultivo('SOJA', 75);
+        Product2 producto = Test_TestUtils.crearProducto(
+            true, 'NEOGEN SF', null, 'NEO 47', soja, 'Regalía Comercial', 1, gdm
+        );
+        producto.Categoria__c = 'Original';
+        update producto;
+
+        insert new List<Comportamiento_Segun_Rol_Ventas__c>{
+            new Comportamiento_Segun_Rol_Ventas__c(
+                Name = 'SE332-PROPIA',
+                Tipo_de_Producto__c = 'Semilla Fiscalizada',
+                Categoria__c = 'Original',
+                Rol_Destinatario__c = 'Productor',
+                Rol_Originante__c = 'Obtentor',
+                Variedad__c = 'Propia',
+                Tipo_de_Venta__c = 'Venta'
+            ),
+            new Comportamiento_Segun_Rol_Ventas__c(
+                Name = 'SE332-NO-PROPIA',
+                Tipo_de_Producto__c = 'Semilla Fiscalizada',
+                Categoria__c = 'Original',
+                Rol_Destinatario__c = 'Productor',
+                Rol_Originante__c = 'Obtentor',
+                Variedad__c = 'No Propia',
+                Tipo_de_Venta__c = 'C'
+            )
+        };
+
+        Venta__c deAca = new Venta__c(
+            Producto__c = producto.Id,
+            Originante__c = aca.Id,
+            Destinatario__c = otro.Id,
+            Tipo_de_Producto__c = 'Semilla Fiscalizada',
+            Categoria__c = 'Original',
+            Rol_Originante__c = 'Obtentor',
+            Rol_Destinatario__c = 'Productor'
+        );
+        Venta__c deOtro = deAca.clone(false, true, false, false);
+        deOtro.Originante__c = otro.Id;
+
+        UtilsVentas.setTipoDeVenta(new List<Venta__c>{ deAca, deOtro });
+
+        System.assertEquals('Venta', deAca.Tipo_de_Venta__c, 'SE-332: A.C.A acredita como GDM');
+        System.assertEquals('C', deOtro.Tipo_de_Venta__c, 'Otro obtentor sigue como variedad no propia');
+    }
 }

@@ -158,7 +158,23 @@ public with sharing class UtilsVentas{
                 idsProductos.add(v.Producto__c);
         }
 
-        Map<Id, Product2> productos = new Map<Id, Product2>([SELECT Id, Obtentor_Comercializa__c FROM Product2 WHERE Id IN :idsProductos]);
+        Map<Id, Product2> productos = new Map<Id, Product2>([
+            SELECT Id, Obtentor_Comercializa__c, Obtentor_Comercializa__r.Id_Obtentor__c, Cultivo__r.Name
+            FROM Product2
+            WHERE Id IN :idsProductos
+        ]);
+        Map<Id, String> cuitPorOriginante = new Map<Id, String>();
+        Set<Id> originantes = new Set<Id>();
+        for (Venta__c ventaOriginante : lista) {
+            if (ventaOriginante.Originante__c != null) {
+                originantes.add(ventaOriginante.Originante__c);
+            }
+        }
+        if (!originantes.isEmpty()) {
+            for (Account originante : [SELECT Id, N_CUIT__c FROM Account WHERE Id IN :originantes]) {
+                cuitPorOriginante.put(originante.Id, originante.N_CUIT__c);
+            }
+        }
 
         // Obtenemos los valores seteados en el custom settings
         List<Comportamiento_Segun_Rol_Ventas__c> csrvs = Comportamiento_Segun_Rol_Ventas__c.getall().values();
@@ -185,8 +201,14 @@ public with sharing class UtilsVentas{
                             // Obtenemos el producto
                             Product2 producto = productos.get(v.Producto__c);
                         
-                            if(csrv.Variedad__c == 'Propia' && v.Originante__c != producto.Obtentor_Comercializa__c)continue;
-                            if(csrv.Variedad__c == 'No Propia' && v.Originante__c == producto.Obtentor_Comercializa__c)continue;
+                            Boolean esPropia = v.Originante__c == producto.Obtentor_Comercializa__c
+                                || VentaNeogenAca.acreditaComoObtentor(
+                                    cuitPorOriginante.get(v.Originante__c),
+                                    producto.Obtentor_Comercializa__r == null ? null : producto.Obtentor_Comercializa__r.Id_Obtentor__c,
+                                    producto.Cultivo__r == null ? null : producto.Cultivo__r.Name
+                                );
+                            if(csrv.Variedad__c == 'Propia' && !esPropia)continue;
+                            if(csrv.Variedad__c == 'No Propia' && esPropia)continue;
 
                         }else{
                             continue;

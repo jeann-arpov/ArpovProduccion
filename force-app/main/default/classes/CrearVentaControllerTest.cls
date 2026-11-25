@@ -1722,6 +1722,101 @@ public class CrearVentaControllerTest {
   }
 
   @isTest
+  static void acaVeSusVariedadesYLaSojaNeogen() {
+    Test_TestUtils.disableFlows();
+    Account aca = Test_TestUtils.crearObtentor();
+    aca.N_CUIT__c = '30500120882';
+    aca.Id_Obtentor__c = '26';
+    aca.Clave_Unica__c = 'aca-portal-se332';
+    aca.Nombre_Obtentor__c = 'A.C.A';
+    update aca;
+    CrearCompraController.acc = aca;
+
+    Account gdm = Test_TestUtils.crearObtentor();
+    gdm.N_CUIT__c = '30616275905';
+    gdm.Id_Obtentor__c = '85';
+    gdm.Clave_Unica__c = 'gdm-portal-se332';
+    gdm.Nombre_Obtentor__c = 'GDM';
+    update gdm;
+
+    Account otro = Test_TestUtils.crearObtentor();
+    otro.N_CUIT__c = '30111111118';
+    otro.Id_Obtentor__c = '77';
+    otro.Clave_Unica__c = 'otro-portal-se332';
+    update otro;
+
+    Cultivo__c soja = Test_TestUtils.crearCultivo('Autógama', 75);
+    soja.Name = 'SOJA';
+    Cultivo__c trigo = Test_TestUtils.crearCultivo('Autógama', 75);
+    trigo.Name = 'TRIGO';
+    update new List<Cultivo__c>{ soja, trigo };
+
+    Pricebook2 lista = new Pricebook2(Name = 'Lista de Precios Sembrá Evolución', IsActive = true);
+    insert lista;
+    update new Pricebook2(Id = Test.getStandardPricebookId(), IsActive = true);
+
+    Id propia = productoPortal(soja, aca, 'ACA SOJA');
+    Id neogen = productoPortal(soja, gdm, 'NEOGEN SOJA');
+    Id ajena = productoPortal(soja, otro, 'AJENA SOJA');
+    Id neogenTrigo = productoPortal(trigo, gdm, 'NEOGEN TRIGO');
+
+    SolicitarLicencia.networkName = 'Sembrá Evolución Obtentor';
+    Test.startTest();
+    Set<Id> enSoja = idsProductos(CrearVentaController.getProductsData(soja.Id, aca.Id));
+    Set<Id> enTrigo = idsProductos(CrearVentaController.getProductsData(trigo.Id, aca.Id));
+    Test.stopTest();
+
+    System.assert(enSoja.contains(propia), 'A.C.A sigue viendo sus variedades');
+    System.assert(enSoja.contains(neogen), 'A.C.A ve la soja NEOGEN que informa GDM');
+    System.assertEquals(false, enSoja.contains(ajena), 'No suma variedades de otro obtentor');
+    System.assertEquals(false, enTrigo.contains(neogenTrigo), 'NEOGEN de otro cultivo no entra');
+  }
+
+  private static Id productoPortal(Cultivo__c cultivo, Account obtentor, String nombre) {
+    Variedad__c variedad = new Variedad__c(
+      Name = nombre,
+      Sembra_Evolucion__c = true,
+      Biotecnologia__c = 'Convencional',
+      Cultivo__c = cultivo.Id,
+      Obtentor_Comercializa__c = obtentor.Id
+    );
+    insert variedad;
+    Product2 producto = new Product2(
+      IsActive = true,
+      Name = nombre,
+      Producto_Vigente__c = true,
+      Variedad__c = variedad.Name,
+      Variedad2__c = variedad.Id,
+      Obtentor_Comercializa__c = obtentor.Id,
+      Cultivo__c = cultivo.Id,
+      Family = 'Regalía Comercial'
+    );
+    insert producto;
+    insert new PricebookEntry(
+      Pricebook2Id = Test.getStandardPricebookId(),
+      Product2Id = producto.Id,
+      UnitPrice = 100,
+      IsActive = true
+    );
+    PricebookEntry lista = new PricebookEntry(
+      Pricebook2Id = [SELECT Id FROM Pricebook2 WHERE Name = 'Lista de Precios Sembrá Evolución' LIMIT 1].Id,
+      Product2Id = producto.Id,
+      UnitPrice = 100,
+      IsActive = true
+    );
+    insert lista;
+    return producto.Id;
+  }
+
+  private static Set<Id> idsProductos(List<PricebookEntry> entries) {
+    Set<Id> ids = new Set<Id>();
+    for (PricebookEntry entry : entries) {
+      ids.add(entry.Product2.Id);
+    }
+    return ids;
+  }
+
+  @isTest
   static void saveItemRechazaCantidadDecimal() {
     String info = JSON.serialize(new Map<String, Object>{ 'Cantidad__c' => 10.5 });
     try {

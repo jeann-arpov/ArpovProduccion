@@ -76,7 +76,17 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     }
 
     if (isPortalObtentores) {
-      obtentores.add(getAccount(null).Id);
+      Account sesion = getAccount(null);
+      obtentores.add(sesion.Id);
+      if (acaInformaSojaNeogen(sesion, cultivoId)) {
+        for (Account neogen : [
+          SELECT Id
+          FROM Account
+          WHERE Id_Obtentor__c = :VentaNeogenAca.ID_OBTENTOR_NEOGEN
+        ]) {
+          obtentores.add(neogen.Id);
+        }
+      }
       return getProductosPortalObtentor(
         cultivoId,
         obtentores,
@@ -238,6 +248,18 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
     ];
   }
 
+  // SE-332. En el portal obtentor, A.C.A informa soja NEOGEN (GDM, Id 85)
+  // además de sus propias variedades. La licencia sigue saliendo de GDM.
+  private static Boolean acaInformaSojaNeogen(Account sesion, String cultivoId) {
+    if (sesion == null || String.isBlank(cultivoId) || !VentaNeogenAca.esAca(sesion.N_CUIT__c)) {
+      return false;
+    }
+    List<Cultivo__c> cultivos = [SELECT Name FROM Cultivo__c WHERE Id = :cultivoId LIMIT 1];
+    return !cultivos.isEmpty()
+      && cultivos[0].Name != null
+      && cultivos[0].Name.equalsIgnoreCase(VentaNeogenAca.CULTIVO_SOJA);
+  }
+
   private static List<PricebookEntry> getProductosPortalObtentor(
     String cultivoId,
     Set<Id> obtentores,
@@ -248,6 +270,7 @@ public without sharing class CrearVentaController extends ApexErrorHandler {
         Id,
         UnitPrice,
         Unit_Price__c,
+        Product2.Id,
         Product2.Nombre_Comercial__c,
         Product2.Unidad_De_Medida__c,
         Product2.Tipo_de_Compra__c,

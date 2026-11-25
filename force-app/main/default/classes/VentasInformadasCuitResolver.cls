@@ -406,6 +406,7 @@ public without sharing class VentasInformadasCuitResolver {
       }
     }
 
+    VentaNeogenAca.precargar(ventas, obtComIds);
     CuitResolverCache cache = buildCuitResolverCache(cuits, obtComIds);
     precargarOriginantesYaAsignados(ventas, cache);
     for (Ventas_Informadas__c venta : ventas) {
@@ -551,6 +552,11 @@ public without sharing class VentasInformadasCuitResolver {
       return;
     }
     if (originante.Id == obtentorComercializaId) {
+      return;
+    }
+    // SE-332: A.C.A informa NEOGEN (GDM 85) como Obtentor, no como Distribuidor.
+    if (VentaNeogenAca.acreditaVentaInformada(venta, originante, obtentorComercializaId)) {
+      venta.Rol_Originante__c = 'Obtentor';
       return;
     }
     Boolean esObtentor =

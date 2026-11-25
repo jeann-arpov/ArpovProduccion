@@ -179,6 +179,10 @@ public without sharing class VentasInformadasTriggerHandler extends TriggerHandl
         }
         Map<String, Id> obtentorPorCultivar =
             VentasInformadasCuitResolver.mapObtentorComercializaPorVariedad(cultivares);
+        Set<Id> obtentoresNeogen = new Set<Id>();
+        obtentoresNeogen.addAll(obtentorPorVariedadId.values());
+        obtentoresNeogen.addAll(obtentorPorCultivar.values());
+        VentaNeogenAca.precargar(ventas, obtentoresNeogen);
 
         for (Ventas_Informadas__c venta : ventas) {
             venta.CUIT_Originante__c = CrearVentaInformadaLWCController.limpiarCuit(venta.CUIT_Originante__c);
