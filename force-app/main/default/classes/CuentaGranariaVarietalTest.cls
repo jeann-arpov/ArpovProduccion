@@ -358,6 +358,60 @@ private class CuentaGranariaVarietalTest {
     }
 
     @isTest
+    static void creditoDesdeHtSinTonelada() {
+        Account productor = [SELECT Id FROM Account WHERE Name = 'productor' ORDER BY CreatedDate DESC LIMIT 1];
+        CrearCompraController.acc = productor;
+        Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Z9_Clave_Unica__c = 'CGV-TRIGO-2025' LIMIT 1];
+        Cultivo__c cultivo = [SELECT Id FROM Cultivo__c WHERE Name = 'TRIGO' ORDER BY CreatedDate DESC LIMIT 1];
+        Variedad__c tipa = variedad('Tipa HT CGV', [
+            SELECT Id FROM Account WHERE Nombre_Obtentor__c = 'Semillero Alfa CGV' LIMIT 1
+        ].Id);
+        insert tipa;
+        CuentaGranaria.usarCreditoVarietalGuardado = false;
+
+        insert new Hectareas_Tecnologicas__c(
+            Productor__c = productor.Id,
+            Cultivo__c = cultivo.Id,
+            Campania__c = campana.Id,
+            Variedad__c = tipa.Id,
+            Origen__c = 'Compra HT',
+            Signo__c = 1,
+            Etapa__c = 'Cobrada',
+            Cantidad__c = 5,
+            Valor_Conversion__c = 4000,
+            Biotecnologia__c = 'Convencional',
+            Fecha_Inicio__c = Date.today().addDays(-5),
+            Fecha_Fin__c = Date.today().addDays(300)
+        );
+
+        Test.startTest();
+        CuentaGranaria.ResumenVarietal resumen = CuentaGranaria.getResumenVarietal(
+            campana.Id,
+            'RR1/RR2 - BT/Convencional'
+        );
+        CuentaGranaria.DetalleVariedad detalle = CuentaGranaria.getDetalleVarietal(
+            campana.Id,
+            tipa.Id,
+            'RR1/RR2 - BT/Convencional'
+        );
+        Test.stopTest();
+
+        CuentaGranaria.VariedadPortal tipaPortal;
+        for (CuentaGranaria.MarcaPortal marca : resumen.marcas) {
+            for (CuentaGranaria.VariedadPortal variedad : marca.variedades) {
+                if (variedad.nombre == 'Tipa HT CGV') {
+                    tipaPortal = variedad;
+                }
+            }
+        }
+        System.assertNotEquals(null, tipaPortal, 'La variedad aparece aunque no tenga tonelada');
+        System.assertEquals(20, tipaPortal.credito, '5 HT cobradas = 20 t sin pasar por SE-410');
+        System.assertEquals(20, detalle.credito);
+        System.assertEquals(1, detalle.creditos.size());
+        System.assertEquals('Compra de HT', detalle.creditos[0].origen);
+    }
+
+    @isTest
     static void rechazaSinCampana() {
         Boolean lanzo = false;
         try {
