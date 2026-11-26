@@ -32,6 +32,12 @@ function etiquetaGrupo() {
     return ESTADO_LABEL['Debe regularizar'];
 }
 
+function cifrasMostradas(credito, debito) {
+    const acreditado = Math.round(Number(credito) || 0);
+    const entregado = Math.round(Number(debito) || 0);
+    return { acreditado, entregado, saldo: acreditado - entregado };
+}
+
 function fraseNegativas(variedades) {
     const lista = (variedades || [])
         .filter((variedad) => variedad && variedad.estado === 'Debe regularizar')
@@ -257,11 +263,15 @@ export default class CuentaGranariaVarietal extends LightningElement {
     }
 
     get cifraHeroTexto() {
-        const numero = Math.round(Number(this.cifraCampana) || 0);
-        if (this.negativasCampana.length) {
-            return this.formatoAcreditado(-Math.abs(numero));
+        const negativas = this.negativasCampana;
+        if (negativas.length) {
+            const total = negativas.reduce((suma, variedad) => {
+                const saldo = cifrasMostradas(variedad.credito, variedad.debito).saldo;
+                return suma + (saldo < 0 ? -saldo : 0);
+            }, 0);
+            return this.formatoAcreditado(-total);
         }
-        return this.formatoAcreditado(numero);
+        return this.formatoAcreditado(this.cifraCampana);
     }
 
     get unidadHero() {
@@ -448,17 +458,17 @@ export default class CuentaGranariaVarietal extends LightningElement {
 
     get detalleVista() {
         if (!this.detalle) return null;
-        const saldo = Number(this.detalle.saldo) || 0;
-        const faltan = Number(this.detalle.toneladasARegularizar) || 0;
+        const cifras = cifrasMostradas(this.detalle.credito, this.detalle.debito);
+        const faltan = cifras.saldo < 0 ? -cifras.saldo : 0;
         const ht = faltan > 0 ? Math.ceil(faltan / 4) : 0;
         return {
             ...this.detalle,
             logo: this.logo(this.detalle.idObtentor),
             estadoLabel: this.esPph ? 'Respaldada por PPH' : etiquetaVariedad(this.detalle),
             chipClass: this.chipClass(this.detalle.estado),
-            creditoTexto: this.formato(this.detalle.credito) + ' t',
-            debitoTexto: this.formato(this.detalle.debito) + ' t',
-            saldoTexto: this.formatoFirmado(saldo),
+            creditoTexto: this.formato(cifras.acreditado) + ' t',
+            debitoTexto: this.formato(cifras.entregado) + ' t',
+            saldoTexto: this.formatoFirmado(cifras.saldo),
             faltanTexto: this.formato(faltan),
             muestraFaltan: faltan > 0,
             equivale: ht > 0 ? `Equivale a ${ht} HT (1 HT = 4 t).` : '',
@@ -560,15 +570,15 @@ export default class CuentaGranariaVarietal extends LightningElement {
     }
 
     decorarVariedad(variedad) {
-        const saldo = Number(variedad.saldo) || 0;
+        const cifras = cifrasMostradas(variedad.credito, variedad.debito);
         return {
             ...variedad,
             estadoLabel: this.esPph ? 'Respaldada por PPH' : etiquetaVariedad(variedad),
             chipClass: this.esPph ? 'cgv-chip is-ok' : this.chipClass(variedad.estado),
-            creditoTexto: this.formatoAcreditado(variedad.credito),
-            debitoTexto: this.formato(variedad.debito) + ' t',
-            saldoTexto: this.formatoFirmado(saldo),
-            saldoClass: 'cgv-num' + (saldo < 0 ? ' is-neg' : saldo > 0 ? ' is-pos' : '')
+            creditoTexto: this.formatoAcreditado(cifras.acreditado),
+            debitoTexto: this.formato(cifras.entregado) + ' t',
+            saldoTexto: this.formatoFirmado(cifras.saldo),
+            saldoClass: 'cgv-num' + (cifras.saldo < 0 ? ' is-neg' : cifras.saldo > 0 ? ' is-pos' : '')
         };
     }
 

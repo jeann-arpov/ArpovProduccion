@@ -309,7 +309,7 @@ public without sharing class CuentaGranaria {
         Decimal aRegularizar = 0;
         for (VariedadPortal variedad : porVariedad.values()) {
             if (variedad.estado == EstadoVarietal.DEBE_REGULARIZAR) {
-                aRegularizar += -variedad.saldo;
+                aRegularizar += EstadoVarietal.toneladasMostradasARegularizar(variedad.credito, variedad.debito);
             }
             MarcaPortal marca = porMarca.get(variedad.marcaId);
             if (marca == null) {
@@ -375,7 +375,7 @@ public without sharing class CuentaGranaria {
         detalle.marca = variedad.marca;
         detalle.idObtentor = variedad.idObtentor;
         detalle.estado = variedad.estado;
-        detalle.toneladasARegularizar = variedad.estado == EstadoVarietal.DEBE_REGULARIZAR ? -variedad.saldo : 0;
+        detalle.toneladasARegularizar = EstadoVarietal.toneladasMostradasARegularizar(variedad.credito, variedad.debito);
         detalle.creditos = new List<MovimientoPortal>();
         detalle.debitos = new List<MovimientoPortal>();
         detalle.entregas = new List<MovimientoPortal>();
@@ -434,7 +434,7 @@ public without sharing class CuentaGranaria {
         detalle.debito += detalle.totalDebitado;
         detalle.saldo = detalle.credito - detalle.debito;
         detalle.estado = EstadoVarietal.calcularVista(detalle.saldo, entregasNetas);
-        detalle.toneladasARegularizar = EstadoVarietal.saldoNegativo(detalle.saldo) ? -detalle.saldo : 0;
+        detalle.toneladasARegularizar = EstadoVarietal.toneladasMostradasARegularizar(detalle.credito, detalle.debito);
         return detalle;
     }
 
@@ -461,7 +461,7 @@ public without sharing class CuentaGranaria {
                     continue;
                 }
                 lista.add(variedad);
-                resumen.toneladas += -variedad.saldo;
+                resumen.toneladas += EstadoVarietal.toneladasMostradasARegularizar(variedad.credito, variedad.debito);
             }
             if (lista.isEmpty()) {
                 continue;

@@ -41,6 +41,24 @@ public inherited sharing class EstadoVarietal {
         return saldo != null && saldo < 0;
     }
 
+    // F5 / D-07: guardar decimales; redondear solo al mostrar (HALF_UP).
+    public static Integer tnEntera(Decimal valor) {
+        if (valor == null) {
+            return 0;
+        }
+        return valor.setScale(0, RoundingMode.HALF_UP).intValue();
+    }
+
+    // Saldo de pantalla = Acreditado mostrado − Entregado mostrado. No redondear el saldo aparte.
+    public static Integer saldoMostrado(Decimal credito, Decimal debito) {
+        return tnEntera(credito) - tnEntera(debito);
+    }
+
+    public static Decimal toneladasMostradasARegularizar(Decimal credito, Decimal debito) {
+        Integer saldo = saldoMostrado(credito, debito);
+        return saldo < 0 ? -saldo : 0;
+    }
+
     public static Boolean esEntrega(String origen) {
         return ORIGENES_ENTREGA.contains(origen);
     }

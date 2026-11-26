@@ -121,7 +121,7 @@ private class CuentaGranariaVarietalTest {
             for (CuentaGranaria.VariedadPortal variedad : marca.variedades) {
                 porNombre.put(variedad.nombre, variedad);
                 if (variedad.estado == 'Debe regularizar') {
-                    aRegularizar += -variedad.saldo;
+                    aRegularizar += EstadoVarietal.toneladasMostradasARegularizar(variedad.credito, variedad.debito);
                 }
             }
         }

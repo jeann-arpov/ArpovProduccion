@@ -65,18 +65,24 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
             movimientosFormatted: this.formatearEntero(row.movimientos),
             valorClass: row.esNegativo ? 'cgv-neg' : 'cgv-pos'
         }));
-        this.variedades = (data.variedades || []).map((row, index) => ({
-            ...row,
-            key: row.variedadId || `sin-variedad-${index}`,
-            nombre: String(row.nombre || '').toUpperCase(),
-            semillero: row.semillero || '—',
-            creditoFormatted: this.formatearConSigno(row.credito),
-            debitoFormatted: this.formatearConSigno(row.debito),
-            saldoFormatted: this.formatearConSigno(row.saldo),
-            saldoClass: 'cgv-strong ' + (row.saldo < 0 ? 'cgv-neg' : 'cgv-pos'),
-            estadoClass: this.estadoClass(row.estado),
-            puedeVer: !!row.variedadId
-        }));
+        this.variedades = (data.variedades || []).map((row, index) => {
+            const cifras = this.cifrasMostradas(row.credito, row.debito);
+            return {
+                ...row,
+                key: row.variedadId || `sin-variedad-${index}`,
+                nombre: String(row.nombre || '').toUpperCase(),
+                semillero: row.semillero || '—',
+                creditoMostrado: cifras.acreditado,
+                debitoMostrado: cifras.entregado,
+                saldoMostrado: cifras.saldo,
+                creditoFormatted: this.formatearConSigno(cifras.acreditado),
+                debitoFormatted: this.formatearConSigno(cifras.entregado),
+                saldoFormatted: this.formatearConSigno(cifras.saldo),
+                saldoClass: 'cgv-strong ' + (cifras.saldo < 0 ? 'cgv-neg' : 'cgv-pos'),
+                estadoClass: this.estadoClass(row.estado),
+                puedeVer: !!row.variedadId
+            };
+        });
         this.esTrigo = data.esTrigo === true;
         this.variedadNombre = data.variedadNombre || null;
         this.credito = data.credito || 0;
@@ -93,11 +99,12 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
     }
 
     get totalVariedades() {
-        const suma = (campo) => this.variedades.reduce((total, row) => total + (Number(row[campo]) || 0), 0);
+        const credito = this.variedades.reduce((total, row) => total + (Number(row.creditoMostrado) || 0), 0);
+        const debito = this.variedades.reduce((total, row) => total + (Number(row.debitoMostrado) || 0), 0);
         return {
-            credito: this.formatearConSigno(suma('credito')),
-            debito: this.formatearConSigno(suma('debito')),
-            saldo: this.formatearConSigno(suma('saldo'))
+            credito: this.formatearConSigno(credito),
+            debito: this.formatearConSigno(debito),
+            saldo: this.formatearConSigno(credito - debito)
         };
     }
 
@@ -136,8 +143,9 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
                     rowClass: ''
                 });
             });
-            const suma = (campo) => items.reduce((total, row) => total + (Number(row[campo]) || 0), 0);
-            const saldo = suma('saldo');
+            const credito = items.reduce((total, row) => total + (Number(row.creditoMostrado) || 0), 0);
+            const debito = items.reduce((total, row) => total + (Number(row.debitoMostrado) || 0), 0);
+            const saldo = credito - debito;
             filas.push({
                 key: 's-' + slug,
                 esGrupo: false,
@@ -146,8 +154,8 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
                 esCifras: true,
                 rowClass: 'cgv-subtotal',
                 nombre: 'Subtotal',
-                creditoFormatted: this.formatearConSigno(suma('credito')),
-                debitoFormatted: this.formatearConSigno(suma('debito')),
+                creditoFormatted: this.formatearConSigno(credito),
+                debitoFormatted: this.formatearConSigno(debito),
                 saldoFormatted: this.formatearConSigno(saldo),
                 saldoClass: 'cgv-strong ' + (saldo < 0 ? 'cgv-neg' : 'cgv-pos')
             });
@@ -319,6 +327,12 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
 
     get generarConsumoDisabled() {
         return this.isLoading || this.isGenerandoConsumo;
+    }
+
+    cifrasMostradas(credito, debito) {
+        const acreditado = Math.round(Number(credito) || 0);
+        const entregado = Math.round(Number(debito) || 0);
+        return { acreditado, entregado, saldo: acreditado - entregado };
     }
 
     formatearNumero(valor) {
