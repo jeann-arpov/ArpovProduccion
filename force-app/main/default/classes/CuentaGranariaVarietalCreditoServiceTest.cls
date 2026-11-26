@@ -66,6 +66,20 @@ private class CuentaGranariaVarietalCreditoServiceTest {
         '|RR1/RR2 - BT/Convencional'
     );
 
+    insert new Tonelada__c(
+      Productor__c = productor.Id,
+      Cultivo__c = cultivo.Id,
+      Campania__c = campaniaReal,
+      Variedad__c = variedad.Id,
+      Biotecnologia__c = 'Convencional',
+      Origen__c = 'Compra HT',
+      Cantidad__c = 20,
+      Signo__c = 1,
+      Etapa__c = 'Cobrada',
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(300)
+    );
+
     Test.startTest();
     CuentaGranariaVarietalCreditoService.recalcularCreditos(
       productor.Id,
@@ -337,6 +351,62 @@ private class CuentaGranariaVarietalCreditoServiceTest {
         cultivo.Id +
         '|RR1/RR2 - BT/Convencional'
     );
+
+    insert new List<Tonelada__c>{
+      new Tonelada__c(
+        Productor__c = productor.Id,
+        Cultivo__c = cultivo.Id,
+        Campania__c = campaniaReal,
+        Variedad__c = variedad.Id,
+        Biotecnologia__c = 'Convencional',
+        Origen__c = 'Compra HT',
+        Cantidad__c = 20,
+        Signo__c = 1,
+        Etapa__c = 'Cobrada',
+        Fecha_Inicio__c = Date.today().addDays(-5),
+        Fecha_Fin__c = Date.today().addDays(300)
+      ),
+      new Tonelada__c(
+        Productor__c = productor.Id,
+        Cultivo__c = cultivo.Id,
+        Campania__c = campaniaReal,
+        Variedad__c = variedad.Id,
+        Biotecnologia__c = 'Convencional',
+        Origen__c = 'Compra HT',
+        Cantidad__c = 12,
+        Signo__c = 1,
+        Etapa__c = 'Cancelada por NC',
+        Fecha_Inicio__c = Date.today().addDays(-5),
+        Fecha_Fin__c = Date.today().addDays(300)
+      ),
+      new Tonelada__c(
+        Productor__c = productor.Id,
+        Cultivo__c = cultivo.Id,
+        Campania__c = campaniaReal,
+        Variedad__c = variedad.Id,
+        Biotecnologia__c = 'Convencional',
+        Origen__c = 'Compra HT',
+        Cantidad__c = 4,
+        Signo__c = -1,
+        Etapa__c = 'Aplicada',
+        HT_Id__c = htAplicadaRelacionada.Id,
+        Fecha_Inicio__c = Date.today().addDays(-5),
+        Fecha_Fin__c = Date.today().addDays(300)
+      ),
+      new Tonelada__c(
+        Productor__c = productor.Id,
+        Cultivo__c = cultivo.Id,
+        Campania__c = campaniaReal,
+        Variedad__c = variedad.Id,
+        Biotecnologia__c = 'Convencional',
+        Origen__c = 'Compra HT',
+        Cantidad__c = 8,
+        Signo__c = -1,
+        Etapa__c = 'Aplicada',
+        Fecha_Inicio__c = Date.today().addDays(-5),
+        Fecha_Fin__c = Date.today().addDays(300)
+      )
+    };
 
     Test.startTest();
     CuentaGranariaVarietalCreditoService.recalcularCreditos(

@@ -33,6 +33,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
   }
 
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
+  private static final String ORIGEN_CESION = 'Cesión HT';
   private static final Set<String> ORIGENES_CREDITO = new Set<String>{
     'Compra SF',
     'Compra HT'
@@ -354,7 +355,8 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         Cuenta_Granaria__c = :cgId
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c = :ORIGEN_ESCANER
+        AND (Origen__c = :ORIGEN_ESCANER
+        OR Origen__c = :ORIGEN_CESION)
         AND Signo__c = -1
     ];
     Decimal debito = arDebito.get('total') != null
@@ -390,7 +392,8 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         AND Variedad__c != NULL
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c = :ORIGEN_ESCANER
+        AND (Origen__c = :ORIGEN_ESCANER
+        OR Origen__c = :ORIGEN_CESION)
         AND Signo__c = -1
       GROUP BY Variedad__c
     ]) {
@@ -462,8 +465,9 @@ public with sharing class CuentaGranariaVarietalCreditoService {
   }
 
   /**
-   * Calcula el crédito total por variedad sumando Toneladas__c * Signo__c de las
-   * HT en etapas de crédito. Para la devolución (Aplicada + original Cancelada
+   * Calcula el crédito total por variedad sumando la cantidad con signo de las
+   * Toneladas de crédito (Compra SF / Compra HT) de la campaña, incluyendo las
+   * que viven en la CG HT. Para la devolución (Aplicada + original Cancelada
    * por NC) usa la variedad de la HT original (resta).
    */
   private static Map<Id, Decimal> calcularCreditoPorVariedad(
@@ -472,14 +476,13 @@ public with sharing class CuentaGranariaVarietalCreditoService {
     Id campanaId
   ) {
     Map<Id, Decimal> creditoPorVariedad = new Map<Id, Decimal>();
-    for (Hectareas_Tecnologicas__c ht : [
+    for (Tonelada__c tn : [
       SELECT
         Variedad__c,
-        HT_Original__r.Variedad__c,
-        Toneladas__c,
-        Signo__c,
+        HT_Id__r.HT_Original__r.Variedad__c,
+        Cantidad_con_Signo__c,
         Etapa__c
-      FROM Hectareas_Tecnologicas__c
+      FROM Tonelada__c
       WHERE
         Productor__c = :productorId
         AND Cultivo__c = :cultivoId
@@ -487,19 +490,18 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         AND Origen__c IN :ORIGENES_CREDITO
         AND (Etapa__c IN :ETAPAS_VARIETALES
         OR (Etapa__c = 'Aplicada'
-        AND HT_Original__r.Etapa__c = 'Cancelada por NC'))
+        AND HT_Id__r.HT_Original__r.Etapa__c = 'Cancelada por NC'))
         AND Variedad__c != NULL
     ]) {
-      Id variedadId = ht.Etapa__c == 'Aplicada' &&
-        ht.HT_Original__c != null
-        ? ht.HT_Original__r.Variedad__c
-        : ht.Variedad__c;
+      Id variedadId = tn.Etapa__c == 'Aplicada' &&
+        tn.HT_Id__r.HT_Original__c != null
+        ? tn.HT_Id__r.HT_Original__r.Variedad__c
+        : tn.Variedad__c;
       if (variedadId == null) {
         continue;
       }
-      Decimal toneladas = ht.Toneladas__c != null &&
-        ht.Signo__c != null
-        ? ht.Toneladas__c * ht.Signo__c
+      Decimal toneladas = tn.Cantidad_con_Signo__c != null
+        ? tn.Cantidad_con_Signo__c
         : 0;
       Decimal previo = creditoPorVariedad.containsKey(variedadId)
         ? creditoPorVariedad.get(variedadId)

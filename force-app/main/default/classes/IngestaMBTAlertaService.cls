@@ -79,6 +79,14 @@ public with sharing class IngestaMBTAlertaService {
           }
         }
       }
+      if (String.isNotBlank(cfg.Correos_Adicionales__c)) {
+        for (String correo : cfg.Correos_Adicionales__c.split(',')) {
+          String c = correo.trim();
+          if (String.isNotBlank(c) && !correos.contains(c)) {
+            correos.add(c);
+          }
+        }
+      }
 
       if (!correos.isEmpty()) {
         enviarAlerta(correos, fecha);

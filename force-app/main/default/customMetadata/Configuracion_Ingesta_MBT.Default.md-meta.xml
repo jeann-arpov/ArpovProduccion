@@ -10,4 +10,10 @@
         <field>Cola_Operaciones__c</field>
         <value xsi:type="xsd:string">Operaciones_Ingesta_MBT</value>
     </values>
+    <values>
+        <field>Correos_Adicionales__c</field>
+        <value
+      xsi:type="xsd:string"
+    >productoytecnologia@sembraevolucion.com.ar</value>
+    </values>
 </CustomMetadata>

@@ -12,12 +12,13 @@ private class CuentaGranariaVarietalExpedienteTest {
     Test_TestUtils.disableFlows();
 
     Cultivo__c cultivo = Test_TestUtils.crearCultivo('TRIGO', 1, true);
+    String anio = String.valueOf(Date.today().year());
     Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola(
-      '2025',
+      anio,
       cultivo,
       Date.today().addDays(-10),
       Date.today().addDays(10),
-      '2025 - TRIGO',
+      anio + ' - TRIGO',
       true
     );
 
@@ -335,6 +336,119 @@ private class CuentaGranariaVarietalExpedienteTest {
       null,
       tnActualizada.Expediente_de_Negativos__c,
       'La Tonelada debe quedar vinculada al expediente de negativos'
+    );
+  }
+
+  /**
+   * No abre expediente para sub-cuentas de una campaña distinta a la en curso
+   * (Configuracion_Varietal__mdt.Campana_Ano__c).
+   */
+  @isTest
+  static void testNoAbreOtraCampana() {
+    habilitarExpedientes();
+    Cultivo__c cultivo = [SELECT Id FROM Cultivo__c LIMIT 1];
+    Account productor = [
+      SELECT Id
+      FROM Account
+      WHERE N_CUIT__c = '30502874353'
+      LIMIT 1
+    ];
+    Variedad__c variedad = [SELECT Id FROM Variedad__c LIMIT 1];
+
+    String anioAnterior = String.valueOf(Date.today().year() - 1);
+    Campana_Agricola__c campanaAnterior = Test_TestUtils.crearCampanaAgricola(
+      anioAnterior,
+      cultivo,
+      Date.today().addDays(-10),
+      Date.today().addDays(10),
+      anioAnterior + ' - TRIGO',
+      true
+    );
+    Cuenta_Granaria__c cg2025 = new Cuenta_Granaria__c(
+      Productor__c = productor.Id,
+      Campania__c = campanaAnterior.Id,
+      Cultivo__c = cultivo.Id,
+      Tecnologia__c = 'RR1/RR2 - BT/Convencional',
+      Clave_Unica__c = productor.Id +
+        '|' +
+        campanaAnterior.Id +
+        '|' +
+        cultivo.Id +
+        '|RR1/RR2 - BT/Convencional'
+    );
+    insert cg2025;
+    Detalle_Variedad_CG__c detalle2025 = new Detalle_Variedad_CG__c(
+      Cuenta_Granaria__c = cg2025.Id,
+      Variedad__c = variedad.Id,
+      Clave_Varietal__c = cg2025.Id + '|' + variedad.Id,
+      Saldo_Variedad__c = -20
+    );
+    insert detalle2025;
+
+    Test.startTest();
+    CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+    Test.stopTest();
+
+    List<Expediente_de_Negativos__c> exps = [
+      SELECT Id
+      FROM Expediente_de_Negativos__c
+      WHERE Detalle_Variedad_CG__c = :detalle2025.Id
+    ];
+    System.assertEquals(
+      0,
+      exps.size(),
+      'No debe abrir expediente para una campaña distinta a la en curso'
+    );
+  }
+
+  /**
+   * No abre expediente para sub-cuentas de cuentas granarias sin campaña
+   * (CG HT).
+   */
+  @isTest
+  static void testNoAbreCuentaSinCampana() {
+    habilitarExpedientes();
+    Cultivo__c cultivo = [SELECT Id FROM Cultivo__c LIMIT 1];
+    Account productor = [
+      SELECT Id
+      FROM Account
+      WHERE N_CUIT__c = '30502874353'
+      LIMIT 1
+    ];
+    Variedad__c variedad = [SELECT Id FROM Variedad__c LIMIT 1];
+
+    Cuenta_Granaria__c cgSinCampana = new Cuenta_Granaria__c(
+      Productor__c = productor.Id,
+      Campania__c = null,
+      Cultivo__c = cultivo.Id,
+      Tecnologia__c = 'RR1/RR2 - BT/Convencional',
+      Clave_Unica__c = productor.Id +
+        '||' +
+        cultivo.Id +
+        '|RR1/RR2 - BT/Convencional'
+    );
+    insert cgSinCampana;
+    Detalle_Variedad_CG__c detalleSinCampana = new Detalle_Variedad_CG__c(
+      Cuenta_Granaria__c = cgSinCampana.Id,
+      Variedad__c = variedad.Id,
+      Clave_Varietal__c = cgSinCampana.Id + '|' + variedad.Id,
+      Saldo_Variedad__c = -20
+    );
+    insert detalleSinCampana;
+
+    Test.startTest();
+    CuentaGranariaVarietalExpedienteService.abrirExpedientesVarietales();
+    Test.stopTest();
+
+    List<Expediente_de_Negativos__c> exps = [
+      SELECT Id
+      FROM Expediente_de_Negativos__c
+      WHERE Detalle_Variedad_CG__c = :detalleSinCampana.Id
+    ];
+    System.assertEquals(
+      0,
+      exps.size(),
+      'No debe abrir expediente para una cuenta sin campaña'
     );
   }
 }

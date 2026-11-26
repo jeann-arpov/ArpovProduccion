@@ -62,6 +62,10 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
     }
     Set<Id> subCuentasConExpedienteActivo = obtenerSubCuentasConExpedienteActivo();
     Map<String, Decimal> umbralPorCultivo = obtenerUmbralPorCultivo();
+    String campanaAno = obtenerCampanaEnCurso();
+    if (campanaAno == null) {
+      return 0;
+    }
 
     List<Expediente_de_Negativos__c> expedientes = new List<Expediente_de_Negativos__c>();
     for (Detalle_Variedad_CG__c sc : [
@@ -78,7 +82,9 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
         Cuenta_Granaria__r.Productor__r.N_CUIT__c,
         Cuenta_Granaria__r.Campania__r.Ano__c
       FROM Detalle_Variedad_CG__c
-      WHERE Saldo_Variedad__c < 0
+      WHERE
+        Saldo_Variedad__c < 0
+        AND Cuenta_Granaria__r.Campania__r.Ano__c = :campanaAno
     ]) {
       if (subCuentasConExpedienteActivo.contains(sc.Id)) {
         continue;
@@ -169,6 +175,10 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
       return 0;
     }
     Map<String, Decimal> umbralPorCultivo = obtenerUmbralPorCultivo();
+    String campanaAno = obtenerCampanaEnCurso();
+    if (campanaAno == null) {
+      return 0;
+    }
     List<Expediente_de_Negativos__c> aCerrar = new List<Expediente_de_Negativos__c>();
     for (Expediente_de_Negativos__c exp : [
       SELECT
@@ -179,6 +189,7 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
       FROM Expediente_de_Negativos__c
       WHERE
         Detalle_Variedad_CG__c != NULL
+        AND Detalle_Variedad_CG__r.Cuenta_Granaria__r.Campania__r.Ano__c = :campanaAno
         AND Estado_de_la_Etapa__c NOT IN ('Finalizado', 'Vencido')
     ]) {
       Decimal saldo = exp.Detalle_Variedad_CG__r.Saldo_Variedad__c;
@@ -336,6 +347,23 @@ public with sharing class CuentaGranariaVarietalExpedienteService {
       return null;
     }
     return umbralPorCultivo.get(cultivoNombre.trim().toUpperCase());
+  }
+
+  /**
+   * Devuelve el año de la campaña en curso configurada en
+   * Configuracion_Varietal__mdt (campo Campana_Ano__c). Devuelve null si no
+   * hay configuración, en cuyo caso no se abren ni cierran expedientes.
+   */
+  private static String obtenerCampanaEnCurso() {
+    for (
+      Configuracion_Varietal__mdt cfg : Configuracion_Varietal__mdt.getAll()
+        .values()
+    ) {
+      if (String.isNotBlank(cfg.Campana_Ano__c)) {
+        return cfg.Campana_Ano__c;
+      }
+    }
+    return null;
   }
 
   /**
