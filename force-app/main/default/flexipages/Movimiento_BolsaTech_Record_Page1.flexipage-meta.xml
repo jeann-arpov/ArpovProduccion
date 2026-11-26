@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -10,7 +10,8 @@
                             <value>Movimiento_BolsaTech__c.Crear_RC</value>
                             <visibilityRule>
                                 <criteria>
-                                    <leftValue>{!$Permission.CustomPermission.Movimiento_BolsaTech_Reconsiderada}</leftValue>
+                                    <leftValue
+                  >{!$Permission.CustomPermission.Movimiento_BolsaTech_Reconsiderada}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>true</rightValue>
                                 </criteria>
@@ -44,6 +45,10 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>hideChatterActions</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>hideSlackAction</name>
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -230,6 +235,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.TN_Id__c</fieldItem>
                 <identifier>RecordTN_Id_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Cultivo_Varietal__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>false</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -312,6 +324,16 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
+                <fieldItem>Record.Cuenta_Granaria__c</fieldItem>
+                <identifier>RecordCuenta_Granaria_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.CUIT_Titular_MBT__c</fieldItem>
                 <identifier>RecordCUIT_Titular_MBT__cField</identifier>
             </fieldInstance>
@@ -333,7 +355,8 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Movimiento_BolsaTech_Original__c</fieldItem>
-                <identifier>RecordMovimiento_BolsaTech_Original_cField</identifier>
+                <identifier
+        >RecordMovimiento_BolsaTech_Original_cField</identifier>
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.RC__c}</leftValue>
@@ -349,8 +372,10 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Movimiento_BolsaTech_Reconsiderada__c</fieldItem>
-                <identifier>RecordMovimiento_BolsaTech_Reconsiderada_cField</identifier>
+                <fieldItem
+        >Record.Movimiento_BolsaTech_Reconsiderada__c</fieldItem>
+                <identifier
+        >RecordMovimiento_BolsaTech_Reconsiderada_cField</identifier>
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.RC__c}</leftValue>
@@ -386,8 +411,10 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Razon_Social_Remitente_Comercial__c</fieldItem>
-                <identifier>RecordRazon_Social_Remitente_Comercial_cField</identifier>
+                <fieldItem
+        >Record.Razon_Social_Remitente_Comercial__c</fieldItem>
+                <identifier
+        >RecordRazon_Social_Remitente_Comercial_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -448,6 +475,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Tonelada_MBT__c</fieldItem>
                 <identifier>RecordTonelada_MBT_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Cultivo_Varietal__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -672,6 +706,13 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Obtentor__c</fieldItem>
                 <identifier>RecordObtentor_cField</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Cultivo_Varietal__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>false</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>

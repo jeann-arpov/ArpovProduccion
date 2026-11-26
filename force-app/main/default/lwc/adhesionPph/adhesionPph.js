@@ -9,11 +9,16 @@ import rectificarAdhesion2 from "@salesforce/apex/AdhesionPPH.rectificarAdhesion
 import { reduceErrors } from "c/utils";
 import { trackGa4Event, trackErrorFuncional } from "c/portalGa4Events";
 import { PAGES, goToCommunityPage } from "c/seNav";
-import { lockPortalModal, unlockPortalModal, fitFixedLayer } from "c/seModalLayer";
+import {
+  lockPortalModal,
+  unlockPortalModal,
+  fitFixedLayer
+} from "c/seModalLayer";
 import recibidaLabel from "@salesforce/label/c.PPH_Mensaje_Recibida";
 
 const TOAST_MS = 8000;
-const TITULO_ADHESION = "Adhesión al Programa de Precertificación de Hectáreas (PPH)";
+const TITULO_ADHESION =
+  "Adhesión al Programa de Precertificación de Hectáreas (PPH)";
 const MSG_SIN_HECTAREAS_SE =
   "No se puede realizar la adhesión sin tener hectáreas SE en al menos un establecimiento";
 
@@ -26,11 +31,23 @@ const parseLocalDate = (value) => {
 };
 
 const STATUS = {
-  "En Preparación": { label: "Tu solicitud de adhesión está lista para ser enviada", tone: "info" },
-  Rectificado: { label: "Tu solicitud de adhesión está lista para ser enviada", tone: "info" },
-  "En Revisión": { label: "Tu solicitud de adhesión ya fue enviada", tone: "ok" },
+  "En Preparación": {
+    label: "Tu solicitud de adhesión está lista para ser enviada",
+    tone: "info"
+  },
+  Rectificado: {
+    label: "Tu solicitud de adhesión está lista para ser enviada",
+    tone: "info"
+  },
+  "En Revisión": {
+    label: "Tu solicitud de adhesión ya fue enviada",
+    tone: "ok"
+  },
   Adherido: { label: "Estás adherido al PPH", tone: "ok" },
-  Rechazado: { label: "Tu solicitud de adhesión fue rechazada", tone: "danger" },
+  Rechazado: {
+    label: "Tu solicitud de adhesión fue rechazada",
+    tone: "danger"
+  },
   Vencido: { label: "Adhesión vencida", tone: "info" }
 };
 
@@ -71,7 +88,9 @@ export default class AdhesionPph extends LightningElement {
 
   renderedCallback() {
     if (this.showModal && !this._modalLock) {
-      this._modalLock = lockPortalModal(this.template.host, () => this.fitModalLayer());
+      this._modalLock = lockPortalModal(this.template.host, () =>
+        this.fitModalLayer()
+      );
     } else if (!this.showModal && this._modalLock) {
       unlockPortalModal(this._modalLock);
       this._modalLock = null;
@@ -125,7 +144,9 @@ export default class AdhesionPph extends LightningElement {
       v.totals.current = 0;
     });
 
-    const variedades = Object.fromEntries(this.variedades.map((v) => [v.Id, v]));
+    const variedades = Object.fromEntries(
+      this.variedades.map((v) => [v.Id, v])
+    );
     const establecimientos = [];
 
     for (const establecimiento of data.establecimientos || []) {
@@ -137,13 +158,16 @@ export default class AdhesionPph extends LightningElement {
 
       for (const variedadId of Object.keys(variedades)) {
         const record =
-          (establecimiento.Lineas_PPH__r || []).find((l) => l.Variedad__c == variedadId) || {};
+          (establecimiento.Lineas_PPH__r || []).find(
+            (l) => l.Variedad__c == variedadId
+          ) || {};
         est.lineas.push({
           id: variedadId,
           record,
           variedad: variedades[variedadId]
         });
-        variedades[variedadId].totals.current += record.Cantidad_Declarada__c || 0;
+        variedades[variedadId].totals.current +=
+          record.Cantidad_Declarada__c || 0;
       }
 
       if (!this.isDraft && establecimiento.Lineas_PPH__r) {
@@ -170,7 +194,10 @@ export default class AdhesionPph extends LightningElement {
       setTimeout(() => (this.step = "resumen"), 0);
     }
 
-    if (this.plan?.Estado__c == "En Preparación" && data.isInPeriodoAdhesion == false) {
+    if (
+      this.plan?.Estado__c == "En Preparación" &&
+      data.isInPeriodoAdhesion == false
+    ) {
       this.onError("Ya ha terminado el período de adhesión");
     }
 
@@ -210,11 +237,14 @@ export default class AdhesionPph extends LightningElement {
   }
 
   get pageTitle() {
-    return this.isTerminosYCondiciones ? "Términos y Condiciones" : TITULO_ADHESION;
+    return this.isTerminosYCondiciones
+      ? "Términos y Condiciones"
+      : TITULO_ADHESION;
   }
 
   get pageSubtitle() {
-    if (this.isTerminosYCondiciones) return `${TITULO_ADHESION} - ${this.paramName}`;
+    if (this.isTerminosYCondiciones)
+      return `${TITULO_ADHESION} - ${this.paramName}`;
     return this.paramName;
   }
 
@@ -226,13 +256,19 @@ export default class AdhesionPph extends LightningElement {
     if (!this.isResumen || !this.plan) return null;
     const conf = STATUS[this.plan.Estado__c] || STATUS["En Revisión"];
     const label = this.isRectificacion
-      ? conf.label.replace("solicitud de adhesión", "solicitud de rectificación")
+      ? conf.label.replace(
+          "solicitud de adhesión",
+          "solicitud de rectificación"
+        )
       : conf.label;
     return { label, className: `p-status p-status-${conf.tone}` };
   }
 
   get isRectificacion() {
-    return this.plan?.Version__c === "Rectificado" || this.plan?.Estado__c === "Rectificado";
+    return (
+      this.plan?.Version__c === "Rectificado" ||
+      this.plan?.Estado__c === "Rectificado"
+    );
   }
 
   get showAddButton() {
@@ -384,10 +420,12 @@ export default class AdhesionPph extends LightningElement {
     await this.doRequest(async () => await deleteEstablecimiento({ id }));
     const idx = this.establecimientos.findIndex((e) => e.id === idPph);
     if (idx < 0) return;
-    this.establecimientos[idx].lineas = this.establecimientos[idx].lineas.map((l) => ({
-      ...l,
-      record: { Cantidad_Declarada__c: l.record.Cantidad_Declarada__c }
-    }));
+    this.establecimientos[idx].lineas = this.establecimientos[idx].lineas.map(
+      (l) => ({
+        ...l,
+        record: { Cantidad_Declarada__c: l.record.Cantidad_Declarada__c }
+      })
+    );
     this.establecimientos[idx].record = {};
   }
 
@@ -397,7 +435,9 @@ export default class AdhesionPph extends LightningElement {
 
     if (id != null) {
       this.doRequest(() =>
-        deleteEstablecimiento({ id }).then(() => this.removeEstablecimiento(toDelete))
+        deleteEstablecimiento({ id }).then(() =>
+          this.removeEstablecimiento(toDelete)
+        )
       );
     } else {
       this.removeEstablecimiento(toDelete);
@@ -437,7 +477,9 @@ export default class AdhesionPph extends LightningElement {
       plan: this.plan
     };
 
-    for (const establecimiento of this.template.querySelectorAll("c-establecimiento-pph")) {
+    for (const establecimiento of this.template.querySelectorAll(
+      "c-establecimiento-pph"
+    )) {
       const est = establecimiento.getData();
 
       if (establecimiento.info.record.Establecimiento__r) {
@@ -453,7 +495,8 @@ export default class AdhesionPph extends LightningElement {
         est.origen = "Grandes Cuentas";
       } else if (this.grandesCuentas === true) {
         est.origen =
-          establecimiento.info.record?.Establecimiento__r?.Origen__c || "Grandes Cuentas";
+          establecimiento.info.record?.Establecimiento__r?.Origen__c ||
+          "Grandes Cuentas";
       } else {
         est.origen = "Propio";
       }
@@ -505,9 +548,13 @@ export default class AdhesionPph extends LightningElement {
 
     try {
       let cantidadSE = 0;
-      for (const establecimiento of this.template.querySelectorAll("c-establecimiento-pph")) {
+      for (const establecimiento of this.template.querySelectorAll(
+        "c-establecimiento-pph"
+      )) {
         if (!establecimiento.validate(showError)) valid = false;
-        for (const variedadData of Object.values(establecimiento.getData().variedades)) {
+        for (const variedadData of Object.values(
+          establecimiento.getData().variedades
+        )) {
           cantidadSE += variedadData.cantidad;
         }
       }
@@ -545,7 +592,9 @@ export default class AdhesionPph extends LightningElement {
 
   savedHasHectareasSe(data) {
     return (data?.establecimientos || []).some((est) =>
-      (est.Lineas_PPH__r || []).some((linea) => Number(linea.Cantidad_Declarada__c) > 0)
+      (est.Lineas_PPH__r || []).some(
+        (linea) => Number(linea.Cantidad_Declarada__c) > 0
+      )
     );
   }
 
@@ -669,13 +718,20 @@ export default class AdhesionPph extends LightningElement {
     url.searchParams.delete("rectificar");
     window.history.replaceState(window.history.state, "", url.toString());
     const estado = this.plan?.Estado__c;
-    if ((estado === "Adherido" || estado === "En Revisión") && this.rectificacionWindow > 0) {
+    if (
+      (estado === "Adherido" || estado === "En Revisión") &&
+      this.rectificacionWindow > 0
+    ) {
       this.rectificarConfirm();
     }
   }
 
   async enviar() {
-    if (this.isDraft && !(await this.ensureSavedHectareas({ volverSiFalta: true }))) return;
+    if (
+      this.isDraft &&
+      !(await this.ensureSavedHectareas({ volverSiFalta: true }))
+    )
+      return;
 
     let enviado = false;
     await this.doRequest(async () => {
@@ -696,10 +752,15 @@ export default class AdhesionPph extends LightningElement {
     const establecimientos = this.data.establecimientos;
     const cantidad_establecimientos = establecimientos.length;
     const hectareas_se = establecimientos.reduce(
-      (acc, e) => acc + Object.values(e.variedades).reduce((a, v) => a + (v.cantidad || 0), 0),
+      (acc, e) =>
+        acc +
+        Object.values(e.variedades).reduce((a, v) => a + (v.cantidad || 0), 0),
       0
     );
-    const hectareas_no_se = establecimientos.reduce((acc, e) => acc + (e.cantidadNoSE || 0), 0);
+    const hectareas_no_se = establecimientos.reduce(
+      (acc, e) => acc + (e.cantidadNoSE || 0),
+      0
+    );
     trackGa4Event("pph_enviado", {
       cantidad_establecimientos,
       hectareas_se,
@@ -711,7 +772,9 @@ export default class AdhesionPph extends LightningElement {
     const params = this.plan?.Parametro_PPH__r;
     if (!params) return 0;
     const inWindow = (n) => {
-      const start = parseLocalDate(params[`Fecha_Inicio_Rectificacion_${n}__c`]);
+      const start = parseLocalDate(
+        params[`Fecha_Inicio_Rectificacion_${n}__c`]
+      );
       const end = parseLocalDate(params[`Fecha_Fin_Rectificacion_${n}__c`]);
       if (!start || !end) return false;
       end.setHours(23, 59, 59, 999);
@@ -780,5 +843,9 @@ export default class AdhesionPph extends LightningElement {
       accountId: this.account.Id,
       variant: "sg"
     });
+  }
+
+  get planId() {
+    return this.plan?.Id || null;
   }
 }

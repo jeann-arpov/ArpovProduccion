@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Variedad__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
@@ -8,7 +8,8 @@
         <filterItems>
             <field>Variedad__c.Biotecnologia__c</field>
             <operation>equals</operation>
-            <value>RR1, RR2 - BT, Enlist E3, Conkesta E3, Convencional</value>
+            <value
+      >RR1, RR2 - BT, Enlist E3, Conkesta E3, Convencional, HB4</value>
         </filterItems>
         <isOptional>false</isOptional>
     </lookupFilter>

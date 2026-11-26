@@ -15,6 +15,10 @@
  */
 global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>, Schedulable {
   // ── Schedulable ──────────────────────────────────────────────────────────
+  /**
+   * Implementación Schedulable: encola el batch con scope 1 para que cada
+   * invocación del flow corra en su propia transacción.
+   */
   global void execute(SchedulableContext sc) {
     // Batch size = 1: cada ejecución es su propia transacción,
     // lo que evita conflictos de límites entre invocaciones de Flow.
@@ -22,6 +26,10 @@ global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>,
   }
 
   // ── Batchable ────────────────────────────────────────────────────────────
+  /**
+   * QueryLocator de movimientos a debitar. Excluye varietales (los procesa el
+   * débito varietal) y los vinculados a expedientes PRI/SEC finalizados.
+   */
   global Database.QueryLocator start(Database.BatchableContext bc) {
     return Database.getQueryLocator(buildQuery());
   }
@@ -34,11 +42,17 @@ global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>,
       'AND No_Debitar__c = FALSE ' +
       'AND TN_Id__c = NULL ' +
       'AND Estado__c = \'A procesar\' ' +
+      'AND Cultivo_Varietal__c = FALSE ' +
       'AND (Expediente_de_Negativos__c = NULL ' +
       'OR Expediente_de_Negativos__r.Tipo_expendiente__c NOT IN (\'PRI\', \'SEC\') ' +
       'OR Expediente_de_Negativos__r.Estado_de_la_Etapa__c != \'Finalizado\')';
   }
 
+  /**
+   * Por cada movimiento (scope 1), verifica si ya existe otro similar con
+   * TN_Id__c seteada; si no, invoca el subflow MovBolsaTech_Crear_Debito_de_TNs
+   * para generar los débitos de TNs.
+   */
   global void execute(
     Database.BatchableContext bc,
     List<Movimiento_BolsaTech__c> scope
@@ -87,6 +101,9 @@ global class MovBolsaTechDebitarTNsBatch implements Database.Batchable<SObject>,
     }
   }
 
+  /**
+   * Log de finalización del batch.
+   */
   global void finish(Database.BatchableContext bc) {
     System.debug('MovBolsaTechDebitarTNsBatch: proceso finalizado.');
   }

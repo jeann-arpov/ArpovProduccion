@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Origen__c</fullName>
     <label>Origen</label>
@@ -74,6 +74,11 @@
                 <fullName>Transferencia</fullName>
                 <default>false</default>
                 <label>Transferencia</label>
+            </value>
+            <value>
+                <fullName>Escáner varietal</fullName>
+                <default>false</default>
+                <label>Escáner varietal</label>
             </value>
         </valueSetDefinition>
     </valueSet>
