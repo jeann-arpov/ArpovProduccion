@@ -65,6 +65,21 @@
             </connector>
             <label>Punto de Venta</label>
         </rules>
+        <rules>
+            <name>Cuenta_y_Orden_Aplicada</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.StageName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Aplicada</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Buscar_Lineas_de_Opp_SE_asociadas</targetReference>
+            </connector>
+            <label>Cuenta y Orden - Aplicada</label>
+        </rules>
     </decisions>
     <decisions>
         <name>Hay_Venta_HT_asociada</name>
@@ -115,6 +130,7 @@
     </decisions>
     <description>Cada vez que la oportunidad cambia el estado a Pedido de Facturacion, Facturada, Pagada, Aplicada o Cancelada por NC, se cambia el estado de la compra HT asociada y si existe de la Venta HT. También se cambia el estado de las líneas de la opp SE si es distinto a Cancelada por NC.
 Se agrega la condición si la opp es punto de venta = true.
+Incidente 4030: en Cuenta y Orden las líneas de la opp no se actualizaban al pasar a Aplicada (NC), por lo que las líneas de Compra HT y Venta HT quedaban en Facturable. Ahora, si la etapa es Aplicada, también se actualizan las líneas de la opp en Cuenta y Orden. Para el resto de las etapas en Cuenta y Orden no cambia el comportamiento (se evita disparar la creación o el cobro de HT por la línea de opp).
 Solo corre cuando la etapa cambia, para no reentrar al actualizar saldos u otros campos.</description>
     <environments>Default</environments>
     <interviewLabel>Oportunidad - {!$Flow.CurrentDateTime}</interviewLabel>
