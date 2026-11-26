@@ -46,7 +46,10 @@ public class VentaNeogenAca {
                 if (String.isNotBlank(venta.Variedad__c)) {
                     cultivares.add(venta.Variedad__c);
                 }
-                if (venta.Variedad_INASE__c != null) {
+                if (
+                    venta.getPopulatedFieldsAsMap().containsKey('Variedad_INASE__c') &&
+                    venta.Variedad_INASE__c != null
+                ) {
                     variedadIds.add(venta.Variedad_INASE__c);
                 }
             }
