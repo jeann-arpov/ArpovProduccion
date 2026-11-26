@@ -4,9 +4,14 @@
     <customButtons>ERPvs__Consulta_Saldo</customButtons>
     <excludeButtons>AccountHierarchy</excludeButtons>
     <excludeButtons>CreateSurveyInvitation</excludeButtons>
+    <excludeButtons>DataDotComAccountInsights</excludeButtons>
+    <excludeButtons>DataDotComClean</excludeButtons>
+    <excludeButtons>DataDotComCompanyHierarchy</excludeButtons>
     <excludeButtons>DisableCustomerPortalAccount</excludeButtons>
     <excludeButtons>DisablePartnerPortalAccount</excludeButtons>
+    <excludeButtons>GenerateKnowledge</excludeButtons>
     <excludeButtons>IncludeOffline</excludeButtons>
+    <excludeButtons>OpenSlackRecordChannel</excludeButtons>
     <excludeButtons>PartnerScorecard</excludeButtons>
     <excludeButtons>Share</excludeButtons>
     <excludeButtons>Submit</excludeButtons>
@@ -860,14 +865,6 @@
     </quickActionList>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>Nombre__c</fields>
-        <fields>Apellido__c</fields>
-        <fields>Correo__c</fields>
-        <fields>Celular__c</fields>
-        <relatedList>UsuariosdeCorteva__c.Cuenta__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
         <fields>ERPvs__Banco__c</fields>
         <fields>ERPvs__Nombre_Banco__c</fields>
         <fields>ERPvs__Tipo_cuenta__c</fields>
@@ -1350,6 +1347,18 @@
     <relatedLists>
         <fields>NAME</fields>
         <relatedList>Movimiento_BolsaTech__c.Obtentor__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Envio_Correo__c.Productor__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Nombre__c</fields>
+        <fields>Apellido__c</fields>
+        <fields>Correo__c</fields>
+        <fields>Celular__c</fields>
+        <relatedList>UsuariosdeCorteva__c.Cuenta__c</relatedList>
     </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>

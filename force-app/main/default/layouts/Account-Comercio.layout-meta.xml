@@ -987,14 +987,6 @@
     </quickActionList>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>Nombre__c</fields>
-        <fields>Apellido__c</fields>
-        <fields>Correo__c</fields>
-        <fields>Celular__c</fields>
-        <relatedList>UsuariosdeCorteva__c.Cuenta__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
         <fields>ERPvs__Banco__c</fields>
         <fields>ERPvs__Nombre_Banco__c</fields>
         <fields>ERPvs__Tipo_cuenta__c</fields>
@@ -1377,6 +1369,14 @@
         <relatedList>Movimiento_BolsaTech__c.Titular__c</relatedList>
         <sortField>Fecha_de_Analisis__c</sortField>
         <sortOrder>Desc</sortOrder>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Nombre__c</fields>
+        <fields>Apellido__c</fields>
+        <fields>Correo__c</fields>
+        <fields>Celular__c</fields>
+        <relatedList>UsuariosdeCorteva__c.Cuenta__c</relatedList>
     </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>

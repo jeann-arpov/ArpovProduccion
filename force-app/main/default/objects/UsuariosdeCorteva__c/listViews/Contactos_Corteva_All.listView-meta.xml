@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contactos_Corteva_All</fullName>
+    <columns>NAME</columns>
+    <columns>Cuenta__c</columns>
+    <columns>Nombre__c</columns>
+    <columns>Apellido__c</columns>
+    <columns>Correo__c</columns>
+    <columns>Celular__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Todos los Contactos Corteva</label>
+</ListView>
