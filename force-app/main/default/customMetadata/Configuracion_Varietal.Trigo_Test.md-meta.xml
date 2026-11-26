@@ -42,4 +42,8 @@
         <field>Habilitar_Expedientes__c</field>
         <value xsi:type="xsd:boolean">false</value>
     </values>
+    <values>
+        <field>Campana_Ano__c</field>
+        <value xsi:type="xsd:string">2026</value>
+    </values>
 </CustomMetadata>

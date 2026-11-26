@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Campana_Ano__c</fullName>
+    <description
+  >Año de la campaña en curso usado para filtrar los expedientes de negativos varietales (apertura y cierre). No fija en el código.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Campaña Año</label>
+    <length>10</length>
+    <required>false</required>
+    <type>Text</type>
+</CustomField>

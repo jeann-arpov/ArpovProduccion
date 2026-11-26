@@ -53,6 +53,7 @@ private class ScheduleVarietalExpedienteTest {
 
   @isTest
   static void ejecutaAperturaDeExpedientes() {
+    CuentaGranariaVarietalExpedienteService.forzarExpedientesHabilitados = true;
     Test.startTest();
     new ScheduleCuentaGranariaVarietalExpediente().execute(null);
     Test.stopTest();

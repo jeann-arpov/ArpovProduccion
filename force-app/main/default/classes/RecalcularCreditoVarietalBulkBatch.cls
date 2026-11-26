@@ -3,12 +3,14 @@
  *
  * A diferencia de RecalcularCreditoVarietalBatch (que llama al servicio por cada
  * CG), éste procesa el scope con pocas queries: calcula crédito por variedad
- * (desde HT), débito por variedad (desde Tonelada__c de escáner), crea/actualiza/
- * resetea Detalle_Variedad_CG__c, recalcula Saldo_Cuenta__c y vincula las HT de
- * crédito a su Detalle. Recomendado para volúmenes altos de datos.
+ * (desde Toneladas de crédito), débito por variedad (desde Tonelada__c de
+ * escáner y cesión), crea/actualiza/resetea Detalle_Variedad_CG__c, recalcula
+ * Saldo_Cuenta__c y vincula las HT de crédito a su Detalle. Recomendado para
+ * volúmenes altos de datos.
  */
 public with sharing class RecalcularCreditoVarietalBulkBatch implements Database.Batchable<SObject>, Database.Stateful {
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
+  private static final String ORIGEN_CESION = 'Cesión HT';
   private static final Set<String> ORIGENES_CREDITO = new Set<String>{
     'Compra SF',
     'Compra HT'
@@ -65,44 +67,43 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
       cultivoIds.add(cg.Cultivo__c);
     }
 
-    // Crédito por variedad (desde HT).
+    // Crédito por variedad (desde Toneladas de crédito).
     Map<String, Decimal> creditoPorClave = new Map<String, Decimal>();
-    for (Hectareas_Tecnologicas__c ht : [
+    for (Tonelada__c tn : [
       SELECT
         Productor__c,
         Cultivo__c,
         Campania__c,
         Variedad__c,
-        HT_Original__r.Variedad__c,
-        Toneladas__c,
-        Signo__c,
+        HT_Id__r.HT_Original__r.Variedad__c,
+        Cantidad_con_Signo__c,
         Etapa__c
-      FROM Hectareas_Tecnologicas__c
+      FROM Tonelada__c
       WHERE
         Productor__c IN :productorIds
         AND Cultivo__c IN :cultivoIds
         AND Origen__c IN :ORIGENES_CREDITO
         AND (Etapa__c IN :ETAPAS_VARIETALES
         OR (Etapa__c = 'Aplicada'
-        AND HT_Original__r.Etapa__c = 'Cancelada por NC'))
+        AND HT_Id__r.HT_Original__r.Etapa__c = 'Cancelada por NC'))
         AND Variedad__c != NULL
     ]) {
       Id cgId = cgIdPorClave.get(
-        claveCg(ht.Productor__c, ht.Cultivo__c, ht.Campania__c)
+        claveCg(tn.Productor__c, tn.Cultivo__c, tn.Campania__c)
       );
       if (cgId == null) {
         continue;
       }
-      Id variedadId = ht.Etapa__c == 'Aplicada' &&
-        ht.HT_Original__c != null
-        ? ht.HT_Original__r.Variedad__c
-        : ht.Variedad__c;
+      Id variedadId = tn.Etapa__c == 'Aplicada' &&
+        tn.HT_Id__r.HT_Original__c != null
+        ? tn.HT_Id__r.HT_Original__r.Variedad__c
+        : tn.Variedad__c;
       if (variedadId == null) {
         continue;
       }
-      Decimal toneladas =
-        (ht.Toneladas__c != null ? ht.Toneladas__c : 0) *
-        (ht.Signo__c != null ? ht.Signo__c : 1);
+      Decimal toneladas = tn.Cantidad_con_Signo__c != null
+        ? tn.Cantidad_con_Signo__c
+        : 0;
       String clave = claveVariedad(cgId, variedadId);
       creditoPorClave.put(
         clave,
@@ -111,7 +112,7 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
       );
     }
 
-    // Débito por variedad (desde Toneladas de escáner varietal).
+    // Débito por variedad (desde Toneladas de escáner varietal y cesión).
     Map<String, Decimal> debitoPorClave = new Map<String, Decimal>();
     for (Tonelada__c tn : [
       SELECT Cuenta_Granaria__c, Variedad__c, Cantidad_con_Signo__c
@@ -121,7 +122,8 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
         AND Variedad__c != NULL
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c = :ORIGEN_ESCANER
+        AND (Origen__c = :ORIGEN_ESCANER
+        OR Origen__c = :ORIGEN_CESION)
         AND Signo__c = -1
     ]) {
       String clave = claveVariedad(tn.Cuenta_Granaria__c, tn.Variedad__c);

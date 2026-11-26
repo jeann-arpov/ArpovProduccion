@@ -15,6 +15,7 @@
  */
 public with sharing class CuentaGranariaVarietalDebitService {
   private static final String ORIGEN_ESCANER = 'Escáner varietal';
+  private static final String ORIGEN_CESION = 'Cesión HT';
 
   /**
    * Representa una línea del escáner: variedad y porcentaje varietal.
@@ -349,7 +350,8 @@ public with sharing class CuentaGranariaVarietalDebitService {
         AND Variedad__c IN :variedadesDebitadas
         AND Fecha_Inicio__c <= TODAY
         AND Etapa__c != 'Pendiente'
-        AND Origen__c = :ORIGEN_ESCANER
+        AND (Origen__c = :ORIGEN_ESCANER
+        OR Origen__c = :ORIGEN_CESION)
         AND Signo__c = -1
       GROUP BY Variedad__c
     ]) {

@@ -63,6 +63,20 @@ private class RecalcularCreditoVarietalBulkBatchTest {
         '|RR1/RR2 - BT/Convencional'
     );
 
+    insert new Tonelada__c(
+      Productor__c = productor.Id,
+      Cultivo__c = cultivo.Id,
+      Campania__c = campaniaReal,
+      Variedad__c = variedad.Id,
+      Biotecnologia__c = 'Convencional',
+      Origen__c = 'Compra HT',
+      Cantidad__c = 20,
+      Signo__c = 1,
+      Etapa__c = 'Cobrada',
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(300)
+    );
+
     Test.startTest();
     Database.executeBatch(new RecalcularCreditoVarietalBulkBatch(), 50);
     Test.stopTest();
@@ -76,7 +90,7 @@ private class RecalcularCreditoVarietalBulkBatchTest {
     System.assertEquals(
       20,
       detalle.Credito_Variedad__c,
-      'El crédito debe ser 20 (5 HT x 4 t)'
+      'El crédito debe ser 20 (Tonelada de crédito)'
     );
     System.assertEquals(
       20,
@@ -260,6 +274,36 @@ private class RecalcularCreditoVarietalBulkBatchTest {
         '|RR1/RR2 - BT/Convencional'
     );
     insert cg;
+
+    insert new List<Tonelada__c>{
+      new Tonelada__c(
+        Productor__c = productor.Id,
+        Cultivo__c = cultivo.Id,
+        Campania__c = campaniaReal,
+        Variedad__c = variedadA.Id,
+        Biotecnologia__c = 'Convencional',
+        Origen__c = 'Compra HT',
+        Cantidad__c = 12,
+        Signo__c = 1,
+        Etapa__c = 'Cancelada por NC',
+        Fecha_Inicio__c = Date.today().addDays(-5),
+        Fecha_Fin__c = Date.today().addDays(300)
+      ),
+      new Tonelada__c(
+        Productor__c = productor.Id,
+        Cultivo__c = cultivo.Id,
+        Campania__c = campaniaReal,
+        Variedad__c = variedadB.Id,
+        Biotecnologia__c = 'Convencional',
+        Origen__c = 'Compra HT',
+        Cantidad__c = 4,
+        Signo__c = -1,
+        Etapa__c = 'Aplicada',
+        HT_Id__c = htAplicada.Id,
+        Fecha_Inicio__c = Date.today().addDays(-5),
+        Fecha_Fin__c = Date.today().addDays(300)
+      )
+    };
 
     // Detalle de variedadB que quedará sin crédito ni débito → se resetea.
     Detalle_Variedad_CG__c detalleB = new Detalle_Variedad_CG__c(
