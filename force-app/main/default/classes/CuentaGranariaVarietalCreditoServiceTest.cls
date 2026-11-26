@@ -520,6 +520,11 @@ private class CuentaGranariaVarietalCreditoServiceTest {
         cultivo.Id +
         '|RR1/RR2 - BT/Convencional'
     );
+    CuentaGranariaVarietalCreditoService.recalcularCreditos(
+      productor.Id,
+      cultivo.Id,
+      campana.Id
+    );
     Test.stopTest();
 
     Detalle_Variedad_CG__c detalle = [
