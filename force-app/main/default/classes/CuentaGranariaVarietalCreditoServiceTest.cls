@@ -520,6 +520,16 @@ private class CuentaGranariaVarietalCreditoServiceTest {
         cultivo.Id +
         '|RR1/RR2 - BT/Convencional'
     );
+    Hectareas_Tecnologicas__c htAntes = [
+      SELECT Id, Campania__c
+      FROM Hectareas_Tecnologicas__c
+      WHERE Variedad__c = :variedad.Id
+      LIMIT 1
+    ];
+    if (htAntes.Campania__c == null) {
+      htAntes.Campania__c = campana.Id;
+      update htAntes;
+    }
     CuentaGranariaVarietalCreditoService.recalcularCreditos(
       productor.Id,
       cultivo.Id,
