@@ -16,4 +16,8 @@
       xsi:type="xsd:string"
     >productoytecnologia@sembraevolucion.com.ar</value>
     </values>
+    <values>
+        <field>Correo_Remitente__c</field>
+        <value xsi:type="xsd:string">info@sembraevolucion.com.ar</value>
+    </values>
 </CustomMetadata>
