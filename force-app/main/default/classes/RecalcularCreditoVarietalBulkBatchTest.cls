@@ -189,7 +189,7 @@ private class RecalcularCreditoVarietalBulkBatchTest {
   }
 
   /**
-   * Verifica la devolución por NC (usa la variedad de la original) y el
+   * Verifica (SE-392) que Cancelada por NC y Aplicada no suman crédito, y el
    * reseteo de un detalle que queda sin crédito ni débito.
    */
   @isTest
@@ -330,16 +330,15 @@ private class RecalcularCreditoVarietalBulkBatchTest {
       'El detalle sin crédito ni débito debe resetearse a 0'
     );
 
-    Detalle_Variedad_CG__c dA = [
-      SELECT Credito_Variedad__c, Saldo_Variedad__c
+    Integer countA = [
+      SELECT COUNT()
       FROM Detalle_Variedad_CG__c
       WHERE Variedad__c = :variedadA.Id
-      LIMIT 1
     ];
     System.assertEquals(
-      8,
-      dA.Credito_Variedad__c,
-      'Crédito variedad A = cancelada 12 - devolución 4 = 8'
+      0,
+      countA,
+      'No debe existir Detalle para variedad A (Cancelada por NC y Aplicada no participan, SE-392)'
     );
   }
 

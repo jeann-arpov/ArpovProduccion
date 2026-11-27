@@ -213,9 +213,8 @@ private class CuentaGranariaVarietalCreditoServiceTest {
   }
 
   /**
-   * Verifica el crédito por etapa incluyendo la devolución por NC:
-   * Cobrada + Cancelada por NC acreditan; Aplicada relacionada resta;
-   * Aplicada suelta no participa.
+   * Verifica el crédito por etapa (SE-392): solo Cobrada acredita;
+   * Cancelada por NC y Aplicada no participan del crédito.
    */
   @isTest
   static void testCalcularCreditoPorEtapa() {
@@ -423,16 +422,15 @@ private class CuentaGranariaVarietalCreditoServiceTest {
       LIMIT 1
     ];
     System.assertEquals(
-      28,
+      20,
       detalle.Credito_Variedad__c,
-      'Crédito = 20 (Cobrada) + 12 (Cancelada por NC) - 4 (Aplicada relacionada) = 28; la Aplicada suelta no resta'
+      'Crédito = 20 (Cobrada); Cancelada por NC y Aplicada no participan (SE-392)'
     );
   }
 
   /**
-   * Verifica obtenerCreditos (listado para el front): una devolución
-   * (Aplicada con HT original) usa la variedad de la original y aplica el
-   * signo a las toneladas; los créditos normales usan su propia variedad.
+   * Verifica obtenerCreditos (listado para el front): SE-392, solo devuelve
+   * compras Cobrada; Cancelada por NC y Aplicada no aparecen.
    */
   @isTest
   static void testObtenerCreditos() {
@@ -529,48 +527,92 @@ private class CuentaGranariaVarietalCreditoServiceTest {
     Test.stopTest();
 
     System.assertEquals(
-      3,
+      1,
       creditos.size(),
-      'Debe traer Cobrada, Cancelada por NC y la devolución Aplicada'
+      'Solo debe traer la compra Cobrada (SE-392: sin Cancelada por NC ni Aplicada)'
     );
 
-    CuentaGranariaVarietalCreditoService.CreditoVariedad devolucion;
-    CuentaGranariaVarietalCreditoService.CreditoVariedad cobrada;
-    for (CuentaGranariaVarietalCreditoService.CreditoVariedad c : creditos) {
-      if (c.toneladas < 0) {
-        devolucion = c;
-      } else if (c.toneladas == 20) {
-        cobrada = c;
-      }
-    }
-
-    System.assertNotEquals(null, devolucion, 'Debe existir la devolución');
-    System.assertEquals(
-      variedadA.Id,
-      devolucion.variedadId,
-      'La devolución usa la variedad de la HT original'
-    );
-    System.assertEquals(
-      'TIPA A',
-      devolucion.variedadNombre,
-      'El nombre es el de la variedad original'
-    );
-    System.assertEquals(
-      -4,
-      devolucion.toneladas,
-      'toneladas = Toneladas (4) * Signo (-1)'
-    );
-
-    System.assertNotEquals(null, cobrada, 'Debe existir el crédito Cobrada');
+    CuentaGranariaVarietalCreditoService.CreditoVariedad cobrada = creditos[0];
     System.assertEquals(
       variedadA.Id,
       cobrada.variedadId,
-      'El crédito normal usa su propia variedad'
+      'El crédito Cobrada usa su propia variedad'
     );
     System.assertEquals(
       20,
       cobrada.toneladas,
       'toneladas = Toneladas (20) * Signo (1)'
+    );
+  }
+
+  /**
+   * Cubre completar campaña (B-01): una HT sin campaña toma la campaña de la
+   * CG varietal existente.
+   */
+  @isTest
+  static void testCompletarCampania() {
+    Test_TestUtils.disableFlows();
+
+    Cultivo__c cultivo = Test_TestUtils.crearCultivo('TRIGO', 1, true);
+    Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola(
+      '2025',
+      cultivo,
+      Date.today().addDays(-10),
+      Date.today().addDays(10),
+      '2025 - TRIGO',
+      true
+    );
+    Account productor = Test_TestUtils.crearProductor();
+
+    Variedad__c variedad = new Variedad__c(
+      Name = 'TIPACAMP',
+      Cultivo__c = cultivo.Id,
+      Biotecnologia__c = 'Convencional',
+      Uso_Comercial_Dureza__c = 'PAN'
+    );
+    insert variedad;
+
+    insert new Cuenta_Granaria__c(
+      Productor__c = productor.Id,
+      Campania__c = campana.Id,
+      Cultivo__c = cultivo.Id,
+      Tecnologia__c = 'RR1/RR2 - BT/Convencional',
+      Clave_Unica__c = productor.Id +
+        '|' +
+        campana.Id +
+        '|' +
+        cultivo.Id +
+        '|RR1/RR2 - BT/Convencional'
+    );
+
+    Hectareas_Tecnologicas__c ht = new Hectareas_Tecnologicas__c(
+      Productor__c = productor.Id,
+      Cultivo__c = cultivo.Id,
+      Campania__c = null,
+      Variedad__c = variedad.Id,
+      Origen__c = 'Compra HT',
+      Cantidad__c = 5,
+      Signo__c = 1,
+      Valor_Conversion__c = 4000,
+      Biotecnologia__c = 'Convencional',
+      Etapa__c = 'Cobrada',
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(300)
+    );
+
+    Test.startTest();
+    insert ht;
+    Test.stopTest();
+
+    Hectareas_Tecnologicas__c htActualizada = [
+      SELECT Campania__c
+      FROM Hectareas_Tecnologicas__c
+      WHERE Id = :ht.Id
+    ];
+    System.assertEquals(
+      campana.Id,
+      htActualizada.Campania__c,
+      'La HT sin campaña debe completar la campaña de la CG varietal existente'
     );
   }
 }
