@@ -5,6 +5,14 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getToneladas from '@salesforce/apex/CuentaGranariaToneladasController.getToneladas';
 import generarConsumoHT from '@salesforce/apex/CuentaGranariaToneladasController.generarConsumoHT';
 
+function tnEntera(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n === 0) {
+        return 0;
+    }
+    return n < 0 ? -Math.round(Math.abs(n)) : Math.round(n);
+}
+
 export default class CuentaGranariaToneladasLista extends NavigationMixin(LightningElement) {
     @api recordId; // ID de la Cuenta Granaria desde el contexto de la página
     // trigo: solo en CG de trigo, con scroll y sin Compra HT. otros: el resto de cultivos, igual que prod.
@@ -190,7 +198,7 @@ export default class CuentaGranariaToneladasLista extends NavigationMixin(Lightn
             return '0';
         }
 
-        const numero = Math.round(Number(valor));
+        const numero = tnEntera(valor);
         if (!Number.isFinite(numero)) {
             return '0';
         }

@@ -19,6 +19,7 @@ private class EstadoVarietalTest {
         System.assertEquals(true, EstadoVarietal.saldoNegativo(-2));
         System.assertEquals(false, EstadoVarietal.saldoNegativo(0));
         System.assertEquals(32, EstadoVarietal.tnEntera(31.5));
+        System.assertEquals(-32, EstadoVarietal.tnEntera(-31.5), 'F5: HALF_UP también en negativos');
         System.assertEquals(-32, EstadoVarietal.saldoMostrado(0, 31.5), 'F5: 0 − 32, no redondear −31,5 a −31');
         System.assertEquals(32, EstadoVarietal.toneladasMostradasARegularizar(0, 31.5));
         System.assertEquals(0, EstadoVarietal.toneladasMostradasARegularizar(10, 10.4));

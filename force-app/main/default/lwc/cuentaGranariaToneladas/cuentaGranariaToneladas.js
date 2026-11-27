@@ -7,6 +7,14 @@ import getDetalle from '@salesforce/apex/CuentaGranariaToneladasController.getDe
 import exportarCsv from '@salesforce/apex/CuentaGranariaToneladasController.exportarCsv';
 import generarConsumoHT from '@salesforce/apex/CuentaGranariaToneladasController.generarConsumoHT';
 
+function tnEntera(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n === 0) {
+        return 0;
+    }
+    return n < 0 ? -Math.round(Math.abs(n)) : Math.round(n);
+}
+
 export default class CuentaGranariaToneladas extends NavigationMixin(LightningElement) {
     @api recordId;
 
@@ -267,7 +275,7 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
                 0
             );
         }
-        return Math.round(Number(this.credito) || 0);
+        return tnEntera(this.credito);
     }
 
     get debitoCabecera() {
@@ -277,7 +285,7 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
                 0
             );
         }
-        return Math.round(Number(this.debito) || 0);
+        return tnEntera(this.debito);
     }
 
     get saldoCabecera() {
@@ -364,8 +372,8 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
     }
 
     cifrasMostradas(credito, debito) {
-        const acreditado = Math.round(Number(credito) || 0);
-        const entregado = Math.round(Number(debito) || 0);
+        const acreditado = tnEntera(credito);
+        const entregado = tnEntera(debito);
         return { acreditado, entregado, saldo: acreditado + entregado };
     }
 
@@ -373,7 +381,7 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
         if (valor === null || valor === undefined) {
             return '0';
         }
-        const numero = Math.round(Number(valor));
+        const numero = tnEntera(valor);
         if (!Number.isFinite(numero)) {
             return '0';
         }
@@ -383,10 +391,10 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
     }
 
     formatearConSigno(valor) {
-        const numero = parseFloat(valor);
-        if (valor === null || valor === undefined || isNaN(numero)) {
+        if (valor === null || valor === undefined) {
             return '0';
         }
+        const numero = tnEntera(valor);
         const texto = this.formatearNumero(Math.abs(numero));
         if (numero > 0) {
             return '+' + texto;

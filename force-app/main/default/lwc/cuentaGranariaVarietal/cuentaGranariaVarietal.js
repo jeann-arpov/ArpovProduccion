@@ -32,9 +32,17 @@ function etiquetaGrupo() {
     return ESTADO_LABEL['Debe regularizar'];
 }
 
+function tnEntera(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n === 0) {
+        return 0;
+    }
+    return n < 0 ? -Math.round(Math.abs(n)) : Math.round(n);
+}
+
 function cifrasMostradas(credito, debito) {
-    const acreditado = Math.round(Number(credito) || 0);
-    const entregado = Math.round(Number(debito) || 0);
+    const acreditado = tnEntera(credito);
+    const entregado = tnEntera(debito);
     return { acreditado, entregado, saldo: acreditado - entregado };
 }
 
@@ -612,12 +620,12 @@ export default class CuentaGranariaVarietal extends LightningElement {
     }
 
     formato(value) {
-        const numero = Math.round(Number(value) || 0);
+        const numero = tnEntera(value);
         return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(Math.abs(numero));
     }
 
     formatoAcreditado(value) {
-        const numero = Math.round(Number(value) || 0);
+        const numero = tnEntera(value);
         const texto = this.formato(numero);
         if (numero < 0) return `−${texto} t`;
         return `${texto} t`;
@@ -631,7 +639,7 @@ export default class CuentaGranariaVarietal extends LightningElement {
     }
 
     formatoFirmado(value) {
-        const numero = Math.round(Number(value) || 0);
+        const numero = tnEntera(value);
         const texto = this.formato(numero);
         if (numero < 0) return `−${texto} t`;
         if (numero > 0) return `+${texto} t`;

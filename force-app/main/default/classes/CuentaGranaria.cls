@@ -755,12 +755,15 @@ public without sharing class CuentaGranaria {
             if (EstadoVarietal.esEntrega(origen)) {
                 actual.entregas += toneladas < 0 ? -toneladas : toneladas;
                 actual.debito += -toneladas;
-            } else {
-                actual.credito += toneladas;
-                if (origen == 'Cesión HT' && toneladas < 0) {
+            } else if (toneladas < 0) {
+                // Cesión saliente y anulaciones: débito, no acreditado negativo (SE-350 / SE-157).
+                actual.debito += -toneladas;
+                if (origen == 'Cesión HT') {
                     actual.tieneCesionSaliente = true;
                 }
-                if ((origen == 'Compra HT' || origen == 'Compra SF') && toneladas > 0 && conCompraTonelada != null) {
+            } else {
+                actual.credito += toneladas;
+                if ((origen == 'Compra HT' || origen == 'Compra SF') && conCompraTonelada != null) {
                     conCompraTonelada.add(idVariedad);
                 }
             }

@@ -590,6 +590,7 @@ public with sharing class CuentaGranariaToneladasController {
     Id variedadId
   ) {
     Cuenta_Granaria__c cuenta = consultarCuenta(cuentaGranariaId);
+    prepararFiltroCampania(cuenta);
     String filtroVariedad = variedadId == null
       ? ''
       : ' AND Variedad__c = :variedadId';
@@ -844,6 +845,7 @@ public with sharing class CuentaGranariaToneladasController {
     Datetime cursorDt = parseCursor(cursorFecha);
     Id cursorRecordId = String.isBlank(cursorId) ? null : (Id) cursorId;
     String buscarLike = likeTerm(buscar);
+    prepararFiltroCampania(consultarCuenta(cuentaGranariaId));
 
     List<String> filtros = filtrosBase();
     if (String.isNotBlank(origen)) {
@@ -906,6 +908,8 @@ public with sharing class CuentaGranariaToneladasController {
       throw new AuraHandledException('Elegí un origen para descargar el CSV.');
     }
 
+    Cuenta_Granaria__c cuenta = consultarCuenta(cuentaGranariaId);
+    prepararFiltroCampania(cuenta);
     List<String> filtros = filtrosBase();
     filtros.add('Origen__c = :origen');
     agregarFiltrosTipoVariedad(filtros, tipo, variedadId);
@@ -923,7 +927,6 @@ public with sharing class CuentaGranariaToneladasController {
       );
     }
 
-    Cuenta_Granaria__c cuenta = consultarCuenta(cuentaGranariaId);
     Boolean trigo =
       cuenta.Cultivo__r != null &&
       cuenta.Cultivo__r.Name == 'TRIGO';
@@ -1140,13 +1143,32 @@ public with sharing class CuentaGranariaToneladasController {
       : origen;
   }
 
+  // C2: el portal agrupa por productor+campaña. La Compra HT a veces
+  // queda en la CG sin campaña (Landra ARAUCARIA → CG-1502876).
+  private static Id filtroProductorId;
+  private static Id filtroCampaniaId;
+  private static Id filtroCultivoId;
+
+  private static void prepararFiltroCampania(Cuenta_Granaria__c cuenta) {
+    filtroProductorId = cuenta == null ? null : cuenta.Productor__c;
+    filtroCampaniaId = cuenta == null ? null : cuenta.Campania__c;
+    filtroCultivoId = cuenta == null ? null : cuenta.Cultivo__c;
+  }
+
   private static List<String> filtrosBase() {
-    return new List<String>{
-      'Cuenta_Granaria__c = :cuentaGranariaId',
+    List<String> filtros = new List<String>{
       'Fecha_Inicio__c <= TODAY',
       'Etapa__c != \'Pendiente\'',
       'Origen__c != \'Balance Anual\''
     };
+    if (filtroCampaniaId != null && filtroProductorId != null && filtroCultivoId != null) {
+      filtros.add(
+        '(Cuenta_Granaria__c = :cuentaGranariaId OR (Campania__c = :filtroCampaniaId AND Productor__c = :filtroProductorId AND Cultivo__c = :filtroCultivoId))'
+      );
+    } else {
+      filtros.add('Cuenta_Granaria__c = :cuentaGranariaId');
+    }
+    return filtros;
   }
 
   private static void agregarFiltrosTipoVariedad(

@@ -16,7 +16,11 @@ import MESA_AYUDA_EMAIL from '@salesforce/label/c.Mesa_Ayuda_Email';
 let vistaGa4Enviada = false;
 
 function tnEntera(value) {
-    return Math.round(Number(value) || 0);
+    const n = Number(value);
+    if (!Number.isFinite(n) || n === 0) {
+        return 0;
+    }
+    return n < 0 ? -Math.round(Math.abs(n)) : Math.round(n);
 }
 
 export default class CuentaGranariaNew extends LightningElement {

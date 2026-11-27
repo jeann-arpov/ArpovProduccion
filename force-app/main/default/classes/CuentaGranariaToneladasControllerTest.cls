@@ -402,9 +402,8 @@ private class CuentaGranariaToneladasControllerTest {
       N_CUIT__c = '20301234567',
       Cuenta_Granaria__c = cgHT.Id
     );
-    insert loteHT;
-
     Test.startTest();
+    insert loteHT;
     CuentaGranariaToneladasController.ConsumoResult resultado = CuentaGranariaToneladasController.generarConsumoHT(
       cgRegular.Id
     );
@@ -471,9 +470,8 @@ private class CuentaGranariaToneladasControllerTest {
       N_CUIT__c = '20309998877',
       Cuenta_Granaria__c = cgHT.Id
     );
-    insert loteManual;
-
     Test.startTest();
+    insert loteManual;
     CuentaGranariaToneladasController.ConsumoResult resultado = CuentaGranariaToneladasController.generarConsumoHT(
       cgRegular.Id
     );
@@ -583,6 +581,7 @@ private class CuentaGranariaToneladasControllerTest {
 
   @isTest
   static void testResumenTrigoPorVariedad() {
+    Test_TestUtils.disableFlows();
     Account prod = [SELECT Id FROM Account WHERE Name = 'productor' LIMIT 1];
     Cultivo__c trigo = new Cultivo__c(
       Name = 'TRIGO',
@@ -628,7 +627,13 @@ private class CuentaGranariaToneladasControllerTest {
       Sembra_Evolucion__c = true,
       Obtentor_Comercializa__c = obtentor.Id
     );
-    insert new List<Variedad__c>{ negativa, sinEntregas };
+    Variedad__c araucaria = new Variedad__c(
+      Name = 'Araucaria CGT',
+      Biotecnologia__c = 'Convencional',
+      Sembra_Evolucion__c = true,
+      Obtentor_Comercializa__c = obtentor.Id
+    );
+    insert new List<Variedad__c>{ negativa, sinEntregas, araucaria };
 
     Cuenta_Granaria__c cg = new Cuenta_Granaria__c(
       Productor__c = prod.Id,
@@ -668,6 +673,16 @@ private class CuentaGranariaToneladasControllerTest {
         'Compra SF',
         50,
         1
+      ),
+      toneladaTrigo(
+        prod.Id,
+        trigo.Id,
+        campana.Id,
+        null,
+        araucaria.Id,
+        'Compra HT',
+        20,
+        1
       )
     };
 
@@ -703,6 +718,15 @@ private class CuentaGranariaToneladasControllerTest {
     System.assertEquals(
       'Sin entregas',
       porNombre.get('Sin Entregas CGT').get('estado')
+    );
+    System.assertEquals(
+      20,
+      (Decimal) porNombre.get('Araucaria CGT').get('credito'),
+      'C2: Compra HT cobrada colgada en la CG sin campaña entra al crédito'
+    );
+    System.assertEquals(
+      20,
+      (Decimal) porNombre.get('Araucaria CGT').get('saldo')
     );
 
     System.assertEquals(100, (Decimal) soloNegativa.get('credito'));
