@@ -36,10 +36,23 @@ public without sharing class CuentaGranaria {
     'Rectificado'
   };
   private static final Integer CAMPANAS_ANTERIORES_VISIBLES = 2;
-  // true: crédito desde Detalle_Variedad_CG__c.Credito_Variedad__c (Jean).
-  // false: cálculo actual sobre Tonelada__c (positivo = crédito, negativo = débito).
+  // El portal no usa el crédito guardado de SE-345/SE-410 (Detalle_Variedad_CG__c).
+  // Resumen y detalle salen de Tonelada__c; si la compra cobrada no generó tonelada,
+  // el crédito se completa desde la HT. Solo los tests pueden prender este flag.
   @TestVisible
-  static Boolean usarCreditoVarietalGuardado = true;
+  static Boolean usarCreditoVarietalGuardado = false;
+
+  private static Boolean usaCreditoVarietalGuardado() {
+    return usarCreditoVarietalGuardado &&
+      Schema.getGlobalDescribe().containsKey('Detalle_Variedad_CG__c');
+  }
+
+  private static Boolean detalleTieneSaldoVariedad() {
+    Schema.SObjectType tipo = Schema.getGlobalDescribe()
+      .get('Detalle_Variedad_CG__c');
+    return tipo != null &&
+      tipo.getDescribe().fields.getMap().containsKey('Saldo_Variedad__c');
+  }
 
   /**
    * Campañas que muestra Cuenta Granaria por cultivo: la actual primero y luego las 2 anteriores.
@@ -397,7 +410,7 @@ public without sharing class CuentaGranaria {
   }
 
   // Vista varietal de trigo del portal. El productor no ve expedientes.
-  // Estados según EstadoVarietal (mismo criterio que el CRM).
+  // Estados de pantalla: EstadoVarietal.calcularVista (D-26, saldo < 0). El CRM sigue con calcular().
   @AuraEnabled
   public static ResumenVarietal getResumenVarietal(
     Id campaniaId,
@@ -421,7 +434,10 @@ public without sharing class CuentaGranaria {
     Decimal aRegularizar = 0;
     for (VariedadPortal variedad : porVariedad.values()) {
       if (variedad.estado == EstadoVarietal.DEBE_REGULARIZAR) {
-        aRegularizar += -variedad.saldo;
+        aRegularizar += EstadoVarietal.toneladasMostradasARegularizar(
+          variedad.credito,
+          variedad.debito
+        );
       }
       MarcaPortal marca = porMarca.get(variedad.marcaId);
       if (marca == null) {
@@ -496,10 +512,10 @@ public without sharing class CuentaGranaria {
     detalle.marca = variedad.marca;
     detalle.idObtentor = variedad.idObtentor;
     detalle.estado = variedad.estado;
-    detalle.toneladasARegularizar = variedad.estado ==
-      EstadoVarietal.DEBE_REGULARIZAR
-      ? -variedad.saldo
-      : 0;
+    detalle.toneladasARegularizar = EstadoVarietal.toneladasMostradasARegularizar(
+      variedad.credito,
+      variedad.debito
+    );
     detalle.creditos = new List<MovimientoPortal>();
     detalle.debitos = new List<MovimientoPortal>();
     detalle.entregas = new List<MovimientoPortal>();
@@ -508,7 +524,7 @@ public without sharing class CuentaGranaria {
     detalle.tieneCesionSaliente = false;
 
     String consulta =
-      'SELECT Fecha_Inicio__c, CreatedDate, Origen__c, Cantidad_con_Signo__c, ' +
+      'SELECT Fecha_Inicio__c, CreatedDate, Origen__c, Etapa__c, Cantidad_con_Signo__c, ' +
       'Mov_BolsaTech__r.CTG__c, Mov_BolsaTech__r.Peso_Neto__c, Mov_BolsaTech__r.Fecha_de_Entrega__c ' +
       'FROM Tonelada__c WHERE Productor__c = :productorId AND Campania__c = :campaniaId ' +
       'AND Variedad__c = :variedadId AND Cultivo__r.Name = \'TRIGO\' ' +
@@ -524,6 +540,9 @@ public without sharing class CuentaGranaria {
       Decimal toneladas = tn.Cantidad_con_Signo__c == null
         ? 0
         : tn.Cantidad_con_Signo__c;
+      if (!EstadoVarietal.acreditaCompra(tn.Origen__c, tn.Etapa__c)) {
+        continue;
+      }
       if (EstadoVarietal.esEntrega(tn.Origen__c)) {
         MovimientoPortal entrega = new MovimientoPortal();
         entrega.fecha = tn.Fecha_Inicio__c;
@@ -557,7 +576,16 @@ public without sharing class CuentaGranaria {
       }
     }
     ordenarPorFechaDesc(detalle.entregas);
-    // Tarjetas = suma de las filas. El crédito guardado (SE-345) se usa en el resumen, no acá.
+    if (detalle.creditos.isEmpty()) {
+      agregarCreditosDesdeHt(
+        detalle,
+        productorId,
+        campaniaId,
+        variedadId,
+        bios
+      );
+    }
+    // Tarjetas = suma de las filas. Independiente del crédito guardado de SE-410.
     detalle.credito = detalle.totalCreditos;
     detalle.debito = 0;
     for (MovimientoPortal mov : detalle.debitos) {
@@ -565,12 +593,11 @@ public without sharing class CuentaGranaria {
     }
     detalle.debito += detalle.totalDebitado;
     detalle.saldo = detalle.credito - detalle.debito;
-    detalle.estado = EstadoVarietal.calcular(detalle.saldo, entregasNetas);
-    detalle.toneladasARegularizar = EstadoVarietal.debeRegularizar(
-        detalle.saldo
-      )
-      ? -detalle.saldo
-      : 0;
+    detalle.estado = EstadoVarietal.calcularVista(detalle.saldo, entregasNetas);
+    detalle.toneladasARegularizar = EstadoVarietal.toneladasMostradasARegularizar(
+      detalle.credito,
+      detalle.debito
+    );
     return detalle;
   }
 
@@ -585,53 +612,33 @@ public without sharing class CuentaGranaria {
     }
     Id productorId = CrearCompraController.getAccount().Id;
     List<String> bios = biotecnologias(tecnologias);
-    if (usarCreditoVarietalGuardado) {
+    if (usaCreditoVarietalGuardado()) {
       return regularizarPorCreditoGuardado(productorId, campaniaIds, bios);
     }
-    String consulta =
-      'SELECT Campania__c campaniaId, Variedad__c variedadId, SUM(Cantidad_con_Signo__c) saldo ' +
-      'FROM Tonelada__c WHERE Productor__c = :productorId AND Campania__c IN :campaniaIds ' +
-      'AND Cultivo__r.Name = \'TRIGO\' AND Variedad__c != null ' +
-      'AND Fecha_Inicio__c <= TODAY AND Etapa__c != \'Pendiente\' ' +
-      'AND Origen__c IN (\'Compra SF\', \'Compra HT\', \'Cesión HT\', \'BolsaTech\', \'Escáner varietal\') ';
-    if (!bios.isEmpty()) {
-      consulta += 'AND Biotecnologia__c IN :bios ';
-    }
-    consulta += 'GROUP BY Campania__c, Variedad__c';
-
-    Map<Id, Map<Id, Decimal>> negativas = new Map<Id, Map<Id, Decimal>>();
-    Set<Id> variedadIds = new Set<Id>();
-    for (AggregateResult fila : Database.query(consulta)) {
-      Decimal saldo = fila.get('saldo') == null
-        ? 0
-        : (Decimal) fila.get('saldo');
-      if (!EstadoVarietal.debeRegularizar(saldo)) {
-        continue;
-      }
-      Id campaniaId = (Id) fila.get('campaniaId');
-      Id variedadId = (Id) fila.get('variedadId');
-      if (!negativas.containsKey(campaniaId)) {
-        negativas.put(campaniaId, new Map<Id, Decimal>());
-      }
-      negativas.get(campaniaId).put(variedadId, saldo);
-      variedadIds.add(variedadId);
-    }
-
-    Map<Id, Variedad__c> nombres = new Map<Id, Variedad__c>(
-      [SELECT Name, Cultivar_INASE__c FROM Variedad__c WHERE Id IN :variedadIds]
-    );
-    for (Id campaniaId : negativas.keySet()) {
+    for (Id campaniaId : campaniaIds) {
+      Map<Id, VariedadPortal> porVariedad = agruparVariedades(
+        productorId,
+        campaniaId,
+        bios,
+        null
+      );
+      completarNombres(porVariedad);
       List<VariedadPortal> lista = new List<VariedadPortal>();
       RegularizarCampana resumen = new RegularizarCampana();
       resumen.toneladas = 0;
       resumen.variedades = new List<String>();
-      for (Id variedadId : negativas.get(campaniaId).keySet()) {
-        VariedadPortal variedad = new VariedadPortal();
-        variedad.estado = 'Debe regularizar';
-        variedad.saldo = negativas.get(campaniaId).get(variedadId);
-        variedad.nombre = nombreCatalogo(nombres.get(variedadId));
+      for (VariedadPortal variedad : porVariedad.values()) {
+        if (!EstadoVarietal.saldoNegativo(variedad.saldo)) {
+          continue;
+        }
         lista.add(variedad);
-        resumen.toneladas += -variedad.saldo;
+        resumen.toneladas += EstadoVarietal.toneladasMostradasARegularizar(
+          variedad.credito,
+          variedad.debito
+        );
+      }
+      if (lista.isEmpty()) {
+        continue;
       }
       lista.sort();
       for (VariedadPortal variedad : lista) {
@@ -689,7 +696,7 @@ public without sharing class CuentaGranaria {
     List<String> bios,
     Id variedadId
   ) {
-    if (usarCreditoVarietalGuardado) {
+    if (usaCreditoVarietalGuardado()) {
       return agruparVariedadesGuardadas(
         productorId,
         campaniaId,
@@ -698,7 +705,7 @@ public without sharing class CuentaGranaria {
       );
     }
     String base =
-      'SELECT Variedad__c variedadId, Origen__c origen, SUM(Cantidad_con_Signo__c) toneladas ' +
+      'SELECT Variedad__c variedadId, Origen__c origen, Etapa__c etapa, SUM(Cantidad_con_Signo__c) toneladas ' +
       'FROM Tonelada__c WHERE Productor__c = :productorId AND Campania__c = :campaniaId ' +
       'AND Cultivo__r.Name = \'TRIGO\' AND Variedad__c != null ' +
       'AND Fecha_Inicio__c <= TODAY AND Etapa__c != \'Pendiente\' ' +
@@ -711,21 +718,34 @@ public without sharing class CuentaGranaria {
     }
 
     Map<Id, VariedadPortal> porVariedad = new Map<Id, VariedadPortal>();
+    Set<Id> conCompraTonelada = new Set<Id>();
     acumularPorSigno(
       porVariedad,
       Database.query(
-        base + 'AND Cantidad_con_Signo__c >= 0 GROUP BY Variedad__c, Origen__c'
-      )
+        base +
+        'AND Cantidad_con_Signo__c >= 0 GROUP BY Variedad__c, Origen__c, Etapa__c'
+      ),
+      conCompraTonelada
     );
     acumularPorSigno(
       porVariedad,
       Database.query(
-        base + 'AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c'
-      )
+        base +
+        'AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c, Etapa__c'
+      ),
+      conCompraTonelada
+    );
+    completarCreditoDesdeHt(
+      porVariedad,
+      productorId,
+      campaniaId,
+      bios,
+      variedadId,
+      conCompraTonelada
     );
     for (VariedadPortal variedad : porVariedad.values()) {
       variedad.saldo = variedad.credito - variedad.debito;
-      variedad.estado = EstadoVarietal.calcular(
+      variedad.estado = EstadoVarietal.calcularVista(
         variedad.saldo,
         variedad.entregas
       );
@@ -740,19 +760,28 @@ public without sharing class CuentaGranaria {
     Id variedadId
   ) {
     Map<Id, VariedadPortal> porVariedad = new Map<Id, VariedadPortal>();
+    Boolean usaSaldo = detalleTieneSaldoVariedad();
+    Set<Id> conSaldoGuardado = new Set<Id>();
     String creditos =
-      'SELECT Variedad__c, Credito_Variedad__c FROM Detalle_Variedad_CG__c ' +
+      'SELECT Variedad__c, Credito_Variedad__c' +
+      (usaSaldo ? ', Saldo_Variedad__c' : '') +
+      ' FROM Detalle_Variedad_CG__c ' +
       'WHERE Cuenta_Granaria__r.Productor__c = :productorId ' +
       'AND Cuenta_Granaria__r.Campania__c = :campaniaId ' +
       'AND Variedad__c != null';
     if (variedadId != null) {
       creditos += ' AND Variedad__c = :variedadId';
     }
-    for (Detalle_Variedad_CG__c detalle : Database.query(creditos)) {
-      VariedadPortal actual = variedadPortal(porVariedad, detalle.Variedad__c);
-      actual.credito = detalle.Credito_Variedad__c == null
-        ? 0
-        : detalle.Credito_Variedad__c;
+    for (SObject detalle : Database.query(creditos)) {
+      Id idVariedad = (Id) detalle.get('Variedad__c');
+      VariedadPortal actual = variedadPortal(porVariedad, idVariedad);
+      Decimal credito = (Decimal) detalle.get('Credito_Variedad__c');
+      actual.credito = credito == null ? 0 : credito;
+      if (usaSaldo && detalle.get('Saldo_Variedad__c') != null) {
+        actual.saldo = (Decimal) detalle.get('Saldo_Variedad__c');
+        actual.debito = actual.credito - actual.saldo;
+        conSaldoGuardado.add(idVariedad);
+      }
     }
 
     String movs =
@@ -776,21 +805,29 @@ public without sharing class CuentaGranaria {
       Decimal toneladas = fila.get('toneladas') == null
         ? 0
         : (Decimal) fila.get('toneladas');
-      actual.entregas += toneladas;
+      actual.entregas += toneladas < 0 ? -toneladas : toneladas;
     }
     String debitos =
       movs + 'AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c';
     for (AggregateResult fila : Database.query(debitos)) {
       Id idVariedad = (Id) fila.get('variedadId');
       VariedadPortal actual = variedadPortal(porVariedad, idVariedad);
+      if ((String) fila.get('origen') == 'Cesión HT') {
+        actual.tieneCesionSaliente = true;
+      }
+      if (conSaldoGuardado.contains(idVariedad)) {
+        continue;
+      }
       Decimal toneladas = fila.get('toneladas') == null
         ? 0
         : (Decimal) fila.get('toneladas');
       actual.debito += -toneladas;
     }
     for (VariedadPortal variedad : porVariedad.values()) {
-      variedad.saldo = variedad.credito - variedad.debito;
-      variedad.estado = EstadoVarietal.calcular(
+      if (!conSaldoGuardado.contains(variedad.id)) {
+        variedad.saldo = variedad.credito - variedad.debito;
+      }
+      variedad.estado = EstadoVarietal.calcularVista(
         variedad.saldo,
         variedad.entregas
       );
@@ -805,22 +842,34 @@ public without sharing class CuentaGranaria {
   ) {
     Map<Id, RegularizarCampana> porCampana = new Map<Id, RegularizarCampana>();
     Map<Id, Map<Id, Decimal>> saldoPorCampana = new Map<Id, Map<Id, Decimal>>();
-    for (Detalle_Variedad_CG__c detalle : [
-      SELECT Variedad__c, Credito_Variedad__c, Cuenta_Granaria__r.Campania__c
-      FROM Detalle_Variedad_CG__c
-      WHERE
-        Cuenta_Granaria__r.Productor__c = :productorId
-        AND Cuenta_Granaria__r.Campania__c IN :campaniaIds
-        AND Variedad__c != NULL
-    ]) {
-      Id campaniaId = detalle.Cuenta_Granaria__r.Campania__c;
+    Boolean usaSaldo = detalleTieneSaldoVariedad();
+    Set<String> conSaldoGuardado = new Set<String>();
+    String creditos =
+      'SELECT Variedad__c, Credito_Variedad__c, Cuenta_Granaria__r.Campania__c' +
+      (usaSaldo ? ', Saldo_Variedad__c' : '') +
+      ' FROM Detalle_Variedad_CG__c ' +
+      'WHERE Cuenta_Granaria__r.Productor__c = :productorId ' +
+      'AND Cuenta_Granaria__r.Campania__c IN :campaniaIds ' +
+      'AND Variedad__c != null';
+    for (SObject detalle : Database.query(creditos)) {
+      SObject cuenta = detalle.getSObject('Cuenta_Granaria__r');
+      if (cuenta == null) {
+        continue;
+      }
+      Id campaniaId = (Id) cuenta.get('Campania__c');
+      Id idVariedad = (Id) detalle.get('Variedad__c');
       if (!saldoPorCampana.containsKey(campaniaId)) {
         saldoPorCampana.put(campaniaId, new Map<Id, Decimal>());
       }
-      Decimal credito = detalle.Credito_Variedad__c == null
-        ? 0
-        : detalle.Credito_Variedad__c;
-      saldoPorCampana.get(campaniaId).put(detalle.Variedad__c, credito);
+      Decimal credito = (Decimal) detalle.get('Credito_Variedad__c');
+      Decimal saldo = credito == null ? 0 : credito;
+      if (usaSaldo && detalle.get('Saldo_Variedad__c') != null) {
+        saldo = (Decimal) detalle.get('Saldo_Variedad__c');
+        conSaldoGuardado.add(
+          String.valueOf(campaniaId) + ':' + String.valueOf(idVariedad)
+        );
+      }
+      saldoPorCampana.get(campaniaId).put(idVariedad, saldo);
     }
     String consulta =
       'SELECT Campania__c campaniaId, Variedad__c variedadId, SUM(Cantidad_con_Signo__c) tn ' +
@@ -836,6 +885,13 @@ public without sharing class CuentaGranaria {
     for (AggregateResult fila : Database.query(consulta)) {
       Id campaniaId = (Id) fila.get('campaniaId');
       Id variedadId = (Id) fila.get('variedadId');
+      if (
+        conSaldoGuardado.contains(
+          String.valueOf(campaniaId) + ':' + String.valueOf(variedadId)
+        )
+      ) {
+        continue;
+      }
       Decimal tn = fila.get('tn') == null ? 0 : (Decimal) fila.get('tn');
       if (!saldoPorCampana.containsKey(campaniaId)) {
         saldoPorCampana.put(campaniaId, new Map<Id, Decimal>());
@@ -851,7 +907,7 @@ public without sharing class CuentaGranaria {
     for (Id campaniaId : saldoPorCampana.keySet()) {
       for (Id variedadId : saldoPorCampana.get(campaniaId).keySet()) {
         Decimal saldo = saldoPorCampana.get(campaniaId).get(variedadId);
-        if (!EstadoVarietal.debeRegularizar(saldo)) {
+        if (!EstadoVarietal.saldoNegativo(saldo)) {
           continue;
         }
         if (!negativas.containsKey(campaniaId)) {
@@ -904,7 +960,8 @@ public without sharing class CuentaGranaria {
 
   private static void acumularPorSigno(
     Map<Id, VariedadPortal> porVariedad,
-    List<AggregateResult> filas
+    List<AggregateResult> filas,
+    Set<Id> conCompraTonelada
   ) {
     for (AggregateResult fila : filas) {
       Id idVariedad = (Id) fila.get('variedadId');
@@ -918,15 +975,128 @@ public without sharing class CuentaGranaria {
         ? 0
         : (Decimal) fila.get('toneladas');
       String origen = (String) fila.get('origen');
-      if (toneladas > 0) {
-        actual.credito += toneladas;
-      } else if (toneladas < 0) {
-        actual.debito += -toneladas;
+      String etapa = (String) fila.get('etapa');
+      if (!EstadoVarietal.acreditaCompra(origen, etapa)) {
+        continue;
       }
       if (EstadoVarietal.esEntrega(origen)) {
-        actual.entregas += toneladas;
+        actual.entregas += toneladas < 0 ? -toneladas : toneladas;
+        actual.debito += -toneladas;
+      } else {
+        actual.credito += toneladas;
+        if (origen == 'Cesión HT' && toneladas < 0) {
+          actual.tieneCesionSaliente = true;
+        }
+        if (
+          (origen == 'Compra HT' ||
+          origen == 'Compra SF') &&
+          toneladas > 0 &&
+          conCompraTonelada != null
+        ) {
+          conCompraTonelada.add(idVariedad);
+        }
       }
     }
+  }
+
+  private static final Set<String> ETAPAS_CREDITO_HT = EstadoVarietal.ETAPAS_CREDITO_COMPRA;
+
+  /**
+   * Si la compra cobrada no llegó a Tonelada (B-01 / B-05), el portal igual
+   * muestra el crédito desde la HT. No pisa el cálculo cuando ya hay toneladas.
+   */
+  private static void completarCreditoDesdeHt(
+    Map<Id, VariedadPortal> porVariedad,
+    Id productorId,
+    Id campaniaId,
+    List<String> bios,
+    Id variedadId,
+    Set<Id> conCompraTonelada
+  ) {
+    for (
+      Hectareas_Tecnologicas__c ht : consultarHtsCredito(
+        productorId,
+        campaniaId,
+        bios,
+        variedadId
+      )
+    ) {
+      if (
+        ht.Variedad__c == null ||
+        (conCompraTonelada != null &&
+        conCompraTonelada.contains(ht.Variedad__c))
+      ) {
+        continue;
+      }
+      Decimal toneladas = toneladasDeHt(ht);
+      if (toneladas <= 0) {
+        continue;
+      }
+      VariedadPortal actual = variedadPortal(porVariedad, ht.Variedad__c);
+      actual.credito += toneladas;
+    }
+  }
+
+  private static void agregarCreditosDesdeHt(
+    DetalleVariedad detalle,
+    Id productorId,
+    Id campaniaId,
+    Id variedadId,
+    List<String> bios
+  ) {
+    for (
+      Hectareas_Tecnologicas__c ht : consultarHtsCredito(
+        productorId,
+        campaniaId,
+        bios,
+        variedadId
+      )
+    ) {
+      Decimal toneladas = toneladasDeHt(ht);
+      if (toneladas <= 0) {
+        continue;
+      }
+      Date fecha = ht.CreatedDate != null
+        ? ht.CreatedDate.date()
+        : ht.Fecha_de_la_Transaccion__c;
+      MovimientoPortal credito = movimientoCredito(
+        fecha,
+        ht.Origen__c,
+        toneladas
+      );
+      detalle.creditos.add(credito);
+      detalle.totalCreditos += toneladas;
+    }
+    ordenarPorFechaDesc(detalle.creditos);
+  }
+
+  private static List<Hectareas_Tecnologicas__c> consultarHtsCredito(
+    Id productorId,
+    Id campaniaId,
+    List<String> bios,
+    Id variedadId
+  ) {
+    String consulta =
+      'SELECT Variedad__c, Origen__c, Toneladas__c, Signo__c, CreatedDate, Fecha_de_la_Transaccion__c ' +
+      'FROM Hectareas_Tecnologicas__c ' +
+      'WHERE Productor__c = :productorId AND Campania__c = :campaniaId ' +
+      'AND Cultivo__r.Name = \'TRIGO\' AND Variedad__c != null ' +
+      'AND Origen__c IN (\'Compra HT\', \'Compra SF\') ' +
+      'AND Etapa__c IN :ETAPAS_CREDITO_HT ';
+    if (variedadId != null) {
+      consulta += 'AND Variedad__c = :variedadId ';
+    }
+    if (!bios.isEmpty()) {
+      consulta += 'AND Biotecnologia__c IN :bios ';
+    }
+    consulta += 'ORDER BY CreatedDate DESC, Id DESC';
+    return Database.query(consulta);
+  }
+
+  private static Decimal toneladasDeHt(Hectareas_Tecnologicas__c ht) {
+    Decimal toneladas = ht.Toneladas__c == null ? 0 : ht.Toneladas__c;
+    Decimal signo = ht.Signo__c == null ? 1 : ht.Signo__c;
+    return toneladas * signo;
   }
 
   private static void completarNombres(Map<Id, VariedadPortal> porVariedad) {
@@ -964,10 +1134,12 @@ public without sharing class CuentaGranaria {
     if (registro == null) {
       return 'Sin variedad';
     }
-    if (String.isNotBlank(registro.Cultivar_INASE__c)) {
-      return registro.Cultivar_INASE__c;
+    if (String.isNotBlank(registro.Name)) {
+      return registro.Name;
     }
-    return String.isBlank(registro.Name) ? 'Sin variedad' : registro.Name;
+    return String.isBlank(registro.Cultivar_INASE__c)
+      ? 'Sin variedad'
+      : registro.Cultivar_INASE__c;
   }
 
   private static String nombreMarca(Variedad__c registro) {
@@ -1157,6 +1329,8 @@ public without sharing class CuentaGranaria {
     public Decimal saldo = 0;
     @AuraEnabled
     public Decimal entregas = 0;
+    @AuraEnabled
+    public Boolean tieneCesionSaliente = false;
     @AuraEnabled
     public String estado;
 

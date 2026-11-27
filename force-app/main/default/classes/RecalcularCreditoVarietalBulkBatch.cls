@@ -17,7 +17,6 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
   };
   private static final Set<String> ETAPAS_VARIETALES = new Set<String>{
     'Cobrada',
-    'Cancelada por NC',
     'Acreditada',
     'Reacreditada',
     'Recibida',
@@ -75,7 +74,6 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
         Cultivo__c,
         Campania__c,
         Variedad__c,
-        HT_Id__r.HT_Original__r.Variedad__c,
         Cantidad_con_Signo__c,
         Etapa__c
       FROM Tonelada__c
@@ -83,9 +81,7 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
         Productor__c IN :productorIds
         AND Cultivo__c IN :cultivoIds
         AND Origen__c IN :ORIGENES_CREDITO
-        AND (Etapa__c IN :ETAPAS_VARIETALES
-        OR (Etapa__c = 'Aplicada'
-        AND HT_Id__r.HT_Original__r.Etapa__c = 'Cancelada por NC'))
+        AND Etapa__c IN :ETAPAS_VARIETALES
         AND Variedad__c != NULL
     ]) {
       Id cgId = cgIdPorClave.get(
@@ -94,17 +90,10 @@ public with sharing class RecalcularCreditoVarietalBulkBatch implements Database
       if (cgId == null) {
         continue;
       }
-      Id variedadId = tn.Etapa__c == 'Aplicada' &&
-        tn.HT_Id__r.HT_Original__c != null
-        ? tn.HT_Id__r.HT_Original__r.Variedad__c
-        : tn.Variedad__c;
-      if (variedadId == null) {
-        continue;
-      }
       Decimal toneladas = tn.Cantidad_con_Signo__c != null
         ? tn.Cantidad_con_Signo__c
         : 0;
-      String clave = claveVariedad(cgId, variedadId);
+      String clave = claveVariedad(cgId, tn.Variedad__c);
       creditoPorClave.put(
         clave,
         (creditoPorClave.get(clave) != null ? creditoPorClave.get(clave) : 0) +

@@ -206,6 +206,24 @@ public with sharing class IngestaMBTAlertaService {
       'No se registró ninguna ingesta de MBT en el día ' + fecha.format() + '.'
     );
     mensaje.setSaveAsActivity(false);
+
+    List<OrgWideEmailAddress> remitentes = new List<OrgWideEmailAddress>();
+    Configuracion_Ingesta_MBT__mdt cfg = Configuracion_Ingesta_MBT__mdt.getInstance(
+      CONFIG_NAME
+    );
+    String remitente = cfg != null ? cfg.Correo_Remitente__c : null;
+    if (String.isNotBlank(remitente)) {
+      remitentes = [
+        SELECT Id
+        FROM OrgWideEmailAddress
+        WHERE Address = :remitente
+        LIMIT 1
+      ];
+    }
+    if (!remitentes.isEmpty()) {
+      mensaje.setOrgWideEmailAddressId(remitentes[0].Id);
+    }
+
     Messaging.sendEmail(
       new List<Messaging.SingleEmailMessage>{ mensaje },
       false
