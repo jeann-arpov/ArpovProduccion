@@ -383,7 +383,7 @@ public without sharing class CuentaGranaria {
         detalle.totalDebitado = 0;
         detalle.tieneCesionSaliente = false;
 
-        String consulta = 'SELECT Fecha_Inicio__c, CreatedDate, Origen__c, Cantidad_con_Signo__c, '
+        String consulta = 'SELECT Fecha_Inicio__c, CreatedDate, Origen__c, Etapa__c, Cantidad_con_Signo__c, '
             + 'Mov_BolsaTech__r.CTG__c, Mov_BolsaTech__r.Peso_Neto__c, Mov_BolsaTech__r.Fecha_de_Entrega__c '
             + 'FROM Tonelada__c WHERE Productor__c = :productorId AND Campania__c = :campaniaId '
             + 'AND Variedad__c = :variedadId AND Cultivo__r.Name = \'TRIGO\' '
@@ -397,6 +397,9 @@ public without sharing class CuentaGranaria {
         Decimal entregasNetas = 0;
         for (Tonelada__c tn : Database.query(consulta)) {
             Decimal toneladas = tn.Cantidad_con_Signo__c == null ? 0 : tn.Cantidad_con_Signo__c;
+            if (!EstadoVarietal.acreditaCompra(tn.Origen__c, tn.Etapa__c)) {
+                continue;
+            }
             if (EstadoVarietal.esEntrega(tn.Origen__c)) {
                 MovimientoPortal entrega = new MovimientoPortal();
                 entrega.fecha = tn.Fecha_Inicio__c;
@@ -516,7 +519,7 @@ public without sharing class CuentaGranaria {
         if (usaCreditoVarietalGuardado()) {
             return agruparVariedadesGuardadas(productorId, campaniaId, bios, variedadId);
         }
-        String base = 'SELECT Variedad__c variedadId, Origen__c origen, SUM(Cantidad_con_Signo__c) toneladas '
+        String base = 'SELECT Variedad__c variedadId, Origen__c origen, Etapa__c etapa, SUM(Cantidad_con_Signo__c) toneladas '
             + 'FROM Tonelada__c WHERE Productor__c = :productorId AND Campania__c = :campaniaId '
             + 'AND Cultivo__r.Name = \'TRIGO\' AND Variedad__c != null '
             + 'AND Fecha_Inicio__c <= TODAY AND Etapa__c != \'Pendiente\' '
@@ -532,12 +535,12 @@ public without sharing class CuentaGranaria {
         Set<Id> conCompraTonelada = new Set<Id>();
         acumularPorSigno(
             porVariedad,
-            Database.query(base + 'AND Cantidad_con_Signo__c >= 0 GROUP BY Variedad__c, Origen__c'),
+            Database.query(base + 'AND Cantidad_con_Signo__c >= 0 GROUP BY Variedad__c, Origen__c, Etapa__c'),
             conCompraTonelada
         );
         acumularPorSigno(
             porVariedad,
-            Database.query(base + 'AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c'),
+            Database.query(base + 'AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c, Etapa__c'),
             conCompraTonelada
         );
         completarCreditoDesdeHt(porVariedad, productorId, campaniaId, bios, variedadId, conCompraTonelada);
@@ -745,6 +748,10 @@ public without sharing class CuentaGranaria {
             }
             Decimal toneladas = fila.get('toneladas') == null ? 0 : (Decimal) fila.get('toneladas');
             String origen = (String) fila.get('origen');
+            String etapa = (String) fila.get('etapa');
+            if (!EstadoVarietal.acreditaCompra(origen, etapa)) {
+                continue;
+            }
             if (EstadoVarietal.esEntrega(origen)) {
                 actual.entregas += toneladas < 0 ? -toneladas : toneladas;
                 actual.debito += -toneladas;
@@ -760,9 +767,7 @@ public without sharing class CuentaGranaria {
         }
     }
 
-    private static final Set<String> ETAPAS_CREDITO_HT = new Set<String>{
-        'Cobrada', 'Acreditada', 'Reacreditada', 'Recibida'
-    };
+    private static final Set<String> ETAPAS_CREDITO_HT = EstadoVarietal.ETAPAS_CREDITO_COMPRA;
 
     /**
      * Si la compra cobrada no llegó a Tonelada (B-01 / B-05), el portal igual

@@ -573,4 +573,140 @@ private class CuentaGranariaVarietalCreditoServiceTest {
       'CP-01: el saldo del detalle queda 0 / 0'
     );
   }
+
+  @isTest
+  static void testB01CompletaCampaniaDeCgExistente() {
+    Test_TestUtils.disableFlows();
+    Cultivo__c cultivo = Test_TestUtils.crearCultivo('TRIGO', 1, true);
+    Campana_Agricola__c campana = Test_TestUtils.crearCampanaAgricola(
+      '2025',
+      cultivo,
+      Date.today().addDays(-10),
+      Date.today().addDays(10),
+      '2025 - TRIGO',
+      true
+    );
+    campana.Estado__c = 'Activa';
+    update campana;
+    Account productor = Test_TestUtils.crearProductor();
+    Variedad__c variedad = new Variedad__c(
+      Name = 'TIPA B01',
+      Cultivo__c = cultivo.Id,
+      Biotecnologia__c = 'Convencional',
+      Uso_Comercial_Dureza__c = 'PAN'
+    );
+    insert variedad;
+    String tecnologia = CuentaGranariaVarietalCreditoService.obtenerTecnologiaVarietal();
+    System.assertNotEquals(
+      null,
+      tecnologia,
+      'B-01: hay tecnología varietal en CMDT'
+    );
+    insert new Cuenta_Granaria__c(
+      Productor__c = productor.Id,
+      Campania__c = campana.Id,
+      Cultivo__c = cultivo.Id,
+      Tecnologia__c = tecnologia,
+      Clave_Unica__c = productor.Id +
+        '|' +
+        campana.Id +
+        '|' +
+        cultivo.Id +
+        '|' +
+        tecnologia
+    );
+
+    Hectareas_Tecnologicas__c ht = new Hectareas_Tecnologicas__c(
+      Productor__c = productor.Id,
+      Cultivo__c = cultivo.Id,
+      Variedad__c = variedad.Id,
+      Origen__c = 'Compra HT',
+      Cantidad__c = 5,
+      Signo__c = 1,
+      Valor_Conversion__c = 4000,
+      Biotecnologia__c = 'Convencional',
+      Etapa__c = 'Cobrada',
+      No_asignar_campa_a__c = true,
+      Fecha_Inicio__c = Date.today().addDays(-5),
+      Fecha_Fin__c = Date.today().addDays(300)
+    );
+    insert ht;
+    Tonelada__c tn = new Tonelada__c(
+      Productor__c = productor.Id,
+      Cultivo__c = cultivo.Id,
+      Variedad__c = variedad.Id,
+      Biotecnologia__c = 'Convencional',
+      Origen__c = 'Compra HT',
+      Cantidad__c = 20,
+      Signo__c = 1,
+      Etapa__c = 'Cobrada',
+      No_asignar_campa_a__c = true,
+      HT_Id__c = ht.Id,
+      Fecha_Inicio__c = Date.today().addDays(-1),
+      Fecha_Fin__c = Date.today().addDays(300)
+    );
+    insert tn;
+    ht.TN_Id__c = tn.Id;
+    update ht;
+
+    Cuenta_Granaria__c cgOk = [
+      SELECT Campania__c, Productor__c, Cultivo__c
+      FROM Cuenta_Granaria__c
+      WHERE Productor__c = :productor.Id
+      LIMIT 1
+    ];
+    System.assertEquals(
+      campana.Id,
+      cgOk.Campania__c,
+      'B-01: la CG de prueba conserva la campaña'
+    );
+    System.assertEquals(
+      campana.Id,
+      CuentaGranariaVarietalCreditoService.campanaVarietalExistente(
+        productor.Id,
+        cultivo.Id
+      ),
+      'B-01: encuentra la campaña de la CG existente'
+    );
+
+    Test.startTest();
+    CuentaGranariaVarietalCreditoService.completarCampaniaYAcreditar(
+      new Set<Id>{ ht.Id }
+    );
+    Test.stopTest();
+
+    Hectareas_Tecnologicas__c htOk = [
+      SELECT
+        Campania__c,
+        Detalle_Variedad_CG__c,
+        Etapa__c,
+        No_asignar_campa_a__c
+      FROM Hectareas_Tecnologicas__c
+      WHERE Id = :ht.Id
+    ];
+    Tonelada__c tnOk = [
+      SELECT Campania__c, Cuenta_Granaria__c
+      FROM Tonelada__c
+      WHERE Id = :tn.Id
+    ];
+    Detalle_Variedad_CG__c detalle = [
+      SELECT Credito_Variedad__c
+      FROM Detalle_Variedad_CG__c
+      WHERE Variedad__c = :variedad.Id
+      LIMIT 1
+    ];
+    System.assertEquals(
+      campana.Id,
+      htOk.Campania__c,
+      'B-01: la HT toma la campaña de la CG (etapa=' +
+        htOk.Etapa__c +
+        ', noAsignar=' +
+        htOk.No_asignar_campa_a__c +
+        ')'
+    );
+    System.assertEquals(campana.Id, tnOk.Campania__c, 'B-01: la TN toma la misma campaña');
+    System.assertNotEquals(null, tnOk.Cuenta_Granaria__c, 'B-01: la TN queda en la CG');
+    System.assertNotEquals(null, htOk.Detalle_Variedad_CG__c, 'B-01: la HT queda en el Detalle');
+    System.assertEquals(20, detalle.Credito_Variedad__c, 'B-01: TIPA acredita 20 t');
+  }
 }

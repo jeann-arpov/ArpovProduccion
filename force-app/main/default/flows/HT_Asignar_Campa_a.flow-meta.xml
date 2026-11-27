@@ -8,7 +8,7 @@
         <actionName>ObtenerCampana</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>Vincular_Campania</targetReference>
+            <targetReference>Solo_si_hay_campana</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -56,13 +56,42 @@
             <name>mensajeError</name>
         </outputParameters>
     </actionCalls>
+    <decisions>
+        <name>Solo_si_hay_campana</name>
+        <label>Solo si hay campaña</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Sin campaña</defaultConnectorLabel>
+        <rules>
+            <name>Campana_encontrada</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>campanaId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>campanaId</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Vincular_Campania</targetReference>
+            </connector>
+            <label>Campaña encontrada</label>
+        </rules>
+    </decisions>
     <apiVersion>64.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
     <formulas>
         <name>fechaCreacion</name>
         <dataType>String</dataType>
-        <expression>IF(ISBLANK({!$Record.Linea_de_Compra_HT__r.CreatedDate}), '', TEXT(DATEVALUE({!$Record.Linea_de_Compra_HT__r.CreatedDate})))</expression>
+        <expression>IF(ISBLANK({!$Record.Linea_de_Compra_HT__c}), TEXT(TODAY()), TEXT(DATEVALUE({!$Record.Linea_de_Compra_HT__r.CreatedDate})))</expression>
     </formulas>
     <interviewLabel>HT- Asignar Campaña {!$Flow.CurrentDateTime}</interviewLabel>
     <label>HT- Asignar Campaña</label>

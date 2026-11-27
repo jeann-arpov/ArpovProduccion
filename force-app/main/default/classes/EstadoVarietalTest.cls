@@ -22,6 +22,10 @@ private class EstadoVarietalTest {
         System.assertEquals(-32, EstadoVarietal.saldoMostrado(0, 31.5), 'F5: 0 − 32, no redondear −31,5 a −31');
         System.assertEquals(32, EstadoVarietal.toneladasMostradasARegularizar(0, 31.5));
         System.assertEquals(0, EstadoVarietal.toneladasMostradasARegularizar(10, 10.4));
+        System.assertEquals(true, EstadoVarietal.acreditaCompra('Compra HT', 'Cobrada'));
+        System.assertEquals(false, EstadoVarietal.acreditaCompra('Compra HT', 'Cancelada por NC'));
+        System.assertEquals(false, EstadoVarietal.acreditaCompra('Compra HT', 'Aplicada'));
+        System.assertEquals(true, EstadoVarietal.acreditaCompra('Compra SF', 'Aplicada'));
         System.assertEquals(true, EstadoVarietal.esEntrega('Escáner varietal'));
         System.assertEquals(true, EstadoVarietal.esEntrega('BolsaTech'));
         System.assertEquals(false, EstadoVarietal.esEntrega('Compra SF'));

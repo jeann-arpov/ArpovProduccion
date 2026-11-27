@@ -412,6 +412,64 @@ private class CuentaGranariaVarietalTest {
     }
 
     @isTest
+    static void cp01VistaIgnoraCanceladaYNcAplicada() {
+        Account productor = [SELECT Id FROM Account WHERE Name = 'productor' ORDER BY CreatedDate DESC LIMIT 1];
+        CrearCompraController.acc = productor;
+        Campana_Agricola__c campana = [SELECT Id FROM Campana_Agricola__c WHERE Z9_Clave_Unica__c = 'CGV-TRIGO-2025' LIMIT 1];
+        Cultivo__c cultivo = [SELECT Id FROM Cultivo__c WHERE Name = 'TRIGO' ORDER BY CreatedDate DESC LIMIT 1];
+        Cuenta_Granaria__c cg = [SELECT Id FROM Cuenta_Granaria__c WHERE Campania__c = :campana.Id LIMIT 1];
+        Account alfa = [SELECT Id FROM Account WHERE Nombre_Obtentor__c = 'Semillero Alfa CGV' LIMIT 1];
+        Variedad__c tipa = variedad('TIPA CP01 Vista', alfa.Id);
+        Variedad__c radalCp = variedad('RADAL CP01 Vista', alfa.Id);
+        insert new List<Variedad__c>{ tipa, radalCp };
+        CuentaGranaria.usarCreditoVarietalGuardado = false;
+
+        Tonelada__c cancelada1 = tonelada(productor, cultivo, campana, cg, tipa, 'Compra HT', 20, 1);
+        cancelada1.Etapa__c = 'Cancelada por NC';
+        Tonelada__c cancelada2 = tonelada(productor, cultivo, campana, cg, tipa, 'Compra HT', 20, 1);
+        cancelada2.Etapa__c = 'Cancelada por NC';
+        Tonelada__c cancelada3 = tonelada(productor, cultivo, campana, cg, tipa, 'Compra HT', 20, 1);
+        cancelada3.Etapa__c = 'Cancelada por NC';
+        Tonelada__c nc1 = tonelada(productor, cultivo, campana, cg, tipa, 'Compra HT', 20, -1);
+        nc1.Etapa__c = 'Aplicada';
+        Tonelada__c nc2 = tonelada(productor, cultivo, campana, cg, tipa, 'Compra HT', 20, -1);
+        nc2.Etapa__c = 'Aplicada';
+        insert new List<Tonelada__c>{
+            cancelada1,
+            cancelada2,
+            cancelada3,
+            nc1,
+            nc2,
+            tonelada(productor, cultivo, campana, cg, radalCp, 'Compra HT', 20, 1)
+        };
+
+        Test.startTest();
+        CuentaGranaria.ResumenVarietal resumen = CuentaGranaria.getResumenVarietal(
+            campana.Id,
+            'RR1/RR2 - BT/Convencional'
+        );
+        CuentaGranaria.DetalleVariedad detalle = CuentaGranaria.getDetalleVarietal(
+            campana.Id,
+            tipa.Id,
+            'RR1/RR2 - BT/Convencional'
+        );
+        Test.stopTest();
+
+        Map<String, CuentaGranaria.VariedadPortal> porNombre = new Map<String, CuentaGranaria.VariedadPortal>();
+        for (CuentaGranaria.MarcaPortal marca : resumen.marcas) {
+            for (CuentaGranaria.VariedadPortal variedad : marca.variedades) {
+                porNombre.put(variedad.nombre, variedad);
+            }
+        }
+        System.assertEquals(0, porNombre.get('TIPA CP01 Vista').credito, 'CP-01: Cancelada por NC y NC Aplicada no acreditan');
+        System.assertEquals(0, porNombre.get('TIPA CP01 Vista').debito);
+        System.assertEquals(0, porNombre.get('TIPA CP01 Vista').saldo);
+        System.assertEquals(0, detalle.credito);
+        System.assertEquals(0, detalle.debito);
+        System.assertEquals(20, porNombre.get('RADAL CP01 Vista').credito, 'La compra Cobrada sigue acreditando');
+    }
+
+    @isTest
     static void rechazaSinCampana() {
         Boolean lanzo = false;
         try {
@@ -451,7 +509,7 @@ private class CuentaGranariaVarietalTest {
             Signo__c = signo,
             Fecha_Inicio__c = Date.today().addDays(-10),
             Fecha_Fin__c = Date.today().addYears(1),
-            Etapa__c = 'Aplicada',
+            Etapa__c = (origen == 'Compra HT' || origen == 'Compra SF') ? 'Cobrada' : 'Aplicada',
             Origen__c = origen,
             Variedad__c = variedad.Id,
             Cuenta_Granaria__c = cg.Id,

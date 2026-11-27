@@ -9,7 +9,7 @@
  * (Saldo_Variedad__c = crédito + débito) y el Saldo_Cuenta__c de la CG
  * es la suma de Saldo_Variedad__c de sus sub-cuentas.
  */
-public with sharing class CuentaGranariaVarietalCreditoService {
+public without sharing class CuentaGranariaVarietalCreditoService {
   /**
    * DTO que representa un movimiento de crédito para la lista del front
    * (fecha, origen, HT, tipo y toneladas).
@@ -48,6 +48,9 @@ public with sharing class CuentaGranariaVarietalCreditoService {
   };
 
   private static Boolean procesandoCreditos = false;
+  private static Boolean completandoCampania = false;
+  private static Boolean jobCampaniaEncolado = false;
+  private static Set<Id> htsPendientesCampania = new Set<Id>();
 
   /**
    * Orquesta el recálculo de crédito y saldo por variedad para una
@@ -265,6 +268,193 @@ public with sharing class CuentaGranariaVarietalCreditoService {
   }
 
   /**
+   * B-01: si el alta de la HT deja Campaña vacía (compra portal Futura),
+   * usa la campaña de la CG varietal que ya tiene el productor.
+   */
+  public static void programarCompletarCampania(Set<Id> htIds) {
+    if (htIds == null || htIds.isEmpty() || completandoCampania) {
+      return;
+    }
+    htsPendientesCampania.addAll(htIds);
+    if (jobCampaniaEncolado) {
+      return;
+    }
+    jobCampaniaEncolado = true;
+    System.enqueueJob(new CompletarCampaniaQueueable(htsPendientesCampania));
+  }
+
+  public class CompletarCampaniaQueueable implements Queueable {
+    private Set<Id> htIds;
+    public CompletarCampaniaQueueable(Set<Id> htIds) {
+      this.htIds = htIds;
+    }
+    public void execute(QueueableContext ctx) {
+      completarCampaniaYAcreditar(htIds);
+    }
+  }
+
+  public static void completarCampaniaYAcreditar(Set<Id> htIds) {
+    if (htIds == null || htIds.isEmpty() || completandoCampania) {
+      return;
+    }
+    completandoCampania = true;
+    try {
+      List<Hectareas_Tecnologicas__c> hts = [
+        SELECT
+          Id,
+          Productor__c,
+          Cultivo__c,
+          Campania__c,
+          Origen__c,
+          Etapa__c,
+          TN_Id__c
+        FROM Hectareas_Tecnologicas__c
+        WHERE Id IN :htIds
+      ];
+      Set<String> clavesRecalc = new Set<String>();
+      Map<Id, Id> campanaPorHt = new Map<Id, Id>();
+      Map<String, Id> campanaPorClave = new Map<String, Id>();
+      List<Hectareas_Tecnologicas__c> htsAActualizar = new List<Hectareas_Tecnologicas__c>();
+      List<Tonelada__c> tnsAActualizar = new List<Tonelada__c>();
+      Set<Id> tnIds = new Set<Id>();
+      for (Hectareas_Tecnologicas__c ht : hts) {
+        Id campanaId = ht.Campania__c;
+        if (campanaId == null) {
+          String claveCampana =
+            String.valueOf(ht.Productor__c) +
+            '|' +
+            String.valueOf(ht.Cultivo__c);
+          if (!campanaPorClave.containsKey(claveCampana)) {
+            campanaPorClave.put(
+              claveCampana,
+              campanaVarietalExistente(ht.Productor__c, ht.Cultivo__c)
+            );
+          }
+          campanaId = campanaPorClave.get(claveCampana);
+        }
+        if (campanaId == null) {
+          continue;
+        }
+        campanaPorHt.put(ht.Id, campanaId);
+        if (ht.Campania__c != campanaId) {
+          htsAActualizar.add(
+            new Hectareas_Tecnologicas__c(
+              Id = ht.Id,
+              Campania__c = campanaId,
+              No_asignar_campa_a__c = true
+            )
+          );
+        }
+        if (ht.TN_Id__c != null) {
+          tnsAActualizar.add(
+            new Tonelada__c(
+              Id = ht.TN_Id__c,
+              Campania__c = campanaId,
+              No_asignar_campa_a__c = true
+            )
+          );
+          tnIds.add(ht.TN_Id__c);
+        }
+        clavesRecalc.add(
+          String.valueOf(ht.Productor__c) +
+            '|' +
+            String.valueOf(ht.Cultivo__c) +
+            '|' +
+            String.valueOf(campanaId)
+        );
+      }
+      if (!campanaPorHt.isEmpty()) {
+        for (Tonelada__c tn : [
+          SELECT Id, HT_Id__c
+          FROM Tonelada__c
+          WHERE HT_Id__c IN :campanaPorHt.keySet()
+        ]) {
+          if (tnIds.contains(tn.Id)) {
+            continue;
+          }
+          Id campanaId = campanaPorHt.get(tn.HT_Id__c);
+          if (campanaId == null) {
+            continue;
+          }
+          tnsAActualizar.add(
+            new Tonelada__c(
+              Id = tn.Id,
+              Campania__c = campanaId,
+              No_asignar_campa_a__c = true
+            )
+          );
+          tnIds.add(tn.Id);
+        }
+      }
+      if (!htsAActualizar.isEmpty()) {
+        update htsAActualizar;
+      }
+      if (!tnsAActualizar.isEmpty()) {
+        update tnsAActualizar;
+      }
+      if (!tnIds.isEmpty()) {
+        acreditarToneladasCredito(
+          [
+            SELECT
+              Id,
+              Origen__c,
+              Etapa__c,
+              Cultivo__c,
+              Productor__c,
+              Campania__c
+            FROM Tonelada__c
+            WHERE Id IN :tnIds
+          ]
+        );
+      }
+      for (String clave : clavesRecalc) {
+        List<String> partes = clave.split('\\|');
+        recalcularCreditos(partes[0], partes[1], partes[2]);
+      }
+    } finally {
+      completandoCampania = false;
+    }
+  }
+
+  @TestVisible
+  private static Id campanaVarietalExistente(Id productorId, Id cultivoId) {
+    if (productorId == null || cultivoId == null) {
+      return null;
+    }
+    String tecnologia = obtenerTecnologiaVarietal();
+    Id fallbackTec;
+    Id fallback;
+    for (Cuenta_Granaria__c cg : [
+      SELECT Campania__c, Campania__r.Estado__c, Tecnologia__c
+      FROM Cuenta_Granaria__c
+      WHERE
+        Productor__c = :productorId
+        AND Cultivo__c = :cultivoId
+        AND Campania__c != NULL
+      ORDER BY Campania__r.Fecha_Inicio_SE__c DESC NULLS LAST
+    ]) {
+      Boolean mismaTec =
+        tecnologia != null &&
+        cg.Tecnologia__c == tecnologia;
+      if (fallback == null) {
+        fallback = cg.Campania__c;
+      }
+      if (mismaTec && fallbackTec == null) {
+        fallbackTec = cg.Campania__c;
+      }
+      if (cg.Campania__r.Estado__c == 'Activa') {
+        if (mismaTec) {
+          return cg.Campania__c;
+        }
+        if (fallback == null) {
+          fallback = cg.Campania__c;
+        }
+      }
+    }
+    return fallbackTec != null ? fallbackTec : fallback;
+  }
+
+  /**
    * Vincula a su Cuenta Granaria las toneladas de crédito varietal
    * (Compra HT / Compra SF) que están en una etapa de crédito varietal.
    * No modifica la etapa: solo verifica que participe del crédito.
@@ -304,11 +494,7 @@ public with sharing class CuentaGranariaVarietalCreditoService {
       if (tn.Etapa__c == null || !ETAPAS_VARIETALES.contains(tn.Etapa__c)) {
         continue;
       }
-      if (
-        tn.Cultivo__c == null ||
-        tn.Productor__c == null ||
-        tn.Campania__c == null
-      ) {
+      if (tn.Cultivo__c == null || tn.Productor__c == null) {
         continue;
       }
       String nombreCultivo = cultivoNombrePorId.get(tn.Cultivo__c);
@@ -319,13 +505,28 @@ public with sharing class CuentaGranariaVarietalCreditoService {
         continue;
       }
 
+      Id campanaId = tn.Campania__c;
+      if (campanaId == null) {
+        campanaId = campanaVarietalExistente(tn.Productor__c, tn.Cultivo__c);
+      }
+      if (campanaId == null) {
+        continue;
+      }
+
       Id cgId = obtenerCuentaGranariaId(
         tn.Productor__c,
         tn.Cultivo__c,
-        tn.Campania__c
+        campanaId
       );
       if (cgId != null) {
-        aActualizar.add(new Tonelada__c(Id = tn.Id, Cuenta_Granaria__c = cgId));
+        Tonelada__c actualizacion = new Tonelada__c(
+          Id = tn.Id,
+          Cuenta_Granaria__c = cgId
+        );
+        if (tn.Campania__c == null) {
+          actualizacion.Campania__c = campanaId;
+        }
+        aActualizar.add(actualizacion);
       }
     }
 

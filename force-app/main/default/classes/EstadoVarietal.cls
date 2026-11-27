@@ -10,6 +10,15 @@ public inherited sharing class EstadoVarietal {
 
     public static final Set<String> ORIGENES_ENTREGA = new Set<String>{ 'BolsaTech', 'Escáner varietal' };
 
+    // SE-392 CP-01: el crédito de Compra HT/SF cuenta solo Cobrada (y equivalentes).
+    public static final Set<String> ORIGENES_COMPRA = new Set<String>{ 'Compra HT', 'Compra SF' };
+    public static final Set<String> ETAPAS_CREDITO_COMPRA = new Set<String>{
+        'Cobrada',
+        'Acreditada',
+        'Reacreditada',
+        'Recibida'
+    };
+
     private static Decimal umbralCache;
 
     public static String calcular(Decimal saldo, Decimal entregas) {
@@ -61,6 +70,14 @@ public inherited sharing class EstadoVarietal {
 
     public static Boolean esEntrega(String origen) {
         return ORIGENES_ENTREGA.contains(origen);
+    }
+
+    // Compra HT: el crédito de pantalla solo cuenta Cobrada (SE-392 CP-01).
+    public static Boolean acreditaCompra(String origen, String etapa) {
+        if (origen != 'Compra HT') {
+            return true;
+        }
+        return etapa != null && ETAPAS_CREDITO_COMPRA.contains(etapa);
     }
 
     // Mismo umbral que usa el expediente de negativos (Configuracion_Varietal__mdt.Umbral_Apertura_Expediente__c).
