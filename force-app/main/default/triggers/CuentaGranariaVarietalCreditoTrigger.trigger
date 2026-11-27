@@ -41,13 +41,27 @@ trigger CuentaGranariaVarietalCreditoTrigger on Hectareas_Tecnologicas__c(
   }
 
   Set<String> claves = new Set<String>();
+  Set<Id> htsSinCampania = new Set<Id>();
   for (Hectareas_Tecnologicas__c ht : registros) {
     if (
-      ht.Productor__c != null &&
-      ht.Cultivo__c != null &&
-      ht.Campania__c != null &&
-      cultivosVarietalesIds.contains(ht.Cultivo__c)
+      !cultivosVarietalesIds.contains(ht.Cultivo__c) ||
+      ht.Productor__c == null ||
+      ht.Cultivo__c == null
     ) {
+      continue;
+    }
+    if (Trigger.isInsert || Trigger.isUpdate || Trigger.isUndelete) {
+      if (
+        ht.Campania__c == null &&
+        (ht.Origen__c == 'Compra HT' ||
+        ht.Origen__c == 'Compra SF') &&
+        EstadoVarietal.acreditaCompra(ht.Origen__c, ht.Etapa__c)
+      ) {
+        htsSinCampania.add(ht.Id);
+        continue;
+      }
+    }
+    if (ht.Campania__c != null) {
       claves.add(
         String.valueOf(ht.Productor__c) +
           '|' +
@@ -56,6 +70,11 @@ trigger CuentaGranariaVarietalCreditoTrigger on Hectareas_Tecnologicas__c(
           String.valueOf(ht.Campania__c)
       );
     }
+  }
+  if (!htsSinCampania.isEmpty()) {
+    CuentaGranariaVarietalCreditoService.programarCompletarCampania(
+      htsSinCampania
+    );
   }
 
   for (String clave : claves) {
