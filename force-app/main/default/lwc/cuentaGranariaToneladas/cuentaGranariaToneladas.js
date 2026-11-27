@@ -67,6 +67,7 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
         }));
         this.variedades = (data.variedades || []).map((row, index) => {
             const cifras = this.cifrasMostradas(row.credito, row.debito);
+            const estado = row.estado;
             return {
                 ...row,
                 key: row.variedadId || `sin-variedad-${index}`,
@@ -79,7 +80,9 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
                 debitoFormatted: this.formatearConSigno(cifras.entregado),
                 saldoFormatted: this.formatearConSigno(cifras.saldo),
                 saldoClass: 'cgv-strong ' + (cifras.saldo < 0 ? 'cgv-neg' : 'cgv-pos'),
-                estadoClass: this.estadoClass(row.estado),
+                estado,
+                estadoVisible: this.etiquetaEstado(estado),
+                estadoClass: this.estadoClass(estado),
                 puedeVer: !!row.variedadId
             };
         });
@@ -90,6 +93,13 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
         this.saldo = data.saldo || 0;
         this.movimientos = data.movimientos || 0;
         this.cuentaInfo = data.cuenta || {};
+    }
+
+    etiquetaEstado(estado) {
+        if (estado === 'Debe regularizar') return 'Entregaste de más';
+        if (estado === 'En regla') return 'Podés seguir entregando';
+        if (estado === 'Sin entregas') return 'Listo para entregar';
+        return estado || '';
     }
 
     estadoClass(estado) {
@@ -104,7 +114,7 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
         return {
             credito: this.formatearConSigno(credito),
             debito: this.formatearConSigno(debito),
-            saldo: this.formatearConSigno(credito - debito)
+            saldo: this.formatearConSigno(credito + debito)
         };
     }
 
@@ -145,7 +155,7 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
             });
             const credito = items.reduce((total, row) => total + (Number(row.creditoMostrado) || 0), 0);
             const debito = items.reduce((total, row) => total + (Number(row.debitoMostrado) || 0), 0);
-            const saldo = credito - debito;
+            const saldo = credito + debito;
             filas.push({
                 key: 's-' + slug,
                 esGrupo: false,
@@ -250,20 +260,44 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
         return partes.join(' · ');
     }
 
+    get creditoCabecera() {
+        if (this.muestraVariedades && this.variedades.length) {
+            return this.variedades.reduce(
+                (total, row) => total + (Number(row.creditoMostrado) || 0),
+                0
+            );
+        }
+        return Math.round(Number(this.credito) || 0);
+    }
+
+    get debitoCabecera() {
+        if (this.muestraVariedades && this.variedades.length) {
+            return this.variedades.reduce(
+                (total, row) => total + (Number(row.debitoMostrado) || 0),
+                0
+            );
+        }
+        return Math.round(Number(this.debito) || 0);
+    }
+
+    get saldoCabecera() {
+        return this.creditoCabecera + this.debitoCabecera;
+    }
+
     get creditoFormatted() {
-        return this.formatearConSigno(this.credito);
+        return this.formatearConSigno(this.creditoCabecera);
     }
 
     get debitoFormatted() {
-        return this.formatearConSigno(this.debito);
+        return this.formatearConSigno(this.debitoCabecera);
     }
 
     get saldoFormatted() {
-        return this.formatearConSigno(this.saldo);
+        return this.formatearConSigno(this.saldoCabecera);
     }
 
     get saldoClass() {
-        return this.saldo >= 0 ? 'cgv-metric-val cgv-pos' : 'cgv-metric-val cgv-neg';
+        return this.saldoCabecera >= 0 ? 'cgv-metric-val cgv-pos' : 'cgv-metric-val cgv-neg';
     }
 
     get movimientosFormatted() {
@@ -332,7 +366,7 @@ export default class CuentaGranariaToneladas extends NavigationMixin(LightningEl
     cifrasMostradas(credito, debito) {
         const acreditado = Math.round(Number(credito) || 0);
         const entregado = Math.round(Number(debito) || 0);
-        return { acreditado, entregado, saldo: acreditado - entregado };
+        return { acreditado, entregado, saldo: acreditado + entregado };
     }
 
     formatearNumero(valor) {

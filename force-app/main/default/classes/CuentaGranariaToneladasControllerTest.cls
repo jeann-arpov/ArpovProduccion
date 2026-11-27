@@ -756,7 +756,7 @@ private class CuentaGranariaToneladasControllerTest {
       Signo__c = signo,
       Fecha_Inicio__c = Date.today().addDays(-3),
       Fecha_Fin__c = Date.today().addYears(1),
-      Etapa__c = 'Aplicada',
+      Etapa__c = (origen == 'Compra HT' || origen == 'Compra SF') ? 'Cobrada' : 'Aplicada',
       Origen__c = origen,
       Variedad__c = variedadId,
       Cuenta_Granaria__c = cgId

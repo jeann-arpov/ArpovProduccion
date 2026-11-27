@@ -108,7 +108,7 @@
                                     <td if:true={v.esCifras} class="cgv-num cgv-pos">{v.creditoFormatted}</td>
                                     <td if:true={v.esCifras} class="cgv-num cgv-neg">{v.debitoFormatted}</td>
                                     <td if:true={v.esCifras} class="cgv-num"><span class={v.saldoClass}>{v.saldoFormatted}</span></td>
-                                    <td if:true={v.esVariedad}><span class={v.estadoClass}>{v.estado}</span></td>
+                                    <td if:true={v.esVariedad}><span class={v.estadoClass}>{v.estadoVisible}</span></td>
                                     <td if:true={v.esSubtotal}></td>
                                     <td if:true={v.esVariedad} class="cgv-actions">
                                         <button if:true={v.puedeVer} type="button" class="cgv-link" data-id={v.variedadId} onclick={verVariedad}>Ver variedad ›</button>

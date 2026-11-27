@@ -594,7 +594,7 @@ public with sharing class CuentaGranariaToneladasController {
       ? ''
       : ' AND Variedad__c = :variedadId';
     String base =
-      'SELECT Origen__c origen, COUNT(Id) movimientos, SUM(Cantidad_con_Signo__c) toneladas' +
+      'SELECT Origen__c origen, Etapa__c etapa, COUNT(Id) movimientos, SUM(Cantidad_con_Signo__c) toneladas' +
       ' FROM Tonelada__c WHERE ' +
       String.join(filtrosBase(), ' AND ') +
       filtroVariedad;
@@ -602,7 +602,7 @@ public with sharing class CuentaGranariaToneladasController {
     List<OrigenAcum> creditos = ordenarOrigenes(
       acumular(
         Database.query(
-          base + ' AND Cantidad_con_Signo__c >= 0 GROUP BY Origen__c'
+          base + ' AND Cantidad_con_Signo__c >= 0 GROUP BY Origen__c, Etapa__c'
         ),
         TIPO_CREDITO
       )
@@ -610,7 +610,7 @@ public with sharing class CuentaGranariaToneladasController {
     List<OrigenAcum> debitos = ordenarOrigenes(
       acumular(
         Database.query(
-          base + ' AND Cantidad_con_Signo__c < 0 GROUP BY Origen__c'
+          base + ' AND Cantidad_con_Signo__c < 0 GROUP BY Origen__c, Etapa__c'
         ),
         TIPO_DEBITO
       )
@@ -674,12 +674,18 @@ public with sharing class CuentaGranariaToneladasController {
       if (String.isBlank(origen)) {
         origen = 'Sin origen';
       }
-      OrigenAcum acum = new OrigenAcum(origen, tipo);
-      acum.toneladas = ar.get('toneladas') == null
-        ? 0
-        : (Decimal) ar.get('toneladas');
-      acum.movimientos = (Integer) ar.get('movimientos');
-      porOrigen.put(origen, acum);
+      if (!EstadoVarietal.acreditaCompra(origen, (String) ar.get('etapa'))) {
+        continue;
+      }
+      Decimal toneladas = ar.get('toneladas') == null ? 0 : (Decimal) ar.get('toneladas');
+      Integer movimientos = (Integer) ar.get('movimientos');
+      OrigenAcum acum = porOrigen.get(origen);
+      if (acum == null) {
+        acum = new OrigenAcum(origen, tipo);
+        porOrigen.put(origen, acum);
+      }
+      acum.toneladas += toneladas;
+      acum.movimientos += movimientos == null ? 0 : movimientos;
     }
     return porOrigen;
   }
@@ -707,13 +713,13 @@ public with sharing class CuentaGranariaToneladasController {
     Map<Id, VariedadAcum> porVariedad = new Map<Id, VariedadAcum>();
     VariedadAcum sinVariedad = null;
     String base =
-      'SELECT Variedad__c variedadId, SUM(Cantidad_con_Signo__c) toneladas' +
+      'SELECT Variedad__c variedadId, Origen__c origen, Etapa__c etapa, SUM(Cantidad_con_Signo__c) toneladas' +
       ' FROM Tonelada__c WHERE ' +
       String.join(filtrosBase(), ' AND ');
 
     for (
       AggregateResult ar : Database.query(
-        base + ' AND Cantidad_con_Signo__c >= 0 GROUP BY Variedad__c'
+        base + ' AND Cantidad_con_Signo__c >= 0 GROUP BY Variedad__c, Origen__c, Etapa__c'
       )
     ) {
       VariedadAcum acum = variedadAcum(porVariedad, (Id) ar.get('variedadId'));
@@ -723,13 +729,15 @@ public with sharing class CuentaGranariaToneladasController {
           : sinVariedad;
         acum = sinVariedad;
       }
-      acum.credito += ar.get('toneladas') == null
-        ? 0
-        : (Decimal) ar.get('toneladas');
+      if (EstadoVarietal.acreditaCompra((String) ar.get('origen'), (String) ar.get('etapa'))) {
+        acum.credito += ar.get('toneladas') == null
+          ? 0
+          : (Decimal) ar.get('toneladas');
+      }
     }
     for (
       AggregateResult ar : Database.query(
-        base + ' AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c'
+        base + ' AND Cantidad_con_Signo__c < 0 GROUP BY Variedad__c, Origen__c, Etapa__c'
       )
     ) {
       VariedadAcum acum = variedadAcum(porVariedad, (Id) ar.get('variedadId'));
@@ -739,14 +747,16 @@ public with sharing class CuentaGranariaToneladasController {
           : sinVariedad;
         acum = sinVariedad;
       }
-      acum.debito += ar.get('toneladas') == null
-        ? 0
-        : (Decimal) ar.get('toneladas');
+      if (EstadoVarietal.acreditaCompra((String) ar.get('origen'), (String) ar.get('etapa'))) {
+        acum.debito += ar.get('toneladas') == null
+          ? 0
+          : (Decimal) ar.get('toneladas');
+      }
     }
     Set<String> origenesEntrega = EstadoVarietal.ORIGENES_ENTREGA;
     for (
       AggregateResult ar : Database.query(
-        base + ' AND Origen__c IN :origenesEntrega GROUP BY Variedad__c'
+        base + ' AND Origen__c IN :origenesEntrega GROUP BY Variedad__c, Origen__c, Etapa__c'
       )
     ) {
       VariedadAcum acum = variedadAcum(porVariedad, (Id) ar.get('variedadId'));
@@ -1223,7 +1233,7 @@ public with sharing class CuentaGranariaToneladasController {
     }
 
     String estado() {
-      return EstadoVarietal.calcular(saldo(), entregas);
+      return EstadoVarietal.calcularVista(saldo(), entregas);
     }
 
     Integer grupo() {
